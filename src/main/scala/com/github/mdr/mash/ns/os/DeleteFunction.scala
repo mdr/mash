@@ -14,23 +14,20 @@ import com.github.mdr.mash.ns.core.UnitClass
 object DeleteFunction extends MashFunction("os.delete") {
 
   object Params {
-    val Path = Parameter(
-      name = "path",
-      summary = "Path to delete")
     val Paths = Parameter(
       name = "paths",
-      summary = "Additional paths to delete",
+      summary = "Paths to delete",
       isVariadic = true)
   }
   import Params._
 
-  val params = ParameterModel(Seq(Params.Path, Paths))
+  val params = ParameterModel(Seq(Paths))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val paths1 = FunctionHelpers.interpretAsPaths(boundParams(Params.Path))
-    val paths2 = boundParams(Paths).asInstanceOf[Seq[_]].flatMap(FunctionHelpers.interpretAsPaths)
-    val paths = paths1 ++ paths2
+    val paths = boundParams(Paths).asInstanceOf[Seq[_]].flatMap(FunctionHelpers.interpretAsPaths)
+    if (paths.isEmpty)
+      throw new EvaluatorException("Must provide at least one path to delete")
     for (path ← paths)
       if (Files.isDirectory(path))
         FileUtils.deleteDirectory(path.toFile)
@@ -43,6 +40,6 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Delete path(s)"
+  override def summary = "Delete the given paths"
 
 }

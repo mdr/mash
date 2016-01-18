@@ -30,14 +30,11 @@ object CdFunction extends MashFunction("os.cd") {
   private val workingDirectoryStack = Singletons.workingDirectoryStack
 
   object Params {
-
     val Directory = Parameter(
       name = "directory",
       summary = "Directory to change into. If omitted, defaults to the user's home directory.",
-      defaultValueGeneratorOpt = Some(() ⇒ MashString(environmentInteractions.home.toString, Some(PathClass))))
-
+      defaultValueGeneratorOpt = Some(() ⇒ home))
   }
-
   import Params._
 
   val params = ParameterModel(Seq(Directory))
@@ -47,6 +44,8 @@ object CdFunction extends MashFunction("os.cd") {
     val path = FunctionHelpers.interpretAsPath(boundParams(Directory))
     changeDirectory(path)
   }
+
+  private def home = MashString(environmentInteractions.home.toString, Some(PathClass))
 
   def changeDirectory(path: Path) {
     workingDirectoryStack.push(fileSystem.pwd)

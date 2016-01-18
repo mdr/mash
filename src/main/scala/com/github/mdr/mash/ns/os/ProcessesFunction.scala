@@ -9,7 +9,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 
-object PsFunction extends MashFunction("os.ps") {
+object ProcessesFunction extends MashFunction("os.processes") {
 
   private val processInteractions = LinuxProcessInteractions
 

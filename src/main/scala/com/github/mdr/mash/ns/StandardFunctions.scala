@@ -35,7 +35,7 @@ object StandardFunctions {
     MkdirFunction,
     MvFunction,
     OldDirsFunction,
-    PsFunction,
+    ProcessesFunction,
     PwdFunction,
     ReadLinesFunction,
     DeleteFunction,
@@ -77,7 +77,7 @@ object StandardFunctions {
     WhereNotFunction)
 
   val Aliases = Map(
-    "processes" -> PsFunction,
+    "ps" -> ProcessesFunction,
     "cp" -> CopyFunction,
     "drop" -> SkipFunction,
     "dropWhile" -> SkipWhileFunction,
