@@ -1,0 +1,2 @@
+# Command to run site locally:
+jekyll serve --baseurl ''
