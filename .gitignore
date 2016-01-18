@@ -12,3 +12,6 @@ bin/
 hs*.log
 lib/
 .tmpBin/
+node_modules/
+_site/
+
