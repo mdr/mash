@@ -17,11 +17,11 @@ Mash is an object shell for Linux.
 
 Sequences of objects are displayed in tabular format:
 
-![Screenshot]({{ site.url }}/assets/pic1.png){: .center-image }
+![Screenshot]({{ site.baseurl }}/assets/pic1.png){: .center-image }
 
 Mash supports context sensitive tab completions:
 
-![Context-sensitive tab completions]({{ site.url }}/assets/pic2.png){: .center-image }
+![Context-sensitive tab completions]({{ site.baseurl }}/assets/pic2.png){: .center-image }
 
 ## Caveat
 
