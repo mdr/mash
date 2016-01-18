@@ -18,7 +18,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   import Fields._
 
-  override val fields = Seq(Hash, CommitTime)
+  override val fields = Seq(Hash, CommitTime, Author, Summary)
 
   def summary = "A git commit object"
 

@@ -52,7 +52,7 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
   lazy val memberNames: Seq[String] = fields.map(_.name) ++ methods.map(_.name)
 
-  override def toString = nameOpt.getOrElse("AnonymousClass")
+  override def toString = fullyQualifiedName
 
   def name = nameOpt.getOrElse("AnonymousClass")
 

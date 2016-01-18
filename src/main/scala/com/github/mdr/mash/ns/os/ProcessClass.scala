@@ -19,9 +19,9 @@ object ProcessClass extends MashClass("os.Process") {
 
     val Pid = Field("pid", "Id of process", Type.Tagged(NumberClass, PidClass))
     val ParentPid = Field("parentPid", "Id of parent process", Type.Tagged(NumberClass, PidClass))
-    val Owner = Field("owner", "Owner", Type.Tagged(StringClass, UsernameClass))
     val Name = Field("name", "Name", Type.Instance(StringClass))
     val Command = Field("command", "Command", Type.Instance(StringClass))
+    val Owner = Field("owner", "Owner", Type.Tagged(StringClass, UsernameClass))
     val ResidentSize = Field("residentSize", "Resident set size (RSS) in bytes", Type.Tagged(NumberClass, BytesClass))
     val VirtualSize = Field("virtualSize", "Virtual memory size (VSZ) in bytes", Type.Tagged(NumberClass, BytesClass))
 
@@ -29,7 +29,7 @@ object ProcessClass extends MashClass("os.Process") {
 
   import Fields._
 
-  override val fields = Seq(Pid, ParentPid, Owner, Name, Command, ResidentSize, VirtualSize)
+  override val fields = Seq(Pid, ParentPid, Name, Command, Owner, ResidentSize, VirtualSize)
 
   override val methods = Seq(
     ChildrenMethod,

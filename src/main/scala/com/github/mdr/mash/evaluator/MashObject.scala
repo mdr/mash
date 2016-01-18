@@ -17,6 +17,15 @@ object MashObject {
 
 case class MashObject(fields: LinkedHashMap[String, Any], classOpt: Option[MashClass] = None) {
 
+  fields.values.foreach(Evaluator.checkIsValidRuntimeValue)
+
+  for (klass ← classOpt) {
+    val klassFields = klass.fields.map(_.name)
+    val providedFields = fields.keys.toSeq
+    if (klassFields != providedFields)
+      throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString(",")}, but was ${providedFields.mkString(",")}")
+  }
+
   def getField(fieldName: String): Option[Any] = fields.get(fieldName)
 
   def field(field: Field): Any = fields(field.name)

@@ -31,7 +31,7 @@ object Evaluator {
     try {
       val v = simpleEvaluate(expr, env)
       val result = immediatelyResolveNullaryFunctions(v)
-      checkResult(result)
+      checkIsValidRuntimeValue(result)
       result
     } catch {
       case e: EvaluatorException ⇒
@@ -43,7 +43,7 @@ object Evaluator {
     }
   }
 
-  private def checkResult(x: Any) = x match {
+  def checkIsValidRuntimeValue(x: Any) = x match {
     case null | () | true | false | MashString(_, _) | MashNumber(_, _) | MashObject(_, _) ⇒
     case _: MashFunction | _: BoundMethod ⇒
     case _: MashClass ⇒
