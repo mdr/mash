@@ -12,3 +12,4 @@ bin/
 hs*.log
 lib/
 .tmpBin/
+_site/
