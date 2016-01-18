@@ -1,0 +1,46 @@
+<classpath>
+  <classpathentry output="bin" kind="src" path="src/main/scala"/>
+  <classpathentry output="bin" kind="src" path="src/test/scala"/>
+  <classpathentry kind="lib" path="./lib/javasysmon.jar"/>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.fusesource.jansi/jansi/srcs/jansi-1.11-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.fusesource.jansi/jansi/jars/jansi-1.11.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/commons-io/commons-io/srcs/commons-io-2.4-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.apache.commons/commons-lang3/srcs/commons-lang3-3.4-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.apache.commons/commons-lang3/jars/commons-lang3-3.4.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.github.jnr/jnr-posix/srcs/jnr-posix-3.0.25-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jnr-posix/jars/jnr-posix-3.0.25.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.github.jnr/jnr-ffi/srcs/jnr-ffi-2.0.7-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jnr-ffi/jars/jnr-ffi-2.0.7.jar"/>
+  <classpathentry kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jffi/jars/jffi-1.2.10-native.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.github.jnr/jffi/srcs/jffi-1.2.10-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jffi/jars/jffi-1.2.10.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.ow2.asm/asm/srcs/asm-5.0.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.ow2.asm/asm/jars/asm-5.0.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.ow2.asm/asm-commons/srcs/asm-commons-5.0.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.ow2.asm/asm-commons/jars/asm-commons-5.0.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.ow2.asm/asm-tree/srcs/asm-tree-5.0.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.ow2.asm/asm-tree/jars/asm-tree-5.0.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.ow2.asm/asm-analysis/srcs/asm-analysis-5.0.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.ow2.asm/asm-analysis/jars/asm-analysis-5.0.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.ow2.asm/asm-util/srcs/asm-util-5.0.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.ow2.asm/asm-util/jars/asm-util-5.0.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.github.jnr/jnr-x86asm/srcs/jnr-x86asm-1.0.2-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jnr-x86asm/jars/jnr-x86asm-1.0.2.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.github.jnr/jnr-constants/srcs/jnr-constants-0.9.0-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.github.jnr/jnr-constants/jars/jnr-constants-0.9.0.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.apache.ant/ant/srcs/ant-1.9.6-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.apache.ant/ant/jars/ant-1.9.6.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.apache.ant/ant-launcher/srcs/ant-launcher-1.9.6-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.apache.ant/ant-launcher/jars/ant-launcher-1.9.6.jar"/>
+  <classpathentry kind="lib" path="/home/matt/.ivy2/cache/org.ocpsoft.prettytime/prettytime/bundles/prettytime-4.0.1.Final.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/jline/jline/srcs/jline-2.13-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/jline/jline/jars/jline-2.13.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.ibm.icu/icu4j/srcs/icu4j-56.1-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-56.1.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.googlecode.lanterna/lanterna/srcs/lanterna-3.0.0-beta1-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.googlecode.lanterna/lanterna/jars/lanterna-3.0.0-beta1.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/junit/junit/srcs/junit-4.12-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/junit/junit/jars/junit-4.12.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.hamcrest/hamcrest-core/srcs/hamcrest-core-1.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.google.code.gson/gson/srcs/gson-2.5-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.google.code.gson/gson/jars/gson-2.5.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.fatboyindustrial.gson-javatime-serialisers/gson-javatime-serialisers/srcs/gson-javatime-serialisers-1.1.1-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.fatboyindustrial.gson-javatime-serialisers/gson-javatime-serialisers/jars/gson-javatime-serialisers-1.1.1.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.eclipse.jgit/org.eclipse.jgit/srcs/org.eclipse.jgit-4.1.1.201511131810-r-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.eclipse.jgit/org.eclipse.jgit/jars/org.eclipse.jgit-4.1.1.201511131810-r.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.jcraft/jsch/srcs/jsch-0.1.53-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.jcraft/jsch/jars/jsch-0.1.53.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/com.googlecode.javaewah/JavaEWAH/srcs/JavaEWAH-0.7.9-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/com.googlecode.javaewah/JavaEWAH/bundles/JavaEWAH-0.7.9.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.apache.httpcomponents/httpclient/srcs/httpclient-4.3.6-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.3.6.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.apache.httpcomponents/httpcore/srcs/httpcore-4.3.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.3.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/commons-logging/commons-logging/srcs/commons-logging-1.1.3-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/commons-codec/commons-codec/srcs/commons-codec-1.6-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.6.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.slf4j/slf4j-api/srcs/slf4j-api-1.7.2-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.2.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.eclipse.jdt/org.eclipse.jdt.annotation/srcs/org.eclipse.jdt.annotation-1.1.0-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.eclipse.jdt/org.eclipse.jdt.annotation/jars/org.eclipse.jdt.annotation-1.1.0.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.scalatest/scalatest_2.11/srcs/scalatest_2.11-2.2.6-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.scalatest/scalatest_2.11/bundles/scalatest_2.11-2.2.6.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/srcs/scala-xml_2.11-1.0.2-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/bundles/scala-xml_2.11-1.0.2.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.pegdown/pegdown/srcs/pegdown-1.6.0-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.pegdown/pegdown/jars/pegdown-1.6.0.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.parboiled/parboiled-java/srcs/parboiled-java-1.1.7-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.parboiled/parboiled-java/jars/parboiled-java-1.1.7.jar"/>
+  <classpathentry sourcepath="/home/matt/.ivy2/cache/org.parboiled/parboiled-core/srcs/parboiled-core-1.1.7-sources.jar" kind="lib" path="/home/matt/.ivy2/cache/org.parboiled/parboiled-core/jars/parboiled-core-1.1.7.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="output" path="bin"/>
+</classpath>
