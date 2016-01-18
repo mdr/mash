@@ -10,6 +10,6 @@
 bin/
 *~
 hs*.log
-lib/
+lib/*.jar
 .tmpBin/
 _site/
