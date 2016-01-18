@@ -57,7 +57,7 @@ If the destination is not a directory, only a single source path may be provided
           if (Files.exists(destination))
             throw new EvaluatorException("Destination already exists")
           else
-            FileUtils.copyDirectoryToDirectory(source.toFile, destination.toFile)
+            FileUtils.copyDirectory(source.toFile, destination.toFile)
         else {
           if (Files.exists(destination) && Files.isDirectory(destination))
             throw new EvaluatorException("Destination already exists, and is a directory")
