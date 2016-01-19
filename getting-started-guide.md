@@ -10,7 +10,7 @@ This is an introductory tutorial to using Mash, an object shell for Linux.
 
 ## Working with objects
 
-Our prompt shows us the current working directory, in this case, we are in the root of the filesystem:
+Our prompt shows us the current working directory. In this case, we are in the root of the filesystem:
 
     / $
 
@@ -50,7 +50,11 @@ owner, and so on.
 Mash will, by default, render a sequence of objects a table, with a column for each field in
 the object, and a row for each object in the sequence.
 
-We can pass the output of a function into another function using the pipe operator `|`:
+Notice that some fields are rendered in a particular human-readable way, for example, `4KB`,
+`rwxr-xr-x`, or `1 month ago`. These are custom display formats for those fields, not text;
+in the underlying objects, these values are stored as numbers, dates, or other objects.
+
+We can chain the output of a function into another function using the pipe operator `|`:
 
 	/ $ ls | first
 	╔════════════╤══════════════╗
@@ -73,8 +77,8 @@ produce the same result:
 	/ $ ls.first
 	...
 	
-We can drill successively deeper into the file object to request further information (note:
-pressing the Up arrow key will recall commands from history).
+We can drill successively deeper into the file object to request further information
+(pressing the Up arrow key will recall commands from history).
 
 	/ $ ls.first.permissions
 	╔══════╤═══╗
@@ -134,30 +138,33 @@ accept the currently selected option.
 
 ### Path completion and quoting
 
-Paths in Mash need to be quoted as string literals, either with single or double quotes:
+Paths in Mash are represented as strings:
 
 	/ $ ls "tmp"
 
-Tab completion will add in quotes for paths, for example:
+Tab completion for paths will automatically add in quotes, for example:
 
 	/ $ ls tm▶
     / $ ls "tmp/"
 
-You can use the shortcut Ctrl-q to quote a word at the current cursor position.
+You also can use the shortcut Ctrl-q to quote the word at the current cursor position.
 
-Mash can also support *bare-words*. If enabled, any identifier not currently bound to a
-variable is automatically promoted to a string:
+Mash supports *bare words*: if enabled, any identifier not currently bound to a variable is
+automatically promoted to a string:
 
     / $ ls tmp
 
-Bare words are disabled by default, but can be enabled by settingc locaonfiguration option:
+Bare words are disabled by default, but can be enabled by setting the appropriate
+configuration option:
 
     / $ config.language.bareWords = true
+
+This can be made permanent by adding the line to `~/.mash/mashrc`.
 
 ## Object browser
 
 If `ls` returns a list of objects larger than can fit on a single page, Mash will display
-them as part of a pager that lets us browse through the objects interactively. The supported
+them within a pager that lets us browse through the objects interactively. The supported
 keys are:
 
 * `q`: quit browser
@@ -171,7 +178,7 @@ keys are:
 Mash contains a number of functions and methods designed to help manipulate and query
 collections of objects. We'll look at a couple of examples in this section:
 
-### Finding the largest `.so` file
+### Task 1: Finding the largest `.so` file
 
 Suppose we want to find the largest shared object file (`.so`) within `/lib`.
 
@@ -183,7 +190,7 @@ Let's start off with listing all the files in the directory, recursively:
 
 `--recursive` is a *flag* which modifies the behaviour of `ls` to recursively retrieve
 results from subdirectories. For brevity, flags can often be provided in an alternative
-single character form:
+single character form, in this case, `-r`:
 
 	/ $ ls -r "/lib"
 
@@ -192,11 +199,13 @@ filter the results:
 
 	/ $ ls -r "/lib" | where (f => f.extension == "so")
 
-`where` takes as argument a function that produces a boolean value, and applies it to a
-sequence, returning all the items in the sequence for which the predicate holds true.
+`where` is a function that takes as argument a predicate (a function which produces a
+boolean value), and applies it to a sequence, returning all the items in the sequence for
+which the predicate holds true.
 
-The construct `(f => f.extension == "so")` is a *closure* - an anonymous function - that
-takes a file object as input, and tests whether or not it has the `so` extension.
+The construct `(f => f.extension == "so")` is a *closure* &mdash; an anonymous function
+&mdash; that takes a file object as input, and tests whether or not it has the `so`
+extension.
 
 Mash supports a more concise syntax for closures using the underscore character (`_`), or
 *hole*, which is syntax sugar for the above:
@@ -217,7 +226,7 @@ Note that "size" can be tab completed by Mash:
 
 	/ $ ls -r "/lib" | where (_.extension == "so") | maxBy siz▶
 
-### Summarising file types
+### Task 2: Summarising file types
 
 Suppose we want to tabulate the different types of file (as determined by file extension)
 within a Python installation.
@@ -306,8 +315,8 @@ Contextual assistance showing the parameters and flags for a function is display
 pressing Ctrl+Space:
 
 	/ $ ls | groupBy 
-	┌─ groupBy ────────────────────────────────────────────────────────────────────────────────┐
-	│ Group together the elements of a sequence sharing a common key                           │
-	│                                                                                          │
-	│ groupBy <discriminator> {<sequence>} (--total[=<key>] | -t) (--includeNull[=<key>] | -n) │
-	└──────────────────────────────────────────────────────────────────────────────────────────┘
+	┌─ groupBy ──────────────────────────────────────────────────────────────────────────────┐
+	│ Group together the elements of a sequence sharing a common key                         │
+	│                                                                                        │
+	│ groupBy <discriminator> <sequence> (--total[=<key>] | -t) (--includeNull[=<key>] | -n) │
+	└────────────────────────────────────────────────────────────────────────────────────────┘

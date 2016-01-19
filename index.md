@@ -1,21 +1,21 @@
 ---
 layout: default
-title: Mash
+title: Mash Shell
 ---
 
-Mash is an object shell for Linux.
+**Mash** is an object shell for Linux.
 
 ## Features
 
-* Object-based data model and shell language
+* An object-based data model and shell language
 * Tab completion for files, functions, methods, etc.
-* Syntax colouring
-* Tabular object pretty-printing
-* Built-in function/method documentation
+* Syntax highlighting
+* Object pretty-printing
+* Built-in command help
 
 ## Screenshots
 
-Demo session (view on Asciinema):
+Demo session (via Asciinema):
 
 [![Mash Demo]({{ site.baseurl }}/assets/34080.png)](https://asciinema.org/a/34080){: .center-image }
 
