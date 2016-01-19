@@ -93,5 +93,6 @@ object BrowseCompletionsKeyMap extends KeyMap(BasicKeyMap.map ++ Map(
   KeyPress(BasicKey('p'), control = true) -> NavigateUp,
   KeyPress(Up) -> NavigateUp,
   KeyPress(BasicKey('n'), control = true) -> NavigateDown,
-  KeyPress(Down) -> NavigateDown))
+  KeyPress(Down) -> NavigateDown,
+  KeyPress(Enter) -> AcceptCompletion))
 
