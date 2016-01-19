@@ -33,6 +33,6 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
   override def summary = "Find all the elements in the sequence for which a predicate does not hold"
 
   override def descriptionOpt = Some("""Examples:
-  whereNot (_ > 2) [1, 2, 3, 2, 1] # [1, 1]""")
+  whereNot (_ > 1) [1, 2, 3, 2, 1] # [1, 2, 2, 1]""")
 
 }

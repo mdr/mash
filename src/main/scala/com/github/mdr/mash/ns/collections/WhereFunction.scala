@@ -43,7 +43,7 @@ object WhereFunction extends MashFunction("collections.where") {
   override def summary = "Find all the elements in the sequence for which a predicate holds"
 
   override def descriptionOpt = Some("""Examples:
-  where (_ > 2) [1, 2, 3, 2, 1] # [2, 3, 2]""")
+  where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]""")
 
 }
 
