@@ -386,6 +386,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "[pwd].info.permissions? .name" shouldEvaluateTo "'permissions'"
 
   "git.log? .name" shouldEvaluateTo "'log'"
+  "help 42.class | _.name" shouldEvaluateTo "'Number'"
+  "42.class.name" shouldEvaluateTo "'Number'"
 
   implicit class RichString(s: String) {
 
