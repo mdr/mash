@@ -4,7 +4,7 @@ name := "mash"
 
 organization := "com.github.mdr"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.0.1"
 
 scalaVersion := "2.11.7"
 
