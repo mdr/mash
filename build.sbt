@@ -1,7 +1,8 @@
-
 enablePlugins(DockerPlugin)
 
 name := "mash"
+
+organization := "com.github.mdr"
 
 version := "0.0.1-SNAPSHOT"
 
@@ -10,8 +11,6 @@ scalaVersion := "2.11.7"
 scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
-
-// unmanagedJars in Compile += file("lib/javasysmon.jar")
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
