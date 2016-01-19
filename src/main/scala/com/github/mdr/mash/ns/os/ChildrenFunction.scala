@@ -20,18 +20,18 @@ object ChildrenFunction extends MashFunction("os.children") {
   object Params {
     val Path = Parameter(
       name = "path",
-      summary = "Path to inspect for children",
+      summary = "Directory to inspect",
       defaultValueGeneratorOpt = Some(() ⇒ MashString("", Some(PathClass))))
     val IgnoreDotFiles = Parameter(
       name = "ignoreDotFiles",
-      summary = "Ignore files starting with a dot (.)",
+      summary = "Ignore files starting with a dot (.) (default false)",
       shortFlagOpt = Some('i'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isFlagValueAllowed = false)
     val Recursive = Parameter(
       name = "recursive",
-      summary = "Recursively retrieve results from subdirectories",
+      summary = "Recursively retrieve results from subdirectories (default false)",
       shortFlagOpt = Some('r'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),

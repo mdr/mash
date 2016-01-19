@@ -40,6 +40,6 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Delete the given paths"
+  override def summary = "Delete files and directories"
 
 }
