@@ -236,4 +236,8 @@ class MashParserTest extends FlatSpec with Matchers {
     parse("def").tokens.map(_.text)
   }
 
+  "Parsing dollar in mish" should "not crash" in {
+    parse("!{$}")
+  }
+
 }
