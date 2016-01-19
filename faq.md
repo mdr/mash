@@ -9,7 +9,9 @@ permalink: /faq/
 ## What is Mash?
 
 Mash is a shell for Linux that uses objects, rather than text, as its fundamental data
-model. It is open source under the [MIT Licence](https://opensource.org/licenses/MIT).
+model.
+
+It is open source under the [MIT Licence](https://opensource.org/licenses/MIT).
 
 Mash is currently considered experimental, and the existing implementation is a proof of
 concept. Feedback is very welcome, as would be collaborators in taking Mash
@@ -57,38 +59,35 @@ PowerShell is an object shell for Microsoft Windows. While their designs differ 
 ways, both PowerShell and Mash share the philosophy that objects should be the fundamental
 medium for data, rather than text.
 
-There is an effort to port PowerShell to Unix
-([pash](https://github.com/Pash-Project/Pash)).
-
-PowerShell is designed for Windows, and as such, does not cover many key features in Unix
-(and many PowerShell features have no applicability in Unix). Mash is designed for Linux
-from the outset.
+[pash](https://github.com/Pash-Project/Pash) is a project to port PowerShell to
+Unix. However, due to the Windows focus, Powershell is unlikely to ever be a first-class
+citizen outside of that platform.
 
 ## Why not a full-blown programming language?
 
 Programming languages are designed for developing applications, rather than as a interactive
-environment for system administration. Some languages do support powerful REPLs (IPython
-being a particularly noteworthy example), however, performing system tasks using programming
-libraries is rarely as straightforward as the comparable operations in the shell, and REPLs
-lacks many interactivity features such as file path completion.
+environment for system administration. Some languages do support powerful REPLs
+([IPython](http://ipython.org/) being a particularly noteworthy example), however,
+performing system tasks using programming libraries is rarely as straightforward as the
+comparable operations in the shell, and REPLs lacks many interactivity features such as file
+path completion.
 
-There are projects aimed at implementing shells on top of programming languages. In
-particular:
+There are projects aimed at implementing shells on top of programming languages::
 
-* [Xonsh](http://xonsh.org): Python
-* [Ammonite](http://lihaoyi.github.io/Ammonite/): Scala
+* [Ammonite](http://lihaoyi.github.io/Ammonite/): based on Scala
+* [Xonsh](http://xonsh.org): based on Python
 
-## How will Mash work if everything else is text-based?
+## How can Mash work if everything else is text-based?
 
-Most existing command-line programs are text-based. If Mash only produces and consumes
-objects, this might be a fundamental obstacle.
+Most existing command-line programs are text-based, whereas Mash produces and consumes
+objects.
 
-The idea is to take two approaches:
+The plan is to integrate in two ways:
 
-* Develop wrapper libraries for the most widely-used tools and utilities. For example,
-  working with filesystems, processes, users/groups, and common applications like Git,
-  Mercurial, etc. While it would be unfeasible to wrap every tool and utility that exists,
-  it seems plausible to wrap enough that the majority of day-to-day tasks are covered.
-* Mash has a subsyntax for more traditional shell-like command execution called *Mish*. Mash
-  expressions can embed Mish fragments, and vice versa. In this way, existing command-line
-  programs that aren't yet wrapped can be executed more-or-less as in existing shells.
+1. Develop Mash wrappers for the most widely-used tools and utilities. For example, working
+  with filesystems, processes, users/groups, and common applications (e.g. Git etc). While
+  it would be infeasible to wrap every tool that exists, it should be possible to cover the
+  majority of day-to-day tasks. Open source contributions would be vital here.
+2. Mash has a subsyntax for more traditional shell-like command execution called
+  *Mish*. Mash expressions can embed Mish fragments, and vice versa. In this way, existing
+  command-line programs that aren't yet wrapped can be executed as in existing shells.

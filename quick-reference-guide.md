@@ -29,7 +29,7 @@ identifier that is not bound is automatically promoted to a rich string.
 ### Conditionals, truthiness, and/or
 * Conditional expression: `if` .. `then` .. `else` ..
 
-Mash considers the following values as *falsey*: `false`, `0`,`[]`, `{}`, `""`. All other
+Mash considers the following values *falsey*: `false`, `0`,`[]`, `{}`, `""`. All other
 values are *truthy*.
 
 The `and` and `or` operators work as follows:
@@ -123,7 +123,8 @@ into Mish by default.
   `obj["toString"]` (toString member)
 * Null-safe dereference: `file?.extension?.toUpper`
 * Help operator: `function?`, `obj.method?`
-* Strings as functions which lookup the member with their name: `"permissions" pwd`
+* Strings can be called as functions which lookup an object member with that name:
+  `"permissions" pwd`
 
 ## Command line
 
@@ -147,6 +148,11 @@ into Mish by default.
 Hit tab once to complete methods, functions, files, arguments, etc. The list of possible
 completions is displayed. If you hit tab again immediately, you enter completion browsing
 mode, which will display additional information about the options.
+
+### mashrc
+
+Mash executes commands from `~/.mash/mashrc` on startup, and can be used to add aliases and
+set configuration options.
 
 ## Standard library
 

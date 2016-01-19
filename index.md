@@ -29,6 +29,7 @@ Mash supports context sensitive tab completions:
 
 ## Status
 
-The current implementation of Mash is an experimental proof-of-concept, and is likely to
-change drastically. Feedback is very welcome, as would be collaborators in taking Mash
-forward.
+The current implementation of Mash is a pre-alpha, experimental proof-of-concept, and is
+likely to change drastically.
+
+Feedback is very welcome, as would be collaborators in taking Mash forward.

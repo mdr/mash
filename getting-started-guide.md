@@ -132,24 +132,25 @@ accept the currently selected option.
 	│ The parent of this path (method in PathSummary) │
 	└─────────────────────────────────────────────────┘
 
-### Path completion
+### Path completion and quoting
 
 Paths in Mash need to be quoted as string literals, either with single or double quotes:
 
 	/ $ ls "tmp"
 
-The requirement that paths be quoted is made less onerous by the use of tab completion. For
-example:
+Tab completion will add in quotes for paths, for example:
 
 	/ $ ls tm▶
     / $ ls "tmp/"
 
-An exception to this is *bare-words*, if enabled. In that case, any identifier not currently
-bound to a variable is implicitly promoted to a string:
+You can use the shortcut Ctrl-q to quote a word at the current cursor position.
+
+Mash can also support *bare-words*. If enabled, any identifier not currently bound to a
+variable is automatically promoted to a string:
 
     / $ ls tmp
 
-Bare words can be enabled by setting a configuration option:
+Bare words are disabled by default, but can be enabled by settingc locaonfiguration option:
 
     / $ config.language.bareWords = true
 
