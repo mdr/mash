@@ -18,6 +18,15 @@ object ReplMode {
 
 case class YankLastArgState(count: Int, region: Region)
 
+object ReplState {
+
+  /**
+   * Name of the 'it' variable, which stores the last result
+   */
+  val It = "it"
+
+}
+
 class ReplState(
     var lineBuffer: LineBuffer = LineBuffer.Empty,
     var completionStateOpt: Option[CompletionState] = None,

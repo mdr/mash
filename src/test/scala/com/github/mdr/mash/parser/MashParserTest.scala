@@ -170,7 +170,7 @@ class MashParserTest extends FlatSpec with Matchers {
         rsquare))
   }
 
-  "it" should "throw a parse exception on a keyword in an interpolation" in {
+  it should "throw a parse exception on a keyword in an interpolation" in {
     a[MashParserException] should be thrownBy { MashParser.parse(""" "$if" """) }
   }
 

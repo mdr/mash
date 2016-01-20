@@ -129,7 +129,7 @@ trait NormalActionHandler { self: Repl ⇒
       state.history.record(cmd, state.mish)
 
     for (result ← resultOpt)
-      state.globalVariables += "it" -> result
+      state.globalVariables += ReplState.It -> result
   }
 
   private def handleComplete() {
@@ -137,11 +137,10 @@ trait NormalActionHandler { self: Repl ⇒
     for (CompletionResult(completions, prefix, replacementLocation) ← completionResult) {
       val Region(offset, length) = replacementLocation
       completions match {
-        case Seq() ⇒ // no completions: we do nothing
+        case Seq() ⇒ // no completions: do nothing
         case Seq(completion) ⇒ // a unique completion: immediate insert
-          val s = state.lineBuffer.s
-          val newS = replacementLocation.replace(s, completion.replacement)
-          var newCursorPos = offset + completion.replacement.length
+          val newS = replacementLocation.replace(state.lineBuffer.s, completion.replacement)
+          val newCursorPos = offset + completion.replacement.length
           state.lineBuffer = LineBuffer(newS, newCursorPos)
         case _ ⇒ // multiple completions
           val commonPrefix = completions.map(_.text).reduce(StringUtils.commonPrefix)
@@ -150,10 +149,9 @@ trait NormalActionHandler { self: Repl ⇒
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
-          val s = state.lineBuffer.s
-          val newS = replacementLocation.replace(s, completionState.getReplacement)
+          val newS = replacementLocation.replace(state.lineBuffer.s, completionState.getReplacement)
           val posAfterCompletion = newReplacementRegion.posAfter
-          val newCursorPos = if (completionState.allQuoted) posAfterCompletion - 1 else posAfterCompletion
+          val newCursorPos = posAfterCompletion
           state.lineBuffer = LineBuffer(newS, newCursorPos)
           state.assistanceStateOpt = None
       }
