@@ -140,16 +140,18 @@ trait NormalActionHandler { self: Repl ⇒
         case Seq() ⇒ // no completions: we do nothing
         case Seq(completion) ⇒ // a unique completion: immediate insert
           val s = state.lineBuffer.s
+          val newS = replacementLocation.replace(s, completion.replacement)
           var newCursorPos = offset + completion.replacement.length
-          state.lineBuffer = LineBuffer(s.take(offset) + completion.replacement + s.drop(offset + length), newCursorPos)
+          state.lineBuffer = LineBuffer(newS, newCursorPos)
         case _ ⇒ // multiple completions
           val commonPrefix = completions.map(_.text).reduce(StringUtils.commonPrefix)
-          var completionState = IncrementalCompletionState(prefix, completions, commonPrefix, replacementLocation, immediatelyAfterCompletion = true)
+          var completionState = IncrementalCompletionState(prefix, completions, commonPrefix, replacementLocation,
+            immediatelyAfterCompletion = true)
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
           val s = state.lineBuffer.s
-          val newS = newReplacementRegion.replace(s, completionState.getReplacement)
+          val newS = replacementLocation.replace(s, completionState.getReplacement)
           val posAfterCompletion = newReplacementRegion.posAfter
           val newCursorPos = if (completionState.allQuoted) posAfterCompletion - 1 else posAfterCompletion
           state.lineBuffer = LineBuffer(newS, newCursorPos)
