@@ -77,8 +77,8 @@ class History {
     } else
       None
 
-  def record(cmd: String) {
-    val entry = HistoryEntry(clock.instant, cmd, mish = false)
+  def record(cmd: String, mish: Boolean) {
+    val entry = HistoryEntry(clock.instant, cmd, mish)
     history = entry +: history
     if (!mashDir.exists)
       mashDir.mkdir()

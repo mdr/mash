@@ -54,67 +54,82 @@ trait NormalActionHandler { self: Repl ⇒
       case IncrementalHistorySearch ⇒
         state.incrementalSearchStateOpt = Some(IncrementalSearchState("", 0))
       case YankLastArg ⇒
-        val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
-          case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
-          case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
-        }
-        state.history.getLastArg(argIndex) match {
-          case Some(newArg) ⇒
-            val newS = oldRegion.replace(state.lineBuffer.s, newArg)
-            val newRegion = Region(oldRegion.offset, newArg.length)
-            state.lineBuffer = LineBuffer(newS, newRegion.posAfter)
-            state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
-          case None ⇒
-        }
+        yankLastArg()
       case QuoteWord ⇒
-        val oldS = state.lineBuffer.s
-        val cursorPos = state.lineBuffer.cursorPos
-        val cursorRegion = if (cursorPos > 0) Region(cursorPos - 1, 1) else Region(cursorPos, 0)
-        val region = UberCompleter.getContiguousRegion(oldS, cursorRegion, state.mish)
-        val toQuote = region.of(oldS)
-        val quoted = "\"" + StringEscapes.escapeChars(toQuote) + "\""
-        val newS = region.replace(state.lineBuffer.s, quoted)
-        state.lineBuffer = LineBuffer(newS, region.offset + quoted.length)
+        quoteWord()
       case _ ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
   }
 
-  private def handleAcceptLine() {
-    // Clear completions and assistance pop-ups, just leaving the input line
-    state.completionStateOpt = None
-    state.assistanceStateOpt = None
-    draw()
+  private def quoteWord() {
+    val oldS = state.lineBuffer.s
+    val cursorPos = state.lineBuffer.cursorPos
+    val cursorRegion = if (cursorPos > 0) Region(cursorPos - 1, 1) else Region(cursorPos, 0)
+    val region = UberCompleter.getContiguousRegion(oldS, cursorRegion, state.mish)
+    val toQuote = region.of(oldS)
+    val quoted = "\"" + StringEscapes.escapeChars(toQuote) + "\""
+    val newS = region.replace(state.lineBuffer.s, quoted)
+    state.lineBuffer = LineBuffer(newS, region.offset + quoted.length)
+  }
 
-    // Move past the input line
-    for (renderResult ← previousReplRenderResultOpt) {
-      System.out.write(renderResult.screen.acceptScreen.getBytes)
-      System.out.flush()
+  private def yankLastArg() {
+    val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
+      case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
+      case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
     }
+    state.history.getLastArg(argIndex) match {
+      case Some(newArg) ⇒
+        val newS = oldRegion.replace(state.lineBuffer.s, newArg)
+        val newRegion = Region(oldRegion.offset, newArg.length)
+        state.lineBuffer = LineBuffer(newS, newRegion.posAfter)
+        state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
+      case None ⇒
+    }
+  }
+
+  private def handleAcceptLine() {
+    updateScreenAfterAccept()
     previousReplRenderResultOpt = None
 
     state.history.resetHistoryPosition()
 
-    // Run command
     val cmd = state.lineBuffer.s
-    if (cmd.trim.nonEmpty) {
-      try {
-        val commandRunner = new CommandRunner(terminalInfo, getEnvironment)
-        val CommandResult(resultOpt, toggleMish) = commandRunner.run(cmd, state.mish, state.bareWords)
-        if (toggleMish)
-          state.mish = !state.mish
-        for (result ← resultOpt)
-          state.globalVariables += "it" -> result
-      } catch {
+    if (cmd.trim.nonEmpty)
+      runCommand(cmd)
+
+    state.lineBuffer = LineBuffer.Empty
+  }
+
+  private def updateScreenAfterAccept() {
+    state.completionStateOpt = None
+    state.assistanceStateOpt = None
+    draw()
+
+    for (renderResult ← previousReplRenderResultOpt) {
+      System.out.write(renderResult.screen.acceptScreen.getBytes)
+      System.out.flush()
+    }
+  }
+
+  private def runCommand(cmd: String) {
+    val commandRunner = new CommandRunner(terminalInfo, getEnvironment)
+    val CommandResult(resultOpt, toggleMish) =
+      try
+        commandRunner.run(cmd, state.mish, state.bareWords)
+      catch {
         case e: Exception ⇒
           e.printStackTrace()
           DebugLogger.logException(e)
       }
-      state.history.record(cmd)
-    }
+    if (toggleMish)
+      state.mish = !state.mish
+    else
+      state.history.record(cmd, state.mish)
 
-    state.lineBuffer = LineBuffer.Empty
+    for (result ← resultOpt)
+      state.globalVariables += "it" -> result
   }
 
   private def handleComplete() {
@@ -122,20 +137,20 @@ trait NormalActionHandler { self: Repl ⇒
     for (CompletionResult(completions, prefix, replacementLocation) ← completionResult) {
       val Region(offset, length) = replacementLocation
       completions match {
-        case Seq() ⇒
-        case Seq(completion) ⇒ // immediate insert
+        case Seq() ⇒ // no completions: we do nothing
+        case Seq(completion) ⇒ // a unique completion: immediate insert
           val s = state.lineBuffer.s
           var newCursorPos = offset + completion.replacement.length
           state.lineBuffer = LineBuffer(s.take(offset) + completion.replacement + s.drop(offset + length), newCursorPos)
         case _ ⇒ // multiple completions
-          val accepted = completions.map(_.text).reduce(StringUtils.commonPrefix)
-          var completionState = IncrementalCompletionState(prefix, completions, accepted, replacementLocation, immediatelyAfterCompletion = true)
+          val commonPrefix = completions.map(_.text).reduce(StringUtils.commonPrefix)
+          var completionState = IncrementalCompletionState(prefix, completions, commonPrefix, replacementLocation, immediatelyAfterCompletion = true)
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
           val s = state.lineBuffer.s
-          val newS = s.take(offset) + completionState.getReplacement + s.drop(offset + length)
-          val posAfterCompletion = newReplacementRegion.offset + newReplacementRegion.length
+          val newS = newReplacementRegion.replace(s, completionState.getReplacement)
+          val posAfterCompletion = newReplacementRegion.posAfter
           val newCursorPos = if (completionState.allQuoted) posAfterCompletion - 1 else posAfterCompletion
           state.lineBuffer = LineBuffer(newS, newCursorPos)
           state.assistanceStateOpt = None

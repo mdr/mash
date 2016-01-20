@@ -31,7 +31,8 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
           case Seq(completion) if prefix == completion.text ⇒
             state.completionStateOpt = None
           case _ ⇒
-            val newCompletionState = IncrementalCompletionState(completionState.starterPrefix, completions, prefix, replacementLocation, immediatelyAfterCompletion = false)
+            val newCompletionState = IncrementalCompletionState(completionState.starterPrefix, completions, prefix,
+              replacementLocation, immediatelyAfterCompletion = false)
             state.completionStateOpt = Some(newCompletionState)
         }
       case None ⇒
