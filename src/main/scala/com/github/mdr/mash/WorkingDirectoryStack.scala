@@ -2,7 +2,7 @@ package com.github.mdr.mash
 
 import java.nio.file.Path
 
-class WorkingDirectoryStack() {
+class WorkingDirectoryStack {
 
   private var dirs: Seq[Path] = Seq()
 

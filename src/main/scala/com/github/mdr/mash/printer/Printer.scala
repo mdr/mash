@@ -1,29 +1,25 @@
 package com.github.mdr.mash.printer
 
+import java.io.PrintStream
+
 import java.time.Instant
 import java.util.Date
+
 import org.ocpsoft.prettytime.PrettyTime
+
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MashString
-import com.github.mdr.mash.evaluator.MemberEvaluator
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.BytesClass
+import com.github.mdr.mash.ns.core.help.ClassHelpClass
+import com.github.mdr.mash.ns.core.help.FieldHelpClass
+import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.PermissionsClass
 import com.github.mdr.mash.ns.os.PermissionsSectionClass
+import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.utils.StringUtils
-import com.ibm.icu.text.DecimalFormat
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import org.fusesource.jansi.Ansi
-import com.github.mdr.mash.ns.core.help.ParameterHelpClass
-import java.util.regex.Pattern
-import org.fusesource.jansi.Ansi.Color
-import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.ns.core.help.ClassHelpClass
-import com.github.mdr.mash.terminal.TerminalInfo
-import java.io.PrintStream
 
 object Printer {
 
@@ -57,13 +53,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       output.println(f)
   }
 
-  private def shortRenderField(x: Any, inCell: Boolean = false) =
-    StringUtils.ellipsisise(renderField(x, inCell = inCell), maxLength = 64)
-
   def renderField(x: Any, inCell: Boolean = false): String = x match {
-    case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ permissionsString(mo)
-    case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ permissionsSectionString(mo)
-    case MashNumber(n, Some(BytesClass)) ⇒ humanReadableBytes(n)
+    case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
+    case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
+    case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
     case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
     case i: Instant ⇒ new PrettyTime().format(Date.from(i))
     case xs: Seq[Any] if inCell ⇒ xs.map(renderField(_)).mkString(", ")
@@ -71,42 +64,4 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))
   }
 
-  private def humanReadableBytes(n: Double) = {
-    val f = new DecimalFormat
-    f.setMaximumSignificantDigits(3)
-    if (n < 1024)
-      f.format(n) + "B"
-    else if (n < 1024 * 1024) {
-      val kb = n / 1024
-      f.format(kb) + "KB"
-    } else if (n < 1024 * 1024 * 1024) {
-      val mb = n / (1024 * 1024)
-      f.format(mb) + "MB"
-    } else {
-      val gb = n / (1024 * 1024 * 1024)
-      f.format(gb) + "GB"
-    }
-  }
-
-  private def permissionsSectionString(section: MashObject): String = {
-    val s = new StringBuilder
-    def test(field: Field) = MemberEvaluator.lookup(section, field).asInstanceOf[Boolean]
-    import PermissionsSectionClass.Fields
-    if (test(Fields.CanRead)) s.append("r") else s.append("-")
-    if (test(Fields.CanWrite)) s.append("w") else s.append("-")
-    if (test(Fields.CanExecute)) s.append("x") else s.append("-")
-    s.toString
-  }
-
-  private def permissionsString(perms: MashObject): String = {
-    import PermissionsClass.Fields
-    val s = new StringBuilder
-    val owner = MemberEvaluator.lookup(perms, Fields.Owner).asInstanceOf[MashObject]
-    val group = MemberEvaluator.lookup(perms, Fields.Group).asInstanceOf[MashObject]
-    val others = MemberEvaluator.lookup(perms, Fields.Others).asInstanceOf[MashObject]
-    s.append(permissionsSectionString(owner))
-    s.append(permissionsSectionString(group))
-    s.append(permissionsSectionString(others))
-    s.toString
-  }
 }
