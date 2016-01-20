@@ -64,7 +64,7 @@ object Evaluator {
     }
 
   /**
-   * Evaluate the given expression. If the result is a function that allows a nullary call, it is not called.
+   * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
    */
   private def simpleEvaluate(expr: Expr, env: Environment): Any =
     expr match {
@@ -368,16 +368,4 @@ object Evaluator {
         throw EvaluatorException(s"Not callable", functionLocationOpt)
     }
   }
-}
-
-sealed trait EvaluatedArgument
-
-object EvaluatedArgument {
-
-  case class PositionArg(value: Any) extends EvaluatedArgument
-
-  case class LongFlag(flag: String, valueOpt: Option[Any]) extends EvaluatedArgument
-
-  case class ShortFlag(flags: Seq[String]) extends EvaluatedArgument
-
 }

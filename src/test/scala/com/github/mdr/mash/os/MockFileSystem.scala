@@ -80,7 +80,11 @@ class MockFileSystem(root: MockFileObject.Directory, var pwd: Path) extends File
     this.pwd = path
   }
 
-  def readLines(path: Path): Seq[String] = Seq()
+  override def readLines(path: Path): Seq[String] = Seq()
+
+  override def exists(path: Path): Boolean = ???
+
+  override def isDirectory(path: Path): Boolean = ???
 
 }
 

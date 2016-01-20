@@ -18,8 +18,8 @@ object ChildrenFunction extends MashFunction("os.children") {
   private val fileSystem: FileSystem = LinuxFileSystem
 
   object Params {
-    val Path = Parameter(
-      name = "path",
+    val Directory = Parameter(
+      name = "directory",
       summary = "Directory to inspect",
       defaultValueGeneratorOpt = Some(() ⇒ MashString("", Some(PathClass))))
     val IgnoreDotFiles = Parameter(
@@ -37,26 +37,32 @@ object ChildrenFunction extends MashFunction("os.children") {
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isFlagValueAllowed = false)
   }
+  import Params._
 
-  val params = ParameterModel(Seq(Params.Path, Params.IgnoreDotFiles, Params.Recursive))
+  val params = ParameterModel(Seq(Directory, IgnoreDotFiles, Recursive))
 
   def apply(arguments: Arguments): Seq[MashObject] = {
     val boundParams = params.validate(arguments)
-    val ignoreDotFiles = Truthiness.isTruthy(boundParams(Params.IgnoreDotFiles))
-    val recursive = Truthiness.isTruthy(boundParams(Params.Recursive))
-    val parentDir = interpretAsPath(boundParams(Params.Path))
-    getChildren(parentDir, ignoreDotFiles, recursive)
+    val parentDir = interpretAsPath(boundParams(Directory))
+    val ignoreDotFiles = Truthiness.isTruthy(boundParams(IgnoreDotFiles))
+    val recursive = Truthiness.isTruthy(boundParams(Recursive))
+    if (!fileSystem.isDirectory(parentDir))
+      throw new EvaluatorException("Path must be a directory")
+    getChildren(parentDir, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
   }
 
-  def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[MashObject] =
-    fileSystem.getChildren(parentDir, ignoreDotFiles, recursive).map(PathSummaryClass.asMashObject)
+  def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[MashObject] = {
+    val paths = fileSystem.getChildren(parentDir, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
+    paths.map(PathSummaryClass.asMashObject)
+  }
 
-  override def typeInferenceStrategy =
-    ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
 
-  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
-    Seq(CompletionSpec.File)
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
   override def summary = "Return the children of a directory"
+
+  override def descriptionOpt = Some("""Return sequence of PathSummary objects representing the children of the given path.
+If no path is supplied, the current directory is used as the default.""")
 
 }

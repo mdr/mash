@@ -64,22 +64,19 @@ If no paths are provided, the default is the current working directory."""))
 
     def listPath(path: Path): Seq[MashObject] =
       if (Files.isDirectory(path) && !directory)
-        ChildrenFunction.getChildren(path, ignoreDotFiles, recursive)
+        ChildrenFunction.getChildren(path, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
       else
         Seq(PathSummaryClass.asMashObject(fileSystem.getPathSummary(path)))
     paths.flatMap(listPath)
   }
 
-  override def typeInferenceStrategy =
-    ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
 
-  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
-    Seq(CompletionSpec.File)
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
   override def summary = "List files"
 
-  override def descriptionOpt = Some(
-    """List files and directories, returning a sequence of PathSummary objects. 
+  override def descriptionOpt = Some("""List files and directories, returning a sequence of PathSummary objects. 
 If no paths are supplied, the current directory is used as the default.""")
 
 }

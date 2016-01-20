@@ -30,4 +30,8 @@ trait FileSystem {
   def chdir(path: Path)
 
   def readLines(path: Path): Seq[String]
+
+  def exists(path: Path): Boolean
+
+  def isDirectory(path: Path): Boolean
 }

@@ -12,7 +12,9 @@ import com.github.mdr.mash.evaluator.MashNumber
  */
 object AbstractSyntax {
 
-  sealed trait Expr {
+  sealed trait AstNode
+
+  sealed trait Expr extends AstNode {
 
     val sourceInfoOpt: Option[SourceInfo]
 
@@ -188,10 +190,8 @@ object AbstractSyntax {
 
   }
 
-  sealed trait Argument {
-
+  sealed trait Argument extends AstNode {
     def children: Seq[Expr]
-
   }
 
   object Argument {
@@ -231,6 +231,7 @@ object AbstractSyntax {
   sealed trait FunctionParam {
     def children: Seq[Expr]
   }
+
   case class SimpleParam(name: String) extends FunctionParam {
     def children: Seq[Expr] = Seq()
   }

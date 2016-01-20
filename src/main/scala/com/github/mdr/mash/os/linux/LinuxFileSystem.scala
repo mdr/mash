@@ -51,7 +51,7 @@ object LinuxFileSystem extends FileSystem {
       } else
         Files.list(parentDir).collect(Collectors.toList()).asScala.toSeq.sortBy(_.getFileName)
     if (ignoreDotFiles)
-      files = files.filterNot(f ⇒ f.getFileName.toString.startsWith("."))
+      files = files.filterNot(_.getFileName.toString startsWith ".")
     files.map(getPathSummary)
   }
 
@@ -133,5 +133,9 @@ object LinuxFileSystem extends FileSystem {
     Posix.posix.chdir(path.toString)
   }
 
-  def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile).asScala.toSeq
+  override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile).asScala.toSeq
+
+  override def exists(path: Path): Boolean = Files.exists(path)
+
+  override def isDirectory(path: Path): Boolean = Files.isDirectory(path)
 }

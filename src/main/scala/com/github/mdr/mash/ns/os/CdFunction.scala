@@ -32,7 +32,7 @@ object CdFunction extends MashFunction("os.cd") {
   object Params {
     val Directory = Parameter(
       name = "directory",
-      summary = "Directory to change into. If omitted, defaults to the user's home directory.",
+      summary = "Directory to change into; defaults to the current user's home directory.",
       defaultValueGeneratorOpt = Some(() ⇒ home))
   }
   import Params._
@@ -49,7 +49,7 @@ object CdFunction extends MashFunction("os.cd") {
 
   def changeDirectory(path: Path) {
     workingDirectoryStack.push(fileSystem.pwd)
-    if (Files.isDirectory(path))
+    if (fileSystem.isDirectory(path))
       fileSystem.chdir(path)
     else
       throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
@@ -60,5 +60,9 @@ object CdFunction extends MashFunction("os.cd") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.Directory)
 
   override def summary = "Change the current working directory"
+
+  override def descriptionOpt = Some("""Examples:
+   cd "/tmp"
+   cd # cd to home directory""")
 
 }

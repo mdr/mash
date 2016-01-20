@@ -16,6 +16,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
+import java.time.Instant
 
 object PathClass extends MashClass("os.Path") {
 
@@ -59,7 +60,7 @@ object PathClass extends MashClass("os.Path") {
     def apply(target: Any, arguments: Arguments): Boolean = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      Files.exists(path)
+      fileSystem.exists(path)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
@@ -138,7 +139,7 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
       if (name.contains("."))
@@ -149,7 +150,7 @@ object PathClass extends MashClass("os.Path") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
 
-    override def summary = "File extension, if any"
+    override def summary = "File extension, if any, else null"
 
   }
 
@@ -181,18 +182,23 @@ object PathClass extends MashClass("os.Path") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
 
-    override def summary = "Read a file and produce a sequence of lines"
+    override def summary = "Read lines from the file"
+
+    override def descriptionOpt = Some("""Returns a sequence of lines read from the given file.
+The default character encoding and line separator are used.""")
 
   }
 
   object RenameToMethod extends MashMethod("renameTo") {
 
-    private val NewName = "newName"
+    object Params {
+      val NewName = Parameter(
+        "newName",
+        "New name")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        NewName,
-        "New name")))
+    val params = ParameterModel(Seq(NewName))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
@@ -211,12 +217,14 @@ object PathClass extends MashClass("os.Path") {
 
   object RenameByMethod extends MashMethod("renameBy") {
 
-    private val F = "f"
+    object Params {
+      val F = Parameter(
+        "f",
+        "Function to transform the old name into a new name")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        F,
-        "Function to transform the old name into a new name")))
+    val params = ParameterModel(Seq(F))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
@@ -288,6 +296,8 @@ object PathClass extends MashClass("os.Path") {
       val ignoreDotFiles = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.IgnoreDotFiles))
       val recursive = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.Recursive))
       val parentDir = FunctionHelpers.interpretAsPath(target)
+      if (!fileSystem.isDirectory(parentDir))
+        throw new EvaluatorException("Path must be a directory")
       ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive)
     }
 
@@ -392,7 +402,7 @@ object PathClass extends MashClass("os.Path") {
 
     override def summary = "Move this path into the given directory"
 
-    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] =
+    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       Seq(CompletionSpec.Directory)
 
   }
@@ -428,7 +438,7 @@ object PathClass extends MashClass("os.Path") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
-    override def summary = "Name (final section) of this path"
+    override def summary = "Name (last segment) of this path"
 
   }
 
@@ -482,9 +492,9 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
-      fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified
+    def apply(target: Any, arguments: Arguments): Instant = {
       params.validate(arguments)
+      fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(DateTimeClass))
@@ -497,7 +507,7 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
       MashString(summary.owner, Some(UsernameClass))
