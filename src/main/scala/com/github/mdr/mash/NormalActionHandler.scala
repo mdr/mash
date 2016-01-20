@@ -143,8 +143,7 @@ trait NormalActionHandler { self: Repl ⇒
           val newCursorPos = offset + completion.replacement.length
           state.lineBuffer = LineBuffer(newS, newCursorPos)
         case _ ⇒ // multiple completions
-          val commonPrefix = completions.map(_.text).reduce(StringUtils.commonPrefix)
-          var completionState = IncrementalCompletionState(None, completions, commonPrefix, replacementLocation,
+          var completionState = IncrementalCompletionState(None, completions, replacementLocation,
             immediatelyAfterCompletion = true)
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)

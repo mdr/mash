@@ -27,17 +27,18 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
   private def refreshCompletions(completionState: IncrementalCompletionState) {
     complete match {
       case Some(CompletionResult(completions, replacementLocation)) ⇒
-        if (replacementLocation.offset == completionState.replacementLocation.offset) {
+        val stillReplacingSameLocation = replacementLocation.offset == completionState.replacementLocation.offset
+        if (stillReplacingSameLocation) {
           val replacedText = replacementLocation.of(state.lineBuffer.s)
           completions match {
             case Seq() ⇒
               state.completionStateOpt = None
-            case Seq(completion) if replacedText == completion.replacement ⇒
+            case Seq(completion) if replacedText == completion.replacement ⇒ // what you've typed is an exact much for the sole completion
               state.completionStateOpt = None
             case _ ⇒
               val priorState = PriorIncrementalCompleteState(state.lineBuffer, completionState)
-              val newCompletionState = IncrementalCompletionState(Some(priorState), completions, replacedText,
-                replacementLocation, immediatelyAfterCompletion = false)
+              val newCompletionState = IncrementalCompletionState(Some(priorState), completions, replacementLocation,
+                immediatelyAfterCompletion = false)
               state.completionStateOpt = Some(newCompletionState)
           }
         } else

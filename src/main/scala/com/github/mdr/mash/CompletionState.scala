@@ -6,6 +6,9 @@ import com.github.mdr.mash.utils.StringUtils
 
 sealed trait CompletionState {
 
+  /**
+   * Region which had previously been replaced
+   */
   val replacementLocation: Region
 
   val completions: Seq[Completion]
@@ -24,11 +27,10 @@ case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, state: Incremen
 case class IncrementalCompletionState(
     priorCompletionStateOpt: Option[PriorIncrementalCompleteState],
     completions: Seq[Completion],
-    accepted: String,
     replacementLocation: Region,
     immediatelyAfterCompletion: Boolean) extends CompletionState {
 
-  def getCommonPrefix: String = completions.map(_.text).fold(accepted)(StringUtils.commonPrefix)
+  def getCommonPrefix: String = completions.map(_.text).reduce(StringUtils.commonPrefix)
 
   def getReplacement = if (allQuoted) "\"" + getCommonPrefix + "\"" else getCommonPrefix
 
