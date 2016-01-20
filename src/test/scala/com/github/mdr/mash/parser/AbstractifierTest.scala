@@ -57,7 +57,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
     abstractExpr should equal(
       InvocationExpr(
         Identifier("ls", Some(SourceInfo(function))),
-        Seq(Argument.PositionArg(Identifier("pwd", Some(SourceInfo(arg))))),
+        Seq(Argument.PositionArg(Identifier("pwd", Some(SourceInfo(arg))), Some(SourceInfo(arg)))),
         sourceInfoOpt = Some(SourceInfo(concreteExpr))))
   }
 
@@ -72,7 +72,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
     abstractExpr should equal(
       InvocationExpr(
         Identifier("foo", Some(SourceInfo(function))),
-        Seq(Argument.LongFlag("bar", Some(Identifier("baz", Some(SourceInfo(arg)))))),
+        Seq(Argument.LongFlag("bar", Some(Identifier("baz", Some(SourceInfo(arg)))), Some(SourceInfo(longArg)))),
         sourceInfoOpt = Some(SourceInfo(concreteExpr))))
   }
 

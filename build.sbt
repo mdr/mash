@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.fusesource.jansi" % "jansi" % "1.11",
   "commons-io" % "commons-io" % "2.4",
   "org.apache.commons" % "commons-lang3" % "3.4",
-  "com.github.jnr" % "jnr-posix" % "3.0.26",
+  "com.github.jnr" % "jnr-posix" % "3.0.27",
   "org.apache.ant" % "ant" % "1.9.6",
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
   "jline" % "jline" % "2.13",

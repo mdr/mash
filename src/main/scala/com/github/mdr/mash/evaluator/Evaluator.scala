@@ -245,9 +245,9 @@ object Evaluator {
     }
 
   private def evaluateArgument(arg: Argument, env: Environment): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr, env))
-    case Argument.ShortFlag(flags)         ⇒ EvaluatedArgument.ShortFlag(flags)
-    case Argument.LongFlag(flag, valueOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v, env)))
+    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr, env))
+    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags)
+    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v, env)))
   }
 
   private def evaluateInvocationExpr(invocationExpr: InvocationExpr, env: Environment) = {

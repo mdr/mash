@@ -18,10 +18,10 @@ object DesugarHoles {
   }
 
   private def desugarHoles_(argument: Argument): Result[Argument] = argument match {
-    case Argument.PositionArg(expr)          ⇒ desugarHoles_(expr).map(Argument.PositionArg(_))
-    case Argument.ShortFlag(_)               ⇒ Result(argument)
-    case Argument.LongFlag(flag, None)       ⇒ Result(Argument.LongFlag(flag, None))
-    case Argument.LongFlag(flag, Some(expr)) ⇒ desugarHoles_(expr).map(e ⇒ Argument.LongFlag(flag, Some(e)))
+    case Argument.PositionArg(expr, sourceInfoOpt)          ⇒ desugarHoles_(expr).map(Argument.PositionArg(_, sourceInfoOpt))
+    case Argument.ShortFlag(_, sourceInfoOpt)               ⇒ Result(argument)
+    case Argument.LongFlag(flag, None, sourceInfoOpt)       ⇒ Result(Argument.LongFlag(flag, None, sourceInfoOpt))
+    case Argument.LongFlag(flag, Some(expr), sourceInfoOpt) ⇒ desugarHoles_(expr).map(e ⇒ Argument.LongFlag(flag, Some(e), sourceInfoOpt))
   }
 
   private def desugarHoles_(expr: Expr): Result[Expr] = expr match {

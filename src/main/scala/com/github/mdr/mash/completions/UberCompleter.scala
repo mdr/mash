@@ -220,9 +220,9 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def typedArguments(invocationExpr: InvocationExpr): TypedArguments = {
     def annotateArg(arg: Argument): TypedArgument =
       arg match {
-        case Argument.PositionArg(e)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
-        case Argument.ShortFlag(flags)         ⇒ TypedArgument.ShortFlag(flags)
-        case Argument.LongFlag(flag, valueOpt) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
+        case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
+        case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
+        case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
       }
     SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
   }

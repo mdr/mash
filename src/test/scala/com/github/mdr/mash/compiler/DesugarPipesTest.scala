@@ -4,7 +4,10 @@ import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.Abstractifier
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class DesugarPipesTest extends FlatSpec with Matchers {
 
   "a | b" desugarsTo "b a"
@@ -14,17 +17,21 @@ class DesugarPipesTest extends FlatSpec with Matchers {
   "foo --bar=(a | b)" desugarsTo "foo --bar=(b a)"
 
   private implicit class RichString(s: String) {
-    def desugarsTo(s2: String) {
+    def desugarsTo(expected: String) {
       "DesugarPipes" should s"desugar pipes in '$s'" in {
         val actualExpr = removeSourceInfo(DesugarPipes.desugarPipes(parse(s)))
-        val expectedExpr = removeSourceInfo(parse(s2))
+        val expectedExpr = removeSourceInfo(parse(expected))
+        actualExpr.sourceInfoOpt should equal(expectedExpr.sourceInfoOpt)
         actualExpr should equal(expectedExpr)
       }
     }
-
   }
 
-  private def parse(s: String): Expr = ParenRemover.removeParens(Abstractifier.abstractify(MashParser.parse(s).get))
+  private def parse(s: String): Expr = {
+    val Some(concreteExpr) = MashParser.parse(s)
+    val abstractExpr = Abstractifier.abstractify(concreteExpr)
+    ParenRemover.removeParens(abstractExpr)
+  }
 
   private def removeSourceInfo(e: Expr) = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 

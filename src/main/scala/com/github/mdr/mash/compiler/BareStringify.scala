@@ -57,9 +57,9 @@ class BareStringificationContext {
       LookupExpr(bareStringify(expr, bindings), bareStringify(index, bindings), sourceInfoOpt)
     case InvocationExpr(function, arguments, sourceInfoOpt) ⇒
       val newArguments = arguments.map {
-        case Argument.PositionArg(expr)        ⇒ Argument.PositionArg(bareStringify(expr, bindings))
-        case arg @ Argument.ShortFlag(_)       ⇒ arg
-        case Argument.LongFlag(flag, valueOpt) ⇒ Argument.LongFlag(flag, valueOpt.map(bareStringify(_, bindings)))
+        case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ Argument.PositionArg(bareStringify(expr, bindings), sourceInfoOpt)
+        case arg @ Argument.ShortFlag(_, sourceInfoOpt)       ⇒ arg
+        case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ Argument.LongFlag(flag, valueOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
       }
       InvocationExpr(bareStringify(function, bindings), newArguments, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒

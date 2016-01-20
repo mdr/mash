@@ -49,11 +49,11 @@ object TreePrettyPrinter {
         printTree(function, depth + 1)
         for (arg ← args)
           arg match {
-            case Argument.PositionArg(e) ⇒
+            case Argument.PositionArg(e, _) ⇒
               printTree(e, depth + 1)
-            case Argument.ShortFlag(flags) ⇒
+            case Argument.ShortFlag(flags, _) ⇒
               println("  " * (depth + 1) + "-" + flags)
-            case Argument.LongFlag(flag, valueOpt) ⇒
+            case Argument.LongFlag(flag, valueOpt, _) ⇒
               println("  " * (depth + 1) + "--" + flag)
               for (value ← valueOpt)
                 printTree(value, depth + 2)

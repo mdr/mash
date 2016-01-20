@@ -177,11 +177,11 @@ class TypeInferencer {
 
   private def annotateArg(arg: Argument, bindings: Map[String, Type]): TypedArgument =
     arg match {
-      case Argument.PositionArg(e) ⇒
+      case Argument.PositionArg(e, _) ⇒
         TypedArgument.PositionArg(AnnotatedExpr(Some(e), inferType(e, bindings)))
-      case Argument.ShortFlag(flags) ⇒
+      case Argument.ShortFlag(flags, _) ⇒
         TypedArgument.ShortFlag(flags)
-      case Argument.LongFlag(flag, valueOpt) ⇒
+      case Argument.LongFlag(flag, valueOpt, _) ⇒
         TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), inferType(e, bindings))))
     }
 

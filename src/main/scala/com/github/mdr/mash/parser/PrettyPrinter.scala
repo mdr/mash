@@ -42,11 +42,11 @@ object PrettyPrinter {
     case InvocationExpr(function, args, _) ⇒
       parens(pretty(function), simpleOmitParens(function)) + " " + args.map(arg ⇒
         arg match {
-          case Argument.PositionArg(e) ⇒
+          case Argument.PositionArg(e, _) ⇒
             parens(pretty(e), simpleOmitParens(e))
-          case Argument.ShortFlag(flags) ⇒
+          case Argument.ShortFlag(flags, _) ⇒
             "-" + flags
-          case Argument.LongFlag(flag, valueOpt) ⇒
+          case Argument.LongFlag(flag, valueOpt, _) ⇒
             "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
         }).mkString(" ")
     case MishExpr(command, args, _) ⇒ pretty(command) + " " + args.map(pretty)

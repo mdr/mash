@@ -13,29 +13,21 @@ import com.github.mdr.mash.evaluator.MashNumber
 object AbstractSyntax {
 
   sealed trait AstNode {
+
+    val sourceInfoOpt: Option[SourceInfo]
+
     def children: Seq[AstNode]
+
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]): AstNode
 
     def find[T](f: PartialFunction[AstNode, T]): Option[T] =
       children.flatMap(_.find(f)).headOption orElse f.lift(this)
 
     def findAll[T](f: PartialFunction[AstNode, T]): Seq[T] =
       children.flatMap(_.find(f)) ++ f.lift(this)
-  }
 
-  sealed trait Expr extends AstNode {
-
-    val sourceInfoOpt: Option[SourceInfo]
-
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]): Expr
-
-    var typeOpt: Option[Type] = None
-
-    var typeBindings: Map[String, Type] = Map()
-
-    override def toString: String = PrettyPrinter.pretty(this)
-
-    def transform(f: PartialFunction[Expr, Expr]): Expr = {
-      val newExpr =
+    def transform(f: PartialFunction[AstNode, AstNode]): AstNode = {
+      val withTransformedDescendents =
         this match {
           case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) ⇒
             this
@@ -57,11 +49,7 @@ object AbstractSyntax {
           case LookupExpr(expr, index, sourceInfoOpt) ⇒
             LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
           case InvocationExpr(function, arguments, sourceInfoOpt) ⇒
-            val newArguments = arguments.map {
-              case Argument.PositionArg(expr)        ⇒ Argument.PositionArg(expr.transform(f))
-              case arg @ Argument.ShortFlag(_)       ⇒ arg
-              case Argument.LongFlag(flag, valueOpt) ⇒ Argument.LongFlag(flag, valueOpt.map(_.transform(f)))
-            }
+            val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
             InvocationExpr(function.transform(f), newArguments, sourceInfoOpt)
           case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
             BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
@@ -86,9 +74,35 @@ object AbstractSyntax {
             FunctionDeclaration(name, params, body.transform(f), sourceInfoOpt)
           case HelpExpr(expr, sourceInfoOpt) ⇒
             HelpExpr(expr.transform(f), sourceInfoOpt)
+          case ExprPart(expr) ⇒
+            ExprPart(expr.transform(f))
+          case StringPart(_) ⇒
+            this
+          case SimpleParam(_) ⇒
+            this
+          case Argument.PositionArg(expr, sourceInfoOpt) ⇒
+            Argument.PositionArg(expr.transform(f), sourceInfoOpt)
+          case Argument.ShortFlag(_, _) ⇒
+            this
+          case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
+            Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
+
         }
-      f.lift.apply(newExpr).getOrElse(newExpr)
+      f.lift.apply(withTransformedDescendents).getOrElse(withTransformedDescendents)
     }
+  }
+
+  sealed trait Expr extends AstNode {
+
+    override def transform(f: PartialFunction[AstNode, AstNode]): Expr = super.transform(f).asInstanceOf[Expr]
+
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]): Expr
+
+    var typeOpt: Option[Type] = None
+
+    var typeBindings: Map[String, Type] = Map()
+
+    override def toString: String = PrettyPrinter.pretty(this)
 
   }
 
@@ -103,21 +117,23 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  sealed trait InterpolationPart {
-    def children: Seq[Expr]
-  }
+  sealed trait InterpolationPart extends AstNode
 
   case class StringPart(s: String) extends InterpolationPart {
+    val sourceInfoOpt = None
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
     def children = Seq()
   }
 
   case class ExprPart(expr: Expr) extends InterpolationPart {
+    val sourceInfoOpt = None
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
     def children = Seq(expr)
   }
 
   case class InterpolatedString(start: String, parts: Seq[InterpolationPart], end: String, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = parts.flatMap(_.children)
+    def children = parts
   }
 
   case class Identifier(name: String, sourceInfoOpt: Option[SourceInfo]) extends Expr {
@@ -195,15 +211,18 @@ object AbstractSyntax {
 
   object Argument {
 
-    case class PositionArg(expr: Expr) extends Argument {
+    case class PositionArg(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Argument {
+      def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
       def children = Seq(expr)
     }
 
-    case class LongFlag(flag: String, valueOpt: Option[Expr]) extends Argument {
+    case class LongFlag(flag: String, valueOpt: Option[Expr], sourceInfoOpt: Option[SourceInfo]) extends Argument {
+      def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
       def children = valueOpt.toSeq
     }
 
-    case class ShortFlag(flags: Seq[String]) extends Argument {
+    case class ShortFlag(flags: Seq[String], sourceInfoOpt: Option[SourceInfo]) extends Argument {
+      def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
       def children = Seq()
     }
 
@@ -227,10 +246,11 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  sealed trait FunctionParam extends AstNode {
-  }
+  sealed trait FunctionParam extends AstNode
 
   case class SimpleParam(name: String) extends FunctionParam {
+    val sourceInfoOpt = None
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
     def children = Seq()
   }
 
@@ -255,7 +275,7 @@ object AbstractSyntax {
 
 }
 
-case class SourceInfo(expr: ConcreteSyntax.Expr) {
+case class SourceInfo(expr: ConcreteSyntax.AstNode) {
 
   def pos = expr match {
     case ConcreteSyntax.BinOpExpr(_, op, _) ⇒ op.offset

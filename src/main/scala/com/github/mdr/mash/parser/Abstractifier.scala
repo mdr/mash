@@ -135,21 +135,21 @@ object Abstractifier {
           abstractifyArg(firstArg) +: otherArgs.map(_._2).map(abstractifyArg)
         case None ⇒
           Seq()
-      }).map(Argument.PositionArg)
+      }).map(arg ⇒ Argument.PositionArg(arg, arg.sourceInfoOpt))
     Abstract.InvocationExpr(abstractify(function), args, Some(SourceInfo(invocationExpr)))
   }
 
   private def abstractifyInvocation(invocationExpr: Concrete.InvocationExpr): Abstract.InvocationExpr = {
     val Concrete.InvocationExpr(function, args) = invocationExpr
     val abstractArgs: Seq[Argument] = args map {
-      case Concrete.ShortArg(flag) ⇒
-        Argument.ShortFlag(flag.text.drop(1).map(_.toString))
-      case Concrete.LongArg(flag, None) ⇒
-        Argument.LongFlag(flag.text.drop(2), None)
-      case Concrete.LongArg(flag, Some((_, value))) ⇒
-        Argument.LongFlag(flag.text.drop(2), Some(abstractify(value)))
+      case arg @ Concrete.ShortArg(flag) ⇒
+        Argument.ShortFlag(flag.text.drop(1).map(_.toString), Some(SourceInfo(arg)))
+      case arg @ Concrete.LongArg(flag, None) ⇒
+        Argument.LongFlag(flag.text.drop(2), None, Some(SourceInfo(arg)))
+      case arg @ Concrete.LongArg(flag, Some((_, value))) ⇒
+        Argument.LongFlag(flag.text.drop(2), Some(abstractify(value)), Some(SourceInfo(arg)))
       case e: Concrete.Expr ⇒
-        Argument.PositionArg(abstractify(e))
+        Argument.PositionArg(abstractify(e), Some(SourceInfo(e)))
       case x ⇒
         throw new RuntimeException("Unexpected argument: " + x)
     }
