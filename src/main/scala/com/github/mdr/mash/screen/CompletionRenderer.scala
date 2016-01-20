@@ -54,7 +54,7 @@ object CompletionRenderer {
     val truncatedCommonPrefix = StringUtils.ellipsisise(commonPrefix, columnWidth)
 
     def renderCompletion(completion: Completion, index: Int): Seq[StyledCharacter] = {
-      val Completion(text, isQuoted, _, completionTypeOpt, descriptionOpt) = completion
+      val Completion(text, isQuoted, completionTypeOpt, descriptionOpt) = completion
       val truncatedText = StringUtils.ellipsisise(text, columnWidth)
       val active = cond(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion == index }
       val colour = getCompletionColour(completionTypeOpt)
@@ -107,7 +107,6 @@ object CompletionRenderer {
             Line(("└─" + "─" * innerWidth + "─┘").map(StyledCharacter(_))))
         }
       case _ ⇒ Seq()
-
     }
 
 }

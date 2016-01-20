@@ -141,7 +141,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         (name, value) ← env.valuesMap.toSeq
         if name startsWith prefix
         (completionType, description) = getBindingTypeAndDescription(value)
-      } yield Completion(name, spaceAfterAccept = false, completionTypeOpt = Some(completionType), descriptionOpt = Some(description))
+      } yield Completion(name, completionTypeOpt = Some(completionType), descriptionOpt = Some(description))
     val fileCompletions = completeFiles(prefix)
     val completions = bindingCompletions ++ fileCompletions
     if (completions.isEmpty)

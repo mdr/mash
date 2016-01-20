@@ -6,11 +6,10 @@ import com.github.mdr.mash.evaluator.Environment
 case class Completion(
     text: String,
     isQuoted: Boolean = false,
-    spaceAfterAccept: Boolean = false,
     completionTypeOpt: Option[CompletionType] = None,
     descriptionOpt: Option[String] = None) {
 
-  def replacement = (if (isQuoted) "\"" + text + "\"" else text) + (if (spaceAfterAccept) " " else "")
+  def replacement = (if (isQuoted) "\"" + text + "\"" else text)
 
 }
 
