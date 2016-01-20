@@ -27,12 +27,12 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
   private def refreshCompletions(completionState: IncrementalCompletionState) {
     complete match {
       case Some(CompletionResult(completions, replacementLocation)) ⇒
-        if (replacementLocation == completionState.replacementLocation) {
+        if (replacementLocation.offset == completionState.replacementLocation.offset) {
           val replacedText = replacementLocation.of(state.lineBuffer.s)
           completions match {
             case Seq() ⇒
               state.completionStateOpt = None
-            case Seq(completion) if replacedText == completion.text ⇒
+            case Seq(completion) if replacedText == completion.replacement ⇒
               state.completionStateOpt = None
             case _ ⇒
               val priorState = PriorIncrementalCompleteState(state.lineBuffer, completionState)
