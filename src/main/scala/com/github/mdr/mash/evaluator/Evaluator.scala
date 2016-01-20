@@ -361,9 +361,19 @@ object Evaluator {
             Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
         }
       case f: MashFunction ⇒
-        f(arguments)
+        try
+          f(arguments)
+        catch {
+          case e: EvaluatorException if e.locationOpt.isEmpty ⇒
+            throw e.copy(locationOpt = invocationLocationOpt)
+        }
       case BoundMethod(target, method, _) ⇒
-        method(target, arguments)
+        try
+          method(target, arguments)
+        catch {
+          case e: EvaluatorException if e.locationOpt.isEmpty ⇒
+            throw e.copy(locationOpt = invocationLocationOpt)
+        }
       case _ ⇒
         throw EvaluatorException(s"Not callable", functionLocationOpt)
     }
