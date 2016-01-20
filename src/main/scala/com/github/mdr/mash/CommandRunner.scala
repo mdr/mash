@@ -12,6 +12,7 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.PointedRegion
 import org.fusesource.jansi.Ansi
 import com.github.mdr.mash.utils.StringUtils
+import java.io.PrintStream
 
 case class CommandResult(value: Option[Any], toggleMish: Boolean = false)
 
@@ -35,7 +36,7 @@ object DebugCommand {
 
 }
 
-class CommandRunner(terminalInfo: TerminalInfo, environment: Environment) {
+class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment: Environment) {
 
   /**
    * @return the (optional) result of the command
@@ -76,7 +77,7 @@ class CommandRunner(terminalInfo: TerminalInfo, environment: Environment) {
                 printError("Error", msg, cmd, locationOpt)
                 DebugLogger.logException(e)
             }
-          val printer = new Printer(terminalInfo)
+          val printer = new Printer(output, terminalInfo)
           printer.render(result)
           result
         }
@@ -84,17 +85,17 @@ class CommandRunner(terminalInfo: TerminalInfo, environment: Environment) {
   }
 
   private def printError(msgType: String, msg: String, cmd: String, regionOpt: Option[PointedRegion]) = {
-    println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
-    println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
+    output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
+    output.println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
     for (PointedRegion(point, region @ Region(offset, length)) ← regionOpt) {
-      print(Ansi.ansi().fg(Ansi.Color.RED))
+      output.print(Ansi.ansi().fg(Ansi.Color.RED))
       for (i ← 0 to region.posAfter)
         print(i match {
           case i if i == point         ⇒ "^"
           case i if region.contains(i) ⇒ "-"
           case _                       ⇒ " "
         })
-      println(Ansi.ansi().reset())
+      output.println(Ansi.ansi().reset())
     }
 
   }

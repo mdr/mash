@@ -9,11 +9,12 @@ import org.fusesource.jansi.Ansi.Color
 import java.util.regex.Pattern
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
+import java.io.PrintStream
 
 /**
  * Render function/method/field help objects in a similar style to man pages
  */
-object HelpPrinter {
+class HelpPrinter(output: PrintStream) {
 
   private val indent = 8
 
@@ -23,53 +24,53 @@ object HelpPrinter {
 
   def printFunctionHelp(mo: MashObject) {
     import FunctionHelpClass.Fields._
-    println(bold("NAME"))
-    println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
-    println()
+    output.println(bold("NAME"))
+    output.println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
+    output.println()
     val classOpt = Option(mo.field(Class).asInstanceOf[MashString]).map(_.s)
     for (klass ← classOpt) {
-      println(bold("CLASS"))
-      println(indentSpace + klass)
-      println()
+      output.println(bold("CLASS"))
+      output.println(indentSpace + klass)
+      output.println()
     }
-    println(bold("CALLING SYNTAX"))
+    output.println(bold("CALLING SYNTAX"))
     val maybeTarget = if (classOpt.isDefined) "target." else ""
-    println(indentSpace + maybeTarget + mo.field(CallingSyntax))
-    println()
+    output.println(indentSpace + maybeTarget + mo.field(CallingSyntax))
+    output.println()
     val parameters = mo.field(Parameters).asInstanceOf[Seq[MashObject]]
     if (parameters.nonEmpty) {
       import ParameterHelpClass.Fields._
-      println(bold("PARAMETERS"))
-      println()
+      output.println(bold("PARAMETERS"))
+      output.println()
       for (param ← parameters)
         printParameterHelp(param)
     }
     for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
-      println(bold("DESCRIPTION"))
-      println(shiftLeftMargin(description.s, indent))
-      println()
+      output.println(bold("DESCRIPTION"))
+      output.println(shiftLeftMargin(description.s, indent))
+      output.println()
     }
   }
 
   def printFieldHelp(mo: MashObject) {
     import FieldHelpClass.Fields._
-    println(bold("FIELD"))
-    println(indentSpace + bold(mo.field(Name)) + " - " + mo.field(Summary))
-    println()
-    println(bold("CLASS"))
-    println(indentSpace + mo.field(Class))
-    println()
+    output.println(bold("FIELD"))
+    output.println(indentSpace + bold(mo.field(Name)) + " - " + mo.field(Summary))
+    output.println()
+    output.println(bold("CLASS"))
+    output.println(indentSpace + mo.field(Class))
+    output.println()
     for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
-      println(bold("DESCRIPTION"))
-      println(shiftLeftMargin(description.s, 8))
-      println()
+      output.println(bold("DESCRIPTION"))
+      output.println(shiftLeftMargin(description.s, 8))
+      output.println()
     }
   }
 
   def printParameterHelp(param: MashObject) {
     import ParameterHelpClass.Fields._
     def paramNameStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
-    print(indentSpace)
+    output.print(indentSpace)
     var qualifiers: Seq[String] = Seq()
     val isFlag = param.field(IsFlagParameter).asInstanceOf[Boolean]
     if (param.field(IsLast).asInstanceOf[Boolean])
@@ -84,50 +85,50 @@ object HelpPrinter {
     }
     val paramName = paramNameStyle("" + (if (isFlag) "--" + param.field(Name) else param.field(Name)))
     val shortFlagDescription = paramNameStyle(Option(param.field(ShortFlag).asInstanceOf[MashString]).map(f ⇒ s" | -$f").getOrElse(""))
-    println(paramName + shortFlagDescription + qualifierString + " - " + param.field(Summary))
+    output.println(paramName + shortFlagDescription + qualifierString + " - " + param.field(Summary))
     for (description ← Option(param.field(Description).asInstanceOf[MashString]))
-      println(shiftLeftMargin(description.s, indent * 2))
-    println()
+      output.println(shiftLeftMargin(description.s, indent * 2))
+    output.println()
   }
 
   def printClassHelp(mo: MashObject) {
     def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     import ClassHelpClass.Fields._
-    println(bold("NAME"))
-    println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
-    println()
+    output.println(bold("NAME"))
+    output.println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
+    output.println()
     for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
-      println(bold("DESCRIPTION"))
-      println(shiftLeftMargin(description.s, indent))
-      println()
+      output.println(bold("DESCRIPTION"))
+      output.println(shiftLeftMargin(description.s, indent))
+      output.println()
     }
     for (parent ← Option(mo.field(Parent).asInstanceOf[MashString])) {
-      println(bold("PARENT"))
-      println(indentSpace + mo.field(Parent))
-      println()
+      output.println(bold("PARENT"))
+      output.println(indentSpace + mo.field(Parent))
+      output.println()
     }
     val fields = mo.field(Fields).asInstanceOf[Seq[MashObject]]
     if (fields.nonEmpty) {
-      println(bold("FIELDS"))
-      println()
+      output.println(bold("FIELDS"))
+      output.println()
       for (field ← fields) {
         import FieldHelpClass.Fields._
-        print(indentSpace)
-        print(fieldMethodStyle(field.field(FieldHelpClass.Fields.Name)))
-        print(" - " + field.field(FieldHelpClass.Fields.Summary))
-        println()
+        output.print(indentSpace)
+        output.print(fieldMethodStyle(field.field(FieldHelpClass.Fields.Name)))
+        output.print(" - " + field.field(FieldHelpClass.Fields.Summary))
+        output.println()
       }
     }
     val methods = mo.field(Methods).asInstanceOf[Seq[MashObject]]
     if (methods.nonEmpty) {
-      println(bold("METHODS"))
-      println()
+      output.println(bold("METHODS"))
+      output.println()
       for (method ← methods) {
         import FieldHelpClass.Fields._
-        print(indentSpace)
-        print(fieldMethodStyle(method.field(FieldHelpClass.Fields.Name)))
-        print(" - " + method.field(FieldHelpClass.Fields.Summary))
-        println()
+        output.print(indentSpace)
+        output.print(fieldMethodStyle(method.field(FieldHelpClass.Fields.Name)))
+        output.print(" - " + method.field(FieldHelpClass.Fields.Summary))
+        output.println()
       }
     }
 

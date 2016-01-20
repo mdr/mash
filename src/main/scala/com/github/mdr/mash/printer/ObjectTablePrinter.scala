@@ -1,25 +1,25 @@
 package com.github.mdr.mash.printer
 
 import scala.collection.immutable.ListMap
-
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.terminal.TerminalInfo
+import java.io.PrintStream
 
-class ObjectTablePrinter(terminalInfo: TerminalInfo) {
+class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private def printer = new Printer(terminalInfo)
+  private def printer = new Printer(output, terminalInfo)
 
   def printTable(objects: Seq[MashObject]) {
     val model = renderObjects(objects)
     if (objects.size <= terminalInfo.rows - 4)
       printTable(model)
     else
-      ObjectBrowser.launch(model, terminalInfo)
+      ObjectBrowser.launch(model, terminalInfo, output)
   }
 
   def renderObjects(objects: Seq[MashObject]): ObjectTableModel = {
@@ -101,12 +101,12 @@ class ObjectTablePrinter(terminalInfo: TerminalInfo) {
   private def printTable(model: ObjectTableModel) {
     val ObjectTableModel(columnNames, columnWidths, objects) = model
     import boxCharacterSupplier._
-    println(renderTopRow(model))
-    println(renderHeaderRow(model))
-    println(renderBelowHeaderRow(model))
+    output.println(renderTopRow(model))
+    output.println(renderHeaderRow(model))
+    output.println(renderBelowHeaderRow(model))
     for (obj ← objects)
-      println(renderObjectRow(model, obj))
-    println(renderBottomRow(model))
+      output.println(renderObjectRow(model, obj))
+    output.println(renderBottomRow(model))
   }
 
   private def getDisplayMembers(objects: Seq[MashObject]): Seq[String] =

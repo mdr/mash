@@ -3,14 +3,15 @@ package com.github.mdr.mash.printer
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.terminal.TerminalInfo
+import java.io.PrintStream
 
-class ObjectPrinter(terminalInfo: TerminalInfo) {
+class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
-  private def printer = new Printer(terminalInfo)
+  private def printer = new Printer(output, terminalInfo)
 
   def printObject(mo: MashObject) = {
     if (mo.fields.isEmpty)
-      println("{}")
+      output.println("{}")
     else {
       val keys = mo.fields.keySet
       val requestedKeyWidth = mo.fields.keySet.map(_.size).max
@@ -24,26 +25,26 @@ class ObjectPrinter(terminalInfo: TerminalInfo) {
       val valuesWidth = allocatedWidths(valuesColumn)
 
       // Top row
-      print("╔")
-      print("═" * keyWidth)
-      print("╤")
-      print("═" * valuesWidth)
-      println("╗")
+      output.print("╔")
+      output.print("═" * keyWidth)
+      output.print("╤")
+      output.print("═" * valuesWidth)
+      output.println("╗")
 
       for ((k, v) ← mo.fields) {
-        print("║")
-        print(StringUtils.fitToWidth(k + "", keyWidth))
-        print("│")
-        print(StringUtils.fitToWidth(printer.renderField(v, inCell = true), valuesWidth))
-        println("║")
+        output.print("║")
+        output.print(StringUtils.fitToWidth(k + "", keyWidth))
+        output.print("│")
+        output.print(StringUtils.fitToWidth(printer.renderField(v, inCell = true), valuesWidth))
+        output.println("║")
       }
 
       // Bottom row
-      print("╚")
-      print("═" * keyWidth)
-      print("╧")
-      print("═" * valuesWidth)
-      println("╝")
+      output.print("╚")
+      output.print("═" * keyWidth)
+      output.print("╧")
+      output.print("═" * valuesWidth)
+      output.println("╝")
     }
   }
 

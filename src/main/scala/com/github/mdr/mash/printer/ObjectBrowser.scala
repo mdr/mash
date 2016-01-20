@@ -1,7 +1,6 @@
 package com.github.mdr.mash.printer
 
 import scala.annotation.tailrec
-
 import com.github.mdr.mash.InputAction
 import com.github.mdr.mash.InputSequence._
 import com.github.mdr.mash.Key._
@@ -14,8 +13,8 @@ import com.github.mdr.mash.screen.Style
 import com.github.mdr.mash.screen.StyledCharacter
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
-
 import ObjectBrowserActions._
+import java.io.PrintStream
 
 object ObjectBrowserActions {
 
@@ -33,15 +32,15 @@ object ObjectBrowserActions {
 
 object ObjectBrowser {
 
-  def launch(model: ObjectTableModel, terminalInfo: TerminalInfo) {
+  def launch(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream) {
     val columns = terminalInfo.columns
-    val objectBrowser = new ObjectBrowser(model, terminalInfo)
+    val objectBrowser = new ObjectBrowser(model, terminalInfo, output)
     objectBrowser.inputLoop()
   }
 
 }
 
-class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo) {
+class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream) {
 
   private var currentRow = 0
   private var firstRow = 0
@@ -60,7 +59,7 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo) {
   private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
 
   private def render: Screen = {
-    val objectTablePrinter = new ObjectTablePrinter(terminalInfo)
+    val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo)
     def simpleLine(s: String) = Line(s.map(StyledCharacter(_)))
     val headerLines: Seq[Line] = Seq(
       objectTablePrinter.renderTopRow(model),

@@ -15,8 +15,9 @@ import org.apache.commons.io.IOUtils
 import java.io.File
 import org.apache.commons.io.FileUtils
 import scala.collection.JavaConverters._
+import java.io.PrintStream
 
-class Repl(protected val terminal: Terminal)
+class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
@@ -26,52 +27,57 @@ class Repl(protected val terminal: Terminal)
   private val envInteractions = LinuxEnvironmentInteractions
   protected val completer = new UberCompleter(fileSystem, envInteractions)
 
-  protected val state = new ReplState()
+  val state = new ReplState()
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
+  // TODO: obviously this is horrible, will be fixed when DI gets sorted out
+  Singletons.history = state.history
+
   def run() {
-    initialise()
+    processMashRc()
     inputLoop()
   }
 
-  private def initialise() {
+  private def getMashRcLines: Seq[String] = {
     val mashRc = new File(History.mashDir, "mashrc")
     if (mashRc.exists) {
-      val lines =
-        try
-          FileUtils.readLines(mashRc).asScala
-        catch {
-          case e: Exception ⇒
-            println("Error reading mashrc")
-            e.printStackTrace()
-            DebugLogger.logException(e)
-            return
-        }
-      val commandRunner = new CommandRunner(terminal.info, getEnvironment)
-      for (line ← lines) {
-        try
-          commandRunner.run(line, state.mish, state.bareWords)
-        catch {
-          case e: Exception ⇒
-            println("Error executing: " + line)
-            e.printStackTrace()
-            DebugLogger.logException(e)
-            return
-        }
+      try
+        FileUtils.readLines(mashRc).asScala
+      catch {
+        case e: Exception ⇒
+          output.println("Error reading " + mashRc)
+          e.printStackTrace(output)
+          DebugLogger.logException(e)
+          Seq()
+      }
+    } else
+      Seq()
+  }
+
+  private def processMashRc() {
+    val lines = getMashRcLines
+    val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
+    for (line ← lines) {
+      try
+        commandRunner.run(line, state.mish, state.bareWords)
+      catch {
+        case e: Exception ⇒
+          output.println("Error executing: " + line)
+          e.printStackTrace(output)
+          DebugLogger.logException(e)
+          return
       }
     }
-    // TODO: obviously this is horrible, we'll fix when we switch to a DI strategy
-    Singletons.history = state.history
   }
 
   protected def draw() {
     val screenRenderResult = ReplRenderer.render(state, terminal.info)
     val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
-    val output = screenRenderResult.screen.draw(previousScreenOpt, terminal.columns)
+    val drawn = screenRenderResult.screen.draw(previousScreenOpt, terminal.columns)
     previousReplRenderResultOpt = Some(screenRenderResult)
 
-    System.out.write(output.getBytes)
-    System.out.flush()
+    output.write(drawn.getBytes)
+    output.flush()
   }
 
   @tailrec
@@ -89,14 +95,14 @@ class Repl(protected val terminal: Terminal)
       handleAction(action)
     } catch {
       case e: Throwable ⇒
-        e.printStackTrace()
+        e.printStackTrace(output)
         DebugLogger.logException(e)
     }
     if (state.continue)
       inputLoop()
     else {
       draw() // Tidy up before exiting
-      println()
+      output.println()
     }
   }
 
@@ -108,7 +114,7 @@ class Repl(protected val terminal: Terminal)
     }
   }
 
-  private def handleAction(action: InputAction) = {
+  def handleAction(action: InputAction) {
     state.completionStateOpt match {
       case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
       case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)

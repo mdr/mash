@@ -23,6 +23,7 @@ import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import com.github.mdr.mash.terminal.TerminalInfo
+import java.io.PrintStream
 
 object Printer {
 
@@ -33,25 +34,27 @@ object Printer {
 
 }
 
-class Printer(terminalInfo: TerminalInfo) {
+class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
+
+  private val helpPrinter = new HelpPrinter(output)
 
   def render(x: Any) = x match {
     case xs: Seq[_] if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
-      xs.foreach(println)
+      xs.foreach(output.println)
     case xs: Seq[_] if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
-      new ObjectTablePrinter(terminalInfo).printTable(xs.asInstanceOf[Seq[MashObject]])
+      new ObjectTablePrinter(output, terminalInfo).printTable(xs.asInstanceOf[Seq[MashObject]])
     case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) ⇒
-      HelpPrinter.printFunctionHelp(mo)
+      helpPrinter.printFunctionHelp(mo)
     case mo: MashObject if mo.classOpt == Some(FieldHelpClass) ⇒
-      HelpPrinter.printFieldHelp(mo)
+      helpPrinter.printFieldHelp(mo)
     case mo: MashObject if mo.classOpt == Some(ClassHelpClass) ⇒
-      HelpPrinter.printClassHelp(mo)
-    case mo: MashObject ⇒ new ObjectPrinter(terminalInfo).printObject(mo)
+      helpPrinter.printClassHelp(mo)
+    case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
     case xs: Seq[_] if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
     case () ⇒ // Don't print out Unit 
     case _ ⇒
       val f = StringUtils.ellipsisise(renderField(x), maxLength = terminalInfo.columns)
-      println(f)
+      output.println(f)
   }
 
   private def shortRenderField(x: Any, inCell: Boolean = false) =
@@ -71,9 +74,9 @@ class Printer(terminalInfo: TerminalInfo) {
   private def humanReadableBytes(n: Double) = {
     val f = new DecimalFormat
     f.setMaximumSignificantDigits(3)
-    if (n < 1024) {
+    if (n < 1024)
       f.format(n) + "B"
-    } else if (n < 1024 * 1024) {
+    else if (n < 1024 * 1024) {
       val kb = n / 1024
       f.format(kb) + "KB"
     } else if (n < 1024 * 1024 * 1024) {

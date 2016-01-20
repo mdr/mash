@@ -28,7 +28,7 @@ object Main extends App {
         .redirectError(ProcessBuilder.Redirect.INHERIT).start()
       process.waitFor()
     } else {
-      val repl = new Repl(new JLineTerminalWrapper(terminal))
+      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out)
       repl.run()
     }
   }

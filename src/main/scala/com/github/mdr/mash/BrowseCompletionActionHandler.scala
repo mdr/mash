@@ -62,7 +62,7 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
       case NavigateDown ⇒
         var nextPos = pos + columns
         if (nextPos >= total)
-          nextPos = nextPos % (total - (total % columns)) % columns // had a div-zero error here
+          nextPos = nextPos % (total - (total % columns)) % columns
         browseCompletion(completionState, nextPos)
       case NavigateUp ⇒
         var nextPos = pos - columns

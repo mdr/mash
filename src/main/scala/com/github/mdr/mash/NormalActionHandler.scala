@@ -114,7 +114,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def runCommand(cmd: String) {
-    val commandRunner = new CommandRunner(terminal.info, getEnvironment)
+    val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
     val CommandResult(resultOpt, toggleMish) =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)
