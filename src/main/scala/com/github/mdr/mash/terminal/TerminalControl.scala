@@ -1,6 +1,5 @@
 package com.github.mdr.mash.terminal
 
-import jline.Terminal
 import com.github.mdr.mash.TerminalHelper
 
 trait TerminalControl {
@@ -12,7 +11,7 @@ trait TerminalControl {
   def restore()
 }
 
-class TerminalControlImpl(terminal: Terminal) extends TerminalControl {
+class TerminalControlImpl(terminal: jline.Terminal) extends TerminalControl {
 
   def setEchoEnabled(enabled: Boolean) {
     terminal.setEchoEnabled(enabled)

@@ -8,10 +8,10 @@ import com.github.mdr.mash.CompletionState
 import com.github.mdr.mash.IncrementalCompletionState
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.completions.CompletionType
-import com.github.mdr.mash.printer.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.printer.Printer
+import com.github.mdr.mash.terminal.TerminalInfo
 
 case class CompletionRenderResult(lines: Seq[Line], numberOfCompletionColumns: Int)
 

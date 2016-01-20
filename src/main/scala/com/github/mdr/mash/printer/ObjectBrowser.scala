@@ -5,6 +5,7 @@ import scala.annotation.tailrec
 import com.github.mdr.mash.InputAction
 import com.github.mdr.mash.InputSequence._
 import com.github.mdr.mash.Key._
+import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.KeyMap
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Point

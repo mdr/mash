@@ -3,10 +3,11 @@ package com.github.mdr.mash
 import com.github.mdr.mash.terminal.TerminalControlImpl
 import sun.misc.SignalHandler
 import sun.misc.Signal
-import com.github.mdr.mash.printer.TerminalInfo
+import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.evaluator.Environment
 import jline.Terminal
 import scala.collection.JavaConverters._
+import com.github.mdr.mash.terminal.JLineTerminalWrapper
 
 object Main extends App {
 
@@ -27,7 +28,7 @@ object Main extends App {
         .redirectError(ProcessBuilder.Redirect.INHERIT).start()
       process.waitFor()
     } else {
-      val repl = new Repl(terminal)
+      val repl = new Repl(new JLineTerminalWrapper(terminal))
       repl.run()
     }
   }

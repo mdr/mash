@@ -78,7 +78,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             functionType ← invocationExpr.function.typeOpt
             flags ← FlagCompleter.getFlags(functionType)
             completions = FlagCompleter.completeFlag(flags, nearbyToken)
-          } yield CompletionResult(completions, nearbyToken.text, nearbyToken.region)
+          } yield CompletionResult(completions, nearbyToken.region)
         case TokenType.MINUS ⇒
           val replaced = StringUtils.replace(s, nearbyToken.region, "--dummyFlag")
           val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
@@ -91,7 +91,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             functionType ← invocationExpr.function.typeOpt
             flags ← FlagCompleter.getFlags(functionType)
             completions = FlagCompleter.completeAllFlags(flags)
-          } yield CompletionResult(completions, nearbyToken.text, nearbyToken.region)
+          } yield CompletionResult(completions, nearbyToken.region)
         case TokenType.IDENTIFIER ⇒
           val (isPathCompletion, asStringResultOpt) = completeAsString(s, nearbyToken.region, env, mish = mish)
           val (isMemberExpr, memberResultOpt) = MemberCompleter.completeMember(s, nearbyToken, env, mish = mish)
@@ -129,8 +129,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
 
   private def merge(res1Opt: Option[CompletionResult], res2Opt: Option[CompletionResult]): Option[CompletionResult] = {
     (res1Opt, res2Opt) match {
-      case (Some(CompletionResult(completions1, prefix1, location1)), Some(CompletionResult(completions2, prefix2, location2))) if prefix1 == prefix2 && location1 == location2 ⇒
-        Some(CompletionResult((completions1 ++ completions2).distinct.sortBy(_.text), prefix1, location1))
+      case (Some(CompletionResult(completions1, location1)), Some(CompletionResult(completions2, location2))) if location1 == location2 ⇒
+        Some(CompletionResult((completions1 ++ completions2).distinct.sortBy(_.text), location1))
       case _ ⇒ res1Opt orElse res2Opt
     }
   }
@@ -147,7 +147,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     if (completions.isEmpty)
       None
     else
-      Some(CompletionResult(completions, prefix, region))
+      Some(CompletionResult(completions, region))
   }
 
   private def getBindingTypeAndDescription(value: Any) = value match {
@@ -177,7 +177,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         completionSpecs ← getCompletionSpecs(invocationExpr, argPos)
         completions = completeFromSpecs(completionSpecs, literalToken)
         if completions.nonEmpty
-      } yield CompletionResult(completions, region.of(s), region)
+      } yield CompletionResult(completions, region)
     val equalityCompletionOpt =
       for {
         expr ← exprOpt
@@ -187,12 +187,12 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
         completions ← getEqualityCompletions(equalityType, literalToken)
         if completions.nonEmpty
-      } yield CompletionResult(completions, region.of(s), region)
+      } yield CompletionResult(completions, region)
     val filesCompletionOpt = {
       val withoutQuotes = replacement.filterNot(_ == '"')
       val completions = completeFiles(withoutQuotes)
       if (completions.nonEmpty)
-        Some(CompletionResult(completions, region.of(s), region))
+        Some(CompletionResult(completions, region))
       else
         None
     }

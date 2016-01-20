@@ -6,6 +6,7 @@ import com.github.mdr.mash.parser._
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.printer._
 import com.github.mdr.mash.printer.Printer
+import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.compiler._
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.PointedRegion

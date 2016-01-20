@@ -27,7 +27,7 @@ object CompletionType {
 
 case class CompletionType(name: String)
 
-case class CompletionResult(completions: Seq[Completion], prefix: String, replacementLocation: Region) {
+case class CompletionResult(completions: Seq[Completion], replacementLocation: Region) {
 
   def sorted = copy(completions = completions.sortBy(_.text))
 

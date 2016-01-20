@@ -6,17 +6,17 @@ import com.github.mdr.mash.completions.UberCompleter
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.TerminalInfo
+import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.screen.ReplRenderResult
 import com.github.mdr.mash.screen.ReplRenderer
-import jline.Terminal
 import com.github.mdr.mash.completions.CompletionResult
 import org.apache.commons.io.IOUtils
 import java.io.File
 import org.apache.commons.io.FileUtils
 import scala.collection.JavaConverters._
 
-class Repl(terminal: Terminal)
+class Repl(protected val terminal: Terminal)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
@@ -47,7 +47,7 @@ class Repl(terminal: Terminal)
             DebugLogger.logException(e)
             return
         }
-      val commandRunner = new CommandRunner(terminalInfo, getEnvironment)
+      val commandRunner = new CommandRunner(terminal.info, getEnvironment)
       for (line ← lines) {
         try
           commandRunner.run(line, state.mish, state.bareWords)
@@ -65,10 +65,9 @@ class Repl(terminal: Terminal)
   }
 
   protected def draw() {
-    val columns = terminal.getWidth
-    val screenRenderResult = ReplRenderer.render(state, terminalInfo)
+    val screenRenderResult = ReplRenderer.render(state, terminal.info)
     val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
-    val output = screenRenderResult.screen.draw(previousScreenOpt, columns)
+    val output = screenRenderResult.screen.draw(previousScreenOpt, terminal.columns)
     previousReplRenderResultOpt = Some(screenRenderResult)
 
     System.out.write(output.getBytes)
@@ -159,7 +158,5 @@ class Repl(terminal: Terminal)
   }
 
   protected def getEnvironment: Environment = Environment(Map(), state.globalVariables)
-
-  protected def terminalInfo = TerminalInfo(terminal.getHeight, terminal.getWidth)
 
 }

@@ -30,7 +30,7 @@ object MemberCompleter {
       members = getMembers(receiverType)
       completions = members.map(_.asCompletion(isQuoted = false))
       if completions.nonEmpty
-    } yield CompletionResult(completions, nearbyToken.text, Region(nearbyToken.region.posAfter, 0))
+    } yield CompletionResult(completions, Region(nearbyToken.region.posAfter, 0))
   }
 
   def complete(targetType: Type, prefix: String) =
@@ -51,7 +51,7 @@ object MemberCompleter {
         members = getMembers(receiverType)
         completions = members.filter(_.name startsWith nearbyToken.text).map(_.asCompletion(isQuoted = false))
         if completions.nonEmpty
-      } yield CompletionResult(completions, nearbyToken.text, nearbyToken.region)
+      } yield CompletionResult(completions, nearbyToken.region)
     (memberExprOpt.isDefined, completionResultOpt)
   }
 

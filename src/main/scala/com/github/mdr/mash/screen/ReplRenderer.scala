@@ -1,37 +1,27 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.lexer.MashLexer
-import jnr.posix.POSIXFactory
-import org.fusesource.jansi.Ansi
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 import org.fusesource.jansi.Ansi._
 import org.fusesource.jansi.Ansi.Color._
-import scala.collection.mutable.ArrayBuffer
-import com.github.mdr.mash.completions.Completion
-import com.github.mdr.mash.lexer.TokenType
-import scala.PartialFunction.cond
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.completions.CompletionType
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.IncrementalCompletionState
-import com.github.mdr.mash.BrowserCompletionState
-import com.github.mdr.mash.LineBuffer
-import com.github.mdr.mash.CompletionState
-import com.github.mdr.mash.Posix
-import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.printer.TerminalInfo
-import com.github.mdr.mash.ReplState
-import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
+
 import com.github.mdr.mash.MishCommand
-import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.parser.MashParser
-import com.github.mdr.mash.parser.Abstractifier
+import com.github.mdr.mash.ReplState
+import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
-import scala.collection.mutable
-import com.github.mdr.mash.printer.Printer
+import com.github.mdr.mash.evaluator.TildeExpander
+import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
+
+import com.github.mdr.mash.lexer.MashLexer
+import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.lexer.TokenType
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.parser.Abstractifier
+import com.github.mdr.mash.parser.MashParser
+import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.StringUtils
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 

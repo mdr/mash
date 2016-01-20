@@ -14,12 +14,15 @@ sealed trait CompletionState {
 
 }
 
+/** As the user types, maintain a linked list of previous states that they can return to with backspace */
+case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, state: IncrementalCompletionState)
+
 /**
  * Incremental completion state is where the user has requested completions once, but hasn't left the primary
  * line editing mode. Completions are filtered incrementally according to what the user types.
  */
 case class IncrementalCompletionState(
-    starterPrefix: String,
+    priorCompletionStateOpt: Option[PriorIncrementalCompleteState],
     completions: Seq[Completion],
     accepted: String,
     replacementLocation: Region,

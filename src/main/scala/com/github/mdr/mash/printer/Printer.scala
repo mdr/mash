@@ -22,8 +22,7 @@ import org.fusesource.jansi.Ansi.Color
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
-
-case class TerminalInfo(rows: Int, columns: Int)
+import com.github.mdr.mash.terminal.TerminalInfo
 
 object Printer {
 
@@ -107,5 +106,4 @@ class Printer(terminalInfo: TerminalInfo) {
     s.append(permissionsSectionString(others))
     s.toString
   }
-
 }

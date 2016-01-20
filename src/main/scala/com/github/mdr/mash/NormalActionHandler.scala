@@ -114,7 +114,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def runCommand(cmd: String) {
-    val commandRunner = new CommandRunner(terminalInfo, getEnvironment)
+    val commandRunner = new CommandRunner(terminal.info, getEnvironment)
     val CommandResult(resultOpt, toggleMish) =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)
@@ -134,7 +134,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def handleComplete() {
     val completionResult = complete
-    for (CompletionResult(completions, prefix, replacementLocation) ← completionResult) {
+    for (CompletionResult(completions, replacementLocation) ← completionResult) {
       val Region(offset, length) = replacementLocation
       completions match {
         case Seq() ⇒ // no completions: do nothing
@@ -144,14 +144,13 @@ trait NormalActionHandler { self: Repl ⇒
           state.lineBuffer = LineBuffer(newS, newCursorPos)
         case _ ⇒ // multiple completions
           val commonPrefix = completions.map(_.text).reduce(StringUtils.commonPrefix)
-          var completionState = IncrementalCompletionState(prefix, completions, commonPrefix, replacementLocation,
+          var completionState = IncrementalCompletionState(None, completions, commonPrefix, replacementLocation,
             immediatelyAfterCompletion = true)
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
           val newS = replacementLocation.replace(state.lineBuffer.s, completionState.getReplacement)
-          val posAfterCompletion = newReplacementRegion.posAfter
-          val newCursorPos = posAfterCompletion
+          val newCursorPos = if (completionState.allQuoted) newReplacementRegion.posAfter - 1 else newReplacementRegion.posAfter
           state.lineBuffer = LineBuffer(newS, newCursorPos)
           state.assistanceStateOpt = None
       }
