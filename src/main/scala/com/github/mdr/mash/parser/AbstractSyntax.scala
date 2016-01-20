@@ -12,7 +12,15 @@ import com.github.mdr.mash.evaluator.MashNumber
  */
 object AbstractSyntax {
 
-  sealed trait AstNode
+  sealed trait AstNode {
+    def children: Seq[AstNode]
+
+    def find[T](f: PartialFunction[AstNode, T]): Option[T] =
+      children.flatMap(_.find(f)).headOption orElse f.lift(this)
+
+    def findAll[T](f: PartialFunction[AstNode, T]): Seq[T] =
+      children.flatMap(_.find(f)) ++ f.lift(this)
+  }
 
   sealed trait Expr extends AstNode {
 
@@ -82,13 +90,6 @@ object AbstractSyntax {
       f.lift.apply(newExpr).getOrElse(newExpr)
     }
 
-    def find[T](f: PartialFunction[Expr, T]): Option[T] =
-      children.flatMap(_.find(f)).headOption orElse f.lift(this)
-
-    def findAll[T](f: PartialFunction[Expr, T]): Seq[T] =
-      children.flatMap(_.find(f)) ++ f.lift(this)
-
-    def children: Seq[Expr]
   }
 
   case class Literal(value: Any, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
@@ -186,13 +187,11 @@ object AbstractSyntax {
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
-    def children = Seq(function) ++ arguments.flatMap(_.children)
+    def children = Seq(function) ++ arguments
 
   }
 
-  sealed trait Argument extends AstNode {
-    def children: Seq[Expr]
-  }
+  sealed trait Argument extends AstNode
 
   object Argument {
 
@@ -228,17 +227,16 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  sealed trait FunctionParam {
-    def children: Seq[Expr]
+  sealed trait FunctionParam extends AstNode {
   }
 
   case class SimpleParam(name: String) extends FunctionParam {
-    def children: Seq[Expr] = Seq()
+    def children = Seq()
   }
 
   case class FunctionDeclaration(name: String, params: Seq[FunctionParam], body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(body)
+    def children = Seq(body) ++ params
   }
 
   case class MishFunction(command: String, sourceInfoOpt: Option[SourceInfo]) extends Expr {
