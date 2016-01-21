@@ -22,7 +22,7 @@ object MinFunction extends MashFunction("collections.min") {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence)).asInstanceOf[Seq[_]]
+    val sequence = boundParams.validateSequence(Sequence)
     sequence.min(Utils.AnyOrdering)
   }
 

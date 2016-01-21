@@ -23,7 +23,7 @@ object MaxFunction extends MashFunction("collections.max") {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence)).asInstanceOf[Seq[_]]
+    val sequence = boundParams.validateSequence(Sequence)
     sequence.max(Utils.AnyOrdering)
   }
 

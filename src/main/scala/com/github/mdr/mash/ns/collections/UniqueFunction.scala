@@ -20,7 +20,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   def apply(arguments: Arguments): Seq[Any] = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
+    val sequence = boundParams.validateSequence(Sequence)
     sequence.distinct
   }
 

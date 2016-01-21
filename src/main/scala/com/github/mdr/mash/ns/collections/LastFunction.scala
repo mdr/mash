@@ -25,7 +25,7 @@ object LastFunction extends MashFunction("collections.last") {
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams(Sequence)
-    val countOpt = Option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
+    val countOpt = boundParams.validateIntegerOrNull(N)
     countOpt match {
       case Some(n) ⇒
         sequence match {

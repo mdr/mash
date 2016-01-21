@@ -24,8 +24,8 @@ object EachFunction extends MashFunction("collections.each") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
-    val f = FunctionHelpers.interpretAsFunction(boundParams(Action))
+    val sequence = boundParams.validateSequence(Sequence)
+    val f = boundParams.validateFunction(Action)
     sequence.map(f).map(Evaluator.immediatelyResolveNullaryFunctions)
     ()
   }
@@ -46,4 +46,5 @@ object EachTypeInferenceStrategy extends TypeInferenceStrategy {
     MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
     Some(Type.Instance(UnitClass))
   }
+
 }

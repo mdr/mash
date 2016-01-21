@@ -26,8 +26,8 @@ object WhereFunction extends MashFunction("collections.where") {
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
-    val sequence = FunctionHelpers.interpretAsSequence(inSequence)
-    val predicate = FunctionHelpers.interpretAsFunction(boundParams(Predicate))
+    val sequence = boundParams.validateSequence(Sequence)
+    val predicate = boundParams.validateFunction(Predicate)
     val filtered = sequence.filter(x ⇒ Truthiness.isTruthy(predicate(x)))
     inSequence match {
       case MashString(_, tagOpt) ⇒ filtered.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)

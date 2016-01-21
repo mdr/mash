@@ -30,9 +30,9 @@ object SortByFunction extends MashFunction(("collections.sortBy")) {
 
   def apply(arguments: Arguments): Seq[Any] = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
+    val sequence = boundParams.validateSequence(Sequence)
     val descending = Truthiness.isTruthy(boundParams(Descending))
-    val attribute = FunctionHelpers.interpretAsFunction(boundParams(Attribute))
+    val attribute = boundParams.validateFunction(Attribute)
     val sorted = sequence.sortBy(attribute)(Utils.AnyOrdering)
     if (descending)
       sorted.reverse

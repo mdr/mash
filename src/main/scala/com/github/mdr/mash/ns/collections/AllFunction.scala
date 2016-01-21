@@ -25,8 +25,8 @@ object AllFunction extends MashFunction("collections.all") {
 
   def apply(arguments: Arguments): Boolean = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
-    val predicate = FunctionHelpers.interpretAsFunction(boundParams(Predicate))
+    val sequence = boundParams.validateSequence(Sequence)
+    val predicate = boundParams.validateFunction(Predicate)
     sequence.forall(x ⇒ Truthiness.isTruthy(predicate(x)))
   }
 

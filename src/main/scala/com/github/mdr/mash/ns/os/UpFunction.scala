@@ -18,17 +18,19 @@ object UpFunction extends MashFunction("os.up") {
   private val fileSystem = LinuxFileSystem
   private val workingDirectoryStack = Singletons.workingDirectoryStack
 
-  private val N = "n"
-
-  val params = ParameterModel(Seq(
-    Parameter(
-      name = N,
+  object Params {
+    val N = Parameter(
+      name = "n",
       summary = "Number of parent directories to move up",
-      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
+  }
+  import Params._
 
-  def apply(arguments: Arguments): Unit = {
+  val params = ParameterModel(Seq(N))
+
+  def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val times = boundParams(N).asInstanceOf[MashNumber].asInt.get
+    val times = boundParams.validateInteger(N)
     workingDirectoryStack.push(fileSystem.pwd)
     for (n ← 1 to times)
       Posix.posix.chdir("..")

@@ -83,8 +83,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       case Some(param) ⇒
         if (boundParams contains param.name)
           throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocation)
-        else
+        else {
           boundParams += param.name -> value
+          for (argNode ← argNodeOpt)
+            argumentNodes += param.name -> argNode
+        }
       case None ⇒
         if (!ignoreAdditionalParameters)
           throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocation)

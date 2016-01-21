@@ -24,7 +24,7 @@ object LengthFunction extends MashFunction("collections.length") {
 
   def apply(arguments: Arguments): MashNumber = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
+    val sequence = boundParams.validateSequence(Sequence)   
     MashNumber(sequence.length)
   }
 

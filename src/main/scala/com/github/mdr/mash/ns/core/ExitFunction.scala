@@ -11,16 +11,16 @@ object ExitFunction extends MashFunction("core.exit") {
   object Params {
     val Status = Parameter(
       name = "status",
-      summary = "Exit status",
+      summary = "Exit status (default 0)",
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
   }
   import Params._
 
   val params = ParameterModel(Seq(Status))
 
-  def apply(arguments: Arguments): Unit = {
+  def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val status = boundParams(Status).asInstanceOf[MashNumber].asInt.get
+    val status = boundParams.validateInteger(Status)
     System.exit(status)
   }
 

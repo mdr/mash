@@ -24,8 +24,8 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
   def apply(arguments: Arguments): MashNumber = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
-    val attribute = FunctionHelpers.interpretAsFunction(boundParams(Attribute))
+    val sequence = boundParams.validateSequence(Sequence)
+    val attribute = boundParams.validateFunction(Attribute)
     val numbers = sequence.map(attribute).asInstanceOf[Seq[MashNumber]]
     numbers.foldRight(MashNumber(0))(_ + _)
   }

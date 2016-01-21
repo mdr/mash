@@ -140,24 +140,6 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
 }
 
-case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argument]) {
-
-  def apply(param: String): Any = params(param)
-
-  def apply(param: Parameter): Any = params(param.name)
-
-  def get(param: Parameter): Option[Any] = params.get(param.name)
-
-  def get(param: String): Option[Any] = params.get(param)
-
-  @throws[EvaluatorException]
-  def throwInvalidArgument(param: Parameter, message: String): Nothing = {
-    val fullMessage = s"Invalid argument '${param.name}': $message"
-    val locationOpt = argumentNodes.get(param.name).flatMap(_.sourceInfoOpt).map(_.location)
-    throw new EvaluatorException(fullMessage, locationOpt)
-  }
-}
-
 case class BoundTypeParams(params: Map[String, AnnotatedExpr]) {
 
   def apply(param: String): AnnotatedExpr = params(param)

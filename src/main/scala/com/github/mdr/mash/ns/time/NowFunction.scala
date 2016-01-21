@@ -10,11 +10,13 @@ import com.github.mdr.mash.inference.Type
 
 object NowFunction extends MashFunction("time.now") {
 
+  private val clock: Clock = Clock.systemDefaultZone
+
   val params = ParameterModel()
 
   def apply(arguments: Arguments): Instant = {
     params.validate(arguments)
-    Instant.now()
+    clock.instant
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(DateTimeClass))

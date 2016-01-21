@@ -18,7 +18,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
 
   def apply(arguments: Arguments): MashNumber = {
     val boundParams = params.validate(arguments)
-    val s = boundParams(Params.String).asInstanceOf[MashString]
+    val s = boundParams.validateString(Params.String)
     MashNumber(s.s.toDouble)
   }
 

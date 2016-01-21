@@ -27,8 +27,8 @@ object JoinFunction extends MashFunction("collections.join") {
 
   def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
-    val separator = boundParams(Separator).asInstanceOf[MashString].s
+    val sequence = boundParams.validateSequence(Sequence)
+    val separator = boundParams.validateString(Separator).s
     val chunks = sequence.map(ToStringifier.stringify)
     MashString(chunks.mkString(separator))
   }

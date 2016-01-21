@@ -56,7 +56,7 @@ The default signal is TERM."""))
     boundParams(Params.Signal) match {
       case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + n))
       case s: MashString ⇒ Signals.get(s.s).getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + s))
-      case x             ⇒ boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + x)
+      case x             ⇒ boundParams.throwInvalidArgument(Params.Signal, s"invalid signal '$x'")
     }
 
   private def getPids(x: Any): Seq[Int] = x match {

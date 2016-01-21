@@ -18,7 +18,6 @@ import com.github.mdr.mash.ns.core.StringClass
 object SumFunction extends MashFunction("collections.sum") {
 
   object Params {
-
     val Default = Parameter(
       name = "emptyValue",
       summary = "Value used as the sum of an empty list (default 0)",
@@ -27,7 +26,6 @@ object SumFunction extends MashFunction("collections.sum") {
       name = "sequence",
       summary = "Sequence of items to sum",
       isLast = true)
-
   }
   import Params._
 
@@ -49,7 +47,7 @@ object SumFunction extends MashFunction("collections.sum") {
 
   override def summary = "Sum all the elements of a sequence"
 
-  override def descriptionOpt = Some("""Add all the elements in the sequence together, using the same logic as the pairwise + operator.
+  override def descriptionOpt = Some("""Add all the elements in the sequence together, as if they were combined with the '+' operator.
 
 Examples:
   sum [1, 2, 3]      # 6
@@ -79,4 +77,3 @@ object SumTypeInferenceStrategy extends TypeInferenceStrategy {
   }
 
 }
-

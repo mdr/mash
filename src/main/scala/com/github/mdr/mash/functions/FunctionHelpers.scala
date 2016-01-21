@@ -48,10 +48,4 @@ object FunctionHelpers {
     Evaluator.callFunction(f, args)
   }
 
-  def interpretAsSequence(x: Any): Seq[Any] = x match {
-    case xs: Seq[Any]          ⇒ xs
-    case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case _                     ⇒ throw new EvaluatorException("Could not interpret as sequence: " + x)
-  }
-
 }

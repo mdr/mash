@@ -28,7 +28,7 @@ object SortFunction extends MashFunction("collections.sort") {
 
   def apply(arguments: Arguments): Seq[Any] = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
+    val sequence = boundParams.validateSequence(Sequence)
     val descending = Truthiness.isTruthy(boundParams(Descending))
     val sorted = sequence.sorted(Utils.AnyOrdering)
     if (descending)

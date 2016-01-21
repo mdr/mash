@@ -229,7 +229,7 @@ The default character encoding and line separator are used.""")
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      val f = FunctionHelpers.interpretAsFunction(boundParams(F))
+      val f = boundParams.validateFunction(F)
       val newFileName = f(asPathString(path.getFileName)).asInstanceOf[MashString].s
       val newPath = path.resolveSibling(Paths.get(newFileName))
       val newLocation = Files.move(path, newPath)

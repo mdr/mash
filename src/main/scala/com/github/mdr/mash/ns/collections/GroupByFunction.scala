@@ -50,8 +50,8 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
-    val discriminator = FunctionHelpers.interpretAsFunction(boundParams(Discriminator))
+    val sequence = boundParams.validateSequence(Sequence)
+    val discriminator = boundParams.validateFunction(Discriminator)
     val includeNulls = Truthiness.isTruthy(boundParams(IncludeNull))
     val includeTotal = Truthiness.isTruthy(boundParams(Total))
 
@@ -82,7 +82,11 @@ If a non-boolean argument is given, that will be used as the key for the null gr
   }
 
   private def makeGroup(key: Any, values: Seq[Any]) =
-    MashObject(ListMap(GroupClass.Fields.Key -> key, GroupClass.Fields.Values -> values), GroupClass)
+    MashObject(
+      ListMap(
+        GroupClass.Fields.Key -> key,
+        GroupClass.Fields.Values -> values),
+      GroupClass)
 
   override def typeInferenceStrategy = GroupByTypeInferenceStrategy
 
@@ -91,8 +95,9 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   override def summary = "Group together the elements of a sequence sharing a common key"
 
-  override def descriptionOpt = Some("""Returns a sequence of Group objects, where each group contains a subset of the sequence 
-sharing the same key, as determined by the given discriminator function.
+  override def descriptionOpt = Some("""Returns a sequence of Group objects, where each group contains 
+a subset of the sequence  sharing the same key, as determined by the given 
+discriminator function.
     
 Example:
   groupBy first ["foo", "bar", "baz"]

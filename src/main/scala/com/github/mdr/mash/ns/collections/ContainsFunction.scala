@@ -26,7 +26,7 @@ object ContainsFunction extends MashFunction("collections.contains") {
 
   def apply(arguments: Arguments): Boolean = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
+    val sequence = boundParams.validateSequence(Sequence)   
     val element = boundParams(Element)
     sequence.contains(element)
   }

@@ -23,8 +23,8 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
 
   def apply(arguments: Arguments): Seq[Any] = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
-    val predicate = FunctionHelpers.interpretAsFunction(boundParams(Predicate))
+    val sequence = boundParams.validateSequence(Sequence)
+    val predicate = boundParams.validateFunction(Predicate)
     sequence.takeWhile(x ⇒ Truthiness.isTruthy(predicate(x)))
   }
 

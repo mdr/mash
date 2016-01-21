@@ -18,7 +18,6 @@ import com.github.mdr.mash.inference.Inferencer
 object MapFunction extends MashFunction("collections.map") {
 
   object Params {
-
     val F = Parameter(
       name = "f",
       summary = "Function used to transform elements of the sequence")
@@ -26,7 +25,6 @@ object MapFunction extends MashFunction("collections.map") {
       name = "sequence",
       summary = "Sequence to map over",
       isLast = true)
-
   }
 
   import Params._
@@ -36,8 +34,8 @@ object MapFunction extends MashFunction("collections.map") {
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
-    val sequence = FunctionHelpers.interpretAsSequence(inSequence)
-    val f = FunctionHelpers.interpretAsFunction(boundParams(F))
+    val sequence = boundParams.validateSequence(Sequence)
+    val f = boundParams.validateFunction(F)
     val mapped = sequence.map(f)
     inSequence match {
       case MashString(_, tagOpt) ⇒ mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)

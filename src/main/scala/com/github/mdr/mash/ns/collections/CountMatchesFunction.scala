@@ -25,8 +25,8 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
 
   def apply(arguments: Arguments): MashNumber = {
     val boundParams = params.validate(arguments)
-    val sequence = FunctionHelpers.interpretAsSequence(boundParams(Sequence))
-    val predicate = FunctionHelpers.interpretAsFunction(boundParams(Predicate))
+    val sequence = boundParams.validateSequence(Sequence)   
+    val predicate = boundParams.validateFunction(Predicate)
     val n = sequence.count(x ⇒ Truthiness.isTruthy(predicate(x)))
     MashNumber(n)
   }

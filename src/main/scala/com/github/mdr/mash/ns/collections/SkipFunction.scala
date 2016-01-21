@@ -27,8 +27,9 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
-    val n = boundParams(N).asInstanceOf[MashNumber].asInt.get
+    val n = boundParams.validateInteger(N)
     sequence match {
       case s: MashString ⇒ s.modify(_.drop(n))
       case xs: Seq[_]    ⇒ xs.drop(n)

@@ -30,8 +30,9 @@ object FirstFunction extends MashFunction("collections.first") {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
-    val countOpt = Option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
+    val countOpt = boundParams.validateIntegerOrNull(N)
     countOpt match {
       case Some(n) ⇒
         sequence match {

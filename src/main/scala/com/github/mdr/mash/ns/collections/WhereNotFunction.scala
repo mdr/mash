@@ -15,11 +15,11 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val input = boundParams(Sequence)
-    val sequence = FunctionHelpers.interpretAsSequence(input)
-    val predicate = FunctionHelpers.interpretAsFunction(boundParams(Predicate))
+    val inSequence = boundParams(Sequence)
+    val sequence = boundParams.validateSequence(Sequence)
+    val predicate = boundParams.validateFunction(Predicate)
     val filtered = sequence.filterNot(x ⇒ Truthiness.isTruthy(predicate(x)))
-    input match {
+    inSequence match {
       case MashString(_, tagOpt) ⇒ filtered.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
       case _                     ⇒ filtered
     }
