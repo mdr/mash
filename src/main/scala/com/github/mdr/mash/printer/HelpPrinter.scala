@@ -41,7 +41,6 @@ class HelpPrinter(output: PrintStream) {
     if (parameters.nonEmpty) {
       import ParameterHelpClass.Fields._
       output.println(bold("PARAMETERS"))
-      output.println()
       for (param ← parameters)
         printParameterHelp(param)
     }
@@ -110,7 +109,6 @@ class HelpPrinter(output: PrintStream) {
     val fields = mo.field(Fields).asInstanceOf[Seq[MashObject]]
     if (fields.nonEmpty) {
       output.println(bold("FIELDS"))
-      output.println()
       for (field ← fields) {
         import FieldHelpClass.Fields._
         output.print(indentSpace)
@@ -122,7 +120,6 @@ class HelpPrinter(output: PrintStream) {
     val methods = mo.field(Methods).asInstanceOf[Seq[MashObject]]
     if (methods.nonEmpty) {
       output.println(bold("METHODS"))
-      output.println()
       for (method ← methods) {
         import FieldHelpClass.Fields._
         output.print(indentSpace)

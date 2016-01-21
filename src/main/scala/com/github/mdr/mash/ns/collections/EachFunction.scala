@@ -17,7 +17,6 @@ object EachFunction extends MashFunction("collections.each") {
       summary = "Sequence to run an action over",
       isLast = true)
   }
-
   import Params._
 
   val params = ParameterModel(Seq(Action, Sequence))
@@ -25,8 +24,8 @@ object EachFunction extends MashFunction("collections.each") {
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
-    val f = boundParams.validateFunction(Action)
-    sequence.map(f).map(Evaluator.immediatelyResolveNullaryFunctions)
+    val action = boundParams.validateFunction(Action)
+    sequence.foreach(action)
     ()
   }
 
@@ -39,11 +38,11 @@ object EachFunction extends MashFunction("collections.each") {
 object EachTypeInferenceStrategy extends TypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = EachFunction.params.bindTypes(arguments)
     import EachFunction.Params._
+    val argBindings = EachFunction.params.bindTypes(arguments)
     val sequenceExprOpt = argBindings.get(Sequence)
-    val predicateExprOpt = argBindings.get(Action)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
+    val actionExprOpt = argBindings.get(Action)
+    MapTypeInferenceStrategy.inferAppliedType(inferencer, actionExprOpt, sequenceExprOpt)
     Some(Type.Instance(UnitClass))
   }
 

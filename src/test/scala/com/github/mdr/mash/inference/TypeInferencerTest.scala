@@ -56,7 +56,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "map --f=(_ * 2) [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
   "map (_.toUpper) 'foo'" shouldBeInferredAsHavingType StringType
   "map (x => x x) [1, 2, 3]" shouldBeInferredAsHavingType Seq(Any)
-  "map (x => x x) 'foo'" shouldBeInferredAsHavingType StringType
+  "map (_.toNumber) '123'" shouldBeInferredAsHavingType Seq(NumberType)
 
   "42.toString" shouldBeInferredAsHavingType StringType
 

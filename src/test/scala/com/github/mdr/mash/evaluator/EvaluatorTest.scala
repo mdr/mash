@@ -206,6 +206,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "map --f=(_ * 2) [1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
   "[1, 2, 3] | map --f=(_ * 2)" shouldEvaluateTo "[2, 4, 6]"
   "map (_.toUpper) 'foo'" shouldEvaluateTo "'FOO'"
+  "'123' | map (_.toNumber)" shouldEvaluateTo "[1, 2, 3]"
 
   // max
   "max [1, 200, 3]" shouldEvaluateTo "200"
@@ -258,6 +259,11 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   // skipWhile
   "[1, 2, 3, 4, 5, 1] | skipWhile (_ < 3)" shouldEvaluateTo "[3, 4, 5, 1]"
+  "'abcdef' | skipWhile (_ < d)" shouldEvaluateTo "'def'"
+
+  // skipUntil
+  "[1, 2, 3, 4, 5, 1] | skipUntil (_ > 3)" shouldEvaluateTo "[4, 5, 1]"
+  "'abcdef' | skipUntil (_ > d)" shouldEvaluateTo "'ef'"
 
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "

@@ -14,6 +14,7 @@ object StandardFunctions {
 
   val CoreFunctions = Seq(
     ExitFunction,
+    IdentityFunction,
     IsNullFunction,
     HelpFunction,
     HistoryFunction,

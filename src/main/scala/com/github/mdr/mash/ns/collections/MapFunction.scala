@@ -38,8 +38,10 @@ object MapFunction extends MashFunction("collections.map") {
     val f = boundParams.validateFunction(F)
     val mapped = sequence.map(f)
     inSequence match {
-      case MashString(_, tagOpt) ⇒ mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ mapped
+      case MashString(_, tagOpt) if mapped.forall(_.isInstanceOf[MashString]) ⇒
+        mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
+      case _ ⇒
+        mapped
     }
   }
 
@@ -90,11 +92,16 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
       AnnotatedExpr(_, sequenceTypeOpt) ← sequenceOpt
       sequenceType ← sequenceTypeOpt
       newSequenceType ← condOpt(sequenceType) {
-        case Type.Seq(_) ⇒ newElementTypeOpt match {
-          case Some(newElementType) ⇒ Type.Seq(newElementType)
-          case None                 ⇒ Type.Seq(Type.Any)
-        }
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
+          newElementTypeOpt match {
+            case None | Some(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ sequenceType
+            case Some(newElementType) ⇒ Type.Seq(newElementType)
+          }
+        case Type.Seq(_) ⇒
+          newElementTypeOpt match {
+            case Some(newElementType) ⇒ Type.Seq(newElementType)
+            case None                 ⇒ Type.Seq(Type.Any)
+          }
       }
     } yield newSequenceType
   }

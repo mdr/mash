@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.evaluator.MashString
 
 object SkipUntilFunction extends MashFunction("collections.skipUntil") {
 
@@ -12,11 +13,16 @@ object SkipUntilFunction extends MashFunction("collections.skipUntil") {
 
   import SkipWhileFunction.Params._
 
-  def apply(arguments: Arguments): Seq[Any] = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    sequence.dropWhile(x ⇒ Truthiness.isFalsey(predicate(x)))
+    val newSequence = sequence.dropWhile(x ⇒ Truthiness.isFalsey(predicate(x)))
+    inSequence match {
+      case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
+      case _                     ⇒ newSequence
+    }
   }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

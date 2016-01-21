@@ -48,12 +48,12 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   val params = ParameterModel(Seq(Discriminator, Total, IncludeNull, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): Seq[MashObject] = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
     val includeNulls = Truthiness.isTruthy(boundParams(IncludeNull))
-    val includeTotal = Truthiness.isTruthy(boundParams(Total))
+    val includeTotalGroup = Truthiness.isTruthy(boundParams(Total))
 
     val nullKey = boundParams.get(IncludeNull) match {
       case Some(true) | None ⇒ null
@@ -70,12 +70,13 @@ If a non-boolean argument is given, that will be used as the key for the null gr
         groupKey = translateKey(key)
       } yield makeGroup(groupKey, values)
 
-    if (includeTotal) {
+    if (includeTotalGroup) {
       val totalKey = boundParams(Total) match {
         case true ⇒ MashString(DefaultTotalKeyName)
         case x    ⇒ x
       }
-      groups = groups :+ makeGroup(totalKey, sequence)
+      val totalGroup = makeGroup(totalKey, sequence)
+      groups = groups :+ totalGroup
     }
 
     groups
@@ -113,8 +114,8 @@ Example:
 object GroupByTypeInferenceStrategy extends TypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = GroupByFunction.params.bindTypes(arguments)
     import GroupByFunction.Params._
+    val argBindings = GroupByFunction.params.bindTypes(arguments)
     val sequenceExprOpt = argBindings.get(Sequence)
     val discriminatorExprOpt = argBindings.get(Discriminator)
     for {

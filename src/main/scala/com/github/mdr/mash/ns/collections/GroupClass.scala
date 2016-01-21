@@ -12,25 +12,29 @@ object GroupClass extends MashClass("collections.Group") {
     val Key = Field("key", "Key that each element of the group shares", Type.Instance(StringClass))
     val Values = Field("values", "Values of the group", Type.Seq(Type.Any))
   }
-
   import Fields._
 
   override val fields = Seq(Key, Values)
 
   override val methods = Seq(CountMethod)
 
+  private case class Wrapper(target: Any) {
+    val mo = target.asInstanceOf[MashObject]
+    def values = mo.field(Values).asInstanceOf[Seq[Any]]
+  }
+
   object CountMethod extends MashMethod("count") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashNumber = {
       params.validate(arguments)
-      MashNumber(target.asInstanceOf[MashObject].field(Values).asInstanceOf[Seq[_]].length)
+      MashNumber(Wrapper(target).values.length)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(NumberClass))
 
-    def summary = "The number of elements in the group"
+    def summary = "The number of values in this group"
 
   }
 
