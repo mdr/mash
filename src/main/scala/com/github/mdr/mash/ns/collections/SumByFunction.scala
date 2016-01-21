@@ -6,13 +6,18 @@ import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.evaluator.Evaluator
 
 object SumByFunction extends MashFunction("collections.sumBy") {
 
   object Params {
     val Attribute = Parameter(
       name = "attribute",
-      summary = "Function to extract a numeric value to sum")
+      summary = "Function to extract a value from to sum")
+    val EmptyValue = Parameter(
+      name = "emptyValue",
+      summary = "Value used as the sum of an empty list (default 0)",
+      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to find the sum of",
@@ -20,14 +25,17 @@ object SumByFunction extends MashFunction("collections.sumBy") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Attribute, Sequence))
+  val params = ParameterModel(Seq(Attribute, EmptyValue, Sequence))
 
-  def apply(arguments: Arguments): MashNumber = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
-    val numbers = sequence.map(attribute).asInstanceOf[Seq[MashNumber]]
-    numbers.foldRight(MashNumber(0))(_ + _)
+    val attributes = sequence.map(attribute)
+    if (attributes.isEmpty)
+      boundParams(EmptyValue)
+    else
+      attributes.reduce(Evaluator.add(_, _, None))
   }
 
   override def typeInferenceStrategy = SumByTypeInferenceStrategy

@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.evaluator.MashString
 
 object SortFunction extends MashFunction("collections.sort") {
 
@@ -26,15 +27,18 @@ object SortFunction extends MashFunction("collections.sort") {
 
   val params = ParameterModel(Seq(Sequence, Descending))
 
-  def apply(arguments: Arguments): Seq[Any] = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = Truthiness.isTruthy(boundParams(Descending))
     val sorted = sequence.sorted(Utils.AnyOrdering)
-    if (descending)
-      sorted.reverse
-    else
-      sorted
+    val newSequence =
+      if (descending)
+        sorted.reverse
+      else
+        sorted
+    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy

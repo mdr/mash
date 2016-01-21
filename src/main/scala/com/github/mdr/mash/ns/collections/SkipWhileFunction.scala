@@ -28,11 +28,7 @@ object SkipWhileFunction extends MashFunction("collections.skipWhile") {
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
     val newSequence = sequence.dropWhile(x ⇒ Truthiness.isTruthy(predicate(x)))
-    inSequence match {
-      case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ newSequence
-    }
-
+    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

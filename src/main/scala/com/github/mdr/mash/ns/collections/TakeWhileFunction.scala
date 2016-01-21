@@ -21,11 +21,13 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(arguments: Arguments): Seq[Any] = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    sequence.takeWhile(x ⇒ Truthiness.isTruthy(predicate(x)))
+    val newSequence = sequence.takeWhile(x ⇒ Truthiness.isTruthy(predicate(x)))
+    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

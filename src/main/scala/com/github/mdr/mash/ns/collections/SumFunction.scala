@@ -18,7 +18,7 @@ import com.github.mdr.mash.ns.core.StringClass
 object SumFunction extends MashFunction("collections.sum") {
 
   object Params {
-    val Default = Parameter(
+    val EmptyValue = Parameter(
       name = "emptyValue",
       summary = "Value used as the sum of an empty list (default 0)",
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
@@ -29,16 +29,13 @@ object SumFunction extends MashFunction("collections.sum") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Default, Sequence))
+  val params = ParameterModel(Seq(EmptyValue, Sequence))
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams(Sequence) match {
-      case xs: Seq[_] ⇒ xs
-      case _          ⇒ throw new EvaluatorException("Invalid arguments for function 'sum': Argument 'sequence' must be a sequence")
-    }
+    val sequence = boundParams.validateSequence(Sequence)
     if (sequence.isEmpty)
-      boundParams(Default)
+      boundParams(EmptyValue)
     else
       sequence.reduce(Evaluator.add(_, _, None))
   }

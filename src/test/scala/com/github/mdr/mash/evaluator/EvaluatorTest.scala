@@ -159,6 +159,9 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "[1, 2, 1] | groupBy --total='totalCount' (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
 
+  // identity
+  "identity 1" shouldEvaluateTo "1"
+
   // isEmpty
   "isEmpty []" shouldEvaluateTo "true"
   "isEmpty [1, 2, 3]" shouldEvaluateTo "false"
@@ -267,21 +270,29 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "
+  "'eaebcd' | sort" shouldEvaluateTo "'abcdee'"
 
   // sortBy
   " ['aa', 'b', 'ccc'] | sortBy length " shouldEvaluateTo " ['b', 'aa', 'ccc'] "
+  "'123' | sortBy (-_.toNumber)" shouldEvaluateTo "'321'"
 
   // sum
   " [] | sum " shouldEvaluateTo "0"
   " [1, 2, 3] | sum " shouldEvaluateTo "6"
   " [1.bytes].sum.tag " shouldEvaluateTo " 1.bytes.tag "
-  " [1.bytes].sumBy (_) | _.tag " shouldEvaluateTo " 1.bytes.tag "
   "['foo', 'bar'] | sum" shouldEvaluateTo "'foobar'"
   "[[1, 2], [3]] | sum" shouldEvaluateTo "[1, 2, 3]"
   "sum '' []" shouldEvaluateTo "''"
 
   // sumBy
   " ['a', 'bb', 'ccc'] | sumBy length " shouldEvaluateTo "6"
+  " [1.bytes].sumBy (_) | _.tag " shouldEvaluateTo " 1.bytes.tag "
+  "sumBy (_.toNumber) '123'" shouldEvaluateTo "6"
+  "sumBy (_.toNumber) '' []" shouldEvaluateTo "''"
+
+  // unique
+  "unique [1, 2, 3, 2, 1]" shouldEvaluateTo "[1, 2, 3]"
+  "unique 'abcba'" shouldEvaluateTo "'abc'"
 
   // where
   "[1, 2, 3] | where (_ > 2)" shouldEvaluateTo "[3]"

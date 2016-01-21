@@ -18,11 +18,8 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    val filtered = sequence.filterNot(x ⇒ Truthiness.isTruthy(predicate(x)))
-    inSequence match {
-      case MashString(_, tagOpt) ⇒ filtered.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ filtered
-    }
+    val newSequence = sequence.filterNot(x ⇒ Truthiness.isTruthy(predicate(x)))
+    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

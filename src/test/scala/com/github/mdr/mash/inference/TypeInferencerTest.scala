@@ -114,6 +114,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // sumBy
   " [1.bytes] | sumBy (_) " shouldBeInferredAsHavingType Tagged(NumberClass, BytesClass)
   " [] | sumBy (_) " shouldBeInferredAsHavingType NumberType
+  "sumBy (_.toNumber) '123'" shouldBeInferredAsHavingType NumberType
 
   // max
   "[1, 2, 3] | max" shouldBeInferredAsHavingType NumberType

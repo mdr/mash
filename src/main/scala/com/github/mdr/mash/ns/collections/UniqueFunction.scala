@@ -18,10 +18,12 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(arguments: Arguments): Seq[Any] = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
+    val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
-    sequence.distinct
+    val newSequence = sequence.distinct
+    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy

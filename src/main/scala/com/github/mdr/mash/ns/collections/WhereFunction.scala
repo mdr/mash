@@ -28,12 +28,15 @@ object WhereFunction extends MashFunction("collections.where") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    val filtered = sequence.filter(x ⇒ Truthiness.isTruthy(predicate(x)))
-    inSequence match {
-      case MashString(_, tagOpt) ⇒ filtered.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ filtered
-    }
+    val newSequence = sequence.filter(x ⇒ Truthiness.isTruthy(predicate(x)))
+    reassembleSequence(inSequence, newSequence)
   }
+
+  def reassembleSequence(inSequence: Any, newSequence: Seq[_]): Any =
+    inSequence match {
+      case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
+      case _                     ⇒ newSequence
+    }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy
 
