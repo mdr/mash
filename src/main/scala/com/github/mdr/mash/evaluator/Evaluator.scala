@@ -245,9 +245,9 @@ object Evaluator {
     }
 
   private def evaluateArgument(arg: Argument, env: Environment): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr, env))
-    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags)
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v, env)))
+    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr, env), Some(arg))
+    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags, Some(arg))
+    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v, env)), Some(arg))
   }
 
   private def evaluateInvocationExpr(invocationExpr: InvocationExpr, env: Environment) = {
@@ -339,18 +339,8 @@ object Evaluator {
     val functionLocationOpt = functionExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
     val invocationLocationOpt = invocationExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
     function match {
-      case xs: Seq[_] ⇒
-        arguments.positionArgs(0) match {
-          case n: MashNumber ⇒
-            val i = n.asInt.getOrElse(
-              throw new EvaluatorException("Invalid index", invocationLocationOpt))
-            val index = if (i < 0) i + xs.size else i
-            xs(index)
-          case _ ⇒
-            throw new EvaluatorException("Invalid index", invocationLocationOpt)
-        }
       case MashString(s, _) ⇒
-        arguments.positionArgs(0) match {
+        arguments.positionArgs(0).value match {
           case xs: Seq[_] ⇒
             xs.map { target ⇒
               val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)

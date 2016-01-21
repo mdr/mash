@@ -44,7 +44,7 @@ object FunctionHelpers {
   def asPathString(s: String): MashString = MashString(s, Some(PathClass))
 
   def interpretAsFunction(f: Any): (Any ⇒ Any) = o ⇒ {
-    val args = Arguments(Seq(EvaluatedArgument.PositionArg(o)))
+    val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))
     Evaluator.callFunction(f, args)
   }
 

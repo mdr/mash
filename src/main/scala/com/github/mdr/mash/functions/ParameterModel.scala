@@ -7,6 +7,8 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArgument
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.parser.AbstractSyntax.Argument
+import com.github.mdr.mash.evaluator.EvaluatedArgument
 
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
@@ -28,82 +30,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   }
 
   def validate(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
-    new ParamValidationContext(arguments, ignoreAdditionalParameters).validate()
-
-  private class ParamValidationContext(arguments: Arguments, ignoreAdditionalParameters: Boolean) {
-
-    private var boundParams: Map[String, Any] = Map()
-    private var lastParameterConsumed = false
-
-    private def handleLastArg() =
-      for {
-        lastParam ← lastParamOpt
-        lastArg ← arguments.positionArgs.lastOption
-        if !arguments.isProvidedAsNamedArg(lastParam.name)
-      } {
-        lastParameterConsumed = true
-        boundParams += lastParam.name -> lastArg
-      }
-
-    private def handlePositionalArgs() = {
-      val regularPosParams = positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
-      val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
-
-      if (positionArgs.size > regularPosParams.size)
-        variadicParamOpt match {
-          case Some(variadicParam) ⇒
-            boundParams += variadicParam.name -> positionArgs.drop(regularPosParams.size)
-          case None ⇒
-            val maxPositionArgs = positionalParams.size
-            val providedArgs = arguments.positionArgs.size
-            if (!ignoreAdditionalParameters)
-              throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed")
-        }
-
-      for ((param, arg) ← regularPosParams zip positionArgs)
-        boundParams += param.name -> arg
-    }
-
-    private def bindFlagParam(paramName: String, value: Any) =
-      paramByName.get(paramName) match {
-        case Some(param) ⇒
-          if (boundParams contains param.name)
-            throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times")
-          else
-            boundParams += param.name -> value
-        case None ⇒
-          if (!ignoreAdditionalParameters)
-            throw new EvaluatorException(s"Unexpected named argument '$paramName'")
-      }
-
-    private def handleFlagArgs() {
-      for (paramName ← arguments.argSet)
-        bindFlagParam(paramName, value = true)
-      for ((paramName, value) ← arguments.argValues)
-        bindFlagParam(paramName, value)
-    }
-
-    private def handleDefaultAndMandatory() =
-      for (param ← params if !boundParams.contains(param.name))
-        param.defaultValueGeneratorOpt match {
-          case Some(generator) ⇒
-            boundParams += param.name -> generator()
-          case None ⇒
-            if (param.isVariadic)
-              boundParams += param.name -> Seq()
-            else
-              throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
-        }
-
-    def validate(): BoundParams = {
-      handleLastArg()
-      handlePositionalArgs()
-      handleFlagArgs()
-      handleDefaultAndMandatory()
-      BoundParams(boundParams)
-    }
-
-  }
+    new ParamValidationContext(this, arguments, ignoreAdditionalParameters).validate()
 
   def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summary, param.shortFlagOpt.map(_.toString), Some(param.name)))
 
@@ -113,8 +40,6 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     val positionalParams =
       for (param ← params.filterNot(_.isFlag)) yield {
         val name = param.name
-        //        if (param.isLast)
-        //          s"{<$name>}"
         if (param.isVariadic)
           s"<$name>..."
         else if (param.isOptional)
@@ -215,7 +140,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
 }
 
-case class BoundParams(params: Map[String, Any]) {
+case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argument]) {
 
   def apply(param: String): Any = params(param)
 
@@ -225,6 +150,12 @@ case class BoundParams(params: Map[String, Any]) {
 
   def get(param: String): Option[Any] = params.get(param)
 
+  @throws[EvaluatorException]
+  def throwInvalidArgument(param: Parameter, message: String): Nothing = {
+    val fullMessage = s"Invalid argument '${param.name}': $message"
+    val locationOpt = argumentNodes.get(param.name).flatMap(_.sourceInfoOpt).map(_.location)
+    throw new EvaluatorException(fullMessage, locationOpt)
+  }
 }
 
 case class BoundTypeParams(params: Map[String, AnnotatedExpr]) {

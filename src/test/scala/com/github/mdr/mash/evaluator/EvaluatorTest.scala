@@ -95,10 +95,6 @@ class EvaluatorTest extends FlatSpec with Matchers {
   " 'bar'[0] " shouldEvaluateTo " 'b' "
   "{ foo: 42 }['foo'] " shouldEvaluateTo "42"
 
-  // Sequences as functions
-  "[1, 2, 3] 1" shouldEvaluateTo "2"
-  "[1, 2, 3] (-1)" shouldEvaluateTo "3"
-
   // all
   "[2, 4, 6] | all (_ < 10)" shouldEvaluateTo "true"
   "[2, 4, 6] | all (_ < 5)" shouldEvaluateTo "false"
@@ -205,7 +201,6 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   // map
   "[1, 2, 3].map (_ * 2)" shouldEvaluateTo "[2, 4, 6]"
-  "[0, 3, 2, 4].map [10, 20, 30, 40, 50]" shouldEvaluateTo "[10, 40, 30, 50]"
   "map --f=(_ * 2) --sequence=[1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
   "map (_ * 2) --sequence=[1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
   "map --f=(_ * 2) [1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
@@ -367,7 +362,6 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "['foo', 'bar', 'baz'] | map reverse" shouldEvaluateTo "['oof', 'rab', 'zab']"
   "['foo', 'bar', 'baz'] | map 'reverse'" shouldEvaluateTo "['oof', 'rab', 'zab']"
   "[{foo: 42}] | map 'foo'" shouldEvaluateTo "[42]"
-  "[1] | map [1, 2, 3]" shouldEvaluateTo "[2]"
   "['f', 'x'] | map 'foo'.startsWith" shouldEvaluateTo "[true, false]"
 
   // help

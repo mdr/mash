@@ -58,7 +58,7 @@ object SeqClass extends MashClass("collections.Seq") {
     val params = function.params.copy(function.params.params.filterNot(_.name == "sequence"))
 
     def apply(target: Any, arguments: Arguments): Any =
-      function.apply(Arguments(arguments.evaluatedArguments :+ EvaluatedArgument.PositionArg(target)))
+      function.apply(Arguments(arguments.evaluatedArguments :+ EvaluatedArgument.PositionArg(target, None)))
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =

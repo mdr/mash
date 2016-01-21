@@ -39,22 +39,22 @@ object SelectFunction extends MashFunction("collections.select") {
     val add = Truthiness.isTruthy(boundParams(Add))
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, Any ⇒ Any)] = arguments.evaluatedArguments.init.flatMap {
-      case EvaluatedArgument.PositionArg(value) ⇒
+      case EvaluatedArgument.PositionArg(value, _) ⇒
         value match {
           case MashString(s, _) ⇒ Some(s -> FunctionHelpers.interpretAsFunction(value))
           case _                ⇒ throw new EvaluatorException("Positional arguments must be strings")
         }
-      case EvaluatedArgument.ShortFlag(flags) ⇒
+      case EvaluatedArgument.ShortFlag(flags, _) ⇒
         if (flags == Seq(AddShortFlag.toString))
           None
         else
           throw new EvaluatorException("Short flags not supported by select")
-      case EvaluatedArgument.LongFlag(flag, None) ⇒
+      case EvaluatedArgument.LongFlag(flag, None, _) ⇒
         if (flag == Add.name)
           None
         else
           Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
-      case EvaluatedArgument.LongFlag(flag, Some(value)) ⇒
+      case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒
         Some(flag -> FunctionHelpers.interpretAsFunction(value))
     }
     target match {

@@ -8,7 +8,7 @@ import com.github.mdr.mash.evaluator.Evaluator
 case class AnonymousFunction(parameter: String, body: Expr, env: Environment) extends MashFunction(nameOpt = None) {
 
   def apply(arguments: Arguments): Any = {
-    val arg = arguments.positionArgs(0)
+    val arg = arguments.positionArgs(0).value
     val newEnv = env.addBinding(parameter, arg)
     Evaluator.evaluate(body, newEnv)
   }

@@ -9,6 +9,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import jnr.constants.platform.linux.Signal
+import com.github.mdr.mash.functions.BoundParams
 
 object KillFunction extends MashFunction("os.kill") {
 
@@ -42,20 +43,21 @@ The default signal is TERM."""))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val signal = getSignal(boundParams(Params.Signal))
+    val signal = getSignal(boundParams)
     val processes = boundParams(Params.Processes).asInstanceOf[Seq[_]]
     if (processes.isEmpty)
-      throw new EvaluatorException("Must provide at least one process to kill")
+      boundParams.throwInvalidArgument(Params.Processes, "must provide at least one process to kill")
     val pids = processes.flatMap(getPids)
     for (pid ← pids)
       processInteractions.kill(pid, signal)
   }
 
-  def getSignal(x: Any): Int = x match {
-    case n: MashNumber ⇒ n.asInt.getOrElse(throw new EvaluatorException("Invalid signal: " + n))
-    case s: MashString ⇒ Signals.get(s.s).getOrElse(throw new EvaluatorException("Invalid signal: " + s))
-    case x             ⇒ throw new EvaluatorException("Invalid signal: " + x)
-  }
+  def getSignal(boundParams: BoundParams): Int =
+    boundParams(Params.Signal) match {
+      case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + n))
+      case s: MashString ⇒ Signals.get(s.s).getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + s))
+      case x             ⇒ boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + x)
+    }
 
   private def getPids(x: Any): Seq[Int] = x match {
     case n: MashNumber                           ⇒ Seq(n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n)))

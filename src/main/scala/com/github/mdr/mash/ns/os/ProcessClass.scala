@@ -66,7 +66,7 @@ object ProcessClass extends MashClass("os.Process") {
     def apply(target: Any, arguments: Arguments) {
       val boundParams = params.validate(arguments)
       val pid = Wrapper(target).pid
-      val signal = KillFunction.getSignal(boundParams(KillFunction.Params.Signal))
+      val signal = KillFunction.getSignal(boundParams)
       processInteractions.kill(pid, signal)
     }
 

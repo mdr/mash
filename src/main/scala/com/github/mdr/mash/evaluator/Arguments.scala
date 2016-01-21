@@ -2,17 +2,18 @@ package com.github.mdr.mash.evaluator
 
 case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
 
-  def positionArgs: Seq[Any] = evaluatedArguments.collect { case EvaluatedArgument.PositionArg(value) ⇒ value }
+  def positionArgs: Seq[EvaluatedArgument.PositionArg] =
+    evaluatedArguments.collect { case arg: EvaluatedArgument.PositionArg ⇒ arg }
 
-  def argSet: Set[String] = evaluatedArguments.collect {
-    case EvaluatedArgument.ShortFlag(flags)     ⇒ flags
-    case EvaluatedArgument.LongFlag(flag, None) ⇒ Seq(flag)
+  lazy val argSet: Set[String] = evaluatedArguments.collect {
+    case EvaluatedArgument.ShortFlag(flags, _)     ⇒ flags
+    case EvaluatedArgument.LongFlag(flag, None, _) ⇒ Seq(flag)
   }.flatten.toSet
 
   def argValues: Map[String, Any] = evaluatedArguments.collect {
-    case EvaluatedArgument.LongFlag(flag, Some(value)) ⇒ flag -> value
+    case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒ flag -> value
   }.toMap
 
   def isProvidedAsNamedArg(name: String): Boolean = argSet.contains(name) || argValues.contains(name)
-  
+
 }
