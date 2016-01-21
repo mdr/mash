@@ -14,11 +14,12 @@ object CommitClass extends MashClass("git.Commit") {
     val CommitTime = Field("commitTime", "Commit time", Type.Instance(DateTimeClass))
     val Author = Field("author", "Author of the commit", Type.Instance(StringClass))
     val Summary = Field("summary", "Summary message of the commit", Type.Instance(StringClass))
+    val Parents = Field("parents", "Parents of this commit", Type.Seq(Type.Instance(CommitClass)))
   }
 
   import Fields._
 
-  override val fields = Seq(Hash, CommitTime, Author, Summary)
+  override lazy val fields = Seq(Hash, CommitTime, Author, Summary, Parents)
 
   def summary = "A git commit object"
 

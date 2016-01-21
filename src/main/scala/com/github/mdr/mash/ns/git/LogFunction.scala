@@ -14,6 +14,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import java.time.Instant
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import org.eclipse.jgit.lib.Repository
 
 object LogFunction extends MashFunction("git.log") {
 
@@ -23,25 +24,33 @@ object LogFunction extends MashFunction("git.log") {
 
   def apply(arguments: Arguments): Seq[MashObject] = {
     params.validate(arguments)
-    val repo = getRepository
-    try {
+    withRepository { repo ⇒
       val git = new Git(repo)
-      git.log().call().asScala.toSeq.map(asCommitObject)
-    } finally
-      repo.close
+      git.log.call().asScala.toSeq.map(asCommitObject)
+    }
   }
 
-  private def asCommitObject(commit: RevCommit): MashObject = {
+  def asCommitObject(commit: RevCommit): MashObject = {
     import CommitClass.Fields._
     val commitTime = Instant.ofEpochSecond(commit.getCommitTime)
     val author = MashString(commit.getAuthorIdent.getName)
+
     MashObject(
       ListMap(
         Hash -> MashString(commit.getName, Some(CommitHashClass)),
         CommitTime -> commitTime,
         Author -> author,
-        Summary -> MashString(commit.getShortMessage)),
+        Summary -> MashString(commit.getShortMessage),
+        Parents -> commit.getParents.toSeq.map(c ⇒ MashString(c.getName, Some(CommitHashClass)))),
       CommitClass)
+  }
+
+  def withRepository[T](p: Repository ⇒ T): T = {
+    val repo = getRepository
+    try
+      p(repo)
+    finally
+      repo.close()
   }
 
   private def getRepository() =

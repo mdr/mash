@@ -32,7 +32,7 @@ object UsernameClass extends MashClass("os.Username") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UserSummaryClass.fieldsMap(field.name).fieldType)
 
-    override def summary = s"Access '${field.name}' property of the user with this username"
+    override def summary = field.summary
 
     override def descriptionOpt = field.descriptionOpt
 
