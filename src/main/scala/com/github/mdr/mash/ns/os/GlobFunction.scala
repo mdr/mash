@@ -13,6 +13,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 
 object GlobFunction extends MashFunction("os.glob") {
+
   private val fileSystem = LinuxFileSystem
   private val envInteractions = LinuxEnvironmentInteractions
 
@@ -27,7 +28,8 @@ object GlobFunction extends MashFunction("os.glob") {
 
   def apply(arguments: Arguments): Seq[MashObject] = {
     val boundParams = params.validate(arguments)
-    val pattern = new TildeExpander(envInteractions).expand(boundParams(Pattern).asInstanceOf[MashString].s)
+    val argument = boundParams.validateString(Pattern).s
+    val pattern = new TildeExpander(envInteractions).expand(argument)
     fileSystem.glob(pattern).map(PathSummaryClass.asMashObject)
   }
 

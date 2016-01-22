@@ -43,11 +43,13 @@ object ChildrenFunction extends MashFunction("os.children") {
 
   def apply(arguments: Arguments): Seq[MashObject] = {
     val boundParams = params.validate(arguments)
-    val parentDir = interpretAsPath(boundParams(Directory))
+    val parentDir = boundParams.validatePath(Directory)
+    if (!fileSystem.exists(parentDir))
+      boundParams.throwInvalidArgument(Directory, s"'$parentDir' does not exist")
+    if (!fileSystem.isDirectory(parentDir))
+      boundParams.throwInvalidArgument(Directory, s"'$parentDir' is not a directory")
     val ignoreDotFiles = Truthiness.isTruthy(boundParams(IgnoreDotFiles))
     val recursive = Truthiness.isTruthy(boundParams(Recursive))
-    if (!fileSystem.isDirectory(parentDir))
-      throw new EvaluatorException("Path must be a directory")
     getChildren(parentDir, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
   }
 
