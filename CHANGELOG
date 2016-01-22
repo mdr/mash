@@ -1,6 +1,12 @@
 v0.0.2 (..)
 -----------
 
+* Varargs support in user-defined functions
+* Better error messages for illegal function arguments
+* identity function
+* Add methods to Git CommitHashClass
+* All collections functions now work on strings
+
 v0.0.1 (19/January/2016)
 ------------------------
 
