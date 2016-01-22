@@ -31,8 +31,6 @@ abstract class MashFunction(val nameOpt: Option[String], val namespaceOpt: Optio
 
   def typeInferenceStrategy: TypeInferenceStrategy = NoTypeInferenceStrategy
 
-  override def toString = s"fn:$name"
-
   def flags: Seq[Flag] = params.flags
 
   def getCompletionSpecs(argPos: Int, arguments: TypedArguments): Seq[CompletionSpec] = Seq()
@@ -47,4 +45,6 @@ abstract class MashFunction(val nameOpt: Option[String], val namespaceOpt: Optio
     case Some(namespace) ⇒ s"$namespace.$name"
     case None            ⇒ name
   }
+  override def toString = fullyQualifiedName
+
 }

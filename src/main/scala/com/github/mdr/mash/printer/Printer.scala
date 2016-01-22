@@ -1,12 +1,9 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-
 import java.time.Instant
 import java.util.Date
-
 import org.ocpsoft.prettytime.PrettyTime
-
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MashString
@@ -20,6 +17,8 @@ import com.github.mdr.mash.ns.os.PermissionsSectionClass
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.evaluator.BoundMethod
 
 object Printer {
 
@@ -47,10 +46,40 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       helpPrinter.printClassHelp(mo)
     case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
     case xs: Seq[_] if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
+    case f: MashFunction ⇒
+      renderFunction(f)
+    case bm: BoundMethod ⇒
+      renderBoundMethod(bm)
     case () ⇒ // Don't print out Unit 
     case _ ⇒
       val f = StringUtils.ellipsisise(renderField(x), maxLength = terminalInfo.columns)
       output.println(f)
+  }
+
+  private def renderBox(title: String, lines: Seq[String]) {
+    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
+    val innerWidth = boxWidth - 4
+    val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
+    val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
+    val topLine = "┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐"
+    val bottomLine = "└─" + "─" * innerWidth + "─┘"
+    val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
+    for (line ← (topLine +: contentLines :+ bottomLine))
+      output.println(line)
+
+  }
+
+  private def renderFunction(f: MashFunction) {
+    val title = f.name
+    val lines = Seq(f.summary, "", f.name + " " + f.params.callingSyntax)
+    renderBox(title, lines)
+  }
+
+  private def renderBoundMethod(boundMethod: BoundMethod) {
+    val title = boundMethod.name
+    val method = boundMethod.method
+    val lines = Seq(method.summary, "", "target." + method.name + " " + method.params.callingSyntax)
+    renderBox(title, lines)
   }
 
   def renderField(x: Any, inCell: Boolean = false): String = x match {

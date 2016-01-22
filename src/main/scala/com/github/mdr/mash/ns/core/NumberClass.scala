@@ -30,12 +30,12 @@ object NumberClass extends MashClass("core.Number") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: Any, arguments: Arguments): MashClass = {
       params.validate(arguments)
-      target.asInstanceOf[MashNumber].tagClassOpt.map(_.fullyQualifiedName).map(MashString(_)).orNull
+      target.asInstanceOf[MashNumber].tagClassOpt.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ClassClass))
 
     override def summary = "This number's tagged type if any, else null"
 

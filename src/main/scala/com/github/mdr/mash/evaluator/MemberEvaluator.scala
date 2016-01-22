@@ -1,16 +1,13 @@
 package com.github.mdr.mash.evaluator
-import com.github.mdr.mash.parser.AbstractSyntax._
-import java.nio.file.Path
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.collections.SeqClass
-import com.github.mdr.mash.ns.time.DateTimeClass
-import java.time.Instant
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.MashMethod
 
-case class BoundMethod(target: Any, method: MashMethod, klass: MashClass)
+import java.time.Instant
+
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.core._
+import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.utils.PointedRegion
 
 object MemberEvaluator {
 
@@ -54,4 +51,5 @@ object MemberEvaluator {
       case klass: MashClass           ⇒ lookupMethod(klass, ClassClass, name)
       case _                          ⇒ None
     }
+
 }
