@@ -12,6 +12,9 @@ import com.github.mdr.mash.evaluator.EvaluatedArgument
 
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
+  require(params.count(_.isVariadic) <= 1)
+  require(params.count(_.isLast) <= 1)
+
   val lastParamOpt: Option[Parameter] = params.find(_.isLast)
 
   val variadicParamOpt: Option[Parameter] = params.find(_.isVariadic)

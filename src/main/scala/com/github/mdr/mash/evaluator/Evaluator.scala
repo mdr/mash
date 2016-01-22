@@ -123,6 +123,11 @@ object Evaluator {
       case SimpleParam(name)   ⇒ Parameter(name, s"Parameter '$name'")
       case VariadicParam(name) ⇒ Parameter(name, s"Parameter '$name'", isVariadic = true)
     }
+    if (parameters.count(_.isVariadic) > 1)
+      throw new EvaluatorException("Multiple variadic parameters are not allowed")
+    val variadicIndex = parameters.indexWhere(_.isVariadic)
+    if (variadicIndex >= 0 && variadicIndex < params.size - 1)
+      throw new EvaluatorException("A variadic parameter must be the last positional parameter")
     val fn = UserDefinedFunction(name, ParameterModel(parameters), body, env)
     env.globalVariables += name -> fn
     ()
