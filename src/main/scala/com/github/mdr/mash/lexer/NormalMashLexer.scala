@@ -168,7 +168,12 @@ trait NormalMashLexer { self: MashLexer ⇒
       token(SEMI)
     case '.' ⇒
       nextChar()
-      token(DOT)
+      if (ch == '.' && ch(1) == '.') {
+        nextChar()
+        nextChar()
+        token(ELLIPSIS)
+      } else
+        token(DOT)
     case '?' ⇒
       nextChar()
       if (ch == '.') {

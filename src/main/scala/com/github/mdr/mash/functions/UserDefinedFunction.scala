@@ -5,16 +5,17 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.evaluator.Evaluator
 
-case class UserDefinedFunction(functionName: String, parameters: Seq[String], body: Expr, env: Environment) extends MashFunction(nameOpt = Some(functionName)) {
-
-  val params = ParameterModel(parameters.map(p ⇒ Parameter(p, s"Parameter '$p'")))
+case class UserDefinedFunction(
+    functionName: String,
+    params: ParameterModel,
+    body: Expr,
+    env: Environment) extends MashFunction(nameOpt = Some(functionName)) {
 
   def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
     var newEnv = env
-    for (param ← parameters) {
-      newEnv = env.addBinding(param, boundParams(param))
-    }
+    for (param ← params.params)
+      newEnv = newEnv.addBinding(param.name, boundParams(param))
     Evaluator.evaluate(body, newEnv)
   }
 

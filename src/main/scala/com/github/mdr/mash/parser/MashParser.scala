@@ -549,8 +549,16 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       else
         errorExpectedToken("identifier")
     val params = ArrayBuffer[FunctionParam]()
-    while (IDENTIFIER)
-      params += SimpleParam(nextToken())
+    while (IDENTIFIER) {
+      val ident = nextToken()
+      val param =
+        if (ELLIPSIS) {
+          val ellipsis = nextToken()
+          VariadicParam(ident, ellipsis)
+        } else
+          SimpleParam(ident)
+      params += param
+    }
     val equals =
       if (SHORT_EQUALS)
         nextToken()

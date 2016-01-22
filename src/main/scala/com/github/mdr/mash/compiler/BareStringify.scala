@@ -63,7 +63,10 @@ class BareStringificationContext {
       }
       InvocationExpr(bareStringify(function, bindings), newArguments, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
-      val extraGlobals = left.findAll { case AssignmentExpr(left @ Identifier(name, _), right, sourceInfoOpt) ⇒ name }
+      val extraGlobals = left.findAll {
+        case AssignmentExpr(left @ Identifier(name, _), _, _) ⇒ name
+        case FunctionDeclaration(name, _, _, _)               ⇒ name
+      }
       val newBindings = bindings ++ extraGlobals
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)
     case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
@@ -90,7 +93,7 @@ class BareStringificationContext {
       }
       MishInterpolation(newPart, sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.collect { case SimpleParam(n) ⇒ n }), sourceInfoOpt)
+      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.map(_.name)), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt) ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }

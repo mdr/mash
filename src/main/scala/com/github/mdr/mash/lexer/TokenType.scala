@@ -50,6 +50,7 @@ object TokenType {
   case object COLON extends TokenType // :
   case object DOT extends TokenType
   case object DOT_NULL_SAFE extends TokenType // ?.
+  case object ELLIPSIS extends TokenType // ...
   case object HOLE extends TokenType // _
   case object TRUE extends TokenType
   case object FALSE extends TokenType

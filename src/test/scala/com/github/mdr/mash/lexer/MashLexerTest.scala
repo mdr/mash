@@ -49,7 +49,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   "+ - * /" shouldProduce Seq(PLUS, MINUS, TIMES, DIVIDE)
 
   "if then else" shouldProduce Seq(IF, THEN, ELSE)
-  
+
   "def" shouldProduce Seq(DEF)
 
   "[ ] ," shouldProduce Seq(LSQUARE, RSQUARE, COMMA)
@@ -75,6 +75,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   "}[" shouldProduce Seq(RBRACE, LSQUARE_LOOKUP)
 
   "?." shouldProduce Seq(DOT_NULL_SAFE)
+  "..." shouldProduce Seq(ELLIPSIS)
   "foo?.bar" shouldProduce Seq(IDENTIFIER, DOT_NULL_SAFE, IDENTIFIER)
 
   """ "Hello $name, how are you?" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, STRING_END)
@@ -89,15 +90,15 @@ class MashLexerTest extends FlatSpec with Matchers {
   """ "${{}}" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_COMPLEX, LBRACE, RBRACE, RBRACE, STRING_END)
   """ "Hello $user.fullName!" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, DOT, IDENTIFIER, STRING_END)
   """ "$_" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, HOLE, STRING_END)
-  
+
   // mish within mash
-  
+
   "!{ls}" shouldProduce Seq(MISH_INTERPOLATION_START, MISH_WORD, RBRACE)
   "foo !{ls} bar" shouldProduce Seq(IDENTIFIER, MISH_INTERPOLATION_START, MISH_WORD, RBRACE, IDENTIFIER)
   "!{ls ${pwd} }" shouldProduce Seq(MISH_INTERPOLATION_START, MISH_WORD, STRING_INTERPOLATION_START_COMPLEX, IDENTIFIER, RBRACE, RBRACE)
   "!mplayer" shouldProduce Seq(MISH_WORD)
   "!mplayer video" shouldProduce Seq(MISH_WORD, IDENTIFIER)
-  
+
   { // mish mode
     implicit val mode = Mode(mish = true)
 
@@ -128,12 +129,12 @@ class MashLexerTest extends FlatSpec with Matchers {
   }
 
   { // Forgiving mish
-    
+
     implicit val mode = Mode(mish = true, forgiving = true)
-    
+
     "foo $" shouldProduce Seq(MISH_WORD, STRING_END)
   }
-  
+
   { // Forgiving mode
     implicit val mode = Mode(forgiving = true)
 

@@ -51,8 +51,7 @@ object SeqClass extends MashClass("collections.Seq") {
     alias("dropWhile", methodise(SkipWhileFunction)),
     alias("filter", methodise(WhereFunction)),
     alias("filterNot", methodise(WhereNotFunction)),
-    alias("keepIf", methodise(WhereFunction)),
-    alias("size", methodise(LengthFunction)))
+    alias("keepIf", methodise(WhereFunction)))
 
   private def methodise(function: MashFunction): MashMethod = new MashMethod(function.nameOpt.get) {
 

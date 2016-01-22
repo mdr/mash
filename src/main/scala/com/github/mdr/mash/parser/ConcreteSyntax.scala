@@ -174,12 +174,14 @@ object ConcreteSyntax {
     lazy val tokens = (start +: expr.tokens) :+ rbrace
   }
 
-  sealed trait FunctionParam {
-    def tokens: Seq[Token]
-  }
+  sealed trait FunctionParam extends AstNode
 
   case class SimpleParam(name: Token) extends FunctionParam {
     lazy val tokens = Seq(name)
+  }
+
+  case class VariadicParam(name: Token, ellipsis: Token) extends FunctionParam {
+    lazy val tokens = Seq(name, ellipsis)
   }
 
   case class FunctionDeclaration(defToken: Token, name: Token, params: Seq[FunctionParam], equals: Token, body: Expr) extends Expr {

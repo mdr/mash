@@ -22,6 +22,7 @@ import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.functions.ParameterModel
 
 object Evaluator {
 
@@ -108,16 +109,24 @@ object Evaluator {
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value, env)
         MashObject(fields, classOpt = None)
-      case mishExpr: MishExpr      ⇒ evaluateMishExpr(mishExpr, env)
-      case expr: MishInterpolation ⇒ evaluateMishInterpolation(expr, env)
-      case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-        val fn = UserDefinedFunction(name, params.map(_.asInstanceOf[SimpleParam].name), body, env)
-        env.globalVariables += name -> fn
-        ()
-      case MishFunction(command, _) ⇒ SystemCommandFunction(command)
-      case HelpExpr(expr, _)        ⇒ evaluateHelpExpr(expr, env)
+      case mishExpr: MishExpr        ⇒ evaluateMishExpr(mishExpr, env)
+      case expr: MishInterpolation   ⇒ evaluateMishInterpolation(expr, env)
+      case decl: FunctionDeclaration ⇒ evaluateFunctionDecl(decl, env)
+      case MishFunction(command, _)  ⇒ SystemCommandFunction(command)
+      case HelpExpr(expr, _)         ⇒ evaluateHelpExpr(expr, env)
 
     }
+
+  private def evaluateFunctionDecl(decl: FunctionDeclaration, env: Environment) {
+    val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
+    val parameters: Seq[Parameter] = params.map {
+      case SimpleParam(name)   ⇒ Parameter(name, s"Parameter '$name'")
+      case VariadicParam(name) ⇒ Parameter(name, s"Parameter '$name'", isVariadic = true)
+    }
+    val fn = UserDefinedFunction(name, ParameterModel(parameters), body, env)
+    env.globalVariables += name -> fn
+    ()
+  }
 
   private def evaluateAssignment(expr: AssignmentExpr, env: Environment): Any = {
     val AssignmentExpr(left, right, _) = expr

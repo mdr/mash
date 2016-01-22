@@ -78,7 +78,7 @@ object AbstractSyntax {
             ExprPart(expr.transform(f))
           case StringPart(_) ⇒
             this
-          case SimpleParam(_) ⇒
+          case SimpleParam(_) | VariadicParam(_) ⇒
             this
           case Argument.PositionArg(expr, sourceInfoOpt) ⇒
             Argument.PositionArg(expr.transform(f), sourceInfoOpt)
@@ -246,9 +246,17 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  sealed trait FunctionParam extends AstNode
+  sealed trait FunctionParam extends AstNode {
+    val name: String
+  }
 
   case class SimpleParam(name: String) extends FunctionParam {
+    val sourceInfoOpt = None
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
+    def children = Seq()
+  }
+
+  case class VariadicParam(name: String) extends FunctionParam {
     val sourceInfoOpt = None
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
     def children = Seq()

@@ -400,6 +400,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "help 42.class | _.name" shouldEvaluateTo "'Number'"
   "42.class.name" shouldEvaluateTo "'Number'"
 
+  "def square n = n * n; square 8" shouldEvaluateTo "64"
+  "def square n = n * n; square --n=8" shouldEvaluateTo "64"
+  "def add a b = a + b; add 1 2" shouldEvaluateTo "3"
+  "def mkList n... = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
+  "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
