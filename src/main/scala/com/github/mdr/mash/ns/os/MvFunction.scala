@@ -33,7 +33,7 @@ object MvFunction extends MashFunction("os.mv") {
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
-    val destination = FunctionHelpers.interpretAsPath(boundParams(Destination))
+    val destination = boundParams.validatePath(Destination)
     if (sourcePaths.size == 0)
       throw new EvaluatorException("Must have at least one source path")
     move(sourcePaths, destination)

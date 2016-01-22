@@ -14,16 +14,18 @@ import com.github.mdr.mash.functions.Parameter
 
 object MkdirFunction extends MashFunction("mkdir") {
 
-  private val Directory = "directory"
+  object Params {
+    val Directory = Parameter(
+      name = "directory",
+      summary = "Path to directory to create")
+  }
+  import Params._
 
-  val params = ParameterModel(Seq(
-    Parameter(
-      name = Directory,
-      summary = "Path to directory to create")))
+  val params = ParameterModel(Seq(Directory))
 
   def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
-    val path = FunctionHelpers.interpretAsPath(boundParams(Directory))
+    val path = boundParams.validatePath(Directory)
     val resultPath = Files.createDirectory(path)
     asPathString(resultPath)
   }

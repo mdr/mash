@@ -37,7 +37,7 @@ If the destination is not a directory, only a single source path may be provided
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(SourcePaths))
-    val destination = FunctionHelpers.interpretAsPath(boundParams(Destination))
+    val destination = boundParams.validatePath(Destination)
 
     if (sourcePaths.size == 0)
       throw new EvaluatorException("Must have at least one source path")

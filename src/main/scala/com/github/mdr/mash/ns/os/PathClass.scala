@@ -203,7 +203,7 @@ The default character encoding and line separator are used.""")
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      val newName = FunctionHelpers.interpretAsPath(boundParams(NewName))
+      val newName = boundParams.validatePath(NewName)
       val newPath = path.resolveSibling(newName)
       val newLocation = Files.move(path, newPath)
       asPathString(newLocation)
@@ -314,17 +314,20 @@ The default character encoding and line separator are used.""")
 
   object CopyMethod extends MashMethod("copy") {
 
-    private val Destination = "destination"
+    object Params {
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        name = Destination,
-        summary = "Location to copy file to")))
+      val Destination = Parameter(
+        name = "destination",
+        summary = "Location to copy file to")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Destination))
 
     def apply(target: Any, arguments: Arguments): Unit = {
       val boundParams = params.validate(arguments)
       val source = FunctionHelpers.interpretAsPath(target)
-      val destination = FunctionHelpers.interpretAsPath(boundParams(Destination))
+      val destination = boundParams.validatePath(Destination)
       if (Files.isDirectory(source))
         if (Files.exists(destination))
           throw new EvaluatorException("Destination already exists")
@@ -346,17 +349,20 @@ The default character encoding and line separator are used.""")
 
   object CopyIntoMethod extends MashMethod("copyInto") {
 
-    private val Destination = "destination"
+    object Params {
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        name = Destination,
-        summary = "Directory to copy file into")))
+      val Destination = Parameter(
+        name = "destination",
+        summary = "Location to copy file to")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Destination))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val source = FunctionHelpers.interpretAsPath(target)
-      val destination = FunctionHelpers.interpretAsPath(boundParams(Destination))
+      val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
         throw new EvaluatorException(s"Cannot copy into $destination, not a directory")
       if (Files.isDirectory(source))
@@ -377,17 +383,20 @@ The default character encoding and line separator are used.""")
 
   object MoveIntoMethod extends MashMethod("moveInto") {
 
-    private val Destination = "destination"
+    object Params {
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        name = Destination,
-        summary = "Directory to move into")))
+      val Destination = Parameter(
+        name = "destination",
+        summary = "Location to copy file to")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Destination))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val source = FunctionHelpers.interpretAsPath(target)
-      val destination = FunctionHelpers.interpretAsPath(boundParams(Destination))
+      val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
         throw new EvaluatorException(s"Cannot copy into $destination, not a directory")
       val newPath =

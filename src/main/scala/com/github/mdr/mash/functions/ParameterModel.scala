@@ -18,7 +18,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   val (flagParams, positionalParams) = params.partition(_.isFlag)
 
-  // Lookup parameter by name (or short flag)
+  // Lookup parameter by name or short flag (if it has one)
   val paramByName: Map[String, Parameter] = {
     var paramMap: Map[String, Parameter] = Map()
     for (param ← params) {
@@ -75,85 +75,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   }
 
   def bindTypes(arguments: TypedArguments): BoundTypeParams =
-    BoundTypeParams(new TypeParamValidationContext(arguments).bind().boundParams)
-
-  private class TypeParamValidationContext(arguments: TypedArguments) {
-
-    private var boundParams: Map[String, AnnotatedExpr] = Map()
-    private var posToName: Map[Int, String] = Map()
-    private var lastParameterConsumed = false
-
-    def bind(): TypedBoundParameters = {
-      handleLastArg()
-      handlePositionalArgs()
-      handleFlagArgs()
-      TypedBoundParameters(boundParams, posToName)
-    }
-
-    private def handleLastArg() {
-      for (lastParam ← lastParamOpt)
-        for (lastArg ← arguments.positionArgs.lastOption) {
-          boundParams += lastParam.name -> lastArg
-          posToName += arguments.arguments.indexOf(lastArg) -> lastParam.name
-          lastParameterConsumed = true
-        }
-    }
-
-    private def handlePositionalArgs() = {
-      val regularPosParams = positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
-      val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
-
-      if (positionArgs.size > regularPosParams.size)
-        for (variadicParam ← variadicParamOpt) {
-          val varargs = positionArgs.drop(regularPosParams.size)
-          val typ = Type.Seq(varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any))
-          boundParams += variadicParam.name -> AnnotatedExpr(None, Some(typ))
-          for (pos ← regularPosParams.size to positionArgs.size - 1)
-            posToName += arguments.arguments.indexOf(pos) -> variadicParam.name
-        }
-
-      for ((param, arg) ← regularPosParams zip positionArgs) {
-        boundParams += param.name -> arg
-        posToName += arguments.arguments.indexOf(arg) -> param.name
-      }
-    }
-
-    private def handleFlagArgs() {
-      for (paramName ← arguments.argSet)
-        bindFlagParam(paramName, expr = AnnotatedExpr(None, Some(Type.Instance(BooleanClass))))
-      for ((paramName, valueOpt) ← arguments.argValues; value ← valueOpt)
-        bindFlagParam(paramName, expr = value)
-    }
-
-    private def bindFlagParam(paramName: String, expr: AnnotatedExpr) =
-      for (param ← paramByName.get(paramName)) {
-        boundParams += param.name -> expr
-        val argIndex = arguments.arguments.indexWhere {
-          case TypedArgument.LongFlag(`paramName`, _) ⇒ true
-          case TypedArgument.ShortFlag(flags)         ⇒ flags.contains(paramName)
-          case _                                      ⇒ false
-        }
-        posToName += argIndex -> param.name
-      }
-
-  }
+    BoundTypeParams(new TypeParamValidationContext(this, arguments).bind())
 
 }
 
-case class BoundTypeParams(params: Map[String, AnnotatedExpr]) {
-
-  def apply(param: String): AnnotatedExpr = params(param)
-
-  def apply(param: Parameter): AnnotatedExpr = params(param.name)
-
-  def get(param: Parameter): Option[AnnotatedExpr] = params.get(param.name)
-
-  def get(param: String): Option[AnnotatedExpr] = params.get(param)
-
-  def contains(param: String) = get(param).isDefined
-
-  def contains(param: Parameter) = get(param).isDefined
-
-}
-
-case class TypedBoundParameters(boundParams: Map[String, AnnotatedExpr], posToName: Map[Int, String])

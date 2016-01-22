@@ -16,21 +16,23 @@ object ReadLinesFunction extends MashFunction("os.readLines") {
 
   private val fileSystem = LinuxFileSystem
 
-  private val File = "file"
+  object Params {
+    val File = Parameter(
+      name = "file",
+      summary = "File from which to read lines")
+  }
+  import Params._
 
-  val params = ParameterModel(Seq(
-    Parameter(
-      name = File,
-      summary = "File from which to read lines")))
-
-  def readLines(path: Path): Seq[MashString] =
-    fileSystem.readLines(path).map(MashString(_))
+  val params = ParameterModel(Seq(File))
 
   def apply(arguments: Arguments): Seq[MashString] = {
     val boundParams = params.validate(arguments)
-    val path = FunctionHelpers.interpretAsPath(boundParams(File))
+    val path = boundParams.validatePath(File)
     readLines(path)
   }
+
+  def readLines(path: Path): Seq[MashString] =
+    fileSystem.readLines(path).map(MashString(_))
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
 

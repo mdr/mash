@@ -2,23 +2,16 @@ package com.github.mdr.mash.functions
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
-import com.github.mdr.mash.evaluator.BoundMethod
+import scala.PartialFunction.condOpt
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatedArgument
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.evaluator.MemberEvaluator
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.ns.os.PathSummaryClass
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import scala.PartialFunction.condOpt
-
-case class Flag(summary: String, shortFlagOpt: Option[String] = None, longFlagOpt: Option[String] = None)
+import com.github.mdr.mash.ns.os.PathClass
 
 object FunctionHelpers {
 
@@ -28,7 +21,7 @@ object FunctionHelpers {
       case _          ⇒ Seq(interpretAsPath(x))
     }
 
-  private def safeInterpretAsPath(x: Any): Option[Path] =
+  def safeInterpretAsPath(x: Any): Option[Path] =
     condOpt(x) {
       case MashString(s, _) ⇒
         Paths.get(s)
@@ -39,9 +32,9 @@ object FunctionHelpers {
   def interpretAsPath(x: Any): Path =
     safeInterpretAsPath(x).getOrElse(throw new EvaluatorException("Could not interpret as path: " + x))
 
-  def asPathString(p: Path): MashString = MashString(p.toString, Some(PathClass))
+  def asPathString(p: Path) = MashString(p.toString, Some(PathClass))
 
-  def asPathString(s: String): MashString = MashString(s, Some(PathClass))
+  def asPathString(s: String) = MashString(s, Some(PathClass))
 
   def interpretAsFunction(f: Any): (Any ⇒ Any) = o ⇒ {
     val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))

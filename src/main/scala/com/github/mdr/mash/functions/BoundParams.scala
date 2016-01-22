@@ -10,6 +10,7 @@ import com.github.mdr.mash.evaluator.EvaluatedArgument
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashNumber
+import java.nio.file.Path
 
 case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argument]) {
 
@@ -54,6 +55,15 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
         throw new EvaluatorException(message, locationOpt(param))
     }
 
+  def validatePath(param: Parameter): Path = {
+    val x = this(param)
+    FunctionHelpers.safeInterpretAsPath(x) match {
+      case Some(path) ⇒ path
+      case None ⇒
+        val message = s"Invalid argument '${param.name}'. Must be a path, but was '${ToStringifier.stringify(x)}'"
+        throw new EvaluatorException(message, locationOpt(param))
+    }
+  }
   object MashInteger {
 
     def unapply(x: Any): Option[Int] = x match {

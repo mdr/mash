@@ -41,7 +41,7 @@ object CdFunction extends MashFunction("os.cd") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val path = FunctionHelpers.interpretAsPath(boundParams(Directory))
+    val path = boundParams.validatePath(Directory)
     changeDirectory(path)
   }
 
