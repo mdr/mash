@@ -149,16 +149,30 @@ object Evaluator {
           case _ ⇒
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.sourceInfoOpt.map(_.location))
         }
+      case LookupExpr(target, index, _) ⇒
+        val targetValue = evaluate(target, env)
+        val indexValue = evaluate(index, env)
+        val assignmentValue = evaluate(right, env)
+        targetValue match {
+          case xs: MashList ⇒
+            indexValue match {
+              case n: MashNumber ⇒
+                xs.items(n.asInt.get) = assignmentValue
+              case _ ⇒
+                throw new EvaluatorException("Invalid list index '" + indexValue + "'")
+            }
+          case _ ⇒
+            throw new EvaluatorException("Cannot assign to indexes of objects of this type", expr.sourceInfoOpt.map(_.location))
+        }
       case _ ⇒
         throw new EvaluatorException("Expression is not assignable", expr.sourceInfoOpt.map(_.location))
     }
   }
 
-  private def lookupField(target: Any, name: String): Option[(Field, MashClass)] = {
+  private def lookupField(target: Any, name: String): Option[(Field, MashClass)] =
     condOpt(target) {
       case MashObject(_, Some(klass)) ⇒ klass.fields.find(_.name == name).map(field ⇒ (field, klass))
     }.flatten
-  }
 
   private def getHelpForMember(target: Any, name: String): Option[MashObject] = {
     val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpFunction.getHelp(field, klass) }

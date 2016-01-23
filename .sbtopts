@@ -1,0 +1,1 @@
+-J-XX:ErrorFile=/tmp/hs_err_pid%p.log

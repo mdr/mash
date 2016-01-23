@@ -229,11 +229,8 @@ object AbstractSyntax {
   }
 
   case class AssignmentExpr(left: Expr, right: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
-
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-
     def children = Seq(left, right)
-
   }
 
   case class MishInterpolation(part: InterpolationPart, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

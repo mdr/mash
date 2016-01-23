@@ -25,7 +25,7 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val paths = boundParams(Paths).asInstanceOf[Seq[_]].flatMap(FunctionHelpers.interpretAsPaths)
+    val paths = boundParams(Paths).asInstanceOf[MashList].items.flatMap(FunctionHelpers.interpretAsPaths)
     if (paths.isEmpty)
       throw new EvaluatorException("Must provide at least one path to delete")
     for (path ← paths)

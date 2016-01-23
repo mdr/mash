@@ -22,7 +22,7 @@ object LsFunction extends MashFunction("os.ls") {
       name = "paths",
       summary = "Paths to list files",
       isVariadic = true,
-      defaultValueGeneratorOpt = Some(() ⇒ Seq(asPathString(""))),
+      defaultValueGeneratorOpt = Some(() ⇒ MashList.of(asPathString(""))),
       descriptionOpt = Some("""Paths can either be strings or PathSummary objects. 
 If a given path is a file, it will be included in the output. 
 If a given path is a directory, its children will be included, unless the
@@ -60,7 +60,7 @@ If no paths are provided, the default is the current working directory."""))
     val ignoreDotFiles = Truthiness.isFalsey(boundParams(All))
     val recursive = Truthiness.isTruthy(boundParams(Recursive))
     val directory = Truthiness.isTruthy(boundParams(Directory))
-    val paths = boundParams(Paths).asInstanceOf[Seq[_]].map(interpretAsPath)
+    val paths = boundParams(Paths).asInstanceOf[MashList].items.map(interpretAsPath)
 
     def listPath(path: Path): Seq[MashObject] =
       if (Files.isDirectory(path) && !directory)

@@ -102,7 +102,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           boundParams += param.name -> generator()
         case None ⇒
           if (param.isVariadic)
-            boundParams += param.name -> Seq()
+            boundParams += param.name -> MashList.of()
           else
             throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
       }

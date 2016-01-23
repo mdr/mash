@@ -28,6 +28,8 @@ case class MashObject(fields: LinkedHashMap[String, Any], classOpt: Option[MashC
 
   def getField(fieldName: String): Option[Any] = fields.get(fieldName)
 
+  def getField(field: Field): Option[Any] = getField(field.name)
+
   def field(field: Field): Any = fields(field.name)
 
   override def toString = {

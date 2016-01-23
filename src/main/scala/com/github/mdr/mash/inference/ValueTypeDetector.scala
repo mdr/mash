@@ -24,13 +24,18 @@ object ValueTypeDetector {
     case _: Instant                          ⇒ Type.Instance(DateTimeClass)
     case _: MashClass                        ⇒ Type.Instance(ClassClass)
     case ()                                  ⇒ Type.Instance(UnitClass)
-    case MashObject(fields, Some(GroupClass)) ⇒
-      val keyType = getType(fields("key"))
-      val valueTypes = fields("values").asInstanceOf[Seq[Any]].map(getType).distinct
-      valueTypes match {
-        case Seq(valueType) ⇒ Type.Group(keyType, valueType)
-        case _              ⇒ Type.Group(keyType, Type.Any)
-      }
+    case mo @ MashObject(_, Some(GroupClass)) ⇒
+      val groupTypeOpt =
+        for {
+          key ← mo.getField(GroupClass.Fields.Key)
+          keyType = getType(key)
+          values ← mo.getField(GroupClass.Fields.Values)
+          valuesType = getType(values)
+        } yield valuesType match {
+          case Type.Seq(valueType) ⇒ Type.Group(keyType, valueType)
+          case _                   ⇒ Type.Group(keyType, Type.Any)
+        }
+      groupTypeOpt.getOrElse(Type.Group(Type.Any, Type.Any))
     case MashObject(_, Some(klass)) ⇒ Type.Instance(klass)
     case obj @ MashObject(_, None)  ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case xs: MashList ⇒
