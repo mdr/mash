@@ -11,6 +11,7 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashNumber
 import java.nio.file.Path
+import com.github.mdr.mash.evaluator.MashList
 
 case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argument]) {
 
@@ -32,7 +33,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
     argumentNodes.get(param.name).flatMap(_.sourceInfoOpt).map(_.location)
 
   def validateSequence(param: Parameter): Seq[Any] = this(param) match {
-    case xs: Seq[Any]          ⇒ xs
+    case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be a sequence, but was '${ToStringifier.stringify(x)}'"

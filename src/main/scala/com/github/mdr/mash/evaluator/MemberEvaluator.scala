@@ -43,7 +43,7 @@ object MemberEvaluator {
       case null                       ⇒ lookupMethod(target, NullClass, name)
       case ()                         ⇒ lookupMethod(target, UnitClass, name)
       case b: Boolean                 ⇒ lookupMethod(b, BooleanClass, name)
-      case xs: Seq[_]                 ⇒ lookupMethod(xs, SeqClass, name)
+      case xs: MashList               ⇒ lookupMethod(xs, SeqClass, name)
       case obj: MashObject            ⇒ obj.getField(name) orElse lookupMethod(obj, name)
       case dt: Instant                ⇒ lookupMethod(dt, DateTimeClass, name)
       case f: MashFunction            ⇒ lookupMethod(f, FunctionClass, name)

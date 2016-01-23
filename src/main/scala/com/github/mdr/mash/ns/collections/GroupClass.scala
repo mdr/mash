@@ -19,8 +19,11 @@ object GroupClass extends MashClass("collections.Group") {
   override val methods = Seq(CountMethod)
 
   private case class Wrapper(target: Any) {
+
     val mo = target.asInstanceOf[MashObject]
-    def values = mo.field(Values).asInstanceOf[Seq[Any]]
+
+    def values = mo.field(Values).asInstanceOf[MashList]
+
   }
 
   object CountMethod extends MashMethod("count") {

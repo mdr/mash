@@ -11,6 +11,7 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.MashList
 
 object FirstFunction extends MashFunction("collections.first") {
 
@@ -37,13 +38,13 @@ object FirstFunction extends MashFunction("collections.first") {
       case Some(n) ⇒
         sequence match {
           case s: MashString ⇒ s.modify(_.take(n))
-          case xs: Seq[_]    ⇒ xs.take(n)
+          case xs: MashList  ⇒ xs.take(n)
         }
       case None ⇒
         sequence match {
           case s: MashString ⇒
             if (s.isEmpty) null else s.first
-          case xs: Seq[_] ⇒
+          case xs: MashList ⇒
             if (xs.isEmpty) null else xs.head
         }
     }

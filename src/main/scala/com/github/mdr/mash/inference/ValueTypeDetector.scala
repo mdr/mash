@@ -33,8 +33,8 @@ object ValueTypeDetector {
       }
     case MashObject(_, Some(klass)) ⇒ Type.Instance(klass)
     case obj @ MashObject(_, None)  ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
-    case xs: Seq[_] ⇒
-      val sequenceTypes = xs.map(getType).distinct
+    case xs: MashList ⇒
+      val sequenceTypes = xs.items.map(getType).distinct
       sequenceTypes match {
         case Seq(sequenceType) ⇒ Type.Seq(sequenceType)
         case _                 ⇒ Type.Seq(Type.Any)

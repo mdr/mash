@@ -12,13 +12,14 @@ import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.ns.os.PathClass
+import com.github.mdr.mash.evaluator.MashList
 
 object FunctionHelpers {
 
   def interpretAsPaths(x: Any): Seq[Path] =
     x match {
-      case xs: Seq[_] ⇒ xs.flatMap(interpretAsPaths)
-      case _          ⇒ Seq(interpretAsPath(x))
+      case xs: MashList ⇒ xs.items.flatMap(interpretAsPaths)
+      case _            ⇒ Seq(interpretAsPath(x))
     }
 
   def safeInterpretAsPath(x: Any): Option[Path] =
@@ -42,7 +43,7 @@ object FunctionHelpers {
   }
 
   def interpretAsSequence(x: Any): Seq[Any] = x match {
-    case xs: Seq[Any]          ⇒ xs
+    case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case _                     ⇒ throw new EvaluatorException("Could not interpret as sequence: " + x)
   }

@@ -6,6 +6,7 @@ import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.MashList
 
 object ReverseFunction extends MashFunction("collections.reverse") {
 
@@ -24,7 +25,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
     boundParams.validateSequence(Sequence)
     boundParams(Sequence) match {
       case s: MashString ⇒ s.reverse
-      case xs: Seq[_]    ⇒ xs.reverse
+      case xs: MashList  ⇒ MashList(xs.items.reverse)
     }
   }
 

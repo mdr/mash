@@ -99,11 +99,11 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashObject] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val pid = Wrapper(target).pid
-
-      processInteractions.getProcesses.filter(_.parentPidOpt == Some(pid)).map(makeProcess)
+      val children = processInteractions.getProcesses.filter(_.parentPidOpt == Some(pid))
+      MashList(children.map(makeProcess))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(ProcessClass)))

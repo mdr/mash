@@ -41,8 +41,8 @@ Otherwise, write the item as a string."""))
     val boundParams = params.validate(arguments)
     val file = boundParams.validatePath(File).toFile
     boundParams(Data) match {
-      case xs: Seq[_] ⇒
-        FileUtils.writeLines(file, xs.map(x ⇒ ToStringifier.stringify(x)).asJava)
+      case xs: MashList ⇒
+        FileUtils.writeLines(file, xs.items.map(x ⇒ ToStringifier.stringify(x)).asJava)
       case x ⇒
         FileUtils.write(file, ToStringifier.stringify(x))
     }

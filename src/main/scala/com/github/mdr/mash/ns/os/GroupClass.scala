@@ -27,7 +27,8 @@ object GroupClass extends MashClass("os.Group") {
     def apply(target: Any, arguments: Arguments): Any = {
       params.validate(arguments)
       val group = target.asInstanceOf[MashString].s
-      userInteractions.groupEntries.find(_.group == group).map(ge ⇒ MashNumber(ge.gid, Some(GidClass))).orNull
+      val groupEntryOpt = userInteractions.groupEntries.find(_.group == group)
+      groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, Some(GidClass))).orNull
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, GidClass))
@@ -40,10 +41,10 @@ object GroupClass extends MashClass("os.Group") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val group = target.asInstanceOf[MashString].s
-      getUsers(group)
+      MashList(getUsers(group))
     }
 
     def getUsers(group: String) = {

@@ -26,11 +26,11 @@ object GlobFunction extends MashFunction("os.glob") {
 
   val params = ParameterModel(Seq(Pattern))
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
     val argument = boundParams.validateString(Pattern).s
     val pattern = new TildeExpander(envInteractions).expand(argument)
-    fileSystem.glob(pattern).map(PathSummaryClass.asMashObject)
+    MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))

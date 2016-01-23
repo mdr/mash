@@ -16,10 +16,10 @@ object GroupsFunction extends MashFunction("os.groups") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
     val passwdEntries = userInteractions.passwdEntries
-    userInteractions.groupEntries.map(GroupInfoClass.makeGroupInfo(_, passwdEntries))
+    MashList(userInteractions.groupEntries.map(GroupInfoClass.makeGroupInfo(_, passwdEntries)))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(GroupInfoClass)))

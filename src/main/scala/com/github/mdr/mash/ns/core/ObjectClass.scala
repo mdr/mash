@@ -51,7 +51,7 @@ object ObjectClass extends MashClass("core.Object") {
     def stringify(x: Any): String = x match {
       case MashString(s, _) ⇒ s
       case klass: MashClass ⇒ klass.fullyQualifiedName
-      case xs: Seq[_]       ⇒ xs.map(stringify).mkString("[", ", ", "]")
+      case xs: MashList     ⇒ xs.items.map(stringify).mkString("[", ", ", "]")
       case ()               ⇒ ""
       case _                ⇒ "" + x
     }
@@ -64,16 +64,18 @@ object ObjectClass extends MashClass("core.Object") {
 
   object InMethod extends MashMethod("in") {
 
-    private val Sequence = "sequence"
+    object Params {
+      val Sequence = Parameter(
+        "sequence",
+        "Sequence to check if element is contained in")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        Sequence,
-        "Sequence to check if element is contained in")))
+    val params = ParameterModel(Seq(Sequence))
 
     def apply(target: Any, arguments: Arguments): Boolean = {
       val boundParams = params.validate(arguments)
-      val sequence = boundParams(Sequence).asInstanceOf[Seq[Any]]
+      val sequence = boundParams.validateSequence(Sequence)
       sequence.contains(target)
     }
 

@@ -4,6 +4,7 @@ import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.evaluator.EvaluatedArgument
+import com.github.mdr.mash.evaluator.MashList
 
 class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 
@@ -40,7 +41,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
           val varargs = positionArgs.drop(regularPosParams.size)
-          boundParams += variadicParam.name -> varargs.map(_.value)
+          boundParams += variadicParam.name -> MashList(varargs.map(_.value))
           for {
             firstVararg ← varargs.headOption
             argNode ← firstVararg.argumentNodeOpt

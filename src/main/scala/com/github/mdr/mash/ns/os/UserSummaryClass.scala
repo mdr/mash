@@ -58,13 +58,13 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val userObject = target.asInstanceOf[MashObject]
       val primaryGroup = userObject.field(PrimaryGroup).asInstanceOf[MashString]
       val username = userObject.field(Name).asInstanceOf[MashString].s
       val secondaryGroups = userInteractions.groupEntries.filter(_.users.contains(username)).map(entry ⇒ MashString(entry.group, Some(GroupClass)))
-      primaryGroup +: secondaryGroups
+      MashList(primaryGroup +: secondaryGroups)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, GroupClass)))

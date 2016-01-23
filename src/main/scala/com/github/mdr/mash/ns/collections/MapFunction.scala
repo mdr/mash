@@ -14,6 +14,7 @@ import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
+import com.github.mdr.mash.evaluator.MashList
 
 object MapFunction extends MashFunction("collections.map") {
 
@@ -41,7 +42,7 @@ object MapFunction extends MashFunction("collections.map") {
       case MashString(_, tagOpt) if mapped.forall(_.isInstanceOf[MashString]) ⇒
         mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
       case _ ⇒
-        mapped
+        MashList(mapped)
     }
   }
 

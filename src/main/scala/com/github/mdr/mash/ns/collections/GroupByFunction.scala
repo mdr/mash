@@ -48,7 +48,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   val params = ParameterModel(Seq(Discriminator, Total, IncludeNull, Sequence))
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
@@ -79,15 +79,17 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       groups = groups :+ totalGroup
     }
 
-    groups
+    MashList(groups)
   }
 
-  private def makeGroup(key: Any, values: Seq[Any]) =
+  private def makeGroup(key: Any, values: Seq[Any]) = {
+    import GroupClass.Fields._
     MashObject(
       ListMap(
-        GroupClass.Fields.Key -> key,
-        GroupClass.Fields.Values -> values),
+        Key -> key,
+        Values -> MashList(values)),
       GroupClass)
+  }
 
   override def typeInferenceStrategy = GroupByTypeInferenceStrategy
 

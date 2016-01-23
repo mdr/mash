@@ -62,7 +62,7 @@ The default signal is TERM."""))
   private def getPids(x: Any): Seq[Int] = x match {
     case n: MashNumber                           ⇒ Seq(n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n)))
     case obj @ MashObject(_, Some(ProcessClass)) ⇒ Seq(ProcessClass.Wrapper(obj).pid)
-    case xs: Seq[_]                              ⇒ xs.flatMap(getPids)
+    case xs: MashList                            ⇒ xs.items.flatMap(getPids)
     case x                                       ⇒ throw new EvaluatorException("Invalid process ID: " + x)
   }
 

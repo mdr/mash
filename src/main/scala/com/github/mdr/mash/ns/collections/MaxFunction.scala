@@ -17,6 +17,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.inference.TypeInferenceStrategy
+import com.github.mdr.mash.evaluator.MashList
 
 object MaxFunction extends MashFunction("collections.max") {
 
@@ -39,19 +40,17 @@ If multiple arguments are provided, the largest argument is returned."""),
     sequence.max(Utils.AnyOrdering)
   }
 
-  def getSequence(boundParams: BoundParams, itemsParam: Parameter) = {
-    val items = boundParams.validateSequence(itemsParam)
-    items match {
+  def getSequence(boundParams: BoundParams, itemsParam: Parameter) =
+    boundParams.validateSequence(itemsParam) match {
       case Seq() ⇒
         throw new EvaluatorException("Must provide at least one argument")
-      case Seq(seq @ (_: MashString | _: Seq[_])) ⇒
+      case Seq(seq @ (_: MashString | _: MashList)) ⇒
         FunctionHelpers.interpretAsSequence(seq)
       case Seq(other) ⇒
         boundParams.throwInvalidArgument(Items, "A single argument must be a sequence")
-      case _ ⇒
+      case items ⇒
         items
     }
-  }
 
   override def typeInferenceStrategy = MaxTypeInferenceStrategy
 

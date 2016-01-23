@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.MashList
 
 object WhereFunction extends MashFunction("collections.where") {
 
@@ -35,7 +36,7 @@ object WhereFunction extends MashFunction("collections.where") {
   def reassembleSequence(inSequence: Any, newSequence: Seq[_]): Any =
     inSequence match {
       case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ newSequence
+      case _                     ⇒ MashList(newSequence)
     }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

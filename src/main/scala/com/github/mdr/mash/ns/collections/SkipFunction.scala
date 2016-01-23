@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.evaluator.MashList
 
 object SkipFunction extends MashFunction("collections.skip") {
 
@@ -32,7 +33,7 @@ object SkipFunction extends MashFunction("collections.skip") {
     val n = boundParams.validateInteger(N)
     sequence match {
       case s: MashString ⇒ s.modify(_.drop(n))
-      case xs: Seq[_]    ⇒ xs.drop(n)
+      case xs: MashList  ⇒ MashList(xs.items.drop(n))
     }
   }
 

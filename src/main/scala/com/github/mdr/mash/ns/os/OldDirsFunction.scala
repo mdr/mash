@@ -28,9 +28,9 @@ object OldDirsFunction extends MashFunction("os.oldDirs") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): Seq[MashString] = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    workingDirectoryStack.oldDirs.map(FunctionHelpers.asPathString)
+    MashList(workingDirectoryStack.oldDirs.map(FunctionHelpers.asPathString))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, PathClass)))

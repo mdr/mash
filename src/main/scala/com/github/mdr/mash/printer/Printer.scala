@@ -19,6 +19,7 @@ import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.evaluator.BoundMethod
+import com.github.mdr.mash.evaluator.MashList
 
 object Printer {
 
@@ -34,10 +35,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
   private val helpPrinter = new HelpPrinter(output)
 
   def render(x: Any) = x match {
-    case xs: Seq[_] if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
+    case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
       xs.foreach(output.println)
-    case xs: Seq[_] if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
-      new ObjectTablePrinter(output, terminalInfo).printTable(xs.asInstanceOf[Seq[MashObject]])
+    case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
+      new ObjectTablePrinter(output, terminalInfo).printTable(xs.items.asInstanceOf[Seq[MashObject]])
     case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) ⇒
       helpPrinter.printFunctionHelp(mo)
     case mo: MashObject if mo.classOpt == Some(FieldHelpClass) ⇒
@@ -45,7 +46,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     case mo: MashObject if mo.classOpt == Some(ClassHelpClass) ⇒
       helpPrinter.printClassHelp(mo)
     case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
-    case xs: Seq[_] if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
+    case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
     case f: MashFunction ⇒
       renderFunction(f)
     case bm: BoundMethod ⇒
@@ -88,8 +89,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
     case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
     case i: Instant ⇒ new PrettyTime().format(Date.from(i))
-    case xs: Seq[Any] if inCell ⇒ xs.map(renderField(_)).mkString(", ")
-    case xs: Seq[Any] ⇒ xs.map(renderField(_)).mkString("[", ", ", "]")
+    case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
+    case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
     case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))
   }
 

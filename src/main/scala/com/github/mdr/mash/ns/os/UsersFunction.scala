@@ -16,13 +16,12 @@ object UsersFunction extends MashFunction("os.users") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    userInteractions.passwdEntries.map(UserSummaryClass.fromPasswdEntry)
+    MashList(userInteractions.passwdEntries.map(UserSummaryClass.fromPasswdEntry))
   }
 
-  override def typeInferenceStrategy =
-    ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(UserSummaryClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(UserSummaryClass)))
 
   override def summary = "The users on the system"
 

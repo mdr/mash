@@ -49,7 +49,7 @@ object Evaluator {
     case _: MashFunction | _: BoundMethod ⇒
     case _: MashClass ⇒
     case _: Instant | _: LocalDate ⇒
-    case xs: Seq[_] ⇒
+    case xs: MashList ⇒
     case _ ⇒ throw EvaluatorException("Unexpected runtime type: " + x.getClass)
   }
 
@@ -105,7 +105,7 @@ object Evaluator {
       case ifExpr: IfExpr ⇒
         evaluateIfExpr(ifExpr, env)
       case ListExpr(items, _) ⇒
-        items.map(evaluate(_, env))
+        MashList(items.map(evaluate(_, env)))
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value, env)
         MashObject(fields, classOpt = None)
@@ -172,7 +172,7 @@ object Evaluator {
         val target = evaluate(targetExpr, env)
         val scalarHelpOpt = getHelpForMember(target, name)
         lazy val vectorHelpOpt = condOpt(target) {
-          case Seq(x, _*) ⇒ getHelpForMember(x, name)
+          case MashList(x, _*) ⇒ getHelpForMember(x, name)
         }.flatten
         lazy val directHelp = {
           val result = evaluateMemberExpr_(memberExpr, target, env, immediatelyResolveNullaryWhenVectorising = true).result
@@ -195,8 +195,8 @@ object Evaluator {
     val evaluatedCommand = evaluate(command, env)
     val evaluatedArgs = args.map(evaluate(_, env))
     val flattenedArgs: Seq[Any] = evaluatedArgs.flatMap {
-      case xs: Seq[_] ⇒ xs
-      case x          ⇒ Seq(x)
+      case xs: MashList ⇒ xs.items
+      case x            ⇒ Seq(x)
     }
     val allArgs = evaluatedCommand +: flattenedArgs
     ProcessRunner.runProcess(allArgs, expandTilde = true)
@@ -236,15 +236,16 @@ object Evaluator {
       MemberExprEvalResult(null, wasVectorised = false)
     else {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
-      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(x ⇒ MemberExprEvalResult(x, wasVectorised = true))
+      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
+        x ⇒ MemberExprEvalResult(x, wasVectorised = true))
       scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
     }
   }
 
-  private def vectorisedMemberLookup(target: Any, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[Seq[_]] =
+  private def vectorisedMemberLookup(target: Any, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
     target match {
-      case xs: Seq[Any] if xs.nonEmpty ⇒
-        val options = xs.map {
+      case xs: MashList if xs.nonEmpty ⇒
+        val options = xs.items.map {
           case null if isNullSafe ⇒ Some(null)
           case x ⇒
             val lookupOpt = MemberEvaluator.maybeLookup(x, name)
@@ -253,7 +254,7 @@ object Evaluator {
             else
               lookupOpt
         }
-        Utils.sequence(options)
+        Utils.sequence(options).map(MashList(_))
       case _ ⇒
         None
     }
@@ -271,7 +272,7 @@ object Evaluator {
       case memberExpr: MemberExpr ⇒
         val MemberExprEvalResult(result, wasVectorised) = evaluateMemberExpr(memberExpr, env, immediatelyResolveNullaryWhenVectorising = false)
         if (wasVectorised) {
-          val functions = result.asInstanceOf[Seq[_]]
+          val functions = result.asInstanceOf[MashList]
           functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
         } else
           callFunction(result, evaluatedArguments, functionExpr, invocationExpr)
@@ -302,7 +303,7 @@ object Evaluator {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup " + n, locationOpt))
         target match {
-          case xs: Seq[_] ⇒
+          case xs: MashList ⇒
             val index = if (i < 0) i + xs.size else i
             xs(index)
           case s: MashString ⇒ s.lookup(i)
@@ -339,7 +340,7 @@ object Evaluator {
   }
 
   def add(left: Any, right: Any, locationOpt: Option[PointedRegion]): Any = (left, right) match {
-    case (xs: Seq[_], ys: Seq[_])              ⇒ xs ++ ys
+    case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber) ⇒ left + right
@@ -355,7 +356,7 @@ object Evaluator {
     function match {
       case MashString(s, _) ⇒
         arguments.positionArgs(0).value match {
-          case xs: Seq[_] ⇒
+          case xs: MashList ⇒
             xs.map { target ⇒
               val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
               Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)

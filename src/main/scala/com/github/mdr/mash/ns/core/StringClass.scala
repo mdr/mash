@@ -127,7 +127,7 @@ object StringClass extends MashClass("core.String") {
         "Separator to split string on",
         defaultValueGeneratorOpt = Some(() ⇒ null))))
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
       val pieces = boundParams(Separator) match {
@@ -138,7 +138,7 @@ object StringClass extends MashClass("core.String") {
         case _ ⇒
           throw new EvaluatorException("Invalid separator")
       }
-      pieces.map(piece ⇒ MashString(piece, targetString.tagClassOpt))
+      MashList(pieces.map(piece ⇒ MashString(piece, targetString.tagClassOpt)))
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {

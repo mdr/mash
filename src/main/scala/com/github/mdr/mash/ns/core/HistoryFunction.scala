@@ -18,9 +18,9 @@ object HistoryFunction extends MashFunction("os.history") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    history.getHistory.map(asObject)
+    MashList(history.getHistory.map(asObject))
   }
 
   private def asObject(entry: HistoryEntry): MashObject = {

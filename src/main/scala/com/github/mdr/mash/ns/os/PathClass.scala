@@ -174,7 +174,7 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       ReadLinesFunction.readLines(path)
@@ -290,7 +290,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel(ChildrenFunction.params.params.tail)
 
-    def apply(target: Any, arguments: Arguments): Seq[MashObject] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val ignoreDotFiles = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.IgnoreDotFiles))
       val recursive = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.Recursive))
@@ -299,7 +299,7 @@ The default character encoding and line separator are used.""")
         throw new EvaluatorException(s"'$parentDir' does not exist")
       if (!fileSystem.isDirectory(parentDir))
         throw new EvaluatorException(s"'$parentDir' is not a directory")
-      ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive)
+      MashList(ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive))
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {
@@ -324,7 +324,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel(Seq(Destination))
 
-    def apply(target: Any, arguments: Arguments): Unit = {
+    def apply(target: Any, arguments: Arguments) {
       val boundParams = params.validate(arguments)
       val source = FunctionHelpers.interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
@@ -595,9 +595,9 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
-      FunctionHelpers.interpretAsPath(target).asScala.toSeq.map(p ⇒ MashString(p.toString))
+      MashList(FunctionHelpers.interpretAsPath(target).asScala.toSeq.map(p ⇒ MashString(p.toString)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))

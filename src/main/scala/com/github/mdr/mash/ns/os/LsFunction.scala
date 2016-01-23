@@ -55,7 +55,7 @@ If no paths are provided, the default is the current working directory."""))
 
   val params = ParameterModel(Seq(Paths, All, Recursive, Directory))
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
     val ignoreDotFiles = Truthiness.isFalsey(boundParams(All))
     val recursive = Truthiness.isTruthy(boundParams(Recursive))
@@ -67,7 +67,7 @@ If no paths are provided, the default is the current working directory."""))
         ChildrenFunction.getChildren(path, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
       else
         Seq(PathSummaryClass.asMashObject(fileSystem.getPathSummary(path)))
-    paths.flatMap(listPath)
+    MashList(paths.flatMap(listPath))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))

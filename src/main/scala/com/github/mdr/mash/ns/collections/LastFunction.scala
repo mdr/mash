@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.evaluator.MashList
 
 object LastFunction extends MashFunction("collections.last") {
 
@@ -30,12 +31,12 @@ object LastFunction extends MashFunction("collections.last") {
       case Some(n) ⇒
         sequence match {
           case s: MashString ⇒ s.modify(_.takeRight(n))
-          case xs: Seq[_]    ⇒ xs.takeRight(n)
+          case xs: MashList  ⇒ MashList(xs.items.takeRight(n))
         }
       case None ⇒
         sequence match {
           case s: MashString ⇒ if (s.isEmpty) null else s.last
-          case xs: Seq[_]    ⇒ if (xs.isEmpty) null else xs.last
+          case xs: MashList  ⇒ if (xs.isEmpty) null else xs.last
         }
     }
   }

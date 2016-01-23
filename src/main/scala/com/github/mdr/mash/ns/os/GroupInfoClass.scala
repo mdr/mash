@@ -14,9 +14,9 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
   private val userInteractions = LinuxUserInteractions
 
   object Fields {
-    val Name = Field("name", "Name of the group", Type.Tagged(StringClass, GroupClass))
-    val Gid = Field("gid", "Id of the group", Type.Tagged(NumberClass, GidClass))
-    val Users = Field("users", "Users in the group", Type.Seq(Type.Tagged(StringClass, UsernameClass)))
+    lazy val Name = Field("name", "Name of the group", Type.Tagged(StringClass, GroupClass))
+    lazy val Gid = Field("gid", "Id of the group", Type.Tagged(NumberClass, GidClass))
+    lazy val Users = Field("users", "Users in the group", Type.Seq(Type.Tagged(StringClass, UsernameClass)))
   }
 
   import Fields._
@@ -31,7 +31,7 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
       ListMap(
         Fields.Name -> MashString(groupEntry.group, Some(GroupClass)),
         Fields.Gid -> MashNumber(groupEntry.gid, Some(GidClass)),
-        Fields.Users -> users),
+        Fields.Users -> MashList(users)),
       GroupInfoClass)
   }
 

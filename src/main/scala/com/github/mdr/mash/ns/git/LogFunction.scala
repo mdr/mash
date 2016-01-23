@@ -15,6 +15,7 @@ import com.github.mdr.mash.inference.Type
 import java.time.Instant
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import org.eclipse.jgit.lib.Repository
+import com.github.mdr.mash.evaluator.MashList
 
 object LogFunction extends MashFunction("git.log") {
 
@@ -22,11 +23,11 @@ object LogFunction extends MashFunction("git.log") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): Seq[MashObject] = {
+  def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
     withRepository { repo ⇒
       val git = new Git(repo)
-      git.log.call().asScala.toSeq.map(asCommitObject)
+      MashList(git.log.call().asScala.toSeq.map(asCommitObject))
     }
   }
 

@@ -58,8 +58,8 @@ object SelectFunction extends MashFunction("collections.select") {
         Some(flag -> FunctionHelpers.interpretAsFunction(value))
     }
     target match {
-      case xs: Seq[_] ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))
-      case x          ⇒ doSelect(x, fieldsAndFunctions, add)
+      case xs: MashList ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))
+      case x            ⇒ doSelect(x, fieldsAndFunctions, add)
     }
   }
 

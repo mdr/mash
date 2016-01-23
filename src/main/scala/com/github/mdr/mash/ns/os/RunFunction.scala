@@ -25,10 +25,10 @@ object RunFunction extends MashFunction("os.run") {
     val boundParams = params.validate(arguments)
     val args: Seq[_] =
       boundParams(Command) match {
-        case Seq(xs: Seq[_])       ⇒ xs
-        case Seq(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_))
-        case xs: Seq[_]            ⇒ xs
-        case x                     ⇒ Seq(x)
+        case MashList(xs: MashList)     ⇒ xs.items
+        case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_))
+        case xs: MashList               ⇒ xs.items
+        case x                          ⇒ Seq(x)
       }
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")

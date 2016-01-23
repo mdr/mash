@@ -21,12 +21,12 @@ object GidClass extends MashClass("os.Gid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashString] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(
         throw new EvaluatorException(s"Could not find group with gid $gid"))
-      GroupClass.UsersMethod.getUsers(groupEntry.group)
+      MashList(GroupClass.UsersMethod.getUsers(groupEntry.group))
     }
 
     override def typeInferenceStrategy = GroupClass.UsersMethod.typeInferenceStrategy
