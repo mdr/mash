@@ -13,10 +13,6 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
 
   def rplus(that: Any): MashString = copy(s = ToStringifier.stringify(that) + this.s)
 
-  override def toString = s
-
-  def compareTo(that: MashString) = this.s.compareTo(that.s)
-
   def reverse = copy(s = s.reverse)
 
   def first = copy(s = s.head + "")
@@ -36,5 +32,9 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
   def isEmpty = s.isEmpty
 
   override def hashCode = s.hashCode
+
+  override def toString = s
+
+  def compareTo(that: MashString) = this.s.compareTo(that.s)
 
 }
