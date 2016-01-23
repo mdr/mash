@@ -24,12 +24,14 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
   }
 
   private def handleLastArg() {
-    for (lastParam ← params.lastParamOpt)
-      for (lastArg ← arguments.positionArgs.lastOption) {
-        boundParams += lastParam.name -> lastArg
-        posToName += arguments.arguments.indexOf(lastArg) -> lastParam.name
-        lastParameterConsumed = true
-      }
+    for {
+      lastParam ← params.lastParamOpt
+      lastArg ← arguments.positionArgs.lastOption
+    } {
+      boundParams += lastParam.name -> lastArg
+      posToName += arguments.arguments.indexOf(lastArg) -> lastParam.name
+      lastParameterConsumed = true
+    }
   }
 
   private def handlePositionalArgs() = {
@@ -39,8 +41,8 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     if (positionArgs.size > regularPosParams.size)
       for (variadicParam ← params.variadicParamOpt) {
         val varargs = positionArgs.drop(regularPosParams.size)
-        val typ = Type.Seq(varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any))
-        boundParams += variadicParam.name -> AnnotatedExpr(None, Some(typ))
+        val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
+        boundParams += variadicParam.name -> AnnotatedExpr(None, Some(Type.Seq(varargType)))
         for (pos ← regularPosParams.size to positionArgs.size - 1)
           posToName += arguments.arguments.indexOf(pos) -> variadicParam.name
       }

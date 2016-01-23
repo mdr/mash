@@ -12,7 +12,6 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 object RunFunction extends MashFunction("os.run") {
 
   object Params {
-
     val Command = Parameter(
       name = "command",
       summary = "Command to execute",

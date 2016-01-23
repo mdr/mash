@@ -68,4 +68,8 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
 }
 
-case class Field(name: String, summary: String, fieldType: Type, descriptionOpt: Option[String] = None)
+case class Field(
+  name: String,
+  summary: String,
+  fieldType: Type,
+  descriptionOpt: Option[String] = None)

@@ -10,6 +10,6 @@ object SignalClass extends MashClass("os.Signal") {
     Some(signals)
   }
 
-    override def summary = "A signal"
+  override def summary = "A signal"
 
 }

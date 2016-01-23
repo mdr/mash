@@ -119,10 +119,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // max
   "[1, 2, 3] | max" shouldBeInferredAsHavingType NumberType
   "'abc' | max" shouldBeInferredAsHavingType StringType
+  "max 1 2 3" shouldBeInferredAsHavingType NumberType
+  "max 'a' 'b' 'c'" shouldBeInferredAsHavingType StringType
 
   // min
   "[1, 2, 3] | min" shouldBeInferredAsHavingType NumberType
   "'abc' | min" shouldBeInferredAsHavingType StringType
+  "min 1 2 3" shouldBeInferredAsHavingType NumberType
+  "min 'a' 'b' 'c'" shouldBeInferredAsHavingType StringType
 
   // maxBy
   "['a', 'bb', 'ccc'] | maxBy length" shouldBeInferredAsHavingType StringType

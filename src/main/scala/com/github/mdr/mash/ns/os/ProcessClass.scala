@@ -16,7 +16,6 @@ object ProcessClass extends MashClass("os.Process") {
   private val processInteractions = LinuxProcessInteractions
 
   object Fields {
-
     val Pid = Field("pid", "Id of process", Type.Tagged(NumberClass, PidClass))
     val ParentPid = Field("parentPid", "Id of parent process", Type.Tagged(NumberClass, PidClass))
     val Name = Field("name", "Name", Type.Instance(StringClass))
@@ -24,7 +23,6 @@ object ProcessClass extends MashClass("os.Process") {
     val Owner = Field("owner", "Owner", Type.Tagged(StringClass, UsernameClass))
     val ResidentSize = Field("residentSize", "Resident set size (RSS) in bytes", Type.Tagged(NumberClass, BytesClass))
     val VirtualSize = Field("virtualSize", "Virtual memory size (VSZ) in bytes", Type.Tagged(NumberClass, BytesClass))
-
   }
 
   import Fields._

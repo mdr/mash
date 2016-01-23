@@ -90,7 +90,7 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Unit = {
+    def apply(target: Any, arguments: Arguments) {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       Files.createDirectory(path)
@@ -193,8 +193,8 @@ The default character encoding and line separator are used.""")
 
     object Params {
       val NewName = Parameter(
-        "newName",
-        "New name")
+        name = "newName",
+        summary = "New name")
     }
     import Params._
 
@@ -219,8 +219,8 @@ The default character encoding and line separator are used.""")
 
     object Params {
       val F = Parameter(
-        "f",
-        "Function to transform the old name into a new name")
+        name = "f",
+        summary = "Function to transform the old name into a new name")
     }
     import Params._
 
@@ -246,7 +246,6 @@ The default character encoding and line separator are used.""")
         } inferencer.applyFunction(functionType, targetType, None)
         Some(Type.Tagged(StringClass, PathClass))
       }
-
     }
 
     override def summary = "Rename this path using a function to transform the name"
@@ -273,7 +272,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val parent = FunctionHelpers.interpretAsPath(target).getParent
       if (parent == null)
@@ -296,8 +295,10 @@ The default character encoding and line separator are used.""")
       val ignoreDotFiles = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.IgnoreDotFiles))
       val recursive = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.Recursive))
       val parentDir = FunctionHelpers.interpretAsPath(target)
+      if (!fileSystem.exists(parentDir))
+        throw new EvaluatorException(s"'$parentDir' does not exist")
       if (!fileSystem.isDirectory(parentDir))
-        throw new EvaluatorException("Path must be a directory")
+        throw new EvaluatorException(s"'$parentDir' is not a directory")
       ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive)
     }
 
@@ -315,7 +316,6 @@ The default character encoding and line separator are used.""")
   object CopyMethod extends MashMethod("copy") {
 
     object Params {
-
       val Destination = Parameter(
         name = "destination",
         summary = "Location to copy file to")
@@ -350,7 +350,6 @@ The default character encoding and line separator are used.""")
   object CopyIntoMethod extends MashMethod("copyInto") {
 
     object Params {
-
       val Destination = Parameter(
         name = "destination",
         summary = "Location to copy file to")
@@ -384,7 +383,6 @@ The default character encoding and line separator are used.""")
   object MoveIntoMethod extends MashMethod("moveInto") {
 
     object Params {
-
       val Destination = Parameter(
         name = "destination",
         summary = "Location to copy file to")
@@ -532,7 +530,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
       MashString(summary.group, Some(GroupClass))
@@ -565,7 +563,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: Any, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
       MashNumber(summary.size, Some(BytesClass))

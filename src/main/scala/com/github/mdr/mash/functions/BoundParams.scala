@@ -64,6 +64,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
         throw new EvaluatorException(message, locationOpt(param))
     }
   }
+
   object MashInteger {
 
     def unapply(x: Any): Option[Int] = x match {

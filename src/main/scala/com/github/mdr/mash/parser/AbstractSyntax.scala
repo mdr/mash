@@ -78,7 +78,7 @@ object AbstractSyntax {
             ExprPart(expr.transform(f))
           case StringPart(_) ⇒
             this
-          case SimpleParam(_) | VariadicParam(_) ⇒
+          case SimpleParam(_, _) | VariadicParam(_, _) ⇒
             this
           case Argument.PositionArg(expr, sourceInfoOpt) ⇒
             Argument.PositionArg(expr.transform(f), sourceInfoOpt)
@@ -250,15 +250,13 @@ object AbstractSyntax {
     val name: String
   }
 
-  case class SimpleParam(name: String) extends FunctionParam {
-    val sourceInfoOpt = None
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
+  case class SimpleParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
   }
 
-  case class VariadicParam(name: String) extends FunctionParam {
-    val sourceInfoOpt = None
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
+  case class VariadicParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
   }
 

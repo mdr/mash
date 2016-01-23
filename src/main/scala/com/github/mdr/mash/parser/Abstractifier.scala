@@ -68,8 +68,8 @@ object Abstractifier {
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(_, name, params, _, body) = decl
     val abstractParams = params.map {
-      case Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text)
-      case Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text)
+      case param @ Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text, Some(SourceInfo(param)))
+      case param @ Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, Some(SourceInfo(param)))
     }
     Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), Some(SourceInfo(decl)))
   }

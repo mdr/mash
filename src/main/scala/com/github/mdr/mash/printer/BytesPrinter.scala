@@ -8,7 +8,7 @@ object BytesPrinter {
   private val MB = 1024 * KB
   private val GB = 1024 * MB
 
-  def humanReadable(n: Double) = {
+  def humanReadable(n: Double): String = {
     val f = new DecimalFormat
     f.setMaximumSignificantDigits(3)
     if (n < KB)

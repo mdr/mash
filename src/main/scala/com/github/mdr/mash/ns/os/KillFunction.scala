@@ -13,7 +13,7 @@ import com.github.mdr.mash.functions.BoundParams
 
 object KillFunction extends MashFunction("os.kill") {
 
-  val Signals: Map[String, Int] = {
+  private val Signals: Map[String, Int] = {
     val pairs =
       for (signal ← Signal.values)
         yield signal.name.drop(3) -> signal.value

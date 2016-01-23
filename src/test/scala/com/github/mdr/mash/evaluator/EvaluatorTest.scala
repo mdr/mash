@@ -214,6 +214,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   // max
   "max [1, 200, 3]" shouldEvaluateTo "200"
   "max 'abc'" shouldEvaluateTo "'c'"
+  "max 1 2 3" shouldEvaluateTo "3"
 
   // maxBy
   "maxBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'bbb' "
@@ -222,6 +223,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   // min
   "min [100, 2, 300]" shouldEvaluateTo "2"
   "min 'abc'" shouldEvaluateTo "'a'"
+  "min 1 2 3" shouldEvaluateTo "1"
 
   // minBy
   "minBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'a' "

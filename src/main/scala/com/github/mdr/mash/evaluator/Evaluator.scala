@@ -120,8 +120,8 @@ object Evaluator {
   private def evaluateFunctionDecl(decl: FunctionDeclaration, env: Environment) {
     val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
     val parameters: Seq[Parameter] = params.map {
-      case SimpleParam(name)   ⇒ Parameter(name, s"Parameter '$name'")
-      case VariadicParam(name) ⇒ Parameter(name, s"Parameter '$name'", isVariadic = true)
+      case SimpleParam(name, _)   ⇒ Parameter(name, s"Parameter '$name'")
+      case VariadicParam(name, _) ⇒ Parameter(name, s"Parameter '$name'", isVariadic = true)
     }
     if (parameters.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")

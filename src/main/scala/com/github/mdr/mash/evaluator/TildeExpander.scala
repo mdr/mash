@@ -3,9 +3,14 @@ package com.github.mdr.mash.evaluator
 import scala.util.matching.Regex
 import com.github.mdr.mash.os.EnvironmentInteractions
 
-class TildeExpander(envInteractions: EnvironmentInteractions) {
+object TildeExpander {
 
   private val TildeRegex: Regex = "(?<!\\S)~(?=\\s|/|$)".r
+
+}
+
+class TildeExpander(envInteractions: EnvironmentInteractions) {
+  import TildeExpander._
 
   def expand(s: String): String = TildeRegex.replaceAllIn(s, home)
 
@@ -14,7 +19,7 @@ class TildeExpander(envInteractions: EnvironmentInteractions) {
 
   private def home = envInteractions.home.toString
 
-  def retilde(s: String) = {
+  def retilde(s: String): String = {
     if (s startsWith home)
       "~" + s.drop(home.length)
     else
