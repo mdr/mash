@@ -6,6 +6,7 @@ import org.scalatest.FlatSpec
 import com.github.mdr.mash.compiler.Compiler
 import org.scalatest.junit.JUnitRunner
 import com.github.mdr.mash.parser.MashParserException
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class EvaluatorTest extends FlatSpec with Matchers {
@@ -416,6 +417,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   "[].sumBy.target" shouldEvaluateTo "[]"
 
+  "now.date.toString" shouldNotThrowAnException
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
@@ -431,6 +434,13 @@ class EvaluatorTest extends FlatSpec with Matchers {
       }
     }
 
+    def shouldNotThrowAnException = {
+      "Evaluator" should s"not throw an exception when evaluating '$s'" in {
+        val env = Environment.create
+        val Some(expr) = Compiler.compile(s, forgiving = false, environment = env)
+        Evaluator.evaluate(expr, env)
+      }
+    }
     def shouldEvaluateTo(expectedString: String) = {
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = Environment.create

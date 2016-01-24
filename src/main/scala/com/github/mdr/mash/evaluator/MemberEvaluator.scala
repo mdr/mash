@@ -1,13 +1,14 @@
 package com.github.mdr.mash.evaluator
 
 import java.time.Instant
-
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.SeqClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.utils.PointedRegion
+import java.time.LocalDate
+import com.github.mdr.mash.ns.time.LocalDateClass
 
 object MemberEvaluator {
 
@@ -45,10 +46,11 @@ object MemberEvaluator {
       case b: Boolean                 ⇒ lookupMethod(b, BooleanClass, name)
       case xs: MashList               ⇒ lookupMethod(xs, SeqClass, name)
       case obj: MashObject            ⇒ obj.getField(name) orElse lookupMethod(obj, name)
-      case dt: Instant                ⇒ lookupMethod(dt, DateTimeClass, name)
       case f: MashFunction            ⇒ lookupMethod(f, FunctionClass, name)
       case bm: BoundMethod            ⇒ lookupMethod(bm, BoundMethodClass, name)
       case klass: MashClass           ⇒ lookupMethod(klass, ClassClass, name)
+      case dt: Instant                ⇒ lookupMethod(dt, DateTimeClass, name)
+      case date: LocalDate            ⇒ lookupMethod(date, LocalDateClass, name)
       case _                          ⇒ None
     }
 
