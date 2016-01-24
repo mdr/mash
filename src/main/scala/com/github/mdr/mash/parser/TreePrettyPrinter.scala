@@ -73,8 +73,8 @@ object TreePrettyPrinter {
         println("BinOpExpr: " + op + typeDescription)
         printTree(left, depth + 1)
         printTree(right, depth + 1)
-      case AssignmentExpr(left, right, _) ⇒
-        println("AssignmentExpr" + typeDescription)
+      case AssignmentExpr(left, right, alias, _) ⇒
+        println("AssignmentExpr" + typeDescription + (if (alias) " (alias)" else ""))
         printTree(left, depth + 1)
         printTree(right, depth + 1)
       case ListExpr(items, _) ⇒

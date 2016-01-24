@@ -141,8 +141,9 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     val left = ifExpr()
     if (SHORT_EQUALS) {
       val equals = nextToken()
+      val aliasOpt = if (ALIAS) Some(nextToken()) else None
       val right = pipeExpr()
-      AssignmentExpr(left, equals, right)
+      AssignmentExpr(left, equals, aliasOpt, right)
     } else
       left
   }
@@ -241,7 +242,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     var previousPos = pos
     while (!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
-      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || TILDE || DEF || STRING_END)) {
+      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || TILDE || DEF || STRING_END || ALIAS)) {
       args += arg()
       assert(pos > previousPos, "Infinite loop detected parsing invocationExpr at position " + pos + ", current token is " + currentToken)
       previousPos = pos

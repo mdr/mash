@@ -81,7 +81,7 @@ class TypeInferencer {
         Some(Type.Tagged(StringClass, PathClass))
       case MinusExpr(_, _)      ⇒ Some(Type.Instance(NumberClass))
       case binOpExpr: BinOpExpr ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
-      case AssignmentExpr(left, right, _) ⇒
+      case AssignmentExpr(left, right, _, _) ⇒
         inferType(right, bindings)
         Some(Type.Instance(UnitClass))
       case identifier: Identifier ⇒ inferTypeIdentifier(identifier, bindings, immediateExec)

@@ -77,11 +77,11 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield BinOpExpr(newLeft, op, newRight, sourceInfoOpt)
-    case AssignmentExpr(left, right, sourceInfoOpt) ⇒
+    case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
       for {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
-      } yield AssignmentExpr(newLeft, newRight, sourceInfoOpt)
+      } yield AssignmentExpr(newLeft, newRight, alias, sourceInfoOpt)
     case MishExpr(command, args, sourceInfoOpt) ⇒
       for {
         newCommand ← desugarHoles_(command)

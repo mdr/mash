@@ -224,7 +224,7 @@ class MashParserTest extends FlatSpec with Matchers {
     val s = "a = 42"
     val Seq(a, equals, fortyTwo, _) = MashLexer.tokenise(s)
     parse(s) shouldEqual (
-      AssignmentExpr(Identifier(a), equals, Literal(fortyTwo)))
+      AssignmentExpr(Identifier(a), equals, None /* alias */ , Literal(fortyTwo)))
   }
 
   "Parsing 1 / def" should "not crash" in {
@@ -238,6 +238,10 @@ class MashParserTest extends FlatSpec with Matchers {
 
   "Parsing dollar in mish" should "not crash" in {
     parse("!{$}")
+  }
+
+  "Parsing alias" should "not crash" in {
+    parse("alias")
   }
 
 }

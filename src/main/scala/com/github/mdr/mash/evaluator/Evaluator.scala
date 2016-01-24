@@ -134,23 +134,22 @@ object Evaluator {
   }
 
   private def evaluateAssignment(expr: AssignmentExpr, env: Environment): Any = {
-    val AssignmentExpr(left, right, _) = expr
+    val AssignmentExpr(left, right, alias, _) = expr
+    val rightValue = if (alias) simpleEvaluate(right, env) else evaluate(right, env)
     left match {
       case Identifier(name, _) ⇒
-        env.globalVariables += name -> evaluate(right, env)
+        env.globalVariables += name -> rightValue
         ()
       case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
         val targetValue = evaluate(target, env)
-        val assignmentValue = evaluate(right, env)
         targetValue match {
           case MashObject(fields, _) ⇒
-            fields += member -> assignmentValue
+            fields += member -> rightValue
             ()
           case _ ⇒
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.sourceInfoOpt.map(_.location))
         }
       case LookupExpr(target, index, _) ⇒
-        val assignmentValue = evaluate(right, env)
         val targetValue = evaluate(target, env)
         val indexValue = evaluate(index, env)
         targetValue match {
@@ -163,7 +162,7 @@ object Evaluator {
                     if (i < 0 || i > items.size - 1)
                       throw new EvaluatorException("Index out of range '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
                     else
-                      xs.items(i) = assignmentValue
+                      xs.items(i) = rightValue
                   case None ⇒
                     throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
                 }
@@ -173,7 +172,7 @@ object Evaluator {
           case mo: MashObject ⇒
             indexValue match {
               case MashString(s, _) ⇒
-                mo.fields(s) = assignmentValue
+                mo.fields(s) = rightValue
               case _ ⇒
                 throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
             }

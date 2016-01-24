@@ -36,8 +36,8 @@ object AbstractSyntax {
               case StringPart(s) ⇒ StringPart(s)
               case ExprPart(e)   ⇒ ExprPart(e.transform(f))
             }, end, sourceInfoOpt)
-          case AssignmentExpr(left, right, sourceInfoOpt) ⇒
-            AssignmentExpr(left.transform(f), right.transform(f), sourceInfoOpt)
+          case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
+            AssignmentExpr(left.transform(f), right.transform(f), alias, sourceInfoOpt)
           case ParenExpr(expr, sourceInfoOpt) ⇒
             ParenExpr(expr.transform(f), sourceInfoOpt)
           case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
@@ -228,7 +228,7 @@ object AbstractSyntax {
 
   }
 
-  case class AssignmentExpr(left: Expr, right: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class AssignmentExpr(left: Expr, right: Expr, alias: Boolean, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(left, right)
   }
