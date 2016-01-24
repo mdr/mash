@@ -49,21 +49,21 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
       if (mishCmd == "")
         CommandResult(None, toggleMish = true)
       else {
-        runMishCommand(mishCmd, bareWords)
+        runMashCommand(mishCmd, mish = true, bareWords = bareWords)
         CommandResult(None)
       }
     case _ if mish ⇒
-      runMishCommand(cmd, bareWords)
+      runMashCommand(cmd, mish = true, bareWords = bareWords)
       CommandResult(None)
     case _ ⇒ // regular mash
-      val resultOpt = runMashCommand(cmd, bareWords)
+      val resultOpt = runMashCommand(cmd, mish = false, bareWords = bareWords)
       CommandResult(resultOpt)
   }
 
-  private def runMashCommand(cmd: String, bareWords: Boolean): Option[Any] = {
+  private def runMashCommand(cmd: String, bareWords: Boolean, mish: Boolean): Option[Any] = {
     val exprOpt =
       try {
-        Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, bareWords = bareWords)
+        Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
       } catch {
         case MashParserException(msg, location) ⇒
           printError("Syntax error", msg, cmd, Some(location))
@@ -106,35 +106,6 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
       output.println(Ansi.ansi().reset())
     }
 
-  }
-
-  private def runMishCommand(cmd: String, bareWords: Boolean) {
-    val exprOpt =
-      try {
-        Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, mish = true, bareWords: Boolean)
-      } catch {
-        case MashParserException(msg, location) ⇒
-          printError("Syntax error", msg, cmd, Some(location))
-          return
-        case MashLexerException(msg, location) ⇒
-          printError("Syntax error", msg, cmd, Some(location))
-          return
-      }
-    for (expr ← exprOpt) {
-      val result =
-        try {
-          val ctx = new ExecutionContext(Thread.currentThread)
-          Singletons.setExecutionContext(ctx)
-          ExecutionContext.set(ctx)
-          Evaluator.evaluate(expr, environment)
-        } catch {
-          case e @ EvaluatorException(msg, locationOpt, cause) ⇒
-            printError("Error", msg, cmd, locationOpt)
-            DebugLogger.logException(e)
-          case _: EvaluationInterruptedException ⇒
-            output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
-        }
-    }
   }
 
   private def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
