@@ -61,36 +61,42 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
   }
 
   private def runMashCommand(cmd: String, bareWords: Boolean, mish: Boolean): Option[Any] = {
-    val exprOpt =
-      try {
-        Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
-      } catch {
-        case MashParserException(msg, location) ⇒
-          printError("Syntax error", msg, cmd, Some(location))
-          return None
-        case MashLexerException(msg, location) ⇒
-          printError("Syntax error", msg, cmd, Some(location))
-          return None
-      }
+    val exprOpt = safeCompile(cmd, bareWords = bareWords, mish = mish)
     for (expr ← exprOpt) yield {
-      val result =
-        try {
-          val ctx = new ExecutionContext(Thread.currentThread)
-          Singletons.setExecutionContext(ctx)
-          ExecutionContext.set(ctx)
-          Evaluator.evaluate(expr, environment)
-        } catch {
-          case e @ EvaluatorException(msg, locationOpt, cause) ⇒
-            printError("Error", msg, cmd, locationOpt)
-            DebugLogger.logException(e)
-          case _: EvaluationInterruptedException ⇒
-            output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
-        }
+      val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
       printer.render(result)
       result
     }
   }
+
+  private def runExpr(expr: AbstractSyntax.Expr, cmd: String): Any =
+    try {
+      val ctx = new ExecutionContext(Thread.currentThread)
+      Singletons.setExecutionContext(ctx)
+      ExecutionContext.set(ctx)
+      Evaluator.evaluate(expr, environment)
+    } catch {
+      case e @ EvaluatorException(msg, locationOpt, cause) ⇒
+        printError("Error", msg, cmd, locationOpt)
+        DebugLogger.logException(e)
+        ()
+      case _: EvaluationInterruptedException ⇒
+        output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
+        ()
+    }
+
+  private def safeCompile(cmd: String, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
+    try
+      Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
+    catch {
+      case MashParserException(msg, location) ⇒
+        printError("Syntax error", msg, cmd, Some(location))
+        None
+      case MashLexerException(msg, location) ⇒
+        printError("Syntax error", msg, cmd, Some(location))
+        None
+    }
 
   private def printError(msgType: String, msg: String, cmd: String, regionOpt: Option[PointedRegion]) = {
     output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
