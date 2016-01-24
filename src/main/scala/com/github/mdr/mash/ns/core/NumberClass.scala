@@ -20,6 +20,7 @@ object NumberClass extends MashClass("core.Number") {
     MonthsMethod,
     NegateMethod,
     TagMethod,
+    ToIntMethod,
     UntaggedMethod,
     WeeksMethod,
     alias("day", DaysMethod),
@@ -27,6 +28,23 @@ object NumberClass extends MashClass("core.Number") {
     alias("month", MonthsMethod),
     alias("week", WeeksMethod))
 
+  object ToIntMethod extends MashMethod("toInt") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashNumber = {
+      params.validate(arguments)
+      target.asInstanceOf[MashNumber].modify(n ⇒ n.toInt)
+    }
+
+    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
+        targetTypeOpt
+    }
+
+    override def summary = "Convert number to an integer (rounding towards zero)"
+
+  }
   object TagMethod extends MashMethod("tag") {
 
     val params = ParameterModel()

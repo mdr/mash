@@ -47,6 +47,8 @@ case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends 
 
   def withTag(tagClass: MashClass) = copy(tagClassOpt = Some(tagClass))
 
+  def modify(f: Double ⇒ Double): MashNumber = copy(n = f(n))
+
   override def equals(that: Any) = cond(that) {
     case that: MashNumber ⇒ this.n == that.n
   }

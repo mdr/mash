@@ -424,6 +424,9 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "'x' * 1" shouldEvaluateTo "'x'"
   "'x' * 0" shouldEvaluateTo "''"
 
+  "3.14.toInt" shouldEvaluateTo "3"
+  "(-3.14).toInt" shouldEvaluateTo "-3"
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
