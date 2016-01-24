@@ -4,12 +4,11 @@ object ExecutionContext {
 
   private val contextThreadLocal = new ThreadLocal[ExecutionContext]
 
-  def isInterrupted = contextThreadLocal.get.interrupted
+  def isInterrupted = Option(contextThreadLocal.get).map(_.interrupted).getOrElse(false)
 
   def set(ctx: ExecutionContext) = contextThreadLocal.set(ctx)
 
   def checkInterrupted() = {
-    //    println("checkInterrupted()")
     if (isInterrupted)
       throw new EvaluationInterruptedException
   }
