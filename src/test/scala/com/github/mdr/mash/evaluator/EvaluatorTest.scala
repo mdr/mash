@@ -409,6 +409,9 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
 
+  "a = [1, 2, 3]; a[1] = 42; a" shouldEvaluateTo "[1, 42, 3]"
+  "a = {}; a['foo'] = 42; a.foo" shouldEvaluateTo "42"
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {

@@ -150,22 +150,38 @@ object Evaluator {
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.sourceInfoOpt.map(_.location))
         }
       case LookupExpr(target, index, _) ⇒
+        val assignmentValue = evaluate(right, env)
         val targetValue = evaluate(target, env)
         val indexValue = evaluate(index, env)
-        val assignmentValue = evaluate(right, env)
         targetValue match {
           case xs: MashList ⇒
             indexValue match {
               case n: MashNumber ⇒
-                xs.items(n.asInt.get) = assignmentValue
+                n.asInt match {
+                  case Some(i) ⇒
+                    val items = xs.items
+                    if (i < 0 || i > items.size - 1)
+                      throw new EvaluatorException("Index out of range '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                    else
+                      xs.items(i) = assignmentValue
+                  case None ⇒
+                    throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                }
               case _ ⇒
-                throw new EvaluatorException("Invalid list index '" + indexValue + "'")
+                throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+            }
+          case mo: MashObject ⇒
+            indexValue match {
+              case MashString(s, _) ⇒
+                mo.fields(s) = assignmentValue
+              case _ ⇒
+                throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
             }
           case _ ⇒
-            throw new EvaluatorException("Cannot assign to indexes of objects of this type", expr.sourceInfoOpt.map(_.location))
+            throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.sourceInfoOpt.map(_.location))
         }
       case _ ⇒
-        throw new EvaluatorException("Expression is not assignable", expr.sourceInfoOpt.map(_.location))
+        throw new EvaluatorException("Expression is not assignable", left.sourceInfoOpt.map(_.location))
     }
   }
 
