@@ -14,6 +14,7 @@ import com.github.mdr.mash.parser.SourceInfo
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.BoundMethodClass
 
 object MemberCompleter {
 
@@ -68,11 +69,12 @@ object MemberCompleter {
   }
 
   private def getMembers(t: Type, canVectorise: Boolean = true): Seq[MemberInfo] = t match {
-    case Type.Instance(klass)                             ⇒ getMembers(klass)
-    case Type.Object(fields)                              ⇒ distinct(fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true)) ++ getMembers(ObjectClass))
-    case Type.Tagged(baseClass, tagClass)                 ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
-    case Type.Group(keyType, elementType)                 ⇒ getMembers(GroupClass)
-    case Type.DefinedFunction(_) | Type.BoundMethod(_, _) ⇒ getMembers(FunctionClass)
+    case Type.Instance(klass)             ⇒ getMembers(klass)
+    case Type.Object(fields)              ⇒ distinct(fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true)) ++ getMembers(ObjectClass))
+    case Type.Tagged(baseClass, tagClass) ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
+    case Type.Group(keyType, elementType) ⇒ getMembers(GroupClass)
+    case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
+    case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
     case Type.Seq(elementType) ⇒
       if (canVectorise)
         getMembers(SeqClass) ++ getMembers(elementType, canVectorise = false).map(_.copy(isVectorised = true))

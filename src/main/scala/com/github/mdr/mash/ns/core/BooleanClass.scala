@@ -24,6 +24,10 @@ object BooleanClass extends MashClass("core.Boolean") {
 
     override def summary = "Negate this boolean"
 
+    override def descriptionOpt = Some("""Examples:
+    true.negate  # false
+    false.negate # true""")
+
   }
 
   override def summary = "Boolean values true and false"

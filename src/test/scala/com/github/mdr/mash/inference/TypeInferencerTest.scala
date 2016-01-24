@@ -175,6 +175,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "help 42.class" shouldBeInferredAsHavingType Instance(ClassHelpClass)
   "ls? .parameters" shouldBeInferredAsHavingType Seq(Instance(ParameterHelpClass))
 
+  // target
+  "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberType)
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

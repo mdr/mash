@@ -80,6 +80,9 @@ class CompletionsTest extends FlatSpec with Matchers {
   "{ foo: 42 }?.▶" shouldContainCompletion "foo"
 
   "..▶" shouldGiveCompletions ".."
+
+  "[].maxBy.targe▶" shouldGiveCompletions "target"
+
   // "../m" shouldGiveCompletions "../mash"
 
   // To get this to work, we need to be able to identify the name corresponding to the nth argument (by syntactical position)

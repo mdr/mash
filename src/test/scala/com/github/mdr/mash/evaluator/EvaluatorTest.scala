@@ -414,6 +414,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   "a = alias ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
 
+  "[].sumBy.target" shouldEvaluateTo "[]"
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {

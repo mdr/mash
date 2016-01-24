@@ -15,7 +15,8 @@ import com.github.mdr.mash.ns.core.help.HelpFunction
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   override val methods = Seq(
-    HelpMethod)
+    HelpMethod,
+    TargetMethod)
 
   object HelpMethod extends MashMethod("help") {
 
@@ -29,8 +30,34 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(FunctionHelpClass))
 
     override def summary = "Help documentation for this method"
+
   }
 
-  override def summary = "Methods that are bound to a target value"
+  object TargetMethod extends MashMethod("target") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): Any = {
+      params.validate(arguments)
+      target.asInstanceOf[BoundMethod].target
+    }
+
+    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
+        targetTypeOpt.collect {
+          case Type.BoundMethod(receiver, _) ⇒ receiver
+        }
+
+    }
+
+    override def summary = "Target of this bound method"
+
+    override def descriptionOpt = Some("""Examples:
+[1, 2, 3].sortBy.target # [1, 2, 3]""")
+
+  }
+
+  override def summary = "A method bound to a target"
 
 }

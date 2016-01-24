@@ -14,7 +14,7 @@ import org.fusesource.jansi.Ansi
 import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 
-case class CommandResult(value: Option[Any], toggleMish: Boolean = false)
+case class CommandResult(value: Option[Any] = None, toggleMish: Boolean = false)
 
 object MishCommand {
 
@@ -44,17 +44,17 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
   def run(cmd: String, mish: Boolean = false, bareWords: Boolean): CommandResult = cmd match {
     case DebugCommand(keyword, args) ⇒
       runDebugCommand(keyword, args, bareWords)
-      CommandResult(None)
+      CommandResult()
     case MishCommand(prefix, mishCmd) ⇒
       if (mishCmd == "")
-        CommandResult(None, toggleMish = true)
+        CommandResult(toggleMish = true)
       else {
         runMashCommand(mishCmd, mish = true, bareWords = bareWords)
-        CommandResult(None)
+        CommandResult()
       }
     case _ if mish ⇒
       runMashCommand(cmd, mish = true, bareWords = bareWords)
-      CommandResult(None)
+      CommandResult()
     case _ ⇒ // regular mash
       val resultOpt = runMashCommand(cmd, mish = false, bareWords = bareWords)
       CommandResult(resultOpt)
