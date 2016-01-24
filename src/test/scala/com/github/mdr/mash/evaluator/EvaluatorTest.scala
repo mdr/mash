@@ -409,6 +409,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "def mkList n... = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
+  "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" shouldEvaluateTo "'OOF'"
 
   "a = [1, 2, 3]; a[1] = 42; a" shouldEvaluateTo "[1, 42, 3]"
   "a = {}; a['foo'] = 42; a.foo" shouldEvaluateTo "42"

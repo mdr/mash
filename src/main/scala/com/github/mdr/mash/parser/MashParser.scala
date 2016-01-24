@@ -567,7 +567,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
         syntheticToken(SHORT_EQUALS, params.lastOption.map(_.tokens.last).getOrElse(name))
       else
         errorExpectedToken("=")
-    val body = assignmentExpr()
+    val body = pipeExpr()
     FunctionDeclaration(defToken, name, params, equals, body)
   }
 
