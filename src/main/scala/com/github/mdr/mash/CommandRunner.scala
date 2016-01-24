@@ -55,33 +55,41 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     case _ if mish ⇒
       runMishCommand(cmd, bareWords)
       CommandResult(None)
-    case _ ⇒
-      val exprOpt =
-        try {
-          Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, bareWords = bareWords)
-        } catch {
-          case MashParserException(msg, location) ⇒
-            printError("Syntax error", msg, cmd, Some(location))
-            return CommandResult(None)
-          case MashLexerException(msg, location) ⇒
-            printError("Syntax error", msg, cmd, Some(location))
-            return CommandResult(None)
-        }
-      val resultOpt =
-        for (expr ← exprOpt) yield {
-          val result =
-            try
-              Evaluator.evaluate(expr, environment)
-            catch {
-              case e @ EvaluatorException(msg, locationOpt, cause) ⇒
-                printError("Error", msg, cmd, locationOpt)
-                DebugLogger.logException(e)
-            }
-          val printer = new Printer(output, terminalInfo)
-          printer.render(result)
-          result
-        }
+    case _ ⇒ // regular mash
+      val resultOpt = runMashCommand(cmd, bareWords)
       CommandResult(resultOpt)
+  }
+
+  private def runMashCommand(cmd: String, bareWords: Boolean): Option[Any] = {
+    val exprOpt =
+      try {
+        Compiler.compile(cmd, environment, forgiving = false, inferTypes = false, bareWords = bareWords)
+      } catch {
+        case MashParserException(msg, location) ⇒
+          printError("Syntax error", msg, cmd, Some(location))
+          return None
+        case MashLexerException(msg, location) ⇒
+          printError("Syntax error", msg, cmd, Some(location))
+          return None
+      }
+    for (expr ← exprOpt) yield {
+      val result =
+        try {
+          val ctx = new ExecutionContext(Thread.currentThread)
+          Singletons.setExecutionContext(ctx)
+          ExecutionContext.set(ctx)
+          Evaluator.evaluate(expr, environment)
+        } catch {
+          case e @ EvaluatorException(msg, locationOpt, cause) ⇒
+            printError("Error", msg, cmd, locationOpt)
+            DebugLogger.logException(e)
+          case _: EvaluationInterruptedException ⇒
+            output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
+        }
+      val printer = new Printer(output, terminalInfo)
+      printer.render(result)
+      result
+    }
   }
 
   private def printError(msgType: String, msg: String, cmd: String, regionOpt: Option[PointedRegion]) = {
@@ -114,12 +122,17 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
       }
     for (expr ← exprOpt) {
       val result =
-        try
+        try {
+          val ctx = new ExecutionContext(Thread.currentThread)
+          Singletons.setExecutionContext(ctx)
+          ExecutionContext.set(ctx)
           Evaluator.evaluate(expr, environment)
-        catch {
+        } catch {
           case e @ EvaluatorException(msg, locationOpt, cause) ⇒
             printError("Error", msg, cmd, locationOpt)
             DebugLogger.logException(e)
+          case _: EvaluationInterruptedException ⇒
+            output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
         }
     }
   }

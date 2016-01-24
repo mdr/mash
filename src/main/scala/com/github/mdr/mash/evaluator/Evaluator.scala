@@ -30,12 +30,16 @@ object Evaluator {
 
   def evaluate(expr: Expr, env: Environment): Any = {
     try {
+      ExecutionContext.checkInterrupted()
       val v = simpleEvaluate(expr, env)
+      ExecutionContext.checkInterrupted()
       val result = immediatelyResolveNullaryFunctions(v)
       checkIsValidRuntimeValue(result)
       result
     } catch {
       case e: EvaluatorException ⇒
+        throw e
+      case e: EvaluationInterruptedException ⇒
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,

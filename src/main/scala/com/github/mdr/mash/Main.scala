@@ -13,7 +13,8 @@ object Main extends App {
 
   Signal.handle(new Signal("INT"), new SignalHandler() {
     override def handle(sig: Signal) {
-      // suppress
+      for (executionContext ← Singletons.executionContextOpt)
+        executionContext.interrupt()
     }
   })
 
@@ -21,7 +22,7 @@ object Main extends App {
     Singletons.terminalControl = new TerminalControlImpl(terminal)
     if (args.size >= 2 && args(0) == "-c") {
       val command = args(1)
-      DebugLogger.logMessage(s"Running command >>>$command<<<")
+      //      DebugLogger.logMessage(s"Running command >>>$command<<<")
       val process = new ProcessBuilder(Seq("sh", "-c", command).asJava)
         .redirectInput(ProcessBuilder.Redirect.INHERIT)
         .redirectOutput(ProcessBuilder.Redirect.INHERIT)

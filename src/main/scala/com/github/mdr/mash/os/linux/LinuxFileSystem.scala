@@ -18,6 +18,7 @@ import java.nio.file.attribute.PosixFileAttributeView
 import com.github.mdr.mash.os.PermissionsSection
 import com.github.mdr.mash.Posix
 import org.apache.commons.io.FileUtils
+import com.github.mdr.mash.evaluator.ExecutionContext
 
 object LinuxFileSystem extends FileSystem {
 
@@ -29,6 +30,7 @@ object LinuxFileSystem extends FileSystem {
         val visitor = new SimpleFileVisitor[Path]() {
 
           override def preVisitDirectory(dir: Path, attributes: BasicFileAttributes): FileVisitResult = {
+            ExecutionContext.checkInterrupted()
             if (dir != parentDir)
               foundPaths += dir
             if (ignoreDotFiles && dir.getFileName.toString.startsWith(".") && dir != parentDir)
@@ -38,12 +40,15 @@ object LinuxFileSystem extends FileSystem {
           }
 
           override def visitFile(file: Path, attributes: BasicFileAttributes): FileVisitResult = {
+            ExecutionContext.checkInterrupted()
             foundPaths += file
             FileVisitResult.CONTINUE
           }
 
-          override def visitFileFailed(file: Path, e: IOException): FileVisitResult =
+          override def visitFileFailed(file: Path, e: IOException): FileVisitResult = {
+            ExecutionContext.checkInterrupted()
             FileVisitResult.CONTINUE
+          }
 
         }
         Files.walkFileTree(parentDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor)
@@ -56,6 +61,7 @@ object LinuxFileSystem extends FileSystem {
   }
 
   override def getPathSummary(path: Path): PathSummary = {
+    ExecutionContext.checkInterrupted()
     val owner = Files.getOwner(path, LinkOption.NOFOLLOW_LINKS).getName
     val attrs = Files.getFileAttributeView(path, classOf[PosixFileAttributeView], LinkOption.NOFOLLOW_LINKS).readAttributes()
     val group = attrs.group().getName
