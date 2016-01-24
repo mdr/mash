@@ -362,7 +362,7 @@ object Evaluator {
       case BinaryOperator.NotEquals         ⇒ leftResult != rightResult
       case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOpLocationOpt)
       case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "subtract", _ - _)
-      case BinaryOperator.Multiply          ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "multiply", _ * _)
+      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, binOpLocationOpt)
       case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "divide", _ / _)
       case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
       case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
@@ -379,6 +379,13 @@ object Evaluator {
       case _ ⇒
         throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
     }
+
+  private def multiply(left: Any, right: Any, locationOpt: Option[PointedRegion]) = (left, right) match {
+    case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
+    case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
+    case (left: MashNumber, right: MashNumber) ⇒ left * right
+    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
+  }
 
   def add(left: Any, right: Any, locationOpt: Option[PointedRegion]): Any = (left, right) match {
     case (xs: MashList, ys: MashList)          ⇒ xs ++ ys

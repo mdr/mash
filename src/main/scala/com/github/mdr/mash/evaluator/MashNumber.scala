@@ -43,6 +43,8 @@ case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends 
 
   def asInt: Option[Int] = if (n.isValidInt) Some(n.toInt) else None
 
+  def isInt = asInt.isDefined
+
   def withTag(tagClass: MashClass) = copy(tagClassOpt = Some(tagClass))
 
   override def equals(that: Any) = cond(that) {

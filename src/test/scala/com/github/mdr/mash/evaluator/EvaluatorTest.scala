@@ -419,6 +419,11 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   "now.date.toString" shouldNotThrowAnException
 
+  "'xy' * 3" shouldEvaluateTo "'xyxyxy'"
+  "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
+  "'x' * 1" shouldEvaluateTo "'x'"
+  "'x' * 0" shouldEvaluateTo "''"
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
