@@ -16,7 +16,8 @@ object SortByFunction extends MashFunction(("collections.sortBy")) {
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlag = true)
+      isFlag = true,
+      isBooleanFlag = true)
     val Attribute = Parameter(
       name = "attribute",
       summary = "Function to extract a value to compare elements")

@@ -34,21 +34,21 @@ If no paths are provided, the default is the current working directory."""))
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlagValueAllowed = false)
+      isBooleanFlag = true)
     val Recursive = Parameter(
       name = "recursive",
       summary = "Recursively retrieve results from directories (default false)",
       shortFlagOpt = Some('r'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlagValueAllowed = false)
+      isBooleanFlag = true)
     val Directory = Parameter(
       name = "directory",
       summary = "List directories themselves, not their contents (default false)",
       shortFlagOpt = Some('d'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlagValueAllowed = false)
+      isBooleanFlag = true)
   }
 
   import Params._

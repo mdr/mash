@@ -21,7 +21,8 @@ object SortFunction extends MashFunction("collections.sort") {
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlag = true)
+      isFlag = true,
+      isBooleanFlag = true)
   }
   import Params._
 

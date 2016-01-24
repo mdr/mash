@@ -28,14 +28,14 @@ object ChildrenFunction extends MashFunction("os.children") {
       shortFlagOpt = Some('i'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlagValueAllowed = false)
+      isBooleanFlag = true)
     val Recursive = Parameter(
       name = "recursive",
       summary = "Recursively retrieve results from subdirectories (default false)",
       shortFlagOpt = Some('r'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
-      isFlagValueAllowed = false)
+      isBooleanFlag = true)
   }
   import Params._
 

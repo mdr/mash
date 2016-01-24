@@ -55,13 +55,12 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
         val name = param.name
         val flagValueName = param.flagValueNameOpt.getOrElse("value")
         val flagValueSuffix =
-          if (param.isFlagValueAllowed)
-            if (param.isFlagValueMandatory)
-              s"=<$flagValueName>"
-            else
-              s"[=<$flagValueName>]"
-          else
+          if (param.isBooleanFlag)
             ""
+          else if (param.isFlagValueMandatory)
+            s"=<$flagValueName>"
+          else
+            s"[=<$flagValueName>]"
         val longForm = s"--$name$flagValueSuffix"
         val main = param.shortFlagOpt match {
           case Some(shortFlag) ⇒ s"$longForm | -$shortFlag"
