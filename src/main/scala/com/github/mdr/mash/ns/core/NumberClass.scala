@@ -18,6 +18,7 @@ object NumberClass extends MashClass("core.Number") {
     KbMethod,
     MbMethod,
     MonthsMethod,
+    NegateMethod,
     TagMethod,
     UntaggedMethod,
     WeeksMethod,
@@ -134,6 +135,25 @@ object NumberClass extends MashClass("core.Number") {
   object HoursMethod extends ChronoUnitMethod("hours", HoursClass)
   object WeeksMethod extends ChronoUnitMethod("weeks", WeeksClass)
   object MonthsMethod extends ChronoUnitMethod("months", MonthsClass)
+
+  object NegateMethod extends MashMethod("negate") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashNumber = {
+      params.validate(arguments)
+      val n = target.asInstanceOf[MashNumber]
+      n.negate
+    }
+
+    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
+        targetTypeOpt
+    }
+
+    override def summary = "Negate this number"
+
+  }
 
   def summary = "A number"
 }

@@ -345,22 +345,22 @@ object Evaluator {
 
   private def evaluateBinOp(binOp: BinOpExpr, env: Environment) = {
     val BinOpExpr(left, op, right, _) = binOp
-    val allowImmediateBareStrings = op == BinaryOperator.Equals || op == BinaryOperator.NotEquals
     lazy val leftResult = evaluate(left, env)
     lazy val rightResult = evaluate(right, env)
     def compareWith(f: (Int, Int) ⇒ Boolean): Boolean =
       PartialFunction.cond(leftResult) {
         case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult), 0)
       }
+    def binOpLocationOpt = binOp.sourceInfoOpt.map(_.location)
     op match {
       case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult
       case BinaryOperator.Equals            ⇒ leftResult == rightResult
       case BinaryOperator.NotEquals         ⇒ leftResult != rightResult
-      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOp.sourceInfoOpt.map(_.location))
-      case BinaryOperator.Minus             ⇒ leftResult.asInstanceOf[MashNumber] - rightResult.asInstanceOf[MashNumber]
-      case BinaryOperator.Multiply          ⇒ leftResult.asInstanceOf[MashNumber] * rightResult.asInstanceOf[MashNumber]
-      case BinaryOperator.Divide            ⇒ leftResult.asInstanceOf[MashNumber] / rightResult.asInstanceOf[MashNumber]
+      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOpLocationOpt)
+      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "subtract", _ - _)
+      case BinaryOperator.Multiply          ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "multiply", _ * _)
+      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "divide", _ / _)
       case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
       case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
       case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)
@@ -369,12 +369,20 @@ object Evaluator {
     }
   }
 
+  private def arithmeticOp(left: Any, right: Any, locationOpt: Option[PointedRegion], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
+    (left, right) match {
+      case (left: MashNumber, right: MashNumber) ⇒
+        f(left, right)
+      case _ ⇒
+        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
+    }
+
   def add(left: Any, right: Any, locationOpt: Option[PointedRegion]): Any = (left, right) match {
     case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber) ⇒ left + right
-    case _                                     ⇒ throw new EvaluatorException("Could not add, incompatible types", locationOpt)
+    case _                                     ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
   }
 
   private def callFunction(function: Any, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): Any =

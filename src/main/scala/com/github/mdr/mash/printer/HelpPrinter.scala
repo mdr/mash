@@ -10,6 +10,7 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import java.io.PrintStream
+import com.github.mdr.mash.evaluator.MashList
 
 /**
  * Render function/method/field help objects in a similar style to man pages
@@ -37,12 +38,12 @@ class HelpPrinter(output: PrintStream) {
     val maybeTarget = if (classOpt.isDefined) "target." else ""
     output.println(indentSpace + maybeTarget + mo.field(CallingSyntax))
     output.println()
-    val parameters = mo.field(Parameters).asInstanceOf[Seq[MashObject]]
+    val parameters = mo.field(Parameters).asInstanceOf[MashList].items
     if (parameters.nonEmpty) {
       import ParameterHelpClass.Fields._
       output.println(bold("PARAMETERS"))
       for (param ← parameters)
-        printParameterHelp(param)
+        printParameterHelp(param.asInstanceOf[MashObject])
     }
     for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
@@ -106,25 +107,27 @@ class HelpPrinter(output: PrintStream) {
       output.println(indentSpace + mo.field(Parent))
       output.println()
     }
-    val fields = mo.field(Fields).asInstanceOf[Seq[MashObject]]
+    val fields = mo.field(Fields).asInstanceOf[MashList]
     if (fields.nonEmpty) {
       output.println(bold("FIELDS"))
       for (field ← fields) {
+        val fieldObject = field.asInstanceOf[MashObject]
         import FieldHelpClass.Fields._
         output.print(indentSpace)
-        output.print(fieldMethodStyle(field.field(FieldHelpClass.Fields.Name)))
-        output.print(" - " + field.field(FieldHelpClass.Fields.Summary))
+        output.print(fieldMethodStyle(fieldObject.field(FieldHelpClass.Fields.Name)))
+        output.print(" - " + fieldObject.field(FieldHelpClass.Fields.Summary))
         output.println()
       }
     }
-    val methods = mo.field(Methods).asInstanceOf[Seq[MashObject]]
+    val methods = mo.field(Methods).asInstanceOf[MashList]
     if (methods.nonEmpty) {
       output.println(bold("METHODS"))
       for (method ← methods) {
+        val methodObject = method.asInstanceOf[MashObject]
         import FieldHelpClass.Fields._
         output.print(indentSpace)
-        output.print(fieldMethodStyle(method.field(FieldHelpClass.Fields.Name)))
-        output.print(" - " + method.field(FieldHelpClass.Fields.Summary))
+        output.print(fieldMethodStyle(methodObject.field(FieldHelpClass.Fields.Name)))
+        output.print(" - " + methodObject.field(FieldHelpClass.Fields.Summary))
         output.println()
       }
     }

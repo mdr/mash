@@ -70,7 +70,7 @@ object InvocationAssistance {
         Seq(
           m.summary,
           "",
-          callingSyntax(m)))
+          "target." + callingSyntax(m)))
   }
 
   def callingSyntax(funOrMethod: Any): String =

@@ -29,8 +29,6 @@ object MashNumber {
 
 case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends Comparable[MashNumber] {
 
-  override def toString = NumberUtils.prettyString(n)
-
   def compareTo(that: MashNumber) = n.compareTo(that.n)
 
   def +(that: MashNumber): MashNumber = copy(n = this.n + that.n)
@@ -45,12 +43,14 @@ case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends 
 
   def asInt: Option[Int] = if (n.isValidInt) Some(n.toInt) else None
 
+  def withTag(tagClass: MashClass) = copy(tagClassOpt = Some(tagClass))
+
   override def equals(that: Any) = cond(that) {
-    case MashNumber(n2, _) ⇒ n == n2
+    case that: MashNumber ⇒ this.n == that.n
   }
 
   override def hashCode = n.hashCode
 
-  def withTag(tagClass: MashClass) = copy(tagClassOpt = Some(tagClass))
+  override def toString = NumberUtils.prettyString(n)
 
 }
