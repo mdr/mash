@@ -168,7 +168,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "{}.toString" shouldBeInferredAsHavingType StringType
 
+  // help
   "ls?" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
+  "help readLines" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
+  "help [].maxBy" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
+  "help 42.class" shouldBeInferredAsHavingType Instance(ClassHelpClass)
   "ls? .parameters" shouldBeInferredAsHavingType Seq(Instance(ParameterHelpClass))
 
   private implicit class RichString(s: String) {

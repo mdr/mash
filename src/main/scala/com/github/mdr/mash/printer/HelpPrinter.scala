@@ -52,17 +52,18 @@ class HelpPrinter(output: PrintStream) {
     }
   }
 
-  def printFieldHelp(mo: MashObject) {
+  def printFieldHelp(obj: MashObject) {
     import FieldHelpClass.Fields._
+    val fieldHelp = FieldHelpClass.Wrapper(obj)
     output.println(bold("FIELD"))
-    output.println(indentSpace + bold(mo.field(Name)) + " - " + mo.field(Summary))
+    output.println(indentSpace + bold(fieldHelp.name) + " - " + fieldHelp.summary)
     output.println()
     output.println(bold("CLASS"))
-    output.println(indentSpace + mo.field(Class))
+    output.println(indentSpace + fieldHelp.klass)
     output.println()
-    for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
+    for (description ← Option(fieldHelp.description)) {
       output.println(bold("DESCRIPTION"))
-      output.println(shiftLeftMargin(description.s, 8))
+      output.println(shiftLeftMargin(description, indent))
       output.println()
     }
   }

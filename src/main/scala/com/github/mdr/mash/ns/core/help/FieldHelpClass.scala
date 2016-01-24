@@ -4,6 +4,8 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.evaluator.MashString
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
@@ -15,6 +17,14 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
   }
 
   import Fields._
+
+  case class Wrapper(any: Any) {
+    val obj = any.asInstanceOf[MashObject]
+    def name = obj(Name).asInstanceOf[MashString].s
+    def klass = obj(Class).asInstanceOf[MashString].s
+    def summary = obj(Summary).asInstanceOf[MashString].s
+    def description = obj(Description).asInstanceOf[MashString].s
+  }
 
   override val fields = Seq(Name, Class, Summary, Description)
 

@@ -7,15 +7,18 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.ns.core.ClassClass
 
 object HelpFunction extends MashFunction("core.help.help") {
 
-  private val Item = "item"
+  object Params {
+    val Item = Parameter(
+      name = "item",
+      summary = "The item to find help for")
+  }
+  import Params._
 
-  val params = ParameterModel(Seq(
-    Parameter(
-      name = Item,
-      summary = "Find help for the given item")))
+  val params = ParameterModel(Seq(Item))
 
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
@@ -23,9 +26,9 @@ object HelpFunction extends MashFunction("core.help.help") {
     getHelp(item)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(FunctionHelpClass))
+  override def typeInferenceStrategy = HelpTypeInferenceStrategy
 
-  override def summary = "Find help for the given item"
+  override def summary = "Find help for the given function, method, field or class"
 
   def getHelp(item: Any): MashObject = item match {
     case f: MashFunction  ⇒ getHelp(f)
@@ -107,6 +110,20 @@ object HelpFunction extends MashFunction("core.help.help") {
         Fields -> MashList(fields),
         Methods -> MashList(methods)),
       ClassHelpClass)
+  }
+
+}
+
+object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+    val argBindings = HelpFunction.params.bindTypes(arguments)
+    import HelpFunction.Params._
+    argBindings.get(Item).flatMap(_.typeOpt).collect {
+      case Type.DefinedFunction(_) | Type.Lambda(_, _, _) | Type.BoundMethod(_, _) ⇒ Type.Instance(FunctionHelpClass)
+      case Type.Instance(ClassClass) ⇒ Type.Instance(ClassHelpClass)
+    }
+
   }
 
 }
