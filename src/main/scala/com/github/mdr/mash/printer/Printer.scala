@@ -57,7 +57,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       output.println(f)
   }
 
-  private def renderBox(title: String, lines: Seq[String]) {
+  def renderBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
     val innerWidth = boxWidth - 4
     val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
@@ -67,7 +67,6 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
     for (line ← (topLine +: contentLines :+ bottomLine))
       output.println(line)
-
   }
 
   private def renderFunction(f: MashFunction) {

@@ -330,19 +330,24 @@ object Evaluator {
     val LookupExpr(targetExpr, indexExpr, sourceInfoOpt) = lookupExpr
     val target = evaluate(targetExpr, env)
     val index = evaluate(indexExpr, env)
-    val locationOpt = targetExpr.sourceInfoOpt.map(_.location)
+    val targetLocationOpt = targetExpr.sourceInfoOpt.map(_.location)
+    val indexLocationOpt = indexExpr.sourceInfoOpt.map(_.location)
+    val lookupLocationOpt = lookupExpr.sourceInfoOpt.map(_.location)
     index match {
-      case MashString(s, _) ⇒ MemberEvaluator.lookup(target, s, locationOpt)
+      case MashString(s, _) ⇒ MemberEvaluator.lookup(target, s, indexLocationOpt)
       case n: MashNumber ⇒
-        val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup " + n, locationOpt))
+        val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup, non-integer index: " + n, lookupLocationOpt))
         target match {
           case xs: MashList ⇒
             val index = if (i < 0) i + xs.size else i
+            if (index >= xs.size)
+              throw new EvaluatorException("Index out of range " + n, indexLocationOpt)
             xs(index)
           case s: MashString ⇒ s.lookup(i)
-          case _             ⇒ throw new EvaluatorException("Unable to lookup", locationOpt)
+          case _             ⇒ throw new EvaluatorException("Unable to lookup", lookupLocationOpt)
         }
-      case _ ⇒ throw new EvaluatorException("Unable to lookup", locationOpt)
+      case _ ⇒
+        throw new EvaluatorException("Unable to lookup", indexLocationOpt)
     }
   }
 

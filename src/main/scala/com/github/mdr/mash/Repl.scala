@@ -16,6 +16,7 @@ import java.io.File
 import org.apache.commons.io.FileUtils
 import scala.collection.JavaConverters._
 import java.io.PrintStream
+import com.github.mdr.mash.tips.Tips
 
 class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     extends NormalActionHandler
@@ -35,6 +36,8 @@ class Repl(protected val terminal: Terminal, protected val output: PrintStream)
 
   def run() {
     processMashRc()
+    if (state.showStartupTips)
+      Tips.showTip(output, terminal.info)
     inputLoop()
   }
 

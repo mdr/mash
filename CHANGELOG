@@ -4,14 +4,15 @@ v0.0.2 (..)
 * Varargs support in user-defined functions
 * Better error messages for illegal function arguments
 * Added identity function
-* Added methods to Git CommitHashClass
+* Field accessor methods in Git CommitHashClass
 * All collections functions now work on strings
 * Assignment to array syntax lvalues: xs[2] = 42; obj["field"] = "value"
 * alias assignment: tac = alias reverse
 * String/integer multiplication: "xy" * 3 = "xyxyxy"
+* Added Number.toInt method
+* Add startup tips
 
 v0.0.1 (19/January/2016)
 ------------------------
 
 * Initial release
-

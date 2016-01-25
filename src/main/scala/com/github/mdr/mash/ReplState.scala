@@ -25,6 +25,9 @@ object ReplState {
    */
   val It = "it"
 
+  val BareWordsConfigKey = "language.bareWords"
+  val ShowStartupTipsConfigKey = "cli.showStartupTips"
+
 }
 
 class ReplState(
@@ -37,6 +40,8 @@ class ReplState(
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
     var mish: Boolean = false,
     var yankLastArgStateOpt: Option[YankLastArgState] = None) {
+
+  import ReplState._
 
   def mode: ReplMode =
     completionStateOpt match {
@@ -52,15 +57,31 @@ class ReplState(
 
     }
 
-  def bareWords: Boolean =
-    cond(globalVariables("config")) {
-      case obj: MashObject ⇒
-        cond(obj.getField("language")) {
-          case Some(obj2: MashObject) ⇒
-            cond(obj2.getField("bareWords")) {
-              case Some(b: Boolean) ⇒ b
-            }
-        }
+  private def getConfig(configKey: String): Option[Any] =
+    globalVariables("config") match {
+      case obj: MashObject ⇒ getConfig(obj, configKey.split("\\."))
+      case _               ⇒ None
     }
+
+  private def getConfig(mo: MashObject, path: Seq[String]): Option[Any] = {
+    for {
+      first ← path.headOption
+      rest = path.tail
+      firstValue ← mo.getField(first)
+      restValue ← rest match {
+        case Seq() ⇒
+          Some(firstValue)
+        case _ ⇒
+          firstValue match {
+            case obj: MashObject ⇒ getConfig(obj, rest)
+            case _               ⇒ None
+          }
+      }
+    } yield restValue
+  }
+
+  def bareWords: Boolean = getConfig(BareWordsConfigKey).collect { case b: Boolean ⇒ b }.getOrElse(false)
+
+  def showStartupTips: Boolean = getConfig(ShowStartupTipsConfigKey).collect { case b: Boolean ⇒ b }.getOrElse(false)
 
 }

@@ -42,7 +42,9 @@ object Environment {
   private def defaultConfig =
     MashObject(LinkedHashMap(
       "language" -> MashObject(LinkedHashMap(
-        "bareWords" -> false))))
+        "bareWords" -> false)),
+      "cli" -> MashObject(LinkedHashMap(
+        "showStartupTips" -> true))))
 
   private def systemEnvironment = {
     val fields: Map[String, Any] =
