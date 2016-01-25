@@ -77,6 +77,9 @@ object ProcessClass extends MashClass("os.Process") {
 
     override def summary = "Kill this process"
 
+    override def descriptionOpt = Some("""Examples:
+  process.kill "HUP" # Send the HUP signal the the process""")
+
   }
 
   object ParentMethod extends MashMethod("parent") {

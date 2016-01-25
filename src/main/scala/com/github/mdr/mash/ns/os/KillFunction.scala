@@ -44,7 +44,7 @@ The default signal is TERM."""))
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val signal = getSignal(boundParams, Params.Signal)
-    val processes = boundParams(Params.Processes).asInstanceOf[Seq[_]]
+    val processes = boundParams.validateSequence(Params.Processes)
     if (processes.isEmpty)
       boundParams.throwInvalidArgument(Params.Processes, "must provide at least one process to kill")
     val pids = processes.flatMap(getPids)
@@ -70,7 +70,7 @@ The default signal is TERM."""))
 
   override def summary = "Send a signal to a process"
 
-  override def descriptionOpt = Some("""Examples
+  override def descriptionOpt = Some("""Examples:
   ps | where (_.name.matches "java") | kill # Kill all Java processes
   kill --signal="HUP" 1280                  # Send the HUP signal to process with PID 1280
 """)
