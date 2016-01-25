@@ -43,7 +43,7 @@ The default signal is TERM."""))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val signal = getSignal(boundParams)
+    val signal = getSignal(boundParams, Params.Signal)
     val processes = boundParams(Params.Processes).asInstanceOf[Seq[_]]
     if (processes.isEmpty)
       boundParams.throwInvalidArgument(Params.Processes, "must provide at least one process to kill")
@@ -52,11 +52,11 @@ The default signal is TERM."""))
       processInteractions.kill(pid, signal)
   }
 
-  def getSignal(boundParams: BoundParams): Int =
-    boundParams(Params.Signal) match {
-      case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + n))
-      case s: MashString ⇒ Signals.get(s.s).getOrElse(boundParams.throwInvalidArgument(Params.Signal, "invalid signal: " + s))
-      case x             ⇒ boundParams.throwInvalidArgument(Params.Signal, s"invalid signal '$x'")
+  def getSignal(boundParams: BoundParams, param: Parameter): Int =
+    boundParams(param) match {
+      case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(param, "invalid signal: " + n))
+      case s: MashString ⇒ Signals.get(s.s).getOrElse(boundParams.throwInvalidArgument(param, "invalid signal: " + s))
+      case x             ⇒ boundParams.throwInvalidArgument(param, s"invalid signal '$x'")
     }
 
   private def getPids(x: Any): Seq[Int] = x match {

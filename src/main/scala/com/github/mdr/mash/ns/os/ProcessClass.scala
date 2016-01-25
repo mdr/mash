@@ -45,26 +45,31 @@ object ProcessClass extends MashClass("os.Process") {
 
   }
 
-  def makeProcess(info: ProcessInfo): MashObject = {
-    MashObject(ListMap(
-      Pid -> MashNumber(info.pid, Some(PidClass)),
-      ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, Some(PidClass))).orNull,
-      Name -> MashString(info.name),
-      Command -> MashString(info.command),
-      Owner -> MashString(info.owner, Some(UsernameClass)),
-      ResidentSize -> MashNumber(info.residentSize, Some(BytesClass)),
-      VirtualSize -> MashNumber(info.virtualSize, Some(BytesClass))),
+  def makeProcess(info: ProcessInfo): MashObject =
+    MashObject(
+      ListMap(
+        Pid -> MashNumber(info.pid, Some(PidClass)),
+        ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, Some(PidClass))).orNull,
+        Name -> MashString(info.name),
+        Command -> MashString(info.command),
+        Owner -> MashString(info.owner, Some(UsernameClass)),
+        ResidentSize -> MashNumber(info.residentSize, Some(BytesClass)),
+        VirtualSize -> MashNumber(info.virtualSize, Some(BytesClass))),
       ProcessClass)
-  }
 
   object KillMethod extends MashMethod("kill") {
 
-    val params = ParameterModel(Seq(KillFunction.Params.Signal))
+    object Params {
+      val Signal = KillFunction.Params.Signal.copy(isFlag = false)
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Signal))
 
     def apply(target: Any, arguments: Arguments) {
       val boundParams = params.validate(arguments)
       val pid = Wrapper(target).pid
-      val signal = KillFunction.getSignal(boundParams)
+      val signal = KillFunction.getSignal(boundParams, Params.Signal)
       processInteractions.kill(pid, signal)
     }
 
