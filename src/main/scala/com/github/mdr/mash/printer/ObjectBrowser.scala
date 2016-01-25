@@ -25,14 +25,13 @@ object ObjectBrowserActions {
   case object FirstItem extends InputAction
   case object LastItem extends InputAction
   case object ExitBrowser extends InputAction
-  case object NavigateRight extends InputAction
-  case object AcceptCompletion extends InputAction
+  case object InsertItem extends InputAction
 
 }
 
 object ObjectBrowser {
 
-  def launch(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream) {
+  def launch(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream): Option[Int] = {
     val columns = terminalInfo.columns
     val objectBrowser = new ObjectBrowser(model, terminalInfo, output)
     objectBrowser.inputLoop()
@@ -46,6 +45,7 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
   private var firstRow = 0
   private var previousScreenOpt: Option[Screen] = None
   private var continue = true
+  private var insertRowOpt: Option[Int] = None
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
 
   private def draw() {
@@ -68,7 +68,12 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
 
     val footerLine = simpleLine(objectTablePrinter.renderBottomRow(model))
     val countChars = s"${currentRow + 1}/${model.objects.size}".map(StyledCharacter(_, Style(inverse = true)))
-    val keyChars = " (".map(StyledCharacter(_)) ++ "q".map(StyledCharacter(_, Style(inverse = true))) ++ " to exit)".map(StyledCharacter(_))
+    val keyChars =
+      " (".map(StyledCharacter(_)) ++
+        "q".map(StyledCharacter(_, Style(inverse = true))) ++
+        " to exit, ".map(StyledCharacter(_)) ++
+        "i".map(StyledCharacter(_, Style(inverse = true))) ++
+        " to insert row reference)".map(StyledCharacter(_))
     val statusLine = Line(countChars ++ keyChars)
     val footerLines = Seq(footerLine, statusLine)
 
@@ -90,17 +95,19 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
   }
 
   @tailrec
-  private def inputLoop() {
+  private def inputLoop(): Option[Int] = {
     draw()
     val action = InputAction.fetchAction(false, ObjectBrowserKeyMap)
     handleAction(action)
     if (continue)
       inputLoop()
-    else
+    else {
       for (screen ← previousScreenOpt) {
         System.out.write(screen.acceptScreen.getBytes)
         System.out.flush()
       }
+      insertRowOpt
+    }
   }
 
   private def adjustWindowToFit() {
@@ -145,6 +152,9 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
       currentRow = model.objects.size - 1
       adjustWindowToFit()
       draw()
+    case InsertItem ⇒
+      continue = false
+      insertRowOpt = Some(currentRow)
     case _ ⇒
   }
 
@@ -160,5 +170,6 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence(" ") -> NextPage,
   OtherSequence("q") -> ExitBrowser,
   OtherSequence("g") -> FirstItem,
-  OtherSequence("G") -> LastItem))
+  OtherSequence("G") -> LastItem,
+  OtherSequence("i") -> InsertItem))
 

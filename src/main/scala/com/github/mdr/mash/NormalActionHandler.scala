@@ -96,10 +96,10 @@ trait NormalActionHandler { self: Repl ⇒
     state.history.resetHistoryPosition()
 
     val cmd = state.lineBuffer.s
+    state.lineBuffer = LineBuffer.Empty
     if (cmd.trim.nonEmpty)
       runCommand(cmd)
 
-    state.lineBuffer = LineBuffer.Empty
   }
 
   private def updateScreenAfterAccept() {
@@ -115,7 +115,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def runCommand(cmd: String) {
     val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
-    val CommandResult(resultOpt, toggleMish) =
+    val CommandResult(resultOpt, toggleMish, toInsertOpt) =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)
       catch {
@@ -130,6 +130,9 @@ trait NormalActionHandler { self: Repl ⇒
 
     for (result ← resultOpt)
       state.globalVariables += ReplState.It -> result
+    for (toInsert ← toInsertOpt) {
+      state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
+    }
   }
 
   private def handleComplete() {

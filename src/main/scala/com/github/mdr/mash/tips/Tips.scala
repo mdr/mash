@@ -12,7 +12,7 @@ import com.github.mdr.mash.printer.Printer
 object Tips {
 
   val Tips = Seq(
-    "Use Ctrl-Space to pop up context-assistance when invoking a function or method.",
+    "Ctrl-Space provides context assistance when invoking a function/method.",
     s"To use unbound identifiers as strings: 'config.${ReplState.BareWordsConfigKey} = true'.",
     s"'${OldDirsFunction.name}' stores a list of previous working directories from this session.",
     s"'${UpFunction.name}' changes the current directory to the parent.",

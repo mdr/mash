@@ -70,6 +70,9 @@ case class LineBuffer(s: String, cursorPos: Int) {
   def addCharacterAtCursor(c: Char): LineBuffer =
     LineBuffer(s.substring(0, cursorPos) + c + s.substring(cursorPos), cursorPos + 1)
 
+  def addCharactersAtCursor(chars: String): LineBuffer =
+    LineBuffer(s.substring(0, cursorPos) + chars + s.substring(cursorPos), cursorPos + chars.length)
+
   def cursorLeft: LineBuffer = if (cursorPos <= 0) this else copy(cursorPos = cursorPos - 1)
 
   def cursorRight: LineBuffer = if (cursorPos >= s.length) this else copy(cursorPos = cursorPos + 1)

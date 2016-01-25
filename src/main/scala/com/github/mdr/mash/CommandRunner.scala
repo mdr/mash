@@ -14,7 +14,7 @@ import org.fusesource.jansi.Ansi
 import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 
-case class CommandResult(value: Option[Any] = None, toggleMish: Boolean = false)
+case class CommandResult(value: Option[Any] = None, toggleMish: Boolean = false, toInsertOpt: Option[String] = None)
 
 object MishCommand {
 
@@ -48,26 +48,22 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     case MishCommand(prefix, mishCmd) ⇒
       if (mishCmd == "")
         CommandResult(toggleMish = true)
-      else {
-        runMashCommand(mishCmd, mish = true, bareWords = bareWords)
-        CommandResult()
-      }
+      else
+        runCommand(mishCmd, mish = true, bareWords = bareWords)
     case _ if mish ⇒
-      runMashCommand(cmd, mish = true, bareWords = bareWords)
-      CommandResult()
+      runCommand(cmd, mish = true, bareWords = bareWords)
     case _ ⇒ // regular mash
-      val resultOpt = runMashCommand(cmd, mish = false, bareWords = bareWords)
-      CommandResult(resultOpt)
+      runCommand(cmd, mish = false, bareWords = bareWords)
   }
 
-  private def runMashCommand(cmd: String, bareWords: Boolean, mish: Boolean): Option[Any] = {
+  private def runCommand(cmd: String, bareWords: Boolean, mish: Boolean): CommandResult = {
     val exprOpt = safeCompile(cmd, bareWords = bareWords, mish = mish)
-    for (expr ← exprOpt) yield {
+    exprOpt.map { expr ⇒
       val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
-      printer.render(result)
-      result
-    }
+      val PrintResult(toInsertOpt) = printer.render(result)
+      CommandResult(Some(result), toInsertOpt = toInsertOpt)
+    }.getOrElse(CommandResult())
   }
 
   private def runExpr(expr: AbstractSyntax.Expr, cmd: String): Any =
