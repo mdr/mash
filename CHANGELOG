@@ -11,6 +11,7 @@ v0.0.2 (..)
 * String/integer multiplication: "xy" * 3 = "xyxyxy"
 * Added Number.toInt method
 * Add startup tips
+* Insert row reference from object browser
 
 v0.0.1 (19/January/2016)
 ------------------------
