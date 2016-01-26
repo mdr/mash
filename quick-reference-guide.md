@@ -104,7 +104,8 @@ sequence, then a member access is automatically vectorised:
 Mish is a sublanguage within Mash, for launching processes.
 
 * `!ps` - run a command
-* `!{ps aux}` - run a command with arguments
+* `!{which java}` - run a command with arguments; the process output is captured
+* `!!{nano file}` - run a command, and connect stdin/stdout to terminal; no output is captured
 * `!{gnome-open $file}` - can embed Mash variables Mish
 * `!{gnome-open ${file}}` - or entire Mash fragments inside a `${}` region
 * `ls | first | !nano` - run a process as a function

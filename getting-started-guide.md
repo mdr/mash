@@ -47,8 +47,8 @@ is, by contrast, an *object shell*, and the output is given as a sequence of obj
 of which contains summary information about a file or directory, such as its name, size,
 owner, and so on.
 
-Mash will, by default, render a sequence of objects a table, with a column for each field in
-the object, and a row for each object in the sequence.
+Mash will, by default, render a sequence of objects as a table, with a column for each field
+in the object, and a row for each object in the sequence.
 
 Notice that some fields are rendered in a particular human-readable way, for example, `4KB`,
 `rwxr-xr-x`, or `1 month ago`. These are custom display formats for those fields, not text;
