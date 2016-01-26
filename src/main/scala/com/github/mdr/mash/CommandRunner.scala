@@ -19,9 +19,9 @@ case class CommandResult(value: Option[Any] = None, toggleMish: Boolean = false,
 object MishCommand {
 
   /**
-   * Starts with a "!", but isn't a !{} expression
+   * Starts with a "!", but isn't a !{} or !!{} expression
    */
-  private val Regex = """^(\s*!)(?!\{)(.*)""".r
+  private val Regex = """^(\s*!)(?!\{|!\{)(.*)""".r
 
   def unapply(s: String): Option[(String, String)] =
     Regex.unapplySeq(s).map { case Seq(prefix, cmd) ⇒ (prefix, cmd) }
@@ -41,20 +41,21 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
   /**
    * @return the (optional) result of the command
    */
-  def run(cmd: String, mish: Boolean = false, bareWords: Boolean): CommandResult = cmd match {
-    case DebugCommand(keyword, args) ⇒
-      runDebugCommand(keyword, args, bareWords)
-      CommandResult()
-    case MishCommand(prefix, mishCmd) ⇒
-      if (mishCmd == "")
-        CommandResult(toggleMish = true)
-      else
-        runCommand(mishCmd, mish = true, bareWords = bareWords)
-    case _ if mish ⇒
-      runCommand(cmd, mish = true, bareWords = bareWords)
-    case _ ⇒ // regular mash
-      runCommand(cmd, mish = false, bareWords = bareWords)
-  }
+  def run(cmd: String, mish: Boolean = false, bareWords: Boolean): CommandResult =
+    cmd match {
+      case DebugCommand(keyword, args) ⇒
+        runDebugCommand(keyword, args, bareWords)
+        CommandResult()
+      case MishCommand(prefix, mishCmd) ⇒
+        if (mishCmd == "")
+          CommandResult(toggleMish = true)
+        else
+          runCommand(mishCmd, mish = true, bareWords = bareWords)
+      case _ if mish ⇒
+        runCommand(cmd, mish = true, bareWords = bareWords)
+      case _ ⇒ // regular mash
+        runCommand(cmd, mish = false, bareWords = bareWords)
+    }
 
   private def runCommand(cmd: String, bareWords: Boolean, mish: Boolean): CommandResult = {
     val exprOpt = safeCompile(cmd, bareWords = bareWords, mish = mish)

@@ -68,8 +68,8 @@ object AbstractSyntax {
               case ExprPart(e)   ⇒ ExprPart(e.transform(f))
             }
             MishInterpolation(newPart, sourceInfoOpt)
-          case MishExpr(command, args, sourceInfoOpt) ⇒
-            MishExpr(command.transform(f), args.map(_.transform(f)), sourceInfoOpt)
+          case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
+            MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
           case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
             FunctionDeclaration(name, params, body.transform(f), sourceInfoOpt)
           case HelpExpr(expr, sourceInfoOpt) ⇒
@@ -238,7 +238,7 @@ object AbstractSyntax {
     def children = part.children
   }
 
-  case class MishExpr(command: Expr, args: Seq[Expr], sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class MishExpr(command: Expr, args: Seq[Expr], captureProcessOutput: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = command +: args
   }

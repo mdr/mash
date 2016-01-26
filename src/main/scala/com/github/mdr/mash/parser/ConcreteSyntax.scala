@@ -170,6 +170,9 @@ object ConcreteSyntax {
     lazy val tokens = command.tokens ++ args.flatMap(_.tokens)
   }
 
+  /**
+   * Mish expression inside of the form !{ ... }
+   */
   case class MishInterpolationExpr(start: Token, expr: MishExpr, rbrace: Token) extends Expr {
     lazy val tokens = (start +: expr.tokens) :+ rbrace
   }

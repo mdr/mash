@@ -17,6 +17,8 @@ import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import java.time.Instant
+import java.nio.file.Path
+import com.github.mdr.mash.functions.BoundParams
 
 object PathClass extends MashClass("os.Path") {
 
@@ -194,7 +196,8 @@ The default character encoding and line separator are used.""")
     object Params {
       val NewName = Parameter(
         name = "newName",
-        summary = "New name")
+        summary = "New name for the file or directory",
+        descriptionOpt = Some("""New name must be a simple name (not a path with directory separators)"""))
     }
     import Params._
 
@@ -203,15 +206,27 @@ The default character encoding and line separator are used.""")
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      val newName = boundParams.validatePath(NewName)
+      val newName = validateName(boundParams, NewName)
       val newPath = path.resolveSibling(newName)
       val newLocation = Files.move(path, newPath)
       asPathString(newLocation)
     }
 
+    def validateName(boundParams: BoundParams, param: Parameter): Path = {
+      val newName = boundParams.validatePath(param)
+      if (newName.asScala.size > 1)
+        boundParams.throwInvalidArgument(param, "Name cannot contain directory separators")
+      else if (newName.toString == "")
+        boundParams.throwInvalidArgument(param, "Name cannot be empty")
+      else if (newName.toString == "." || newName.toString == "..")
+        boundParams.throwInvalidArgument(param, "Name cannot be . or ..")
+      else
+        newName
+    }
+
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
-    override def summary = "Rename this path"
+    override def summary = "Rename the file or directory at this path"
 
   }
 
@@ -230,7 +245,7 @@ The default character encoding and line separator are used.""")
       val boundParams = params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       val f = boundParams.validateFunction(F)
-      val newFileName = f(asPathString(path.getFileName)).asInstanceOf[MashString].s
+      val newFileName = ToStringifier.stringify(f(asPathString(path.getFileName)))
       val newPath = path.resolveSibling(Paths.get(newFileName))
       val newLocation = Files.move(path, newPath)
       asPathString(newLocation)

@@ -187,6 +187,17 @@ trait NormalMashLexer { self: MashLexer ⇒
       if (ch == '=') {
         nextChar()
         token(NOT_EQUALS)
+      } else if (ch == '!') {
+        nextChar()
+        if (ch == '{') {
+          nextChar()
+          modeStack = modeStack :+ MishMode
+          token(MISH_INTERPOLATION_START_NO_CAPTURE)
+        } else if (forgiving) {
+          nextChar()
+          token(ERROR)
+        } else
+          throw new MashLexerException(s"Unexpected character $ch after '!!'", currentPointedRegion)
       } else if (ch == '{') {
         nextChar()
         modeStack = modeStack :+ MishMode

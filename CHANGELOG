@@ -12,6 +12,7 @@ v0.0.2 (..)
 * Added Number.toInt method
 * Add startup tips
 * Insert row reference from object browser
+* !{..} syntax returns information about the process output, new !!{..} syntax throws it away
 
 v0.0.1 (19/January/2016)
 ------------------------

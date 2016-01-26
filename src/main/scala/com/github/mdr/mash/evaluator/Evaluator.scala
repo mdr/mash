@@ -20,9 +20,11 @@ import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.ns.core.FunctionClass
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.subprocesses.ProcessRunner
+import com.github.mdr.mash.subprocesses.ProcessResult
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.ns.os.SubprocessResultClass
 
 object Evaluator {
 
@@ -223,8 +225,8 @@ object Evaluator {
       case ExprPart(expr) ⇒ evaluate(expr, env)
     }
 
-  private def evaluateMishExpr(expr: MishExpr, env: Environment) {
-    val MishExpr(command, args, _) = expr
+  private def evaluateMishExpr(expr: MishExpr, env: Environment): Any = {
+    val MishExpr(command, args, captureProcessOutput, _) = expr
     val evaluatedCommand = evaluate(command, env)
     val evaluatedArgs = args.map(evaluate(_, env))
     val flattenedArgs: Seq[Any] = evaluatedArgs.flatMap {
@@ -232,7 +234,18 @@ object Evaluator {
       case x            ⇒ Seq(x)
     }
     val allArgs = evaluatedCommand +: flattenedArgs
-    ProcessRunner.runProcess(allArgs, expandTilde = true)
+    if (captureProcessOutput) {
+      val processResult = ProcessRunner.runAndCaptureProcess(allArgs, expandTilde = true)
+      import SubprocessResultClass.Fields._
+      MashObject(
+        ListMap(
+          ExitStatus -> MashNumber(processResult.exitStatus),
+          Stdout -> MashString(processResult.stdout)),
+        SubprocessResultClass)
+    } else {
+      ProcessRunner.runProcess(allArgs, expandTilde = true)
+      ()
+    }
   }
 
   private def evaluateInterpolatedString(interpolatedString: InterpolatedString, env: Environment): MashString = {

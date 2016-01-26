@@ -49,7 +49,7 @@ object PrettyPrinter {
           case Argument.LongFlag(flag, valueOpt, _) ⇒
             "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
         }).mkString(" ")
-    case MishExpr(command, args, _) ⇒ pretty(command) + " " + args.map(pretty)
+    case MishExpr(command, args, _, _) ⇒ pretty(command) + " " + args.map(pretty)
     case MishInterpolation(part, _) ⇒
       part match {
         case StringPart(s)  ⇒ s

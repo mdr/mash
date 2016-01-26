@@ -82,11 +82,11 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield AssignmentExpr(newLeft, newRight, alias, sourceInfoOpt)
-    case MishExpr(command, args, sourceInfoOpt) ⇒
+    case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
       for {
         newCommand ← desugarHoles_(command)
         newArgs ← sequence(args.map(desugarHoles_))
-      } yield MishExpr(newCommand, newArgs, sourceInfoOpt)
+      } yield MishExpr(newCommand, newArgs, captureProcessOutput, sourceInfoOpt)
     case MishInterpolation(part, sourceInfoOpt) ⇒
       val newPartResult = part match {
         case StringPart(s)  ⇒ Result(StringPart(s))

@@ -71,7 +71,8 @@ object TokenType {
   case object STRING_INTERPOLATION_START_SIMPLE extends TokenType // $
   case object EOF extends TokenType
   case object MISH_WORD extends TokenType
-  case object MISH_INTERPOLATION_START extends TokenType
+  case object MISH_INTERPOLATION_START extends TokenType // !{
+  case object MISH_INTERPOLATION_START_NO_CAPTURE extends TokenType // !!{
   case object DEF extends TokenType
   case object QUESTION extends TokenType
   case object ERROR extends TokenType

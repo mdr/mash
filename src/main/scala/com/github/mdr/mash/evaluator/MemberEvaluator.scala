@@ -32,7 +32,7 @@ object MemberEvaluator {
 
   def lookup(target: Any, name: String, locationOpt: Option[PointedRegion] = None): Any =
     maybeLookup(target, name).getOrElse(
-      throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
+      throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt))
 
   def hasMember(target: Any, name: String): Boolean =
     maybeLookup(target, name).isDefined

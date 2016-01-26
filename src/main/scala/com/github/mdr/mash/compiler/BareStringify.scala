@@ -84,8 +84,8 @@ class BareStringificationContext {
       AssignmentExpr(left, bareStringify(right, bindings + name), alias, sourceInfoOpt)
     case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
       AssignmentExpr(bareStringify(left, bindings), bareStringify(right, bindings), alias, sourceInfoOpt)
-    case MishExpr(command, args, sourceInfoOpt) ⇒
-      MishExpr(bareStringify(command, bindings), args.map(bareStringify(_, bindings)), sourceInfoOpt)
+    case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
+      MishExpr(bareStringify(command, bindings), args.map(bareStringify(_, bindings)), captureProcessOutput, sourceInfoOpt)
     case MishInterpolation(part, sourceInfoOpt) ⇒
       val newPart = part match {
         case StringPart(s)  ⇒ StringPart(s)

@@ -8,6 +8,7 @@ import com.github.mdr.mash.evaluator.MashString
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
+import com.github.mdr.mash.lexer.TokenType.MISH_INTERPOLATION_START
 
 /**
  * Convert from concrete to abstract syntax trees.
@@ -40,29 +41,29 @@ object Abstractifier {
     }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
-    case Concrete.Literal(token)                           ⇒ abstractifyLiteral(token, SourceInfo(expr))
-    case Concrete.Identifier(token)                        ⇒ Abstract.Identifier(token.text, Some(SourceInfo(expr)))
-    case Concrete.Hole(_)                                  ⇒ Abstract.Hole(Some(SourceInfo(expr)))
-    case Concrete.PipeExpr(left, _, right)                 ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), Some(SourceInfo(expr)))
-    case mexpr @ Concrete.MemberExpr(e, _, name)           ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, Some(SourceInfo(expr)))
-    case Concrete.LookupExpr(e, _, index, _)               ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), Some(SourceInfo(expr)))
-    case Concrete.ParenExpr(_, e, _)                       ⇒ Abstract.ParenExpr(abstractify(e), Some(SourceInfo(expr)))
-    case Concrete.LambdaExpr(param, _, body)               ⇒ Abstract.LambdaExpr(param.text, abstractify(body), Some(SourceInfo(expr)))
-    case Concrete.BinOpExpr(left, opToken, right)          ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), Some(SourceInfo(expr)))
-    case Concrete.AssignmentExpr(left, _, aliasOpt, right) ⇒ Abstract.AssignmentExpr(abstractify(left), abstractify(right), aliasOpt.isDefined, Some(SourceInfo(expr)))
-    case chainedExpr @ Concrete.ChainedOpExpr(_, _)        ⇒ abstractifyChainedComparision(chainedExpr)
-    case iExpr @ Concrete.InvocationExpr(_, _)             ⇒ abstractifyInvocation(iExpr)
-    case iExpr @ Concrete.ParenInvocationExpr(_, _, _, _)  ⇒ abstractifyParenInvocation(iExpr)
-    case listExpr @ Concrete.ListExpr(_, _, _)             ⇒ abstractifyList(listExpr)
-    case objectExpr @ Concrete.ObjectExpr(_, _, _)         ⇒ abstractifyObject(objectExpr)
-    case Concrete.IfExpr(_, cond, _, body, elseOpt)        ⇒ Abstract.IfExpr(abstractify(cond), abstractify(body), elseOpt.map { case (_, elseBody) ⇒ abstractify(elseBody) }, Some(SourceInfo(expr)))
-    case Concrete.MinusExpr(_, subExpr)                    ⇒ Abstract.MinusExpr(abstractify(subExpr), Some(SourceInfo(expr)))
-    case mishExpr: Concrete.MishExpr                       ⇒ abstractifyMish(mishExpr)
-    case Concrete.MishInterpolationExpr(_, mishExpr, _)    ⇒ abstractifyMish(mishExpr)
-    case str: Concrete.InterpolatedString                  ⇒ abstractifyInterpolatedString(str)
-    case decl: Concrete.FunctionDeclaration                ⇒ abstractifyFunctionDeclaration(decl)
-    case Concrete.MishFunction(word)                       ⇒ Abstract.MishFunction(word.text.tail, Some(SourceInfo(expr)))
-    case Concrete.HelpExpr(expr, _)                        ⇒ Abstract.HelpExpr(abstractify(expr), Some(SourceInfo(expr)))
+    case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, SourceInfo(expr))
+    case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, Some(SourceInfo(expr)))
+    case Concrete.Hole(_)                                   ⇒ Abstract.Hole(Some(SourceInfo(expr)))
+    case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), Some(SourceInfo(expr)))
+    case mexpr @ Concrete.MemberExpr(e, _, name)            ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, Some(SourceInfo(expr)))
+    case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), Some(SourceInfo(expr)))
+    case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), Some(SourceInfo(expr)))
+    case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), Some(SourceInfo(expr)))
+    case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), Some(SourceInfo(expr)))
+    case Concrete.AssignmentExpr(left, _, aliasOpt, right)  ⇒ Abstract.AssignmentExpr(abstractify(left), abstractify(right), aliasOpt.isDefined, Some(SourceInfo(expr)))
+    case chainedExpr @ Concrete.ChainedOpExpr(_, _)         ⇒ abstractifyChainedComparision(chainedExpr)
+    case iExpr @ Concrete.InvocationExpr(_, _)              ⇒ abstractifyInvocation(iExpr)
+    case iExpr @ Concrete.ParenInvocationExpr(_, _, _, _)   ⇒ abstractifyParenInvocation(iExpr)
+    case listExpr @ Concrete.ListExpr(_, _, _)              ⇒ abstractifyList(listExpr)
+    case objectExpr @ Concrete.ObjectExpr(_, _, _)          ⇒ abstractifyObject(objectExpr)
+    case Concrete.IfExpr(_, cond, _, body, elseOpt)         ⇒ Abstract.IfExpr(abstractify(cond), abstractify(body), elseOpt.map { case (_, elseBody) ⇒ abstractify(elseBody) }, Some(SourceInfo(expr)))
+    case Concrete.MinusExpr(_, subExpr)                     ⇒ Abstract.MinusExpr(abstractify(subExpr), Some(SourceInfo(expr)))
+    case mishExpr: Concrete.MishExpr                        ⇒ abstractifyMish(mishExpr, captureProcessOutput = false)
+    case str: Concrete.InterpolatedString                   ⇒ abstractifyInterpolatedString(str)
+    case decl: Concrete.FunctionDeclaration                 ⇒ abstractifyFunctionDeclaration(decl)
+    case Concrete.MishFunction(word)                        ⇒ Abstract.MishFunction(word.text.tail, Some(SourceInfo(expr)))
+    case Concrete.HelpExpr(expr, _)                         ⇒ Abstract.HelpExpr(abstractify(expr), Some(SourceInfo(expr)))
+    case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
   }
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
@@ -92,9 +93,9 @@ object Abstractifier {
       Abstract.StringPart(literalText)
   }
 
-  private def abstractifyMish(expr: Concrete.MishExpr): Abstract.MishExpr = {
+  private def abstractifyMish(expr: Concrete.MishExpr, captureProcessOutput: Boolean): Abstract.MishExpr = {
     val Concrete.MishExpr(command, args) = expr
-    Abstract.MishExpr(abstractifyMishItem(command), args.map(abstractifyMishItem), Some(SourceInfo(expr)))
+    Abstract.MishExpr(abstractifyMishItem(command), args.map(abstractifyMishItem), captureProcessOutput, Some(SourceInfo(expr)))
   }
 
   private def abstractifyMishItem(item: Concrete.MishItem): Abstract.Expr = item match {

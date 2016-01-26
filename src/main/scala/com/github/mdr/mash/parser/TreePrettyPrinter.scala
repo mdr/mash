@@ -93,8 +93,8 @@ object TreePrettyPrinter {
           case StringPart(s)  ⇒ println("  " * (depth + 1) + s)
           case ExprPart(expr) ⇒ printTree(expr, depth + 1)
         }
-      case MishExpr(command, args, _) ⇒
-        println("MishExpr" + typeDescription)
+      case MishExpr(command, args, captureProcessOutput, _) ⇒
+        println("MishExpr" + typeDescription + (if (captureProcessOutput) "(captureProcessOutput)" else ""))
         printTree(command, depth + 1)
         for (arg ← args)
           printTree(arg, depth + 1)

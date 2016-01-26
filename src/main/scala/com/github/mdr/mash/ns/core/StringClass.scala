@@ -40,10 +40,10 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Seq[MashObject] = {
+    def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
       val pattern = new TildeExpander(envInteractions).expand(target.asInstanceOf[MashString].s)
-      fileSystem.glob(pattern).map(PathSummaryClass.asMashObject)
+      MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))

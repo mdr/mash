@@ -434,7 +434,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       listExpr()
     else if (LBRACE)
       objectExpr()
-    else if (MISH_INTERPOLATION_START)
+    else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
       mishInterpolation()
     else if (forgiving)
       Literal(syntheticToken(STRING_LITERAL))

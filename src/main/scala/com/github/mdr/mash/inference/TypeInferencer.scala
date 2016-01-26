@@ -15,6 +15,7 @@ import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.evaluator.SystemCommandFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.ns.os.SubprocessResultClass
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
@@ -97,10 +98,10 @@ class TypeInferencer {
       case lookupExpr: LookupExpr ⇒ inferTypeLookupExpr(lookupExpr, bindings)
       case ifExpr: IfExpr         ⇒ inferTypeIfExpr(ifExpr, bindings)
       case objectExpr: ObjectExpr ⇒ inferTypeObjectExpr(objectExpr, bindings)
-      case MishExpr(command, args, _) ⇒
+      case MishExpr(command, args, captureProcessOutput, _) ⇒
         inferType(command, bindings)
         args.foreach(inferType(_, bindings))
-        Some(Type.Instance(UnitClass))
+        Some(Type.Instance(if (captureProcessOutput) UnitClass else SubprocessResultClass))
       case MishInterpolation(part, _) ⇒
         part match {
           case StringPart(s) ⇒
