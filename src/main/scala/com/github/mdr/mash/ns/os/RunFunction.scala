@@ -32,7 +32,7 @@ object RunFunction extends MashFunction("os.run") {
       }
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")
-    val statusCode = ProcessRunner.runProcess(args)
+    val statusCode = ProcessRunner.runProcess(args).exitStatus
     MashNumber(statusCode)
   }
 

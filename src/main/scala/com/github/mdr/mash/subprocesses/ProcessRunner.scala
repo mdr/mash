@@ -15,55 +15,39 @@ object ProcessRunner {
   private val terminalControl = Singletons.terminalControl
   private val envInteractions: EnvironmentInteractions = LinuxEnvironmentInteractions
 
-  def runProcess(args: Seq[Any], expandTilde: Boolean = false): Int = {
+  def runProcess(args: Seq[Any], expandTilde: Boolean = false, captureProcess: Boolean = false): ProcessResult = {
     terminalControl.setEchoEnabled(true)
     var stringArgs = args.map(ToStringifier.stringify)
     if (expandTilde) {
       val tildeExpander = new TildeExpander(envInteractions)
       stringArgs = stringArgs.map(tildeExpander.expand)
     }
+
+    val outputRedirect = if (captureProcess) ProcessBuilder.Redirect.PIPE else ProcessBuilder.Redirect.INHERIT
     try {
       terminalControl.configureTerminalForExternalProcess()
       val process =
         new ProcessBuilder(stringArgs: _*)
           .redirectInput(ProcessBuilder.Redirect.INHERIT)
-          .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+          .redirectOutput(outputRedirect)
           .redirectError(ProcessBuilder.Redirect.INHERIT).start()
+
+      val stdout =
+        if (captureProcess)
+          IOUtils.toString(process.getInputStream)
+        else
+          ""
       val statusCode = process.waitFor()
 
       // Clear out any partial output
       System.out.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
       System.out.flush()
 
-      statusCode
-    } finally
-      terminalControl.restore()
-  }
-
-  def runAndCaptureProcess(args: Seq[Any], expandTilde: Boolean = false): ProcessResult = {
-    terminalControl.setEchoEnabled(true)
-    var stringArgs = args.map(ToStringifier.stringify)
-    if (expandTilde) {
-      val tildeExpander = new TildeExpander(envInteractions)
-      stringArgs = stringArgs.map(tildeExpander.expand)
-    }
-    try {
-      terminalControl.configureTerminalForExternalProcess()
-      val process =
-        new ProcessBuilder(stringArgs: _*)
-          .redirectInput(ProcessBuilder.Redirect.INHERIT)
-          .redirectOutput(ProcessBuilder.Redirect.PIPE)
-          .redirectError(ProcessBuilder.Redirect.INHERIT).start()
-      val stdout = IOUtils.toString(process.getInputStream)
-      val statusCode = process.waitFor()
-
-      // Clear out any partial output
-      System.out.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
-      System.out.flush()
       ProcessResult(statusCode, stdout)
     } finally
       terminalControl.restore()
   }
+
 }
 
 case class ProcessResult(exitStatus: Int, stdout: String)
