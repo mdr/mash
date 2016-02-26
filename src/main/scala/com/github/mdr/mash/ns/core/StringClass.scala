@@ -33,6 +33,7 @@ object StringClass extends MashClass("core.String") {
     ToNumberMethod,
     ToPathMethod,
     ToUpperMethod,
+    TrimMethod,
     UntaggedMethod,
     MashClass.alias("g", GlobMethod))
 
@@ -49,6 +50,23 @@ object StringClass extends MashClass("core.String") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
 
     override def summary = "Return paths matching a glob pattern"
+
+  }
+
+  object TrimMethod extends MashMethod("trim") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashString = {
+      params.validate(arguments)
+      val boundParams = params.validate(arguments)
+      val s = target.asInstanceOf[MashString]
+      s.modify(_.trim)
+    }
+
+    override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy
+
+    override def summary = "Strip initial and trailing whitespace"
 
   }
 

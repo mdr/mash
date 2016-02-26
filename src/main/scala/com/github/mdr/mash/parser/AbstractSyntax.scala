@@ -238,6 +238,9 @@ object AbstractSyntax {
     def children = part.children
   }
 
+  /**
+   * !{which ls} or !!{nano}
+   */
   case class MishExpr(command: Expr, args: Seq[Expr], captureProcessOutput: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = command +: args

@@ -19,6 +19,7 @@ import com.github.mdr.mash.functions.Parameter
 import java.time.Instant
 import java.nio.file.Path
 import com.github.mdr.mash.functions.BoundParams
+import com.github.mdr.mash.subprocesses.ProcessRunner
 
 object PathClass extends MashClass("os.Path") {
 
@@ -50,6 +51,7 @@ object PathClass extends MashClass("os.Path") {
     ReadLinesMethod,
     RenameByMethod,
     RenameToMethod,
+    RunMethod,
     SegmentsMethod,
     SizeMethod,
     TypeMethod,
@@ -264,6 +266,35 @@ The default character encoding and line separator are used.""")
     }
 
     override def summary = "Rename this path using a function to transform the name"
+
+  }
+
+  object RunMethod extends MashMethod("run") {
+
+    object Params {
+      val Args = Parameter(
+        name = "args",
+        summary = "Arguments to command",
+        isVariadic = true)
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Args))
+
+    def apply(target: Any, arguments: Arguments): MashObject = {
+      val boundParams = params.validate(arguments)
+      val args =
+        target +: (boundParams(Args) match {
+          case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_)).toSeq
+          case xs: MashList               ⇒ xs.items
+        })
+      val result = ProcessRunner.runProcess(args, captureProcess = true)
+      SubprocessResultClass.fromResult(result)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(SubprocessResultClass))
+
+    override def summary = "Execute the file at the given path, with the given arguments"
 
   }
 

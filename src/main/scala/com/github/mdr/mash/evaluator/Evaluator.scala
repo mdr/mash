@@ -236,12 +236,7 @@ object Evaluator {
     val allArgs = evaluatedCommand +: flattenedArgs
     if (captureProcessOutput) {
       val processResult = ProcessRunner.runProcess(allArgs, expandTilde = true, captureProcess = captureProcessOutput)
-      import SubprocessResultClass.Fields._
-      MashObject(
-        ListMap(
-          ExitStatus -> MashNumber(processResult.exitStatus),
-          Stdout -> MashString(processResult.stdout)),
-        SubprocessResultClass)
+      SubprocessResultClass.fromResult(processResult)
     } else {
       ProcessRunner.runProcess(allArgs, expandTilde = true)
       ()

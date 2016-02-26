@@ -21,7 +21,7 @@ object RunFunction extends MashFunction("os.run") {
 
   val params = ParameterModel(Seq(Command))
 
-  def apply(arguments: Arguments): MashNumber = {
+  def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
     val args: Seq[_] =
       boundParams(Command) match {
@@ -32,11 +32,11 @@ object RunFunction extends MashFunction("os.run") {
       }
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")
-    val statusCode = ProcessRunner.runProcess(args).exitStatus
-    MashNumber(statusCode)
+    val result = ProcessRunner.runProcess(args, captureProcess = true)
+    SubprocessResultClass.fromResult(result)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(NumberClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(SubprocessResultClass))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

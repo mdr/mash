@@ -101,7 +101,8 @@ class TypeInferencer {
       case MishExpr(command, args, captureProcessOutput, _) ⇒
         inferType(command, bindings)
         args.foreach(inferType(_, bindings))
-        Some(Type.Instance(if (captureProcessOutput) UnitClass else SubprocessResultClass))
+        val resultClass = if (captureProcessOutput) SubprocessResultClass else UnitClass
+        Some(Type.Instance(resultClass))
       case MishInterpolation(part, _) ⇒
         part match {
           case StringPart(s) ⇒
