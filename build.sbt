@@ -26,11 +26,11 @@ libraryDependencies ++= Seq(
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
   "jline" % "jline" % "2.13",
   "com.ibm.icu" % "icu4j" % "56.1",
-  "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta1",
-  "com.google.code.gson" % "gson" % "2.5",
+  "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta2",
+  "com.google.code.gson" % "gson" % "2.6.1",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r",
-  "org.slf4j" % "slf4j-nop" % "1.7.13" /* suppress logging from jgit */,
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.2.0.201601211800-r",
+  "org.slf4j" % "slf4j-nop" % "1.7.16" /* suppress logging from jgit */,
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4")
 
 // == Eclipse integration =====================================================================

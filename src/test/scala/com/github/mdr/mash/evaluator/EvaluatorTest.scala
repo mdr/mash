@@ -338,10 +338,10 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   // Member vectorisation
   "['foo', 'bar', 'baz'].startsWith 'ba'" shouldEvaluateTo "[false, true, true]"
-  "[].noSuchMember".shouldThrowAnException
   "['foo'].noSuchMember".shouldThrowAnException
   "['foo bar', 'baz'].split" shouldEvaluateTo "[['foo', 'bar'], ['baz']]"
   "['foo:bar', 'baz'].split ':'" shouldEvaluateTo "[['foo', 'bar'], ['baz']]"
+  "[].noSuchMember" shouldEvaluateTo "[]"
 
   // Strings as functions
   " 'foo' { foo: 42 } " shouldEvaluateTo "42"

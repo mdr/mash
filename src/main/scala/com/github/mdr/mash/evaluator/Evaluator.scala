@@ -197,11 +197,13 @@ object Evaluator {
 
   private def getHelpForMember(target: Any, name: String): Option[MashObject] = {
     val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpFunction.getHelp(field, klass) }
-    lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect { case bm: BoundMethod ⇒ HelpFunction.getHelp(bm) }
+    lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
+      case method: BoundMethod ⇒ HelpFunction.getHelp(method)
+    }
     fieldHelpOpt orElse memberHelpOpt
   }
 
-  private def evaluateHelpExpr(expr: Expr, env: Environment) =
+  private def evaluateHelpExpr(expr: Expr, env: Environment): MashObject =
     expr match {
       case memberExpr @ MemberExpr(targetExpr, name, _, _) ⇒
         val target = evaluate(targetExpr, env)
@@ -285,7 +287,7 @@ object Evaluator {
 
   private def vectorisedMemberLookup(target: Any, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
     target match {
-      case xs: MashList if xs.nonEmpty ⇒
+      case xs: MashList ⇒
         val options = xs.items.map {
           case null if isNullSafe ⇒ Some(null)
           case x ⇒
