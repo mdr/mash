@@ -27,7 +27,8 @@ object LogFunction extends MashFunction("git.log") {
     params.validate(arguments)
     withRepository { repo ⇒
       val git = new Git(repo)
-      MashList(git.log.call().asScala.toSeq.map(asCommitObject))
+      val commits = git.log.call().asScala.toSeq
+      MashList(commits.map(asCommitObject))
     }
   }
 
@@ -35,14 +36,14 @@ object LogFunction extends MashFunction("git.log") {
     import CommitClass.Fields._
     val commitTime = Instant.ofEpochSecond(commit.getCommitTime)
     val author = MashString(commit.getAuthorIdent.getName)
-
+    val parents = MashList(commit.getParents.toSeq.map(c ⇒ MashString(c.getName, Some(CommitHashClass))))
     MashObject(
       ListMap(
         Hash -> MashString(commit.getName, Some(CommitHashClass)),
         CommitTime -> commitTime,
         Author -> author,
         Summary -> MashString(commit.getShortMessage),
-        Parents -> commit.getParents.toSeq.map(c ⇒ MashString(c.getName, Some(CommitHashClass)))),
+        Parents -> parents),
       CommitClass)
   }
 

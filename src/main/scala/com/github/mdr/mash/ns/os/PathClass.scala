@@ -294,7 +294,7 @@ The default character encoding and line separator are used.""")
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(SubprocessResultClass))
 
-    override def summary = "Execute the file at the given path, with the given arguments"
+    override def summary = "Execute the command at the given path, with the given arguments"
 
   }
 

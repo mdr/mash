@@ -19,9 +19,26 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     liftCommitField(CommitClass.Fields.CommitTime),
     liftCommitField(CommitClass.Fields.Author),
     liftCommitField(CommitClass.Fields.Summary),
-    liftCommitField(CommitClass.Fields.Parents))
+    liftCommitField(CommitClass.Fields.Parents),
+    InfoMethod)
 
   def summary = "A git commit SHA-1 hash"
+
+  object InfoMethod extends MashMethod("info") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashObject = {
+      params.validate(arguments)
+      val hash = target.asInstanceOf[MashString].s
+      getCommit(hash)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(CommitClass))
+
+    override def summary = "Get information about the commit with this hash"
+
+  }
 
   private def getCommit(s: String): MashObject = {
     LogFunction.withRepository { repo ⇒
