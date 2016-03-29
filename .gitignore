@@ -13,3 +13,5 @@ hs*.log
 lib/*.jar
 .tmpBin/
 _site/
+.project
+.classpath
