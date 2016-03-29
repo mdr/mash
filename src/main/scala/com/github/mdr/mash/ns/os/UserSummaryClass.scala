@@ -75,7 +75,10 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
   def fromPasswdEntry(entry: PasswdEntry): MashObject = {
     val username = MashString(entry.username, Some(UsernameClass))
-    val group = MashString(userInteractions.groupEntries.find(_.gid == entry.gid).get.group, Some(GroupClass))
+    val group = userInteractions.groupEntries
+      .find(_.gid == entry.gid)
+      .map(ge => MashString(ge.group, Some(GroupClass)))
+      .orNull
     val uid = MashNumber(entry.uid, Some(UidClass))
     val home = MashString(entry.homeDirectory, Some(PathClass))
     val shell = MashString(entry.shell, Some(PathClass))

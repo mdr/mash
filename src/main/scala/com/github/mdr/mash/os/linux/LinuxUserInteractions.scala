@@ -15,7 +15,7 @@ object LinuxUserInteractions extends UserInteractions {
       val entries = l.split(":")
       PasswdEntry(entries(0), entries(2).toInt, entries(3).toInt, entries(4), entries(5), entries(6))
     }
-    FileUtils.readLines(new File("/etc/passwd")).asScala.map(parseLine)
+    FileUtils.readLines(new File("/etc/passwd")).asScala.filterNot(_ startsWith "#").map(parseLine)
   }
 
   override def groupEntries: Seq[GroupEntry] = {
@@ -27,7 +27,7 @@ object LinuxUserInteractions extends UserInteractions {
       }
       GroupEntry(entries(0), entries(2).toInt, users)
     }
-    FileUtils.readLines(new File("/etc/group")).asScala.map(parseLine)
+    FileUtils.readLines(new File("/etc/group")).asScala.filterNot(_ startsWith "#").map(parseLine)
   }
 
   override def currentUsername: String = System.getProperty("user.name")
