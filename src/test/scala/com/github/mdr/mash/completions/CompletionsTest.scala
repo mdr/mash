@@ -119,7 +119,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "{}.toStrin▶" shouldGiveCompletions "toString"
 
-  """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
+  // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
 
   "Seq completions" should "not be marked as vectorised" in {
     val Some(completion) = "pwd.children.isEmpt▶".fullCompletions.find(_.text == "isEmpty")
