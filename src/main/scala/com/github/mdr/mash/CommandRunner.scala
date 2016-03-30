@@ -14,17 +14,21 @@ import org.fusesource.jansi.Ansi
 import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 
-case class CommandResult(value: Option[Any] = None, toggleMish: Boolean = false, toInsertOpt: Option[String] = None)
+case class CommandResult(
+    value: Option[Any] = None, 
+    toggleMish: Boolean = false, 
+    insertReferenceOpt: Option[Int] = None)
 
 object MishCommand {
 
   /**
    * Starts with a "!", but isn't a !{} or !!{} expression
    */
-  private val Regex = """^(\s*!)(?!\{|!\{)(.*)""".r
+  private val MishRegex = """^(\s*!)(?!\{|!\{)(.*)""".r
 
   def unapply(s: String): Option[(String, String)] =
-    Regex.unapplySeq(s).map { case Seq(prefix, cmd) ⇒ (prefix, cmd) }
+    MishRegex.unapplySeq(s).map { case Seq(prefix, cmd) ⇒ (prefix, cmd) }
+
 }
 
 object DebugCommand {
@@ -62,8 +66,8 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     exprOpt.map { expr ⇒
       val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
-      val PrintResult(toInsertOpt) = printer.render(result)
-      CommandResult(Some(result), toInsertOpt = toInsertOpt)
+      val PrintResult(insertReferenceOpt) = printer.render(result)
+      CommandResult(Some(result), insertReferenceOpt = insertReferenceOpt)
     }.getOrElse(CommandResult())
   }
 

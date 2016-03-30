@@ -6,6 +6,7 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.completions.UberCompleter
 import com.github.mdr.mash.parser.StringEscapes
+import com.github.mdr.mash.evaluator.MashList
 
 object NormalActionHandler {
 
@@ -115,7 +116,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def runCommand(cmd: String) {
     val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
-    val CommandResult(resultOpt, toggleMish, toInsertOpt) =
+    val CommandResult(resultOpt, toggleMish, insertReferenceOpt) =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)
       catch {
@@ -128,10 +129,21 @@ trait NormalActionHandler { self: Repl ⇒
     else
       state.history.record(cmd, state.mish)
 
-    for (result ← resultOpt)
+    for (result ← resultOpt) {
       state.globalVariables += ReplState.It -> result
-    for (toInsert ← toInsertOpt) {
-      state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
+      val newResults =
+        state.globalVariables.get(ReplState.Res) match {
+          case Some(MashList(oldResults @ _*)) ⇒ MashList(oldResults :+ result)
+          case _                               ⇒ MashList(Seq(result))
+        }
+      state.globalVariables += ReplState.Res -> newResults
+
+      for (resultIndex ← insertReferenceOpt) {
+        val resultsIndex = newResults.size - 1
+        val toInsert = s"${ReplState.Res}[$resultsIndex][$resultIndex]"
+        state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
+      }
+
     }
   }
 

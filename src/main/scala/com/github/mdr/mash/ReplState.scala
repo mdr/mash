@@ -25,6 +25,11 @@ object ReplState {
    */
   val It = "it"
 
+  /**
+   * Name of the 'res' list, which stores the list of commands executed in the session.
+   */
+  val Res = "res"
+  
   val BareWordsConfigKey = "language.bareWords"
   val ShowStartupTipsConfigKey = "cli.showStartupTips"
 

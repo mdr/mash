@@ -30,7 +30,7 @@ object Printer {
 
 }
 
-case class PrintResult(toInsertOpt: Option[String] = None)
+case class PrintResult(insertReferenceOpt: Option[Int] = None)
 
 class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
@@ -43,8 +43,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val items = xs.items.asInstanceOf[Seq[MashObject]]
         val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo)
-        val toInsertOpt = objectTablePrinter.printTable(items)
-        return PrintResult(toInsertOpt)
+        val insertReferenceOpt = objectTablePrinter.printTable(items)
+        return PrintResult(insertReferenceOpt)
       case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) ⇒
         helpPrinter.printFunctionHelp(mo)
       case mo: MashObject if mo.classOpt == Some(FieldHelpClass) ⇒

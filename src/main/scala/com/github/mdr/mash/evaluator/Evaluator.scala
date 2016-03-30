@@ -223,7 +223,7 @@ object Evaluator {
 
   private def evaluateMishInterpolation(expr: MishInterpolation, env: Environment) =
     expr.part match {
-      case StringPart(s)  ⇒ MashString(s, Some(PathClass))
+      case StringPart(s)  ⇒ MashString(s, PathClass)
       case ExprPart(expr) ⇒ evaluate(expr, env)
     }
 
@@ -248,14 +248,14 @@ object Evaluator {
   private def evaluateInterpolatedString(interpolatedString: InterpolatedString, env: Environment): MashString = {
     val InterpolatedString(start, parts, end, _) = interpolatedString
     val chunks =
-      MashString(start, Some(PathClass)) +:
+      MashString(start, PathClass) +:
         parts.map {
-          case StringPart(s) ⇒ MashString(s, Some(PathClass))
+          case StringPart(s) ⇒ MashString(s, PathClass)
           case ExprPart(expr) ⇒ evaluate(expr, env) match {
             case ms: MashString ⇒ ms
             case x              ⇒ MashString(ToStringifier.stringify(x))
           }
-        } :+ MashString(end, Some(PathClass))
+        } :+ MashString(end, PathClass)
     chunks.reduce(_ + _)
   }
 

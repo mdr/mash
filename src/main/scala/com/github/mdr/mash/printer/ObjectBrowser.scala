@@ -31,6 +31,9 @@ object ObjectBrowserActions {
 
 object ObjectBrowser {
 
+  /**
+   * @return the index of a selected item
+   */
   def launch(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream): Option[Int] = {
     val columns = terminalInfo.columns
     val objectBrowser = new ObjectBrowser(model, terminalInfo, output)
