@@ -2,6 +2,12 @@ package com.github.mdr.mash.evaluator
 
 import scala.PartialFunction.cond
 
+object MashString {
+
+  def apply(s: String, tagClass: MashClass): MashString = MashString(s, Some(tagClass))
+  
+}
+
 case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends Comparable[MashString] {
 
   def lookup(i: Int) = {

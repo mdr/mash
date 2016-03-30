@@ -48,13 +48,13 @@ object ProcessClass extends MashClass("os.Process") {
   def makeProcess(info: ProcessInfo): MashObject =
     MashObject(
       ListMap(
-        Pid -> MashNumber(info.pid, Some(PidClass)),
-        ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, Some(PidClass))).orNull,
+        Pid -> MashNumber(info.pid, PidClass),
+        ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, PidClass)).orNull,
         Name -> MashString(info.name),
         Command -> MashString(info.command),
-        Owner -> MashString(info.owner, Some(UsernameClass)),
-        ResidentSize -> MashNumber(info.residentSize, Some(BytesClass)),
-        VirtualSize -> MashNumber(info.virtualSize, Some(BytesClass))),
+        Owner -> MashString(info.owner, UsernameClass),
+        ResidentSize -> MashNumber(info.residentSize, BytesClass),
+        VirtualSize -> MashNumber(info.virtualSize, BytesClass)),
       ProcessClass)
 
   object KillMethod extends MashMethod("kill") {

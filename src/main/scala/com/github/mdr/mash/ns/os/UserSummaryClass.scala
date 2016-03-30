@@ -33,13 +33,23 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     FullNameMethod,
     GroupsMethod)
 
+  case class Wrapper(target: Any) {
+    
+    private val user = target.asInstanceOf[MashObject]
+    
+    def username: String = user.field(Name).asInstanceOf[MashString].s
+
+    def primaryGroup: MashString = user.field(PrimaryGroup).asInstanceOf[MashString]
+
+  }
+    
   object FullNameMethod extends MashMethod("fullName") {
 
     val params = ParameterModel()
 
     def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val username = target.asInstanceOf[MashObject].field(Name).asInstanceOf[MashString].s
+      val username = Wrapper(target).username
       val fullNameOpt =
         for {
           entry ← userInteractions.passwdEntries.find(_.username == username)
@@ -60,9 +70,9 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val userObject = target.asInstanceOf[MashObject]
-      val primaryGroup = userObject.field(PrimaryGroup).asInstanceOf[MashString]
-      val username = userObject.field(Name).asInstanceOf[MashString].s
+      val user = Wrapper(target)
+      val primaryGroup = user.primaryGroup 
+      val username = user.username
       val secondaryGroups = userInteractions.groupEntries.filter(_.users.contains(username)).map(entry ⇒ MashString(entry.group, Some(GroupClass)))
       MashList(primaryGroup +: secondaryGroups)
     }
@@ -74,14 +84,14 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
   }
 
   def fromPasswdEntry(entry: PasswdEntry): MashObject = {
-    val username = MashString(entry.username, Some(UsernameClass))
+    val username = MashString(entry.username, UsernameClass)
     val group = userInteractions.groupEntries
       .find(_.gid == entry.gid)
-      .map(ge => MashString(ge.group, Some(GroupClass)))
+      .map(ge => MashString(ge.group, GroupClass))
       .orNull
-    val uid = MashNumber(entry.uid, Some(UidClass))
-    val home = MashString(entry.homeDirectory, Some(PathClass))
-    val shell = MashString(entry.shell, Some(PathClass))
+    val uid = MashNumber(entry.uid, UidClass)
+    val home = MashString(entry.homeDirectory, PathClass)
+    val shell = MashString(entry.shell, PathClass)
     MashObject(
       ListMap(
         Name -> username,

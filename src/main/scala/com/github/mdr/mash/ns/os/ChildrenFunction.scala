@@ -21,7 +21,7 @@ object ChildrenFunction extends MashFunction("os.children") {
     val Directory = Parameter(
       name = "directory",
       summary = "Directory to inspect",
-      defaultValueGeneratorOpt = Some(() ⇒ MashString("", Some(PathClass))))
+      defaultValueGeneratorOpt = Some(() ⇒ MashString("", PathClass)))
     val IgnoreDotFiles = Parameter(
       name = "ignoreDotFiles",
       summary = "Ignore files starting with a dot (.) (default false)",

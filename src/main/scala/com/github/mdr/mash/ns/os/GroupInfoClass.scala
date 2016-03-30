@@ -24,13 +24,11 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
   override val fields = Seq(Name, Gid, Users)
 
   def makeGroupInfo(groupEntry: GroupEntry, passwdEntries: Seq[PasswdEntry]): MashObject = {
-    val primaryUsers = userInteractions.passwdEntries.filter(_.gid == groupEntry.gid).map(user ⇒ MashString(user.username, Some(UsernameClass)))
-    val secondaryUsers = groupEntry.users.map(user ⇒ MashString(user, Some(UsernameClass)))
-    val users = primaryUsers ++ secondaryUsers
+    val users = GroupClass.UsersMethod.getUsers(groupEntry)
     MashObject(
       ListMap(
-        Fields.Name -> MashString(groupEntry.group, Some(GroupClass)),
-        Fields.Gid -> MashNumber(groupEntry.gid, Some(GidClass)),
+        Fields.Name -> MashString(groupEntry.group, GroupClass),
+        Fields.Gid -> MashNumber(groupEntry.gid, GidClass),
         Fields.Users -> MashList(users)),
       GroupInfoClass)
   }

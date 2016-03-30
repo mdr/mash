@@ -74,10 +74,10 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     MashObject(
       ListMap(
         Fields.Path -> asPathString(path),
-        Fields.Type -> MashString(fileType, Some(FileTypeClass)),
-        Fields.Size -> MashNumber(size, Some(BytesClass)),
-        Fields.Owner -> MashString(owner, Some(UsernameClass)),
-        Fields.Group -> MashString(group, Some(GroupClass)),
+        Fields.Type -> MashString(fileType, FileTypeClass),
+        Fields.Size -> MashNumber(size, BytesClass),
+        Fields.Owner -> MashString(owner, UsernameClass),
+        Fields.Group -> MashString(group, GroupClass),
         Fields.Permissions -> PermissionsClass.asMashObject(permissions),
         Fields.LastModified -> lastModified),
       PathSummaryClass)

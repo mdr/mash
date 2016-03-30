@@ -28,7 +28,7 @@ object GroupClass extends MashClass("os.Group") {
       params.validate(arguments)
       val group = target.asInstanceOf[MashString].s
       val groupEntryOpt = userInteractions.groupEntries.find(_.group == group)
-      groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, Some(GidClass))).orNull
+      groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, GidClass)).orNull
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, GidClass))
@@ -47,14 +47,18 @@ object GroupClass extends MashClass("os.Group") {
       MashList(getUsers(group))
     }
 
-    def getUsers(group: String) = {
+    def getUsers(group: String): Seq[MashString] = {
       val groupEntryOpt = userInteractions.groupEntries.find(_.group == group)
       val passwdEntries = userInteractions.passwdEntries
-      groupEntryOpt.map { groupEntry ⇒
-        val primaryUsers = passwdEntries.filter(_.gid == groupEntry.gid).map(_.username).map(user ⇒ MashString(user, Some(UsernameClass)))
-        val secondaryUsers = groupEntry.users.map(user ⇒ MashString(user, Some(UsernameClass)))
-        primaryUsers ++ secondaryUsers
-      }.getOrElse(Seq())
+      groupEntryOpt.map(getUsers(_)).getOrElse(Seq())
+    }
+
+    def getUsers(groupEntry: GroupEntry): Seq[MashString] = {
+      val primaryUsers =
+        for (passwdEntry ← userInteractions.passwdEntries if passwdEntry.gid == groupEntry.gid)
+          yield MashString(passwdEntry.username, UsernameClass)
+      val secondaryUsers = groupEntry.users.map(user ⇒ MashString(user, UsernameClass))
+      primaryUsers ++ secondaryUsers
     }
 
     override def typeInferenceStrategy =

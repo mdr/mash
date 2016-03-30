@@ -51,7 +51,7 @@ object ObjectClass extends MashClass("core.Object") {
     def stringify(x: Any): String = x match {
       case MashString(s, _) ⇒ s
       case klass: MashClass ⇒ klass.fullyQualifiedName
-      case xs: MashList     ⇒ xs.items.map(stringify).mkString("[", ", ", "]")
+      case xs: MashList     ⇒ xs.items.map(ToStringifier.stringify).mkString("[", ", ", "]")
       case ()               ⇒ ""
       case _                ⇒ "" + x
     }

@@ -36,10 +36,10 @@ object LogFunction extends MashFunction("git.log") {
     import CommitClass.Fields._
     val commitTime = Instant.ofEpochSecond(commit.getCommitTime)
     val author = MashString(commit.getAuthorIdent.getName)
-    val parents = MashList(commit.getParents.toSeq.map(c ⇒ MashString(c.getName, Some(CommitHashClass))))
+    val parents = MashList(commit.getParents.toSeq.map(c ⇒ MashString(c.getName, CommitHashClass)))
     MashObject(
       ListMap(
-        Hash -> MashString(commit.getName, Some(CommitHashClass)),
+        Hash -> MashString(commit.getName, CommitHashClass),
         CommitTime -> commitTime,
         Author -> author,
         Summary -> MashString(commit.getShortMessage),

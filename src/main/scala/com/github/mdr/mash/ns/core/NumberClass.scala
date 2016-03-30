@@ -45,6 +45,7 @@ object NumberClass extends MashClass("core.Number") {
     override def summary = "Convert number to an integer (rounding towards zero)"
 
   }
+  
   object TagMethod extends MashMethod("tag") {
 
     val params = ParameterModel()
@@ -95,7 +96,7 @@ object NumberClass extends MashClass("core.Number") {
     def apply(target: Any, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       val n = target.asInstanceOf[MashNumber]
-      MashNumber(n.n * 1024, tagClassOpt = Some(BytesClass))
+      MashNumber(n.n * 1024, BytesClass)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
@@ -110,7 +111,7 @@ object NumberClass extends MashClass("core.Number") {
     def apply(target: Any, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       val n = target.asInstanceOf[MashNumber]
-      MashNumber(n.n * 1024 * 1024, tagClassOpt = Some(BytesClass))
+      MashNumber(n.n * 1024 * 1024, BytesClass)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
@@ -125,7 +126,7 @@ object NumberClass extends MashClass("core.Number") {
     def apply(target: Any, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       val n = target.asInstanceOf[MashNumber]
-      MashNumber(n.n * 1024 * 1024 * 1024, tagClassOpt = Some(BytesClass))
+      MashNumber(n.n * 1024 * 1024 * 1024, BytesClass)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))

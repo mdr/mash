@@ -419,7 +419,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "[].sumBy.target" shouldEvaluateTo "[]"
 
   "now.date.toString" shouldNotThrowAnException
-
+  
+  "[].toString" shouldEvaluateTo "'[]'"
+  "[1].toString" shouldEvaluateTo "'[1]'"
+  "[1, 2].toString" shouldEvaluateTo "'[1, 2]'"
+  "[pwd].toString" shouldEvaluateTo "'[' + pwd + ']'"
+  
   "'xy' * 3" shouldEvaluateTo "'xyxyxy'"
   "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
   "'x' * 1" shouldEvaluateTo "'x'"

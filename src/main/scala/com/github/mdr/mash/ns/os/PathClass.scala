@@ -114,7 +114,7 @@ object PathClass extends MashClass("os.Path") {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       val resolved = Files.readSymbolicLink(path)
-      MashString(resolved.toString, Some(PathClass))
+      MashString(resolved.toString, PathClass)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))

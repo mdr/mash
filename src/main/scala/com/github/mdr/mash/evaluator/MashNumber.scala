@@ -6,6 +6,8 @@ import com.github.mdr.mash.utils.NumberUtils
 
 object MashNumber {
 
+  def apply(n: Any, tagClass: MashClass): MashNumber = apply(n, Some(tagClass))
+  
   def apply(n: Any, tagClassOpt: Option[MashClass]): MashNumber = n match {
     case n: Double ⇒ MashNumber(n, tagClassOpt)
     case n: Float  ⇒ MashNumber(n.toDouble, tagClassOpt)

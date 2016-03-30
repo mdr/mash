@@ -44,7 +44,7 @@ object GidClass extends MashClass("os.Gid") {
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(
         throw new EvaluatorException(s"Could not find group with gid $gid"))
-      MashString(groupEntry.group, Some(GroupClass))
+      MashString(groupEntry.group, GroupClass)
     }
 
     override def typeInferenceStrategy =

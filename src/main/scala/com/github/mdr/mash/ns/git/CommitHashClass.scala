@@ -64,7 +64,8 @@ object CommitHashClass extends MashClass("git.CommitHash") {
       commitObject.fields(field.name)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(CommitClass.fieldsMap(field.name).fieldType)
+    override def typeInferenceStrategy = 
+      ConstantMethodTypeInferenceStrategy(CommitClass.fieldsMap(field.name).fieldType)
 
     override def summary = field.summary
 

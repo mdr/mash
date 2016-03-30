@@ -12,7 +12,7 @@ object StandardFunctions {
 
   lazy val Functions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
 
-  val CoreFunctions = Seq(
+  private val CoreFunctions = Seq(
     ExitFunction,
     IdentityFunction,
     IsNullFunction,
@@ -24,11 +24,10 @@ object StandardFunctions {
     PrintFunction,
     RunFunction)
 
-  val OsFunctions = Seq(
+  private val OsFunctions = Seq(
     CdFunction,
     ChildrenFunction,
     CopyFunction,
-    GroupsFunction,
     HomeFunction,
     GlobFunction,
     KillFunction,
@@ -36,16 +35,17 @@ object StandardFunctions {
     MkdirFunction,
     MvFunction,
     OldDirsFunction,
-    ProcessesFunction,
     PwdFunction,
     ReadLinesFunction,
     DeleteFunction,
     UpFunction,
+    WriteFunction,
+    GroupsFunction,
     UserFunction,
     UsersFunction,
-    WriteFunction)
+    ProcessesFunction)
 
-  val CollectionsFunctions = Seq(
+  private val CollectionsFunctions = Seq(
     AllFunction,
     AnyFunction,
     ContainsFunction,

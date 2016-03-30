@@ -33,9 +33,9 @@ object FunctionHelpers {
   def interpretAsPath(x: Any): Path =
     safeInterpretAsPath(x).getOrElse(throw new EvaluatorException("Could not interpret as path: " + x))
 
-  def asPathString(p: Path) = MashString(p.toString, Some(PathClass))
+  def asPathString(p: Path) = MashString(p.toString, PathClass)
 
-  def asPathString(s: String) = MashString(s, Some(PathClass))
+  def asPathString(s: String) = MashString(s, PathClass)
 
   def interpretAsFunction(f: Any): (Any ⇒ Any) = o ⇒ {
     val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))

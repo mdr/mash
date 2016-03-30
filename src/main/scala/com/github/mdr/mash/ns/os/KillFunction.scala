@@ -13,6 +13,8 @@ import com.github.mdr.mash.functions.BoundParams
 
 object KillFunction extends MashFunction("os.kill") {
 
+  private val Term = "TERM"
+  
   private val Signals: Map[String, Int] = {
     val pairs =
       for (signal ← Signal.values)
@@ -26,7 +28,7 @@ object KillFunction extends MashFunction("os.kill") {
     val Signal = Parameter(
       name = "signal",
       summary = "Signal to send to the process",
-      defaultValueGeneratorOpt = Some(() ⇒ MashString("TERM", Some(SignalClass))),
+      defaultValueGeneratorOpt = Some(() ⇒ MashString(Term, SignalClass)),
       isFlag = true,
       isFlagValueMandatory = true,
       flagValueNameOpt = Some("signal"),
