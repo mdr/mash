@@ -6,7 +6,7 @@ organization := "com.github.mdr"
 
 version := "0.0.2-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 scalacOptions += "-deprecation"
 
@@ -21,16 +21,16 @@ libraryDependencies ++= Seq(
   "org.fusesource.jansi" % "jansi" % "1.11",
   "commons-io" % "commons-io" % "2.4",
   "org.apache.commons" % "commons-lang3" % "3.4",
-  "com.github.jnr" % "jnr-posix" % "3.0.27",
+  "com.github.jnr" % "jnr-posix" % "3.0.29",
   "org.apache.ant" % "ant" % "1.9.6",
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
-  "jline" % "jline" % "2.13",
-  "com.ibm.icu" % "icu4j" % "56.1",
+  "jline" % "jline" % "2.14.1",
+  "com.ibm.icu" % "icu4j" % "57.1",
   "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta2",
-  "com.google.code.gson" % "gson" % "2.6.1",
+  "com.google.code.gson" % "gson" % "2.6.2",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.2.0.201601211800-r",
-  "org.slf4j" % "slf4j-nop" % "1.7.16" /* suppress logging from jgit */,
+  "org.slf4j" % "slf4j-nop" % "1.7.20" /* suppress logging from jgit */,
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4")
 
 // == Eclipse integration =====================================================================
