@@ -15,7 +15,7 @@ import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.evaluator.SystemCommandFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.parser.QuotationType
-import com.github.mdr.mash.ns.os.SubprocessResultClass
+import com.github.mdr.mash.ns.os.ProcessResultClass
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
@@ -101,7 +101,7 @@ class TypeInferencer {
       case MishExpr(command, args, captureProcessOutput, _) ⇒
         inferType(command, bindings)
         args.foreach(inferType(_, bindings))
-        val resultClass = if (captureProcessOutput) SubprocessResultClass else UnitClass
+        val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
         Some(Type.Instance(resultClass))
       case MishInterpolation(part, _) ⇒
         part match {

@@ -137,22 +137,35 @@ object StringClass extends MashClass("core.String") {
 
   object SplitMethod extends MashMethod("split") {
 
-    private val Separator = "separator"
+    object Params {
+      val Regex = Parameter(
+        name = "regex",
+        shortFlagOpt = Some('r'),
+        summary = "Interpret separator as a regular expression",
+        defaultValueGeneratorOpt = Some(() ⇒ false),
+        isFlag = true,
+        isBooleanFlag = true)
+      val Separator = Parameter(
+        "separator",
+        "Separator to split string on",
+        defaultValueGeneratorOpt = Some(() ⇒ null))
+    }
+    import Params._
 
     val params = ParameterModel(Seq(
-      Parameter(
-        Separator,
-        "Separator to split string on",
-        defaultValueGeneratorOpt = Some(() ⇒ null))))
+      Regex,
+      Separator))
 
     def apply(target: Any, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
+      val regex = Truthiness.isTruthy(boundParams(Regex))
       val pieces = boundParams(Separator) match {
         case null ⇒
           targetString.s.split("\\s+")
         case MashString(separator, _) ⇒
-          targetString.s.split(Pattern.quote(separator))
+          val delimiterPattern = if (regex) separator else Pattern.quote(separator)
+          targetString.s.split(delimiterPattern)
         case _ ⇒
           throw new EvaluatorException("Invalid separator")
       }

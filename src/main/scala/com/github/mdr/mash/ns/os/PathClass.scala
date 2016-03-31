@@ -289,10 +289,10 @@ The default character encoding and line separator are used.""")
           case xs: MashList               ⇒ xs.items
         })
       val result = ProcessRunner.runProcess(args, captureProcess = true)
-      SubprocessResultClass.fromResult(result)
+      ProcessResultClass.fromResult(result)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(SubprocessResultClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ProcessResultClass))
 
     override def summary = "Execute the command at the given path, with the given arguments"
 

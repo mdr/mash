@@ -33,10 +33,10 @@ object RunFunction extends MashFunction("os.run") {
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")
     val result = ProcessRunner.runProcess(args, captureProcess = true)
-    SubprocessResultClass.fromResult(result)
+    ProcessResultClass.fromResult(result)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(SubprocessResultClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(ProcessResultClass))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

@@ -24,7 +24,7 @@ import com.github.mdr.mash.subprocesses.ProcessResult
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.ns.os.SubprocessResultClass
+import com.github.mdr.mash.ns.os.ProcessResultClass
 
 object Evaluator {
 
@@ -238,7 +238,7 @@ object Evaluator {
     val allArgs = evaluatedCommand +: flattenedArgs
     if (captureProcessOutput) {
       val processResult = ProcessRunner.runProcess(allArgs, expandTilde = true, captureProcess = captureProcessOutput)
-      SubprocessResultClass.fromResult(processResult)
+      ProcessResultClass.fromResult(processResult)
     } else {
       ProcessRunner.runProcess(allArgs, expandTilde = true)
       ()

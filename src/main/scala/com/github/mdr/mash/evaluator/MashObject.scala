@@ -13,6 +13,9 @@ object MashObject {
   def apply(fields: ListMap[String, Any], classOpt: Option[MashClass]): MashObject =
     MashObject(LinkedHashMap(fields.toSeq: _*), classOpt)
 
+  def apply(fields: Seq[(String, Any)], classOpt: Option[MashClass]): MashObject =
+    MashObject(LinkedHashMap(fields.toSeq: _*), classOpt)
+
 }
 
 case class MashObject(fields: LinkedHashMap[String, Any], classOpt: Option[MashClass] = None) {

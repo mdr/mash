@@ -1,33 +1,31 @@
 package com.github.mdr.mash.os.linux
 
-import scala.collection.JavaConverters._
 import java.io.IOException
 import java.nio.file._
 import java.nio.file.attribute._
-import java.util.stream.Collectors
-import scala.collection.JavaConverters
-import scala.collection.mutable.ArrayBuffer
-import org.apache.tools.ant.DirectoryScanner
-import java.io.File
-import com.github.mdr.mash.ns.os.FileTypeClass
 import java.util.EnumSet
+import java.util.stream.Collectors
+
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
+
+import org.apache.commons.io.FileUtils
+
+import com.github.mdr.mash.Posix
+import com.github.mdr.mash.evaluator.ExecutionContext
+import com.github.mdr.mash.ns.os.FileTypeClass
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.PathSummary
 import com.github.mdr.mash.os.Permissions
-import java.nio.file.attribute.PosixFileAttributeView
 import com.github.mdr.mash.os.PermissionsSection
-import com.github.mdr.mash.Posix
-import org.apache.commons.io.FileUtils
-import com.github.mdr.mash.evaluator.ExecutionContext
 
 object LinuxFileSystem extends FileSystem {
 
   override def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[PathSummary] = {
     var files: Seq[Path] =
       if (recursive) {
-        import scala.collection.JavaConverters._
         val foundPaths = ArrayBuffer[Path]()
-        val visitor = new SimpleFileVisitor[Path]() {
+        object Visitor extends SimpleFileVisitor[Path]() {
 
           override def preVisitDirectory(dir: Path, attributes: BasicFileAttributes): FileVisitResult = {
             ExecutionContext.checkInterrupted()
@@ -51,7 +49,7 @@ object LinuxFileSystem extends FileSystem {
           }
 
         }
-        Files.walkFileTree(parentDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor)
+        Files.walkFileTree(parentDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, Visitor)
         foundPaths
       } else
         Files.list(parentDir).collect(Collectors.toList()).asScala.toSeq.sortBy(_.getFileName)
@@ -144,4 +142,5 @@ object LinuxFileSystem extends FileSystem {
   override def exists(path: Path): Boolean = Files.exists(path)
 
   override def isDirectory(path: Path): Boolean = Files.isDirectory(path)
+  
 }

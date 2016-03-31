@@ -186,7 +186,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberType)
 
   "!!{nano}" shouldBeInferredAsHavingType Instance(UnitClass)
-  "!{which ls}" shouldBeInferredAsHavingType Instance(SubprocessResultClass)
+  "!{which ls}" shouldBeInferredAsHavingType Instance(ProcessResultClass)
 
   private implicit class RichString(s: String) {
 
