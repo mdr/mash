@@ -23,10 +23,16 @@ import com.github.mdr.mash.ns.core.UnitClass
 object WriteFunction extends MashFunction("os.write") {
 
   object Params {
+    val Append = Parameter(
+      name = "append",
+      summary = "Append to the end of the file, if it already exists",
+      shortFlagOpt = Some('a'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ false),
+      isBooleanFlag = true)
     val File = Parameter(
       name = "file",
-      summary = "File to write to",
-      isLast = true)
+      summary = "File to write to")
     val Data = Parameter(
       name = "data",
       summary = "Data to write to the file",
@@ -35,16 +41,18 @@ Otherwise, write the item as a string."""))
   }
   import Params._
 
-  val params = ParameterModel(Seq(Data, File))
+  val params = ParameterModel(Seq(Append, File, Data))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
+    val append = Truthiness.isTruthy(boundParams(Append))
     val file = boundParams.validatePath(File).toFile
-    boundParams(Data) match {
+    val data = boundParams(Data)
+    data match {
       case xs: MashList ⇒
-        FileUtils.writeLines(file, xs.items.map(x ⇒ ToStringifier.stringify(x)).asJava)
+        FileUtils.writeLines(file, xs.items.map(ToStringifier.stringify).asJava, append)
       case x ⇒
-        FileUtils.write(file, ToStringifier.stringify(x))
+        FileUtils.write(file, ToStringifier.stringify(x), append)
     }
   }
 
