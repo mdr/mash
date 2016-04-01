@@ -13,6 +13,10 @@ v0.0.2 (..)
 * Add startup tips
 * Insert row reference from object browser
 * !{..} syntax returns information about the process output, new !!{..} syntax throws it away
+* Additional basic Git command support
+* Added --regex flag for split
+* Added --append fag for write
+* Added ProcessResult.toPath method
 
 v0.0.1 (19/January/2016)
 ------------------------
