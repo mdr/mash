@@ -17,7 +17,7 @@ object Tips {
     s"'${OldDirsFunction.name}' stores a list of previous working directories from this session.",
     s"'${UpFunction.name}' changes the current directory to the parent.",
     s"""'${GlobFunction.name}' can be used to match paths recursively: glob "**/*.jpg""",
-    "Relative times: 1.day.ago, 3.weeks.fromNow",
+    "Relative times are available on integers: 1.day.ago, 3.weeks.fromNow",
     "Comparisons can be chained: 0 <= i < 10",
     "Ctrl-r starts an incremental search through history.",
     "Ctrl-q quotes the current word.",
@@ -30,8 +30,8 @@ object Tips {
 
   def showTip(output: PrintStream, terminalInfo: TerminalInfo) {
     val printer = new Printer(output, terminalInfo)
-    def tip = randomTip
     val suppressNote = s"""Suppress tips by setting config.${ReplState.ShowStartupTipsConfigKey} = false."""
-    printer.renderBox("Tip", Seq(tip, suppressNote))
+    printer.renderBox("Tip", Seq(randomTip, suppressNote))
   }
+  
 }

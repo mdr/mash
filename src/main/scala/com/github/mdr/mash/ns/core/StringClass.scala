@@ -115,12 +115,14 @@ object StringClass extends MashClass("core.String") {
 
   object MatchesMethod extends MashMethod("matches") {
 
-    private val _Pattern = "pattern"
+    object Params {
+      val _Pattern = Parameter(
+        name = "pattern",
+        summary = "Regular expression pattern")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        _Pattern,
-        "Regular expression pattern")))
+    val params = ParameterModel(Seq(_Pattern))
 
     def apply(target: Any, arguments: Arguments): Boolean = {
       val boundParams = params.validate(arguments)
@@ -131,7 +133,7 @@ object StringClass extends MashClass("core.String") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
 
-    override def summary = "Test whether this string matches a regular expression"
+    override def summary = "Test whether this string contains a match within it to a given regular expression"
 
   }
 
@@ -146,8 +148,8 @@ object StringClass extends MashClass("core.String") {
         isFlag = true,
         isBooleanFlag = true)
       val Separator = Parameter(
-        "separator",
-        "Separator to split string on",
+        name = "separator",
+        summary = "Separator to split string on",
         defaultValueGeneratorOpt = Some(() ⇒ null))
     }
     import Params._

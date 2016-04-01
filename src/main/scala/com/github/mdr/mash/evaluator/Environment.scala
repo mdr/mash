@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 import com.github.mdr.mash.ns.StandardFunctions
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap
-import com.github.mdr.mash.ns.git.LogFunction
+import com.github.mdr.mash.ns.git._
 
 case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
 
@@ -35,7 +35,11 @@ object Environment {
       "env" -> systemEnvironment,
       "config" -> defaultConfig,
       "git" -> MashObject(LinkedHashMap(
-        "log" -> LogFunction)))
+        "add" -> AddFunction,
+        "commit" -> CommitFunction,
+        "log" -> LogFunction,
+        "pull" -> PullFunction,
+        "push" -> PushFunction)))
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)
   }
 

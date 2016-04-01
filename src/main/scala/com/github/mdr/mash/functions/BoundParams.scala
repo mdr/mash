@@ -47,6 +47,14 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
       throw new EvaluatorException(message, locationOpt(param))
   }
 
+  def validateStringOpt(param: Parameter): Option[MashString] = this(param) match {
+    case s: MashString ⇒ Some(s)
+    case null          ⇒ None
+    case x ⇒
+      val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
+      throw new EvaluatorException(message, locationOpt(param))
+  }
+
   def validateFunction(param: Parameter): Any ⇒ Any =
     this(param) match {
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
