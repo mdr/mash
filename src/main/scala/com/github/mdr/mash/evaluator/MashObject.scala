@@ -29,6 +29,8 @@ case class MashObject(fields: LinkedHashMap[String, Any], classOpt: Option[MashC
       throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString(",")}, but was ${providedFields.mkString(",")}")
   }
 
+  def set(fieldName: String, value: Any) { fields(fieldName) = value }
+  
   def apply(field: Field): Any = fields(field.name)
 
   def getField(fieldName: String): Option[Any] = fields.get(fieldName)

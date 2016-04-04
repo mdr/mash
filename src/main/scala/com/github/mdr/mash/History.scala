@@ -66,7 +66,7 @@ class History {
       if (historyPos != NotInHistory)
         Some(history(historyPos).command)
       else
-        None
+        Some("")
     } else
       None
 

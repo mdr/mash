@@ -15,3 +15,4 @@ lib/*.jar
 _site/
 .project
 .classpath
+.DS_Store

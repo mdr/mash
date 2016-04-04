@@ -7,6 +7,7 @@ import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.utils.Region
 import scala.PartialFunction.cond
 import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.evaluator.Truthiness
 
 sealed trait ReplMode
 object ReplMode {
@@ -29,9 +30,6 @@ object ReplState {
    * Name of the 'res' list, which stores the list of commands executed in the session.
    */
   val Res = "res"
-  
-  val BareWordsConfigKey = "language.bareWords"
-  val ShowStartupTipsConfigKey = "cli.showStartupTips"
 
 }
 
@@ -62,31 +60,15 @@ class ReplState(
 
     }
 
-  private def getConfig(configKey: String): Option[Any] =
-    globalVariables("config") match {
-      case obj: MashObject ⇒ getConfig(obj, configKey.split("\\."))
-      case _               ⇒ None
+  private def getConfig(configOption: ConfigOption): Any = {
+    val configObjectOpt = globalVariables.get("config") match {
+      case Some(mo: MashObject) ⇒ Some(mo)
+      case _                    ⇒ None
     }
-
-  private def getConfig(mo: MashObject, path: Seq[String]): Option[Any] = {
-    for {
-      first ← path.headOption
-      rest = path.tail
-      firstValue ← mo.getField(first)
-      restValue ← rest match {
-        case Seq() ⇒
-          Some(firstValue)
-        case _ ⇒
-          firstValue match {
-            case obj: MashObject ⇒ getConfig(obj, rest)
-            case _               ⇒ None
-          }
-      }
-    } yield restValue
+    Config.getConfig(configObjectOpt, configOption)
   }
 
-  def bareWords: Boolean = getConfig(BareWordsConfigKey).collect { case b: Boolean ⇒ b }.getOrElse(false)
-
-  def showStartupTips: Boolean = getConfig(ShowStartupTipsConfigKey).collect { case b: Boolean ⇒ b }.getOrElse(false)
+  def bareWords: Boolean = Truthiness.isTruthy(getConfig(Config.Language.BareWords))
+  def showStartupTips: Boolean = Truthiness.isTruthy(getConfig(Config.Cli.ShowStartupTips))
 
 }

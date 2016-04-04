@@ -187,16 +187,17 @@ object StringClass extends MashClass("core.String") {
 
   object ReplaceMethod extends MashMethod("replace") {
 
-    private val Target = "target"
-    private val Replacement = "replacement"
+    object Params {
+      val Target = Parameter(
+        name = "target",
+        "String to replace")
+      val Replacement = Parameter(
+        "replacement",
+        "Replacement string")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        Target,
-        "String to replace"),
-      Parameter(
-        Replacement,
-        "Replacement string")))
+    val params = ParameterModel(Seq(Target, Replacement))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)

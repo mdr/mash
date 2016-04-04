@@ -10,6 +10,7 @@ import com.github.mdr.mash.ns.StandardFunctions
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap
 import com.github.mdr.mash.ns.git._
+import com.github.mdr.mash.Config
 
 case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
 
@@ -31,24 +32,18 @@ object Environment {
   def createGlobalVariables(): mutable.Map[String, Any] = {
     val nameFunctionPairs = StandardFunctions.Functions.flatMap(f ⇒ f.nameOpt.map(_ -> f))
     val aliasPairs = StandardFunctions.Aliases.toSeq
+    val gitFunctions =
+      for {
+        gitFunction ← Seq(
+          AddFunction, BranchesFunction, CommitFunction, FetchFunction, LogFunction, PullFunction, PushFunction)
+      } yield gitFunction.name -> gitFunction
+
     val otherPairs = Seq(
       "env" -> systemEnvironment,
-      "config" -> defaultConfig,
-      "git" -> MashObject(LinkedHashMap(
-        "add" -> AddFunction,
-        "commit" -> CommitFunction,
-        "log" -> LogFunction,
-        "pull" -> PullFunction,
-        "push" -> PushFunction)))
+      "config" -> Config.defaultConfig,
+      "git" -> MashObject(LinkedHashMap(gitFunctions: _*)))
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)
   }
-
-  private def defaultConfig =
-    MashObject(LinkedHashMap(
-      "language" -> MashObject(LinkedHashMap(
-        "bareWords" -> false)),
-      "cli" -> MashObject(LinkedHashMap(
-        "showStartupTips" -> true))))
 
   private def systemEnvironment = {
     val fields: Map[String, Any] =
