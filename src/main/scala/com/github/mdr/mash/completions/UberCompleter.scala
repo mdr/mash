@@ -32,28 +32,6 @@ import com.github.mdr.mash.parser.StringEscapes
 
 object UberCompleter {
 
-  /**
-   * Get a contiguous region of characters around the cursor position
-   */
-  def getContiguousRegion(s: String, initialRegion: Region, mish: Boolean): Region = {
-    val pos = initialRegion.offset
-    val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-    var tokenIndex = tokens.indexWhere(_.region.contains(pos))
-    if (tokenIndex < 0)
-      return Region(pos, 0)
-    var token = tokens(tokenIndex)
-    var start = tokenIndex
-    def isUsable(token: Token) = !token.isWhitespace && !token.isEof
-    while (start > 0 && isUsable(tokens(start - 1)))
-      start -= 1
-    var end = tokenIndex
-    while (end + 1 < tokens.length && isUsable(tokens(end + 1)))
-      end += 1
-    val startToken = tokens(start)
-    val startPos = startToken.region.offset
-    val endToken = tokens(end)
-    Region(startPos, endToken.region.posAfter - startPos)
-  }
 
   def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
 
@@ -162,7 +140,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
    * First return value is true iff the completion was a path completion
    */
   private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): (Boolean, Option[CompletionResult]) = {
-    val region = UberCompleter.getContiguousRegion(s, initialRegion, mish = mish)
+    val region = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
     val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
     val replaced = StringUtils.replace(s, region, replacement)
     val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)

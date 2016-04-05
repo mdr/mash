@@ -15,6 +15,7 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.completions.ContiguousRegionFinder
 
 object InvocationAssistance {
 
@@ -23,7 +24,7 @@ object InvocationAssistance {
   def getCallingSyntaxOfCurrentInvocation(s: String, pos: Int, env: Environment, mish: Boolean): Option[AssistanceState] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
     tokens.find(isNearby(pos, _)).flatMap { nearbyToken ⇒
-      val region = UberCompleter.getContiguousRegion(s, nearbyToken.region, mish = mish)
+      val region = ContiguousRegionFinder.getContiguousRegion(s, nearbyToken.region, mish = mish)
       val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
       val replaced = StringUtils.replace(s, region, replacement)
       val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
