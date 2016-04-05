@@ -14,15 +14,14 @@ class ReplTest extends FlatSpec with Matchers {
   "Repl" should "work" in {
     val repl = newRepl
     repl.input("1")
-    repl.handleAction(InputAction.AcceptLine)
+    repl.acceptLine()
     repl.state.globalVariables(ReplState.It) should equal(MashNumber(1))
   }
 
   "Incremental completion" should "stay incremental as you type characters" in {
     val repl = newRepl
     repl.input("wh")
-    repl.handleAction(InputAction.Complete)
-    repl.state.lineBuffer.s should equal("where")
+    repl.complete().text should equal("where")
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     completionState.replacementLocation should equal(Region(0, "where".length))
     val completions = completionState.completions.map(_.text)
@@ -33,15 +32,37 @@ class ReplTest extends FlatSpec with Matchers {
     val Some(completionState2: IncrementalCompletionState) = repl.state.completionStateOpt
   }
 
+  "History" should "not have a bug if you attempt to go forwards in history past the current" in {
+    val repl = newRepl
+    repl.input("1").acceptLine()
+    repl.input("2").acceptLine()
+    repl.text should equal("")
+    repl.previousHistory().text should equal("2")
+    repl.nextHistory().text should equal("")
+    repl.nextHistory().text should equal("")
+    repl.previousHistory().text should equal("2")
+    repl.previousHistory().text should equal("1")
+  }
+  
   private def newRepl = new Repl(DummyTerminal, NullPrintStream)
 
   private implicit class RichRepl(repl: Repl) {
 
-    def input(s: String) {
+    def input(s: String) = {
       for (c ← s)
         repl.handleAction(InputAction.SelfInsert(c))
+        repl
     }
+    
+    def complete() = { repl.handleAction(InputAction.Complete); repl }
 
+    def previousHistory() = { repl.handleAction(InputAction.PreviousHistory); repl }
+    
+    def nextHistory() = { repl.handleAction(InputAction.NextHistory); repl }
+    
+    def acceptLine() = { repl.handleAction(InputAction.AcceptLine); repl }
+    
+    def text = repl.state.lineBuffer.s
   }
 
 }
