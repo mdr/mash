@@ -244,4 +244,8 @@ class MashParserTest extends FlatSpec with Matchers {
     parse("alias")
   }
 
+  "Parsing ..." should "not crash" in {
+    parse("...")
+  }
+
 }

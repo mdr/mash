@@ -23,7 +23,7 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
     def name = obj(Name).asInstanceOf[MashString].s
     def klass = obj(Class).asInstanceOf[MashString].s
     def summary = obj(Summary).asInstanceOf[MashString].s
-    def description = obj(Description).asInstanceOf[MashString].s
+    def descriptionOpt = Option(obj(Description)).map(_.asInstanceOf[MashString].s)
   }
 
   override val fields = Seq(Name, Class, Summary, Description)

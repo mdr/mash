@@ -60,10 +60,20 @@ trait NormalActionHandler { self: Repl ⇒
         yankLastArg()
       case ToggleQuote ⇒
         state.lineBuffer = QuoteToggler.toggleQuotes(state.lineBuffer, state.mish)
-      case _ ⇒
+      case ToggleMish ⇒
+        toggleMish()
+      case _          ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
+  }
+
+  private def toggleMish() {
+    state.lineBuffer =
+      if (state.lineBuffer.s startsWith "!")
+        state.lineBuffer.delete(0)
+      else
+        state.lineBuffer.insertCharacters("!", 0)
   }
 
   private def yankLastArg() {

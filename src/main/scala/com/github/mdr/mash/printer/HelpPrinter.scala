@@ -61,7 +61,7 @@ class HelpPrinter(output: PrintStream) {
     output.println(bold("CLASS"))
     output.println(indentSpace + fieldHelp.klass)
     output.println()
-    for (description ← Option(fieldHelp.description)) {
+    for (description ← fieldHelp.descriptionOpt) {
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description, indent))
       output.println()

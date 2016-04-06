@@ -21,7 +21,7 @@ object Tips {
     "Relative times are available on integers: 1.day.ago, 3.weeks.fromNow",
     "Comparisons can be chained: 0 <= i < 10",
     "Ctrl-r starts an incremental search through history.",
-    "Ctrl-q quotes the current word.",
+    "Ctrl-q toggles quotation marks around the current region of text.",
     "Alt-. inserts the last argument from history.",
     "If there are multiple completions, pressing tab twice enters completion browsing mode.",
     "Member accesses on lists can be automatically vectorised: ls.size.sum",

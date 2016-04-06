@@ -60,7 +60,8 @@ case class LineBuffer(s: String, cursorPos: Int) {
   def delete: LineBuffer =
     if (cursorPos >= s.length)
       this
-    else LineBuffer(s.substring(0, cursorPos) + s.substring(cursorPos + 1), cursorPos)
+    else
+      delete(cursorPos)
 
   def moveCursorToStart: LineBuffer = copy(cursorPos = 0)
 
@@ -81,6 +82,16 @@ case class LineBuffer(s: String, cursorPos: Int) {
         cursorPos
       else
         cursorPos + chars.length
+    LineBuffer(newText, newCursorPos)
+  }
+
+  def delete(deletePos: Int): LineBuffer = {
+    val newText = s.substring(0, deletePos) + s.substring(deletePos + 1)
+    val newCursorPos =
+      if (cursorPos < deletePos)
+        cursorPos
+      else
+        cursorPos - 1
     LineBuffer(newText, newCursorPos)
   }
 

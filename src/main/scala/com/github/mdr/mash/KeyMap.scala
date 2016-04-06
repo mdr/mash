@@ -35,5 +35,6 @@ object BasicKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('r'), control = true) -> IncrementalHistorySearch,
   KeyPress(Key.PageUp) -> InputAction.PageUp,
   KeyPress(Key.PageDown) -> InputAction.PageDown,
-  KeyPress(Key.BasicKey('.'), alt = true) -> YankLastArg,
+  KeyPress(BasicKey('.'), alt = true) -> YankLastArg,
+  KeyPress(BasicKey(','), alt = true) -> ToggleMish,
   KeyPress(BasicKey('q'), control = true) -> ToggleQuote))

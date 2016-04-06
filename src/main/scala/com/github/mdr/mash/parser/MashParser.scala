@@ -242,7 +242,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     var previousPos = pos
     while (!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
-      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || TILDE || DEF || STRING_END || ALIAS)) {
+      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || TILDE || DEF || STRING_END || ALIAS || ELLIPSIS)) {
       args += arg()
       assert(pos > previousPos, "Infinite loop detected parsing invocationExpr at position " + pos + ", current token is " + currentToken)
       previousPos = pos

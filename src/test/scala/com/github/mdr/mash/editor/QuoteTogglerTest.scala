@@ -7,7 +7,6 @@ import com.github.mdr.mash.LineBuffer
 class QuoteTogglerTest extends FlatSpec with Matchers {
 
   // ▶ or ◀ points to the cursor position (and is removed from the string)
-
   "foo bar▶ baz" ==> """foo "bar"▶ baz"""
   """foo "bar"▶ baz""" ==> "foo bar▶ baz"
 
@@ -36,6 +35,12 @@ class QuoteTogglerTest extends FlatSpec with Matchers {
   """foo▶"""" ==> """"foo▶""""
   """"f▶oo""" ==> """"f▶oo""""
   """▶"foo""" ==> """▶"foo""""
+    
+  "foo ▶ bar" ==> "foo ▶ bar"  
+  
+  """foo "▶""" ==> """foo ""▶"""
+  
+  """"\$"▶""" ==> "$▶"
     
   implicit class RichString(s: String) {
     def ==>(expectedStr: String) {

@@ -30,6 +30,7 @@ object InputAction {
   case object PageDown extends InputAction
   case object YankLastArg extends InputAction
   case object ToggleQuote extends InputAction
+  case object ToggleMish extends InputAction
 
   import InputSequence._
 

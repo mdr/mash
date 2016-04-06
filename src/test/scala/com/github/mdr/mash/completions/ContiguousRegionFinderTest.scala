@@ -30,11 +30,6 @@ class ContiguousRegionFinderTest extends FlatSpec with Matchers {
     "    #      ",
     "    ###    ")
 
-//  check(
-//    "foo bar",
-//    "   #   ",
-//    "###    ")
-
   private def check(s: String, initialRegionPattern: String, expectedRegionPattern: String) {
     "ContiguousRegionFinder" should s"expand the region $initialRegionPattern to $expectedRegionPattern in $s" in {
       val initialRegion = region(initialRegionPattern)
