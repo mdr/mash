@@ -7,18 +7,16 @@ import com.github.mdr.mash.lexer.Token
 object ContiguousRegionFinder {
 
   /**
-   * Expand a region by adding contiguous region either side of it, delimited by whitespace.
-   *
-   * This is defined lexically, so that a string literal is treated as an indivisible unit.
+   * Expand a region by adding tokens either side of it, as long as they aren't whitespace.
    */
   def getContiguousRegion(s: String, initialRegion: Region, mish: Boolean): Region = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
 
-    val leftTokenIndex = tokens.indexWhere(_.region.contains(initialRegion.offset))
+    val leftTokenIndex = tokens.indexWhere(_.region contains initialRegion.offset)
     if (leftTokenIndex < 0)
       return initialRegion
 
-    val rightTokenIndex = tokens.indexWhere(_.region.contains(initialRegion.lastPos))
+    val rightTokenIndex = tokens.indexWhere(_.region contains initialRegion.lastPos)
     if (rightTokenIndex < 0)
       return initialRegion
 

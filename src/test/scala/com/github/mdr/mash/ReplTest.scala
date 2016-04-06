@@ -44,6 +44,13 @@ class ReplTest extends FlatSpec with Matchers {
     repl.previousHistory().text should equal("1")
   }
   
+  "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
+    val repl = newRepl
+    repl.input("foo")
+    repl.toggleQuote().text should equal(""""foo"""")
+    repl.toggleQuote().text should equal("foo")
+  }
+  
   private def newRepl = new Repl(DummyTerminal, NullPrintStream)
 
   private implicit class RichRepl(repl: Repl) {
@@ -63,6 +70,9 @@ class ReplTest extends FlatSpec with Matchers {
     def acceptLine() = { repl.handleAction(InputAction.AcceptLine); repl }
     
     def text = repl.state.lineBuffer.s
+    
+    def toggleQuote() = { repl.handleAction(InputAction.ToggleQuote); repl }
+    
   }
 
 }

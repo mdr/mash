@@ -32,7 +32,9 @@ import com.github.mdr.mash.parser.StringEscapes
 
 object UberCompleter {
 
-
+  /**
+   *  @return true if the given pos is either inside the given token or immediately after it
+   */
   def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
 
 }

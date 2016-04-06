@@ -29,7 +29,7 @@ object InputAction {
   case object PageUp extends InputAction
   case object PageDown extends InputAction
   case object YankLastArg extends InputAction
-  case object QuoteWord extends InputAction
+  case object ToggleQuote extends InputAction
 
   import InputSequence._
 

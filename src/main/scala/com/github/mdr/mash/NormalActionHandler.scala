@@ -8,6 +8,7 @@ import com.github.mdr.mash.completions.UberCompleter
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.completions.ContiguousRegionFinder
+import com.github.mdr.mash.editor.QuoteToggler
 
 object NormalActionHandler {
 
@@ -57,23 +58,12 @@ trait NormalActionHandler { self: Repl ⇒
         state.incrementalSearchStateOpt = Some(IncrementalSearchState("", 0))
       case YankLastArg ⇒
         yankLastArg()
-      case QuoteWord ⇒
-        quoteWord()
+      case ToggleQuote ⇒
+        state.lineBuffer = QuoteToggler.toggleQuotes(state.lineBuffer, state.mish)
       case _ ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
-  }
-
-  private def quoteWord() {
-    val oldS = state.lineBuffer.s
-    val cursorPos = state.lineBuffer.cursorPos
-    val cursorRegion = if (cursorPos > 0) Region(cursorPos - 1, 1) else Region(cursorPos, 0)
-    val region = ContiguousRegionFinder.getContiguousRegion(oldS, cursorRegion, state.mish)
-    val toQuote = region.of(oldS)
-    val quoted = "\"" + StringEscapes.escapeChars(toQuote) + "\""
-    val newS = region.replace(state.lineBuffer.s, quoted)
-    state.lineBuffer = LineBuffer(newS, region.offset + quoted.length)
   }
 
   private def yankLastArg() {

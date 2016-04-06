@@ -12,6 +12,7 @@ object LineBuffer {
  * The text entered by a user while editing a command
  */
 case class LineBuffer(s: String, cursorPos: Int) {
+  require(cursorPos >= 0 && cursorPos <= s.length)
 
   def isEmpty = s.isEmpty
 
@@ -68,10 +69,20 @@ case class LineBuffer(s: String, cursorPos: Int) {
   def deleteToEndOfLine: LineBuffer = copy(s.substring(0, cursorPos))
 
   def addCharacterAtCursor(c: Char): LineBuffer =
-    LineBuffer(s.substring(0, cursorPos) + c + s.substring(cursorPos), cursorPos + 1)
+    insertCharacters(c.toString, cursorPos)
 
   def addCharactersAtCursor(chars: String): LineBuffer =
-    LineBuffer(s.substring(0, cursorPos) + chars + s.substring(cursorPos), cursorPos + chars.length)
+    insertCharacters(chars, cursorPos)
+
+  def insertCharacters(chars: String, insertPos: Int): LineBuffer = {
+    val newText = s.substring(0, insertPos) + chars + s.substring(insertPos)
+    val newCursorPos =
+      if (cursorPos < insertPos)
+        cursorPos
+      else
+        cursorPos + chars.length
+    LineBuffer(newText, newCursorPos)
+  }
 
   def cursorLeft: LineBuffer = if (cursorPos <= 0) this else copy(cursorPos = cursorPos - 1)
 
