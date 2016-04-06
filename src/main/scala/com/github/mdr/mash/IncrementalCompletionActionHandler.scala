@@ -7,8 +7,9 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
 
   protected def handleIncrementalCompletionAction(action: InputAction, completionState: IncrementalCompletionState) {
     action match {
-      case SelfInsert(c) ⇒
-        state.lineBuffer = state.lineBuffer.addCharacterAtCursor(c)
+      case SelfInsert(s) ⇒
+        for (c ← s)
+          state.lineBuffer = state.lineBuffer.addCharacterAtCursor(c)
         refreshCompletions(completionState)
       case BackwardDeleteChar if completionState.priorCompletionStateOpt.isDefined ⇒
         for (PriorIncrementalCompleteState(lineBuffer, completionState) ← completionState.priorCompletionStateOpt) {
@@ -29,7 +30,7 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
       case Some(CompletionResult(completions, replacementLocation)) ⇒
         val stillReplacingSameLocation = replacementLocation.offset == completionState.replacementLocation.offset
         if (stillReplacingSameLocation) {
-          val replacedText = replacementLocation.of(state.lineBuffer.s)
+          val replacedText = replacementLocation.of(state.lineBuffer.text)
           completions match {
             case Seq() ⇒
               state.completionStateOpt = None

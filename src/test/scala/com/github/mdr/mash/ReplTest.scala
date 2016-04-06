@@ -43,36 +43,35 @@ class ReplTest extends FlatSpec with Matchers {
     repl.previousHistory().text should equal("2")
     repl.previousHistory().text should equal("1")
   }
-  
+
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
     val repl = newRepl
     repl.input("foo")
     repl.toggleQuote().text should equal(""""foo"""")
     repl.toggleQuote().text should equal("foo")
   }
-  
+
   private def newRepl = new Repl(DummyTerminal, NullPrintStream)
 
   private implicit class RichRepl(repl: Repl) {
 
-    def input(s: String) = {
-      for (c ← s)
-        repl.handleAction(InputAction.SelfInsert(c))
-        repl
+    def input(s: String): Repl = {
+      repl.handleAction(InputAction.SelfInsert(s))
+      repl
     }
-    
-    def complete() = { repl.handleAction(InputAction.Complete); repl }
 
-    def previousHistory() = { repl.handleAction(InputAction.PreviousHistory); repl }
-    
-    def nextHistory() = { repl.handleAction(InputAction.NextHistory); repl }
-    
-    def acceptLine() = { repl.handleAction(InputAction.AcceptLine); repl }
-    
-    def text = repl.state.lineBuffer.s
-    
-    def toggleQuote() = { repl.handleAction(InputAction.ToggleQuote); repl }
-    
+    def complete(): Repl = { repl.handleAction(InputAction.Complete); repl }
+
+    def previousHistory(): Repl = { repl.handleAction(InputAction.PreviousHistory); repl }
+
+    def nextHistory(): Repl = { repl.handleAction(InputAction.NextHistory); repl }
+
+    def acceptLine(): Repl = { repl.handleAction(InputAction.AcceptLine); repl }
+
+    def toggleQuote(): Repl = { repl.handleAction(InputAction.ToggleQuote); repl }
+
+    def text: String = repl.state.lineBuffer.text
+
   }
 
 }
@@ -84,5 +83,5 @@ object DummyTerminal extends Terminal {
 }
 
 object NullPrintStream extends PrintStream(new OutputStream() {
-  override def write(b: Int) {}
+  override def write(b: Int) { /* no-op */ }
 })

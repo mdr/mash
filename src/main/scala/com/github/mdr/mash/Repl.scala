@@ -134,7 +134,7 @@ class Repl(protected val terminal: Terminal, protected val output: PrintStream)
   }
 
   protected def updateInvocationAssistance() {
-    val s = state.lineBuffer.s
+    val s = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
     state.assistanceStateOpt =
       s match {
@@ -150,7 +150,7 @@ class Repl(protected val terminal: Terminal, protected val output: PrintStream)
   }
 
   protected def complete: Option[CompletionResult] = {
-    val s = state.lineBuffer.s
+    val s = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
 
     s match {

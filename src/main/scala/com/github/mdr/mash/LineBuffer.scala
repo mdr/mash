@@ -2,7 +2,7 @@ package com.github.mdr.mash
 
 object LineBuffer {
 
-  val Empty = LineBuffer("", 0)
+  val Empty = LineBuffer("", cursorPos = 0)
 
   def apply(s: String): LineBuffer = LineBuffer(s, s.size)
 
@@ -11,28 +11,29 @@ object LineBuffer {
 /**
  * The text entered by a user while editing a command
  */
-case class LineBuffer(s: String, cursorPos: Int) {
-  require(cursorPos >= 0 && cursorPos <= s.length)
+case class LineBuffer(text: String, cursorPos: Int) {
+  require(cursorPos >= 0 && cursorPos <= text.length,
+    s"Cursor out of range: cursor = $cursorPos, length = ${text.length}")
 
-  def isEmpty = s.isEmpty
+  def isEmpty = text.isEmpty
 
   def deleteForwardWord: LineBuffer =
-    copy(s = s.substring(0, cursorPos) + s.substring(forwardWord.cursorPos))
+    copy(text = text.substring(0, cursorPos) + text.substring(forwardWord.cursorPos))
 
   def deleteBackwardWord: LineBuffer =
-    copy(s = s.substring(0, backwardWord.cursorPos) + s.substring(cursorPos), backwardWord.cursorPos)
+    copy(text = text.substring(0, backwardWord.cursorPos) + text.substring(cursorPos), backwardWord.cursorPos)
 
   def forwardWord: LineBuffer = {
     var pos = cursorPos
-    if (pos >= s.length)
+    if (pos >= text.length)
       return this
-    while (pos < s.length && !s(pos).isLetterOrDigit)
+    while (pos < text.length && !text(pos).isLetterOrDigit)
       pos += 1
-    if (pos >= s.length)
-      return LineBuffer(s)
-    while (pos < s.length && s(pos).isLetterOrDigit)
+    if (pos >= text.length)
+      return LineBuffer(text)
+    while (pos < text.length && text(pos).isLetterOrDigit)
       pos += 1
-    return LineBuffer(s, pos)
+    return LineBuffer(text, pos)
   }
 
   def backwardWord: LineBuffer = {
@@ -40,34 +41,34 @@ case class LineBuffer(s: String, cursorPos: Int) {
     if (pos <= 0)
       return this
     pos -= 1
-    while (pos > 0 && (pos == s.length || !s(pos).isLetterOrDigit))
+    while (pos > 0 && (pos == text.length || !text(pos).isLetterOrDigit))
       pos -= 1
     if (pos <= 0)
-      return LineBuffer(s, 0)
-    while (pos >= 0 && s(pos).isLetterOrDigit)
+      return LineBuffer(text, 0)
+    while (pos >= 0 && text(pos).isLetterOrDigit)
       pos -= 1
     pos += 1
-    pos = math.min(pos, s.length)
-    return LineBuffer(s, pos)
+    pos = math.min(pos, text.length)
+    return LineBuffer(text, pos)
   }
 
   def backspace: LineBuffer =
     if (cursorPos <= 0)
       this
     else
-      LineBuffer(s.substring(0, cursorPos - 1) + s.substring(cursorPos), cursorPos - 1)
+      LineBuffer(text.substring(0, cursorPos - 1) + text.substring(cursorPos), cursorPos - 1)
 
   def delete: LineBuffer =
-    if (cursorPos >= s.length)
+    if (cursorPos >= text.length)
       this
     else
       delete(cursorPos)
 
   def moveCursorToStart: LineBuffer = copy(cursorPos = 0)
 
-  def moveCursorToEnd: LineBuffer = copy(cursorPos = s.size)
+  def moveCursorToEnd: LineBuffer = copy(cursorPos = text.size)
 
-  def deleteToEndOfLine: LineBuffer = copy(s.substring(0, cursorPos))
+  def deleteToEndOfLine: LineBuffer = copy(text.substring(0, cursorPos))
 
   def addCharacterAtCursor(c: Char): LineBuffer =
     insertCharacters(c.toString, cursorPos)
@@ -76,7 +77,7 @@ case class LineBuffer(s: String, cursorPos: Int) {
     insertCharacters(chars, cursorPos)
 
   def insertCharacters(chars: String, insertPos: Int): LineBuffer = {
-    val newText = s.substring(0, insertPos) + chars + s.substring(insertPos)
+    val newText = text.substring(0, insertPos) + chars + text.substring(insertPos)
     val newCursorPos =
       if (cursorPos < insertPos)
         cursorPos
@@ -86,7 +87,7 @@ case class LineBuffer(s: String, cursorPos: Int) {
   }
 
   def delete(deletePos: Int): LineBuffer = {
-    val newText = s.substring(0, deletePos) + s.substring(deletePos + 1)
+    val newText = text.substring(0, deletePos) + text.substring(deletePos + 1)
     val newCursorPos =
       if (cursorPos < deletePos)
         cursorPos
@@ -97,6 +98,6 @@ case class LineBuffer(s: String, cursorPos: Int) {
 
   def cursorLeft: LineBuffer = if (cursorPos <= 0) this else copy(cursorPos = cursorPos - 1)
 
-  def cursorRight: LineBuffer = if (cursorPos >= s.length) this else copy(cursorPos = cursorPos + 1)
+  def cursorRight: LineBuffer = if (cursorPos >= text.length) this else copy(cursorPos = cursorPos + 1)
 
 }

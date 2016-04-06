@@ -37,7 +37,6 @@ trait NormalActionHandler { self: Repl ⇒
         state.assistanceStateOpt = None
       case PreviousHistory    ⇒ for (cmd ← state.history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
       case NextHistory        ⇒ for (cmd ← state.history.goForwards()) state.lineBuffer = LineBuffer(cmd)
-      case SelfInsert(c)      ⇒ state.lineBuffer = state.lineBuffer.addCharacterAtCursor(c)
       case BeginningOfLine    ⇒ state.lineBuffer = state.lineBuffer.moveCursorToStart
       case EndOfLine          ⇒ state.lineBuffer = state.lineBuffer.moveCursorToEnd
       case ForwardChar        ⇒ state.lineBuffer = state.lineBuffer.cursorRight
@@ -49,6 +48,9 @@ trait NormalActionHandler { self: Repl ⇒
       case KillLine           ⇒ state.lineBuffer = state.lineBuffer.deleteToEndOfLine
       case KillWord           ⇒ state.lineBuffer = state.lineBuffer.deleteForwardWord
       case BackwardKillWord   ⇒ state.lineBuffer = state.lineBuffer.deleteBackwardWord
+      case SelfInsert(s) ⇒
+        for (c ← s)
+          state.lineBuffer = state.lineBuffer.addCharacterAtCursor(c)
       case AssistInvocation ⇒
         if (state.assistanceStateOpt.isDefined)
           state.assistanceStateOpt = None
@@ -62,7 +64,7 @@ trait NormalActionHandler { self: Repl ⇒
         state.lineBuffer = QuoteToggler.toggleQuotes(state.lineBuffer, state.mish)
       case ToggleMish ⇒
         toggleMish()
-      case _          ⇒
+      case _ ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
@@ -70,7 +72,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def toggleMish() {
     state.lineBuffer =
-      if (state.lineBuffer.s startsWith "!")
+      if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
       else
         state.lineBuffer.insertCharacters("!", 0)
@@ -83,7 +85,7 @@ trait NormalActionHandler { self: Repl ⇒
     }
     state.history.getLastArg(argIndex) match {
       case Some(newArg) ⇒
-        val newS = oldRegion.replace(state.lineBuffer.s, newArg)
+        val newS = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
         state.lineBuffer = LineBuffer(newS, newRegion.posAfter)
         state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
@@ -97,7 +99,7 @@ trait NormalActionHandler { self: Repl ⇒
 
     state.history.resetHistoryPosition()
 
-    val cmd = state.lineBuffer.s
+    val cmd = state.lineBuffer.text
     state.lineBuffer = LineBuffer.Empty
     if (cmd.trim.nonEmpty)
       runCommand(cmd)
@@ -155,7 +157,7 @@ trait NormalActionHandler { self: Repl ⇒
       completions match {
         case Seq() ⇒ // no completions: do nothing
         case Seq(completion) ⇒ // a unique completion: immediate insert
-          val newS = replacementLocation.replace(state.lineBuffer.s, completion.replacement)
+          val newS = replacementLocation.replace(state.lineBuffer.text, completion.replacement)
           val newCursorPos = offset + completion.replacement.length
           state.lineBuffer = LineBuffer(newS, newCursorPos)
         case _ ⇒ // multiple completions
@@ -164,7 +166,7 @@ trait NormalActionHandler { self: Repl ⇒
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
-          val newS = replacementLocation.replace(state.lineBuffer.s, completionState.getReplacement)
+          val newS = replacementLocation.replace(state.lineBuffer.text, completionState.getReplacement)
           val newCursorPos = if (completionState.allQuoted) newReplacementRegion.posAfter - 1 else newReplacementRegion.posAfter
           state.lineBuffer = LineBuffer(newS, newCursorPos)
           state.assistanceStateOpt = None

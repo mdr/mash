@@ -12,7 +12,7 @@ object QuoteToggler {
   private val DoubleQuote = "\""
 
   def toggleQuotes(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
-    val text = lineBuffer.s
+    val text = lineBuffer.text
     val cursorPos = lineBuffer.cursorPos
 
     val cursorToken = findCursorToken(text, mish, cursorPos).getOrElse(return lineBuffer)

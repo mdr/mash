@@ -4,7 +4,7 @@ trait InputAction
 
 object InputAction {
 
-  case class SelfInsert(c: Char) extends InputAction
+  case class SelfInsert(s: String) extends InputAction
   case object ClearScreen extends InputAction
   case object AcceptLine extends InputAction
   case object BeginningOfLine extends InputAction
@@ -32,19 +32,19 @@ object InputAction {
   case object ToggleQuote extends InputAction
   case object ToggleMish extends InputAction
 
-  import InputSequence._
-
-  private val ControlD = KeyPress(Key.BasicKey('d'), control = true)
   def fetchAction(lineEmpty: Boolean, keyMap: KeyMap = BasicKeyMap): InputAction = {
-    val inputSequence = fetchInputSequence()
-    if (inputSequence == ControlD && lineEmpty)
+    val inputSequence = InputSequence.fetchInputSequence()
+    inputSequenceToAction(inputSequence, lineEmpty, keyMap)
+  }
+
+  private def inputSequenceToAction(inputSequence: InputSequence, lineEmpty: Boolean, keyMap: KeyMap = BasicKeyMap): InputAction =
+    if (inputSequence == InputSequence.ControlD && lineEmpty)
       EndOfFile
     else
       keyMap.map.get(inputSequence).getOrElse(inputSequence match {
-        case OtherSequence(s) ⇒ SelfInsert(s.head)
-        case _                ⇒ Noop
+        case InputSequence.OtherSequence(s) ⇒ SelfInsert(s)
+        case _                              ⇒ Noop
       })
-  }
 
 }
 

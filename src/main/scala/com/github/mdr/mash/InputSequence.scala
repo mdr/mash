@@ -24,7 +24,9 @@ sealed trait InputSequence
 
 object InputSequence {
 
-  val Esc = '\u001b'
+  val ControlD = KeyPress(Key.BasicKey('d'), control = true)
+
+  private val Esc = '\u001b'
 
   case class KeyPress(key: Key, shift: Boolean = false, control: Boolean = false, alt: Boolean = false) extends InputSequence
   case class EscapeSequence(s: String) extends InputSequence
