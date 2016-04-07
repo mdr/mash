@@ -2,6 +2,13 @@ package com.github.mdr.mash
 
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
+import BrowseCompletionActions._
+import com.github.mdr.mash.input.InputSequence._
+import com.github.mdr.mash.input.Key._
+import com.github.mdr.mash.input.InputSequence
+import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.input.KeyMap
+import com.github.mdr.mash.input.BasicKeyMap
 
 object BrowseCompletionActions {
 
@@ -14,8 +21,6 @@ object BrowseCompletionActions {
   case object AcceptCompletion extends InputAction
 
 }
-
-import BrowseCompletionActions._
 
 trait BrowseCompletionActionHandler { self: Repl ⇒
 
@@ -80,9 +85,6 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
   }
 
 }
-
-import InputSequence._
-import Key._
 
 object BrowseCompletionsKeyMap extends KeyMap(BasicKeyMap.map ++ Map(
   KeyPress(Tab) -> NextCompletion,

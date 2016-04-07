@@ -1,11 +1,11 @@
 package com.github.mdr.mash.printer
 
 import scala.annotation.tailrec
-import com.github.mdr.mash.InputAction
-import com.github.mdr.mash.InputSequence._
-import com.github.mdr.mash.Key._
+import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.input.InputSequence._
+import com.github.mdr.mash.input.Key._
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.KeyMap
+import com.github.mdr.mash.input.KeyMap
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.screen.Screen

@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.completions.ContiguousRegionFinder
 import com.github.mdr.mash.editor.QuoteToggler
+import com.github.mdr.mash.input.InputAction
 
 object NormalActionHandler {
 

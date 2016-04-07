@@ -8,6 +8,7 @@ import java.io.PrintStream
 import java.io.OutputStream
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.input.InputAction
 
 class ReplTest extends FlatSpec with Matchers {
 

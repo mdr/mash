@@ -1,4 +1,4 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.input
 
 trait InputAction
 

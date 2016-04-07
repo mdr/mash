@@ -1,10 +1,10 @@
-package com.github.mdr.mash
-
-case class KeyMap(map: Map[InputSequence, InputAction])
+package com.github.mdr.mash.input
 
 import InputSequence._
-import Key._
+import com.github.mdr.mash.input.Key._
 import InputAction._
+
+case class KeyMap(map: Map[InputSequence, InputAction])
 
 object BasicKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('l'), control = true) -> ClearScreen,

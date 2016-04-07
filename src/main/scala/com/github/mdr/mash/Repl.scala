@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils
 import scala.collection.JavaConverters._
 import java.io.PrintStream
 import com.github.mdr.mash.tips.Tips
+import com.github.mdr.mash.input.InputAction
 
 class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     extends NormalActionHandler

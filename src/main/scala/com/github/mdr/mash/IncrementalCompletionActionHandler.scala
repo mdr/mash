@@ -1,6 +1,7 @@
 package com.github.mdr.mash
 
 import com.github.mdr.mash.completions.CompletionResult
+import com.github.mdr.mash.input.InputAction
 
 trait IncrementalCompletionActionHandler { self: Repl ⇒
   import InputAction._

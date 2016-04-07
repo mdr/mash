@@ -1,6 +1,7 @@
 package com.github.mdr.mash
 
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
+import com.github.mdr.mash.input.InputAction
 
 trait IncrementalSearchActionHandler { self: Repl ⇒
 
