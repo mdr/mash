@@ -1,7 +1,5 @@
 package com.github.mdr.mash.terminal
 
-import com.github.mdr.mash.TerminalHelper
-
 trait TerminalControl {
 
   def setEchoEnabled(enabled: Boolean)

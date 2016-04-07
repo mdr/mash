@@ -12,11 +12,20 @@ object DebugLogger {
   private val logFile = new File("/tmp/mash-debug.log")
 
   def logException(e: Throwable) {
-    FileUtils.writeStringToFile(logFile, ExceptionUtils.getStackTrace(e), true)
+    val stackTrace = ExceptionUtils.getStackTrace(e)
+    try
+      FileUtils.writeStringToFile(logFile, stackTrace, true)
+    catch {
+      case _: Exception ⇒
+    }
   }
 
   def logMessage(s: String) {
-    FileUtils.writeStringToFile(logFile, s + "\n", true)
+    try
+      FileUtils.writeStringToFile(logFile, s + "\n", true)
+    catch {
+      case _: Exception ⇒
+    }
   }
 
 }
