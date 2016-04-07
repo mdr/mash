@@ -2,7 +2,7 @@ package com.github.mdr.mash.tips
 
 import scala.util.Random
 import java.io.PrintStream
-import com.github.mdr.mash.ReplState
+import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.ns.os.OldDirsFunction
 import com.github.mdr.mash.ns.os.UpFunction
 import com.github.mdr.mash.ns.os.GlobFunction

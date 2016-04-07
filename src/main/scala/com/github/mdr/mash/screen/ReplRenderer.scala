@@ -7,7 +7,7 @@ import org.fusesource.jansi.Ansi._
 import org.fusesource.jansi.Ansi.Color._
 
 import com.github.mdr.mash.MishCommand
-import com.github.mdr.mash.ReplState
+import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.evaluator.TildeExpander

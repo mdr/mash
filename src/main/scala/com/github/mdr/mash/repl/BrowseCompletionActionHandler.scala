@@ -1,11 +1,10 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import BrowseCompletionActions._
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.input.InputSequence
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.input.KeyMap
 import com.github.mdr.mash.input.BasicKeyMap

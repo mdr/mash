@@ -2,7 +2,7 @@ package com.github.mdr.mash.editor
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import com.github.mdr.mash.LineBuffer
+import com.github.mdr.mash.repl.LineBuffer
 
 class QuoteTogglerTest extends FlatSpec with Matchers {
 

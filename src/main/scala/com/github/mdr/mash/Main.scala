@@ -8,6 +8,7 @@ import com.github.mdr.mash.evaluator.Environment
 import jline.Terminal
 import scala.collection.JavaConverters._
 import com.github.mdr.mash.terminal.JLineTerminalWrapper
+import com.github.mdr.mash.repl.Repl
 
 object Main extends App {
 

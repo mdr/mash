@@ -1,4 +1,4 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.input.InputAction

@@ -1,13 +1,14 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import scala.collection.mutable
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.utils.Region
-import scala.PartialFunction.cond
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.Truthiness
+import com.github.mdr.mash.Config
+import com.github.mdr.mash.ConfigOption
 
 sealed trait ReplMode
 object ReplMode {

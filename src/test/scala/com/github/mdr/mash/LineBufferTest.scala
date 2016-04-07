@@ -5,6 +5,7 @@ import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.Abstractifier
+import com.github.mdr.mash.repl.LineBuffer
 
 class LineBufferTest extends FlatSpec with Matchers {
 

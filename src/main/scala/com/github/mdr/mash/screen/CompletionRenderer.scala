@@ -3,9 +3,9 @@ package com.github.mdr.mash.screen
 import scala.PartialFunction._
 import org.fusesource.jansi.Ansi._
 import org.fusesource.jansi.Ansi.Color._
-import com.github.mdr.mash.BrowserCompletionState
-import com.github.mdr.mash.CompletionState
-import com.github.mdr.mash.IncrementalCompletionState
+import com.github.mdr.mash.repl.BrowserCompletionState
+import com.github.mdr.mash.repl.CompletionState
+import com.github.mdr.mash.repl.IncrementalCompletionState
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.completions.CompletionType
 import com.github.mdr.mash.utils.StringUtils

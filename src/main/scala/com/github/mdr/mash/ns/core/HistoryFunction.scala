@@ -8,9 +8,9 @@ import com.github.mdr.mash.os._
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.Singletons
-import com.github.mdr.mash.History
+import com.github.mdr.mash.repl.History
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.HistoryEntry
+import com.github.mdr.mash.repl.HistoryEntry
 
 object HistoryFunction extends MashFunction("os.history") {
 

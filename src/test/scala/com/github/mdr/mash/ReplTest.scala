@@ -1,14 +1,17 @@
 package com.github.mdr.mash
 
-import org.scalatest.Matchers
+import java.io.OutputStream
+import java.io.PrintStream
 import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
-import java.io.PrintStream
-import java.io.OutputStream
-import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.repl.ReplState
+import com.github.mdr.mash.repl.Repl
+import com.github.mdr.mash.repl.IncrementalCompletionState
 
 class ReplTest extends FlatSpec with Matchers {
 

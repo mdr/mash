@@ -1,4 +1,4 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import org.apache.commons.io.FileUtils
 import scala.collection.JavaConverters._
@@ -6,10 +6,8 @@ import java.io.File
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
 import java.time.Instant
-import com.google.gson.Gson
 import scala.util.control.Exception._
 import java.time.Clock
-import java.time.Clock.SystemClock
 import com.fatboyindustrial.gsonjavatime.Converters
 import com.google.gson.GsonBuilder
 

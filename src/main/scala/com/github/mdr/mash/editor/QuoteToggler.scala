@@ -1,6 +1,6 @@
 package com.github.mdr.mash.editor
 
-import com.github.mdr.mash.LineBuffer
+import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.completions.ContiguousRegionFinder
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region

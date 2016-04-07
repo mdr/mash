@@ -1,23 +1,28 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
+
+import java.io.File
+import java.io.PrintStream
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+
+import org.apache.commons.io.FileUtils
+
+import com.github.mdr.mash.CommandRunner
+import com.github.mdr.mash.DebugLogger
+import com.github.mdr.mash.MishCommand
+import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.assist.InvocationAssistance
+import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.completions.UberCompleter
 import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.screen.ReplRenderResult
 import com.github.mdr.mash.screen.ReplRenderer
-import com.github.mdr.mash.completions.CompletionResult
-import org.apache.commons.io.IOUtils
-import java.io.File
-import org.apache.commons.io.FileUtils
-import scala.collection.JavaConverters._
-import java.io.PrintStream
+import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
-import com.github.mdr.mash.input.InputAction
 
 class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     extends NormalActionHandler
