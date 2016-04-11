@@ -89,18 +89,19 @@ object PathClass extends MashClass("os.Path") {
     override def summary = "Get PathSummary object for this path"
 
   }
-      
+
   object MkdirMethod extends MashMethod("mkdir") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      Files.createDirectory(path)
+      val resultPath = Files.createDirectory(path)
+      asPathString(resultPath)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(UnitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
     override def summary = "Create directory at this path"
 
@@ -146,7 +147,7 @@ object PathClass extends MashClass("os.Path") {
     def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
       val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
-      if (name.contains("."))
+      if (name contains ".")
         MashString(name.reverse.takeWhile(_ != '.').reverse)
       else
         null
