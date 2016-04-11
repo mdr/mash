@@ -35,6 +35,12 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("foo bar▶ baz").forwardWord should equal(lineBuffer("foo bar baz▶"))
   }
 
+  it should "let you delete a character at the cursor position" in {
+    lineBuffer("▶123").delete should equal(lineBuffer("▶23"))
+    lineBuffer("▶").delete should equal(lineBuffer("▶"))
+    lineBuffer("123▶").delete should equal(lineBuffer("123▶"))
+    lineBuffer("1▶23").delete should equal(lineBuffer("1▶3"))
+  }
   private def lineBuffer(s: String) = LineBuffer(s.filterNot('▶' == _), cursorPos = s.indexOf('▶'))
 
 }

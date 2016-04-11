@@ -89,7 +89,7 @@ case class LineBuffer(text: String, cursorPos: Int) {
   def delete(deletePos: Int): LineBuffer = {
     val newText = text.substring(0, deletePos) + text.substring(deletePos + 1)
     val newCursorPos =
-      if (cursorPos < deletePos)
+      if (cursorPos <= deletePos)
         cursorPos
       else
         cursorPos - 1
