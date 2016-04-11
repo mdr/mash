@@ -13,6 +13,7 @@ import java.nio.file.Paths
 import com.github.mdr.mash.os.MockFileObject
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.os.MockEnvironmentInteractions
+import com.github.mdr.mash.LineBufferTestHelper
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -151,12 +152,11 @@ class CompletionsTest extends FlatSpec with Matchers {
     def completions: Seq[String] = fullCompletions.map(_.text)
 
     def fullCompletions: Seq[Completion] = {
-      val pos = s.indexOf("▶")
-      val text = s.take(pos) + s.drop(pos + 1)
+      val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)
       val env = Environment.create
       val envInteractions = MockEnvironmentInteractions(Paths.get("/home/mash"))
       val completer = new UberCompleter(fileSystem, envInteractions)
-      completer.complete(text, pos, env, mish = false).map(_.completions).getOrElse(Seq())
+      completer.complete(lineBuffer.text, lineBuffer.cursorPos, env, mish = false).map(_.completions).getOrElse(Seq())
     }
 
     private val fileSystem: FileSystem = {

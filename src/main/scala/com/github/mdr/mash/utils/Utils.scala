@@ -5,6 +5,11 @@ import scala.PartialFunction.cond
 
 object Utils {
 
+  def indexOf(s: String, s2: String): Option[Int] = s.indexOf(s2) match {
+    case -1 ⇒ None
+    case n  ⇒ Some(n)
+  }
+
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {
     val result = ArrayBuffer[T]()
     xs.foreach(

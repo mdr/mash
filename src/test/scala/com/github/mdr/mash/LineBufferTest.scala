@@ -41,6 +41,7 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("123▶").delete should equal(lineBuffer("123▶"))
     lineBuffer("1▶23").delete should equal(lineBuffer("1▶3"))
   }
-  private def lineBuffer(s: String) = LineBuffer(s.filterNot('▶' == _), cursorPos = s.indexOf('▶'))
+
+  private def lineBuffer(s: String) = LineBufferTestHelper.parseLineBuffer(s)
 
 }
