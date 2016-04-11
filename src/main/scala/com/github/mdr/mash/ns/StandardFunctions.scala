@@ -3,10 +3,11 @@ package com.github.mdr.mash.ns
 import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
-import com.github.mdr.mash.ns.os._
+import com.github.mdr.mash.ns.os.{ GroupClass ⇒ _, _ }
 import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.ns.core.HistoryFunction
-import com.github.mdr.mash.ns.git.LogFunction
+import com.github.mdr.mash.ns.git._
+import com.github.mdr.mash.evaluator.MashClass
 
 object StandardFunctions {
 
@@ -77,6 +78,15 @@ object StandardFunctions {
     WhereFunction,
     WhereNotFunction)
 
+  val GitFunctions = Seq(
+    AddFunction,
+    BranchesFunction,
+    CommitFunction,
+    FetchFunction,
+    LogFunction,
+    PullFunction,
+    PushFunction)
+
   val Aliases = Map(
     "ps" -> ProcessesFunction,
     "cp" -> CopyFunction,
@@ -92,4 +102,43 @@ object StandardFunctions {
     "rm" -> DeleteFunction,
     "man" -> HelpFunction)
 
+  val AllClasses: Seq[MashClass] = Seq(
+    GroupClass,
+    SeqClass,
+    BooleanClass,
+    BoundMethodClass,
+    BytesClass,
+    ClassClass,
+    FunctionClass,
+    ClassHelpClass,
+    FieldHelpClass,
+    FunctionHelpClass,
+    ParameterHelpClass,
+    HistoryClass,
+    NullClass,
+    NumberClass,
+    ObjectClass,
+    RegexClass,
+    StringClass,
+    UnitClass,
+    BranchClass,
+    CommitClass,
+    CommitHashClass,
+    FileTypeClass,
+    GidClass,
+    com.github.mdr.mash.ns.os.GroupClass,
+    GroupInfoClass,
+    PathClass,
+    PathSummaryClass,
+    PermissionsClass,
+    PermissionsSectionClass,
+    PidClass,
+    ProcessClass,
+    ProcessResultClass,
+    SignalClass,
+    UidClass,
+    UsernameClass,
+    UserSummaryClass,
+    DateTimeClass,
+    LocalDateClass)
 }

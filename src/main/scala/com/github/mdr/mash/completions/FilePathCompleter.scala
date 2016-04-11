@@ -14,12 +14,12 @@ class FilePathCompleter(fileSystem: FileSystem) {
     else {
       val path = Paths.get(s)
       val searchPath =
-        if (s.endsWith("/"))
+        if (s endsWith "/")
           path
         else
           Option(path.getParent).getOrElse(Paths.get(""))
       val prefix =
-        if (s.endsWith("/"))
+        if (s endsWith "/")
           ""
         else
           path.getFileName.toString

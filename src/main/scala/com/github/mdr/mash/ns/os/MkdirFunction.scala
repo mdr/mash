@@ -11,7 +11,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os._
 
-object MkdirFunction extends MashFunction("mkdir") {
+object MkdirFunction extends MashFunction("os.mkdir") {
 
   object Params {
     val Directory = Parameter(
