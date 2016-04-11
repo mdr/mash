@@ -215,8 +215,12 @@ The default character encoding and line separator are used.""")
       asPathString(newLocation)
     }
 
-    def validateName(boundParams: BoundParams, param: Parameter): Path = {
+    private def validateName(boundParams: BoundParams, param: Parameter): Path = {
       val newName = boundParams.validatePath(param)
+      validateName(newName, boundParams, param)
+    }
+
+    def validateName(newName: Path, boundParams: BoundParams, param: Parameter): Path =
       if (newName.asScala.size > 1)
         boundParams.throwInvalidArgument(param, "Name cannot contain directory separators")
       else if (newName.toString == "")
@@ -225,7 +229,6 @@ The default character encoding and line separator are used.""")
         boundParams.throwInvalidArgument(param, "Name cannot be . or ..")
       else
         newName
-    }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
@@ -247,9 +250,10 @@ The default character encoding and line separator are used.""")
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      val f = boundParams.validateFunction(F)
-      val newFileName = ToStringifier.stringify(f(asPathString(path.getFileName)))
-      val newPath = path.resolveSibling(Paths.get(newFileName))
+      val renamerFunction = boundParams.validateFunction(F)
+      val newFileName = Paths.get(ToStringifier.stringify(renamerFunction(asPathString(path.getFileName))))
+      RenameToMethod.validateName(newFileName, boundParams, F)
+      val newPath = path.resolveSibling(newFileName)
       val newLocation = Files.move(path, newPath)
       asPathString(newLocation)
     }
@@ -644,7 +648,8 @@ The default character encoding and line separator are used.""")
 
     def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
-      MashList(FunctionHelpers.interpretAsPath(target).asScala.toSeq.map(p ⇒ MashString(p.toString)))
+      val segments: Seq[Path] = FunctionHelpers.interpretAsPath(target).asScala.toSeq
+      MashList(segments.map(FunctionHelpers.asPathString))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
