@@ -4,19 +4,30 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.evaluator.Arguments
 
-case class Namespace(path: Seq[String]) {
+case class Namespace(segments: Seq[String]) {
 
-  override def toString = path.mkString(".")
-
-}
-
-case class FullyQualifiedName(namespace: Namespace, name: String) {
-
-  override def toString = namespace + "." + name
+  override def toString = segments.mkString(".")
 
 }
 
-abstract class MashFunction(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) {
+trait HasName {
+
+  def nameOpt: Option[String]
+
+  def namespaceOpt: Option[Namespace]
+
+  def name = nameOpt.getOrElse("anonymous")
+
+  def segments: Seq[String] = namespaceOpt.toSeq.flatMap(_.segments) ++ nameOpt
+  
+  def fullyQualifiedName: String =
+    namespaceOpt match {
+      case Some(namespace) ⇒ s"$namespace.$name"
+      case None            ⇒ name
+    }
+}
+
+abstract class MashFunction(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) extends HasName {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
@@ -39,12 +50,6 @@ abstract class MashFunction(val nameOpt: Option[String], val namespaceOpt: Optio
 
   def descriptionOpt: Option[String] = None
 
-  def name = nameOpt.getOrElse("anonymous")
-
-  def fullyQualifiedName = namespaceOpt match {
-    case Some(namespace) ⇒ s"$namespace.$name"
-    case None            ⇒ name
-  }
   override def toString = fullyQualifiedName
 
 }

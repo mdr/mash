@@ -89,7 +89,7 @@ object PathClass extends MashClass("os.Path") {
     override def summary = "Get PathSummary object for this path"
 
   }
-
+      
   object MkdirMethod extends MashMethod("mkdir") {
 
     val params = ParameterModel()

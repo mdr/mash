@@ -9,6 +9,8 @@ import com.github.mdr.mash.parser.AbstractSyntax
 import com.github.mdr.mash.os.PathSummary
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.functions.ParameterModel
 
 object PathSummaryClass extends MashClass("os.PathSummary") {
 
@@ -29,13 +31,13 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
   }
 
   override lazy val methods = {
-    val fieldNames = fields.map(_.name).toSet + PathClass.InfoMethod.name
-    val liftedMethods = PathClass.methods.filterNot(m ⇒ fieldNames.contains(m.name)).map(liftPathMethod)
+    val omittedMethods = fields.map(_.name).toSet + PathClass.InfoMethod.name
+    val liftedMethods = PathClass.methods.filterNot(m ⇒ omittedMethods contains m.name).map(liftPathMethod)
     ToStringMethod +: liftedMethods
   }
 
   private case class Wrapper(obj: Any) {
-    def path = obj.asInstanceOf[MashObject].field(Fields.Path).asInstanceOf[MashString]
+    def path: MashString = obj.asInstanceOf[MashObject].field(Fields.Path).asInstanceOf[MashString]
   }
 
   private def liftPathMethod(method: MashMethod) = new MashMethod(method.name) {

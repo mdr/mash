@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.AbstractSyntax
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.functions.Namespace
 import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.HasName
 
 object MashClass {
 
@@ -35,7 +36,7 @@ object MashClass {
 
 }
 
-abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) {
+abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) extends HasName {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
@@ -54,13 +55,9 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
   override def toString = fullyQualifiedName
 
-  def name = nameOpt.getOrElse("AnonymousClass")
-
   def parentOpt: Option[MashClass] = Some(ObjectClass)
 
   def enumerationValues: Option[Seq[String]] = None
-
-  def fullyQualifiedName: String = namespaceOpt.map(_ + ".").getOrElse("") + name
 
   def summary: String
 
