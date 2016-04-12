@@ -13,7 +13,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os._
 import java.nio.file.Path
 
-object MvFunction extends MashFunction("os.mv") {
+object MoveFunction extends MashFunction("os.move") {
 
   object Params {
     val Paths = Parameter(

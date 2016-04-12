@@ -90,9 +90,9 @@ object PathClass extends MashClass("os.Path") {
 
   }
 
-  object MkdirMethod extends MashMethod("mkdir") {
+  object MkdirMethod extends MashMethod("createDirectory") {
 
-    import MkdirFunction.Params.CreateIntermediates
+    import CreateDirectoryFunction.Params.CreateIntermediates
     
     val params = ParameterModel(Seq(CreateIntermediates))
 

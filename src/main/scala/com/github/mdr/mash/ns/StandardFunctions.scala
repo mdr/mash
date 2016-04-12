@@ -29,12 +29,12 @@ object StandardFunctions {
     CdFunction,
     ChildrenFunction,
     CopyFunction,
+    CreateDirectoryFunction,
     HomeFunction,
     GlobFunction,
     KillFunction,
     LsFunction,
-    MkdirFunction,
-    MvFunction,
+    MoveFunction,
     OldDirsFunction,
     PwdFunction,
     ReadLinesFunction,
@@ -88,6 +88,7 @@ object StandardFunctions {
     PushFunction)
 
   val Aliases = Map(
+    "mv" -> MoveFunction,
     "ps" -> ProcessesFunction,
     "cp" -> CopyFunction,
     "drop" -> SkipFunction,
@@ -100,7 +101,8 @@ object StandardFunctions {
     "dropIf" -> WhereNotFunction,
     "cat" -> ReadLinesFunction,
     "rm" -> DeleteFunction,
-    "man" -> HelpFunction)
+    "man" -> HelpFunction,
+    "mkdir" -> CreateDirectoryFunction)
 
   val AllClasses: Seq[MashClass] = Seq(
     GroupClass,

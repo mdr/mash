@@ -12,7 +12,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 
-object MkdirFunction extends MashFunction("os.mkdir") {
+object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
   private val fileSystem = LinuxFileSystem
 
