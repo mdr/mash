@@ -19,8 +19,9 @@ object AddFunction extends MashFunction("git.add") {
 
     val Paths = Parameter(
       name = "paths",
-      summary = "Add  paths to the index",
-      isVariadic = true)
+      summary = "Add paths to the index",
+      isVariadic = true,
+      variadicAtLeastOne = true)
 
   }
   import Params._

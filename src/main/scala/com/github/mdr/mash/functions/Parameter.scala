@@ -7,6 +7,7 @@ case class Parameter(
     shortFlagOpt: Option[Character] = None, // Single character version of the flag
     defaultValueGeneratorOpt: Option[() ⇒ Any] = None, // Default value if none provided
     isVariadic: Boolean = false, // Is a variadic parameter (can be bound to 0-to-many arguments)
+    variadicAtLeastOne: Boolean = false, // As a variadic parameter, must it have at least one argument?
     isFlag: Boolean = false, // If true, can only be called in flag mode, not positional
     isBooleanFlag: Boolean = false, // If true, flag represents a boolean value
     isFlagValueMandatory: Boolean = false, // If true, flag must have a value

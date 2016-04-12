@@ -20,7 +20,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
     val CreateIntermediates = Parameter(
       name = "createIntermediates",
       summary = "Create intermediate directories as required (default false)",
-      shortFlagOpt = Some('p'),
+      shortFlagOpt = Some('c'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isBooleanFlag = true)

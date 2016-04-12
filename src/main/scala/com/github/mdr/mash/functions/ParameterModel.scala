@@ -37,14 +37,17 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summary, param.shortFlagOpt.map(_.toString), Some(param.name)))
 
-  def allowsNullary: Boolean = params.forall(p ⇒ p.isVariadic || p.defaultValueGeneratorOpt.isDefined)
+  def allowsNullary: Boolean = params.forall(p ⇒ (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined)
 
   def callingSyntax: String = {
     val positionalParams =
       for (param ← params.filterNot(_.isFlag)) yield {
         val name = param.name
         if (param.isVariadic)
-          s"<$name>..."
+          if (param.variadicAtLeastOne)
+            s"<$name> <$name>..."
+          else
+            s"<$name>..."
         else if (param.isOptional)
           s"[<$name>]"
         else

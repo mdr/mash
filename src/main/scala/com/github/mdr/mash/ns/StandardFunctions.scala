@@ -85,7 +85,8 @@ object StandardFunctions {
     FetchFunction,
     LogFunction,
     PullFunction,
-    PushFunction)
+    PushFunction,
+    StatusFunction)
 
   val Aliases = Map(
     "mv" -> MoveFunction,
