@@ -86,6 +86,8 @@ class MockFileSystem(root: MockFileObject.Directory, var pwd: Path) extends File
 
   override def isDirectory(path: Path): Boolean = ???
 
+  override def createDirectory(path: Path, createIntermediates: Boolean): Path = ???
+
 }
 
 sealed abstract class MockFileObject

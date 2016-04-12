@@ -17,6 +17,7 @@ v0.0.2 (..)
 * Added --regex flag for split
 * Added --append fag for write
 * Added ProcessResult.toPath method
+* Added --createIntermediates flag for mkdir
 
 v0.0.1 (19/January/2016)
 ------------------------

@@ -92,12 +92,15 @@ object PathClass extends MashClass("os.Path") {
 
   object MkdirMethod extends MashMethod("mkdir") {
 
-    val params = ParameterModel()
+    import MkdirFunction.Params.CreateIntermediates
+    
+    val params = ParameterModel(Seq(CreateIntermediates))
 
     def apply(target: Any, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      val boundParams = params.validate(arguments)
+      val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))
       val path = FunctionHelpers.interpretAsPath(target)
-      val resultPath = Files.createDirectory(path)
+      val resultPath  = fileSystem.createDirectory(path, createIntermediates)
       asPathString(resultPath)
     }
 

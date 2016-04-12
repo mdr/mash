@@ -142,5 +142,10 @@ object LinuxFileSystem extends FileSystem {
   override def exists(path: Path): Boolean = Files.exists(path)
 
   override def isDirectory(path: Path): Boolean = Files.isDirectory(path)
-  
+
+  override def createDirectory(path: Path, createIntermediates: Boolean): Path =
+    if (createIntermediates)
+      Files.createDirectories(path)
+    else
+      Files.createDirectory(path)
 }
