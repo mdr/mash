@@ -12,6 +12,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import java.nio.file.Path
+import com.github.mdr.mash.functions.FunctionHelpers
 
 object LsFunction extends MashFunction("os.ls") {
 
@@ -60,7 +61,7 @@ If no paths are provided, the default is the current working directory."""))
     val ignoreDotFiles = Truthiness.isFalsey(boundParams(All))
     val recursive = Truthiness.isTruthy(boundParams(Recursive))
     val directory = Truthiness.isTruthy(boundParams(Directory))
-    val paths = boundParams(Paths).asInstanceOf[MashList].items.map(interpretAsPath)
+    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
 
     def listPath(path: Path): Seq[MashObject] =
       if (Files.isDirectory(path) && !directory)

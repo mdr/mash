@@ -17,7 +17,8 @@ object DeleteFunction extends MashFunction("os.delete") {
     val Paths = Parameter(
       name = "paths",
       summary = "Paths to delete",
-      isVariadic = true)
+      isVariadic = true,
+      variadicAtLeastOne = true)
   }
   import Params._
 
@@ -25,7 +26,7 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val paths = boundParams(Paths).asInstanceOf[MashList].items.flatMap(FunctionHelpers.interpretAsPaths)
+    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     if (paths.isEmpty)
       throw new EvaluatorException("Must provide at least one path to delete")
     for (path ← paths)

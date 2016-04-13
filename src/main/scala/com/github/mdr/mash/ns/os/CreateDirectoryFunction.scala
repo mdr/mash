@@ -11,6 +11,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.functions.FunctionHelpers
 
 object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
@@ -24,24 +25,31 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isBooleanFlag = true)
-    val Directory = Parameter(
-      name = "directory",
-      summary = "Path to directory to create")
+    val Paths = Parameter(
+      name = "paths",
+      summary = "Paths to create directories at",
+      isVariadic = true,
+      variadicAtLeastOne = true)
   }
   import Params._
 
-  val params = ParameterModel(Seq(CreateIntermediates, Directory))
+  val params = ParameterModel(Seq(CreateIntermediates, Paths))
 
-  def apply(arguments: Arguments): MashString = {
+  def apply(arguments: Arguments): Any = {
     val boundParams = params.validate(arguments)
-    val path = boundParams.validatePath(Directory)
+    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))
-    val resultPath = fileSystem.createDirectory(path, createIntermediates)
-    asPathString(resultPath)
+    val resultPaths =
+      for (path ← paths)
+        yield fileSystem.createDirectory(path, createIntermediates)
+    resultPaths.map(asPathString) match {
+      case Seq(resultPath) ⇒ resultPath
+      case paths           ⇒ MashList(paths)
+    }
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
-  override def summary = "Create directory at this path"
+  override def summary = "Create a new directory"
 
 }

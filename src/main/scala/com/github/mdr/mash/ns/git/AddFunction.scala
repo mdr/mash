@@ -12,17 +12,17 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.functions.FunctionHelpers
+import java.nio.file.Path
 
 object AddFunction extends MashFunction("git.add") {
 
   object Params {
-
     val Paths = Parameter(
       name = "paths",
       summary = "Add paths to the index",
       isVariadic = true,
       variadicAtLeastOne = true)
-
   }
   import Params._
 
@@ -30,12 +30,13 @@ object AddFunction extends MashFunction("git.add") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val paths = boundParams(Paths).asInstanceOf[MashList]
+    val argItems = boundParams(Paths).asInstanceOf[MashList].items
+    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     LogFunction.withRepository { repo ⇒
       val git = new Git(repo)
       val cmd = git.add
       for (path ← paths)
-        cmd.addFilepattern(ToStringifier.stringify(path))
+        cmd.addFilepattern(path.toString)
       cmd.call()
     }
   }

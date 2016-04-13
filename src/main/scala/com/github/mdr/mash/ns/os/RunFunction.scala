@@ -15,7 +15,8 @@ object RunFunction extends MashFunction("os.run") {
     val Command = Parameter(
       name = "command",
       summary = "Command to execute",
-      isVariadic = true)
+      isVariadic = true,
+      variadicAtLeastOne = true)
   }
   import Params._
 

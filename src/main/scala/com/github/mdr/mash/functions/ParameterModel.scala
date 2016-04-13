@@ -45,7 +45,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
         val name = param.name
         if (param.isVariadic)
           if (param.variadicAtLeastOne)
-            s"<$name> <$name>..."
+            s"<$name>+..."
           else
             s"<$name>..."
         else if (param.isOptional)

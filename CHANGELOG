@@ -18,6 +18,7 @@ v0.0.2 (..)
 * Added --append fag for write
 * Added ProcessResult.toPath method
 * Added --createIntermediates flag for mkdir
+* Variadic parameters can require at least one argument
 
 v0.0.1 (19/January/2016)
 ------------------------
