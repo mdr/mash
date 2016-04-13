@@ -19,6 +19,9 @@ import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.functions.FunctionHelpers._
 import org.eclipse.jgit.api.Status
 import java.{ util ⇒ ju }
+import org.eclipse.jgit.lib.BranchTrackingStatus
+import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.evaluator.MashNumber
 
 object StatusFunction extends MashFunction("git.status") {
 
@@ -30,23 +33,35 @@ object StatusFunction extends MashFunction("git.status") {
       val branch = repo.getBranch
       val git = new Git(repo)
       val status = git.status.call()
-      asMashObject(branch, status)
+      val branchTrackingStatusOpt = Option(BranchTrackingStatus.of(repo, branch))
+      asMashObject(branch, status, branchTrackingStatusOpt)
     }
   }
 
   private def mashify(paths: ju.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
 
-  private def asMashObject(branch: String, status: Status): MashObject = {
+  private def trimUnwantedPrefix(remoteBranch: String): String =
+    if (remoteBranch.startsWith("refs/remotes/"))
+      remoteBranch.drop("refs/remotes/".length)
+    else
+      remoteBranch
+
+  private def asMashObject(branch: String, status: Status, branchTrackingStatusOpt: Option[BranchTrackingStatus]): MashObject = {
     val modified = mashify(status.getModified)
     val untracked = mashify(status.getUntracked)
     val added = mashify(status.getAdded)
     val changed = mashify(status.getChanged)
     val removed = mashify(status.getRemoved)
     val missing = mashify(status.getMissing)
-
+    val aheadCount = branchTrackingStatusOpt.map(_.getAheadCount).getOrElse(0)
+    val behindCount = branchTrackingStatusOpt.map(_.getBehindCount).getOrElse(0)
+    val remoteTrackingBranchOpt = branchTrackingStatusOpt.map(s => trimUnwantedPrefix(s.getRemoteTrackingBranch))
     import StatusClass.Fields._
     MashObject(ListMap(
       Branch -> MashString(branch),
+      RemoteTrackingBranch -> remoteTrackingBranchOpt.map(MashString(_)).orNull,
+      AheadCount -> MashNumber(aheadCount),
+      BehindCount -> MashNumber(behindCount),
       Added -> added,
       Changed -> changed,
       Missing -> missing,
