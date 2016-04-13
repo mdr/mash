@@ -19,8 +19,7 @@ object FetchFunction extends MashFunction("git.fetch") {
 
   def apply(arguments: Arguments) {
     params.validate(arguments)
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       git.fetch.call()
     }
   }

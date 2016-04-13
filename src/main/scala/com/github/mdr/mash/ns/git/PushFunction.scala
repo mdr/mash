@@ -36,8 +36,7 @@ object PushFunction extends MashFunction("git.push") {
     val refs = boundParams(References).asInstanceOf[MashList]
     val remoteOpt = boundParams.validateStringOpt(Remote)
 
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       val cmd = git.push
       for (ref ← refs)
         cmd.add(ToStringifier.stringify(ref))

@@ -17,6 +17,8 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import org.eclipse.jgit.lib.Repository
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.functions.FunctionHelpers._
+import org.eclipse.jgit.api.Status
+import java.{ util ⇒ ju }
 
 object StatusFunction extends MashFunction("git.status") {
 
@@ -24,27 +26,31 @@ object StatusFunction extends MashFunction("git.status") {
 
   def apply(arguments: Arguments): MashObject = {
     params.validate(arguments)
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git ⇒
       val status = git.status.call()
-
-      def mashify(paths: java.util.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
-      val modified = mashify(status.getModified)
-      val untracked = mashify(status.getUntracked)
-      val added = mashify(status.getAdded)
-      val changed = mashify(status.getChanged)
-      val removed = mashify(status.getRemoved)
-      val missing = mashify(status.getMissing)
-      
-      import StatusClass.Fields._
-      MashObject(ListMap(
-        Added -> added,
-        Changed -> changed,
-        Missing -> missing,
-        Modified -> modified,
-        Removed -> removed,
-        Untracked -> untracked), StatusClass)
+      asMashObject(status)
     }
+  }
+
+  private def mashify(paths: ju.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
+
+  private def asMashObject(status: Status): MashObject = {
+    val modified = mashify(status.getModified)
+    val untracked = mashify(status.getUntracked)
+    val added = mashify(status.getAdded)
+    val changed = mashify(status.getChanged)
+    val removed = mashify(status.getRemoved)
+    val missing = mashify(status.getMissing)
+
+    import StatusClass.Fields._
+    MashObject(ListMap(
+      Added -> added,
+      Changed -> changed,
+      Missing -> missing,
+      Modified -> modified,
+      Removed -> removed,
+      Untracked -> untracked), StatusClass)
+
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(StatusClass))

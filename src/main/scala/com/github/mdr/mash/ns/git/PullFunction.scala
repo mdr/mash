@@ -19,8 +19,7 @@ object PullFunction extends MashFunction("git.pull") {
 
   def apply(arguments: Arguments) {
     params.validate(arguments)
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       val pullResult = git.pull.call()
     }
   }

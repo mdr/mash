@@ -32,8 +32,7 @@ object AddFunction extends MashFunction("git.add") {
     val boundParams = params.validate(arguments)
     val argItems = boundParams(Paths).asInstanceOf[MashList].items
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       val cmd = git.add
       for (path ← paths)
         cmd.addFilepattern(path.toString)

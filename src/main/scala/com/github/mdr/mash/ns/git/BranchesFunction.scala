@@ -25,8 +25,7 @@ object BranchesFunction extends MashFunction("git.branches") {
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       val branches = git.branchList.setListMode(ListMode.ALL).call.asScala
       MashList(branches.map { ref ⇒
         val name = ref.getName

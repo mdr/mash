@@ -19,14 +19,11 @@ import com.github.mdr.mash.evaluator.MashList
 
 object LogFunction extends MashFunction("git.log") {
 
-  private val filesystem = LinuxFileSystem
-
   val params = ParameterModel()
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       val commits = git.log.call().asScala.toSeq
       MashList(commits.map(asCommitObject))
     }
@@ -46,21 +43,6 @@ object LogFunction extends MashFunction("git.log") {
         Parents -> parents),
       CommitClass)
   }
-
-  def withRepository[T](p: Repository ⇒ T): T = {
-    val repo = getRepository
-    try
-      p(repo)
-    finally
-      repo.close()
-  }
-
-  private def getRepository() =
-    new FileRepositoryBuilder()
-      .readEnvironment()
-      .findGitDir(filesystem.pwd.toFile)
-      .setMustExist(true)
-      .build()
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(CommitClass)))
 

@@ -41,15 +41,14 @@ object CommitHashClass extends MashClass("git.CommitHash") {
   }
 
   private def getCommit(s: String): MashObject = {
-    LogFunction.withRepository { repo ⇒
+    GitHelper.withRepository { repo ⇒
       val objectId = repo.resolve(s)
       val walk = new RevWalk(repo)
       try {
         val commit = walk.parseCommit(objectId)
         LogFunction.asCommitObject(commit)
-      } finally {
+      } finally
         walk.dispose()
-      }
     }
   }
 

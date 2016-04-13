@@ -42,8 +42,7 @@ object CommitFunction extends MashFunction("git.commit") {
     val all = Truthiness.isTruthy(boundParams(All))
     val amend = Truthiness.isTruthy(boundParams(Amend))
     val message = boundParams.validateString(Message).s
-    LogFunction.withRepository { repo ⇒
-      val git = new Git(repo)
+    GitHelper.withGit { git =>
       git.commit.setMessage(message).setAll(all).setAmend(amend).call()
     }
   }
