@@ -8,6 +8,7 @@ import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.ns.core.HistoryFunction
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.ns.view.ViewClass
 
 object StandardFunctions {
 
@@ -143,5 +144,6 @@ object StandardFunctions {
     UsernameClass,
     UserSummaryClass,
     DateTimeClass,
-    LocalDateClass)
+    LocalDateClass,
+    ViewClass)
 }

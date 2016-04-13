@@ -23,6 +23,7 @@ import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.ns.git.StatusClass
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
+import com.github.mdr.mash.ns.view.ViewClass
 
 object Printer {
 
@@ -39,8 +40,12 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def render(x: Any): PrintResult = {
+  def render(x: Any, disableCustomViews: Boolean = false): PrintResult = {
     x match {
+      case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
+        val data = mo(ViewClass.Fields.Data)
+        val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == true
+        render(data, disableCustomViews)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
         xs.foreach(output.println)
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
@@ -48,13 +53,13 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo)
         val insertReferenceOpt = objectTablePrinter.printTable(items)
         return PrintResult(insertReferenceOpt)
-      case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) ⇒
+      case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
         helpPrinter.printFunctionHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(FieldHelpClass) ⇒
+      case mo: MashObject if mo.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒
         helpPrinter.printFieldHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(ClassHelpClass) ⇒
+      case mo: MashObject if mo.classOpt == Some(ClassHelpClass) && !disableCustomViews ⇒
         helpPrinter.printClassHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(StatusClass) ⇒
+      case mo: MashObject if mo.classOpt == Some(StatusClass) && !disableCustomViews ⇒
         new GitStatusPrinter(output).print(mo)
       case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
