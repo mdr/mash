@@ -19,11 +19,11 @@ object StatusClass extends MashClass("git.Status") {
 
   object Fields {
     val Branch = Field("branch", "Current branch", Type.Instance(StringClass))
-    val Added = Field("added", "Added files", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Changed = Field("changed", "Changed files", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Missing = Field("missing", "Missing files", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Modified = Field("modified", "Tracked files modified", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Removed = Field("removed", "Removed files", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Added = Field("added", "New files that have been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Changed = Field("changed", "Changed files that have been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Missing = Field("missing", "Files that have been deleted, but not staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Modified = Field("modified", "Modified files that have not been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Removed = Field("removed", "Files that have been deleted and staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
     val Untracked = Field("untracked", "Untracked files", Type.Seq(Type.Tagged(StringClass, PathClass)))
   }
 
@@ -31,7 +31,7 @@ object StatusClass extends MashClass("git.Status") {
 
   override lazy val fields = Seq(Branch, Added, Changed, Missing, Modified, Removed, Untracked)
 
-  def summary = "Git status"
+  def summary = "Show the status of the git repository"
 
   case class Wrapper(obj: MashObject) {
     private def unmashify(field: Field): Seq[String] =
