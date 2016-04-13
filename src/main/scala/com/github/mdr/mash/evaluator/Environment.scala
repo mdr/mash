@@ -41,7 +41,7 @@ object Environment {
     val nameFunctionPairs = StandardFunctions.Functions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
     
-    val gitBindings = for (gitFunction ← StandardFunctions.GitFunctions) yield gitFunction.name -> gitFunction
+    val gitBindings = for (gitFunction ← GitNamespace.GitFunctions) yield gitFunction.name -> gitFunction
     val otherPairs = Seq(
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,

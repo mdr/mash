@@ -79,16 +79,6 @@ object StandardFunctions {
     WhereFunction,
     WhereNotFunction)
 
-  val GitFunctions = Seq(
-    AddFunction,
-    BranchesFunction,
-    CommitFunction,
-    FetchFunction,
-    LogFunction,
-    PullFunction,
-    PushFunction,
-    StatusFunction)
-
   val Aliases = Map(
     "mv" -> MoveFunction,
     "ps" -> ProcessesFunction,

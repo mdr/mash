@@ -5,11 +5,12 @@ import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.StandardFunctions
 import com.github.mdr.mash.functions.HasName
 import com.github.mdr.mash.ns.view.RawFunction
+import com.github.mdr.mash.ns.git.GitNamespace
 
 object NamespaceCreator {
 
   def createNamespace: MashObject = {
-    val allObjects = StandardFunctions.Functions ++ StandardFunctions.GitFunctions ++ Seq(RawFunction) ++ StandardFunctions.AllClasses 
+    val allObjects = StandardFunctions.Functions ++ GitNamespace.GitFunctions ++ Seq(RawFunction) ++ StandardFunctions.AllClasses 
     createNamespace(allObjects.map(makeThing))
   }
 
