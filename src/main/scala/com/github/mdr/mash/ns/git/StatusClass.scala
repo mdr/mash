@@ -18,6 +18,7 @@ import com.github.mdr.mash.evaluator.MashList
 object StatusClass extends MashClass("git.Status") {
 
   object Fields {
+    val Branch = Field("branch", "Current branch", Type.Instance(StringClass))
     val Added = Field("added", "Added files", Type.Seq(Type.Tagged(StringClass, PathClass)))
     val Changed = Field("changed", "Changed files", Type.Seq(Type.Tagged(StringClass, PathClass)))
     val Missing = Field("missing", "Missing files", Type.Seq(Type.Tagged(StringClass, PathClass)))
@@ -28,7 +29,7 @@ object StatusClass extends MashClass("git.Status") {
 
   import Fields._
 
-  override lazy val fields = Seq(Added, Changed, Missing, Modified, Removed, Untracked)
+  override lazy val fields = Seq(Branch, Added, Changed, Missing, Modified, Removed, Untracked)
 
   def summary = "Git status"
 
@@ -43,6 +44,7 @@ object StatusClass extends MashClass("git.Status") {
     def untracked = unmashify(Untracked)
     def hasChangesToBeCommitted = added.nonEmpty || changed.nonEmpty || removed.nonEmpty
     def hasUnstagedChanges = modified.nonEmpty || missing.nonEmpty
+    def branch = obj(Branch).asInstanceOf[MashString].s
   }
 
 }

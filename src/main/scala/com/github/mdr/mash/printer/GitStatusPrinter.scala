@@ -13,6 +13,7 @@ class GitStatusPrinter(output: PrintStream) {
     def red(s: String) = Ansi.ansi().fg(Color.RED).a(s).reset
     def green(s: String) = Ansi.ansi().fg(Color.GREEN).a(s).reset
     val indent = " " * 8
+    output.println("On branch " + status.branch)
     if (status.hasChangesToBeCommitted) {
       output.println("Changes to be committed:")
       output.println()
@@ -42,7 +43,8 @@ class GitStatusPrinter(output: PrintStream) {
         output.println(red(indent + path))
       output.println
     }
-
+    if (!status.hasChangesToBeCommitted && !status.hasUnstagedChanges && status.untracked.isEmpty)
+      output.println("nothing to commit, working directory clean")
   }
 
 }

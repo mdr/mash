@@ -26,15 +26,17 @@ object StatusFunction extends MashFunction("git.status") {
 
   def apply(arguments: Arguments): MashObject = {
     params.validate(arguments)
-    GitHelper.withGit { git ⇒
+    GitHelper.withRepository { repo ⇒
+      val branch = repo.getBranch
+      val git = new Git(repo)
       val status = git.status.call()
-      asMashObject(status)
+      asMashObject(branch, status)
     }
   }
 
   private def mashify(paths: ju.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
 
-  private def asMashObject(status: Status): MashObject = {
+  private def asMashObject(branch: String, status: Status): MashObject = {
     val modified = mashify(status.getModified)
     val untracked = mashify(status.getUntracked)
     val added = mashify(status.getAdded)
@@ -44,6 +46,7 @@ object StatusFunction extends MashFunction("git.status") {
 
     import StatusClass.Fields._
     MashObject(ListMap(
+      Branch -> MashString(branch),
       Added -> added,
       Changed -> changed,
       Missing -> missing,
