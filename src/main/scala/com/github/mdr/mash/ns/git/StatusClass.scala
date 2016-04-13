@@ -13,6 +13,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.os.PathClass
+import com.github.mdr.mash.evaluator.MashList
 
 object StatusClass extends MashClass("git.Status") {
 
@@ -30,5 +31,18 @@ object StatusClass extends MashClass("git.Status") {
   override lazy val fields = Seq(Added, Changed, Missing, Modified, Removed, Untracked)
 
   def summary = "Git status"
+
+  case class Wrapper(obj: MashObject) {
+    private def unmashify(field: Field): Seq[String] =
+      obj(field).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString].s)
+    def added = unmashify(Added)
+    def changed = unmashify(Changed)
+    def missing = unmashify(Missing)
+    def modified = unmashify(Modified)
+    def removed = unmashify(Removed)
+    def untracked = unmashify(Untracked)
+    def hasChangesToBeCommitted = added.nonEmpty || changed.nonEmpty || removed.nonEmpty
+    def hasUnstagedChanges = modified.nonEmpty || missing.nonEmpty
+  }
 
 }

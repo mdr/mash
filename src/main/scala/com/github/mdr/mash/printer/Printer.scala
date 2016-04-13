@@ -20,6 +20,9 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.ns.git.StatusClass
+import org.fusesource.jansi.Ansi
+import org.fusesource.jansi.Ansi.Color
 
 object Printer {
 
@@ -51,6 +54,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         helpPrinter.printFieldHelp(mo)
       case mo: MashObject if mo.classOpt == Some(ClassHelpClass) ⇒
         helpPrinter.printClassHelp(mo)
+      case mo: MashObject if mo.classOpt == Some(StatusClass) ⇒
+        new GitStatusPrinter(output).print(mo)
       case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction ⇒
