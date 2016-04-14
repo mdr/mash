@@ -9,7 +9,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
 
-object RawFunction extends MashFunction("view.raw") {
+object BrowserFunction extends MashFunction("view.browser") {
 
   object Params {
     val Data = Parameter(
@@ -26,12 +26,12 @@ object RawFunction extends MashFunction("view.raw") {
     import ViewClass.Fields._
     MashObject(ListMap(
       Data -> data,
-      DisableCustomViews -> true,
-      UseBrowser -> false), ViewClass)
+      DisableCustomViews -> false,
+      UseBrowser -> true), ViewClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(ViewClass))
 
-  override def summary = "View an object without custom formatting"
+  override def summary = "View data in the object browser, where possible"
 
 }

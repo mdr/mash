@@ -19,6 +19,7 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.time.ChronoUnitClass
 import com.github.mdr.mash.ns.time.ChronoUnitClass
 import com.github.mdr.mash.ns.view.RawFunction
+import com.github.mdr.mash.ns.view.BrowserFunction
 
 case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
 
@@ -40,13 +41,15 @@ object Environment {
   def createGlobalVariables(): mutable.Map[String, Any] = {
     val nameFunctionPairs = StandardFunctions.Functions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
-    
+
     val gitBindings = for (gitFunction ← GitNamespace.GitFunctions) yield gitFunction.name -> gitFunction
     val otherPairs = Seq(
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,
       "git" -> MashObject(LinkedHashMap(gitBindings: _*)),
-      "view" -> MashObject(LinkedHashMap("raw" -> RawFunction)),
+      "view" -> MashObject(LinkedHashMap(
+        "raw" -> RawFunction,
+        "browser" -> BrowserFunction)),
       "ns" -> NamespaceCreator.createNamespace)
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)
   }

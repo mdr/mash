@@ -9,7 +9,7 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.terminal.TerminalInfo
 import java.io.PrintStream
 
-class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
+class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, alwaysUseBrowser: Boolean = false) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   private def printer = new Printer(output, terminalInfo)
@@ -20,7 +20,7 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
   def printTable(objects: Seq[MashObject]): Option[Int] = {
     val model = renderObjects(objects)
     val nonDataRows = 3 /* header */ + 1 /* footer */
-    if (objects.size <= terminalInfo.rows - nonDataRows) {
+    if (objects.size <= terminalInfo.rows - nonDataRows && !alwaysUseBrowser) {
       printTable(model)
       None
     } else

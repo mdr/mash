@@ -40,17 +40,18 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def render(x: Any, disableCustomViews: Boolean = false): PrintResult = {
+  def render(x: Any, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
     x match {
       case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
         val data = mo(ViewClass.Fields.Data)
         val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == true
-        render(data, disableCustomViews)
+        val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == true
+        return render(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
         xs.foreach(output.println)
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val items = xs.items.asInstanceOf[Seq[MashObject]]
-        val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo)
+        val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo, alwaysUseBrowser = alwaysUseBrowser)
         val insertReferenceOpt = objectTablePrinter.printTable(items)
         return PrintResult(insertReferenceOpt)
       case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
