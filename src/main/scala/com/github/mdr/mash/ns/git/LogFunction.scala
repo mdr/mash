@@ -16,6 +16,7 @@ import java.time.Instant
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import org.eclipse.jgit.lib.Repository
 import com.github.mdr.mash.evaluator.MashList
+import org.eclipse.jgit.lib.PersonIdent
 
 object LogFunction extends MashFunction("git.log") {
 
@@ -23,28 +24,41 @@ object LogFunction extends MashFunction("git.log") {
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    GitHelper.withGit { git =>
-      val commits = git.log.call().asScala.toSeq
+    GitHelper.withGit { git ⇒
+      val commits = git.log.call().asScala.toSeq.reverse
       MashList(commits.map(asCommitObject))
     }
   }
+
+  private def commitHash(commit: RevCommit) = MashString(commit.getName, CommitHashClass)
 
   def asCommitObject(commit: RevCommit): MashObject = {
     import CommitClass.Fields._
     val commitTime = Instant.ofEpochSecond(commit.getCommitTime)
     val author = MashString(commit.getAuthorIdent.getName)
-    val parents = MashList(commit.getParents.toSeq.map(c ⇒ MashString(c.getName, CommitHashClass)))
+    val parents = MashList(commit.getParents.toSeq.map(commitHash))
     MashObject(
       ListMap(
-        Hash -> MashString(commit.getName, CommitHashClass),
+        Hash -> commitHash(commit),
         CommitTime -> commitTime,
-        Author -> author,
+        Author -> asIdentityObject(commit.getAuthorIdent),
+        Committer -> asIdentityObject(commit.getCommitterIdent),
         Summary -> MashString(commit.getShortMessage),
+        Message -> MashString(commit.getFullMessage),
         Parents -> parents),
       CommitClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(CommitClass)))
+  private def asIdentityObject(ident: PersonIdent): MashObject =  {
+    import IdentityClass.Fields._
+    MashObject(
+      ListMap(
+        Name -> MashString(ident.getName),
+        Email -> MashString(ident.getEmailAddress)),
+      IdentityClass)
+  }
+  
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(CommitClass))
 
   override def summary = "Return a sequence of commit objects from the current Git repository"
 

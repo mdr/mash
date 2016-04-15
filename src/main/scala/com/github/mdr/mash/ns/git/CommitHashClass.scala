@@ -17,6 +17,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
   override lazy val methods = Seq(
     liftCommitField(CommitClass.Fields.CommitTime),
     liftCommitField(CommitClass.Fields.Author),
+    liftCommitField(CommitClass.Fields.Committer),
     liftCommitField(CommitClass.Fields.Summary),
     liftCommitField(CommitClass.Fields.Parents),
     liftCommitMethod(CommitClass.ParentMethod),

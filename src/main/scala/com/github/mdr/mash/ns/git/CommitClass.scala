@@ -19,13 +19,15 @@ object CommitClass extends MashClass("git.Commit") {
   object Fields {
     val Hash = Field("hash", "Commit hash", Type.Tagged(StringClass, CommitHashClass))
     val CommitTime = Field("commitTime", "Commit time", DateTimeClass)
-    val Author = Field("author", "Author of the commit", StringClass)
+    val Author = Field("author", "Author of the commit", IdentityClass)
+    val Committer = Field("committer", "Committer of the commit", IdentityClass)
     val Summary = Field("summary", "Summary message of the commit", StringClass)
+    val Message = Field("message", "Commit message", StringClass)
     val Parents = Field("parents", "Parents of this commit", Seq(CommitHashClass))
   }
   import Fields._
 
-  override lazy val fields = Seq(Hash, CommitTime, Author, Summary, Parents)
+  override lazy val fields = Seq(Hash, CommitTime, Author, Committer, Summary, Message, Parents)
 
   override lazy val methods = Seq(
     ParentMethod,

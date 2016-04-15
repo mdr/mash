@@ -118,6 +118,7 @@ object StandardFunctions {
     BranchClass,
     CommitClass,
     CommitHashClass,
+    IdentityClass,
     FileTypeClass,
     GidClass,
     com.github.mdr.mash.ns.os.GroupClass,
