@@ -1,5 +1,6 @@
 package com.github.mdr.mash.inference
 
+import scala.language.implicitConversions
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.evaluator.MashClass
@@ -17,6 +18,13 @@ trait TypeFunction {
 }
 
 object Type {
+  
+  implicit def classToType[T](x: MashClass): Type = Type.Instance(x)
+  implicit def seqToType[T <: MashClass](xs: scala.collection.Seq[T]): Type = {
+    require(xs.length == 1)
+    Type.Seq(xs.head)
+  }
+  
   case object Any extends Type
   case class Seq(t: Type) extends Type
   case class Group(keyType: Type, valuesType: Type) extends Type
