@@ -1,19 +1,18 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.ns.os.PermissionsSectionClass
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.time.DateTimeClass
 
 object CommitClass extends MashClass("git.Commit") {
 

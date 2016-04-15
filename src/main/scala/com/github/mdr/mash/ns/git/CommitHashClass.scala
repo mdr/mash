@@ -19,6 +19,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     liftCommitField(CommitClass.Fields.Author),
     liftCommitField(CommitClass.Fields.Summary),
     liftCommitField(CommitClass.Fields.Parents),
+    liftCommitMethod(CommitClass.ParentMethod),
     InfoMethod)
 
   def summary = "A git commit SHA-1 hash"
@@ -39,7 +40,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
 
   }
 
-  private def getCommit(s: String): MashObject = {
+  private def getCommit(s: String): MashObject =
     GitHelper.withRepository { repo ⇒
       val objectId = repo.resolve(s)
       val walk = new RevWalk(repo)
@@ -49,7 +50,6 @@ object CommitHashClass extends MashClass("git.CommitHash") {
       } finally
         walk.dispose()
     }
-  }
 
   private def liftCommitField(field: Field) = new MashMethod(field.name) {
 
@@ -68,6 +68,22 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     override def summary = field.summary
 
     override def descriptionOpt = field.descriptionOpt
+
+  }
+
+  private def liftCommitMethod(method: MashMethod) = new MashMethod(method.name) {
+
+    val params = method.params
+
+    def apply(target: Any, arguments: Arguments): Any = {
+      val hash = target.asInstanceOf[MashString].s
+      val commitObject = getCommit(hash)
+      method.apply(commitObject, arguments)
+    }
+
+    override def typeInferenceStrategy = method.typeInferenceStrategy
+    override def summary = method.summary
+    override def descriptionOpt = method.descriptionOpt
 
   }
 
