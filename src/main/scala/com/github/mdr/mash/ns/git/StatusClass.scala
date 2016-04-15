@@ -20,21 +20,22 @@ import com.github.mdr.mash.evaluator.MashNumber
 object StatusClass extends MashClass("git.Status") {
 
   object Fields {
-    val Branch = Field("branch", "Current branch", Type.Instance(StringClass))
-    val RemoteTrackingBranch = Field("remoteTrackingBranch", "Name of the remote tracking branch (if any, else null)", Type.Instance(StringClass))
-    val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", Type.Instance(NumberClass))
-    val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", Type.Instance(NumberClass))
-    val Added = Field("added", "New files that have been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Changed = Field("changed", "Changed files that have been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Missing = Field("missing", "Files that have been deleted, but not staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Modified = Field("modified", "Modified files that have not been staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Removed = Field("removed", "Files that have been deleted and staged", Type.Seq(Type.Tagged(StringClass, PathClass)))
-    val Untracked = Field("untracked", "Untracked files", Type.Seq(Type.Tagged(StringClass, PathClass)))
+    val Branch = Field("branch", "Current branch", StringClass)
+    val RemoteTrackingBranch = Field("remoteTrackingBranch", "Name of the remote tracking branch (if any, else null)", StringClass)
+    val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", NumberClass)
+    val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", NumberClass)
+    val Added = Field("added", "New files that have been staged", Seq(PathClass))
+    val Changed = Field("changed", "Changed files that have been staged", Seq(PathClass))
+    val Missing = Field("missing", "Files that have been deleted, but not staged", Seq(PathClass))
+    val Modified = Field("modified", "Modified files that have not been staged", Seq(PathClass))
+    val Removed = Field("removed", "Files that have been deleted and staged", Seq(PathClass))
+    val Untracked = Field("untracked", "Untracked files", Seq(PathClass))
   }
 
   import Fields._
 
-  override lazy val fields = Seq(Branch, RemoteTrackingBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked)
+  override lazy val fields = 
+    Seq(Branch, RemoteTrackingBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked)
 
   def summary = "Show the status of the git repository"
 
