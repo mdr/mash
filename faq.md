@@ -8,7 +8,7 @@ permalink: /faq/
 
 ## What is Mash?
 
-Mash is a shell for Linux that uses objects, rather than text, as its fundamental data
+Mash is a shell for Unix that uses objects, rather than text, as its fundamental data
 model.
 
 It is open source under the [MIT Licence](https://opensource.org/licenses/MIT).
@@ -17,7 +17,7 @@ Mash is currently considered experimental, and the existing implementation is a 
 concept. Feedback is very welcome, as would be collaborators in taking Mash
 forward.
 
-Mash is initially targeted at Linux, but other Unix-like systems may be supported in the
+Mash is initially targeted at Linux and OS X, but other Unix-like systems may be supported in the
 future.
 
 ## Why another shell?

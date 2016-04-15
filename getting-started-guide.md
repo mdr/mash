@@ -6,7 +6,7 @@ permalink: /getting-started-guide/
 
 # Mash Getting Started Guide
 
-This is an introductory tutorial to using Mash, an object shell for Linux.
+This is an introductory tutorial to using Mash, an object shell for Unix.
 
 ## Working with objects
 
