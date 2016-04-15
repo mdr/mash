@@ -12,36 +12,61 @@ import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.evaluator.MashList
 
 object CommitClass extends MashClass("git.Commit") {
 
   object Fields {
     val Hash = Field("hash", "Commit hash", Type.Tagged(StringClass, CommitHashClass))
-    val CommitTime = Field("commitTime", "Commit time", Type.Instance(DateTimeClass))
-    val Author = Field("author", "Author of the commit", Type.Instance(StringClass))
-    val Summary = Field("summary", "Summary message of the commit", Type.Instance(StringClass))
-    val Parents = Field("parents", "Parents of this commit", Type.Seq(Type.Instance(CommitHashClass)))
+    val CommitTime = Field("commitTime", "Commit time", DateTimeClass)
+    val Author = Field("author", "Author of the commit", StringClass)
+    val Summary = Field("summary", "Summary message of the commit", StringClass)
+    val Parents = Field("parents", "Parents of this commit", Seq(CommitHashClass))
   }
-
   import Fields._
 
   override lazy val fields = Seq(Hash, CommitTime, Author, Summary, Parents)
 
   override lazy val methods = Seq(
+    ParentMethod,
     ToStringMethod)
 
   def summary = "A git commit object"
+
+  case class Wrapper(target: Any) {
+    def hash: MashString = target.asInstanceOf[MashObject].field(Hash).asInstanceOf[MashString]
+    def parents: Seq[MashString] =
+      target.asInstanceOf[MashObject].field(Parents).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString])
+  }
 
   object ToStringMethod extends MashMethod("toString") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString =
-      target.asInstanceOf[MashObject].field(Fields.Hash).asInstanceOf[MashString]
+    def apply(target: Any, arguments: Arguments): MashString = {
+      params.validate(arguments)
+      Wrapper(target).hash
+    }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
 
     override def summary = ObjectClass.ToStringMethod.summary
+
+  }
+
+  object ParentMethod extends MashMethod("parent") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashString = {
+      params.validate(arguments)
+      Wrapper(target).parents.headOption.orNull
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
+
+    override def summary = "Return the first parent, if there is one, else null"
 
   }
 

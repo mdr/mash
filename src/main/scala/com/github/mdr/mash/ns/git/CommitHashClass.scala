@@ -1,17 +1,16 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.ns.os.PermissionsSectionClass
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.StringClass
 import org.eclipse.jgit.revwalk.RevWalk
-import com.github.mdr.mash.evaluator.MashObject
+
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type
 
 object CommitHashClass extends MashClass("git.CommitHash") {
 
@@ -63,7 +62,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
       commitObject.fields(field.name)
     }
 
-    override def typeInferenceStrategy = 
+    override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(CommitClass.fieldsMap(field.name).fieldType)
 
     override def summary = field.summary
