@@ -54,6 +54,14 @@ class GitStatusPrinter(output: PrintStream) {
         output.println(red(indent + "deleted:    " + path))
       output.println()
     }
+    if (status.conflicting.nonEmpty) {
+      output.println("Unmerged paths:")
+      output.println("""  (use "git.add <file>..." to mark resolution)""")
+      output.println()
+      for (path ← status.conflicting)
+        output.println(red(indent + "both modified:   " + path))
+      output.println()
+    }
     if (status.untracked.nonEmpty) {
       output.println("Untracked files:")
       output.println("""  (use "git.add <file>..." to include in what will be committed)""")

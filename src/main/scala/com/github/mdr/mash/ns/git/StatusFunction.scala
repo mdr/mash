@@ -53,6 +53,7 @@ object StatusFunction extends MashFunction("git.status") {
     val changed = mashify(status.getChanged)
     val removed = mashify(status.getRemoved)
     val missing = mashify(status.getMissing)
+    val conflicting = mashify(status.getConflicting)
     val aheadCount = branchTrackingStatusOpt.map(_.getAheadCount).getOrElse(0)
     val behindCount = branchTrackingStatusOpt.map(_.getBehindCount).getOrElse(0)
     val remoteTrackingBranchOpt = branchTrackingStatusOpt.map(s => trimUnwantedPrefix(s.getRemoteTrackingBranch))
@@ -67,7 +68,8 @@ object StatusFunction extends MashFunction("git.status") {
       Missing -> missing,
       Modified -> modified,
       Removed -> removed,
-      Untracked -> untracked), StatusClass)
+      Untracked -> untracked,
+      Conflicting -> conflicting), StatusClass)
 
   }
 

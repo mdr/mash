@@ -30,12 +30,13 @@ object StatusClass extends MashClass("git.Status") {
     val Modified = Field("modified", "Modified files that have not been staged", Seq(PathClass))
     val Removed = Field("removed", "Files that have been deleted and staged", Seq(PathClass))
     val Untracked = Field("untracked", "Untracked files", Seq(PathClass))
+    val Conflicting = Field("conflicting", "Conflicting files", Seq(PathClass))
   }
 
   import Fields._
 
   override lazy val fields = 
-    Seq(Branch, RemoteTrackingBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked)
+    Seq(Branch, RemoteTrackingBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked, Conflicting)
 
   def summary = "Show the status of the git repository"
 
@@ -48,6 +49,7 @@ object StatusClass extends MashClass("git.Status") {
     def modified = unmashify(Modified)
     def removed = unmashify(Removed)
     def untracked = unmashify(Untracked)
+    def conflicting = unmashify(Conflicting)
     def hasChangesToBeCommitted = added.nonEmpty || changed.nonEmpty || removed.nonEmpty
     def hasUnstagedChanges = modified.nonEmpty || missing.nonEmpty
     def branch = obj(Branch).asInstanceOf[MashString].s
