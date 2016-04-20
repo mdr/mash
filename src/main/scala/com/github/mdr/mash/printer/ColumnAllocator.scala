@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import scala.collection.immutable.ListMap
 
-case class ColumnSpec(name: String, weight: Double)
+case class ColumnSpec(name: String, weight: Double, isNullaryMethod: Boolean = false)
 
 object ColumnAllocator {
 

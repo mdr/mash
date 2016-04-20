@@ -48,9 +48,9 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
   private def renderObject(obj: MashObject, columns: Seq[ColumnSpec]): ListMap[String, String] = {
     val pairs =
       for {
-        ColumnSpec(name, _) ← columns
+        ColumnSpec(name, _, isNullaryMethod) ← columns
         rawValue = MemberEvaluator.lookup(obj, name)
-        value = Evaluator.immediatelyResolveNullaryFunctions(rawValue)
+        value = if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue) else rawValue
         renderedValue = printer.renderField(value, inCell = true)
       } yield name -> renderedValue
     ListMap(pairs: _*)
@@ -114,18 +114,12 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
     output.println(renderBottomRow(model))
   }
 
-  private def getDisplayMembers(objects: Seq[MashObject]): Seq[String] =
-    if (objects.forall(_.classOpt == Some(GroupClass)))
-      Seq(GroupClass.Fields.Key.name, GroupClass.CountMethod.name)
-    else
-      objects.flatMap(_.fields.keySet).distinct
-
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] =
     if (objects.forall(_.classOpt == Some(GroupClass)))
       Seq(
-        ColumnSpec(GroupClass.Fields.Key.name, 10),
-        ColumnSpec(GroupClass.CountMethod.name, 3),
-        ColumnSpec(GroupClass.Fields.Values.name, 1))
+        ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
+        ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
+        ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
     else
       objects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field, 1))
 

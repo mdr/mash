@@ -10,11 +10,13 @@ import com.github.mdr.mash.ns.collections.SeqClass
 import java.time.Instant
 import com.github.mdr.mash.functions.MashFunction
 import java.time.LocalDate
+import scala.collection.immutable.ListMap
 
 object ObjectClass extends MashClass("core.Object") {
 
   override val methods = Seq(
     ClassMethod,
+    FieldsMethod,
     ToStringMethod,
     InMethod)
 
@@ -40,6 +42,28 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def summary = "The class of the object"
 
+  }
+
+  object FieldsMethod extends MashMethod("fields") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashList = target match {
+      case MashObject(fields, _) ⇒
+        MashList(fields.toSeq.map {
+          case (name, value) ⇒
+            import FieldAndValueClass.Fields._
+            MashObject(ListMap(
+              Name -> MashString(name),
+              Value -> value), FieldAndValueClass)
+        })
+      case _ ⇒
+        MashList(Seq())
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(FieldAndValueClass))
+
+    override def summary = "Return the fields of this object"
   }
 
   object ToStringMethod extends MashMethod("toString") {

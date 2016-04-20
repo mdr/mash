@@ -277,7 +277,7 @@ class TypeInferencer {
     val targetTypeOpt = inferType(targetExpr, bindings)
     val indexTypeOpt = inferType(indexExpr, bindings)
     indexExpr match {
-      case StringLiteral(s, _, _, _) ⇒ return targetTypeOpt.flatMap(memberLookup(_, s, immediateExec = true))
+      case StringLiteral(s, _, _, _) ⇒ return targetTypeOpt.flatMap(memberLookup(_, s, immediateExec = false))
       case _                         ⇒
     }
     condOpt((targetTypeOpt, indexTypeOpt)) {

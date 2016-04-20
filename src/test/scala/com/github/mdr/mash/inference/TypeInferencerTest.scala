@@ -3,15 +3,15 @@ package com.github.mdr.mash.inference
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
-import com.github.mdr.mash.compiler.Compiler
 import org.scalatest.junit.JUnitRunner
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.ns.core._
+import scala.collection.immutable.ListMap
+import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.ns.os._
-import scala.collection.immutable.ListMap
+import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
+import com.github.mdr.mash.ns.git._
+import com.github.mdr.mash.ns.collections.SeqClass
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {
@@ -188,6 +188,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "!!{nano}" shouldBeInferredAsHavingType Instance(UnitClass)
   "!{which ls}" shouldBeInferredAsHavingType Instance(ProcessResultClass)
 
+  "git.status" shouldBeInferredAsHavingType Instance(StatusClass)
+  "git['status']" shouldBeInferredAsHavingType DefinedFunction(StatusFunction)
+  "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), SeqClass.methods.find(_.name == "reverse").get)
+  "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
+  
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

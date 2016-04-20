@@ -35,7 +35,10 @@ object Evaluator {
       ExecutionContext.checkInterrupted()
       val v = simpleEvaluate(expr, env)
       ExecutionContext.checkInterrupted()
-      val result = immediatelyResolveNullaryFunctions(v)
+      val result = expr match {
+        case _: Identifier | _: MemberExpr ⇒ immediatelyResolveNullaryFunctions(v)
+        case _                             ⇒ v
+      }
       checkIsValidRuntimeValue(result)
       result
     } catch {

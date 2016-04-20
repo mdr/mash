@@ -19,7 +19,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   // Note: ▶ denotes the cursor position when completions are requested
 
-  "{ foo: 42 }.f▶" shouldGiveCompletions ("foo")
+  "{ foo: 42 }.fo▶" shouldGiveCompletions ("foo")
 
   "{ bar: 1, baz: 2, buzz: 3 }.ba▶" shouldGiveCompletions ("bar", "baz")
 
