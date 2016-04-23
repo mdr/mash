@@ -12,11 +12,26 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.UnitClass
+import org.eclipse.jgit.lib.ConfigConstants
+import org.eclipse.jgit.lib.Constants
 
 object PushFunction extends MashFunction("git.push") {
 
   object Params {
-
+    val SetUpstream = Parameter(
+      name = "setUpstream",
+      summary = "Add upstream tracking branch (default false)",
+      shortFlagOpt = Some('u'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ false),
+      isBooleanFlag = true)
+    val Force = Parameter(
+      name = "force",
+      summary = "Force push (default false)",
+      shortFlagOpt = Some('f'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ false),
+      isBooleanFlag = true)
     val Remote = Parameter(
       name = "remote",
       summary = "Remote to push to",
@@ -25,25 +40,39 @@ object PushFunction extends MashFunction("git.push") {
       name = "refs",
       summary = "References to push",
       isVariadic = true)
-
   }
   import Params._
 
-  val params = ParameterModel(Seq(Remote, References))
+  val params = ParameterModel(Seq(SetUpstream, Remote, References))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val refs = boundParams(References).asInstanceOf[MashList]
-    val remoteOpt = boundParams.validateStringOpt(Remote)
+    val refs = boundParams(References).asInstanceOf[MashList].items.map(ToStringifier.stringify)
+    val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
+    val setUpstream = Truthiness.isFalsey(boundParams(SetUpstream))
+    val force = Truthiness.isFalsey(boundParams(Force))
 
-    GitHelper.withGit { git =>
+    GitHelper.withGit { git ⇒
       val cmd = git.push
       for (ref ← refs)
-        cmd.add(ToStringifier.stringify(ref))
+        cmd.add(ref)
       for (remote ← remoteOpt)
-        cmd.setRemote(remote.s)
+        cmd.setRemote(remote)
+      cmd.setForce(force)
       cmd.call()
+      if (setUpstream)
+        setUpstreamConfig(git, refs, remoteOpt)
     }
+  }
+
+  private def setUpstreamConfig(git: Git, refs: Seq[String], remoteOpt: Option[String]) {
+    val config = git.getRepository.getConfig
+    for (ref ← refs) {
+      val remoteName = remoteOpt.getOrElse(Constants.DEFAULT_REMOTE_NAME)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, "remote", remoteName)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, "merge", "refs/heads/" + ref)
+    }
+    config.save()
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
