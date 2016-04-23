@@ -43,7 +43,7 @@ object PushFunction extends MashFunction("git.push") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(SetUpstream, Remote, References))
+  val params = ParameterModel(Seq(SetUpstream, Force, Remote, References))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
