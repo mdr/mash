@@ -39,17 +39,16 @@ object Environment {
   def create = Environment(Map(), createGlobalVariables())
 
   def createGlobalVariables(): mutable.Map[String, Any] = {
+    val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = StandardFunctions.Functions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
-
-    val gitBindings = for (gitFunction ← GitNamespace.GitFunctions) yield gitFunction.name -> gitFunction
+    val git = ns.getField("git").get
+    val view = ns.getField("view").get
     val otherPairs = Seq(
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,
-      "git" -> MashObject(LinkedHashMap(gitBindings: _*)),
-      "view" -> MashObject(LinkedHashMap(
-        "raw" -> RawFunction,
-        "browser" -> BrowserFunction)),
+      "git" -> git,
+      "view" -> view,
       "ns" -> NamespaceCreator.createNamespace)
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)
   }

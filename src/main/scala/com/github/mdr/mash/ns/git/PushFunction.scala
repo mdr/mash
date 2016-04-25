@@ -49,8 +49,8 @@ object PushFunction extends MashFunction("git.push") {
     val boundParams = params.validate(arguments)
     val refs = boundParams(References).asInstanceOf[MashList].items.map(ToStringifier.stringify)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
-    val setUpstream = Truthiness.isFalsey(boundParams(SetUpstream))
-    val force = Truthiness.isFalsey(boundParams(Force))
+    val setUpstream = Truthiness.isTruthy(boundParams(SetUpstream))
+    val force = Truthiness.isTruthy(boundParams(Force))
 
     GitHelper.withGit { git ⇒
       val cmd = git.push
