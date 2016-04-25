@@ -8,6 +8,7 @@ import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.terminal.TerminalInfo
 import java.io.PrintStream
+import com.github.mdr.mash.ns.git.CommitClass
 
 class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, alwaysUseBrowser: Boolean = false) {
 
@@ -120,7 +121,12 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
         ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
         ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
         ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
+    else if (objects.forall(_.classOpt == Some(CommitClass)))
+      Seq(
+        ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
+        ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
+        ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
     else
-      objects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field, 1))
+      objects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field))
 
 }
