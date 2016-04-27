@@ -2,6 +2,7 @@ package com.github.mdr.mash.os
 
 import java.time.Instant
 import java.nio.file.Path
+import java.io.IOException
 
 case class PathSummary(
   path: Path,
@@ -21,6 +22,7 @@ trait FileSystem {
 
   def getPathSummary(path: Path): PathSummary
 
+  @throws[IOException]
   def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[PathSummary]
 
   def glob(pattern: String): Seq[PathSummary]

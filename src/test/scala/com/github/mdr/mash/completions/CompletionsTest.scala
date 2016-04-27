@@ -46,7 +46,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   " ''.groupB▶ " shouldNotContainCompletion "groupBy"
 
   "Completing after a dot after a space" should "prioritise file completions" in {
-    "readLines .▶".completions shouldEqual (Seq(".mashrc"))
+    "readLines .▶".completions should contain theSameElementsAs Seq ("./", "../", ".mashrc")
   }
 
   "Completing after a dot" should "prioritise member completion" in {
@@ -80,7 +80,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "{ foo: 42 }?.fo▶" shouldGiveCompletions "foo"
   "{ foo: 42 }?.▶" shouldContainCompletion "foo"
 
-  "..▶" shouldGiveCompletions ".."
+  "..▶" shouldGiveCompletions "../"
 
   "[].maxBy.targe▶" shouldGiveCompletions "target"
 
@@ -160,17 +160,18 @@ class CompletionsTest extends FlatSpec with Matchers {
     }
 
     private val fileSystem: FileSystem = {
-      val root = MockFileObject.Directory(ListMap(
-        "home" -> MockFileObject.Directory(ListMap(
-          "mash" -> MockFileObject.Directory(ListMap(
-            "dir" -> MockFileObject.Directory(ListMap()),
-            "spaces in name" -> MockFileObject.File(),
-            "readme.txt" -> MockFileObject.File(),
-            ".mashrc" -> MockFileObject.File(),
-            "foo.txt" -> MockFileObject.File(),
-            "dollar$ign" -> MockFileObject.File(),
-            "quotation\"mark" -> MockFileObject.File()))))))
-      new MockFileSystem(root, Paths.get("/home/mash"))
+      import com.github.mdr.mash.os.MockFileObject._
+      val root = Directory(
+        "home" -> Directory(
+          "mash" -> Directory(
+            "dir" -> Directory(),
+            "spaces in name" -> File(),
+            "readme.txt" -> File(),
+            ".mashrc" -> File(),
+            "foo.txt" -> File(),
+            "dollar$ign" -> File(),
+            "quotation\"mark" -> File())))
+      new MockFileSystem(root, pwd = Paths.get("/home/mash"))
     }
 
   }

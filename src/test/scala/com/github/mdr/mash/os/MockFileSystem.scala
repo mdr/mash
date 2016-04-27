@@ -5,12 +5,13 @@ import scala.collection.JavaConverters._
 import java.time.Instant
 import com.github.mdr.mash.ns.os.FileTypeClass
 import scala.collection.immutable.ListMap
+import java.nio.file.Paths
 
 object MockFileSystem {
 
 }
 
-class MockFileSystem(root: MockFileObject.Directory, var pwd: Path) extends FileSystem {
+class MockFileSystem(root: MockFileObject.Directory, var pwd: Path = Paths.get("/")) extends FileSystem {
 
   private def fetch(path: Path): MockFileObject = {
     val absPath = pwd.resolve(path)
@@ -29,14 +30,20 @@ class MockFileSystem(root: MockFileObject.Directory, var pwd: Path) extends File
     current
   }
 
-  def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[PathSummary] =
-    fetch(parentDir) match {
-      case d: MockFileObject.Directory ⇒ d.children.toSeq.map {
-        case (name, child) ⇒
-          asPathSummary(parentDir.resolve(name), child)
+  def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[PathSummary] = {
+    val immediateChildren =
+      fetch(parentDir) match {
+        case d: MockFileObject.Directory ⇒ d.children.toSeq.map {
+          case (name, child) ⇒
+            asPathSummary(parentDir.resolve(name), child)
+        }
+        case f: MockFileObject.File ⇒ throw new IllegalArgumentException("Not a directory")
       }
-      case f: MockFileObject.File ⇒ throw new IllegalArgumentException("Not a directory")
-    }
+    if (ignoreDotFiles)
+      immediateChildren.filterNot(_.path.getFileName.toString.startsWith("."))
+    else
+      immediateChildren
+  }
 
   private val filePermissions = Permissions(
     owner = PermissionsSection(canRead = true, canWrite = true),
@@ -95,6 +102,9 @@ sealed abstract class MockFileObject
 object MockFileObject {
 
   case class File(size: Long = 200) extends MockFileObject
+  object Directory {
+    def apply(children: (String, MockFileObject)*): Directory = Directory(ListMap(children: _*))
+  }
   case class Directory(children: ListMap[String, MockFileObject]) extends MockFileObject
 
 }
