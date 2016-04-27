@@ -43,7 +43,7 @@ object StringClass extends MashClass("core.String") {
 
     def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val pattern = new TildeExpander(envInteractions).expand(target.asInstanceOf[MashString].s)
+      val pattern = target.asInstanceOf[MashString].s
       MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
     }
 

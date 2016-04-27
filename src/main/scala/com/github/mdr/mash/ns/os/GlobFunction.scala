@@ -28,8 +28,7 @@ object GlobFunction extends MashFunction("os.glob") {
 
   def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    val argument = boundParams.validateString(Pattern).s
-    val pattern = new TildeExpander(envInteractions).expand(argument)
+    val pattern = boundParams.validateString(Pattern).s
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }
 

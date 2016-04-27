@@ -36,8 +36,9 @@ object Evaluator {
       val v = simpleEvaluate(expr, env)
       ExecutionContext.checkInterrupted()
       val result = expr match {
-        case _: Identifier | _: MemberExpr ⇒ immediatelyResolveNullaryFunctions(v)
-        case _                             ⇒ v
+        case _: Identifier | _: MemberExpr ⇒
+          addLocationToExceptionIfMissing(expr.locationOpt) { immediatelyResolveNullaryFunctions(v) }
+        case _ ⇒ v
       }
       checkIsValidRuntimeValue(result)
       result
@@ -48,7 +49,7 @@ object Evaluator {
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          locationOpt = expr.sourceInfoOpt.map(_.location),
+          locationOpt = expr.locationOpt,
           cause = t)
     }
   }
@@ -79,7 +80,7 @@ object Evaluator {
   private def simpleEvaluate(expr: Expr, env: Environment): Any =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw EvaluatorException("Unexpected AST node: " + expr, expr.sourceInfoOpt.map(_.location))
+        throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
       case interpolatedString: InterpolatedString ⇒
         evaluateInterpolatedString(interpolatedString, env)
       case ParenExpr(body, _) ⇒
@@ -92,13 +93,13 @@ object Evaluator {
         MashString(detilded, tagOpt)
       case Identifier(name, _) ⇒
         env.get(name).orElse(env.globalVariables.get(name)).getOrElse {
-          val locationOpt = expr.sourceInfoOpt.map(_.location)
+          val locationOpt = expr.locationOpt
           throw EvaluatorException(s"No binding for '$name'", locationOpt)
         }
       case MinusExpr(subExpr, _) ⇒
         evaluate(subExpr, env) match {
           case n: MashNumber ⇒ n.negate
-          case _             ⇒ throw new EvaluatorException("Could not negate a non-number", expr.sourceInfoOpt.map(_.location))
+          case _             ⇒ throw new EvaluatorException("Could not negate a non-number", expr.locationOpt)
         }
       case memberExpr: MemberExpr ⇒
         evaluateMemberExpr(memberExpr, env, immediatelyResolveNullaryWhenVectorising = true).result
@@ -156,7 +157,7 @@ object Evaluator {
             fields += member -> rightValue
             ()
           case _ ⇒
-            throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.sourceInfoOpt.map(_.location))
+            throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
         }
       case LookupExpr(target, index, _) ⇒
         val targetValue = evaluate(target, env)
@@ -169,27 +170,27 @@ object Evaluator {
                   case Some(i) ⇒
                     val items = xs.items
                     if (i < 0 || i > items.size - 1)
-                      throw new EvaluatorException("Index out of range '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                      throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt)
                     else
                       xs.items(i) = rightValue
                   case None ⇒
-                    throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                    throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
                 }
               case _ ⇒
-                throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
             }
           case mo: MashObject ⇒
             indexValue match {
               case MashString(s, _) ⇒
                 mo.fields(s) = rightValue
               case _ ⇒
-                throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.sourceInfoOpt.map(_.location))
+                throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
             }
           case _ ⇒
-            throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.sourceInfoOpt.map(_.location))
+            throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.locationOpt)
         }
       case _ ⇒
-        throw new EvaluatorException("Expression is not assignable", left.sourceInfoOpt.map(_.location))
+        throw new EvaluatorException("Expression is not assignable", left.locationOpt)
     }
   }
 
@@ -343,9 +344,9 @@ object Evaluator {
     val LookupExpr(targetExpr, indexExpr, sourceInfoOpt) = lookupExpr
     val target = evaluate(targetExpr, env)
     val index = evaluate(indexExpr, env)
-    val targetLocationOpt = targetExpr.sourceInfoOpt.map(_.location)
-    val indexLocationOpt = indexExpr.sourceInfoOpt.map(_.location)
-    val lookupLocationOpt = lookupExpr.sourceInfoOpt.map(_.location)
+    val targetLocationOpt = targetExpr.locationOpt
+    val indexLocationOpt = indexExpr.locationOpt
+    val lookupLocationOpt = lookupExpr.locationOpt
     index match {
       case MashString(s, _) ⇒ MemberEvaluator.lookup(target, s, indexLocationOpt)
       case n: MashNumber ⇒
@@ -372,16 +373,15 @@ object Evaluator {
       PartialFunction.cond(leftResult) {
         case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult), 0)
       }
-    def binOpLocationOpt = binOp.sourceInfoOpt.map(_.location)
     op match {
       case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult
       case BinaryOperator.Equals            ⇒ leftResult == rightResult
       case BinaryOperator.NotEquals         ⇒ leftResult != rightResult
-      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOpLocationOpt)
-      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "subtract", _ - _)
-      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, binOpLocationOpt)
-      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, binOpLocationOpt, "divide", _ / _)
+      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOp.locationOpt)
+      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOp.locationOpt, "subtract", _ - _)
+      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, binOp.locationOpt)
+      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, binOp.locationOpt, "divide", _ / _)
       case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
       case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
       case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)
@@ -416,6 +416,14 @@ object Evaluator {
   private def callFunction(function: Any, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): Any =
     callFunction(function, arguments, Some(functionExpr), Some(invocationExpr))
 
+  private def addLocationToExceptionIfMissing[T](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
+    try
+      p
+    catch {
+      case e: EvaluatorException if e.locationOpt.isEmpty ⇒
+        throw e.copy(locationOpt = locationOpt)
+    }
+
   def callFunction(function: Any, arguments: Arguments, functionExprOpt: Option[Expr] = None, invocationExprOpt: Option[Expr] = None): Any = {
     val functionLocationOpt = functionExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
     val invocationLocationOpt = invocationExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
@@ -425,25 +433,23 @@ object Evaluator {
           case xs: MashList ⇒
             xs.map { target ⇒
               val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-              Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
+              addLocationToExceptionIfMissing(invocationLocationOpt) {
+                immediatelyResolveNullaryFunctions(intermediateResult)
+              }
             }
           case target ⇒
             val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
+            addLocationToExceptionIfMissing(invocationLocationOpt) {
+              immediatelyResolveNullaryFunctions(intermediateResult)
+            }
         }
       case f: MashFunction ⇒
-        try
+        addLocationToExceptionIfMissing(invocationLocationOpt) {
           f(arguments)
-        catch {
-          case e: EvaluatorException if e.locationOpt.isEmpty ⇒
-            throw e.copy(locationOpt = invocationLocationOpt)
         }
       case BoundMethod(target, method, _) ⇒
-        try
+        addLocationToExceptionIfMissing(invocationLocationOpt) {
           method(target, arguments)
-        catch {
-          case e: EvaluatorException if e.locationOpt.isEmpty ⇒
-            throw e.copy(locationOpt = invocationLocationOpt)
         }
       case _ ⇒
         throw EvaluatorException(s"Not callable", functionLocationOpt)

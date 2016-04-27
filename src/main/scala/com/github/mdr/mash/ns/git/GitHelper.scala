@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.evaluator.EvaluatorException
 
 object GitHelper {
 
@@ -19,11 +20,15 @@ object GitHelper {
       repo.close()
   }
 
-  private def getRepository() =
-    new FileRepositoryBuilder()
-      .readEnvironment()
-      .findGitDir(filesystem.pwd.toFile)
-      .setMustExist(true)
-      .build()
+  private def getRepository() = {
+    val builder = new FileRepositoryBuilder
+    builder.readEnvironment()
+    builder.findGitDir(filesystem.pwd.toFile)
+    builder.setMustExist(true)
+    if (builder.getGitDir == null)
+      throw new EvaluatorException("Not a git repository (or any of the parent directories)")
+    else
+      builder.build()
+  }
 
 }

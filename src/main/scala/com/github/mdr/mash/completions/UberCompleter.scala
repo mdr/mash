@@ -230,10 +230,11 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     val tildeExpandedOpt = tildeExpander.expandOpt(s)
     val prefix = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     for {
-      pathString ← filePathCompleter.getCompletions(prefix, directoriesOnly = directoriesOnly)
-      newPathString = StringEscapes.escapeChars(if (tildeExpandedOpt.isDefined) tildeExpander.retilde(pathString) else pathString)
-      completionTypeOpt = getFileCompletionType(pathString)
-    } yield Completion(newPathString, isQuoted = true, completionTypeOpt = completionTypeOpt, descriptionOpt = Some(pathString))
+      path ← filePathCompleter.getCompletions(prefix, directoriesOnly = directoriesOnly)
+      tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
+      escaped = StringEscapes.escapeChars(tildeExpanded)
+      completionTypeOpt = getFileCompletionType(path)
+    } yield Completion(escaped, isQuoted = true, completionTypeOpt = completionTypeOpt, descriptionOpt = Some(path))
   }
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Seq[Completion] =

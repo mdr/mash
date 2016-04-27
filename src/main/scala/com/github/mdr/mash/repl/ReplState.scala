@@ -47,6 +47,10 @@ class ReplState(
 
   import ReplState._
 
+  def updateLineBuffer(transformation: LineBuffer => LineBuffer) {
+    this.lineBuffer = transformation(this.lineBuffer)
+  }
+  
   def mode: ReplMode =
     completionStateOpt match {
       case Some(completionState: IncrementalCompletionState) ⇒ ReplMode.IncrementalCompletions

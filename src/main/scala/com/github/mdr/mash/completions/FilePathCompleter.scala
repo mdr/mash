@@ -47,6 +47,9 @@ class FilePathCompleter(fileSystem: FileSystem) {
     (searchPath, prefix)
   }
 
+  /**
+   * Get the '.' and '..' directories, if required
+   */
   private def getSpecialDotDirs(searchPath: Path, prefix: String): Seq[String] = {
     val dotDirs = if (prefix == ".") Seq(".", "..") else if (prefix == "..") Seq("..") else Seq()
     dotDirs.map(dir ⇒ searchPath.resolve(dir).toString + "/")

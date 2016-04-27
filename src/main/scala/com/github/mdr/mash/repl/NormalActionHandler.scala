@@ -37,20 +37,20 @@ trait NormalActionHandler { self: Repl ⇒
         state.assistanceStateOpt = None
       case PreviousHistory    ⇒ for (cmd ← state.history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
       case NextHistory        ⇒ for (cmd ← state.history.goForwards()) state.lineBuffer = LineBuffer(cmd)
-      case BeginningOfLine    ⇒ state.lineBuffer = state.lineBuffer.moveCursorToStart
-      case EndOfLine          ⇒ state.lineBuffer = state.lineBuffer.moveCursorToEnd
-      case ForwardChar        ⇒ state.lineBuffer = state.lineBuffer.cursorRight
-      case BackwardChar       ⇒ state.lineBuffer = state.lineBuffer.cursorLeft
-      case ForwardWord        ⇒ state.lineBuffer = state.lineBuffer.forwardWord
-      case BackwardWord       ⇒ state.lineBuffer = state.lineBuffer.backwardWord
-      case DeleteChar         ⇒ state.lineBuffer = state.lineBuffer.delete
-      case BackwardDeleteChar ⇒ state.lineBuffer = state.lineBuffer.backspace
-      case KillLine           ⇒ state.lineBuffer = state.lineBuffer.deleteToEndOfLine
-      case KillWord           ⇒ state.lineBuffer = state.lineBuffer.deleteForwardWord
-      case BackwardKillWord   ⇒ state.lineBuffer = state.lineBuffer.deleteBackwardWord
+      case BeginningOfLine    ⇒ state.updateLineBuffer(_.moveCursorToStart)
+      case EndOfLine          ⇒ state.updateLineBuffer(_.moveCursorToEnd)
+      case ForwardChar        ⇒ state.updateLineBuffer(_.cursorRight)
+      case BackwardChar       ⇒ state.updateLineBuffer(_.cursorLeft)
+      case ForwardWord        ⇒ state.updateLineBuffer(_.forwardWord)
+      case BackwardWord       ⇒ state.updateLineBuffer(_.backwardWord)
+      case DeleteChar         ⇒ state.updateLineBuffer(_.delete)
+      case BackwardDeleteChar ⇒ state.updateLineBuffer(_.backspace)
+      case KillLine           ⇒ state.updateLineBuffer(_.deleteToEndOfLine)
+      case KillWord           ⇒ state.updateLineBuffer(_.deleteForwardWord)
+      case BackwardKillWord   ⇒ state.updateLineBuffer(_.deleteBackwardWord)
       case SelfInsert(s) ⇒
         for (c ← s)
-          state.lineBuffer = state.lineBuffer.addCharacterAtCursor(c)
+          state.updateLineBuffer(_.addCharacterAtCursor(c))
       case AssistInvocation ⇒
         if (state.assistanceStateOpt.isDefined)
           state.assistanceStateOpt = None
@@ -61,7 +61,7 @@ trait NormalActionHandler { self: Repl ⇒
       case YankLastArg ⇒
         yankLastArg()
       case ToggleQuote ⇒
-        state.lineBuffer = QuoteToggler.toggleQuotes(state.lineBuffer, state.mish)
+        state.updateLineBuffer(buff ⇒ QuoteToggler.toggleQuotes(buff, state.mish))
       case ToggleMish ⇒
         toggleMish()
       case _ ⇒

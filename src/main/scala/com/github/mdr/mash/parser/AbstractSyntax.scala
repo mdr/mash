@@ -16,6 +16,8 @@ object AbstractSyntax {
 
     val sourceInfoOpt: Option[SourceInfo]
 
+    def locationOpt: Option[PointedRegion] = sourceInfoOpt.map(_.location)
+    
     def children: Seq[AstNode]
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]): AstNode

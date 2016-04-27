@@ -74,7 +74,7 @@ class FilePathCompleterTest extends FlatSpec with Matchers {
   "The '.' and '..' special directories" should "be completable with a path prefix" in {
     withFileSystem().getCompletions("/.") should equal(Seq("/./", "/../"))
   }
-
+  
   private def withFileSystem(children: (String, MockFileObject)*) =
     new FilePathCompleter(new MockFileSystem(Directory(children: _*)))
 

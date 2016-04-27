@@ -2,17 +2,13 @@ package com.github.mdr.mash.screen
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
 import org.fusesource.jansi.Ansi._
 import org.fusesource.jansi.Ansi.Color._
-
 import com.github.mdr.mash.MishCommand
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
-import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
-
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
@@ -22,6 +18,7 @@ import com.github.mdr.mash.parser.Abstractifier
 import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.evaluator.TildeExpander
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 
@@ -75,12 +72,14 @@ object ReplRenderer {
 
   private def getPrompt(mishByDefault: Boolean): Seq[StyledCharacter] = {
     val pwd = fileSystem.pwd.toString
-    val cwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
-    val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
-    val cwdStyled = new TildeExpander(envInteractions).retilde(pwd).map(StyledCharacter(_, cwdStyle))
+    val pwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
+    val pwdStyled = new TildeExpander(envInteractions).retilde(pwd).map(StyledCharacter(_, pwdStyle))
+
     val promptChar = if (mishByDefault) "!" else "$"
+    val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
     val promptCharStyled = s" $promptChar ".map(StyledCharacter(_, promptCharStyle))
-    cwdStyled ++ promptCharStyled
+
+    pwdStyled ++ promptCharStyled
   }
 
   private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): Screen = {
