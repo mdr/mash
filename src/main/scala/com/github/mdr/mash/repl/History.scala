@@ -10,6 +10,8 @@ import scala.util.control.Exception._
 import java.time.Clock
 import com.fatboyindustrial.gsonjavatime.Converters
 import com.google.gson.GsonBuilder
+import org.apache.commons.io.Charsets
+import java.nio.charset.StandardCharsets
 
 case class HistoryEntry(timestamp: Instant, command: String, mish: Boolean)
 
@@ -49,7 +51,7 @@ class History {
 
   private def loadHistory(): Seq[HistoryEntry] =
     if (historyFile.exists)
-      FileUtils.readLines(historyFile).asScala.reverse.map(loadHistoryEntry)
+      FileUtils.readLines(historyFile, StandardCharsets.UTF_8).asScala.reverse.map(loadHistoryEntry)
     else
       Seq()
 

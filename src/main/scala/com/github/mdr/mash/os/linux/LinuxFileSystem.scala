@@ -5,12 +5,9 @@ import java.nio.file._
 import java.nio.file.attribute._
 import java.util.EnumSet
 import java.util.stream.Collectors
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
-
 import org.apache.commons.io.FileUtils
-
 import com.github.mdr.mash.Posix
 import com.github.mdr.mash.evaluator.ExecutionContext
 import com.github.mdr.mash.ns.os.FileTypeClass
@@ -18,6 +15,7 @@ import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.PathSummary
 import com.github.mdr.mash.os.Permissions
 import com.github.mdr.mash.os.PermissionsSection
+import java.nio.charset.StandardCharsets
 
 object LinuxFileSystem extends FileSystem {
 
@@ -133,11 +131,11 @@ object LinuxFileSystem extends FileSystem {
   override def pwd: Path = Paths.get(Posix.posix.getcwd)
 
   override def chdir(path: Path) {
-    //    System.setProperty("user.dir", path.toString)
     Posix.posix.chdir(path.toString)
+    System.setProperty("user.dir", pwd.toString)
   }
 
-  override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile).asScala.toSeq
+  override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile, StandardCharsets.UTF_8).asScala.toSeq
 
   override def exists(path: Path): Boolean = Files.exists(path)
 

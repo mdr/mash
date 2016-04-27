@@ -19,6 +19,7 @@ import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.UnitClass
+import java.nio.charset.StandardCharsets
 
 object WriteFunction extends MashFunction("os.write") {
 
@@ -53,7 +54,7 @@ Otherwise, write the item as a string."""))
         val lines = xs.items.map(ToStringifier.stringify)
         FileUtils.writeLines(file, lines.asJava, append)
       case x ⇒
-        FileUtils.write(file, ToStringifier.stringify(x), append)
+        FileUtils.write(file, ToStringifier.stringify(x), StandardCharsets.UTF_8, append)
     }
   }
 

@@ -9,6 +9,7 @@ import com.github.mdr.mash.evaluator.MashNumber
 import org.fusesource.jansi.Ansi
 import org.apache.commons.io.IOUtils
 import scala.collection.JavaConverters._
+import java.nio.charset.StandardCharsets
 
 object ProcessRunner {
 
@@ -34,7 +35,7 @@ object ProcessRunner {
 
       val stdout =
         if (captureProcess)
-          IOUtils.toString(process.getInputStream)
+          IOUtils.toString(process.getInputStream, StandardCharsets.UTF_8)
         else
           ""
       val statusCode = process.waitFor()

@@ -115,18 +115,20 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
     output.println(renderBottomRow(model))
   }
 
-  private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] =
-    if (objects.forall(_.classOpt == Some(GroupClass)))
+  private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {
+    val testObjects = objects.take(10)
+    if (testObjects.forall(_.classOpt == Some(GroupClass)))
       Seq(
         ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
         ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
         ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
-    else if (objects.forall(_.classOpt == Some(CommitClass)))
+    else if (testObjects.forall(_.classOpt == Some(CommitClass)))
       Seq(
         ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
         ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
+        ColumnSpec(CommitClass.Fields.Author.name, weight = 10),
         ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
     else
-      objects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field))
-
+      testObjects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field))
+  }
 }

@@ -22,7 +22,8 @@ object CloneFunction extends MashFunction("git.clone") {
       summary = "Repository to clone")
     val Directory = Parameter(
       name = "directory",
-      summary = "Name to give to new repository directory")
+      summary = "Name to give to new repository directory",
+      defaultValueGeneratorOpt = Some(() ⇒ null))
   }
   import Params._
 
@@ -31,11 +32,16 @@ object CloneFunction extends MashFunction("git.clone") {
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val repository = boundParams.validateString(Repository).s
-    val directory = boundParams.validateString(Directory).s
-    Git.cloneRepository
-      .setURI(repository)
-      .setDirectory(new File(directory))
-      .call()
+    val directoryOpt = boundParams.validateStringOpt(Directory).map(_.s)
+    val cmd = Git.cloneRepository
+    cmd.setURI(repository)
+    cmd.setCloneAllBranches(true)
+    cmd.setNoCheckout(false)
+    for (directory ← directoryOpt) {
+      cmd.setDirectory(new File(directory))
+    }
+    val repo = cmd.call()
+    repo.close()
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))

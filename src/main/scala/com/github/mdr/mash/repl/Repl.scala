@@ -2,12 +2,9 @@ package com.github.mdr.mash.repl
 
 import java.io.File
 import java.io.PrintStream
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-
 import org.apache.commons.io.FileUtils
-
 import com.github.mdr.mash.CommandRunner
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.MishCommand
@@ -23,6 +20,7 @@ import com.github.mdr.mash.screen.ReplRenderResult
 import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
+import java.nio.charset.StandardCharsets
 
 class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     extends NormalActionHandler
@@ -51,7 +49,7 @@ class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     val mashRc = new File(History.mashDir, "mashrc")
     if (mashRc.exists) {
       try
-        FileUtils.readLines(mashRc).asScala
+        FileUtils.readLines(mashRc, StandardCharsets.UTF_8).asScala
       catch {
         case e: Exception ⇒
           output.println("Error reading " + mashRc)
