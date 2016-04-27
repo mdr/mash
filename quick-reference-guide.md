@@ -17,10 +17,11 @@ permalink: /quick-reference-guide/
 * Objects: `{ foo: 42, bar: 42 }`
 * Strings: `'basic string'`, `"rich string"`
 
-Double-quoted rich strings are recommended for most uses, and provide the following features:
+Double-quoted rich strings are recommended for most interactive uses, and provide the following features:
 
 * Simple interpolation: `"My name is $user.name"`
 * Full expression interpolation: `"My name is ${user.name | reverse}"`
+* An initial tilde (~) is replaced with the current user's home directory
 * Tagged as `os.Path`, which provides methods for path manipulation: `"foo.txt".lastModified`
 
 If the *bare words* are enabled (configuration property `language.bareWords`), then any
