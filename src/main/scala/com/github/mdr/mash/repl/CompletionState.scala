@@ -18,7 +18,14 @@ sealed trait CompletionState {
 }
 
 /** As the user types, maintain a linked list of previous states that they can return to with backspace */
-case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, state: IncrementalCompletionState)
+case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
+
+  def unwind(replState: ReplState) {
+    replState.lineBuffer = lineBuffer
+    replState.completionStateOpt = Some(completionState)
+  }
+
+}
 
 /**
  * Incremental completion state is where the user has requested completions once, but hasn't left the primary

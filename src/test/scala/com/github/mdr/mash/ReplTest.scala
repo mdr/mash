@@ -36,6 +36,29 @@ class ReplTest extends FlatSpec with Matchers {
     val Some(completionState2: IncrementalCompletionState) = repl.state.completionStateOpt
   }
 
+  "Incremental completion" should "leave incremental completion mode if you type an exact match" in {
+    val repl = newRepl
+    repl.input("where").complete().input("Not")
+    repl.state.completionStateOpt should equal(None)
+  }
+
+  "Incremental completion" should "leave incremental completion mode if no longer have any matches" in {
+    val repl = newRepl
+    repl.input("where").complete().input("a")
+    repl.state.completionStateOpt should equal(None)
+  }
+
+  "Incremental completion" should "should return to prior states after pressing backspace" in {
+    val repl = newRepl
+    repl.input("where").complete().input("N").backspace()
+
+    repl.text should equal("where")
+    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    val completions = completionState.completions.map(_.text)
+    completions should contain("where")
+    completions should contain("whereNot")
+  }
+
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
     val repl = newRepl
     repl.input("1").acceptLine()
@@ -57,10 +80,10 @@ class ReplTest extends FlatSpec with Matchers {
 
   "Delete" should "work at the first character" in {
     val repl = newRepl
-    
+
     repl.input("123").left(3).delete()
-    
-    repl.text should equal ("23")
+
+    repl.text should equal("23")
     repl.cursorPos should equal(0)
   }
 
@@ -86,14 +109,16 @@ class ReplTest extends FlatSpec with Matchers {
     def text: String = repl.state.lineBuffer.text
 
     def cursorPos: Int = repl.state.lineBuffer.cursorPos
-    
+
     def left(n: Int = 1): Repl = {
       for (i ← 1 to n)
         repl.handleAction(InputAction.BackwardChar)
       repl
     }
-    
+
     def delete(): Repl = { repl.handleAction(InputAction.DeleteChar); repl }
+
+    def backspace(): Repl = { repl.handleAction(InputAction.BackwardDeleteChar); repl }
 
   }
 
