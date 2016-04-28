@@ -9,9 +9,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.repl.ReplState
-import com.github.mdr.mash.repl.Repl
-import com.github.mdr.mash.repl.IncrementalCompletionState
+import com.github.mdr.mash.repl._
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -48,7 +46,7 @@ class ReplTest extends FlatSpec with Matchers {
     repl.state.completionStateOpt should equal(None)
   }
 
-  "Incremental completion" should "should return to prior states after pressing backspace" in {
+  "Incremental completion" should "should remove added characters by pressing backspace" in {
     val repl = newRepl
     repl.input("where").complete().input("N").backspace()
 
@@ -57,6 +55,27 @@ class ReplTest extends FlatSpec with Matchers {
     val completions = completionState.completions.map(_.text)
     completions should contain("where")
     completions should contain("whereNot")
+  }
+
+  "Incremental completion" should "should allow further tab completions" in {
+    val repl = newRepl
+    repl.input("where").complete().input("N").complete()
+
+    repl.text should equal("whereNot")
+    repl.state.completionStateOpt should equal(None)
+  }
+
+  "Incremental completion" should "leave incremental completion mode if backspace past the first completion" in {
+    val repl = newRepl
+    repl.input("where").complete().input("N").backspace().backspace()
+    repl.state.completionStateOpt should equal(None)
+  }
+
+  "Two tabs" should "enter completions browsing mode" in {
+    val repl = newRepl
+    repl.input("where").complete().complete()
+    val Some(completionState: BrowserCompletionState) = repl.state.completionStateOpt
+
   }
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
@@ -91,10 +110,7 @@ class ReplTest extends FlatSpec with Matchers {
 
   private implicit class RichRepl(repl: Repl) {
 
-    def input(s: String): Repl = {
-      repl.handleAction(InputAction.SelfInsert(s))
-      repl
-    }
+    def input(s: String): Repl = { repl.handleAction(InputAction.SelfInsert(s)); repl }
 
     def complete(): Repl = { repl.handleAction(InputAction.Complete); repl }
 
@@ -130,6 +146,6 @@ object DummyTerminal extends Terminal {
 
 }
 
-object NullPrintStream extends PrintStream(new OutputStream() {
+object NullPrintStream extends PrintStream(new OutputStream {
   override def write(b: Int) { /* no-op */ }
 })

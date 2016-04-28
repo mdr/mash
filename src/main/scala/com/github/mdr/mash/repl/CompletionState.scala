@@ -17,10 +17,10 @@ sealed trait CompletionState {
 
 }
 
-/** As the user types, maintain a linked list of previous states that they can return to with backspace */
-case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
+/** During incremental completion, we keep a memento of the previous repl state so we can unwind */
+case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
 
-  def unwind(replState: ReplState) {
+  def restoreInto(replState: ReplState) {
     replState.lineBuffer = lineBuffer
     replState.completionStateOpt = Some(completionState)
   }
@@ -32,7 +32,7 @@ case class PriorIncrementalCompleteState(lineBuffer: LineBuffer, completionState
  * line editing mode. Completions are filtered incrementally according to what the user types.
  */
 case class IncrementalCompletionState(
-    priorCompletionStateOpt: Option[PriorIncrementalCompleteState],
+    mementoOpt: Option[ReplStateMemento],
     completions: Seq[Completion],
     replacementLocation: Region,
     immediatelyAfterCompletion: Boolean) extends CompletionState {

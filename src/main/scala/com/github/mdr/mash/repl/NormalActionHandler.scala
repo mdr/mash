@@ -151,8 +151,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleComplete() {
-    val completionResult = complete
-    for (CompletionResult(completions, replacementLocation) ← completionResult) {
+    for (CompletionResult(completions, replacementLocation) ← complete) {
       val Region(offset, length) = replacementLocation
       completions match {
         case Seq() ⇒ // no completions: do nothing
@@ -160,15 +159,15 @@ trait NormalActionHandler { self: Repl ⇒
           val newS = replacementLocation.replace(state.lineBuffer.text, completion.replacement)
           val newCursorPos = offset + completion.replacement.length
           state.lineBuffer = LineBuffer(newS, newCursorPos)
-        case _ ⇒ // multiple completions
+        case _ ⇒ // multiple completions: enter incremental completion state
           var completionState = IncrementalCompletionState(None, completions, replacementLocation,
             immediatelyAfterCompletion = true)
           val newReplacementRegion = Region(offset, completionState.getReplacement.length)
           completionState = completionState.copy(replacementLocation = newReplacementRegion)
           state.completionStateOpt = Some(completionState)
-          val newS = replacementLocation.replace(state.lineBuffer.text, completionState.getReplacement)
+          val newText = replacementLocation.replace(state.lineBuffer.text, completionState.getReplacement)
           val newCursorPos = if (completionState.allQuoted) newReplacementRegion.posAfter - 1 else newReplacementRegion.posAfter
-          state.lineBuffer = LineBuffer(newS, newCursorPos)
+          state.lineBuffer = LineBuffer(newText, newCursorPos)
           state.assistanceStateOpt = None
       }
     }
