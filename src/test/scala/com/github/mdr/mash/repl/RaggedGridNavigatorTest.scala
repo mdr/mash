@@ -34,9 +34,99 @@ class RaggedGridNavigatorTest extends FlatSpec with Matchers {
     ▢▢▢▢
     ▢▢   """)
 
-  private class Context(s: String, navigator: RaggedGridNavigator) {
-    def navigatingShouldResultIn(x: Any) {}
-  }
+  check("""
+    ▲▢
+    ▢▢   """,
+    """
+    ▢▢
+    ▣▢   """)
+
+  check("""
+    ▲▢  """,
+    """
+    ▣▢   """)
+
+  check("""
+    ▢▢▲▢
+    ▢▢▢▢
+    ▢▢   """,
+    """
+    ▢▢▢▢
+    ▢▢▣▢
+    ▢▢   """)
+
+  check("""
+    ▢▲▢▢
+    ▢▢▢▢
+    ▢▢   """,
+    """
+    ▢▢▢▢
+    ▢▢▢▢
+    ▢▣   """)
+
+  check("""
+    ▢▶
+    ▢▢   """,
+    """
+    ▣▢
+    ▢▢   """)
+
+  check("""
+    ▶
+    ▢  """,
+    """
+    ▣
+    ▢  """)
+
+  check("""
+    ▢▢▢▢
+    ▢▢▢▶
+    ▢▢   """,
+    """
+    ▢▢▢▢
+    ▣▢▢▢
+    ▢▢   """)
+
+  check("""
+    ▢▢▢▢
+    ▢▢▢▢
+    ▢▶   """,
+    """
+    ▢▢▢▢
+    ▢▢▢▢
+    ▣▢   """)
+
+  check("""
+    ◀▢
+    ▢▢   """,
+    """
+    ▢▣
+    ▢▢   """)
+
+  check("""
+    ◀
+    ▢  """,
+    """
+    ▣
+    ▢  """)
+
+  check("""
+    ▢▢▢▢
+    ◀▢▢▢
+    ▢▢   """,
+    """
+    ▢▢▢▢
+    ▢▢▢▣
+    ▢▢   """)
+
+  check("""
+    ▢▢▢▢
+    ▢▢▢▢
+    ◀▢   """,
+    """
+    ▢▢▢▢
+    ▢▢▢▢
+    ▢▣   """)
 
   private def check(before: String, after: String) = {
     "RaggedGridNavigator" should s"transform \n$before into \n$after" in {

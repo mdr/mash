@@ -1,26 +1,39 @@
 package com.github.mdr.mash.repl
 
+/**
+ * Helper class to calculate motion with a ragged grid, including wrapping around the edges.
+ *
+ * For example, moving down in the last (complete) row:
+ *
+ * ▢▢▢▢      ▢▢▣▢
+ * ▢▢▼▢  =>  ▢▢▢▢
+ * ▢▢         ▢▢
+ * 
+ * @param total - total number of elements in the grid
+ * @param columns - number of columns in the grid
+ * @pos - item number in the grid (elements are numbered left to right, wrapping to the next line when necessary)
+ * 
+ */
 case class RaggedGridNavigator(total: Int, columns: Int, pos: Int) {
-  private val rows = math.ceil((total / columns.toDouble)).toInt
   private val row = pos / columns
   private val column = pos % columns
   private val rowLength = math.min(total - (row * columns), columns)
 
-  def next = (pos + 1) % total
+  def next: Int = (pos + 1) % total
 
-  def previous = (pos - 1 + total) % total
+  def previous: Int = (pos - 1 + total) % total
 
-  def right = {
+  def right: Int = {
     val newColumn = (column + 1) % rowLength
     row * columns + newColumn
   }
 
-  def left = {
+  def left: Int = {
     val newColumn = (column - 1 + rowLength) % rowLength
     row * columns + newColumn
   }
 
-  def up = {
+  def up: Int = {
     var nextPos = pos - columns
     if (nextPos < 0)
       nextPos += total - (total % columns) + columns
@@ -29,7 +42,7 @@ case class RaggedGridNavigator(total: Int, columns: Int, pos: Int) {
     nextPos
   }
 
-  def down = {
+  def down: Int = {
     var nextPos = pos + columns
     if (nextPos >= total)
       nextPos = nextPos % (total - (total % columns)) % columns
