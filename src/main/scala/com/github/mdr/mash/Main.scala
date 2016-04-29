@@ -1,15 +1,16 @@
 package com.github.mdr.mash
 
-import com.github.mdr.mash.terminal.TerminalControlImpl
-import sun.misc.SignalHandler
-import sun.misc.Signal
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.evaluator.Environment
-import jline.Terminal
 import scala.collection.JavaConverters._
-import com.github.mdr.mash.terminal.JLineTerminalWrapper
+
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.Repl
+import com.github.mdr.mash.terminal.JLineTerminalWrapper
+import com.github.mdr.mash.terminal.TerminalControlImpl
 import com.github.mdr.mash.terminal.TerminalHelper
+
+import sun.misc.Signal
+import sun.misc.SignalHandler
 
 object Main extends App {
 
@@ -22,7 +23,7 @@ object Main extends App {
     handleSigint()
     TerminalHelper.withTerminal { terminal ⇒
       Singletons.terminalControl = new TerminalControlImpl(terminal)
-      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out)
+      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out, LinuxFileSystem, LinuxEnvironmentInteractions)
       repl.run()
     }
   }

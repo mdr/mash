@@ -27,14 +27,17 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
 
     state.completionStateOpt = None
     for (CompletionResult(completions, nextReplacementLocation) ← complete) {
-      val replacedText = nextReplacementLocation.of(state.lineBuffer.text)
-      completions match {
-        case Seq(completion) if replacedText == completion.replacement ⇒
-        // ... we leave incremental mode if what the user has typed is an exact much for the sole completion
-        case _ ⇒
-          val newCompletionState = IncrementalCompletionState(Some(memento), completions, nextReplacementLocation,
-            immediatelyAfterCompletion = false)
-          state.completionStateOpt = Some(newCompletionState)
+      val stillReplacingSameLocation = nextReplacementLocation.offset == completionState.replacementLocation.offset
+      if (stillReplacingSameLocation) {
+        val replacedText = nextReplacementLocation.of(state.lineBuffer.text)
+        completions match {
+          case Seq(completion) if replacedText == completion.replacement ⇒
+          // ... we leave incremental mode if what the user has typed is an exact much for the sole completion
+          case _ ⇒
+            val newCompletionState = IncrementalCompletionState(Some(memento), completions, nextReplacementLocation,
+              immediatelyAfterCompletion = false)
+            state.completionStateOpt = Some(newCompletionState)
+        }
       }
     }
   }

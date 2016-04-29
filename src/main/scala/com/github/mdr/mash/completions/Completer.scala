@@ -9,8 +9,10 @@ case class Completion(
     completionTypeOpt: Option[CompletionType] = None,
     descriptionOpt: Option[String] = None) {
 
-  def replacement = (if (isQuoted) "\"" + text + "\"" else text)
+  def replacement = if (isQuoted) quote(text) else text
 
+  private def quote(s: String) = '"' + s + '"'
+  
 }
 
 object CompletionType {

@@ -9,4 +9,4 @@ object MockEnvironmentInteractions {
   
 }
 
-case class MockEnvironmentInteractions(home: Path) extends EnvironmentInteractions
+case class MockEnvironmentInteractions(home: Path = Paths.get("/")) extends EnvironmentInteractions

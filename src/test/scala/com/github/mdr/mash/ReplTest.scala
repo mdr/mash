@@ -10,6 +10,8 @@ import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.repl._
+import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.os.MockEnvironmentInteractions
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -56,12 +58,14 @@ class ReplTest extends FlatSpec with Matchers {
     repl.cursorPos should equal(0)
   }
 
-  private def newRepl = new Repl(DummyTerminal(), NullPrintStream)
+  private def newRepl = makeRepl()
 
 }
 
 object ReplTest {
 
+  def makeRepl() = new Repl(DummyTerminal(), NullPrintStream, new MockFileSystem, new MockEnvironmentInteractions)
+  
   implicit class RichRepl(repl: Repl) {
 
     def input(s: String): Repl = { repl.handleAction(InputAction.SelfInsert(s)); repl }

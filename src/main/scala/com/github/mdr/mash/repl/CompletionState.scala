@@ -17,16 +17,6 @@ sealed trait CompletionState {
 
 }
 
-/** During incremental completion, we keep a memento of the previous repl state so we can unwind */
-case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
-
-  def restoreInto(replState: ReplState) {
-    replState.lineBuffer = lineBuffer
-    replState.completionStateOpt = Some(completionState)
-  }
-
-}
-
 /**
  * Incremental completion state is where the user has requested completions once, but hasn't left the primary
  * line editing mode. Completions are filtered incrementally according to what the user types.
@@ -51,5 +41,15 @@ case class BrowserCompletionState(
     completions: Seq[Completion],
     replacementLocation: Region,
     activeCompletion: Int) extends CompletionState {
+
+}
+
+/** During incremental completion, we keep a memento of the previous repl state so we can unwind */
+case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
+
+  def restoreInto(replState: ReplState) {
+    replState.lineBuffer = lineBuffer
+    replState.completionStateOpt = Some(completionState)
+  }
 
 }

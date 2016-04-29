@@ -21,15 +21,19 @@ import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
 import java.nio.charset.StandardCharsets
+import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.os.EnvironmentInteractions
 
-class Repl(protected val terminal: Terminal, protected val output: PrintStream)
+class Repl(
+  protected val terminal: Terminal,
+  protected val output: PrintStream,
+  fileSystem: FileSystem,
+  envInteractions: EnvironmentInteractions)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
     with BrowseCompletionActionHandler {
 
-  private val fileSystem = LinuxFileSystem
-  private val envInteractions = LinuxEnvironmentInteractions
   protected val completer = new UberCompleter(fileSystem, envInteractions)
 
   val state = new ReplState()

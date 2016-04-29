@@ -61,6 +61,6 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     repl.state.completionStateOpt should equal(None)
   }
 
-  private def newRepl = new Repl(DummyTerminal(), NullPrintStream)
+  private def newRepl = ReplTest.makeRepl()
 
 }
