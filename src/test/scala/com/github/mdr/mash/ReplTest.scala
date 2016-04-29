@@ -13,6 +13,8 @@ import com.github.mdr.mash.repl._
 
 class ReplTest extends FlatSpec with Matchers {
 
+  import ReplTest._
+
   "Repl" should "work" in {
     val repl = newRepl
     repl.input("1")
@@ -20,62 +22,10 @@ class ReplTest extends FlatSpec with Matchers {
     repl.state.globalVariables(ReplState.It) should equal(MashNumber(1))
   }
 
-  "Incremental completion" should "stay incremental as you type characters" in {
-    val repl = newRepl
-    repl.input("wh")
-    repl.complete().text should equal("where")
-    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
-    completionState.replacementLocation should equal(Region(0, "where".length))
-    val completions = completionState.completions.map(_.text)
-    completions should contain("where")
-    completions should contain("whereNot")
-
-    repl.input("N")
-    val Some(completionState2: IncrementalCompletionState) = repl.state.completionStateOpt
-  }
-
-  "Incremental completion" should "leave incremental completion mode if you type an exact match" in {
-    val repl = newRepl
-    repl.input("where").complete().input("Not")
-    repl.state.completionStateOpt should equal(None)
-  }
-
-  "Incremental completion" should "leave incremental completion mode if no longer have any matches" in {
-    val repl = newRepl
-    repl.input("where").complete().input("a")
-    repl.state.completionStateOpt should equal(None)
-  }
-
-  "Incremental completion" should "should remove added characters by pressing backspace" in {
-    val repl = newRepl
-    repl.input("where").complete().input("N").backspace()
-
-    repl.text should equal("where")
-    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
-    val completions = completionState.completions.map(_.text)
-    completions should contain("where")
-    completions should contain("whereNot")
-  }
-
-  "Incremental completion" should "should allow further tab completions" in {
-    val repl = newRepl
-    repl.input("where").complete().input("N").complete()
-
-    repl.text should equal("whereNot")
-    repl.state.completionStateOpt should equal(None)
-  }
-
-  "Incremental completion" should "leave incremental completion mode if backspace past the first completion" in {
-    val repl = newRepl
-    repl.input("where").complete().input("N").backspace().backspace()
-    repl.state.completionStateOpt should equal(None)
-  }
-
   "Two tabs" should "enter completions browsing mode" in {
     val repl = newRepl
     repl.input("where").complete().complete()
     val Some(completionState: BrowserCompletionState) = repl.state.completionStateOpt
-
   }
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
@@ -106,9 +56,13 @@ class ReplTest extends FlatSpec with Matchers {
     repl.cursorPos should equal(0)
   }
 
-  private def newRepl = new Repl(DummyTerminal, NullPrintStream)
+  private def newRepl = new Repl(DummyTerminal(), NullPrintStream)
 
-  private implicit class RichRepl(repl: Repl) {
+}
+
+object ReplTest {
+
+  implicit class RichRepl(repl: Repl) {
 
     def input(s: String): Repl = { repl.handleAction(InputAction.SelfInsert(s)); repl }
 
@@ -136,13 +90,14 @@ class ReplTest extends FlatSpec with Matchers {
 
     def backspace(): Repl = { repl.handleAction(InputAction.BackwardDeleteChar); repl }
 
+    def draw(): Repl = { repl.draw(); repl }
+    
   }
-
 }
 
-object DummyTerminal extends Terminal {
+case class DummyTerminal(width: Int = 80) extends Terminal {
 
-  override def info = TerminalInfo(80, 40)
+  override def info = TerminalInfo(width, 40)
 
 }
 

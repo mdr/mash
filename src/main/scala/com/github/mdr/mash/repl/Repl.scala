@@ -77,7 +77,7 @@ class Repl(protected val terminal: Terminal, protected val output: PrintStream)
     }
   }
 
-  protected def draw() {
+  def draw() {
     val screenRenderResult = ReplRenderer.render(state, terminal.info)
     val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
     val drawn = screenRenderResult.screen.draw(previousScreenOpt, terminal.columns)

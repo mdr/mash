@@ -23,7 +23,7 @@ object BrowseCompletionActions {
 
 trait BrowseCompletionActionHandler { self: Repl ⇒
 
-  protected def browseCompletion(completionState: CompletionState, activeCompletion: Int) {
+  protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
     val Region(offset, length) = completionState.replacementLocation
     val text = state.lineBuffer.text
     val completion = completionState.completions(activeCompletion)
@@ -45,12 +45,12 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
     val columns = previousReplRenderResultOpt.map(_.completionColumns).getOrElse(1)
     val navigator = RaggedGridNavigator(total, columns, pos)
     action match {
-      case NextCompletion     ⇒ browseCompletion(completionState, navigator.next)
-      case PreviousCompletion ⇒ browseCompletion(completionState, navigator.previous)
-      case NavigateRight      ⇒ browseCompletion(completionState, navigator.right)
-      case NavigateLeft       ⇒ browseCompletion(completionState, navigator.left)
-      case NavigateDown       ⇒ browseCompletion(completionState, navigator.down)
-      case NavigateUp         ⇒ browseCompletion(completionState, navigator.up)
+      case NextCompletion     ⇒ browseCompletions(completionState, navigator.next)
+      case PreviousCompletion ⇒ browseCompletions(completionState, navigator.previous)
+      case NavigateRight      ⇒ browseCompletions(completionState, navigator.right)
+      case NavigateLeft       ⇒ browseCompletions(completionState, navigator.left)
+      case NavigateDown       ⇒ browseCompletions(completionState, navigator.down)
+      case NavigateUp         ⇒ browseCompletions(completionState, navigator.up)
       case AcceptCompletion ⇒
         state.completionStateOpt = None
       case _ ⇒

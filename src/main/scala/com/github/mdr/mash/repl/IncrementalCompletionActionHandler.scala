@@ -10,11 +10,11 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
     action match {
       case SelfInsert(s) ⇒
         handleInsert(s, completionState)
-      case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒
+      case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒ // restore previous state
         completionState.mementoOpt.foreach(_.restoreInto(state))
       case Complete if completionState.immediatelyAfterCompletion ⇒ // enter browse completions mode
-        browseCompletion(completionState, activeCompletion = 0)
-      case _ ⇒
+        browseCompletions(completionState)
+      case _ ⇒ // exit back to normal mode, and handle there
         state.completionStateOpt = None
         handleNormalAction(action)
     }
@@ -24,6 +24,7 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
     val memento = ReplStateMemento(state.lineBuffer, completionState)
     for (c ← s)
       state.updateLineBuffer(_.addCharacterAtCursor(c))
+
     state.completionStateOpt = None
     for (CompletionResult(completions, nextReplacementLocation) ← complete) {
       val replacedText = nextReplacementLocation.of(state.lineBuffer.text)
