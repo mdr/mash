@@ -142,26 +142,26 @@ class Repl(
   }
 
   protected def updateInvocationAssistance() {
-    val s = state.lineBuffer.text
+    val text = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
     state.assistanceStateOpt =
-      s match {
+      text match {
         case MishCommand(prefix, mishCmd) ⇒
           val newPos = pos - prefix.length // adjust for the prefix
           if (newPos >= 0)
-            InvocationAssistance.getCallingSyntaxOfCurrentInvocation(s, newPos, getEnvironment, mish = true)
+            InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, newPos, getEnvironment, mish = true)
           else
             None
         case _ ⇒
-          InvocationAssistance.getCallingSyntaxOfCurrentInvocation(s, pos, getEnvironment, mish = state.mish)
+          InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getEnvironment, mish = state.mish)
       }
   }
 
   protected def complete: Option[CompletionResult] = {
-    val s = state.lineBuffer.text
+    val text = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
 
-    s match {
+    text match {
       case MishCommand(prefix, mishCmd) ⇒
         val shift = prefix.length // adjust for the prefix
         val newPos = pos - shift
@@ -170,7 +170,7 @@ class Repl(
         else
           None
       case _ ⇒
-        completer.complete(s, pos, getEnvironment, mish = state.mish)
+        completer.complete(text, pos, getEnvironment, mish = state.mish)
     }
   }
 
