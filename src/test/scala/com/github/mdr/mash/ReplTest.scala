@@ -24,6 +24,13 @@ class ReplTest extends FlatSpec with Matchers {
     repl.state.globalVariables(ReplState.It) should equal(MashNumber(1))
   }
 
+  "Single tab" should "complete a unique completion" in {
+    val repl = newRepl
+    repl.input("whereNo").complete()
+    repl.text should equal("whereNot")
+    repl.cursorPos should equal(8)
+  }
+
   "Two tabs" should "enter completions browsing mode" in {
     val repl = newRepl
     repl.input("where").complete().complete()
@@ -65,7 +72,7 @@ class ReplTest extends FlatSpec with Matchers {
 object ReplTest {
 
   def makeRepl() = new Repl(DummyTerminal(), NullPrintStream, new MockFileSystem, new MockEnvironmentInteractions)
-  
+
   implicit class RichRepl(repl: Repl) {
 
     def input(s: String): Repl = { repl.handleAction(InputAction.SelfInsert(s)); repl }
@@ -95,7 +102,7 @@ object ReplTest {
     def backspace(): Repl = { repl.handleAction(InputAction.BackwardDeleteChar); repl }
 
     def draw(): Repl = { repl.draw(); repl }
-    
+
   }
 }
 

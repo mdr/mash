@@ -151,22 +151,21 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleComplete() {
-    for (CompletionResult(completions, replacementLocation) ← complete) {
-      val Region(offset, length) = replacementLocation
+    for (CompletionResult(completions, replacementLocation @ Region(offset, _)) ← complete) {
       completions match {
         case Seq() ⇒ // no completions: do nothing
         case Seq(completion) ⇒ // a unique completion: immediate insert
-          val newS = replacementLocation.replace(state.lineBuffer.text, completion.replacement)
+          val newText = replacementLocation.replace(state.lineBuffer.text, completion.replacement)
           val newCursorPos = offset + completion.replacement.length
-          state.lineBuffer = LineBuffer(newS, newCursorPos)
+          state.lineBuffer = LineBuffer(newText, newCursorPos)
         case _ ⇒ // multiple completions: enter incremental completion state
-          var completionState = IncrementalCompletionState(None, completions, replacementLocation,
+          var completionState = IncrementalCompletionState(completions, replacementLocation,
             immediatelyAfterCompletion = true)
-          val newReplacementRegion = Region(offset, completionState.getReplacement.length)
-          completionState = completionState.copy(replacementLocation = newReplacementRegion)
+          val newReplacementLocation = Region(offset, completionState.common.length)
+          completionState = completionState.copy(replacementLocation = newReplacementLocation)
           state.completionStateOpt = Some(completionState)
-          val newText = replacementLocation.replace(state.lineBuffer.text, completionState.getReplacement)
-          val newCursorPos = if (completionState.allQuoted) newReplacementRegion.posAfter - 1 else newReplacementRegion.posAfter
+          val newText = replacementLocation.replace(state.lineBuffer.text, completionState.common)
+          val newCursorPos = newReplacementLocation.posAfter - (if (completionState.allQuoted) 1 else 0)
           state.lineBuffer = LineBuffer(newText, newCursorPos)
           state.assistanceStateOpt = None
       }

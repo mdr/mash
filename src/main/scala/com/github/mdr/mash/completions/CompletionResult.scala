@@ -29,6 +29,9 @@ object CompletionType {
 
 case class CompletionType(name: String)
 
+/**
+ * @param replacementLocation -- region of the original text to replace
+ */
 case class CompletionResult(completions: Seq[Completion], replacementLocation: Region) {
 
   assert(completions.nonEmpty)

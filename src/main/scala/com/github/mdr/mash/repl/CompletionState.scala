@@ -13,8 +13,6 @@ sealed trait CompletionState {
 
   val completions: Seq[Completion]
 
-  def allQuoted = completions.forall(_.isQuoted)
-
 }
 
 /**
@@ -22,14 +20,18 @@ sealed trait CompletionState {
  * line editing mode. Completions are filtered incrementally according to what the user types.
  */
 case class IncrementalCompletionState(
-    mementoOpt: Option[ReplStateMemento],
     completions: Seq[Completion],
     replacementLocation: Region,
-    immediatelyAfterCompletion: Boolean) extends CompletionState {
+    immediatelyAfterCompletion: Boolean,
+    mementoOpt: Option[ReplStateMemento] = None) extends CompletionState {
 
   def getCommonPrefix: String = completions.map(_.text).reduce(StringUtils.commonPrefix)
 
-  def getReplacement = if (allQuoted) "\"" + getCommonPrefix + "\"" else getCommonPrefix
+  def common = if (allQuoted) quote(getCommonPrefix) else getCommonPrefix
+
+  private def quote(s: String) = '"' + s + '"'
+
+  def allQuoted = completions.forall(_.isQuoted)
 
 }
 
@@ -38,11 +40,9 @@ case class IncrementalCompletionState(
  * of options using tab / the arrow keys.
  */
 case class BrowserCompletionState(
-    completions: Seq[Completion],
-    replacementLocation: Region,
-    activeCompletion: Int) extends CompletionState {
-
-}
+  completions: Seq[Completion],
+  replacementLocation: Region,
+  activeCompletion: Int) extends CompletionState
 
 /** During incremental completion, we keep a memento of the previous repl state so we can unwind */
 case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
