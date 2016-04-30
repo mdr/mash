@@ -123,7 +123,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
 
   "Seq completions" should "not be marked as vectorised" in {
-    val Some(completion) = "pwd.children.isEmpt▶".fullCompletions.find(_.text == "isEmpty")
+    val Some(completion) = "pwd.children.isEmpt▶".fullCompletions.find(_.displayText == "isEmpty")
     val Some(description) = completion.descriptionOpt
     description should not include ("vectorised")
   }
@@ -149,7 +149,7 @@ class CompletionsTest extends FlatSpec with Matchers {
       }
     }
 
-    def completions: Seq[String] = fullCompletions.map(_.text)
+    def completions: Seq[String] = fullCompletions.map(_.insertText)
 
     def fullCompletions: Seq[Completion] = {
       val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)

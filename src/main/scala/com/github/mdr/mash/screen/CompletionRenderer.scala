@@ -47,15 +47,15 @@ object CompletionRenderer {
       case ics: IncrementalCompletionState ⇒ ics.getCommonPrefix
     }
     val terminalWidth = math.max(0, terminalInfo.columns)
-    val longestCompletionLength = completions.map(_.text.length).max
+    val longestCompletionLength = completions.map(_.displayText.length).max
     val columnGap = " " * 2
     val numberOfCompletionColumns = math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
     val columnWidth = math.min(terminalWidth, longestCompletionLength)
     val truncatedCommonPrefix = StringUtils.ellipsisise(commonPrefix, columnWidth)
 
     def renderCompletion(completion: Completion, index: Int): Seq[StyledCharacter] = {
-      val Completion(text, isQuoted, completionTypeOpt, descriptionOpt) = completion
-      val truncatedText = StringUtils.ellipsisise(text, columnWidth)
+      val Completion(displayText, _, _, completionTypeOpt, _) = completion
+      val truncatedText = StringUtils.ellipsisise(displayText, columnWidth)
       val active = cond(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion == index }
       val colour = getCompletionColour(completionTypeOpt)
 

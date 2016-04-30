@@ -110,7 +110,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def merge(res1Opt: Option[CompletionResult], res2Opt: Option[CompletionResult]): Option[CompletionResult] = {
     (res1Opt, res2Opt) match {
       case (Some(CompletionResult(completions1, location1)), Some(CompletionResult(completions2, location2))) if location1 == location2 ⇒
-        Some(CompletionResult((completions1 ++ completions2).distinct.sortBy(_.text), location1))
+        Some(CompletionResult((completions1 ++ completions2).distinct.sortBy(_.displayText), location1))
       case _ ⇒ res1Opt orElse res2Opt
     }
   }
@@ -234,7 +234,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
       escaped = StringEscapes.escapeChars(tildeExpanded)
       completionTypeOpt = getFileCompletionType(path)
-    } yield Completion(escaped, isQuoted = true, completionTypeOpt = completionTypeOpt, descriptionOpt = Some(path))
+    } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, completionTypeOpt = completionTypeOpt, descriptionOpt = Some(path))
   }
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Seq[Completion] =

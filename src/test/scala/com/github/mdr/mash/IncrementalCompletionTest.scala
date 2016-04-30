@@ -16,7 +16,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     repl.complete().text should equal("where")
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     completionState.replacementLocation should equal(Region(0, "where".length))
-    val completions = completionState.completions.map(_.text)
+    val completions = completionState.completions.map(_.displayText)
     completions should contain("where")
     completions should contain("whereNot")
 
@@ -42,7 +42,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
 
     repl.text should equal("where")
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
-    val completions = completionState.completions.map(_.text)
+    val completions = completionState.completions.map(_.displayText)
     completions should contain("where")
     completions should contain("whereNot")
   }

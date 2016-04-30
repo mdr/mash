@@ -28,10 +28,10 @@ object FlagCompleter {
           Completion("--" + shortFlag, descriptionOpt = Some(description), completionTypeOpt = Some(CompletionType.Flag))
       }
     case _ ⇒ Seq()
-  }).sortBy(_.text)
+  }).sortBy(_.displayText)
 
   def completeAllFlags(flags: Seq[Flag]): Seq[Completion] = flags.flatMap {
     case Flag(description, shortFlagOpt, longFlagOpt) ⇒
       (longFlagOpt.map("--" + _).toSeq ++ shortFlagOpt.map("-" + _).toSeq).map(Completion(_, descriptionOpt = Some(description)))
-  }.sortBy(_.text)
+  }.sortBy(_.displayText)
 }
