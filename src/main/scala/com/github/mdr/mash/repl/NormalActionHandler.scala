@@ -9,6 +9,7 @@ import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.completions.Completion
 
 object NormalActionHandler {
 
@@ -103,7 +104,6 @@ trait NormalActionHandler { self: Repl ⇒
     state.lineBuffer = LineBuffer.Empty
     if (cmd.trim.nonEmpty)
       runCommand(cmd)
-
   }
 
   private def updateScreenAfterAccept() {
@@ -150,26 +150,31 @@ trait NormalActionHandler { self: Repl ⇒
     }
   }
 
-  private def handleComplete() {
-    for (CompletionResult(completions, replacementLocation @ Region(offset, _)) ← complete) {
-      completions match {
-        case Seq() ⇒ // no completions: do nothing
-        case Seq(completion) ⇒ // a unique completion: immediate insert
-          val newText = replacementLocation.replace(state.lineBuffer.text, completion.replacement)
-          val newCursorPos = offset + completion.replacement.length
-          state.lineBuffer = LineBuffer(newText, newCursorPos)
-        case _ ⇒ // multiple completions: enter incremental completion state
-          var completionState = IncrementalCompletionState(completions, replacementLocation,
-            immediatelyAfterCompletion = true)
-          val newReplacementLocation = Region(offset, completionState.common.length)
-          completionState = completionState.copy(replacementLocation = newReplacementLocation)
-          state.completionStateOpt = Some(completionState)
-          val newText = replacementLocation.replace(state.lineBuffer.text, completionState.common)
-          val newCursorPos = newReplacementLocation.posAfter - (if (completionState.allQuoted) 1 else 0)
-          state.lineBuffer = LineBuffer(newText, newCursorPos)
-          state.assistanceStateOpt = None
+  private def handleComplete() =
+    for (result ← complete)
+      result.completions match {
+        case Seq()           ⇒ // no completions: do nothing
+        case Seq(completion) ⇒ immediateInsert(completion, result)
+        case _               ⇒ enterIncrementalCompletionState(result)
       }
-    }
+
+  private def immediateInsert(completion: Completion, result: CompletionResult) {
+    val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
+    val newCursorPos = result.replacementLocation.offset + completion.replacement.length
+    state.lineBuffer = LineBuffer(newText, newCursorPos)
+  }
+
+  private def enterIncrementalCompletionState(result: CompletionResult) {
+    val CompletionResult(completions, replacementLocation @ Region(offset, _)) = result
+    val common = result.getCommonInsertText
+    val newReplacementLocation = Region(offset, common.length)
+    val completionState = IncrementalCompletionState(completions, newReplacementLocation,
+      immediatelyAfterCompletion = true)
+    state.completionStateOpt = Some(completionState)
+    val newText = replacementLocation.replace(state.lineBuffer.text, common)
+    val newCursorPos = newReplacementLocation.posAfter - (if (result.allQuoted) 1 else 0)
+    state.lineBuffer = LineBuffer(newText, newCursorPos)
+    state.assistanceStateOpt = None
   }
 
 }

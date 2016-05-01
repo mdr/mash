@@ -25,13 +25,7 @@ case class IncrementalCompletionState(
     immediatelyAfterCompletion: Boolean,
     mementoOpt: Option[ReplStateMemento] = None) extends CompletionState {
 
-  def getCommonPrefix: String = completions.map(_.displayText).reduce(StringUtils.commonPrefix)
-
-  def common = if (allQuoted) quote(getCommonPrefix) else getCommonPrefix
-
-  private def quote(s: String) = '"' + s + '"'
-
-  def allQuoted = completions.forall(_.isQuoted)
+  def getCommonDisplayText: String = completions.map(_.displayText).reduce(StringUtils.commonPrefix)
 
 }
 

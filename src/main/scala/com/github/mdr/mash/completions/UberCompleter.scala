@@ -57,7 +57,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, nearbyToken)
             functionType ← invocationExpr.function.typeOpt
             flags ← FlagCompleter.getFlags(functionType)
-            completions = FlagCompleter.completeFlag(flags, nearbyToken)
+            completions = FlagCompleter.completeLongFlag(flags, nearbyToken)
+            if completions.nonEmpty
           } yield CompletionResult(completions, nearbyToken.region)
         case TokenType.MINUS ⇒
           val replaced = StringUtils.replace(s, nearbyToken.region, "--dummyFlag")
@@ -71,6 +72,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             functionType ← invocationExpr.function.typeOpt
             flags ← FlagCompleter.getFlags(functionType)
             completions = FlagCompleter.completeAllFlags(flags)
+            if completions.nonEmpty
           } yield CompletionResult(completions, nearbyToken.region)
         case TokenType.IDENTIFIER ⇒
           val (isPathCompletion, asStringResultOpt) = completeAsString(s, nearbyToken.region, env, mish = mish)
@@ -121,7 +123,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         (name, value) ← env.valuesMap.toSeq
         if name startsWith prefix
         (completionType, description) = getBindingTypeAndDescription(value)
-      } yield Completion(name, completionTypeOpt = Some(completionType), descriptionOpt = Some(description))
+      } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = Some(description))
     val fileCompletions = completeFiles(prefix)
     val completions = bindingCompletions ++ fileCompletions
     if (completions.isEmpty)
@@ -233,8 +235,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       path ← filePathCompleter.getCompletions(prefix, directoriesOnly = directoriesOnly)
       tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
       escaped = StringEscapes.escapeChars(tildeExpanded)
-      completionTypeOpt = getFileCompletionType(path)
-    } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, completionTypeOpt = completionTypeOpt, descriptionOpt = Some(path))
+      typeOpt = getFileCompletionType(path)
+    } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, typeOpt = typeOpt, descriptionOpt = Some(path))
   }
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Seq[Completion] =

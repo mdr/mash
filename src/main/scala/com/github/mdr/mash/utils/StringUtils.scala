@@ -54,7 +54,8 @@ object StringUtils {
   def fitToWidth(s: String, width: Int): String =
     StringUtils.ellipsisise(s.padTo(width, " ").mkString, width)
 
-  def commonPrefix(s1: String, s2: String): String = s1.zip(s2).takeWhile { case (x, y) ⇒ x == y }.map(_._1).mkString
+  def commonPrefix(s1: String, s2: String): String =
+    s1.zip(s2).takeWhile { case (x, y) ⇒ x == y }.map(_._1).mkString
 
-  def ltrim(s: String) = s.replaceAll("^\\s+","")
+  def ltrim(s: String) = s.replaceAll("^\\s+", "")
 }

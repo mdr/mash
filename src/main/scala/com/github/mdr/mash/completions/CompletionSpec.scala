@@ -1,4 +1,5 @@
 package com.github.mdr.mash.completions
+
 import com.github.mdr.mash.inference.Type
 
 sealed trait CompletionSpec

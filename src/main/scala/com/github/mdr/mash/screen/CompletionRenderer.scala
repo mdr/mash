@@ -44,7 +44,7 @@ object CompletionRenderer {
     val completions = completionState.completions
     val commonPrefix = completionState match {
       case bcs: BrowserCompletionState     ⇒ ""
-      case ics: IncrementalCompletionState ⇒ ics.getCommonPrefix
+      case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayText
     }
     val terminalWidth = math.max(0, terminalInfo.columns)
     val longestCompletionLength = completions.map(_.displayText.length).max
@@ -93,7 +93,7 @@ object CompletionRenderer {
         val activeCompletion = bcs.completions(bcs.activeCompletion)
         activeCompletion.descriptionOpt.toSeq.flatMap { description ⇒
           val title =
-            activeCompletion.completionTypeOpt match {
+            activeCompletion.typeOpt match {
               case Some(completionType) ⇒ s" ${completionType.name} "
               case None                 ⇒ ""
             }

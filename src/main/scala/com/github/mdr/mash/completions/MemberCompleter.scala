@@ -107,6 +107,6 @@ case class MemberInfo(
   private def completionType: CompletionType = if (isField) CompletionType.Field else CompletionType.Method
 
   def asCompletion(isQuoted: Boolean) =
-    Completion(name, isQuoted = isQuoted, completionTypeOpt = Some(completionType), descriptionOpt = Some(description))
+    Completion(name, isQuoted = isQuoted, typeOpt = Some(completionType), descriptionOpt = Some(description))
 
 }
