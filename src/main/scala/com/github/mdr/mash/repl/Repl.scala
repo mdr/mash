@@ -23,6 +23,16 @@ import com.github.mdr.mash.tips.Tips
 import java.nio.charset.StandardCharsets
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.EnvironmentInteractions
+import java.nio.file.Paths
+import java.nio.file.Files
+import com.github.mdr.mash.input.NormalKeyMap
+import com.github.mdr.mash.input.BrowseCompletionsKeyMap
+
+object Repl {
+
+  val MashRcPath = History.mashDir.resolve("mashrc")
+
+}
 
 class Repl(
   protected val terminal: Terminal,
@@ -33,6 +43,8 @@ class Repl(
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
     with BrowseCompletionActionHandler {
+
+  import Repl._
 
   protected val completer = new UberCompleter(fileSystem, envInteractions)
 
@@ -50,13 +62,12 @@ class Repl(
   }
 
   private def getMashRcLines: Seq[String] = {
-    val mashRc = new File(History.mashDir, "mashrc")
-    if (mashRc.exists) {
+    if (Files.exists(MashRcPath)) {
       try
-        FileUtils.readLines(mashRc, StandardCharsets.UTF_8).asScala
+        FileUtils.readLines(MashRcPath.toFile, StandardCharsets.UTF_8).asScala
       catch {
         case e: Exception ⇒
-          output.println("Error reading " + mashRc)
+          output.println("Error reading " + MashRcPath)
           e.printStackTrace(output)
           DebugLogger.logException(e)
           Seq()
@@ -118,11 +129,12 @@ class Repl(
   }
 
   private def fetchAction(): InputAction = {
-    val isEmpty = state.lineBuffer.isEmpty
-    state.mode match {
-      case ReplMode.BrowseCompletions ⇒ InputAction.fetchAction(isEmpty, BrowseCompletionsKeyMap)
-      case _                          ⇒ InputAction.fetchAction(isEmpty)
+    val isLineEmpty = state.lineBuffer.isEmpty
+    val keyMap = state.mode match {
+      case ReplMode.BrowseCompletions ⇒ BrowseCompletionsKeyMap
+      case _                          ⇒ NormalKeyMap
     }
+    InputAction.fetchAction(isLineEmpty, keyMap)
   }
 
   def handleAction(action: InputAction) {
@@ -157,6 +169,9 @@ class Repl(
       }
   }
 
+  /**
+   * Attempt completions at the current position (doesn't change the state).
+   */
   protected def complete: Option[CompletionResult] = {
     val text = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
@@ -174,6 +189,6 @@ class Repl(
     }
   }
 
-  protected def getEnvironment: Environment = Environment(Map(), state.globalVariables)
+  protected def getEnvironment = Environment(Map(), state.globalVariables)
 
 }

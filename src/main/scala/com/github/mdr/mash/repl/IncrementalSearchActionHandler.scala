@@ -2,10 +2,9 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.repl.NormalActions._
 
 trait IncrementalSearchActionHandler { self: Repl ⇒
-
-  import InputAction._
 
   protected def handleIncrementalSearchAction(action: InputAction, searchState: IncrementalSearchState) {
     val IncrementalSearchState(searchString, resultIndex) = searchState

@@ -77,33 +77,33 @@ object ReplTest {
 
   implicit class RichRepl(repl: Repl) {
 
-    def input(s: String): Repl = { repl.handleAction(InputAction.SelfInsert(s)); repl }
+    import com.github.mdr.mash.repl.NormalActions._
 
-    def complete(): Repl = { repl.handleAction(InputAction.Complete); repl }
+    def input(s: String): Repl = { repl.handleAction(SelfInsert(s)); repl }
 
-    def previousHistory(): Repl = { repl.handleAction(InputAction.PreviousHistory); repl }
+    def complete(): Repl = { repl.handleAction(Complete); repl }
 
-    def nextHistory(): Repl = { repl.handleAction(InputAction.NextHistory); repl }
+    def previousHistory(): Repl = { repl.handleAction(PreviousHistory); repl }
 
-    def acceptLine(): Repl = { repl.handleAction(InputAction.AcceptLine); repl }
+    def nextHistory(): Repl = { repl.handleAction(NextHistory); repl }
 
-    def toggleQuote(): Repl = { repl.handleAction(InputAction.ToggleQuote); repl }
+    def acceptLine(): Repl = { repl.handleAction(AcceptLine); repl }
+
+    def toggleQuote(): Repl = { repl.handleAction(ToggleQuote); repl }
 
     def text: String = lineBuffer.text
 
     def lineBuffer: LineBuffer = repl.state.lineBuffer
 
-    //def cursorPos: Int = lineBuffer.cursorPos
-
     def left(n: Int = 1): Repl = {
       for (i ← 1 to n)
-        repl.handleAction(InputAction.BackwardChar)
+        repl.handleAction(BackwardChar)
       repl
     }
 
-    def delete(): Repl = { repl.handleAction(InputAction.DeleteChar); repl }
+    def delete(): Repl = { repl.handleAction(DeleteChar); repl }
 
-    def backspace(): Repl = { repl.handleAction(InputAction.BackwardDeleteChar); repl }
+    def backspace(): Repl = { repl.handleAction(BackwardDeleteChar); repl }
 
     def draw(): Repl = { repl.draw(); repl }
 

@@ -12,6 +12,8 @@ import com.fatboyindustrial.gsonjavatime.Converters
 import com.google.gson.GsonBuilder
 import org.apache.commons.io.Charsets
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
 
 case class HistoryEntry(timestamp: Instant, command: String, mish: Boolean)
 
@@ -19,9 +21,9 @@ object History {
 
   private val NotInHistory = -1
 
-  val mashDir = new File(System.getProperty("user.home"), ".mash")
+  val mashDir: Path = new File(System.getProperty("user.home"), ".mash").toPath
 
-  private val historyFile = new File(mashDir, "history")
+  private val historyFile: Path = mashDir.resolve("history")
 
 }
 
@@ -50,8 +52,8 @@ class History {
   }
 
   private def loadHistory(): Seq[HistoryEntry] =
-    if (historyFile.exists)
-      FileUtils.readLines(historyFile, StandardCharsets.UTF_8).asScala.reverse.map(loadHistoryEntry)
+    if (Files.exists(historyFile))
+      FileUtils.readLines(historyFile.toFile, StandardCharsets.UTF_8).asScala.reverse.map(loadHistoryEntry)
     else
       Seq()
 
@@ -80,10 +82,10 @@ class History {
   def record(cmd: String, mish: Boolean) {
     val entry = HistoryEntry(clock.instant, cmd, mish)
     history = entry +: history
-    if (!mashDir.exists)
-      mashDir.mkdir()
+    if (!Files.exists(mashDir))
+      Files.createDirectory(mashDir)
     val json = gson.toJson(entry)
-    FileUtils.writeLines(historyFile, Seq(json).asJava, true)
+    FileUtils.writeLines(historyFile.toFile, Seq(json).asJava, true)
   }
 
   def findMatches(searchString: String): Seq[String] =

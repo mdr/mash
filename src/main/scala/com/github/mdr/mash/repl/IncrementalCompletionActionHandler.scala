@@ -3,9 +3,9 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.repl.NormalActions._
 
 trait IncrementalCompletionActionHandler { self: Repl ⇒
-  import InputAction._
 
   protected def enterIncrementalCompletionState(result: CompletionResult) {
     val CompletionResult(completions, replacementLocation @ Region(offset, _)) = result

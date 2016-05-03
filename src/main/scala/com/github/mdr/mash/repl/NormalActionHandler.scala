@@ -10,68 +10,60 @@ import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.completions.Completion
-
-object NormalActionHandler {
-
-  private val ClearScreenEscapeSequence = "\u001b[H\u001b[2J"
-
-}
+import com.github.mdr.mash.repl.NormalActions._
+import com.github.mdr.mash.terminal.Terminal
 
 trait NormalActionHandler { self: Repl ⇒
-  import NormalActionHandler._
-  import InputAction._
 
   def handleNormalAction(action: InputAction) = {
     action match {
-      case AcceptLine ⇒
-        handleAcceptLine()
-      case Complete ⇒
-        handleComplete()
-      case ClearScreen ⇒
-        System.out.write(ClearScreenEscapeSequence.getBytes)
-        System.out.flush()
-        previousReplRenderResultOpt = None
-      case EndOfFile ⇒
-        state.lineBuffer = LineBuffer.Empty
-        state.completionStateOpt = None
-        state.continue = false
-        state.assistanceStateOpt = None
-      case PreviousHistory    ⇒ for (cmd ← state.history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
-      case NextHistory        ⇒ for (cmd ← state.history.goForwards()) state.lineBuffer = LineBuffer(cmd)
-      case BeginningOfLine    ⇒ state.updateLineBuffer(_.moveCursorToStart)
-      case EndOfLine          ⇒ state.updateLineBuffer(_.moveCursorToEnd)
-      case ForwardChar        ⇒ state.updateLineBuffer(_.cursorRight)
-      case BackwardChar       ⇒ state.updateLineBuffer(_.cursorLeft)
-      case ForwardWord        ⇒ state.updateLineBuffer(_.forwardWord)
-      case BackwardWord       ⇒ state.updateLineBuffer(_.backwardWord)
-      case DeleteChar         ⇒ state.updateLineBuffer(_.delete)
-      case BackwardDeleteChar ⇒ state.updateLineBuffer(_.backspace)
-      case KillLine           ⇒ state.updateLineBuffer(_.deleteToEndOfLine)
-      case KillWord           ⇒ state.updateLineBuffer(_.deleteForwardWord)
-      case BackwardKillWord   ⇒ state.updateLineBuffer(_.deleteBackwardWord)
-      case SelfInsert(s) ⇒
-        for (c ← s)
-          state.updateLineBuffer(_.addCharacterAtCursor(c))
-      case AssistInvocation ⇒
-        if (state.assistanceStateOpt.isDefined)
-          state.assistanceStateOpt = None
-        else
-          updateInvocationAssistance()
-      case IncrementalHistorySearch ⇒
-        state.incrementalSearchStateOpt = Some(IncrementalSearchState("", 0))
-      case YankLastArg ⇒
-        yankLastArg()
-      case ToggleQuote ⇒
-        state.updateLineBuffer(buff ⇒ QuoteToggler.toggleQuotes(buff, state.mish))
-      case ToggleMish ⇒
-        toggleMish()
-      case _ ⇒
+      case AcceptLine               ⇒ handleAcceptLine()
+      case Complete                 ⇒ handleComplete()
+      case ClearScreen              ⇒ handleClearScreen()
+      case EndOfFile                ⇒ handleEof()
+      case PreviousHistory          ⇒ for (cmd ← state.history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
+      case NextHistory              ⇒ for (cmd ← state.history.goForwards()) state.lineBuffer = LineBuffer(cmd)
+      case BeginningOfLine          ⇒ state.updateLineBuffer(_.moveCursorToStart)
+      case EndOfLine                ⇒ state.updateLineBuffer(_.moveCursorToEnd)
+      case ForwardChar              ⇒ state.updateLineBuffer(_.cursorRight)
+      case BackwardChar             ⇒ state.updateLineBuffer(_.cursorLeft)
+      case ForwardWord              ⇒ state.updateLineBuffer(_.forwardWord)
+      case BackwardWord             ⇒ state.updateLineBuffer(_.backwardWord)
+      case DeleteChar               ⇒ state.updateLineBuffer(_.delete)
+      case BackwardDeleteChar       ⇒ state.updateLineBuffer(_.backspace)
+      case KillLine                 ⇒ state.updateLineBuffer(_.deleteToEndOfLine)
+      case KillWord                 ⇒ state.updateLineBuffer(_.deleteForwardWord)
+      case BackwardKillWord         ⇒ state.updateLineBuffer(_.deleteBackwardWord)
+      case SelfInsert(s)            ⇒ for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c))
+      case AssistInvocation         ⇒ handleAssistInvocation()
+      case IncrementalHistorySearch ⇒ state.incrementalSearchStateOpt = Some(IncrementalSearchState())
+      case YankLastArg              ⇒ handleYankLastArg()
+      case ToggleQuote              ⇒ handleToggleQuote()
+      case ToggleMish               ⇒ handleToggleMish()
+      case _                        ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
   }
 
-  private def toggleMish() {
+  private def handleToggleQuote() {
+    state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
+  }
+
+  private def handleEof() {
+    state.lineBuffer = LineBuffer.Empty
+    state.completionStateOpt = None
+    state.continue = false
+    state.assistanceStateOpt = None
+  }
+
+  private def handleClearScreen() {
+    System.out.write(Terminal.ClearScreenEscapeSequence.getBytes)
+    System.out.flush()
+    previousReplRenderResultOpt = None
+  }
+
+  private def handleToggleMish() {
     state.lineBuffer =
       if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
@@ -79,7 +71,7 @@ trait NormalActionHandler { self: Repl ⇒
         state.lineBuffer.insertCharacters("!", 0)
   }
 
-  private def yankLastArg() {
+  private def handleYankLastArg() {
     val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
       case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
       case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
@@ -156,6 +148,13 @@ trait NormalActionHandler { self: Repl ⇒
         case Seq(completion) ⇒ immediateInsert(completion, result)
         case _               ⇒ enterIncrementalCompletionState(result)
       }
+
+  private def handleAssistInvocation() {
+    if (state.assistanceStateOpt.isDefined)
+      state.assistanceStateOpt = None
+    else
+      updateInvocationAssistance()
+  }
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
