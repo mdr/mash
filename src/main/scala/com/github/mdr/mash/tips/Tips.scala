@@ -14,7 +14,7 @@ object Tips {
 
   val Tips = Seq(
     "Ctrl-Space provides context assistance when invoking a function/method.",
-    s"To use unbound identifiers as strings: 'config.${Config.Language.BareWords} = true'.",
+    s"To use unbound identifiers as strings: '${Config.Language.BareWords.path} = true'.",
     s"'${OldDirsFunction.name}' stores a list of previous working directories from this session.",
     s"'${UpFunction.name}' changes the current directory to the parent.",
     s"""'${GlobFunction.name}' can be used to match paths recursively: glob "**/*.jpg""",
@@ -23,16 +23,16 @@ object Tips {
     "Ctrl-r starts an incremental search through history.",
     "Ctrl-q toggles quotation marks around the current region of text.",
     "Alt-. inserts the last argument from history.",
-    "If there are multiple completions, pressing tab twice enters completion browsing mode.",
+    "Press tab twice to enter completion browsing mode.",
     "Member accesses on lists can be automatically vectorised: ls.size.sum",
-    """Strings can be interpolated: "Hello $user.name"""")
+    """Strings can be interpolated: "Hello $user.name"""",
+    s"""Suppress tips by setting ${Config.Cli.ShowStartupTips.path} = false.""")
 
   private def randomTip = Tips(Random.nextInt(Tips.length))
 
   def showTip(output: PrintStream, terminalInfo: TerminalInfo) {
     val printer = new Printer(output, terminalInfo)
-    val suppressNote = s"""Suppress tips by setting config.${Config.Cli.ShowStartupTips} = false."""
-    printer.renderBox("Tip", Seq(randomTip, suppressNote))
+    printer.renderBox("Tip", Seq(randomTip))
   }
-  
+
 }

@@ -10,14 +10,6 @@ import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
 
-sealed trait ReplMode
-object ReplMode {
-  case object Normal extends ReplMode
-  case object BrowseCompletions extends ReplMode
-  case object IncrementalCompletions extends ReplMode
-  case object IncrementalSearch extends ReplMode
-}
-
 case class YankLastArgState(count: Int, region: Region)
 
 object ReplState {
@@ -47,33 +39,29 @@ class ReplState(
 
   import ReplState._
 
-  def updateLineBuffer(transformation: LineBuffer => LineBuffer) {
+  def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer) {
     this.lineBuffer = transformation(this.lineBuffer)
   }
-  
+
   def mode: ReplMode =
     completionStateOpt match {
-      case Some(completionState: IncrementalCompletionState) ⇒ ReplMode.IncrementalCompletions
-      case Some(completionState: BrowserCompletionState)     ⇒ ReplMode.BrowseCompletions
-      case None ⇒
-        incrementalSearchStateOpt match {
-          case Some(searchState) ⇒
-            ReplMode.IncrementalSearch
-          case None ⇒
-            ReplMode.Normal
-        }
-
+      case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
+      case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
+      case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
+      case None                                        ⇒ ReplMode.Normal
     }
 
-  private def getConfig(configOption: ConfigOption): Any = {
-    val configObjectOpt = globalVariables.get("config") match {
-      case Some(mo: MashObject) ⇒ Some(mo)
-      case _                    ⇒ None
-    }
-    Config.getConfig(configObjectOpt, configOption)
+  private def getConfigObject = globalVariables.get("config") collect {
+    case Some(mo: MashObject) ⇒ mo
   }
 
-  def bareWords: Boolean = Truthiness.isTruthy(getConfig(Config.Language.BareWords))
-  def showStartupTips: Boolean = Truthiness.isTruthy(getConfig(Config.Cli.ShowStartupTips))
+  private def getBooleanConfig(configOption: ConfigOption): Boolean = {
+    val rawValue = Config.getConfig(getConfigObject, configOption)
+    Truthiness.isTruthy(rawValue)
+  }
+
+  def bareWords: Boolean = getBooleanConfig(Config.Language.BareWords)
+
+  def showStartupTips: Boolean = getBooleanConfig(Config.Cli.ShowStartupTips)
 
 }
