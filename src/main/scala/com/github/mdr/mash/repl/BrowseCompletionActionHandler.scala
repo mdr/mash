@@ -25,12 +25,12 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
 
   protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
     val Region(offset, length) = completionState.replacementLocation
-    val text = state.lineBuffer.text
     val completion = completionState.completions(activeCompletion)
     val replacement = completion.replacement
     val newReplacementLocation = Region(offset, replacement.length)
-    val newCursorPos = newReplacementLocation.posAfter
+    val text = state.lineBuffer.text
     val newText = StringUtils.replace(text, completionState.replacementLocation, replacement)
+    val newCursorPos = newReplacementLocation.posAfter
     state.lineBuffer = LineBuffer(newText, newCursorPos)
     state.completionStateOpt = Some(
       BrowserCompletionState(
