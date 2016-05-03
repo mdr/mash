@@ -1,10 +1,13 @@
 package com.github.mdr.mash
 
 import org.scalatest._
-
 import com.github.mdr.mash.repl.IncrementalCompletionState
 import com.github.mdr.mash.repl.Repl
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.LineBufferTestHelper._
+import com.github.mdr.mash.os.MockFileObject._
 
 class IncrementalCompletionTest extends FlatSpec with Matchers {
 
@@ -59,6 +62,21 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     val repl = newRepl
     repl.input("where").complete().input("N").backspace().backspace()
     repl.state.completionStateOpt should equal(None)
+  }
+
+  it should "partially complete a common prefix, handling any required escaping" in {
+    val repl = ReplTest.makeRepl(
+      new MockFileSystem(Directory(
+        "foo$bar" -> File(),
+        "foo$baz" -> File())))
+    repl.input("foo")
+
+    repl.complete()
+
+    repl.lineBuffer should equal(parseLineBuffer(""""foo\$ba"◀"""))
+    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    val completions = completionState.completions.map(_.displayText)
+    completions should equal(Seq("foo$bar", "foo$baz"))
   }
 
   private def newRepl = ReplTest.makeRepl()

@@ -12,6 +12,8 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.os.MockEnvironmentInteractions
+import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.LineBufferTestHelper._
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -28,7 +30,7 @@ class ReplTest extends FlatSpec with Matchers {
     val repl = newRepl
     repl.input("whereNo").complete()
     repl.text should equal("whereNot")
-    repl.cursorPos should equal(8)
+    repl.lineBuffer should equal(parseLineBuffer("whereNot▶"))
   }
 
   "Two tabs" should "enter completions browsing mode" in {
@@ -61,8 +63,7 @@ class ReplTest extends FlatSpec with Matchers {
 
     repl.input("123").left(3).delete()
 
-    repl.text should equal("23")
-    repl.cursorPos should equal(0)
+    repl.lineBuffer should equal(parseLineBuffer("▶23"))
   }
 
   private def newRepl = makeRepl()
@@ -71,7 +72,8 @@ class ReplTest extends FlatSpec with Matchers {
 
 object ReplTest {
 
-  def makeRepl() = new Repl(DummyTerminal(), NullPrintStream, new MockFileSystem, new MockEnvironmentInteractions)
+  def makeRepl(fileSystem: FileSystem = new MockFileSystem) =
+    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions)
 
   implicit class RichRepl(repl: Repl) {
 
@@ -87,9 +89,11 @@ object ReplTest {
 
     def toggleQuote(): Repl = { repl.handleAction(InputAction.ToggleQuote); repl }
 
-    def text: String = repl.state.lineBuffer.text
+    def text: String = lineBuffer.text
 
-    def cursorPos: Int = repl.state.lineBuffer.cursorPos
+    def lineBuffer: LineBuffer = repl.state.lineBuffer
+
+    //def cursorPos: Int = lineBuffer.cursorPos
 
     def left(n: Int = 1): Repl = {
       for (i ← 1 to n)

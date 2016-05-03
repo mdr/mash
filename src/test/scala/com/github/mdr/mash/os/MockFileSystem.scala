@@ -11,7 +11,9 @@ object MockFileSystem {
 
 }
 
-class MockFileSystem(root: MockFileObject.Directory = MockFileObject.Directory(), var pwd: Path = Paths.get("/")) extends FileSystem {
+class MockFileSystem(
+    root: MockFileObject.Directory = MockFileObject.Directory(),
+    var pwd: Path = Paths.get("/")) extends FileSystem {
 
   private def fetch(path: Path): MockFileObject = {
     val absPath = pwd.resolve(path)

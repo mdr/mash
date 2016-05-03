@@ -83,7 +83,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             else
               completeBindingsAndFiles(env, nearbyToken.text, nearbyToken.region)
           if (isPathCompletion)
-            merge(asStringResultOpt, bindingResultOpt)
+            CompletionResult.merge(asStringResultOpt, bindingResultOpt)
           else
             asStringResultOpt orElse memberResultOpt orElse bindingResultOpt
         case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
@@ -102,19 +102,11 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
           val (isPathCompletion, asStringResultOpt) = completeAsString(s, asStringRegion, env, mish = mish)
           val bindingResultOpt = completeBindingsAndFiles(env, "", Region(pos, 0))
           if (isPathCompletion)
-            merge(asStringResultOpt, bindingResultOpt)
+            CompletionResult.merge(asStringResultOpt, bindingResultOpt)
           else
             asStringResultOpt orElse bindingResultOpt
       }
     }.map(_.sorted)
-  }
-
-  private def merge(res1Opt: Option[CompletionResult], res2Opt: Option[CompletionResult]): Option[CompletionResult] = {
-    (res1Opt, res2Opt) match {
-      case (Some(CompletionResult(completions1, location1)), Some(CompletionResult(completions2, location2))) if location1 == location2 ⇒
-        Some(CompletionResult((completions1 ++ completions2).distinct.sortBy(_.displayText), location1))
-      case _ ⇒ res1Opt orElse res2Opt
-    }
   }
 
   private def completeBindingsAndFiles(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
