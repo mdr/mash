@@ -1,10 +1,14 @@
 package com.github.mdr.mash.repl
 
-import java.io.File
 import java.io.PrintStream
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+
 import org.apache.commons.io.FileUtils
+
 import com.github.mdr.mash.CommandRunner
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.MishCommand
@@ -13,20 +17,15 @@ import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.completions.UberCompleter
 import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.input.BrowseCompletionsKeyMap
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.input.NormalKeyMap
+import com.github.mdr.mash.os.EnvironmentInteractions
+import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.screen.ReplRenderResult
 import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
-import java.nio.charset.StandardCharsets
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.EnvironmentInteractions
-import java.nio.file.Paths
-import java.nio.file.Files
-import com.github.mdr.mash.input.NormalKeyMap
-import com.github.mdr.mash.input.BrowseCompletionsKeyMap
 
 object Repl {
 
@@ -102,14 +101,15 @@ class Repl(
     output.flush()
   }
 
+
   @tailrec
   private def inputLoop() {
-    try {
+    try
       draw()
-    } catch {
+    catch {
       case e: Exception ⇒
         DebugLogger.logException(e)
-        state.lineBuffer = LineBuffer.Empty
+        state.reset()
         draw()
     }
     try {

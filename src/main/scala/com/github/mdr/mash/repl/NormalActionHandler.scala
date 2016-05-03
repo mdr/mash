@@ -51,10 +51,8 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleEof() {
-    state.lineBuffer = LineBuffer.Empty
-    state.completionStateOpt = None
+    state.reset()
     state.continue = false
-    state.assistanceStateOpt = None
   }
 
   private def handleClearScreen() {

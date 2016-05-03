@@ -4,7 +4,11 @@ import com.github.mdr.mash.evaluator.MashObject
 import scala.collection.mutable.LinkedHashMap
 
 case class ConfigOption(name: String, defaultValue: Any) {
+  
   def path: Seq[String] = name.split("\\.").toSeq
+  
+  override def toString = name
+  
 }
 
 object Config {

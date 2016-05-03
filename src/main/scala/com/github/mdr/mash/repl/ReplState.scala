@@ -39,6 +39,14 @@ class ReplState(
 
   import ReplState._
 
+  def reset() {
+    lineBuffer = LineBuffer.Empty
+    completionStateOpt = None
+    assistanceStateOpt = None
+    incrementalSearchStateOpt = None
+    yankLastArgStateOpt = None
+  }
+
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer) {
     this.lineBuffer = transformation(this.lineBuffer)
   }
