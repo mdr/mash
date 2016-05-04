@@ -51,7 +51,10 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] =
     findNearbyToken(s, pos, mish).flatMap { nearbyToken ⇒
       nearbyToken.tokenType match {
-        case TokenType.STRING_LITERAL | TokenType.TILDE | TokenType.DIVIDE ⇒
+        case TokenType.STRING_LITERAL ⇒
+          completeAsString(s, nearbyToken.region, env, mish).completionResultOpt orElse
+            completeString(s, nearbyToken.region, env, mish).completionResultOpt
+        case TokenType.TILDE | TokenType.DIVIDE ⇒
           completeAsString(s, nearbyToken.region, env, mish).completionResultOpt
         case TokenType.LONG_FLAG ⇒
           val exprOpt = Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
@@ -132,45 +135,58 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     case x                ⇒ (CompletionType.Binding, x + "")
   }
 
-  case class StringCompletionResult(isPathCompletion: Boolean, completionResultOpt: Option[CompletionResult])
+  case class StringCompletionResult(isPathCompletion: Boolean, completionResultOpt: Option[CompletionResult]) {
+
+    def orElse(that: ⇒ StringCompletionResult): StringCompletionResult =
+      if (completionResultOpt.isDefined) this else that
+
+    def withReplacementLocation(region: Region): StringCompletionResult =
+      copy(completionResultOpt = completionResultOpt.map(res ⇒ res.copy(replacementLocation = region)))
+
+  }
 
   /**
-   * Reinterpret nearby characters as a String and attempt completion
-   *
-   * First return value is true iff the completion was a path completion
+   * Reinterpret nearby characters as a String literal and attempt completion
    */
   private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): StringCompletionResult = {
-    val region = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
-    val replacement = '"' + region.of(s).filterNot('"' == _) + '"'
-    val replaced = StringUtils.replace(s, region, replacement)
-    val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
-    def isReplacedStringToken(token: Token) = token.isString && token.region.overlaps(region)
-    val argCompletionOpt =
+    val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
+    val replacement = '"' + contiguousRegion.of(s).filterNot('"' == _) + '"'
+    val replaced = StringUtils.replace(s, contiguousRegion, replacement)
+    val stringRegion = contiguousRegion.copy(length = replacement.length)
+    completeString(replaced, stringRegion, env, mish).withReplacementLocation(contiguousRegion)
+  }
+
+  /**
+   * Provide completions for the string literal at the given position
+   */
+  private def completeString(s: String, stringRegion: Region, env: Environment, mish: Boolean): StringCompletionResult = {
+    val exprAndTokenOpt =
       for {
-        expr ← exprOpt
+        expr ← Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
         sourceInfo ← expr.sourceInfoOpt
         tokens = sourceInfo.expr.tokens
-        literalToken ← tokens.find(isReplacedStringToken)
+        literalToken ← tokens.find(_.region == stringRegion)
+      } yield (expr, literalToken)
+    val argCompletionOpt =
+      for {
+        (expr, literalToken) ← exprAndTokenOpt
         InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
         completionSpecs ← getCompletionSpecs(invocationExpr, argPos)
         completions = completeFromSpecs(completionSpecs, literalToken)
         if completions.nonEmpty
-      } yield CompletionResult(completions, region)
+      } yield CompletionResult(completions, stringRegion)
     val equalityCompletionOpt =
       for {
-        expr ← exprOpt
-        sourceInfo ← expr.sourceInfoOpt
-        tokens = sourceInfo.expr.tokens
-        literalToken ← tokens.find(isReplacedStringToken)
+        (expr, literalToken) ← exprAndTokenOpt
         equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
         completions ← getEqualityCompletions(equalityType, literalToken)
         if completions.nonEmpty
-      } yield CompletionResult(completions, region)
+      } yield CompletionResult(completions, stringRegion)
     val filesCompletionOpt = {
-      val withoutQuotes = replacement.filterNot(_ == '"')
+      val withoutQuotes = stringRegion.of(s).filterNot(_ == '"')
       val completions = completeFiles(withoutQuotes)
       if (completions.nonEmpty)
-        Some(CompletionResult(completions, region))
+        Some(CompletionResult(completions, stringRegion))
       else
         None
     }
