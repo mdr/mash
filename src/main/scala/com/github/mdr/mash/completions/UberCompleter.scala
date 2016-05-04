@@ -32,12 +32,7 @@ import com.github.mdr.mash.utils.StringUtils
 
 object UberCompleter {
 
-  /**
-   *  @return true if the given pos is either inside the given token or immediately after it
-   */
-  def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
-
-  private def isStrongToken(token: Token) = {
+  private def isPrimaryCompletionToken(token: Token) = {
     import TokenType._
     Set[TokenType](STRING_LITERAL, TILDE, DIVIDE, LONG_FLAG, MINUS, IDENTIFIER, DOT, DOT_NULL_SAFE) contains token.tokenType
   }
@@ -49,7 +44,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
 
   private def findNearbyToken(s: String, pos: Int, mish: Boolean): Option[Token] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-    (tokens.find(t ⇒ t.region.contains(pos) && isStrongToken(t)) orElse tokens.find(isNearby(pos, _)))
+    tokens.find(t ⇒ t.region.contains(pos) && isPrimaryCompletionToken(t)) orElse
+      tokens.find(t ⇒ t.region.contains(pos) || pos == t.region.posAfter)
   }
 
   def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] =
@@ -75,7 +71,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             expr ← exprOpt
             sourceInfo ← expr.sourceInfoOpt
             tokens = sourceInfo.expr.tokens
-            flagToken ← tokens.find(t ⇒ isNearby(pos, t) && t.isFlag)
+            flagToken ← tokens.find(t ⇒ t.region.overlaps(nearbyToken.region) && t.isFlag)
             InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
             functionType ← invocationExpr.function.typeOpt
             flags ← FlagCompleter.getFlags(functionType)
@@ -145,16 +141,16 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
    */
   private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): StringCompletionResult = {
     val region = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
-    val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
+    val replacement = '"' + region.of(s).filterNot('"' == _) + '"'
     val replaced = StringUtils.replace(s, region, replacement)
     val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
-    def isNearbyStringToken(token: Token) = token.isString && isNearby(initialRegion.offset, token)
+    def isReplacedStringToken(token: Token) = token.isString && token.region.overlaps(region)
     val argCompletionOpt =
       for {
         expr ← exprOpt
         sourceInfo ← expr.sourceInfoOpt
         tokens = sourceInfo.expr.tokens
-        literalToken ← tokens.find(isNearbyStringToken)
+        literalToken ← tokens.find(isReplacedStringToken)
         InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
         completionSpecs ← getCompletionSpecs(invocationExpr, argPos)
         completions = completeFromSpecs(completionSpecs, literalToken)
@@ -165,7 +161,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         expr ← exprOpt
         sourceInfo ← expr.sourceInfoOpt
         tokens = sourceInfo.expr.tokens
-        literalToken ← tokens.find(isNearbyStringToken)
+        literalToken ← tokens.find(isReplacedStringToken)
         equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
         completions ← getEqualityCompletions(equalityType, literalToken)
         if completions.nonEmpty

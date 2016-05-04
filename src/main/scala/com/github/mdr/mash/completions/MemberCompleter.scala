@@ -20,12 +20,13 @@ object MemberCompleter {
 
   def complete(s: String, nearbyToken: Token, env: Environment, pos: Int, mish: Boolean): Option[CompletionResult] = {
     val replaced = StringUtils.replace(s, nearbyToken.region, ".dummy")
+    val dummyRegion = nearbyToken.region.copy(offset = nearbyToken.region.offset + 1)
     val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
     for {
       expr ← exprOpt
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
-      identifierToken ← tokens.find(t ⇒ UberCompleter.isNearby(pos, t) && t.isIdentifier)
+      identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region.overlaps(dummyRegion))
       memberExpr ← findMemberExpr(expr, identifierToken)
       receiverType ← memberExpr.expr.typeOpt
       members = getMembers(receiverType)
