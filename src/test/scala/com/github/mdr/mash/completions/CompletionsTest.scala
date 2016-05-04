@@ -166,6 +166,13 @@ class CompletionsTest extends FlatSpec with Matchers {
   // Completion positions
   "{}.▶toStrin" shouldGiveCompletions "toString"
 
+  {
+    implicit val filesystem = MockFileSystem.of("/file.txt")
+
+    """ ("file."▶) """ shouldGiveCompletions "file.txt"
+    """ (▶"file.") """ shouldGiveCompletions "file.txt"
+  }
+
   // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
 
   "Seq completions" should "not be marked as vectorised" in {
