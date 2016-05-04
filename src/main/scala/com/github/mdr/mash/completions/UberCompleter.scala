@@ -5,12 +5,14 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFileAttributeView
-import scala.PartialFunction.condOpt
+
+import scala.PartialFunction._
+
 import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.evaluator.TildeExpander
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.inference.AnnotatedExpr
 import com.github.mdr.mash.inference.SimpleTypedArguments
 import com.github.mdr.mash.inference.Type
@@ -24,11 +26,9 @@ import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
-import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.parser.Abstractifier
-import com.github.mdr.mash.parser.StringEscapes
 
 object UberCompleter {
 
@@ -37,18 +37,26 @@ object UberCompleter {
    */
   def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
 
+  private def isStrongToken(token: Token) = {
+    import TokenType._
+    Set[TokenType](STRING_LITERAL, TILDE, DIVIDE, LONG_FLAG, MINUS, IDENTIFIER, DOT, DOT_NULL_SAFE) contains token.tokenType
+  }
 }
 
 class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
 
   import UberCompleter._
 
-  def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] = {
+  private def findNearbyToken(s: String, pos: Int, mish: Boolean): Option[Token] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-    tokens.find(isNearby(pos, _)).flatMap { nearbyToken ⇒
+    (tokens.find(t ⇒ t.region.contains(pos) && isStrongToken(t)) orElse tokens.find(isNearby(pos, _)))
+  }
+
+  def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] =
+    findNearbyToken(s, pos, mish).flatMap { nearbyToken ⇒
       nearbyToken.tokenType match {
         case TokenType.STRING_LITERAL | TokenType.TILDE | TokenType.DIVIDE ⇒
-          completeAsString(s, nearbyToken.region, env, mish)._2
+          completeAsString(s, nearbyToken.region, env, mish).completionResultOpt
         case TokenType.LONG_FLAG ⇒
           val exprOpt = Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
           for {
@@ -75,7 +83,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
             if completions.nonEmpty
           } yield CompletionResult(completions, nearbyToken.region)
         case TokenType.IDENTIFIER ⇒
-          val (isPathCompletion, asStringResultOpt) = completeAsString(s, nearbyToken.region, env, mish = mish)
+          val StringCompletionResult(isPathCompletion, asStringResultOpt) = completeAsString(s, nearbyToken.region, env, mish = mish)
           val (isMemberExpr, memberResultOpt) = MemberCompleter.completeMember(s, nearbyToken, env, mish = mish)
           val bindingResultOpt =
             if (isMemberExpr)
@@ -89,25 +97,23 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
           val posBeforeDot = nearbyToken.offset - 1
           val isMemberDot = (posBeforeDot >= 0 && !s(posBeforeDot).isWhitespace)
-
           val replaced = StringUtils.replace(s, nearbyToken.region, ".dummy")
           val expr = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
           val memberCompletionResultOpt = MemberCompleter.complete(s, nearbyToken, env, pos, mish = mish)
           if (isMemberDot)
-            memberCompletionResultOpt orElse completeAsString(s, nearbyToken.region, env, mish = mish)._2
+            memberCompletionResultOpt orElse completeAsString(s, nearbyToken.region, env, mish = mish).completionResultOpt
           else
-            completeAsString(s, nearbyToken.region, env, mish = mish)._2 orElse memberCompletionResultOpt
+            completeAsString(s, nearbyToken.region, env, mish = mish).completionResultOpt orElse memberCompletionResultOpt
         case t ⇒
           val asStringRegion = if (t.isWhitespace) Region(pos, 0) else nearbyToken.region
-          val (isPathCompletion, asStringResultOpt) = completeAsString(s, asStringRegion, env, mish = mish)
-          val bindingResultOpt = completeBindingsAndFiles(env, "", Region(pos, 0))
+          val StringCompletionResult(isPathCompletion, asStringResultOpt) = completeAsString(s, asStringRegion, env, mish = mish)
+          val bindingResultOpt = completeBindingsAndFiles(env, prefix = "", Region(pos, 0))
           if (isPathCompletion)
             CompletionResult.merge(asStringResultOpt, bindingResultOpt)
           else
             asStringResultOpt orElse bindingResultOpt
       }
     }.map(_.sorted)
-  }
 
   private def completeBindingsAndFiles(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
     val bindingCompletions =
@@ -130,12 +136,14 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     case x                ⇒ (CompletionType.Binding, x + "")
   }
 
+  case class StringCompletionResult(isPathCompletion: Boolean, completionResultOpt: Option[CompletionResult])
+
   /**
    * Reinterpret nearby characters as a String and attempt completion
    *
    * First return value is true iff the completion was a path completion
    */
-  private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): (Boolean, Option[CompletionResult]) = {
+  private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): StringCompletionResult = {
     val region = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
     val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
     val replaced = StringUtils.replace(s, region, replacement)
@@ -172,7 +180,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     }
     val isPathCompletion = argCompletionOpt.isEmpty && equalityCompletionOpt.isEmpty && filesCompletionOpt.isDefined
     val completionResultOpt = argCompletionOpt orElse equalityCompletionOpt orElse filesCompletionOpt
-    (isPathCompletion, completionResultOpt)
+    StringCompletionResult(isPathCompletion, completionResultOpt)
   }
 
   private def getEqualityCompletions(t: Type, literalToken: Token): Option[Seq[Completion]] = condOpt(t) {
@@ -182,13 +190,11 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   }
 
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
-    invocationExpr.function.typeOpt.flatMap { functionType ⇒
-      condOpt(functionType) {
-        case Type.DefinedFunction(f) ⇒
-          f.getCompletionSpecs(argPos, typedArguments(invocationExpr))
-        case Type.BoundMethod(targetType, m) ⇒
-          m.getCompletionSpecs(argPos, Some(targetType), typedArguments(invocationExpr))
-      }
+    invocationExpr.function.typeOpt.collect {
+      case Type.DefinedFunction(f) ⇒
+        f.getCompletionSpecs(argPos, typedArguments(invocationExpr))
+      case Type.BoundMethod(targetType, m) ⇒
+        m.getCompletionSpecs(argPos, Some(targetType), typedArguments(invocationExpr))
     }
 
   private def typedArguments(invocationExpr: InvocationExpr): TypedArguments = {

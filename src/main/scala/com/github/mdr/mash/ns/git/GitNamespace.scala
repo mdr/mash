@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.functions.HasName
-import com.github.mdr.mash.ns.git.stash.StashCreateFunction
+import com.github.mdr.mash.ns.git.stash._
 
 object GitNamespace {
 
@@ -17,5 +16,6 @@ object GitNamespace {
     PullFunction,
     PushFunction,
     StatusFunction,
+    StashApplyFunction,
     StashCreateFunction)
 }

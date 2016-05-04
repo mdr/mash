@@ -1,19 +1,14 @@
 package com.github.mdr.mash.completions
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.MashParser
-import com.github.mdr.mash.parser.Abstractifier
-import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.os.MockFileSystem
-import com.github.mdr.mash.os.FileSystem
-import java.nio.file.Paths
-import com.github.mdr.mash.os.MockFileObject
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.os.MockEnvironmentInteractions
+import org.scalatest._
 import com.github.mdr.mash.LineBufferTestHelper
+import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.os.EnvironmentInteractions
+import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.os.MockEnvironmentInteractions
+import com.github.mdr.mash.os.MockFileObject._
+import com.github.mdr.mash.os.MockFileSystem
+import java.nio.file.Paths
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -29,7 +24,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "[ { revert: 1 } ].rever▶" shouldGiveCompletions ("reverse", "revert")
 
-  "\"a string\".startsW▶" shouldGiveCompletions ("startsWith")
+  """ "a string".startsW▶ """ shouldGiveCompletions ("startsWith")
 
   "pwd.children --recur▶" shouldGiveCompletions ("--recursive")
 
@@ -37,36 +32,62 @@ class CompletionsTest extends FlatSpec with Matchers {
     " ''.groupB▶ ".completions should not contain ("groupBy")
   }
 
-  "cd /hom▶" shouldGiveCompletions ("/home/")
-  "cd /home/ma▶" shouldGiveCompletions ("/home/mash/")
-  """cd "/home"/ma▶""" shouldGiveCompletions ("/home/mash/")
+  {
+    implicit val filesystem = MockFileSystem.of("/home/alice/file.txt")
 
-  "readLines spaces▶" shouldGiveCompletions ("spaces in name")
+    "cd /hom▶" shouldGiveCompletions ("/home/")
+    "cd /home/al▶" shouldGiveCompletions ("/home/alice/")
+    """cd "/home"/al▶""" shouldGiveCompletions ("/home/alice/")
+  }
+
+  {
+    implicit val filesystem = new MockFileSystem(Directory(
+      "dir" -> Directory(),
+      "document.txt" -> File()))
+
+    "cd ▶" shouldGiveCompletions ("dir/")
+    "cd d▶" shouldGiveCompletions ("dir/")
+    "cd pw▶" shouldGiveCompletions ("pwd")
+  }
+
+  {
+    implicit val filesystem = MockFileSystem.of("/spaces in name")
+    "readLines spaces▶" shouldGiveCompletions ("spaces in name")
+  }
 
   " ''.groupB▶ " shouldNotContainCompletion "groupBy"
 
   "Completing after a dot after a space" should "prioritise file completions" in {
-    "readLines .▶".completions should contain theSameElementsAs Seq ("./", "../", ".mashrc")
+    implicit val filesystem = MockFileSystem.of("/.dotfile")
+    "readLines .▶".completions should contain theSameElementsAs Seq("./", "../", ".dotfile")
   }
 
   "Completing after a dot" should "prioritise member completion" in {
     "readLines.▶".completions should contain("toString")
   }
 
-  "read▶" shouldGiveCompletions ("readLines", "readme.txt")
-  "readme.tx▶" shouldGiveCompletions ("readme.txt")
+  {
+    implicit val filesystem = MockFileSystem.of("/readme.txt")
 
-  // Not sure about this one yet. With bare words, it arguably should complete the path members
-  // "readme.▶" shouldGiveCompletions ("readme.txt")
+    "read▶" shouldGiveCompletions ("readLines", "readme.txt")
+    "readme.tx▶" shouldGiveCompletions ("readme.txt")
 
-  "cd ▶" shouldGiveCompletions ("dir/")
-  "cd d▶" shouldGiveCompletions ("dir/")
-  "cd pw▶" shouldGiveCompletions ("pwd")
+    // Not sure about this one yet. With bare words, it arguably should complete the path members
+    // "readme.▶" shouldGiveCompletions ("readme.txt")
+  }
 
-  "readLines ▶" shouldNotContainCompletion "ls" // i.e. no bindings
+  {
+    implicit val filesystem = MockFileSystem.of("/file.txt")
 
-  "[{ foo: 42 }] | map fo▶" shouldGiveCompletions ("foo")
-  "[{ bar: 42 }] | map fo▶" shouldGiveCompletions ("foo.txt")
+    "readLines ▶" shouldGiveCompletions ("file.txt") // no bindings
+  }
+
+  {
+    implicit val filesystem = MockFileSystem.of("/foo.txt")
+
+    "[{ foo: 42 }] | map fo▶" shouldGiveCompletions ("foo")
+    "[{ bar: 42 }] | map fo▶" shouldGiveCompletions ("foo.txt")
+  }
 
   "{ foo: 42 } | select fo▶" shouldGiveCompletions ("foo")
   "[{ foo: 42 }] | select fo▶" shouldGiveCompletions ("foo")
@@ -84,7 +105,13 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "[].maxBy.targe▶" shouldGiveCompletions "target"
 
-  // "../m" shouldGiveCompletions "../mash"
+  {
+    implicit val filesystem = new MockFileSystem(Directory(
+      "directory" -> Directory()), pwd = Paths.get("/directory"))
+
+    // "../dir▶" shouldGiveCompletions "../directory"
+    // TODO: need mock file system to support .. paths to get this to work
+  }
 
   // To get this to work, we need to be able to identify the name corresponding to the nth argument (by syntactical position)
   // This can be done by ParameterModel.bindTypes
@@ -93,17 +120,25 @@ class CompletionsTest extends FlatSpec with Matchers {
   """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
   """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
 
-  """ dollar▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ dollar\$i▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ dollar\$▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ dollar$▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ "dollar"▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ "dollar\$i"▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ "dollar\$"▶ """ shouldGiveCompletions """dollar\$ign"""
-  """ "dollar$"▶ """ shouldGiveCompletions """dollar\$ign"""
+  {
+    implicit val filesystem = MockFileSystem.of("/dollar$ign")
 
-  """ quotation▶ """ shouldGiveCompletions """quotation\"mark"""
-  """ "quotation▶""" shouldGiveCompletions """quotation\"mark"""
+    """ dollar▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ dollar\$i▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ dollar\$▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ dollar$▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ "dollar"▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ "dollar\$i"▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ "dollar\$"▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ "dollar$"▶ """ shouldGiveCompletions """dollar\$ign"""
+  }
+
+  {
+    implicit val filesystem = MockFileSystem.of("/quotation\"mark")
+
+    """ quotation▶ """ shouldGiveCompletions """quotation\"mark"""
+    """ "quotation▶""" shouldGiveCompletions """quotation\"mark"""
+  }
 
   // Would like to get these cases working too:
   //  """ quotation\"mar▶ """ shouldGiveCompletions """quotation\"mark"""
@@ -112,13 +147,24 @@ class CompletionsTest extends FlatSpec with Matchers {
   //  """ quotation\"▶ """ shouldGiveCompletions """quotation\"mark"""
   //  """ "quotation▶ """ shouldGiveCompletions """quotation\"mark"""
 
-  // tilde
-  "~/di▶" shouldGiveCompletions "~/dir/"
+  // tilde 
+  {
+    implicit val filesystem = MockFileSystem.of("/home/alice/file.txt")
+    implicit val envInteractions = MockEnvironmentInteractions("/home/alice")
+
+    "~/file▶" shouldGiveCompletions "~/file.txt"
+  }
 
   // Inheritance: just one completion
   "pwd.info.toStrin▶" shouldGiveCompletions "toString"
 
   "{}.toStrin▶" shouldGiveCompletions "toString"
+
+  // Vectorisation: just one completion
+  "[4].toStrin▶" shouldGiveCompletions "toString"
+
+  // Completion positions
+  "{}.▶toStrin" shouldGiveCompletions "toString"
 
   // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
 
@@ -128,7 +174,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     description should not include ("vectorised")
   }
 
-  private implicit class RichString(s: String) {
+  private implicit class RichString(s: String)(
+      implicit val fileSystem: FileSystem = new MockFileSystem,
+      implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {
 
     def shouldGiveCompletions(expectedCompletions: String*) {
       val expectedDescription = expectedCompletions.mkString(", ")
@@ -154,25 +202,10 @@ class CompletionsTest extends FlatSpec with Matchers {
     def fullCompletions: Seq[Completion] = {
       val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)
       val env = Environment.create
-      val envInteractions = MockEnvironmentInteractions(Paths.get("/home/mash"))
       val completer = new UberCompleter(fileSystem, envInteractions)
       completer.complete(lineBuffer.text, lineBuffer.cursorPos, env, mish = false).map(_.completions).getOrElse(Seq())
     }
 
-    private val fileSystem: FileSystem = {
-      import com.github.mdr.mash.os.MockFileObject._
-      val root = Directory(
-        "home" -> Directory(
-          "mash" -> Directory(
-            "dir" -> Directory(),
-            "spaces in name" -> File(),
-            "readme.txt" -> File(),
-            ".mashrc" -> File(),
-            "foo.txt" -> File(),
-            "dollar$ign" -> File(),
-            "quotation\"mark" -> File())))
-      new MockFileSystem(root, pwd = Paths.get("/home/mash"))
-    }
-
   }
+
 }

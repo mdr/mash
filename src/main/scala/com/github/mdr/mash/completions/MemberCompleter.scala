@@ -76,10 +76,12 @@ object MemberCompleter {
     case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
     case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
     case Type.Seq(elementType) ⇒
-      if (canVectorise)
-        getMembers(SeqClass) ++ getMembers(elementType, canVectorise = false).map(_.copy(isVectorised = true))
-      else
-        getMembers(SeqClass)
+      val seqMembers = getMembers(SeqClass)
+      if (canVectorise) {
+        val elementMembers = getMembers(elementType, canVectorise = false).map(_.copy(isVectorised = true))
+        distinct(seqMembers ++ elementMembers)
+      } else
+        seqMembers
     case _ ⇒ Seq()
   }
 

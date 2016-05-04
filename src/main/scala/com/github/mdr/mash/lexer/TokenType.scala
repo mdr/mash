@@ -63,7 +63,7 @@ object TokenType {
   case object ELSE extends TokenType
   case object SEMI extends TokenType
   case object NULL extends TokenType
-  case object TILDE extends TokenType
+  case object TILDE extends TokenType // ~
   case object STRING_START extends TokenType // "foo
   case object STRING_MIDDLE extends TokenType // bar
   case object STRING_END extends TokenType // baz"
