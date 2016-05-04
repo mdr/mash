@@ -2,7 +2,8 @@ package com.github.mdr.mash.utils
 
 case class Region(offset: Int, length: Int) {
 
-  require(length >= 0)
+  require(length >= 0, s"Length must not be negative (length = $length, offset = $offset)")
+  require(offset >= 0, s"Offset must not be negative (offset = $offset, length = $length)")
   
   def contains(pos: Int) = offset <= pos && pos < offset + length
 

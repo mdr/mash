@@ -34,7 +34,7 @@ class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode:
   protected var modeStack: Seq[LexerMode] = Seq(initialMode)
 
   /**
-   * Current position within the string being tokenised.
+   * Current position within the string s.
    */
   private var pos: Int = 0
 
@@ -65,7 +65,7 @@ class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode:
 
   /**
    * Fetch the character some number of positions ahead of the current character, or EOF_MARKER if passed the end of the
-   * input.	
+   * input.
    */
   protected def ch(lookahead: Int): Char = {
     val newPos = pos + lookahead
@@ -79,7 +79,8 @@ class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode:
    * Consume the current character and advance to the next.
    */
   protected def nextChar() {
-    pos += 1
+    if (pos < s.length)
+      pos += 1
   }
 
   /**
@@ -92,10 +93,8 @@ class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode:
 
   protected def currentTokenText: String = s.substring(currentTokenStart, pos)
 
-  private def currentTokenRegion: Region = {
-    val safePos = math.min(pos, s.length)
-    Region(currentTokenStart, safePos - currentTokenStart)
-  }
+  private def currentTokenRegion: Region =
+    Region(currentTokenStart, pos - currentTokenStart)
 
   protected def currentPointedRegion = PointedRegion(pos, currentTokenRegion)
 

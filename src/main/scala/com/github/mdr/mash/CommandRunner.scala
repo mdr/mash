@@ -15,9 +15,9 @@ import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 
 case class CommandResult(
-    value: Option[Any] = None, 
-    toggleMish: Boolean = false, 
-    insertReferenceOpt: Option[Int] = None)
+  value: Option[Any] = None,
+  toggleMish: Boolean = false,
+  insertReferenceOpt: Option[Int] = None)
 
 object MishCommand {
 
@@ -122,12 +122,12 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
           TreePrettyPrinter.printTree(expr)
       case ("e" | "expression", actualCmd) ⇒
         for (expr ← Compiler.compile(actualCmd, environment, forgiving = true, bareWords = bareWords))
-          println(PrettyPrinter.pretty(expr))
+          output.println(PrettyPrinter.pretty(expr))
       case ("t" | "type", actualCmd) ⇒
         for (expr ← Compiler.compile(actualCmd, environment, forgiving = true, inferTypes = true, bareWords = bareWords))
-          println(expr.typeOpt.getOrElse("Could not infer type"))
+          output.println(expr.typeOpt.getOrElse("Could not infer type"))
       case ("tokens", actualCmd) ⇒
-        MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(println)
+        MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(output.println)
     }
   }
 

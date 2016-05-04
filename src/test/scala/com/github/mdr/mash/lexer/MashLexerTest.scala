@@ -99,6 +99,8 @@ class MashLexerTest extends FlatSpec with Matchers {
   "!mplayer" shouldProduce Seq(MISH_WORD)
   "!mplayer video" shouldProduce Seq(MISH_WORD, IDENTIFIER)
 
+  "!" shouldProduce Seq(ERROR)
+  
   { // mish mode
     implicit val mode = Mode(mish = true)
 

@@ -12,7 +12,7 @@ object TreePrettyPrinter {
   /**
    * Print an expression as an indented tree
    */
-  def printTree(expr: Expr, depth: Int = 0): Unit = {
+  def printTree(expr: Expr, depth: Int = 0) {
     val indent = "  " * depth
     print(indent)
     val typeDescription = expr.typeOpt.map(" [" + _ + "]").getOrElse("")
