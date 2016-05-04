@@ -47,7 +47,7 @@ class Repl(
 
   protected val completer = new UberCompleter(fileSystem, envInteractions)
 
-  val state = new ReplState()
+  val state = new ReplState
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
   // TODO: obviously this is horrible, will be fixed when DI gets sorted out

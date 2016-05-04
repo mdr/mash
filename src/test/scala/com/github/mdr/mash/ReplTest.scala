@@ -14,6 +14,7 @@ import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.os.MockEnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.LineBufferTestHelper._
+import com.github.mdr.mash.evaluator.MashString
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -66,6 +67,17 @@ class ReplTest extends FlatSpec with Matchers {
     repl.lineBuffer should equal(parseLineBuffer("▶23"))
   }
 
+  "Repl" should "respect bare words setting" in {
+    val repl = newRepl
+    repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
+    repl.input("foo").acceptLine()
+    repl.it should equal(MashString("foo"))
+    
+    repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
+    repl.input("foo").acceptLine()
+    repl.it should equal(() /* Repl should have emitted an error */)
+  }
+
   private def newRepl = makeRepl()
 
 }
@@ -106,6 +118,8 @@ object ReplTest {
     def backspace(): Repl = { repl.handleAction(BackwardDeleteChar); repl }
 
     def draw(): Repl = { repl.draw(); repl }
+
+    def it: Any = { repl.state.globalVariables(ReplState.It) }
 
   }
 }

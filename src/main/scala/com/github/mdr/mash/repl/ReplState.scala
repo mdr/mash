@@ -59,8 +59,8 @@ class ReplState(
       case None                                        ⇒ ReplMode.Normal
     }
 
-  private def getConfigObject = globalVariables.get("config") collect {
-    case Some(mo: MashObject) ⇒ mo
+  private def getConfigObject: Option[MashObject] = globalVariables.get("config") collect {
+    case mo: MashObject ⇒ mo
   }
 
   private def getBooleanConfig(configOption: ConfigOption): Boolean = {
