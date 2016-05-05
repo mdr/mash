@@ -10,6 +10,8 @@ object Utils {
     case n  ⇒ Some(n)
   }
 
+  def indexWhere[T](xs: Seq[T], f: T => Boolean): Option[Int] = xs.indexWhere(f) match { case -1 => None; case i => Some(i) }
+  
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {
     val result = ArrayBuffer[T]()
     xs.foreach(

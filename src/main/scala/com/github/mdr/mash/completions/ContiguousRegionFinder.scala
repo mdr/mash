@@ -2,6 +2,8 @@ package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.lexer._
 import com.github.mdr.mash.utils.Region
+import scala.annotation.tailrec
+import com.github.mdr.mash.utils.Utils
 
 object ContiguousRegionFinder {
 
@@ -16,27 +18,36 @@ object ContiguousRegionFinder {
   def getContiguousRegion(s: String, initialRegion: Region, mish: Boolean, liberal: Boolean): Region = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
 
-    val leftTokenIndex = tokens.indexWhere(_.region contains initialRegion.offset)
-    if (leftTokenIndex < 0)
-      return initialRegion
+    val startToken = scanTokensLeft(tokens, initialRegion, liberal).getOrElse(return initialRegion)
+    val endToken = scanTokensRight(tokens, initialRegion, liberal).getOrElse(return initialRegion)
 
-    val rightTokenIndex = tokens.indexWhere(_.region contains initialRegion.lastPos)
-    if (rightTokenIndex < 0)
-      return initialRegion
-
-    var start = leftTokenIndex
-    while (start > 0 && keep(tokens(start - 1), liberal))
-      start -= 1
-
-    var end = rightTokenIndex
-    while (end + 1 < tokens.length && keep(tokens(end + 1), liberal))
-      end += 1
-
-    val startToken = tokens(start)
     val startPos = startToken.region.offset
-    val endToken = tokens(end)
-    Region(startPos, endToken.region.posAfter - startPos)
+    Region(startPos until endToken.region.posAfter)
   }
+
+  private def scanTokensLeft(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] =
+    Utils.indexWhere(tokens, (t: Token) ⇒ t.region contains initialRegion.offset).map { leftTokenIndex ⇒
+      @tailrec
+      def scanLeft(pos: Int): Int =
+        if (pos > 0 && keep(tokens(pos - 1), liberal))
+          scanLeft(pos - 1)
+        else
+          pos
+      val start = scanLeft(leftTokenIndex)
+      tokens(start)
+    }
+
+  private def scanTokensRight(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] =
+    Utils.indexWhere(tokens, (t: Token) ⇒ t.region contains initialRegion.lastPos).map { rightTokenIndex ⇒
+      @tailrec
+      def scanRight(pos: Int): Int =
+        if (pos + 1 < tokens.length && keep(tokens(pos + 1), liberal))
+          scanRight(pos + 1)
+        else
+          pos
+      val end = scanRight(rightTokenIndex)
+      tokens(end)
+    }
 
   private def keep(token: Token, liberal: Boolean) = {
     import TokenType._
