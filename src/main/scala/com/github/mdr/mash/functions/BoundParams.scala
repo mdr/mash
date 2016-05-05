@@ -12,8 +12,9 @@ import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashNumber
 import java.nio.file.Path
 import com.github.mdr.mash.evaluator.MashList
+import scala.util.control.Exception._
 
-case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argument]) {
+case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[Argument]]) {
 
   def apply(param: String): Any = params(param)
 
@@ -30,7 +31,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
   }
 
   private def locationOpt(param: Parameter): Option[PointedRegion] =
-    argumentNodes.get(param.name).flatMap(_.sourceInfoOpt).map(_.location)
+    argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(_ merge _))
 
   def validateSequence(param: Parameter): Seq[Any] = this(param) match {
     case xs: MashList          ⇒ xs.items
@@ -72,6 +73,12 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Argu
         val message = s"Invalid argument '${param.name}'. Must be a path, but was '${ToStringifier.stringify(x)}'"
         throw new EvaluatorException(message, locationOpt(param))
     }
+  }
+
+  def validatePaths(param: Parameter): Seq[Path] = {
+    val x = this(param)
+    catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(x) getOrElse (
+      throw new EvaluatorException(s"Invalid argument '${param.name}', could not interpret as path.", locationOpt(param)))
   }
 
   object MashInteger {

@@ -27,6 +27,12 @@ case class Region(offset: Int, length: Int) {
     else if (that.length == 0) this.contains(that.offset)
     else !(this.lastPos < that.offset || that.lastPos < this.offset)
 
+  def merge(that: Region): Region = {
+    val offset = math.min(this.offset, that.offset)
+    val posAfter = math.max(this.posAfter, that.posAfter)
+    Region(offset, posAfter - offset)
+  }
+
 }
 
 /**
@@ -40,4 +46,5 @@ case class PointedRegion(point: Int, region: Region) {
 
   def posAfter = region.posAfter
 
+  def merge(that: PointedRegion): PointedRegion = copy(region = this.region merge that.region)
 }

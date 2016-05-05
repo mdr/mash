@@ -9,7 +9,7 @@ import com.github.mdr.mash.evaluator.MashList
 class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 
   private var boundParams: Map[String, Any] = Map()
-  private var argumentNodes: Map[String, Argument] = Map()
+  private var argumentNodes: Map[String, Seq[Argument]] = Map()
   private var lastParameterConsumed = false
 
   def validate(): BoundParams = {
@@ -18,6 +18,10 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     handleFlagArgs()
     handleDefaultAndMandatory()
     BoundParams(boundParams, argumentNodes)
+  }
+
+  private def addArgumentNode(paramName: String, argNode: Argument) {
+    argumentNodes += paramName -> (argumentNodes.getOrElse(paramName, Seq()) :+ argNode)
   }
 
   private def handleLastArg() =
@@ -30,7 +34,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       lastParameterConsumed = true
       boundParams += paramName -> lastArg.value
       for (argNode ← lastArg.argumentNodeOpt)
-        argumentNodes += paramName -> argNode
+        addArgumentNode(paramName, argNode)
     }
 
   private def handlePositionalArgs() = {
@@ -43,9 +47,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           val varargs = positionArgs.drop(regularPosParams.size)
           boundParams += variadicParam.name -> MashList(varargs.map(_.value))
           for {
-            firstVararg ← varargs.headOption
+            firstVararg ← varargs
             argNode ← firstVararg.argumentNodeOpt
-          } argumentNodes += variadicParam.name -> argNode
+          } addArgumentNode(variadicParam.name, argNode)
         case None ⇒
           val maxPositionArgs = params.positionalParams.size
           val providedArgs = arguments.positionArgs.size
@@ -59,7 +63,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     for ((param, arg) ← regularPosParams zip positionArgs) {
       boundParams += param.name -> arg.value
       for (argNode ← arg.argumentNodeOpt)
-        argumentNodes += param.name -> argNode
+        addArgumentNode(param.name, argNode)
     }
   }
 
@@ -87,7 +91,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         else {
           boundParams += param.name -> value
           for (argNode ← argNodeOpt)
-            argumentNodes += param.name -> argNode
+            addArgumentNode(param.name, argNode)
         }
       case None ⇒
         if (!ignoreAdditionalParameters)

@@ -61,7 +61,7 @@ If no paths are provided, the default is the current working directory."""))
     val ignoreDotFiles = Truthiness.isFalsey(boundParams(All))
     val recursive = Truthiness.isTruthy(boundParams(Recursive))
     val directory = Truthiness.isTruthy(boundParams(Directory))
-    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
+    val paths = boundParams.validatePaths(Paths)
 
     def listPath(path: Path): Seq[MashObject] =
       if (Files.isDirectory(path) && !directory)
