@@ -42,10 +42,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
           sourceInfo ← expr.sourceInfoOpt
           InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, nearbyToken)
           functionType ← invocationExpr.function.typeOpt
-          flags ← FlagCompleter.getFlags(functionType)
-          completions = FlagCompleter.completeLongFlag(flags, nearbyToken)
-          if completions.nonEmpty
-        } yield CompletionResult(completions, nearbyToken.region)
+          result ← FlagCompleter.completeLongFlag(functionType, nearbyToken)
+        } yield result
       case TokenType.MINUS ⇒
         val replaced = StringUtils.replace(s, nearbyToken.region, "--dummyFlag")
         val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
@@ -56,10 +54,8 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
           flagToken ← tokens.find(t ⇒ t.region.overlaps(nearbyToken.region) && t.isFlag)
           InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
           functionType ← invocationExpr.function.typeOpt
-          flags ← FlagCompleter.getFlags(functionType)
-          completions = FlagCompleter.completeAllFlags(flags)
-          if completions.nonEmpty
-        } yield CompletionResult(completions, nearbyToken.region)
+          result <- FlagCompleter.completeAllFlags(functionType, nearbyToken)
+        } yield result
       case TokenType.IDENTIFIER ⇒
         val StringCompletionResult(isPathCompletion, asStringResultOpt) = completeAsString(s, nearbyToken.region, env, mish = mish)
         val (isMemberExpr, memberResultOpt) = MemberCompleter.completeMember(s, nearbyToken, env, mish = mish)
