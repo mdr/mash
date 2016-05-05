@@ -165,7 +165,11 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   // Completion positions
   "{}.▶toStrin" shouldGiveCompletions "toString"
-
+  "ls ▶--al" shouldGiveCompletions "--all"
+  "ls ▶-" shouldContainCompletion "--all"
+  "1▶." shouldContainCompletion "days"
+  "1▶?." shouldContainCompletion "days"
+  
   {
     implicit val filesystem = MockFileSystem.of("/file.txt")
 

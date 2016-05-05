@@ -34,7 +34,7 @@ object UberCompleter {
 
   private def isPrimaryCompletionToken(token: Token) = {
     import TokenType._
-    Set[TokenType](STRING_LITERAL, TILDE, DIVIDE, LONG_FLAG, MINUS, IDENTIFIER, DOT, DOT_NULL_SAFE) contains token.tokenType
+    Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE) contains token.tokenType
   }
 }
 
@@ -45,7 +45,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def findNearbyToken(s: String, pos: Int, mish: Boolean): Option[Token] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
     tokens.find(t ⇒ t.region.contains(pos) && isPrimaryCompletionToken(t)) orElse
-      tokens.find(t ⇒ t.region.contains(pos) || pos == t.region.posAfter)
+      tokens.find(t ⇒ pos == t.region.posAfter || t.region.contains(pos))
   }
 
   def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] =
@@ -54,8 +54,6 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         case TokenType.STRING_LITERAL ⇒
           completeAsString(s, nearbyToken.region, env, mish).completionResultOpt orElse
             completeString(s, nearbyToken.region, env, mish).completionResultOpt
-        case TokenType.TILDE | TokenType.DIVIDE ⇒
-          completeAsString(s, nearbyToken.region, env, mish).completionResultOpt
         case TokenType.LONG_FLAG ⇒
           val exprOpt = Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
           for {
