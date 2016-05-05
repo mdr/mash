@@ -10,11 +10,13 @@ import org.fusesource.jansi.Ansi
 import org.apache.commons.io.IOUtils
 import scala.collection.JavaConverters._
 import java.nio.charset.StandardCharsets
+import java.io.PrintStream
 
 object ProcessRunner {
 
   private val terminalControl = Singletons.terminalControl
   private val envInteractions: EnvironmentInteractions = LinuxEnvironmentInteractions
+  private val output: PrintStream = System.out
 
   def runProcess(args: Seq[Any], expandTilde: Boolean = false, captureProcess: Boolean = false): ProcessResult = {
     terminalControl.setEchoEnabled(true)
@@ -41,8 +43,8 @@ object ProcessRunner {
       val statusCode = process.waitFor()
 
       // Clear out any partial output
-      System.out.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
-      System.out.flush()
+      output.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
+      output.flush()
 
       ProcessResult(statusCode, stdout)
     } finally

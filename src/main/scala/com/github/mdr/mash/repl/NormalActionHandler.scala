@@ -56,8 +56,8 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleClearScreen() {
-    System.out.write(Terminal.ClearScreenEscapeSequence.getBytes)
-    System.out.flush()
+    output.write(Terminal.ClearScreenEscapeSequence.getBytes)
+    output.flush()
     previousReplRenderResultOpt = None
   }
 
@@ -102,8 +102,8 @@ trait NormalActionHandler { self: Repl ⇒
     draw()
 
     for (renderResult ← previousReplRenderResultOpt) {
-      System.out.write(renderResult.screen.acceptScreen.getBytes)
-      System.out.flush()
+      output.write(renderResult.screen.acceptScreen.getBytes)
+      output.flush()
     }
   }
 

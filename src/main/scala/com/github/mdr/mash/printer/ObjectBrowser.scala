@@ -53,10 +53,10 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
 
   private def draw() {
     val screen = render
-    val output = screen.draw(previousScreenOpt, terminalInfo.columns)
+    val drawnScreen = screen.draw(previousScreenOpt, terminalInfo.columns)
     previousScreenOpt = Some(screen)
-    System.out.write(output.getBytes)
-    System.out.flush()
+    output.write(drawnScreen.getBytes)
+    output.flush()
   }
 
   private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
@@ -106,8 +106,8 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
       inputLoop()
     else {
       for (screen ← previousScreenOpt) {
-        System.out.write(screen.acceptScreen.getBytes)
-        System.out.flush()
+        output.write(screen.acceptScreen.getBytes)
+        output.flush()
       }
       insertRowOpt
     }

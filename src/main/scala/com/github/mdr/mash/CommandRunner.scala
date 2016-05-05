@@ -105,7 +105,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     for (PointedRegion(point, region @ Region(offset, length)) ← regionOpt) {
       output.print(Ansi.ansi().fg(Ansi.Color.RED))
       for (i ← 0 to region.posAfter)
-        print(i match {
+        output.print(i match {
           case i if i == point         ⇒ "^"
           case i if region.contains(i) ⇒ "-"
           case _                       ⇒ " "

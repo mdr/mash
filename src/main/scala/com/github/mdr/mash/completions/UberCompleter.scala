@@ -117,7 +117,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         if name startsWith prefix
         (completionType, description) = getBindingTypeAndDescription(value)
       } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = Some(description))
-    val fileCompletions = completeFiles(prefix)
+    val fileCompletions = completePaths(prefix)
     val completions = bindingCompletions ++ fileCompletions
     if (completions.isEmpty)
       None
@@ -166,7 +166,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         tokens = sourceInfo.expr.tokens
         literalToken ← tokens.find(_.region == stringRegion)
       } yield (expr, literalToken)
-    val argCompletionOpt =
+    lazy val argCompletionOpt =
       for {
         (expr, literalToken) ← exprAndTokenOpt
         InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
@@ -174,23 +174,23 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         completions = completeFromSpecs(completionSpecs, literalToken)
         if completions.nonEmpty
       } yield CompletionResult(completions, stringRegion)
-    val equalityCompletionOpt =
+    lazy val equalityCompletionOpt =
       for {
         (expr, literalToken) ← exprAndTokenOpt
         equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
         completions ← getEqualityCompletions(equalityType, literalToken)
         if completions.nonEmpty
       } yield CompletionResult(completions, stringRegion)
-    val filesCompletionOpt = {
+    lazy val pathCompletionOpt = {
       val withoutQuotes = stringRegion.of(s).filterNot(_ == '"')
-      val completions = completeFiles(withoutQuotes)
+      val completions = completePaths(withoutQuotes)
       if (completions.nonEmpty)
         Some(CompletionResult(completions, stringRegion))
       else
         None
     }
-    val isPathCompletion = argCompletionOpt.isEmpty && equalityCompletionOpt.isEmpty && filesCompletionOpt.isDefined
-    val completionResultOpt = argCompletionOpt orElse equalityCompletionOpt orElse filesCompletionOpt
+    val isPathCompletion = argCompletionOpt.isEmpty && equalityCompletionOpt.isEmpty && pathCompletionOpt.isDefined
+    val completionResultOpt = argCompletionOpt orElse equalityCompletionOpt orElse pathCompletionOpt
     StringCompletionResult(isPathCompletion, completionResultOpt)
   }
 
@@ -218,33 +218,16 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
   }
 
-  private def getFileCompletionType(pathString: String): Option[CompletionType] = {
-    val p = Paths.get(pathString)
-    val attrs = try
-      Files.getFileAttributeView(p, classOf[PosixFileAttributeView], LinkOption.NOFOLLOW_LINKS).readAttributes()
-    catch {
-      case e: IOException ⇒
-        return None
-    }
-    if (attrs.isRegularFile())
-      Some(CompletionType.File)
-    else if (attrs.isDirectory())
-      Some(CompletionType.Directory)
-    else
-      None
-  }
+  private def pathCompleter = new PathCompleter(fileSystem)
 
-  private def filePathCompleter = new FilePathCompleter(fileSystem)
-
-  private def completeFiles(s: String, directoriesOnly: Boolean = false): Seq[Completion] = {
+  private def completePaths(s: String, directoriesOnly: Boolean = false): Seq[Completion] = {
     val tildeExpander = new TildeExpander(envInteractions)
     val tildeExpandedOpt = tildeExpander.expandOpt(s)
     val prefix = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     for {
-      path ← filePathCompleter.getCompletions(prefix, directoriesOnly = directoriesOnly)
+      PathCompletion(path, typeOpt) ← pathCompleter.getCompletions(prefix, directoriesOnly = directoriesOnly)
       tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
       escaped = StringEscapes.escapeChars(tildeExpanded)
-      typeOpt = getFileCompletionType(path)
     } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, typeOpt = typeOpt, descriptionOpt = Some(path))
   }
 
@@ -256,7 +239,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     val withoutQuotes = literalToken.text.filterNot(_ == '"')
     spec match {
       case Directory | File ⇒
-        completeFiles(withoutQuotes, directoriesOnly = spec == Directory)
+        completePaths(withoutQuotes, directoriesOnly = spec == Directory)
       case Members(targetType) ⇒
         MemberCompleter.complete(targetType, withoutQuotes)
     }

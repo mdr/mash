@@ -11,7 +11,7 @@ import com.github.mdr.mash.os.MockFileObject
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.MockFileSystem
 
-class FilePathCompleterTest extends FlatSpec with Matchers {
+class PathCompleterTest extends FlatSpec with Matchers {
 
   "Files starting with the given prefix" should "be found" in {
     withFileSystem("file.txt" -> File()).getCompletions("file") should equal(Seq("file.txt"))
@@ -74,8 +74,12 @@ class FilePathCompleterTest extends FlatSpec with Matchers {
   "The '.' and '..' special directories" should "be completable with a path prefix" in {
     withFileSystem().getCompletions("/.") should equal(Seq("/./", "/../"))
   }
-  
-  private def withFileSystem(children: (String, MockFileObject)*) =
-    new FilePathCompleter(new MockFileSystem(Directory(children: _*)))
+
+  case class TestContext(pathCompleter: PathCompleter) {
+    def getCompletions(prefix: String) = pathCompleter.getCompletions(prefix).map(_.path)
+  }
+
+  private def withFileSystem(children: (String, MockFileObject)*): TestContext =
+    TestContext(new PathCompleter(new MockFileSystem(Directory(children: _*))))
 
 }
