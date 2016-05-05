@@ -30,23 +30,7 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 
-object UberCompleter {
-
-  private def isPrimaryCompletionToken(token: Token) = {
-    import TokenType._
-    Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE) contains token.tokenType
-  }
-}
-
 class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
-
-  import UberCompleter._
-
-  private def findNearbyToken(s: String, pos: Int, mish: Boolean): Option[Token] = {
-    val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-    tokens.find(t ⇒ t.region.contains(pos) && isPrimaryCompletionToken(t)) orElse
-      tokens.find(t ⇒ pos == t.region.posAfter || t.region.contains(pos))
-  }
 
   def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] =
     findNearbyToken(s, pos, mish).flatMap { nearbyToken ⇒
@@ -112,6 +96,20 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       }
     }.map(_.sorted)
 
+  /**
+   * Find a nearby token that we'll use as the start point for the completion search
+   */
+  private def findNearbyToken(s: String, pos: Int, mish: Boolean): Option[Token] = {
+    val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+    tokens.find(t ⇒ t.region.contains(pos) && isPrimaryCompletionToken(t)) orElse
+      tokens.find(t ⇒ pos == t.region.posAfter || t.region.contains(pos))
+  }
+
+  private def isPrimaryCompletionToken(token: Token) = {
+    import TokenType._
+    Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE) contains token.tokenType
+  }
+
   private def completeBindingsAndFiles(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
     val bindingCompletions =
       for {
@@ -147,11 +145,14 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
    * Reinterpret nearby characters as a String literal and attempt completion
    */
   private def completeAsString(s: String, initialRegion: Region, env: Environment, mish: Boolean): StringCompletionResult = {
-    val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish)
-    val replacement = '"' + contiguousRegion.of(s).filterNot('"' == _) + '"'
-    val replaced = StringUtils.replace(s, contiguousRegion, replacement)
-    val stringRegion = contiguousRegion.copy(length = replacement.length)
-    completeString(replaced, stringRegion, env, mish).withReplacementLocation(contiguousRegion)
+    def completeAsString(liberal: Boolean): StringCompletionResult = {
+      val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(s, initialRegion, mish = mish, liberal = liberal)
+      val replacement = '"' + contiguousRegion.of(s).filterNot('"' == _) + '"'
+      val replaced = StringUtils.replace(s, contiguousRegion, replacement)
+      val stringRegion = contiguousRegion.copy(length = replacement.length)
+      completeString(replaced, stringRegion, env, mish).withReplacementLocation(contiguousRegion)
+    }
+    completeAsString(liberal = true) orElse completeAsString(liberal = false)
   }
 
   /**

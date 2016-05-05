@@ -6,6 +6,7 @@ import java.time.Instant
 import com.github.mdr.mash.ns.os.FileTypeClass
 import scala.collection.immutable.ListMap
 import java.nio.file.Paths
+import java.util.NoSuchElementException
 
 object MockFileSystem {
 
@@ -42,6 +43,9 @@ class MockFileSystem(
   }
 
   def getChildren(parentDir: Path, ignoreDotFiles: Boolean, recursive: Boolean): Seq[PathSummary] = {
+    val parent =
+      try fetch(parentDir)
+      catch { case _: NoSuchElementException ⇒ return Seq() }
     val immediateChildren =
       fetch(parentDir) match {
         case d: MockFileObject.Directory ⇒ d.children.toSeq.map {

@@ -17,7 +17,7 @@ object QuoteToggler {
 
     val cursorToken = findCursorToken(text, mish, cursorPos).getOrElse(return lineBuffer)
     val cursorRegion = cursorToken.region
-    val targetRegion = ContiguousRegionFinder.getContiguousRegion(text, cursorRegion, mish = mish)
+    val targetRegion = ContiguousRegionFinder.getContiguousRegion(text, cursorRegion, mish = mish, liberal = true)
     val targetText = targetRegion.of(text)
     val isAlreadyQuoted = isQuoted(targetText, DoubleQuote) || isQuoted(targetText, "'")
     if (isAlreadyQuoted)

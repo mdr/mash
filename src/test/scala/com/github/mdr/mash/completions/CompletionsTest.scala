@@ -170,11 +170,13 @@ class CompletionsTest extends FlatSpec with Matchers {
   "1▶." shouldContainCompletion "days"
   "1▶?." shouldContainCompletion "days"
   
+  
   {
     implicit val filesystem = MockFileSystem.of("/file.txt")
 
     """ ("file."▶) """ shouldGiveCompletions "file.txt"
     """ (▶"file.") """ shouldGiveCompletions "file.txt"
+    "(/▶" shouldGiveCompletions "/file.txt"
   }
 
   // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"
