@@ -2,18 +2,22 @@ package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils
 
 object CompletionResult {
 
   /**
-   * Merge two optional CompletionResults together, adding the set of completions together if the same 
+   * Merge two optional CompletionResults together, adding the set of completions together if the same
    *   replacementLocation, else preferring the first result (if available).
    */
   def merge(result1Opt: Option[CompletionResult], result2Opt: Option[CompletionResult]): Option[CompletionResult] =
-    (result1Opt, result2Opt) match {
-      case (Some(result1), Some(result2)) ⇒ Some(result1 merge result2)
-      case _                              ⇒ result1Opt orElse result2Opt
-    }
+    Utils.optionCombine[CompletionResult](result1Opt, result2Opt, _ merge _)
+
+  def of(completions: Seq[Completion], replacementLocation: Region): Option[CompletionResult] =
+    if (completions.isEmpty)
+      None
+    else
+      Some(CompletionResult(completions, replacementLocation))
 
 }
 

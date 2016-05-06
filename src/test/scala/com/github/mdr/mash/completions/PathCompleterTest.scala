@@ -1,15 +1,14 @@
 package com.github.mdr.mash.completions
 
 import java.nio.file.Paths
-
 import org.scalatest.Finders
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.MockFileObject
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.os.MockEnvironmentInteractions
 
 class PathCompleterTest extends FlatSpec with Matchers {
 
@@ -80,6 +79,6 @@ class PathCompleterTest extends FlatSpec with Matchers {
   }
 
   private def withFileSystem(children: (String, MockFileObject)*): TestContext =
-    TestContext(new PathCompleter(new MockFileSystem(Directory(children: _*))))
+    TestContext(new PathCompleter(new MockFileSystem(Directory(children: _*)), MockEnvironmentInteractions()))
 
 }

@@ -99,9 +99,9 @@ object ReplRenderer {
     Screen(lines, Point(row, column))
   }
 
-  private def getBareTokens(s: String, mishByDefault: Boolean, globalVariables: mutable.Map[String, Any]): Set[Token] = {
+  private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, Any]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
-    MashParser.parse(s, forgiving = true, mish = mishByDefault).map { concreteExpr ⇒
+    MashParser.parse(s, forgiving = true, mish = mish).map { concreteExpr ⇒
       val abstractExpr = Abstractifier.abstractify(concreteExpr)
       BareStringify.getBareTokens(abstractExpr, bindings)
     }.getOrElse(Set())

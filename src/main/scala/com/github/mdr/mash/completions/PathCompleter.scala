@@ -3,13 +3,15 @@ package com.github.mdr.mash.completions
 import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import scala.PartialFunction.condOpt
 import scala.util.Try
-
 import com.github.mdr.mash.ns.os.FileTypeClass
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.PathSummary
+import com.github.mdr.mash.evaluator.TildeExpander
+import com.github.mdr.mash.os.EnvironmentInteractions
+import com.github.mdr.mash.parser.StringEscapes
+import com.github.mdr.mash.utils.Region
 
 case class PathCompletion(path: String, typeOpt: Option[CompletionType]) {
 
@@ -20,7 +22,20 @@ case class PathCompletion(path: String, typeOpt: Option[CompletionType]) {
 /**
  * Provide completions within the file system
  */
-class PathCompleter(fileSystem: FileSystem) {
+class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
+
+  def completePaths(s: String, region: Region, directoriesOnly: Boolean = false): Option[CompletionResult] = {
+    val tildeExpander = new TildeExpander(envInteractions)
+    val tildeExpandedOpt = tildeExpander.expandOpt(s)
+    val prefix = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
+    val completions =
+      for {
+        PathCompletion(path, typeOpt) ← getCompletions(prefix, directoriesOnly = directoriesOnly)
+        tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
+        escaped = StringEscapes.escapeChars(tildeExpanded)
+      } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, typeOpt = typeOpt, descriptionOpt = Some(path))
+      CompletionResult.of(completions, region)
+  }
 
   def getCompletions(searchString: String, directoriesOnly: Boolean = false): Seq[PathCompletion] = {
     val (searchPath, prefix) = getSearchPathAndPrefix(searchString)

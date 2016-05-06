@@ -1,63 +1,68 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.ns.collections._
+import com.github.mdr.mash.ns.collections.GroupClass
+import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.core.BoundMethodClass
 import com.github.mdr.mash.ns.core.FunctionClass
+import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.parser.SourceInfo
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.ns.core.BoundMethodClass
+
+case class MemberCompletionResult(isMemberExpr: Boolean, completionResultOpt: Option[CompletionResult])
 
 object MemberCompleter {
 
-  def complete(s: String, nearbyToken: Token, env: Environment, pos: Int, mish: Boolean): Option[CompletionResult] = {
-    val replaced = StringUtils.replace(s, nearbyToken.region, ".dummy")
-    val dummyRegion = nearbyToken.region.copy(offset = nearbyToken.region.offset + 1)
-    val exprOpt = Compiler.compile(replaced, env, forgiving = true, inferTypes = true, mish = mish)
+  private val Dummy = "dummy"
+
+  def completeAfterDot(text: String, dot: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
+    val replacedText = StringUtils.replace(text, dot.region, s"${dot.text}$Dummy ")
+    val dummyIdentifierRegion = Region(dot.region.posAfter, Dummy.length)
     for {
-      expr ← exprOpt
+      expr ← parser.parse(replacedText)
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
-      identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region.overlaps(dummyRegion))
+      identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region == dummyIdentifierRegion)
       memberExpr ← findMemberExpr(expr, identifierToken)
-      receiverType ← memberExpr.expr.typeOpt
-      members = getMembers(receiverType)
+      targetType ← memberExpr.target.typeOpt
+      members = getMembers(targetType)
       completions = members.map(_.asCompletion(isQuoted = false))
-      if completions.nonEmpty
-    } yield CompletionResult(completions, Region(nearbyToken.region.posAfter, 0))
+      region = Region(dot.region.posAfter, 0)
+      result ← CompletionResult.of(completions, region)
+    } yield result
   }
 
-  def complete(targetType: Type, prefix: String) =
+  def completeString(targetType: Type, prefix: String): Seq[Completion] =
     getMembers(targetType).filter(_.name startsWith prefix).map(_.asCompletion(isQuoted = true))
 
-  def completeMember(s: String, nearbyToken: Token, env: Environment, mish: Boolean): (Boolean, Option[CompletionResult]) = {
-    val exprOpt = Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
-    val memberExprOpt = for {
-      expr ← exprOpt
-      sourceInfo ← expr.sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
-      memberExpr ← findMemberExpr(expr, nearbyToken)
-    } yield memberExpr
+  def completeIdentifier(text: String, identifier: Token, parser: CompletionParser): MemberCompletionResult = {
+    val memberExprOpt = findMemberExpr(text, identifier, parser)
     val completionResultOpt =
       for {
         memberExpr ← memberExprOpt
-        receiverType ← memberExpr.expr.typeOpt
-        members = getMembers(receiverType)
-        completions = members.filter(_.name startsWith nearbyToken.text).map(_.asCompletion(isQuoted = false))
-        if completions.nonEmpty
-      } yield CompletionResult(completions, nearbyToken.region)
-    (memberExprOpt.isDefined, completionResultOpt)
+        targetType ← memberExpr.target.typeOpt
+        members = getMembers(targetType)
+        completions = members.filter(_.name startsWith identifier.text).map(_.asCompletion(isQuoted = false))
+        result ← CompletionResult.of(completions, identifier.region)
+      } yield result
+    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt)
   }
 
-  private def findMemberExpr(e: Expr, token: Token): Option[MemberExpr] = e.find {
+  private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] =
+    for {
+      expr ← parser.parse(text)
+      sourceInfo ← expr.sourceInfoOpt
+      tokens = sourceInfo.expr.tokens
+      memberExpr ← findMemberExpr(expr, identifier)
+    } yield memberExpr
+
+  private def findMemberExpr(expr: Expr, token: Token): Option[MemberExpr] = expr.find {
     case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(ConcreteSyntax.MemberExpr(_, _, `token`)))) ⇒ mexpr
   }
 

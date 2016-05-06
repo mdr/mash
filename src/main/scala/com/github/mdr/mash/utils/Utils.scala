@@ -10,8 +10,8 @@ object Utils {
     case n  ⇒ Some(n)
   }
 
-  def indexWhere[T](xs: Seq[T], f: T => Boolean): Option[Int] = xs.indexWhere(f) match { case -1 => None; case i => Some(i) }
-  
+  def indexWhere[T](xs: Seq[T], f: T ⇒ Boolean): Option[Int] = xs.indexWhere(f) match { case -1 ⇒ None; case i ⇒ Some(i) }
+
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {
     val result = ArrayBuffer[T]()
     xs.foreach(
@@ -59,5 +59,12 @@ object Utils {
     }
     items.map(Wrapper).distinct.map(_.item)
   }
+
+  def optionCombine[T](opt1: Option[T], opt2: Option[T], f: (T, T) ⇒ T): Option[T] =
+    (opt1, opt2) match {
+      case (_, None)                    ⇒ opt1
+      case (None, _)                    ⇒ opt2
+      case (Some(value1), Some(value2)) ⇒ Some(f(value1, value2))
+    }
 
 }

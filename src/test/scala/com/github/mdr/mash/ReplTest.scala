@@ -40,6 +40,16 @@ class ReplTest extends FlatSpec with Matchers {
     val Some(completionState: BrowserCompletionState) = repl.state.completionStateOpt
   }
 
+  "Completion bug after a hyphen" should "not happen" in {
+    val repl = newRepl
+    repl.input("ls -42 # foo").left(8)
+    repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
+    
+    repl.complete()
+    
+    repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
+  }
+
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
     val repl = newRepl
     repl.input("1").acceptLine()
@@ -72,10 +82,10 @@ class ReplTest extends FlatSpec with Matchers {
     repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
     repl.input("foo").acceptLine()
     repl.it should equal(MashString("foo"))
-    
+
     repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
     repl.input("foo").acceptLine()
-    repl.it should equal(() /* Repl should have emitted an error */)
+    repl.it should equal(() /* Repl should have emitted an error */ )
   }
 
   private def newRepl = makeRepl()

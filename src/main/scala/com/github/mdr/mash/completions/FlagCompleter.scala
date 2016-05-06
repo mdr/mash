@@ -5,18 +5,26 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.functions.Flag
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.utils.StringUtils
 
 object FlagCompleter {
 
   private val LongFlagPrefix = "--"
   private val ShortFlagPrefix = "-"
 
-  def completeLongFlag(functionType: Type, flagToken: Token): Option[CompletionResult] =
+  /**
+   * Given a long flag token, find completions for which it is a prefix.
+   */
+  def completeLongFlag(text: String, flagToken: Token, parser: CompletionParser): Option[CompletionResult] =
     for {
+      expr ← parser.parse(text)
+      sourceInfo ← expr.sourceInfoOpt
+      InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
+      functionType ← invocationExpr.function.typeOpt
       flags ← getFlags(functionType)
       completions = completeLongFlag(flags, flagToken)
-      if completions.nonEmpty
-    } yield CompletionResult(completions, flagToken.region)
+      result ← CompletionResult.of(completions, flagToken.region)
+    } yield result
 
   private def completeLongFlag(flags: Seq[Flag], flagToken: Token): Seq[Completion] = {
     val prefix = flagToken.text.drop(LongFlagPrefix.length)
@@ -26,19 +34,34 @@ object FlagCompleter {
     }
   }
 
-  def completeAllFlags(functionType: Type, flagToken: Token): Option[CompletionResult] =
+  /**
+   * Given a hyphen, provide completion options for all possible flags
+   */
+  def completeAllFlags(text: String, minusToken: Token, parser: CompletionParser): Option[CompletionResult] = {
+    val textWithDummyFlag = StringUtils.replace(text, minusToken.region, "--dummyFlag ")
     for {
+      expr ← parser.parse(textWithDummyFlag)
+      sourceInfo ← expr.sourceInfoOpt
+      tokens = sourceInfo.expr.tokens
+      flagToken ← tokens.find(t ⇒ t.isFlag && t.region.overlaps(minusToken.region))
+      InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
+      functionType ← invocationExpr.function.typeOpt
       flags ← getFlags(functionType)
-      completions = completeAllFlags(flags)
-      if completions.nonEmpty
-    } yield CompletionResult(completions, flagToken.region)
+      completions = flags.flatMap(getCompletions)
+      result <- CompletionResult.of(completions, minusToken.region)
+    } yield result
+  }
 
-  private def completeAllFlags(flags: Seq[Flag]): Seq[Completion] = flags.flatMap {
-    case Flag(description, shortNameOpt, longNameOpt) ⇒
-      val longFlags = longNameOpt.map(LongFlagPrefix + _).toSeq
-      val shortFlags = shortNameOpt.map(ShortFlagPrefix + _).toSeq
-      val flags = longFlags ++ shortFlags
-      flags.map(Completion(_, descriptionOpt = Some(description)))
+  /**
+   * Return the possible completions from this flag (there can be up to two -- one from the short form, one from
+   * the long).
+   */
+  private def getCompletions(flag: Flag): Seq[Completion] = {
+    val Flag(description, shortNameOpt, longNameOpt) = flag
+    val longFlags = longNameOpt.map(LongFlagPrefix + _).toSeq
+    val shortFlags = shortNameOpt.map(ShortFlagPrefix + _).toSeq
+    val flags = longFlags ++ shortFlags
+    flags.map(Completion(_, descriptionOpt = Some(description)))
   }
 
   private def getFlags(functionType: Type): Option[Seq[Flag]] = condOpt(functionType) {

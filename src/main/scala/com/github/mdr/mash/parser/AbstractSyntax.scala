@@ -148,14 +148,20 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class MemberExpr(expr: Expr, name: String, isNullSafe: Boolean, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  /**
+   * An expression of the form: target.member or target?.member
+   */
+  case class MemberExpr(target: Expr, name: String, isNullSafe: Boolean, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(expr)
+    def children = Seq(target)
   }
 
-  case class LookupExpr(expr: Expr, index: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  /**
+   * An expression of the form: target[index]
+   */
+  case class LookupExpr(target: Expr, index: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(expr, index)
+    def children = Seq(target, index)
   }
 
   case class PipeExpr(left: Expr, right: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
