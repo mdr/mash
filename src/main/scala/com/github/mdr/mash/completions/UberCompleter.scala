@@ -39,35 +39,11 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         val asStringResultOpt = stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
         CompletionResult.merge(flagResultOpt, asStringResultOpt)
       case TokenType.IDENTIFIER ⇒
-        val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, nearbyToken, parser)
-        val MemberCompletionResult(isMemberExpr, memberResultOpt) = MemberCompleter.completeIdentifier(text, nearbyToken, parser)
-        val bindingResultOpt =
-          if (isMemberExpr)
-            None // It would be misleading to try and complete other things in member position
-          else
-            completeBindingsAndFiles(parser.env, nearbyToken.text, nearbyToken.region)
-        if (isPathCompletion)
-          CompletionResult.merge(asStringResultOpt, bindingResultOpt)
-        else
-          asStringResultOpt orElse memberResultOpt orElse bindingResultOpt
+        completeIdentifier(text, nearbyToken, parser)
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
-        lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, nearbyToken, pos, parser)
-        lazy val asStringResultOpt = stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
-        // Prefer string completions for bare strings:
-        val isAfterBareString: Boolean =
-          (for {
-            previousToken ← parser.tokenise(text).find(_.region.posAfter == nearbyToken.offset)
-            bareTokens = parser.getBareTokens(text)
-          } yield bareTokens.contains(previousToken)).getOrElse(false)
-        // Prefer string completions in situations like "ls .emacs" by checking the char before the dot:
-        val posBefore = nearbyToken.offset - 1
-        val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace
-        if (isMemberDot && !isAfterBareString)
-          memberResultOpt orElse asStringResultOpt
-        else
-          asStringResultOpt orElse memberResultOpt
-      case t ⇒
-        val asStringRegion = if (t.isWhitespace) Region(pos, 0) else nearbyToken.region
+        completeDot(text, nearbyToken, pos, parser)
+      case tokenType ⇒
+        val asStringRegion = if (tokenType.isWhitespace) Region(pos, 0) else nearbyToken.region
         val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
         val bindingResultOpt = completeBindingsAndFiles(parser.env, prefix = "", Region(pos, 0))
         if (isPathCompletion)
@@ -75,6 +51,41 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         else
           asStringResultOpt orElse bindingResultOpt
     }
+
+  private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, identiferToken, parser)
+    val MemberCompletionResult(isMemberExpr, memberResultOpt) = MemberCompleter.completeIdentifier(text, identiferToken, parser)
+    val bindingResultOpt =
+      if (isMemberExpr)
+        None // It would be misleading to try and complete other things in member position
+      else
+        completeBindingsAndFiles(parser.env, identiferToken.text, identiferToken.region)
+    if (isPathCompletion)
+      CompletionResult.merge(asStringResultOpt, bindingResultOpt)
+    else
+      asStringResultOpt orElse memberResultOpt orElse bindingResultOpt
+  }
+
+  private def completeDot(text: String, dotToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
+    lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, dotToken, pos, parser)
+    lazy val asStringResultOpt = stringCompleter.completeAsString(text, dotToken, parser).completionResultOpt
+
+    // Prefer string completions in situations like "ls .emacs" by checking the char before the dot:
+    val posBefore = dotToken.offset - 1
+    val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace
+
+    // Prefer string completions for bare strings:
+    val isAfterBareString: Boolean =
+      (for {
+        previousToken ← parser.tokenise(text).find(_.region.posAfter == dotToken.offset)
+        bareTokens = parser.getBareTokens(text)
+      } yield bareTokens.contains(previousToken)).getOrElse(false)
+
+    if (isMemberDot && !isAfterBareString)
+      memberResultOpt orElse asStringResultOpt
+    else
+      asStringResultOpt orElse memberResultOpt
+  }
 
   /**
    * Find a nearby token that we'll use as the start point for the completion search
