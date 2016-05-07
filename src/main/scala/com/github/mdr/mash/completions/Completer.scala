@@ -11,7 +11,7 @@ import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils
 
-object UberCompleter {
+object Completer {
 
   private val PrimaryTokens: Set[TokenType] = {
     import TokenType._
@@ -20,9 +20,9 @@ object UberCompleter {
 
 }
 
-class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
+class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
 
-  import UberCompleter._
+  import Completer._
 
   private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
   private val stringCompleter = new StringCompleter(fileSystem, envInteractions)

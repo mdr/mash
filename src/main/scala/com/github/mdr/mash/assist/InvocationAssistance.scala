@@ -1,21 +1,20 @@
 package com.github.mdr.mash.assist
 
 import scala.PartialFunction.condOpt
-import com.github.mdr.mash.completions.UberCompleter
-import com.github.mdr.mash.lexer.MashLexer
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.lexer.Token
+
 import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.completions.InvocationInfo
-import com.github.mdr.mash.completions.InvocationFinder
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.FunctionClass
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.completions.ContiguousRegionFinder
+import com.github.mdr.mash.completions.InvocationFinder
+import com.github.mdr.mash.completions.InvocationInfo
+import com.github.mdr.mash.evaluator.BoundMethod
+import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.lexer.MashLexer
+import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.StringUtils
 
 object InvocationAssistance {
 

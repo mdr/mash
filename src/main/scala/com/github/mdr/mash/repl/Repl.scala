@@ -15,7 +15,7 @@ import com.github.mdr.mash.MishCommand
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.completions.CompletionResult
-import com.github.mdr.mash.completions.UberCompleter
+import com.github.mdr.mash.completions.Completer
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.input.BrowseCompletionsKeyMap
 import com.github.mdr.mash.input.InputAction
@@ -45,7 +45,7 @@ class Repl(
 
   import Repl._
 
-  protected val completer = new UberCompleter(fileSystem, envInteractions)
+  protected val completer = new Completer(fileSystem, envInteractions)
 
   val state = new ReplState
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None

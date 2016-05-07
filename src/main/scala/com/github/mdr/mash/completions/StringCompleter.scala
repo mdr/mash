@@ -72,7 +72,7 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
         (expr, literalToken) ← exprAndTokenOpt
         equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
         completions ← getEqualityCompletions(equalityType, literalToken)
-        result <- CompletionResult.of(completions, stringRegion)        
+        result ← CompletionResult.of(completions, stringRegion)
       } yield result
     lazy val pathCompletionOpt = {
       val withoutQuotes = stringRegion.of(text).filterNot(_ == '"')
@@ -86,7 +86,9 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
   private def getEqualityCompletions(t: Type, literalToken: Token): Option[Seq[Completion]] = condOpt(t) {
     case Type.Tagged(baseClass, tagClass) ⇒
       val withoutQuotes = literalToken.text.filterNot(_ == '"')
-      tagClass.enumerationValues.toSeq.flatten.filter(_.startsWith(withoutQuotes)).map(Completion(_, isQuoted = baseClass == StringClass))
+      tagClass.enumerationValues.toSeq.flatten
+        .filter(_.startsWith(withoutQuotes))
+        .map(Completion(_, isQuoted = baseClass == StringClass))
   }
 
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
@@ -97,22 +99,21 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
         m.getCompletionSpecs(argPos, Some(targetType), typedArguments(invocationExpr))
     }
 
-  private def typedArguments(invocationExpr: InvocationExpr): TypedArguments = {
-    def annotateArg(arg: Argument): TypedArgument =
-      arg match {
-        case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
-        case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
-        case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
-      }
-    SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
+  private def annotateArg(arg: Argument): TypedArgument = arg match {
+    case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
+    case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
+    case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
   }
+
+  private def typedArguments(invocationExpr: InvocationExpr): TypedArguments =
+    SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Option[CompletionResult] =
     completionSpecs.map(spec ⇒ completeFromSpec(spec, literalToken)).fold(None)(CompletionResult.merge)
 
   private def completeFromSpec(spec: CompletionSpec, literalToken: Token): Option[CompletionResult] = {
-    import CompletionSpec._
     val withoutQuotes = literalToken.text.filterNot(_ == '"')
+    import CompletionSpec._
     spec match {
       case Directory | File ⇒
         pathCompleter.completePaths(withoutQuotes, literalToken.region, directoriesOnly = spec == Directory)
@@ -123,4 +124,3 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
   }
 
 }
-
