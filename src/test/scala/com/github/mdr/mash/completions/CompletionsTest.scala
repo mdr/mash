@@ -71,7 +71,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     "read▶" shouldGiveCompletions ("readLines", "readme.txt")
     "readme.tx▶" shouldGiveCompletions ("readme.txt")
 
-    //    "readme.▶" shouldGiveCompletions ("readme.txt")
+    "readme.▶" shouldGiveCompletions ("readme.txt")
   }
 
   {

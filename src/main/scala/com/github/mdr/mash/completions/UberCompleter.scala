@@ -13,6 +13,7 @@ import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.compiler.BareStringify
 
 class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
 
@@ -52,10 +53,16 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
         lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, nearbyToken, pos, parser)
         lazy val asStringResultOpt = stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
-        // Avoid member completions in situations like "ls .emacs" by checking the char before the dot:
+        // Prefer string completions for bare strings:
+        val isAfterBareString: Boolean =
+          (for {
+            previousToken ← parser.tokenise(text).find(_.region.posAfter == nearbyToken.offset)
+            bareTokens = parser.getBareTokens(text)
+          } yield bareTokens.contains(previousToken)).getOrElse(false)
+        // Prefer string completions in situations like "ls .emacs" by checking the char before the dot:
         val posBefore = nearbyToken.offset - 1
         val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace
-        if (isMemberDot)
+        if (isMemberDot && !isAfterBareString)
           memberResultOpt orElse asStringResultOpt
         else
           asStringResultOpt orElse memberResultOpt
@@ -115,5 +122,9 @@ case class CompletionParser(env: Environment, mish: Boolean) {
 
   def tokenise(s: String): Seq[Token] =
     MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+
+  def getBareTokens(s: String): Seq[Token] =
+    Compiler.compile(s, env, forgiving = true, mish = mish, bareWords = false).map(expr ⇒
+      BareStringify.getBareTokens(expr, env.globalVariables.keySet.toSet).toSeq).getOrElse(Seq())
 
 }
