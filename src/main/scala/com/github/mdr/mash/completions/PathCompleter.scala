@@ -23,9 +23,10 @@ case class PathCompletion(path: String, typeOpt: Option[CompletionType]) {
  * Provide completions within the file system
  */
 class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
+  
+  private val tildeExpander = new TildeExpander(envInteractions)
 
   def completePaths(s: String, region: Region, directoriesOnly: Boolean = false): Option[CompletionResult] = {
-    val tildeExpander = new TildeExpander(envInteractions)
     val tildeExpandedOpt = tildeExpander.expandOpt(s)
     val prefix = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     val completions =
@@ -34,7 +35,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
         escaped = StringEscapes.escapeChars(tildeExpanded)
       } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, typeOpt = typeOpt, descriptionOpt = Some(path))
-      CompletionResult.of(completions, region)
+    CompletionResult.of(completions, region)
   }
 
   def getCompletions(searchString: String, directoriesOnly: Boolean = false): Seq[PathCompletion] = {

@@ -42,19 +42,26 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         completeIdentifier(text, nearbyToken, parser)
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
         completeDot(text, nearbyToken, pos, parser)
-      case tokenType ⇒
-        val asStringRegion = if (tokenType.isWhitespace) Region(pos, 0) else nearbyToken.region
-        val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
-        val bindingResultOpt = completeBindingsAndFiles(parser.env, prefix = "", Region(pos, 0))
-        if (isPathCompletion)
-          CompletionResult.merge(asStringResultOpt, bindingResultOpt)
-        else
-          asStringResultOpt orElse bindingResultOpt
+      case _ ⇒
+        completeMisc(text, nearbyToken, pos, parser)
     }
 
+  private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
+    val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) =
+      stringCompleter.completeAsString(text, asStringRegion, parser)
+    val bindingResultOpt = completeBindingsAndFiles(parser.env, prefix = "", Region(pos, 0))
+    if (isPathCompletion)
+      CompletionResult.merge(asStringResultOpt, bindingResultOpt)
+    else
+      asStringResultOpt orElse bindingResultOpt
+  }
+
   private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
-    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, identiferToken, parser)
-    val MemberCompletionResult(isMemberExpr, memberResultOpt) = MemberCompleter.completeIdentifier(text, identiferToken, parser)
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) =
+      stringCompleter.completeAsString(text, identiferToken, parser)
+    val MemberCompletionResult(isMemberExpr, memberResultOpt) =
+      MemberCompleter.completeIdentifier(text, identiferToken, parser)
     val bindingResultOpt =
       if (isMemberExpr)
         None // It would be misleading to try and complete other things in member position
