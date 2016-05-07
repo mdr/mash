@@ -1,21 +1,28 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.compiler.BareStringify
+
+object UberCompleter {
+
+  private val PrimaryTokens: Set[TokenType] = {
+    import TokenType._
+    Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE)
+  }
+
+}
 
 class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
+
+  import UberCompleter._
 
   private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
   private val stringCompleter = new StringCompleter(fileSystem, envInteractions)
@@ -25,19 +32,29 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     findNearbyToken(s, pos, parser).flatMap(completeToken(s, pos, parser)).map(_.sorted)
   }
 
+  /**
+   * Find a nearby token that we'll use as the start point for the completion search
+   */
+  private def findNearbyToken(s: String, pos: Int, parser: CompletionParser): Option[Token] = {
+    val tokens = parser.tokenise(s)
+    val beforeTokenOpt = tokens.find(_.region.posAfter == pos)
+    val onTokenOpt = tokens.find(_.region contains pos)
+    def isPrimary(token: Token) = PrimaryTokens contains token.tokenType
+    Utils.optionCombine[Token](beforeTokenOpt, onTokenOpt, {
+      case (beforeToken, onToken) if isPrimary(onToken)     ⇒ onToken
+      case (beforeToken, onToken) if isPrimary(beforeToken) ⇒ beforeToken
+      case (beforeToken, onToken)                           ⇒ onToken
+    })
+  }
+
   private def completeToken(text: String, pos: Int, parser: CompletionParser)(nearbyToken: Token) =
     nearbyToken.tokenType match {
       case TokenType.STRING_LITERAL ⇒
-        stringCompleter.completeString(text, nearbyToken, parser).completionResultOpt orElse
-          stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
+        completeStringLiteral(text, nearbyToken, parser)
       case TokenType.LONG_FLAG ⇒
-        val flagResultOpt = FlagCompleter.completeLongFlag(text, nearbyToken, parser)
-        val asStringResultOpt = stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
-        CompletionResult.merge(flagResultOpt, asStringResultOpt)
+        completeLongFlag(text, nearbyToken, parser)
       case TokenType.MINUS ⇒
-        val flagResultOpt = FlagCompleter.completeAllFlags(text, nearbyToken, parser)
-        val asStringResultOpt = stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
-        CompletionResult.merge(flagResultOpt, asStringResultOpt)
+        completeMinus(text, nearbyToken, parser)
       case TokenType.IDENTIFIER ⇒
         completeIdentifier(text, nearbyToken, parser)
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
@@ -46,16 +63,20 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
         completeMisc(text, nearbyToken, pos, parser)
     }
 
-  private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
-    val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
-    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
-    val bindingResultOpt = completeBindings(parser.env, prefix = "", Region(pos, 0))
-    // Path completions should merge with bindings, other types of string completions should take priority over
-    // binding completions
-    if (isPathCompletion)
-      CompletionResult.merge(asStringResultOpt, bindingResultOpt)
-    else
-      asStringResultOpt orElse bindingResultOpt
+  private def completeStringLiteral(text: String, stringLiteral: Token, parser: CompletionParser): Option[CompletionResult] =
+    stringCompleter.completeString(text, stringLiteral, parser).completionResultOpt orElse
+      stringCompleter.completeAsString(text, stringLiteral, parser).completionResultOpt
+
+  private def completeLongFlag(text: String, flag: Token, parser: CompletionParser): Option[CompletionResult] = {
+    val flagResultOpt = FlagCompleter.completeLongFlag(text, flag, parser)
+    val asStringResultOpt = stringCompleter.completeAsString(text, flag, parser).completionResultOpt
+    CompletionResult.merge(flagResultOpt, asStringResultOpt)
+  }
+
+  private def completeMinus(text: String, minus: Token, parser: CompletionParser): Option[CompletionResult] = {
+    val flagResultOpt = FlagCompleter.completeAllFlags(text, minus, parser)
+    val asStringResultOpt = stringCompleter.completeAsString(text, minus, parser).completionResultOpt
+    CompletionResult.merge(flagResultOpt, asStringResultOpt)
   }
 
   private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
@@ -65,9 +86,9 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       MemberCompleter.completeIdentifier(text, identiferToken, parser)
     val bindingResultOpt =
       if (isMemberExpr)
-        None // It would be misleading to try and complete other things in member position
+        None // It would be misleading to try and complete bindings in member position
       else
-        completeBindings(parser.env, identiferToken.text, identiferToken.region)
+        BindingCompleter.completeBindings(parser.env, identiferToken.text, identiferToken.region)
     if (isPathCompletion)
       CompletionResult.merge(asStringResultOpt, bindingResultOpt)
     else
@@ -95,53 +116,16 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       asStringResultOpt orElse memberResultOpt
   }
 
-  /**
-   * Find a nearby token that we'll use as the start point for the completion search
-   */
-  private def findNearbyToken(s: String, pos: Int, parser: CompletionParser): Option[Token] = {
-    val tokens = parser.tokenise(s)
-    val beforeTokenOpt = tokens.find(_.region.posAfter == pos)
-    val onTokenOpt = tokens.find(_.region contains pos)
-    Utils.optionCombine[Token](beforeTokenOpt, onTokenOpt, {
-      case (beforeToken, onToken) if isPrimaryCompletionToken(onToken) ⇒ onToken
-      case (beforeToken, onToken) if isPrimaryCompletionToken(beforeToken) ⇒ beforeToken
-      case (beforeToken, onToken) ⇒ onToken
-    })
+  private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
+    val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
+    val bindingResultOpt = BindingCompleter.completeBindings(parser.env, prefix = "", Region(pos, 0))
+    // Path completions should merge with binding completions, other types of string completions should take priority over
+    // binding completions:
+    if (isPathCompletion)
+      CompletionResult.merge(asStringResultOpt, bindingResultOpt)
+    else
+      asStringResultOpt orElse bindingResultOpt
   }
-
-  private def isPrimaryCompletionToken(token: Token) = {
-    import TokenType._
-    Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE) contains token.tokenType
-  }
-
-  private def completeBindings(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
-    val completions =
-      for {
-        (name, value) ← env.valuesMap.toSeq
-        if name startsWith prefix
-        (completionType, description) = getBindingTypeAndDescription(value)
-      } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = Some(description))
-    CompletionResult.of(completions, region)
-  }
-
-  private def getBindingTypeAndDescription(value: Any) = value match {
-    case mf: MashFunction ⇒ (CompletionType.Function, mf.summary)
-    case bf: BoundMethod  ⇒ (CompletionType.Method, bf.method.summary)
-    case x                ⇒ (CompletionType.Binding, x + "")
-  }
-
-}
-
-case class CompletionParser(env: Environment, mish: Boolean) {
-
-  def parse(s: String): Option[Expr] =
-    Compiler.compile(s, env, forgiving = true, inferTypes = true, mish = mish)
-
-  def tokenise(s: String): Seq[Token] =
-    MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-
-  def getBareTokens(s: String): Seq[Token] =
-    Compiler.compile(s, env, forgiving = true, mish = mish, bareWords = false).map(expr ⇒
-      BareStringify.getBareTokens(expr, env.globalVariables.keySet.toSet).toSeq).getOrElse(Seq())
 
 }
