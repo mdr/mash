@@ -14,6 +14,13 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   // Note: ▶ denotes the cursor position when completions are requested
 
+  {
+    implicit val filesystem = MockFileSystem.of("/foo")
+
+    "▶" shouldContainCompletion "ls"
+    "▶" shouldContainCompletion "foo"
+  }
+
   "{ foo: 42 }.fo▶" shouldGiveCompletions ("foo")
 
   "{ bar: 1, baz: 2, buzz: 3 }.ba▶" shouldGiveCompletions ("bar", "baz")

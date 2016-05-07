@@ -48,9 +48,10 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
     val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
-    val StringCompletionResult(isPathCompletion, asStringResultOpt) =
-      stringCompleter.completeAsString(text, asStringRegion, parser)
-    val bindingResultOpt = completeBindingsAndFiles(parser.env, prefix = "", Region(pos, 0))
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
+    val bindingResultOpt = completeBindings(parser.env, prefix = "", Region(pos, 0))
+    // Path completions should merge with bindings, other types of string completions should take priority over
+    // binding completions
     if (isPathCompletion)
       CompletionResult.merge(asStringResultOpt, bindingResultOpt)
     else
@@ -66,7 +67,7 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       if (isMemberExpr)
         None // It would be misleading to try and complete other things in member position
       else
-        completeBindingsAndFiles(parser.env, identiferToken.text, identiferToken.region)
+        completeBindings(parser.env, identiferToken.text, identiferToken.region)
     if (isPathCompletion)
       CompletionResult.merge(asStringResultOpt, bindingResultOpt)
     else
@@ -113,16 +114,14 @@ class UberCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     Set[TokenType](STRING_LITERAL, IDENTIFIER, LONG_FLAG, MINUS, DOT, DOT_NULL_SAFE) contains token.tokenType
   }
 
-  private def completeBindingsAndFiles(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
-    val bindingCompletions =
+  private def completeBindings(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
+    val completions =
       for {
         (name, value) ← env.valuesMap.toSeq
         if name startsWith prefix
         (completionType, description) = getBindingTypeAndDescription(value)
       } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = Some(description))
-    val bindingResultOpt = CompletionResult.of(bindingCompletions, region)
-    val pathResultOpt = pathCompleter.completePaths(prefix, region)
-    CompletionResult.merge(bindingResultOpt, pathResultOpt)
+    CompletionResult.of(completions, region)
   }
 
   private def getBindingTypeAndDescription(value: Any) = value match {
