@@ -33,7 +33,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   }
 
   /**
-   * Find a nearby token that we'll use as the start point for the completion search
+   * Find a nearby token to use as the start point for the completion search
    */
   private def findNearbyToken(s: String, pos: Int, parser: CompletionParser): Option[Token] = {
     val tokens = parser.tokenise(s)
@@ -118,10 +118,11 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
     val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
-    val StringCompletionResult(isPathCompletion, asStringResultOpt) = stringCompleter.completeAsString(text, asStringRegion, parser)
+    val StringCompletionResult(isPathCompletion, asStringResultOpt) =
+      stringCompleter.completeAsString(text, asStringRegion, parser)
     val bindingResultOpt = BindingCompleter.completeBindings(parser.env, prefix = "", Region(pos, 0))
-    // Path completions should merge with binding completions, other types of string completions should take priority over
-    // binding completions:
+    // Path completions should merge with binding completions, other types of string completions should take priority
+    // over binding completions:
     if (isPathCompletion)
       CompletionResult.merge(asStringResultOpt, bindingResultOpt)
     else

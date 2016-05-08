@@ -72,6 +72,8 @@ class CompletionsTest extends FlatSpec with Matchers {
     "readLines.▶".completions should contain("toString")
   }
 
+  ".▶" shouldGiveCompletions ("../", "./")
+  
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 

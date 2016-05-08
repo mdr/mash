@@ -24,6 +24,7 @@ case class StringCompletionResult(isPathCompletion: Boolean, completionResultOpt
 class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
 
   private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
+  private val argCompleter = new ArgCompleter(fileSystem, envInteractions)
 
   def completeAsString(text: String, token: Token, parser: CompletionParser): StringCompletionResult =
     completeAsString(text, token.region, parser)
@@ -53,27 +54,8 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
    * - complete paths
    */
   def completeString(text: String, stringRegion: Region, parser: CompletionParser): StringCompletionResult = {
-    val exprAndTokenOpt =
-      for {
-        expr ← parser.parse(text)
-        sourceInfo ← expr.sourceInfoOpt
-        tokens = sourceInfo.expr.tokens
-        literalToken ← tokens.find(_.region == stringRegion)
-      } yield (expr, literalToken)
-    lazy val argCompletionOpt =
-      for {
-        (expr, literalToken) ← exprAndTokenOpt
-        InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
-        completionSpecs ← getCompletionSpecs(invocationExpr, argPos)
-        result ← completeFromSpecs(completionSpecs, literalToken)
-      } yield result
-    lazy val equalityCompletionOpt =
-      for {
-        (expr, literalToken) ← exprAndTokenOpt
-        equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
-        completions ← getEqualityCompletions(equalityType, literalToken)
-        result ← CompletionResult.of(completions, stringRegion)
-      } yield result
+    lazy val argCompletionOpt = argCompleter.completeArg(text, stringRegion, parser)
+    lazy val equalityCompletionOpt = EqualityCompleter.completeEquality(text, stringRegion, parser)
     lazy val pathCompletionOpt = {
       val withoutQuotes = stringRegion.of(text).filterNot(_ == '"')
       pathCompleter.completePaths(withoutQuotes, stringRegion)
@@ -81,46 +63,6 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
     val isPathCompletion = argCompletionOpt.isEmpty && equalityCompletionOpt.isEmpty && pathCompletionOpt.isDefined
     val completionResultOpt = argCompletionOpt orElse equalityCompletionOpt orElse pathCompletionOpt
     StringCompletionResult(isPathCompletion, completionResultOpt)
-  }
-
-  private def getEqualityCompletions(t: Type, literalToken: Token): Option[Seq[Completion]] = condOpt(t) {
-    case Type.Tagged(baseClass, tagClass) ⇒
-      val withoutQuotes = literalToken.text.filterNot(_ == '"')
-      tagClass.enumerationValues.toSeq.flatten
-        .filter(_.startsWith(withoutQuotes))
-        .map(Completion(_, isQuoted = baseClass == StringClass))
-  }
-
-  private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
-    invocationExpr.function.typeOpt.collect {
-      case Type.DefinedFunction(f) ⇒
-        f.getCompletionSpecs(argPos, typedArguments(invocationExpr))
-      case Type.BoundMethod(targetType, m) ⇒
-        m.getCompletionSpecs(argPos, Some(targetType), typedArguments(invocationExpr))
-    }
-
-  private def annotateArg(arg: Argument): TypedArgument = arg match {
-    case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
-    case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
-    case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
-  }
-
-  private def typedArguments(invocationExpr: InvocationExpr): TypedArguments =
-    SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
-
-  private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Option[CompletionResult] =
-    completionSpecs.map(spec ⇒ completeFromSpec(spec, literalToken)).fold(None)(CompletionResult.merge)
-
-  private def completeFromSpec(spec: CompletionSpec, literalToken: Token): Option[CompletionResult] = {
-    val withoutQuotes = literalToken.text.filterNot(_ == '"')
-    import CompletionSpec._
-    spec match {
-      case Directory | File ⇒
-        pathCompleter.completePaths(withoutQuotes, literalToken.region, directoriesOnly = spec == Directory)
-      case Members(targetType) ⇒
-        val members = MemberCompleter.completeString(targetType, withoutQuotes)
-        CompletionResult.of(members, literalToken.region)
-    }
   }
 
 }
