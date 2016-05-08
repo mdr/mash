@@ -9,7 +9,8 @@ object ContiguousRegionFinder {
 
   private val IlliberalStopTokens: Set[TokenType] = {
     import TokenType._
-    Set[TokenType](LPAREN, RPAREN, LBRACE, RBRACE, LSQUARE, RSQUARE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START)
+    Set[TokenType](LPAREN, LPAREN_INVOKE, RPAREN, LBRACE, RBRACE, LSQUARE, LSQUARE_LOOKUP, RSQUARE,
+      MISH_INTERPOLATION_START, MISH_INTERPOLATION_START)
   }
 
   /**
@@ -25,29 +26,29 @@ object ContiguousRegionFinder {
     Region(startPos until endToken.region.posAfter)
   }
 
-  private def scanTokensLeft(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] =
-    Utils.indexWhere(tokens, (t: Token) ⇒ t.region contains initialRegion.offset).map { leftTokenIndex ⇒
-      @tailrec
-      def scanLeft(pos: Int): Int =
+  private def scanTokensLeft(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] = {
+    val startPosOpt = Utils.indexWhere[Token](tokens, _.region contains initialRegion.offset)
+    startPosOpt.map { leftTokenIndex ⇒
+      @tailrec def scanLeft(pos: Int): Int =
         if (pos > 0 && keep(tokens(pos - 1), liberal))
           scanLeft(pos - 1)
         else
           pos
-      val start = scanLeft(leftTokenIndex)
-      tokens(start)
+      tokens(scanLeft(leftTokenIndex))
     }
+  }
 
-  private def scanTokensRight(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] =
-    Utils.indexWhere(tokens, (t: Token) ⇒ t.region contains initialRegion.lastPos).map { rightTokenIndex ⇒
-      @tailrec
-      def scanRight(pos: Int): Int =
+  private def scanTokensRight(tokens: Seq[Token], initialRegion: Region, liberal: Boolean): Option[Token] = {
+    val startPosOpt = Utils.indexWhere[Token](tokens, _.region contains initialRegion.lastPos)
+    startPosOpt.map { rightTokenIndex ⇒
+      @tailrec def scanRight(pos: Int): Int =
         if (pos + 1 < tokens.length && keep(tokens(pos + 1), liberal))
           scanRight(pos + 1)
         else
           pos
-      val end = scanRight(rightTokenIndex)
-      tokens(end)
+      tokens(scanRight(rightTokenIndex))
     }
+  }
 
   private def keep(token: Token, liberal: Boolean) = {
     import TokenType._

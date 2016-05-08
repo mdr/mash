@@ -117,9 +117,10 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   }
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
-    val asStringRegion = if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
+//    val asStringRegion = Region(pos, 0) //if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
-      stringCompleter.completeAsString(text, asStringRegion, parser)
+      stringCompleter.completeAsString(text, nearbyToken.region, parser) orElse
+        stringCompleter.completeAsString(text, Region(pos, 0), parser)
     val bindingResultOpt = BindingCompleter.completeBindings(parser.env, prefix = "", Region(pos, 0))
     // Path completions should merge with binding completions, other types of string completions should take priority
     // over binding completions:

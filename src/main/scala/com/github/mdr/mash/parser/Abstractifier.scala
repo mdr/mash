@@ -132,7 +132,7 @@ object Abstractifier {
 
   private def abstractifyParenInvocation(invocationExpr: Concrete.ParenInvocationExpr): Abstract.Expr = {
     val Concrete.ParenInvocationExpr(function, _, argsOpt, _) = invocationExpr
-    def abstractifyArg(expr: Concrete.Expr) = Abstract.ParenExpr(abstractify(expr), Some(SourceInfo(expr)))
+    def abstractifyArg(expr: Concrete.Expr) = abstractify(expr) //Abstract.ParenExpr(abstractify(expr), Some(SourceInfo(expr)))
     val args: Seq[Argument] =
       (argsOpt match {
         case Some(Concrete.ParenInvocationArgs(firstArg, otherArgs)) ⇒

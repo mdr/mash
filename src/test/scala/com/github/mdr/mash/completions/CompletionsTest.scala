@@ -43,6 +43,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     "cd /hom▶" shouldGiveCompletions ("/home/")
     "cd /home/al▶" shouldGiveCompletions ("/home/alice/")
     """cd "/home"/al▶""" shouldGiveCompletions ("/home/alice/")
+    "cd(/hom▶" shouldGiveCompletions ("/home/")
   }
 
   {
@@ -53,6 +54,10 @@ class CompletionsTest extends FlatSpec with Matchers {
     "cd ▶" shouldGiveCompletions ("dir/")
     "cd d▶" shouldGiveCompletions ("dir/")
     "cd pw▶" shouldGiveCompletions ("pwd")
+
+    "cd(▶" shouldGiveCompletions ("dir/")
+    "cd(d▶" shouldGiveCompletions ("dir/")
+    "cd(pw▶" shouldGiveCompletions ("pwd")
   }
 
   {
@@ -73,7 +78,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   ".▶" shouldGiveCompletions ("../", "./")
-  
+
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 
@@ -203,6 +208,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     """ ("file."▶) """ shouldGiveCompletions "file.txt"
     """ (▶"file.") """ shouldGiveCompletions "file.txt"
     "(/▶" shouldGiveCompletions "/file.txt"
+    "(▶" shouldContainCompletion "file.txt"
+    "readLines(file.▶" shouldGiveCompletions "file.txt"
+    "readLines(▶" shouldContainCompletion "file.txt"
   }
 
   // """ps | where (_.owner == "roo▶""" shouldGiveCompletions "root"

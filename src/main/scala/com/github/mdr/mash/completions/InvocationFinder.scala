@@ -41,7 +41,7 @@ object InvocationFinder {
 
   /**
    * A pattern for extracting arguments from a concrete invocation expression.
-   * 
+   *
    * PipeExpr's are also matched, as they are the associated concrete syntax for an abstract InvocationExpr derived
    * from a pipe expression.
    */
@@ -50,6 +50,8 @@ object InvocationFinder {
     def unapply(expr: ConcreteSyntax.Expr): Option[Seq[ConcreteSyntax.AstNode]] = condOpt(expr) {
       case ConcreteSyntax.InvocationExpr(_, args)                                ⇒ args
       case ConcreteSyntax.PipeExpr(_, _, ConcreteSyntax.InvocationExpr(_, args)) ⇒ args // source corresponding to a desugared pipe
+      case ConcreteSyntax.ParenInvocationExpr(_, _, Some(ConcreteSyntax.ParenInvocationArgs(firstArg, otherArgs)), _) ⇒
+        firstArg +: otherArgs.map(_._2)
     }
 
   }

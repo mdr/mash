@@ -34,7 +34,8 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
    */
   def completeAsString(text: String, initialRegion: Region, parser: CompletionParser): StringCompletionResult = {
     def completeAsString(liberal: Boolean): StringCompletionResult = {
-      val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(text, initialRegion, mish = parser.mish, liberal = liberal)
+      val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(text, initialRegion, mish = parser.mish,
+        liberal = liberal)
       val replacement = '"' + contiguousRegion.of(text).filterNot('"' == _) + '"'
       val replaced = StringUtils.replace(text, contiguousRegion, replacement)
       val stringRegion = contiguousRegion.copy(length = replacement.length)
