@@ -67,8 +67,10 @@ object MemberCompleter {
   }
 
   private def getMembers(klass: MashClass): Seq[MemberInfo] = {
-    val fieldMembers = klass.fields.map(f ⇒ MemberInfo(f.name, classOpt = Some(klass), descriptionOpt = Some(f.summary), isField = true))
-    val methodMembers = klass.methods.map(m ⇒ MemberInfo(m.name, classOpt = Some(klass), descriptionOpt = Some(m.summary), isField = false))
+    val fieldMembers = klass.fields.map(f ⇒
+      MemberInfo(f.name, classOpt = Some(klass), descriptionOpt = Some(f.summary), isField = true))
+    val methodMembers = klass.methods.map(m ⇒
+      MemberInfo(m.name, classOpt = Some(klass), descriptionOpt = Some(m.summary), isField = false))
     val parentClassMembers = klass.parentOpt.toSeq.flatMap(parentClass ⇒ getMembers(parentClass))
     val members = fieldMembers ++ methodMembers ++ parentClassMembers
     distinct(members)
@@ -76,11 +78,13 @@ object MemberCompleter {
 
   private def getMembers(t: Type, canVectorise: Boolean = true): Seq[MemberInfo] = t match {
     case Type.Instance(klass)             ⇒ getMembers(klass)
-    case Type.Object(fields)              ⇒ distinct(fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true)) ++ getMembers(ObjectClass))
     case Type.Tagged(baseClass, tagClass) ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
     case Type.Group(keyType, elementType) ⇒ getMembers(GroupClass)
     case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
     case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
+    case Type.Object(fields) ⇒
+      val fieldMembers = fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true))
+      distinct(fieldMembers ++ getMembers(ObjectClass))
     case Type.Seq(elementType) ⇒
       val seqMembers = getMembers(SeqClass)
       if (canVectorise) {
