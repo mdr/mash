@@ -12,8 +12,10 @@ import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.parser.StringEscapeResult
 
-case class PathCompletion(path: String, typeOpt: Option[CompletionType]) {
+case class PathCompletion(path: String, typeOpt: Option[CompletionType], pos: Int) {
 
   def sortKey = if (path endsWith "/") path.init else path
 
@@ -23,26 +25,48 @@ case class PathCompletion(path: String, typeOpt: Option[CompletionType]) {
  * Provide completions within the file system
  */
 class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteractions) {
-  
+
   private val tildeExpander = new TildeExpander(envInteractions)
 
-  def completePaths(s: String, region: Region, directoriesOnly: Boolean = false): Option[CompletionResult] = {
+  /**
+   * @param substring -- if true, match a substring of the path, else a prefix
+   */
+  def completePaths(s: String, region: Region, directoriesOnly: Boolean = false, substring: Boolean): Option[CompletionResult] = {
     val tildeExpandedOpt = tildeExpander.expandOpt(s)
-    val prefix = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
+    val searchString = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     val completions =
       for {
-        PathCompletion(path, typeOpt) ← getCompletions(prefix, directoriesOnly = directoriesOnly)
-        tildeExpanded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
-        escaped = StringEscapes.escapeChars(tildeExpanded)
-      } yield Completion(tildeExpanded, Some(escaped), isQuoted = true, typeOpt = typeOpt, descriptionOpt = Some(path))
+        PathCompletion(path, typeOpt, displayPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
+        retilded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
+        StringEscapeResult(escaped, escapeMap) = StringEscapes.escapeCharsFull(retilded)
+        location = CompletionLocation(displayPos, escapeMap(displayPos))
+      } yield Completion(
+        displayText = retilded,
+        insertTextOpt = Some(escaped),
+        isQuoted = true,
+        typeOpt = typeOpt,
+        descriptionOpt = Some(path),
+        location = location)
     CompletionResult.of(completions, region)
   }
 
-  def getCompletions(searchString: String, directoriesOnly: Boolean = false): Seq[PathCompletion] = {
-    val (searchPath, prefix) = getSearchPathAndPrefix(searchString)
-    val childPaths = getMatchingChildren(searchPath, prefix, directoriesOnly)
-    val specialPaths = getSpecialDotDirs(searchPath, prefix)
+  def getCompletions(searchString: String, directoriesOnly: Boolean = false, substring: Boolean): Seq[PathCompletion] = {
+    val (searchPath, fragment) = getSearchPathAndFragment(searchString)
+    val childPaths = getMatchingChildren(searchPath, fragment, directoriesOnly = directoriesOnly, substring = substring)
+    val specialPaths = getSpecialDotDirs(searchPath, fragment)
     (specialPaths ++ childPaths).sortBy(_.sortKey)
+  }
+
+  /**
+   * Get children in the given search path matching the given prefix
+   */
+  private def getMatchingChildren(searchPath: Path, fragment: String, directoriesOnly: Boolean, substring: Boolean): Seq[PathCompletion] = {
+    val ignoreDotFiles = !fragment.startsWith(".")
+    for {
+      path ← getChildren(searchPath, ignoreDotFiles)
+      if path.fileType == FileTypeClass.Values.Dir || !directoriesOnly
+      (hit, pos) ← pathMatches(fragment, substring)(path)
+    } yield makeCompletion(searchPath, hit, pos)
   }
 
   private def getChildren(searchPath: Path, ignoreDotFiles: Boolean): Seq[PathSummary] =
@@ -50,18 +74,20 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       fileSystem.getChildren(searchPath, ignoreDotFiles = ignoreDotFiles, recursive = false)
     }.getOrElse(Seq())
 
-  /**
-   * Get children in the given search path matching the given prefix
-   */
-  private def getMatchingChildren(searchPath: Path, prefix: String, directoriesOnly: Boolean): Seq[PathCompletion] = {
-    val ignoreDotFiles = !prefix.startsWith(".")
-    getChildren(searchPath, ignoreDotFiles)
-      .filter(_.fileType == FileTypeClass.Values.Dir || !directoriesOnly)
-      .filter(_.path.getFileName.toString startsWith prefix)
-      .map(makeCompletion(searchPath))
+  private def pathMatches(fragment: String, substring: Boolean)(path: PathSummary): Option[(PathSummary, Int)] = {
+    val name = path.path.getFileName.toString
+    val matches =
+      if (substring)
+        name contains fragment
+      else
+        name startsWith fragment
+    if (matches)
+      Some((path, name.indexOf(fragment)))
+    else
+      None
   }
 
-  private def makeCompletion(searchPath: Path)(pathSummary: PathSummary): PathCompletion = {
+  private def makeCompletion(searchPath: Path, pathSummary: PathSummary, pos: Int): PathCompletion = {
     val isDirectory = pathSummary.fileType == FileTypeClass.Values.Dir
     val suffix = if (isDirectory) "/" else ""
     val path = searchPath.resolve(pathSummary.path.getFileName).toString + suffix
@@ -69,10 +95,10 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       case FileTypeClass.Values.Dir  ⇒ CompletionType.Directory
       case FileTypeClass.Values.File ⇒ CompletionType.File
     }
-    PathCompletion(path, typeOpt)
+    PathCompletion(path, typeOpt, pos)
   }
 
-  private def getSearchPathAndPrefix(searchString: String): (Path, String) = {
+  private def getSearchPathAndFragment(searchString: String): (Path, String) = {
     val path = Paths.get(searchString)
     val searchPath =
       if (searchString endsWith "/")
@@ -93,7 +119,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def getSpecialDotDirs(searchPath: Path, prefix: String): Seq[PathCompletion] =
     getSpecialDotDirs(prefix).map { dir ⇒
       val path = searchPath.resolve(dir).toString + "/"
-      PathCompletion(path, Some(CompletionType.Directory))
+      PathCompletion(path, Some(CompletionType.Directory), pos = 0)
     }
 
   private def getSpecialDotDirs(prefix: String): Seq[String] =

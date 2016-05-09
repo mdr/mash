@@ -75,7 +75,7 @@ class PathCompleterTest extends FlatSpec with Matchers {
   }
 
   case class TestContext(pathCompleter: PathCompleter) {
-    def getCompletions(prefix: String) = pathCompleter.getCompletions(prefix).map(_.path)
+    def getCompletions(prefix: String) = pathCompleter.getCompletions(prefix, substring = false).map(_.path)
   }
 
   private def withFileSystem(children: (String, MockFileObject)*): TestContext =

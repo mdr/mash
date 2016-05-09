@@ -13,7 +13,8 @@ case class Completion(
     insertTextOpt: Option[String] = None,
     isQuoted: Boolean = false,
     typeOpt: Option[CompletionType] = None,
-    descriptionOpt: Option[String] = None) {
+    descriptionOpt: Option[String] = None,
+    location: CompletionLocation = CompletionLocation(0, 0)) {
 
   def insertText = insertTextOpt.getOrElse(displayText)
 
@@ -22,3 +23,5 @@ case class Completion(
   private def quote(s: String) = '"' + s + '"'
 
 }
+
+case class CompletionLocation(displayPos: Int, insertPos: Int)

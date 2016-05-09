@@ -33,19 +33,20 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
    * Reinterpret nearby characters as a String literal and attempt completion on that instead.
    */
   def completeAsString(text: String, initialRegion: Region, parser: CompletionParser): StringCompletionResult = {
-    def completeAsString(liberal: Boolean): StringCompletionResult = {
+    def completeAsString(liberal: Boolean, substring: Boolean): StringCompletionResult = {
       val contiguousRegion = ContiguousRegionFinder.getContiguousRegion(text, initialRegion, mish = parser.mish,
         liberal = liberal)
       val replacement = '"' + contiguousRegion.of(text).filterNot('"' == _) + '"'
       val replaced = StringUtils.replace(text, contiguousRegion, replacement)
       val stringRegion = contiguousRegion.copy(length = replacement.length)
-      completeString(replaced, stringRegion, parser).withReplacementLocation(contiguousRegion)
+      completeString(replaced, stringRegion, parser, substring).withReplacementLocation(contiguousRegion)
     }
-    completeAsString(liberal = true) orElse completeAsString(liberal = false)
+    completeAsString(liberal = true, substring = false) orElse completeAsString(liberal = false, substring = false) orElse
+      completeAsString(liberal = true, substring = true) orElse completeAsString(liberal = false, substring = true)
   }
 
-  def completeString(text: String, token: Token, parser: CompletionParser): StringCompletionResult =
-    completeString(text, token.region, parser)
+  def completeString(text: String, token: Token, parser: CompletionParser, substring: Boolean): StringCompletionResult =
+    completeString(text, token.region, parser, substring)
 
   /**
    * Provide completions for the string literal at the given position, attempting several strategies:
@@ -54,12 +55,12 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
    * - if it's one side of an equality or inequality expression, provide completions based on the type of the other side
    * - complete paths
    */
-  def completeString(text: String, stringRegion: Region, parser: CompletionParser): StringCompletionResult = {
+  def completeString(text: String, stringRegion: Region, parser: CompletionParser, substring: Boolean): StringCompletionResult = {
     lazy val argCompletionOpt = argCompleter.completeArg(text, stringRegion, parser)
     lazy val equalityCompletionOpt = EqualityCompleter.completeEquality(text, stringRegion, parser)
     lazy val pathCompletionOpt = {
       val withoutQuotes = stringRegion.of(text).filterNot(_ == '"')
-      pathCompleter.completePaths(withoutQuotes, stringRegion)
+      pathCompleter.completePaths(withoutQuotes, stringRegion, substring = substring)
     }
     val isPathCompletion = argCompletionOpt.isEmpty && equalityCompletionOpt.isEmpty && pathCompletionOpt.isDefined
     val completionResultOpt = argCompletionOpt orElse equalityCompletionOpt orElse pathCompletionOpt

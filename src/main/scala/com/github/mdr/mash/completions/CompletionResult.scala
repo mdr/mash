@@ -4,6 +4,19 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 
+case class CompletionFragment(beforeReversed: String, after: String) {
+  def getCommon(that: CompletionFragment): CompletionFragment = {
+    val commonBefore = StringUtils.commonPrefix(this.beforeReversed, that.beforeReversed)
+    val commonAfter = StringUtils.commonPrefix(this.after, that.after)
+    CompletionFragment(commonBefore, commonAfter)
+  }
+  
+  def before = beforeReversed.reverse
+  
+  def text = before + after
+  
+}
+
 object CompletionResult {
 
   /**
@@ -19,6 +32,14 @@ object CompletionResult {
     else
       Some(CompletionResult(completions, replacementLocation))
 
+  def getCommonText(completions: Seq[Completion], f: Completion ⇒ String): CompletionFragment =
+    completions.map(getCompletionFragment(f)).reduce(_ getCommon _)
+
+  private def getCompletionFragment(f: Completion ⇒ String)(completion: Completion): CompletionFragment = {
+    val (before, after) = f(completion).splitAt(completion.location.insertPos)
+    CompletionFragment(before.reverse, after)
+  }
+
 }
 
 /**
@@ -33,7 +54,7 @@ case class CompletionResult(completions: Seq[Completion], replacementLocation: R
   def translate(n: Int) = copy(replacementLocation = replacementLocation.translate(n))
 
   def getCommonInsertText: String = {
-    def common = completions.map(_.insertText).reduce(StringUtils.commonPrefix)
+    val common = CompletionResult.getCommonText(completions, _.insertText).text
     if (allQuoted) quote(common) else common
   }
 

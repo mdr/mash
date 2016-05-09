@@ -51,7 +51,9 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
     import CompletionSpec._
     spec match {
       case Directory | File ⇒
-        pathCompleter.completePaths(withoutQuotes, literalToken.region, directoriesOnly = spec == Directory)
+        def completePaths(substring: Boolean) =
+          pathCompleter.completePaths(withoutQuotes, literalToken.region, directoriesOnly = spec == Directory, substring = substring)
+        completePaths(substring = false) orElse completePaths(substring = true)
       case Members(targetType) ⇒
         val members = MemberCompleter.completeString(targetType, withoutQuotes)
         CompletionResult.of(members, literalToken.region)

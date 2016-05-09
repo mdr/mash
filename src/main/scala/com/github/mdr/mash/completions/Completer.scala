@@ -64,7 +64,8 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     }
 
   private def completeStringLiteral(text: String, stringLiteral: Token, parser: CompletionParser): Option[CompletionResult] =
-    stringCompleter.completeString(text, stringLiteral, parser).completionResultOpt orElse
+    stringCompleter.completeString(text, stringLiteral, parser, substring = false).completionResultOpt orElse
+      stringCompleter.completeString(text, stringLiteral, parser, substring = true).completionResultOpt orElse
       stringCompleter.completeAsString(text, stringLiteral, parser).completionResultOpt
 
   private def completeLongFlag(text: String, flag: Token, parser: CompletionParser): Option[CompletionResult] = {
@@ -117,7 +118,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   }
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
-//    val asStringRegion = Region(pos, 0) //if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
+    //    val asStringRegion = Region(pos, 0) //if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, nearbyToken.region, parser) orElse
         stringCompleter.completeAsString(text, Region(pos, 0), parser)

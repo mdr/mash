@@ -3,6 +3,8 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.completions.CompletionResult
+import com.github.mdr.mash.completions.CompletionFragment
 
 sealed trait CompletionState {
 
@@ -25,7 +27,7 @@ case class IncrementalCompletionState(
     immediatelyAfterCompletion: Boolean,
     mementoOpt: Option[ReplStateMemento] = None) extends CompletionState {
 
-  def getCommonDisplayText: String = completions.map(_.displayText).reduce(StringUtils.commonPrefix)
+  def getCommonDisplayText: CompletionFragment = CompletionResult.getCommonText(completions, _.displayText)
 
 }
 

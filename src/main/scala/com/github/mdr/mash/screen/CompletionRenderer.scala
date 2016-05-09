@@ -12,6 +12,7 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.completions.CompletionFragment
 
 case class CompletionRenderResult(lines: Seq[Line], numberOfCompletionColumns: Int)
 
@@ -42,8 +43,8 @@ object CompletionRenderer {
    */
   private def renderCompletionOptions(completionState: CompletionState, terminalInfo: TerminalInfo): (Seq[Line], Int) = {
     val completions = completionState.completions
-    val commonPrefix = completionState match {
-      case bcs: BrowserCompletionState     ⇒ ""
+    val completionFragment = completionState match {
+      case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "")
       case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayText
     }
     val terminalWidth = math.max(0, terminalInfo.columns)
@@ -51,26 +52,27 @@ object CompletionRenderer {
     val columnGap = " " * 2
     val numberOfCompletionColumns = math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
     val columnWidth = math.min(terminalWidth, longestCompletionLength)
-    val truncatedCommonPrefix = StringUtils.ellipsisise(commonPrefix, columnWidth)
 
     def renderCompletion(completion: Completion, index: Int): Seq[StyledCharacter] = {
-      val Completion(displayText, _, _, completionTypeOpt, _) = completion
+      val Completion(displayText, _, _, completionTypeOpt, _, location) = completion
       val truncatedText = StringUtils.ellipsisise(displayText, columnWidth)
       val active = cond(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion == index }
       val colour = getCompletionColour(completionTypeOpt)
 
-      val commonPrefixStyle = Style(foregroundColour = colour, bold = true, inverse = active)
-      val commonPrefixStyled = commonPrefix.map(StyledCharacter(_, commonPrefixStyle))
+      val commonFragmentStyle = Style(foregroundColour = colour, bold = true, inverse = active)
+      val commonFragmentStyled = completionFragment.text.map(StyledCharacter(_, commonFragmentStyle))
 
-      val after = truncatedText.drop(commonPrefix.length)
-      val afterStyle = Style(foregroundColour = colour, inverse = active)
-      val afterStyled = after.map(StyledCharacter(_, afterStyle))
+      val beforeAfterStyle = Style(foregroundColour = colour, inverse = active)
+      val before = truncatedText.take(location.displayPos - completionFragment.before.length)
+      val beforeStyled = before.map(StyledCharacter(_, beforeAfterStyle))
+      val after = truncatedText.drop(location.displayPos + completionFragment.after.length)
+      val afterStyled = after.map(StyledCharacter(_, beforeAfterStyle))
 
       val padding = " " * (columnWidth - truncatedText.length)
       val paddingStyle = Style(foregroundColour = colour, inverse = active)
       val paddingStyled = padding.map(StyledCharacter(_, paddingStyle))
 
-      commonPrefixStyled ++ afterStyled ++ paddingStyled
+      beforeStyled ++ commonFragmentStyled ++ afterStyled ++ paddingStyled
     }
 
     val allLines =

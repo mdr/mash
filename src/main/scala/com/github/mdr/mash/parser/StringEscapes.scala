@@ -1,8 +1,20 @@
 package com.github.mdr.mash.parser
 
+case class StringEscapeResult(escaped: String, escapeMap: Map[Int, Int])
+
 object StringEscapes {
 
-  def escapeChars(s: String) = s.flatMap {
+  def escapeCharsFull(s: String): StringEscapeResult = {
+    val sb = new StringBuilder
+    var escapeMap: Map[Int, Int] = Map()
+    for ((c, i) ← s.zipWithIndex) {
+      escapeMap += i -> sb.length
+      sb.append(escapeChar(c))
+    }
+    StringEscapeResult(sb.toString, escapeMap)
+  }
+
+  private def escapeChar(c: Char): String = c match {
     case '$'  ⇒ """\$"""
     case '"'  ⇒ """\""""
     case '\\' ⇒ """\\"""
@@ -11,6 +23,8 @@ object StringEscapes {
     case '\t' ⇒ """\t"""
     case c    ⇒ c + ""
   }
+
+  def escapeChars(s: String) = escapeCharsFull(s).escaped
 
   def unescape(s: String): String = {
     val sb = new StringBuilder()
