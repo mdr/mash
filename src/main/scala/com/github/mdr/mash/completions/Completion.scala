@@ -24,4 +24,13 @@ case class Completion(
 
 }
 
+/**
+ * Location within the completion that corresponds to the start of the original piece of text to complete.
+ * 
+ * For example, if the user is completing the word "123" and the completion is "foo123bar", the location would be
+ * at the fourth character (pos 3 zero indexed).
+ * 
+ * @param displayPos -- location within the displayText
+ * @param insertPos -- location with the insertText 
+ */
 case class CompletionLocation(displayPos: Int, insertPos: Int)

@@ -14,7 +14,11 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.parser.StringEscapeResult
+import com.github.mdr.mash.evaluator.RetildeResult
 
+/**
+ * @param pos -- position within path that corresponds to the completion search string
+ */
 case class PathCompletion(path: String, typeOpt: Option[CompletionType], pos: Int) {
 
   def sortKey = if (path endsWith "/") path.init else path
@@ -36,8 +40,9 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     val searchString = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     val completions =
       for {
-        PathCompletion(path, typeOpt, displayPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
-        retilded = if (tildeExpandedOpt.isDefined) tildeExpander.retilde(path) else path
+        PathCompletion(path, typeOpt, completionPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
+        RetildeResult(retilded, charsLost) = if (tildeExpandedOpt.isDefined) tildeExpander.retildeFull(path) else RetildeResult(path, 0)
+        displayPos = completionPos - charsLost
         StringEscapeResult(escaped, escapeMap) = StringEscapes.escapeCharsFull(retilded)
         location = CompletionLocation(displayPos, escapeMap(displayPos))
       } yield Completion(
@@ -61,11 +66,11 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
    * Get children in the given search path matching the given prefix
    */
   private def getMatchingChildren(searchPath: Path, fragment: String, directoriesOnly: Boolean, substring: Boolean): Seq[PathCompletion] = {
-    val ignoreDotFiles = !fragment.startsWith(".")
+    val ignoreDotFiles = substring || !fragment.startsWith(".")
     for {
       path ← getChildren(searchPath, ignoreDotFiles)
       if path.fileType == FileTypeClass.Values.Dir || !directoriesOnly
-      (hit, pos) ← pathMatches(fragment, substring)(path)
+      (hit, pos) ← pathMatches(fragment, substring, path)
     } yield makeCompletion(searchPath, hit, pos)
   }
 
@@ -74,7 +79,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       fileSystem.getChildren(searchPath, ignoreDotFiles = ignoreDotFiles, recursive = false)
     }.getOrElse(Seq())
 
-  private def pathMatches(fragment: String, substring: Boolean)(path: PathSummary): Option[(PathSummary, Int)] = {
+  private def pathMatches(fragment: String, substring: Boolean, path: PathSummary): Option[(PathSummary, Int)] = {
     val name = path.path.getFileName.toString
     val matches =
       if (substring)
@@ -95,7 +100,11 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       case FileTypeClass.Values.Dir  ⇒ CompletionType.Directory
       case FileTypeClass.Values.File ⇒ CompletionType.File
     }
-    PathCompletion(path, typeOpt, pos)
+    val prefixLength = searchPath.toString match {
+      case "" => 0
+      case s => s.length + 1
+    }
+    PathCompletion(path, typeOpt, prefixLength + pos)
   }
 
   private def getSearchPathAndFragment(searchString: String): (Path, String) = {

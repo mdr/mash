@@ -20,6 +20,7 @@ v0.0.2 (..)
 * Added --createIntermediates flag for mkdir
 * Variadic parameters can require at least one argument
 * Added view.raw, view.browser to control output formatting
+* Support substring path completions
 
 v0.0.1 (19/January/2016)
 ------------------------

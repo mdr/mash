@@ -117,7 +117,6 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     "-▶" shouldGiveCompletions ("-")
     "ls -▶" shouldContainCompletion "-"
-
   }
 
   {
@@ -170,14 +169,14 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     """ quotation▶ """ shouldGiveCompletions """quotation\"mark"""
     """ "quotation▶""" shouldGiveCompletions """quotation\"mark"""
-  }
 
-  // Would like to get these cases working too:
-  //  """ quotation\"mar▶ """ shouldGiveCompletions """quotation\"mark"""
-  //  """ quotation"▶ """ shouldGiveCompletions """quotation\"mark"""
-  //  """ "quotation\"▶""" shouldGiveCompletions """quotation\"mark"""
-  //  """ quotation\"▶ """ shouldGiveCompletions """quotation\"mark"""
-  //  """ "quotation▶ """ shouldGiveCompletions """quotation\"mark"""
+    // Would like to get these cases working too:
+    //  """ quotation\"mar▶ """ shouldGiveCompletions """quotation\"mark"""
+    //  """ quotation"▶ """ shouldGiveCompletions """quotation\"mark"""
+    //  """ "quotation\"▶""" shouldGiveCompletions """quotation\"mark"""
+    //  """ quotation\"▶ """ shouldGiveCompletions """quotation\"mark"""
+    //  """ "quotation▶ """ shouldGiveCompletions """quotation\"mark"""
+  }
 
   // tilde 
   {
@@ -219,6 +218,25 @@ class CompletionsTest extends FlatSpec with Matchers {
     val Some(completion) = "pwd.children.isEmpt▶".fullCompletions.find(_.displayText == "isEmpty")
     val Some(description) = completion.descriptionOpt
     description should not include ("vectorised")
+  }
+
+  // Substring completions 
+
+  {
+    implicit val filesystem = new MockFileSystem(Directory(
+      "abc123xyz" -> File(),
+      "foobar123baz" -> File()))
+
+    "123▶" shouldGiveCompletions ("abc123xyz", "foobar123baz")
+    "1▶" shouldGiveCompletions ("abc123xyz", "foobar123baz")
+  }
+
+  {
+    implicit val filesystem = new MockFileSystem(Directory(
+      "foo---" -> File(),
+      "---foo" -> File()))
+
+    "foo▶" shouldGiveCompletions ("foo---")
   }
 
   private implicit class RichString(s: String)(

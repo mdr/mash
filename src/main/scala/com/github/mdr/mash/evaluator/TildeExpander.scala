@@ -9,6 +9,8 @@ object TildeExpander {
 
 }
 
+case class RetildeResult(text: String, charsLost: Int)
+
 class TildeExpander(envInteractions: EnvironmentInteractions) {
   import TildeExpander._
 
@@ -23,11 +25,13 @@ class TildeExpander(envInteractions: EnvironmentInteractions) {
   def expandOpt(s: String): Option[String] =
     TildeRegex.findFirstMatchIn(s).map { _ ⇒ expand(s) }
 
-  def retilde(s: String): String =
+  def retildeFull(s: String): RetildeResult =
     if (s startsWith home)
-      "~" + s.drop(home.length)
+      RetildeResult("~" + s.drop(home.length), home.length)
     else
-      s
+      RetildeResult(s, 0)
+
+  def retilde(s: String): String = retildeFull(s).text
 
   private def home: String = envInteractions.home.toString
 

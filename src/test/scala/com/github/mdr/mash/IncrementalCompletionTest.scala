@@ -79,6 +79,38 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     completions should equal(Seq("foo$bar", "foo$baz"))
   }
 
+  it should "partially complete a common fragment" in {
+    val repl = ReplTest.makeRepl(
+      new MockFileSystem(Directory(
+        "---foobar---" -> File(),
+        "--goobab--" -> File())))
+    repl.input("ob")
+
+    repl.complete()
+
+    repl.lineBuffer should equal(parseLineBuffer(""""ooba"◀"""))
+    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    val completions = completionState.completions.map(_.displayText)
+    completions should equal(Seq("---foobar---", "--goobab--"))
+    completionState.getCommonDisplayText.text should equal("ooba")
+  }
+
+  it should "handle escaped characters in a common fragment" in {
+    val repl = ReplTest.makeRepl(
+      new MockFileSystem(Directory(
+        "---foob$ar---" -> File(),
+        "--goob$ab--" -> File())))
+    repl.input("ob")
+
+    repl.complete()
+
+    repl.lineBuffer should equal(parseLineBuffer(""""oob\$a"◀"""))
+    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    val completions = completionState.completions.map(_.displayText)
+    completions should equal(Seq("---foob$ar---", "--goob$ab--"))
+    completionState.getCommonDisplayText.text should equal("oob$a")
+  }
+
   private def newRepl = ReplTest.makeRepl()
 
 }
