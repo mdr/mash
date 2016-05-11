@@ -5,6 +5,7 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.completions.CompletionFragment
+import com.github.mdr.mash.completions.CompletionContext
 
 sealed trait CompletionState {
 
@@ -27,7 +28,8 @@ case class IncrementalCompletionState(
     immediatelyAfterCompletion: Boolean,
     mementoOpt: Option[ReplStateMemento] = None) extends CompletionState {
 
-  def getCommonDisplayText: CompletionFragment = CompletionFragment.getCommonFragment(completions, _.displayText)
+  def getCommonDisplayFragment: CompletionFragment = 
+    CompletionFragment.getCommonFragment(completions, CompletionContext.Display)
 
 }
 

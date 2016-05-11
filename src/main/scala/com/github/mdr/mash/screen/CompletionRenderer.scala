@@ -44,8 +44,8 @@ object CompletionRenderer {
   private def renderCompletionOptions(completionState: CompletionState, terminalInfo: TerminalInfo): (Seq[Line], Int) = {
     val completions = completionState.completions
     val completionFragment = completionState match {
-      case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "")
-      case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayText
+      case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "", "")
+      case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayFragment
     }
     val terminalWidth = math.max(0, terminalInfo.columns)
     val longestCompletionLength = completions.map(_.displayText.length).max
@@ -62,8 +62,11 @@ object CompletionRenderer {
       val commonFragmentStyle = Style(foregroundColour = colour, bold = true, inverse = active)
       val commonFragmentStyled = completionFragment.text.map(StyledCharacter(_, commonFragmentStyle))
 
+      val commonPrefix = completionFragment.prefix
+      val commonPrefixStyled = commonPrefix.map(StyledCharacter(_, commonFragmentStyle))
+
       val beforeAfterStyle = Style(foregroundColour = colour, inverse = active)
-      val before = truncatedText.take(location.displayPos - completionFragment.before.length)
+      val before = truncatedText.drop(completionFragment.prefix.length).take(location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
       val beforeStyled = before.map(StyledCharacter(_, beforeAfterStyle))
       val after = truncatedText.drop(location.displayPos + completionFragment.after.length)
       val afterStyled = after.map(StyledCharacter(_, beforeAfterStyle))
@@ -72,7 +75,7 @@ object CompletionRenderer {
       val paddingStyle = Style(foregroundColour = colour, inverse = active)
       val paddingStyled = padding.map(StyledCharacter(_, paddingStyle))
 
-      beforeStyled ++ commonFragmentStyled ++ afterStyled ++ paddingStyled
+      commonPrefixStyled ++ beforeStyled ++ commonFragmentStyled ++ afterStyled ++ paddingStyled
     }
 
     val allLines =

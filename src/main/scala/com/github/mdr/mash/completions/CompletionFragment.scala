@@ -4,24 +4,52 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 
-object CompletionFragment {
+sealed trait CompletionContext {
 
-  def getCommonFragment(completions: Seq[Completion], f: Completion ⇒ String): CompletionFragment =
-    completions.map(getCompletionFragment(f)).reduce(_ getCommon _)
+  def getText(completion: Completion): String = this match {
+    case CompletionContext.Insert  ⇒ completion.insertText
+    case CompletionContext.Display ⇒ completion.displayText
+  }
 
-  private def getCompletionFragment(f: Completion ⇒ String)(completion: Completion): CompletionFragment = {
-    val (before, after) = f(completion).splitAt(completion.location.insertPos)
-    CompletionFragment(before.reverse, after)
+  def getPos(completion: Completion): Int = this match {
+    case CompletionContext.Insert  ⇒ completion.location.insertPos
+    case CompletionContext.Display ⇒ completion.location.displayPos
+  }
+
+  def getPrefixLength(completion: Completion): Int = this match {
+    case CompletionContext.Insert  ⇒ completion.location.insertPrefixLength
+    case CompletionContext.Display ⇒ completion.location.displayPrefixLength
   }
 
 }
 
-case class CompletionFragment(beforeReversed: String, after: String) {
+object CompletionContext {
+  case object Insert extends CompletionContext
+  case object Display extends CompletionContext
+}
+
+object CompletionFragment {
+
+  def getCommonFragment(completions: Seq[Completion], completionContext: CompletionContext): CompletionFragment =
+    completions.map(getCompletionFragment(completionContext)).reduce(_ getCommon _)
+
+  private def getCompletionFragment(completionContext: CompletionContext)(completion: Completion): CompletionFragment = {
+    val text = completionContext.getText(completion)
+    val prefixLength = completionContext.getPrefixLength(completion)
+    val (before, after) = text.drop(prefixLength).splitAt(completionContext.getPos(completion) - prefixLength)
+    val prefix = text.take(prefixLength)
+    CompletionFragment(prefix, before.reverse, after)
+  }
+
+}
+
+case class CompletionFragment(prefix: String, beforeReversed: String, after: String) {
 
   def getCommon(that: CompletionFragment): CompletionFragment = {
     val commonBefore = StringUtils.commonPrefix(this.beforeReversed, that.beforeReversed)
     val commonAfter = StringUtils.commonPrefix(this.after, that.after)
-    CompletionFragment(commonBefore, commonAfter)
+    val newPrefix = if (this.prefix == that.prefix) this.prefix else ""
+    CompletionFragment(newPrefix, commonBefore, commonAfter)
   }
 
   def before = beforeReversed.reverse

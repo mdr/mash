@@ -27,12 +27,11 @@ class TildeExpander(envInteractions: EnvironmentInteractions) {
 
   def retildeFull(s: String): RetildeResult =
     if (s startsWith home)
-      RetildeResult("~" + s.drop(home.length), home.length)
+      RetildeResult("~" + s.drop(home.length), home.length - 1)
     else
       RetildeResult(s, 0)
 
   def retilde(s: String): String = retildeFull(s).text
 
   private def home: String = envInteractions.home.toString
-
 }

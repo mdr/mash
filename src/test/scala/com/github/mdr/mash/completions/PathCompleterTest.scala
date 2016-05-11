@@ -74,11 +74,21 @@ class PathCompleterTest extends FlatSpec with Matchers {
     withFileSystem().getCompletions("/.") should equal(Seq("/./", "/../"))
   }
 
-  case class TestContext(pathCompleter: PathCompleter) {
-    def getCompletions(prefix: String) = pathCompleter.getCompletions(prefix, substring = false).map(_.path)
+  "Substring completions" should "work" in {
+    implicit val context = TestContext(substring = true)
+    withFileSystem(
+      "___123__" -> File(),
+      "__123___" -> File())(context).getCompletions("123") should equal(Seq("__123___", "___123__"))
   }
 
-  private def withFileSystem(children: (String, MockFileObject)*): TestContext =
-    TestContext(new PathCompleter(new MockFileSystem(Directory(children: _*)), MockEnvironmentInteractions()))
+  case class TestContext(substring: Boolean = false)
+
+  case class Helper(pathCompleter: PathCompleter, testContext: TestContext = TestContext()) {
+    def getCompletionsFull(searchString: String) = pathCompleter.getCompletions(searchString, substring = testContext.substring)
+    def getCompletions(searchString: String) = getCompletionsFull(searchString).map(_.path)
+  }
+
+  private def withFileSystem(children: (String, MockFileObject)*)(implicit testContext: TestContext = TestContext()): Helper =
+    Helper(new PathCompleter(new MockFileSystem(Directory(children: _*)), MockEnvironmentInteractions()), testContext)
 
 }

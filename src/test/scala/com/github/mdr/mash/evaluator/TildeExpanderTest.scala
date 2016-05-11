@@ -31,4 +31,7 @@ class TildeExpanderTest extends FlatSpec with Matchers {
     tildeExpander.retilde("/home/alice/.mash") should equal("~/.mash")
   }
 
+  "Retilde-ing a string" should "return how many characters were lost" in {
+    tildeExpander.retildeFull("/home/alice/foo/bar").charsLost should equal("/home/alice".length - 1)
+  }
 }

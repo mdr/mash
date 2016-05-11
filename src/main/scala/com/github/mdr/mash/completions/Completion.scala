@@ -14,7 +14,7 @@ case class Completion(
     isQuoted: Boolean = false,
     typeOpt: Option[CompletionType] = None,
     descriptionOpt: Option[String] = None,
-    location: CompletionLocation = CompletionLocation(0, 0)) {
+    location: CompletionLocation = CompletionLocation()) {
 
   def insertText = insertTextOpt.getOrElse(displayText)
 
@@ -33,4 +33,4 @@ case class Completion(
  * @param displayPos -- location within the displayText
  * @param insertPos -- location with the insertText 
  */
-case class CompletionLocation(displayPos: Int, insertPos: Int)
+case class CompletionLocation(displayPos: Int = 0, insertPos: Int = 0, displayPrefixLength: Int = 0, insertPrefixLength: Int = 0)

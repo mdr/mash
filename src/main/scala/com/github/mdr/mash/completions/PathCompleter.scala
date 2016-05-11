@@ -19,7 +19,7 @@ import com.github.mdr.mash.evaluator.RetildeResult
 /**
  * @param pos -- position within path that corresponds to the completion search string
  */
-case class PathCompletion(path: String, typeOpt: Option[CompletionType], pos: Int) {
+case class PathCompletion(path: String, typeOpt: Option[CompletionType], prefixLength: Int, pos: Int) {
 
   def sortKey = if (path endsWith "/") path.init else path
 
@@ -40,11 +40,12 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     val searchString = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
     val completions =
       for {
-        PathCompletion(path, typeOpt, completionPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
+        PathCompletion(path, typeOpt, prefixLength, completionPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
         RetildeResult(retilded, charsLost) = if (tildeExpandedOpt.isDefined) tildeExpander.retildeFull(path) else RetildeResult(path, 0)
         displayPos = completionPos - charsLost
+        adjustedPrefixLength = prefixLength - charsLost
         StringEscapeResult(escaped, escapeMap) = StringEscapes.escapeCharsFull(retilded)
-        location = CompletionLocation(displayPos, escapeMap(displayPos))
+        location = CompletionLocation(displayPos, escapeMap(displayPos), adjustedPrefixLength, adjustedPrefixLength)
       } yield Completion(
         displayText = retilded,
         insertTextOpt = Some(escaped),
@@ -101,10 +102,10 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       case FileTypeClass.Values.File ⇒ CompletionType.File
     }
     val prefixLength = searchPath.toString match {
-      case "" => 0
-      case s => s.length + 1
+      case "" ⇒ 0
+      case s  ⇒ s.length + 1
     }
-    PathCompletion(path, typeOpt, prefixLength + pos)
+    PathCompletion(path, typeOpt, prefixLength, prefixLength + pos)
   }
 
   private def getSearchPathAndFragment(searchString: String): (Path, String) = {
@@ -128,7 +129,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def getSpecialDotDirs(searchPath: Path, prefix: String): Seq[PathCompletion] =
     getSpecialDotDirs(prefix).map { dir ⇒
       val path = searchPath.resolve(dir).toString + "/"
-      PathCompletion(path, Some(CompletionType.Directory), pos = 0)
+      PathCompletion(path, Some(CompletionType.Directory), pos = 0, prefixLength = 0)
     }
 
   private def getSpecialDotDirs(prefix: String): Seq[String] =

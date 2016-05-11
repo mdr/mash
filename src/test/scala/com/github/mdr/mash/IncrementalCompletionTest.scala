@@ -44,7 +44,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     repl.input("where").complete().input("N").backspace()
 
     repl.text should equal("where")
-    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    val completionState = repl.incrementalCompletionState
     val completions = completionState.completions.map(_.displayText)
     completions should contain("where")
     completions should contain("whereNot")
@@ -92,14 +92,13 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("---foobar---", "--goobab--"))
-    completionState.getCommonDisplayText.text should equal("ooba")
+    completionState.getCommonDisplayFragment.text should equal("ooba")
   }
 
   it should "handle escaped characters in a common fragment" in {
-    val repl = ReplTest.makeRepl(
-      new MockFileSystem(Directory(
-        "---foob$ar---" -> File(),
-        "--goob$ab--" -> File())))
+    val repl = ReplTest.makeRepl(new MockFileSystem(Directory(
+      "---foob$ar---" -> File(),
+      "--goob$ab--" -> File())))
     repl.input("ob")
 
     repl.complete()
@@ -108,7 +107,34 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("---foob$ar---", "--goob$ab--"))
-    completionState.getCommonDisplayText.text should equal("oob$a")
+    completionState.getCommonDisplayFragment.text should equal("oob$a")
+  }
+
+  it should "not have a bug after completing a path" in {
+    val repl = makeRepl(new MockFileSystem(Directory(
+      "etc" -> Directory(
+        "foo.conf" -> File(),
+        "bar.conf" -> File()))))
+
+    repl.input("/etc/").complete()
+
+    repl.lineBuffer should equal(parseLineBuffer(""""/etc/▶""""))
+  }
+
+  it should "substring complete with path prefixes" in {
+    val repl = makeRepl(new MockFileSystem(Directory(
+      "etc" -> Directory(
+        "foobar" -> File(),
+        "gooban" -> File()))))
+
+    repl.input("/etc/ob").complete()
+
+    repl.lineBuffer should equal(parseLineBuffer(""""/etc/ooba▶""""))
+    val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
+    completionState.getCommonDisplayFragment.prefix should equal("/etc/")
+    completionState.getCommonDisplayFragment.text should equal("ooba")
+    val completions = completionState.completions.map(_.displayText)
+    completions should equal(Seq("/etc/foobar", "/etc/gooban"))
   }
 
   private def newRepl = ReplTest.makeRepl()

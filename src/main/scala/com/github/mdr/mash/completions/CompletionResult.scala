@@ -33,7 +33,8 @@ case class CompletionResult(completions: Seq[Completion], replacementLocation: R
   def translate(n: Int) = copy(replacementLocation = replacementLocation.translate(n))
 
   def getCommonInsertText: String = {
-    val common = CompletionFragment.getCommonFragment(completions, _.insertText).text
+    val completionFragment = CompletionFragment.getCommonFragment(completions, CompletionContext.Insert)
+    val common = completionFragment.prefix + completionFragment.text
     if (allQuoted) quote(common) else common
   }
 

@@ -15,6 +15,7 @@ import com.github.mdr.mash.os.MockEnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.LineBufferTestHelper._
 import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.os.MockFileObject._
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -44,9 +45,9 @@ class ReplTest extends FlatSpec with Matchers {
     val repl = newRepl
     repl.input("ls -42 # foo").left(8)
     repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
-    
+
     repl.complete()
-    
+
     repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
   }
 
@@ -130,6 +131,10 @@ object ReplTest {
     def draw(): Repl = { repl.draw(); repl }
 
     def it: Any = { repl.state.globalVariables(ReplState.It) }
+
+    def incrementalCompletionState = repl.state.completionStateOpt.collect {
+      case ics: IncrementalCompletionState ⇒ ics
+    }.getOrElse(throw new AssertionError("Not in incremental completion mode"))
 
   }
 }
