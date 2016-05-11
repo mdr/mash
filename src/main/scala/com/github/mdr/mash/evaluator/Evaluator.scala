@@ -341,14 +341,14 @@ object Evaluator {
   }
 
   private def evaluateLookupExpr(lookupExpr: LookupExpr, env: Environment) = {
-    val LookupExpr(targetExpr, indexExpr, sourceInfoOpt) = lookupExpr
+    val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
     val target = evaluate(targetExpr, env)
     val index = evaluate(indexExpr, env)
     val targetLocationOpt = targetExpr.locationOpt
     val indexLocationOpt = indexExpr.locationOpt
     val lookupLocationOpt = lookupExpr.locationOpt
     index match {
-      case MashString(s, _) ⇒ MemberEvaluator.lookup(target, s, indexLocationOpt)
+      case MashString(memberName, _) ⇒ MemberEvaluator.lookup(target, memberName, indexLocationOpt)
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup, non-integer index: " + n, lookupLocationOpt))
         target match {
@@ -425,23 +425,25 @@ object Evaluator {
     }
 
   def callFunction(function: Any, arguments: Arguments, functionExprOpt: Option[Expr] = None, invocationExprOpt: Option[Expr] = None): Any = {
-    val functionLocationOpt = functionExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
-    val invocationLocationOpt = invocationExprOpt.flatMap(_.sourceInfoOpt).map(_.location)
+    val functionLocationOpt = functionExprOpt.flatMap(_.locationOpt)
+    val invocationLocationOpt = invocationExprOpt.flatMap(_.locationOpt)
     function match {
-      case MashString(s, _) ⇒
-        arguments.positionArgs(0).value match {
-          case xs: MashList ⇒
+      case MashString(memberName, _) ⇒
+        arguments.positionArgs match {
+          case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
             xs.map { target ⇒
-              val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+              val intermediateResult = MemberEvaluator.lookup(target, memberName, functionLocationOpt)
               addLocationToExceptionIfMissing(invocationLocationOpt) {
                 immediatelyResolveNullaryFunctions(intermediateResult)
               }
             }
-          case target ⇒
-            val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+          case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
+            val intermediateResult = MemberEvaluator.lookup(target, memberName, functionLocationOpt)
             addLocationToExceptionIfMissing(invocationLocationOpt) {
               immediatelyResolveNullaryFunctions(intermediateResult)
             }
+          case _ =>
+            throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
         }
       case f: MashFunction ⇒
         addLocationToExceptionIfMissing(invocationLocationOpt) {

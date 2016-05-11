@@ -38,9 +38,10 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   def completePaths(s: String, region: Region, directoriesOnly: Boolean = false, substring: Boolean): Option[CompletionResult] = {
     val tildeExpandedOpt = tildeExpander.expandOpt(s)
     val searchString = StringEscapes.unescape(tildeExpandedOpt.getOrElse(s))
+    val pathCompletions = getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
     val completions =
       for {
-        PathCompletion(path, typeOpt, prefixLength, completionPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
+        PathCompletion(path, typeOpt, prefixLength, completionPos) ← pathCompletions
         RetildeResult(retilded, charsLost) = if (tildeExpandedOpt.isDefined) tildeExpander.retildeFull(path) else RetildeResult(path, 0)
         displayPos = math.max(0, completionPos - charsLost)
         adjustedPrefixLength = prefixLength - charsLost

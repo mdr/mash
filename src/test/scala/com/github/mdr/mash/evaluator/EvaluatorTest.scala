@@ -166,6 +166,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
   // isEmpty
   "isEmpty []" shouldEvaluateTo "true"
   "isEmpty [1, 2, 3]" shouldEvaluateTo "false"
+  "''.isEmpty" shouldEvaluateTo "true"
+  "'abc'.isEmpty" shouldEvaluateTo "false"
 
   // isNull
   "isNull null" shouldEvaluateTo "true"
@@ -228,6 +230,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   // minBy
   "minBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'a' "
+
+  // nonEmpty
+  "nonEmpty []" shouldEvaluateTo "false"
+  "nonEmpty [1, 2, 3]" shouldEvaluateTo "true"
+  "''.nonEmpty" shouldEvaluateTo "false"
+  "'abc'.nonEmpty" shouldEvaluateTo "true"
 
   // not
   "not true" shouldEvaluateTo "false"
@@ -419,12 +427,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "[].sumBy.target" shouldEvaluateTo "[]"
 
   "now.date.toString" shouldNotThrowAnException
-  
+
   "[].toString" shouldEvaluateTo "'[]'"
   "[1].toString" shouldEvaluateTo "'[1]'"
   "[1, 2].toString" shouldEvaluateTo "'[1, 2]'"
   "[pwd].toString" shouldEvaluateTo "'[' + pwd + ']'"
-  
+
   "'xy' * 3" shouldEvaluateTo "'xyxyxy'"
   "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
   "'x' * 1" shouldEvaluateTo "'x'"
@@ -432,6 +440,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   "3.14.toInt" shouldEvaluateTo "3"
   "(-3.14).toInt" shouldEvaluateTo "-3"
+
+  """ "foo" { foo: 42 } { foo: 42 }  """ shouldThrowAnException
 
   implicit class RichString(s: String) {
 

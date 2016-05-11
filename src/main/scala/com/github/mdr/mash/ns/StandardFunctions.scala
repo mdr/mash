@@ -65,6 +65,7 @@ object StandardFunctions {
     MaxFunction,
     MinByFunction,
     MinFunction,
+    NonEmptyFunction,
     ReverseFunction,
     SelectFunction,
     SkipFunction,

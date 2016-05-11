@@ -20,9 +20,11 @@ object StringClass extends MashClass("core.String") {
   override val methods = Seq(
     FirstMethod,
     GlobMethod,
+    IsEmptyMethod,
     MatchesMethod,
     LengthMethod,
     LastMethod,
+    NonEmptyMethod,
     RMethod,
     ReplaceMethod,
     ReverseMethod,
@@ -47,9 +49,39 @@ object StringClass extends MashClass("core.String") {
       MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(PathSummaryClass))
 
     override def summary = "Return paths matching a glob pattern"
+
+  }
+
+  object IsEmptyMethod extends MashMethod("isEmpty") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): Boolean = {
+      params.validate(arguments)
+      target.asInstanceOf[MashString].s.isEmpty
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "Return true if this is the empty string"
+
+  }
+  
+  object NonEmptyMethod extends MashMethod("nonEmpty") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): Boolean = {
+      params.validate(arguments)
+      target.asInstanceOf[MashString].s.nonEmpty
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "Return true if this is a non-empty string"
 
   }
 

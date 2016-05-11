@@ -31,6 +31,7 @@ object SeqClass extends MashClass("collections.Seq") {
     methodise(MaxFunction),
     methodise(MinByFunction),
     methodise(MinFunction),
+    methodise(NonEmptyFunction),
     methodise(ReverseFunction),
     methodise(SelectFunction),
     methodise(SkipFunction),
