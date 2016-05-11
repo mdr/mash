@@ -42,7 +42,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       for {
         PathCompletion(path, typeOpt, prefixLength, completionPos) ← getCompletions(searchString, directoriesOnly = directoriesOnly, substring = substring)
         RetildeResult(retilded, charsLost) = if (tildeExpandedOpt.isDefined) tildeExpander.retildeFull(path) else RetildeResult(path, 0)
-        displayPos = completionPos - charsLost
+        displayPos = math.max(0, completionPos - charsLost)
         adjustedPrefixLength = prefixLength - charsLost
         StringEscapeResult(escaped, escapeMap) = StringEscapes.escapeCharsFull(retilded)
         location = CompletionLocation(displayPos, escapeMap(displayPos), adjustedPrefixLength, adjustedPrefixLength)

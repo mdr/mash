@@ -184,6 +184,8 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val envInteractions = MockEnvironmentInteractions("/home/alice")
 
     "~/file▶" shouldGiveCompletions "~/file.txt"
+    
+    "~▶" shouldGiveCompletions "~/"
   }
 
   // Inheritance: just one completion
@@ -246,7 +248,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     def shouldGiveCompletions(expectedCompletions: String*) {
       val expectedDescription = expectedCompletions.mkString(", ")
       "Completer" should s"offer completions for '$s': $expectedDescription" in {
-        completions shouldEqual (expectedCompletions)
+        completions shouldEqual expectedCompletions
       }
     }
 
