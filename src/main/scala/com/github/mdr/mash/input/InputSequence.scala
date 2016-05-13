@@ -1,10 +1,43 @@
 package com.github.mdr.mash.input
 
+import com.github.mdr.mash.utils.PrefixTree
+
 sealed trait InputSequence
 
 object InputSequence {
 
-  val ControlD = KeyPress(Key.BasicKey('d'), control = true)
+  private def makeEscapeTree(xs: (String, KeyPress)*): PrefixTree[KeyPress] =
+    PrefixTree(xs.map { case (s, k) ⇒ s.drop(2) -> k }: _*)
+
+  private def alt(key: Key): KeyPress = KeyPress(key, alt = true)
+  private def alt(c: Char): KeyPress = alt(Key.BasicKey(c))
+  private def shift(key: Key): KeyPress = KeyPress(key, shift = true)
+  private def shift(c: Char): KeyPress = shift(Key.BasicKey(c))
+  private def control(key: Key): KeyPress = KeyPress(key, control = true)
+  private def control(c: Char): KeyPress = control(Key.BasicKey(c))
+
+  private val EscapeSequenceTree = makeEscapeTree(
+    "^[." -> alt('.'),
+    "^[," -> alt(','),
+    "^[[1;5C" -> alt(Key.Right),
+    "^[[1;5D" -> alt(Key.Left),
+    "^[[3~" -> KeyPress(Key.Delete),
+    "^[[5~" -> KeyPress(Key.PageUp),
+    "^[[6~" -> KeyPress(Key.PageDown),
+    "^[[A" -> KeyPress(Key.Up),
+    "^[[B" -> KeyPress(Key.Down),
+    "^[[C" -> KeyPress(Key.Left),
+    "^[[D" -> shift(Key.Tab),
+    "^[[Z" -> KeyPress(Key.Home),
+    "^[[H" -> KeyPress(Key.End),
+    "^[\u007f" -> alt(Key.Backspace),
+    "^[d" -> alt('d'),
+    "^[f" -> alt('f'),
+    "^[b" -> alt('b'),
+    "^[OH" -> KeyPress(Key.Home),
+    "^[OF" -> KeyPress(Key.End))
+
+  val ControlD = control('d')
 
   private val Esc = '\u001b'
 
@@ -18,67 +51,24 @@ object InputSequence {
 
   def fetchInputSequence(): InputSequence =
     readChar() match {
-      case Esc ⇒ // ESC
-        readChar() match {
-          case '.' ⇒ KeyPress(Key.BasicKey('.'), alt = true)
-          case ',' ⇒ KeyPress(Key.BasicKey(','), alt = true)
-          case '[' ⇒ readChar() match {
-            case '1' ⇒ readChar() match {
-              case ';' ⇒ readChar() match {
-                case '5' ⇒ readChar() match {
-                  case 'C' ⇒ KeyPress(Key.Right, alt = true)
-                  case 'D' ⇒ KeyPress(Key.Left, alt = true)
-                  case c   ⇒ EscapeSequence("[1;5" + c)
-                }
-                case c ⇒ EscapeSequence("[1;" + c)
-              }
-              case c ⇒ EscapeSequence("[1" + c)
-            }
-            case '3' ⇒ readChar() match {
-              case '~' ⇒ KeyPress(Key.Delete)
-              case c   ⇒ EscapeSequence("[3" + c)
-            }
-            case '5' ⇒ readChar() match {
-              case '~' ⇒ KeyPress(Key.PageUp)
-              case c   ⇒ EscapeSequence("[5" + c)
-            }
-            case '6' ⇒ readChar() match {
-              case '~' ⇒ KeyPress(Key.PageDown)
-              case c   ⇒ EscapeSequence("[6" + c)
-            }
-            case 'A' ⇒ KeyPress(Key.Up)
-            case 'B' ⇒ KeyPress(Key.Down)
-            case 'C' ⇒ KeyPress(Key.Right)
-            case 'D' ⇒ KeyPress(Key.Left)
-            case 'Z' ⇒ KeyPress(Key.Tab, shift = true)
-            case 'H' ⇒ KeyPress(Key.Home)
-            case 'F' ⇒ KeyPress(Key.End)
-            case c   ⇒ EscapeSequence("[" + c)
-          }
-          case '\u007f' ⇒ KeyPress(Key.Backspace, alt = true)
-          case 'd'      ⇒ KeyPress(Key.BasicKey('d'), alt = true)
-          case 'f'      ⇒ KeyPress(Key.BasicKey('f'), alt = true)
-          case 'b'      ⇒ KeyPress(Key.BasicKey('b'), alt = true)
-          case 'O' ⇒ readChar() match {
-            case 'H' ⇒ KeyPress(Key.Home)
-            case 'F' ⇒ KeyPress(Key.End)
-            case c   ⇒ EscapeSequence("O" + c)
-          }
-          case c ⇒ EscapeSequence("" + c)
+      case Esc ⇒
+        EscapeSequenceTree.get(readChar()) match {
+          case Left(chars)     ⇒ EscapeSequence(chars.mkString)
+          case Right(keyPress) ⇒ keyPress
         }
-      case '\u0000'        ⇒ KeyPress(Key.Space, shift = true)
-      case '\u0001'        ⇒ KeyPress(Key.BasicKey('a'), control = true)
-      case '\u0002'        ⇒ KeyPress(Key.BasicKey('b'), control = true)
-      case '\u0005'        ⇒ KeyPress(Key.BasicKey('e'), control = true)
-      case '\u0006'        ⇒ KeyPress(Key.BasicKey('f'), control = true)
-      case '\u000B'        ⇒ KeyPress(Key.BasicKey('k'), control = true)
-      case '\u000C'        ⇒ KeyPress(Key.BasicKey('l'), control = true)
-      case '\u000E'        ⇒ KeyPress(Key.BasicKey('n'), control = true)
-      case '\u0010'        ⇒ KeyPress(Key.BasicKey('p'), control = true)
-      case '\u0011'        ⇒ KeyPress(Key.BasicKey('q'), control = true)
-      case '\u0012'        ⇒ KeyPress(Key.BasicKey('r'), control = true)
+      case '\u0000'        ⇒ shift(Key.Space)
+      case '\u0001'        ⇒ control('a')
+      case '\u0002'        ⇒ control('b')
+      case '\u0004'        ⇒ control('d')
+      case '\u0005'        ⇒ control('e')
+      case '\u0006'        ⇒ control('f')
+      case '\u000B'        ⇒ control('k')
+      case '\u000C'        ⇒ control('l')
+      case '\u000E'        ⇒ control('n')
+      case '\u0010'        ⇒ control('p')
+      case '\u0011'        ⇒ control('q')
+      case '\u0012'        ⇒ control('r')
       case '\t'            ⇒ KeyPress(Key.Tab)
-      case '\u0004'        ⇒ KeyPress(Key.BasicKey('d'), control = true)
       case '\n'            ⇒ KeyPress(Key.Enter)
       case '\r'            ⇒ KeyPress(Key.Enter)
       case '\b' | '\u007f' ⇒ KeyPress(Key.Backspace)

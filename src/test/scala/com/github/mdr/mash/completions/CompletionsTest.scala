@@ -184,7 +184,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val envInteractions = MockEnvironmentInteractions("/home/alice")
 
     "~/file▶" shouldGiveCompletions "~/file.txt"
-    
+
     "~▶" shouldGiveCompletions "~/"
   }
 
@@ -239,6 +239,12 @@ class CompletionsTest extends FlatSpec with Matchers {
       "---foo" -> File()))
 
     "foo▶" shouldGiveCompletions ("foo---")
+  }
+
+  {
+    implicit val filesystem = MockFileSystem.of("/foo-bar")
+
+    "cd foo-▶" shouldGiveCompletions ("foo-bar")
   }
 
   private implicit class RichString(s: String)(

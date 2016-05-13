@@ -77,7 +77,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   private def completeMinus(text: String, minus: Token, parser: CompletionParser): Option[CompletionResult] = {
     val flagResultOpt = FlagCompleter.completeAllFlags(text, minus, parser)
     val asStringResultOpt = stringCompleter.completeAsString(text, minus, parser).completionResultOpt
-    CompletionResult.merge(flagResultOpt, asStringResultOpt)
+    CompletionResult.merge(asStringResultOpt, flagResultOpt)
   }
 
   private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
