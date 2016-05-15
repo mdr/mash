@@ -14,7 +14,7 @@ case class Point(row: Int, column: Int) {
 
 case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true)
 
-case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true) {
+case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
 
   private def drawStyledChars(chars: Seq[StyledCharacter]): String = {
     val sb = new StringBuilder()
@@ -95,6 +95,9 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
     }
     drawState.navigateUpOrDownToRow(cursorPos.row)
     drawState.navigateToColumn(cursorPos.column)
+    if (previousScreenOpt.map(_.title) != Some(title)) {
+      drawState.title(title)
+    }
     drawState.complete(showCursor = cursorVisible)
   }
 

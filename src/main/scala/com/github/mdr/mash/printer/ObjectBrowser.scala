@@ -15,6 +15,7 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 import ObjectBrowserActions._
 import java.io.PrintStream
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 
 object ObjectBrowserActions {
 
@@ -43,6 +44,7 @@ object ObjectBrowser {
 }
 
 class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream) {
+  private val fileSystem = LinuxFileSystem
 
   private var currentRow = 0
   private var firstRow = 0
@@ -94,7 +96,9 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
         (obj, i) ← objects.zipWithIndex
       } yield renderObject(obj, i == currentRowRelative)
 
-    Screen(headerLines ++ dataLines ++ footerLines, Point(0, 0), cursorVisible = false)
+    val title = "mash " + fileSystem.pwd.toString
+
+    Screen(headerLines ++ dataLines ++ footerLines, Point(0, 0), cursorVisible = false, title = title)
   }
 
   @tailrec

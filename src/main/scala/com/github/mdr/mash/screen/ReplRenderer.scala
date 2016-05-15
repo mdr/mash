@@ -22,6 +22,8 @@ import com.github.mdr.mash.evaluator.TildeExpander
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 
+case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
+
 /**
  * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
  * characters.
@@ -43,17 +45,18 @@ object ReplRenderer {
     val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalInfo.rows)
     val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
-    val screen = Screen(truncatedLines, newCursorPos)
+    val title = fileSystem.pwd.toString
+    val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
     ReplRenderResult(screen, numberOfCompletionColumns)
   }
 
-  private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): Screen = {
+  private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prefixChars: Seq[StyledCharacter] = "Incremental history search: ".map(StyledCharacter(_))
     val searchChars: Seq[StyledCharacter] = searchState.searchString.map(c ⇒ StyledCharacter(c, Style(foregroundColour = Colour.Cyan)))
     val chars = (prefixChars ++ searchChars).take(terminalInfo.columns)
     val line = Line((prefixChars ++ searchChars).take(terminalInfo.columns))
     val cursorPos = Point(0, chars.size)
-    Screen(Seq(line), cursorPos)
+    LinesAndCursorPos(Seq(line), cursorPos)
   }
 
   private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalInfo: TerminalInfo): Seq[Line] =
@@ -82,7 +85,7 @@ object ReplRenderer {
     pwdStyled ++ promptCharStyled
   }
 
-  private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): Screen = {
+  private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prompt = getPrompt(state.mish)
     val lineBuffer = state.lineBuffer
     val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables, state.bareWords)
@@ -96,7 +99,7 @@ object ReplRenderer {
       } yield Line(group, endsInNewline)
     val row = cursorPos / terminalInfo.columns
     val column = cursorPos % terminalInfo.columns
-    Screen(lines, Point(row, column))
+    LinesAndCursorPos(lines, Point(row, column))
   }
 
   private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, Any]): Set[Token] = {

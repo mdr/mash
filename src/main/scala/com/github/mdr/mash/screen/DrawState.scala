@@ -13,6 +13,7 @@ object DrawState {
   private val CursorDown = "\u001b[B"
   private val HideCursor = "\u001b[?25l"
   private val ShowCursor = "\u001b[?25h"
+
 }
 
 /**
@@ -96,6 +97,10 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
   def eraseLine() {
     sb.append(Ansi.ansi().eraseLine())
+  }
+
+  def title(s: String) {
+    sb.append(s"\u001b]0;${s}\u0007")
   }
 
   def complete(showCursor: Boolean): String = {
