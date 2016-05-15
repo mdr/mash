@@ -7,7 +7,7 @@ trait InputAction
 object InputAction {
 
   def fetchAction(isLineEmpty: Boolean, keyMap: KeyMap = NormalKeyMap): InputAction = {
-    val inputSequence = InputSequence.fetchInputSequence()
+    val inputSequence = InputSequenceReader.fetchInputSequence()
     inputSequenceToAction(inputSequence, isLineEmpty, keyMap)
   }
 
