@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % Test) // Needed for test reports
 
 libraryDependencies ++= Seq(
-  "org.fusesource.jansi" % "jansi" % "1.11",
+  "org.fusesource.jansi" % "jansi" % "1.12",
   "commons-io" % "commons-io" % "2.5",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "com.github.jnr" % "jnr-posix" % "3.0.29",
@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
   "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta2",
   "com.google.code.gson" % "gson" % "2.6.2",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.3.0.201604071810-r",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.3.1.201605051710-r",
   "org.slf4j" % "slf4j-nop" % "1.7.21" /* suppress logging from jgit */,
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4")
 
