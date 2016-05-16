@@ -12,10 +12,11 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.PasswdEntry
 import scala.collection.immutable.ListMap
+import com.github.mdr.mash.os.UserInteractions
 
 object UserSummaryClass extends MashClass("os.UserSummary") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   object Fields {
     val Name = Field("name", "Name of user", Type.Tagged(StringClass, UsernameClass))

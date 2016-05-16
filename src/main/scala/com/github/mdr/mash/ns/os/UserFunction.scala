@@ -7,10 +7,11 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
+import com.github.mdr.mash.os.UserInteractions
 
 object UserFunction extends MashFunction("os.user") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   val params = ParameterModel()
 

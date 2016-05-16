@@ -8,10 +8,11 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
+import com.github.mdr.mash.os.UserInteractions
 
 object UidClass extends MashClass("os.Uid") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   override lazy val methods = {
     val liftedFields = UserSummaryClass.fields.map(liftUserSummaryField)

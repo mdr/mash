@@ -8,10 +8,11 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
+import com.github.mdr.mash.os.UserInteractions
 
 object GidClass extends MashClass("os.Gid") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   override val methods = Seq(
     NameMethod,

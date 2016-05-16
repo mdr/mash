@@ -1,6 +1,7 @@
 package com.github.mdr.mash.utils
 
 import java.text.DecimalFormat
+import scala.util.Try
 
 object NumberUtils {
 
@@ -11,4 +12,6 @@ object NumberUtils {
 
   def prettyString(d: Double) = DoubleFormat.format(d)
 
+  def asIntOpt(s: String): Option[Int] = Try(s.toInt).toOption
+  
 }

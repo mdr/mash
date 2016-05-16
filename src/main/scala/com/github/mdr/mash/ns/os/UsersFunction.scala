@@ -9,10 +9,11 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.PasswdEntry
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
+import com.github.mdr.mash.os.UserInteractions
 
 object UsersFunction extends MashFunction("os.users") {
 
-  val userInteractions = LinuxUserInteractions
+  val userInteractions = UserInteractions.default
 
   val params = ParameterModel()
 

@@ -11,10 +11,11 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.GroupEntry
+import com.github.mdr.mash.os.UserInteractions
 
 object GroupClass extends MashClass("os.Group") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   override val methods = Seq(
     GidMethod,

@@ -8,10 +8,11 @@ import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.os.PasswdEntry
 import com.github.mdr.mash.os.GroupEntry
+import com.github.mdr.mash.os.UserInteractions
 
 object GroupInfoClass extends MashClass("os.GroupInfo") {
 
-  private val userInteractions = LinuxUserInteractions
+  private val userInteractions = UserInteractions.default
 
   object Fields {
     lazy val Name = Field("name", "Name of the group", Type.Tagged(StringClass, GroupClass))
