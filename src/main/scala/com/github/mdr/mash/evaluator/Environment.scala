@@ -43,11 +43,13 @@ object Environment {
     val nameFunctionPairs = StandardFunctions.Functions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
     val git = ns.getField("git").get
+    val json = ns.getField("json").get
     val view = ns.getField("view").get
     val otherPairs = Seq(
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,
       "git" -> git,
+      "json" -> json,
       "view" -> view,
       "ns" -> NamespaceCreator.createNamespace)
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)

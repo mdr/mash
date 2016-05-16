@@ -9,10 +9,11 @@ import com.github.mdr.mash.ns.core.HistoryFunction
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.ns.json.FromFileFunction
 
 object StandardFunctions {
 
-  lazy val Functions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
+  lazy val Functions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions ++ Seq(FromFileFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
