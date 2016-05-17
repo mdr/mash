@@ -73,55 +73,59 @@ class TypeInferencer {
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
       case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(Type.Tagged(StringClass, PathClass))
       case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(Type.Instance(StringClass))
-      case InterpolatedString(_, parts, _, _) ⇒
-        parts.foreach {
-          case StringPart(s) ⇒
-          case ExprPart(expr) ⇒
-            inferType(expr, bindings)
-        }
-        Some(Type.Tagged(StringClass, PathClass))
-      case MinusExpr(_, _)      ⇒ Some(Type.Instance(NumberClass))
-      case binOpExpr: BinOpExpr ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
+      case is: InterpolatedString                       ⇒ inferType(is, bindings)
+      case MinusExpr(_, _)                              ⇒ Some(Type.Instance(NumberClass))
+      case binOpExpr: BinOpExpr                         ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
+      case memberExpr: MemberExpr                       ⇒ inferType(memberExpr, bindings, immediateExec)
+      case lookupExpr: LookupExpr                       ⇒ inferType(lookupExpr, bindings)
+      case ifExpr: IfExpr                               ⇒ inferType(ifExpr, bindings)
+      case objectExpr: ObjectExpr                       ⇒ inferType(objectExpr, bindings)
+      case FunctionDeclaration(name, params, body, _)   ⇒ Some(Type.Instance(UnitClass))
+      case identifier: Identifier                       ⇒ inferType(identifier, bindings, immediateExec)
+      case mishExpr: MishExpr                           ⇒ inferType(mishExpr, bindings)
+      case invocationExpr: InvocationExpr               ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
+      case interpolation: MishInterpolation             ⇒ inferType(interpolation, bindings)
       case AssignmentExpr(left, right, _, _) ⇒
         inferType(right, bindings)
         Some(Type.Instance(UnitClass))
-      case identifier: Identifier ⇒ inferTypeIdentifier(identifier, bindings, immediateExec)
       case LambdaExpr(v, body, _) ⇒
         inferType(body, bindings + (v -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
         Some(Type.Lambda(v, body, bindings))
-      case invocationExpr: InvocationExpr ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
       case ListExpr(items, _) ⇒
         val elementTypes = items.flatMap(inferType(_, bindings))
         val elementType = elementTypes.headOption.getOrElse(Type.Any)
         Some(Type.Seq(elementType))
-      case memberExpr: MemberExpr ⇒ inferTypeMemberExpr(memberExpr, bindings, immediateExec)
-      case lookupExpr: LookupExpr ⇒ inferTypeLookupExpr(lookupExpr, bindings)
-      case ifExpr: IfExpr         ⇒ inferTypeIfExpr(ifExpr, bindings)
-      case objectExpr: ObjectExpr ⇒ inferTypeObjectExpr(objectExpr, bindings)
-      case MishExpr(command, args, captureProcessOutput, _) ⇒
-        inferType(command, bindings)
-        args.foreach(inferType(_, bindings))
-        val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
-        Some(Type.Instance(resultClass))
-      case MishInterpolation(part, _) ⇒
-        part match {
-          case StringPart(s) ⇒
-            Some(Type.Instance(StringClass))
-          case ExprPart(expr) ⇒
-            inferType(expr, bindings)
-        }
-      case FunctionDeclaration(name, params, body, _) ⇒
-        Some(Type.Instance(UnitClass))
       case HelpExpr(subexpr, _) ⇒
-        inferType(subexpr, bindings, immediateExec = false) flatMap {
-          case Type.DefinedFunction(_) ⇒
-            Some(Type.Instance(FunctionHelpClass))
-          case _ ⇒
-            None
+        inferType(subexpr, bindings, immediateExec = false) collect {
+          case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
         }
     }
 
-  private def inferTypeIdentifier(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
+  private def inferType(interpolation: MishInterpolation, bindings: Map[String, Type]): Option[Type] =
+    interpolation.part match {
+      case StringPart(s)  ⇒ Some(Type.Instance(StringClass))
+      case ExprPart(expr) ⇒ inferType(expr, bindings)
+    }
+
+  private def inferType(mishExpr: MishExpr, bindings: Map[String, Type]): Option[Type] = {
+    val MishExpr(command, args, captureProcessOutput, _) = mishExpr
+    inferType(command, bindings)
+    args.foreach(inferType(_, bindings))
+    val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
+    Some(Type.Instance(resultClass))
+  }
+
+  private def inferType(interpolatedString: InterpolatedString, bindings: Map[String, Type]): Option[Type] = {
+    val InterpolatedString(_, parts, _, _) = interpolatedString
+    parts.foreach {
+      case StringPart(s) ⇒
+      case ExprPart(expr) ⇒
+        inferType(expr, bindings)
+    }
+    Some(Type.Tagged(StringClass, PathClass))
+  }
+
+  private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val Identifier(s, _) = identifier
     bindings.get(s).flatMap {
       case Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
@@ -130,16 +134,17 @@ class TypeInferencer {
     }
   }
 
-  private def inferTypeObjectExpr(objectExpr: ObjectExpr, bindings: Map[String, Type]): Option[Type] = {
+  private def inferType(objectExpr: ObjectExpr, bindings: Map[String, Type]): Option[Type] = {
     val ObjectExpr(entries, _) = objectExpr
-    val fieldTypes = for {
-      (label, value) ← entries
-      typ_ ← inferType(value, bindings)
-    } yield label -> typ_
+    val fieldTypes =
+      for {
+        (label, value) ← entries
+        typ_ ← inferType(value, bindings)
+      } yield label -> typ_
     Some(Type.Object(fieldTypes))
   }
 
-  private def inferTypeMemberExpr(memberExpr: MemberExpr, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
+  private def inferType(memberExpr: MemberExpr, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val MemberExpr(target, name, _, _) = memberExpr
     for {
       targetType ← inferType(target, bindings)
@@ -228,7 +233,7 @@ class TypeInferencer {
     }
   }
 
-  private def inferTypeIfExpr(ifExpr: IfExpr, bindings: Map[String, Type]): Option[Type] = {
+  private def inferType(ifExpr: IfExpr, bindings: Map[String, Type]): Option[Type] = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
     inferType(cond, bindings)
     val bodyTypeOpt = inferType(body, bindings)
@@ -272,7 +277,7 @@ class TypeInferencer {
       intermediate
   }
 
-  private def inferTypeLookupExpr(lookupExpr: LookupExpr, bindings: Map[String, Type]): Option[Type] = {
+  private def inferType(lookupExpr: LookupExpr, bindings: Map[String, Type]): Option[Type] = {
     val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
     val targetTypeOpt = inferType(targetExpr, bindings)
     val indexTypeOpt = inferType(indexExpr, bindings)
