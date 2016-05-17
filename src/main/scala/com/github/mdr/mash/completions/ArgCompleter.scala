@@ -57,6 +57,9 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
       case Members(targetType) ⇒
         val members = MemberCompleter.completeString(targetType, withoutQuotes)
         CompletionResult.of(members, literalToken.region)
+      case Items(items) =>
+        val matches = items.filter(_.startsWith(withoutQuotes))
+        CompletionResult.of(matches.map(s => Completion(s, isQuoted = true)), literalToken.region)
     }
   }
 

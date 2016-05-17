@@ -247,6 +247,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     "cd foo-▶" shouldGiveCompletions ("foo-bar")
   }
 
+  "{ foobar: 42 }.foo▶ = 42" shouldGiveCompletions("foobar")
+  "a = { foobar: 42}.foo▶" shouldGiveCompletions("foobar")
+  
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {

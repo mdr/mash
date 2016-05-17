@@ -18,6 +18,7 @@ import com.github.mdr.mash.evaluator.MashObject
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.evaluator.MashString
 import org.eclipse.jgit.lib.BranchConfig
+import org.eclipse.jgit.lib.Ref
 
 object BranchesFunction extends MashFunction("git.branches") {
 
@@ -25,19 +26,21 @@ object BranchesFunction extends MashFunction("git.branches") {
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    GitHelper.withGit { git =>
-      val branches = git.branchList.setListMode(ListMode.ALL).call.asScala
-      MashList(branches.map { ref ⇒
-        val name = ref.getName
-        val id = ref.getObjectId.getName
-        import BranchClass.Fields._
-        MashObject(
-          ListMap(
-            Name -> MashString(name),
-            Commit -> MashString(id, CommitHashClass)),
-          BranchClass)
-      })
+    GitHelper.withGit { git ⇒
+      val branches = git.branchList.setListMode(ListMode.ALL).call().asScala
+      MashList(branches.map(asMashObject))
     }
+  }
+
+  private def asMashObject(ref: Ref): MashObject = {
+    val name = ref.getName
+    val id = ref.getObjectId.getName
+    import BranchClass.Fields._
+    MashObject(
+      ListMap(
+        Name -> MashString(name),
+        Commit -> MashString(id, CommitHashClass)),
+      BranchClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(BranchClass)))

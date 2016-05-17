@@ -9,5 +9,6 @@ object CompletionSpec {
   case object Directory extends CompletionSpec
   case object File extends CompletionSpec
   case class Members(targetType: Type) extends CompletionSpec
-
+  case class Items(items: Seq[String]) extends CompletionSpec
+  
 }

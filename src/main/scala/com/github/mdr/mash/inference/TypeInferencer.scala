@@ -85,21 +85,25 @@ class TypeInferencer {
       case mishExpr: MishExpr                           ⇒ inferType(mishExpr, bindings)
       case invocationExpr: InvocationExpr               ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
       case interpolation: MishInterpolation             ⇒ inferType(interpolation, bindings)
+      case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
       case AssignmentExpr(left, right, _, _) ⇒
+        inferType(left, bindings)
         inferType(right, bindings)
         Some(Type.Instance(UnitClass))
       case LambdaExpr(v, body, _) ⇒
         inferType(body, bindings + (v -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
         Some(Type.Lambda(v, body, bindings))
-      case ListExpr(items, _) ⇒
-        val elementTypes = items.flatMap(inferType(_, bindings))
-        val elementType = elementTypes.headOption.getOrElse(Type.Any)
-        Some(Type.Seq(elementType))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
         }
     }
+
+  private def inferType(listExpr: ListExpr, bindings: Map[String, Type]): Option[Type] = {
+    val elementTypes = listExpr.items.flatMap(inferType(_, bindings))
+    val elementType = elementTypes.headOption.getOrElse(Type.Any)
+    Some(Type.Seq(elementType))
+  }
 
   private def inferType(interpolation: MishInterpolation, bindings: Map[String, Type]): Option[Type] =
     interpolation.part match {

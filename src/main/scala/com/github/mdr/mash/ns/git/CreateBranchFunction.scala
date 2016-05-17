@@ -1,0 +1,65 @@
+package com.github.mdr.mash.ns.git
+
+import scala.collection.JavaConverters._
+import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.evaluator.Truthiness
+import com.github.mdr.mash.evaluator.EvaluatorException
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
+
+object CreateBranchFunction extends MashFunction("git.createBranch") {
+
+  object Params {
+    val Branch = Parameter(
+      name = "branch",
+      summary = "Name to give the new branch",
+      defaultValueGeneratorOpt = Some(() ⇒ null))
+    val Switch = Parameter(
+      name = "switch",
+      summary = "Switch to the new branch after creating it (default false)",
+      shortFlagOpt = Some('s'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ false),
+      isBooleanFlag = true)
+    val FromRemote = Parameter(
+      name = "fromRemote",
+      summary = "Create the new branch as a local tracking branch of the given remote branch",
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ null))
+  }
+  import Params._
+
+  val params = ParameterModel(Seq(Branch, Switch, FromRemote))
+
+  def apply(arguments: Arguments) {
+    val boundParams = params.validate(arguments)
+    val branchOpt = boundParams.validateStringOpt(Branch).map(_.s)
+    val fromRemoteOpt = boundParams.validateStringOpt(FromRemote).map(_.s)
+    val switch = Truthiness.isTruthy(boundParams(Switch))
+    if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
+      throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
+    GitHelper.withGit { git ⇒
+      val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
+      val cmd = git.branchCreate().setName(localName)
+      for (remoteName ← fromRemoteOpt) {
+        cmd.setStartPoint(remoteName)
+        cmd.setUpstreamMode(SetupUpstreamMode.TRACK)
+      }
+      cmd.call()
+      if (switch)
+        git.checkout().setName(localName).call()
+    }
+  }
+
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+
+  override def summary = "Create a new local branch"
+
+}

@@ -11,11 +11,13 @@ object GitNamespace {
     BranchesFunction,
     CloneFunction,
     CommitFunction,
+    CreateBranchFunction,
     FetchFunction,
     LogFunction,
     PullFunction,
     PushFunction,
     StatusFunction,
+    SwitchFunction,
     StashApplyFunction,
     StashCreateFunction)
 }
