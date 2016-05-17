@@ -19,6 +19,8 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.google.gson._
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.completions.CompletionSpec
 
 object FromFileFunction extends MashFunction("json.fromFile") {
 
@@ -58,6 +60,8 @@ object FromFileFunction extends MashFunction("json.fromFile") {
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
+
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
   override def summary = "Read the given file and parse it as JSON"
 }

@@ -4,17 +4,18 @@ import com.github.mdr.mash.functions.MashFunction
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.StandardFunctions
 import com.github.mdr.mash.functions.HasName
-import com.github.mdr.mash.ns.view.RawFunction
 import com.github.mdr.mash.ns.git.GitNamespace
-import com.github.mdr.mash.ns.view.BrowserFunction
+import com.github.mdr.mash.ns.view._
+import com.github.mdr.mash.ns.json._
 
 object NamespaceCreator {
 
   def createNamespace: MashObject = {
     val allObjects =
-      StandardFunctions.Functions ++
+      StandardFunctions.StandardFunctions ++
         GitNamespace.GitFunctions ++
         Seq(BrowserFunction, RawFunction) ++
+        Seq(FromFileFunction) ++
         StandardFunctions.AllClasses
     createNamespace(allObjects.map(makeThing))
   }

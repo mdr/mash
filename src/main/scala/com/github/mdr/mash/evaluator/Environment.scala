@@ -40,7 +40,7 @@ object Environment {
 
   def createGlobalVariables(): mutable.Map[String, Any] = {
     val ns = NamespaceCreator.createNamespace
-    val nameFunctionPairs = StandardFunctions.Functions.map(f ⇒ f.name -> f)
+    val nameFunctionPairs = StandardFunctions.StandardFunctions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
     val git = ns.getField("git").get
     val json = ns.getField("json").get

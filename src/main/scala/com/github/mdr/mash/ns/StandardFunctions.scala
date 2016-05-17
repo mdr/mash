@@ -13,7 +13,10 @@ import com.github.mdr.mash.ns.json.FromFileFunction
 
 object StandardFunctions {
 
-  lazy val Functions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions ++ Seq(FromFileFunction)
+  /**
+   * Functions imported into the default namespace
+   */
+  lazy val StandardFunctions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
 
   private val CoreFunctions = Seq(
     ExitFunction,
