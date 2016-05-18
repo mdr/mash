@@ -18,18 +18,19 @@ import org.eclipse.jgit.api.ListBranchCommand.ListMode
 object CreateBranchFunction extends MashFunction("git.createBranch") {
 
   object Params {
-    val Branch = Parameter(
+    lazy val Branch: Parameter = Parameter(
       name = "branch",
-      summary = "Name to give the new branch",
-      defaultValueGeneratorOpt = Some(() ⇒ null))
-    val Switch = Parameter(
+      summary = "Name to give the new local branch",
+      defaultValueGeneratorOpt = Some(() ⇒ null),
+      descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.name}' is provided"))
+    lazy val Switch = Parameter(
       name = "switch",
       summary = "Switch to the new branch after creating it (default false)",
       shortFlagOpt = Some('s'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isBooleanFlag = true)
-    val FromRemote = Parameter(
+    lazy val FromRemote = Parameter(
       name = "fromRemote",
       summary = "Create the new branch as a local tracking branch of the given remote branch",
       isFlag = true,
@@ -78,4 +79,5 @@ object CreateBranchFunction extends MashFunction("git.createBranch") {
 
   override def summary = "Create a new local branch"
 
+  override def descriptionOpt = Some(s"""If '${Params.FromRemote.name}' is provided,' ${Params.Branch.name}' can be omitted, with the same name used locally.""")
 }
