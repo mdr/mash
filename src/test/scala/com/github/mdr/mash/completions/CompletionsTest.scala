@@ -58,6 +58,10 @@ class CompletionsTest extends FlatSpec with Matchers {
     "cd(▶" shouldGiveCompletions ("dir/")
     "cd(d▶" shouldGiveCompletions ("dir/")
     "cd(pw▶" shouldGiveCompletions ("pwd")
+
+    "d▶ | cd" shouldGiveCompletions ("dir/")
+    """cd --directory="d"▶""" shouldGiveCompletions ("dir/")
+//    """cd --directory=d▶""" shouldGiveCompletions ("dir/")
   }
 
   {
@@ -247,9 +251,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     "cd foo-▶" shouldGiveCompletions ("foo-bar")
   }
 
-  "{ foobar: 42 }.foo▶ = 42" shouldGiveCompletions("foobar")
-  "a = { foobar: 42}.foo▶" shouldGiveCompletions("foobar")
-  
+  "{ foobar: 42 }.foo▶ = 42" shouldGiveCompletions ("foobar")
+  "a = { foobar: 42}.foo▶" shouldGiveCompletions ("foobar")
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {

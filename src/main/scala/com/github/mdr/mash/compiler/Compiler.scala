@@ -24,7 +24,7 @@ object Compiler {
     forgiving: Boolean = true,
     inferTypes: Boolean = false,
     mish: Boolean = false,
-    bareWords: Boolean = true): Option[Expr] = {
+    bareWords: Boolean = true): Option[Expr] =
     MashParser.parse(s, forgiving = forgiving, mish = mish).map { concreteExpr ⇒
       val abstractExpr = Abstractifier.abstractify(concreteExpr)
       val withoutHoles = DesugarHoles.desugarHoles(abstractExpr)
@@ -45,6 +45,5 @@ object Compiler {
 
       finalExpr
     }
-  }
 
 }

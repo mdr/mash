@@ -18,7 +18,8 @@ object InvocationFinder {
    */
   def findInvocationWithLiteralArg(expr: Expr, literalToken: Token): Option[InvocationInfo] = {
     def isLiteralArg(arg: ConcreteSyntax.AstNode) = cond(arg) {
-      case ConcreteSyntax.Literal(`literalToken`) ⇒ true
+      case ConcreteSyntax.Literal(`literalToken`)                                       ⇒ true
+      case ConcreteSyntax.LongArg(_, Some((_, ConcreteSyntax.Literal(`literalToken`)))) ⇒ true
     }
     expr.find {
       case iexpr @ InvocationExpr(_, _, Some(SourceInfo(ArgSite(args)))) if args.exists(isLiteralArg) ⇒
@@ -48,12 +49,12 @@ object InvocationFinder {
   private object ArgSite {
 
     def unapply(expr: ConcreteSyntax.Expr): Option[Seq[ConcreteSyntax.AstNode]] = condOpt(expr) {
-      case ConcreteSyntax.InvocationExpr(_, args)                                ⇒ args
-      case ConcreteSyntax.PipeExpr(_, _, ConcreteSyntax.InvocationExpr(_, args)) ⇒ args // source corresponding to a desugared pipe
+      case ConcreteSyntax.InvocationExpr(_, args)                                   ⇒ args
+      case ConcreteSyntax.PipeExpr(left, _, ConcreteSyntax.InvocationExpr(_, args)) ⇒ args :+ left // source corresponding to a desugared pipe
+      case ConcreteSyntax.PipeExpr(left, _, right)                                  ⇒ Seq(left, right)
       case ConcreteSyntax.ParenInvocationExpr(_, _, Some(ConcreteSyntax.ParenInvocationArgs(firstArg, otherArgs)), _) ⇒
         firstArg +: otherArgs.map(_._2)
     }
-
   }
 
 }

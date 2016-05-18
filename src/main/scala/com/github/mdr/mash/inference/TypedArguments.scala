@@ -36,6 +36,4 @@ trait TypedArguments {
 
 }
 
-case class SimpleTypedArguments(arguments: Seq[TypedArgument]) extends TypedArguments {
-
-}
+case class SimpleTypedArguments(arguments: Seq[TypedArgument]) extends TypedArguments

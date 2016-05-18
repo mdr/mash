@@ -13,6 +13,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.evaluator.EvaluatorException
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
+import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
 object CreateBranchFunction extends MashFunction("git.createBranch") {
 
@@ -57,6 +58,19 @@ object CreateBranchFunction extends MashFunction("git.createBranch") {
         git.checkout().setName(localName).call()
     }
   }
+
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
+    Seq(CompletionSpec.Items(getRemoteBranches))
+
+  private def getRemoteBranches: Seq[String] =
+    try
+      GitHelper.withGit { git ⇒
+        val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala
+        branches.map(_.getName.replaceAll("^refs/remotes/", ""))
+      }
+    catch {
+      case _: Exception ⇒ Seq()
+    }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
 

@@ -33,7 +33,7 @@ object InvocationAssistance {
         sourceInfo ← expr.sourceInfoOpt
         tokens = sourceInfo.expr.tokens
         literalToken ← tokens.find(isNearbyStringToken)
-        InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
+        InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
         functionType ← invocationExpr.function.typeOpt
         assistanceState ← assistInvocation(functionType)
       } yield assistanceState
@@ -48,7 +48,7 @@ object InvocationAssistance {
         sourceInfo ← expr.sourceInfoOpt
         tokens = sourceInfo.expr.tokens
         literalToken ← tokens.find(isNearbyStringToken)
-        InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
+        InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
         functionType ← invocationExpr.function.typeOpt
         assistanceState ← assistInvocation(functionType)
       } yield assistanceState
