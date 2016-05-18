@@ -10,11 +10,13 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import jnr.constants.platform.linux.Signal
 import com.github.mdr.mash.functions.BoundParams
+import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.inference.TypedArguments
 
 object KillFunction extends MashFunction("os.kill") {
 
   private val Term = "TERM"
-  
+
   private val Signals: Map[String, Int] = {
     val pairs =
       for (signal ← Signal.values)
@@ -67,6 +69,11 @@ The default signal is TERM."""))
     case xs: MashList                            ⇒ xs.items.flatMap(getPids)
     case x                                       ⇒ throw new EvaluatorException("Invalid process ID: " + x)
   }
+
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
+    params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
+      case Params.Signal ⇒ CompletionSpec.Items(SignalClass.Signals)
+    }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
 

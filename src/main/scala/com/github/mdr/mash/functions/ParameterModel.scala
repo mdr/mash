@@ -79,8 +79,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     (flagParams ++ positionalParams).mkString(" ")
   }
 
-  def bindTypes(arguments: TypedArguments) =
-    BoundTypeParams(new TypeParamValidationContext(this, arguments).bind())
+  def bindTypes(arguments: TypedArguments): BoundTypeParams =
+    new TypeParamValidationContext(this, arguments).bind()
 
 }
 

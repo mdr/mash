@@ -2,7 +2,7 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference.AnnotatedExpr
 
-case class BoundTypeParams(params: Map[String, AnnotatedExpr]) {
+case class BoundTypeParams(params: Map[String, AnnotatedExpr], posToParam: Map[Int, Parameter]) {
 
   def apply(param: String): AnnotatedExpr = params(param)
 
@@ -15,5 +15,7 @@ case class BoundTypeParams(params: Map[String, AnnotatedExpr]) {
   def contains(param: String) = get(param).isDefined
 
   def contains(param: Parameter) = get(param).isDefined
-
+  
+  def paramAt(pos: Int): Option[Parameter] = posToParam.get(pos)
+  
 }

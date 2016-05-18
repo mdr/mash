@@ -37,7 +37,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         addArgumentNode(paramName, argNode)
     }
 
-  private def handlePositionalArgs() = {
+  private def handlePositionalArgs() {
     val regularPosParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
     val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
 

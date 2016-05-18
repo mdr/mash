@@ -13,14 +13,14 @@ import com.github.mdr.mash.evaluator.EvaluatedArgument
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 
   private var boundParams: Map[String, AnnotatedExpr] = Map()
-  private var posToName: Map[Int, String] = Map()
+  private var posToParam: Map[Int, Parameter] = Map()
   private var lastParameterConsumed = false
 
-  def bind(): Map[String, AnnotatedExpr] = {
+  def bind(): BoundTypeParams = {
     handleLastArg()
     handlePositionalArgs()
     handleFlagArgs()
-    boundParams
+    BoundTypeParams(boundParams, posToParam)
   }
 
   private def handleLastArg() {
@@ -29,7 +29,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       lastArg ← arguments.positionArgs.lastOption
     } {
       boundParams += lastParam.name -> lastArg
-      posToName += arguments.arguments.indexOf(lastArg) -> lastParam.name
+      posToParam += arguments.arguments.indexOf(lastArg) -> lastParam
       lastParameterConsumed = true
     }
   }
@@ -44,12 +44,12 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
         val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
         boundParams += variadicParam.name -> AnnotatedExpr(None, Some(Type.Seq(varargType)))
         for (pos ← regularPosParams.size to positionArgs.size - 1)
-          posToName += arguments.arguments.indexOf(pos) -> variadicParam.name
+          posToParam += arguments.arguments.indexOf(pos) -> variadicParam
       }
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
       boundParams += param.name -> arg
-      posToName += arguments.arguments.indexOf(arg) -> param.name
+      posToParam += arguments.arguments.indexOf(arg) -> param
     }
   }
 
@@ -68,7 +68,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
         case TypedArgument.ShortFlag(flags)         ⇒ flags.contains(paramName)
         case _                                      ⇒ false
       }
-      posToName += argIndex -> param.name
+      posToParam += argIndex -> param
     }
 
 }

@@ -60,7 +60,9 @@ object CreateBranchFunction extends MashFunction("git.createBranch") {
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
-    Seq(CompletionSpec.Items(getRemoteBranches))
+    params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
+      case FromRemote ⇒ CompletionSpec.Items(getRemoteBranches)
+    }
 
   private def getRemoteBranches: Seq[String] =
     try
