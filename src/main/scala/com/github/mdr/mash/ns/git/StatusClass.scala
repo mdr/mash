@@ -20,7 +20,7 @@ import com.github.mdr.mash.evaluator.MashNumber
 object StatusClass extends MashClass("git.Status") {
 
   object Fields {
-    val Branch = Field("branch", "Current branch", StringClass)
+    val Branch = Field("branch", "Current branch", Type.Tagged(StringClass, LocalBranchNameClass))
     val RemoteTrackingBranch = Field("remoteTrackingBranch", "Name of the remote tracking branch (if any, else null)", StringClass)
     val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", NumberClass)
     val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", NumberClass)

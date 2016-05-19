@@ -1,24 +1,22 @@
 package com.github.mdr.mash.ns.git
 
+import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
+
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.BranchTrackingStatus
+import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.Repository
+
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Truthiness
+import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.evaluator.MashList
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.ns.core.UnitClass
-import org.eclipse.jgit.api.ListBranchCommand.ListMode
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator.MashObject
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.evaluator.MashString
-import org.eclipse.jgit.lib.BranchConfig
-import org.eclipse.jgit.lib.Ref
+import com.github.mdr.mash.ns.git.BranchClass.Fields
 
 object BranchesFunction extends MashFunction("git.branches") {
 
@@ -26,20 +24,24 @@ object BranchesFunction extends MashFunction("git.branches") {
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    GitHelper.withGit { git ⇒
-      val branches = git.branchList.setListMode(ListMode.ALL).call().asScala
-      MashList(branches.map(asMashObject))
+    GitHelper.withRepository { repo ⇒
+      val git = new Git(repo)
+      val branches = git.branchList.call().asScala.filter(_.getName startsWith "refs/heads/")
+      MashList(branches.map(asMashObject(repo)))
     }
   }
 
-  private def asMashObject(ref: Ref): MashObject = {
-    val name = ref.getName
+  def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
+    val trackingStatusOpt = Option(BranchTrackingStatus.of(repo, ref.getName)).map(status ⇒
+      MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", "")))
+    val name = ref.getName.replaceAll("^refs/heads/", "")
     import BranchClass.Fields._
     MashObject(
       ListMap(
-        Name -> MashString(name),
-        Commit -> MashString(id, CommitHashClass)),
+        Name -> MashString(name, LocalBranchNameClass),
+        Commit -> MashString(id, CommitHashClass),
+        UpstreamBranch -> trackingStatusOpt.orNull),
       BranchClass)
   }
 

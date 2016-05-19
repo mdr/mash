@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.git
 import org.eclipse.jgit.revwalk.RevWalk
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.MashString
@@ -14,13 +13,15 @@ import com.github.mdr.mash.inference.Type
 
 object CommitHashClass extends MashClass("git.CommitHash") {
 
+  val lifter = new MemberLifter(hash ⇒ getCommit(hash.s))
+
   override lazy val methods = Seq(
-    liftCommitField(CommitClass.Fields.CommitTime),
-    liftCommitField(CommitClass.Fields.Author),
-    liftCommitField(CommitClass.Fields.Committer),
-    liftCommitField(CommitClass.Fields.Summary),
-    liftCommitField(CommitClass.Fields.Parents),
-    liftCommitMethod(CommitClass.ParentMethod),
+    lifter.liftField(CommitClass.Fields.CommitTime),
+    lifter.liftField(CommitClass.Fields.Author),
+    lifter.liftField(CommitClass.Fields.Committer),
+    lifter.liftField(CommitClass.Fields.Summary),
+    lifter.liftField(CommitClass.Fields.Parents),
+    lifter.liftMethod(CommitClass.ParentMethod),
     InfoMethod)
 
   def summary = "A git commit SHA-1 hash"
@@ -52,40 +53,5 @@ object CommitHashClass extends MashClass("git.CommitHash") {
         walk.dispose()
     }
 
-  private def liftCommitField(field: Field) = new MashMethod(field.name) {
-
-    val params = ParameterModel()
-
-    def apply(target: Any, arguments: Arguments): Any = {
-      params.validate(arguments)
-      val hash = target.asInstanceOf[MashString].s
-      val commitObject = getCommit(hash)
-      commitObject.fields(field.name)
-    }
-
-    override def typeInferenceStrategy =
-      ConstantMethodTypeInferenceStrategy(CommitClass.fieldsMap(field.name).fieldType)
-
-    override def summary = field.summary
-
-    override def descriptionOpt = field.descriptionOpt
-
-  }
-
-  private def liftCommitMethod(method: MashMethod) = new MashMethod(method.name) {
-
-    val params = method.params
-
-    def apply(target: Any, arguments: Arguments): Any = {
-      val hash = target.asInstanceOf[MashString].s
-      val commitObject = getCommit(hash)
-      method.apply(commitObject, arguments)
-    }
-
-    override def typeInferenceStrategy = method.typeInferenceStrategy
-    override def summary = method.summary
-    override def descriptionOpt = method.descriptionOpt
-
-  }
-
 }
+

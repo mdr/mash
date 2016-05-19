@@ -41,10 +41,7 @@ object StatusFunction extends MashFunction("git.status") {
   private def mashify(paths: ju.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
 
   private def trimUnwantedPrefix(remoteBranch: String): String =
-    if (remoteBranch.startsWith("refs/remotes/"))
-      remoteBranch.drop("refs/remotes/".length)
-    else
-      remoteBranch
+    remoteBranch.replaceAll("^refs/remotes/", "")
 
   private def asMashObject(branch: String, status: Status, branchTrackingStatusOpt: Option[BranchTrackingStatus]): MashObject = {
     val modified = mashify(status.getModified)
@@ -56,10 +53,10 @@ object StatusFunction extends MashFunction("git.status") {
     val conflicting = mashify(status.getConflicting)
     val aheadCount = branchTrackingStatusOpt.map(_.getAheadCount).getOrElse(0)
     val behindCount = branchTrackingStatusOpt.map(_.getBehindCount).getOrElse(0)
-    val remoteTrackingBranchOpt = branchTrackingStatusOpt.map(s => trimUnwantedPrefix(s.getRemoteTrackingBranch))
+    val remoteTrackingBranchOpt = branchTrackingStatusOpt.map(s ⇒ trimUnwantedPrefix(s.getRemoteTrackingBranch))
     import StatusClass.Fields._
     MashObject(ListMap(
-      Branch -> MashString(branch),
+      Branch -> MashString(branch, LocalBranchNameClass),
       RemoteTrackingBranch -> remoteTrackingBranchOpt.map(MashString(_)).orNull,
       AheadCount -> MashNumber(aheadCount),
       BehindCount -> MashNumber(behindCount),

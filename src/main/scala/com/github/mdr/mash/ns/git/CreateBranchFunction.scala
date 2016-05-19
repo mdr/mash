@@ -79,5 +79,5 @@ object CreateBranchFunction extends MashFunction("git.createBranch") {
 
   override def summary = "Create a new local branch"
 
-  override def descriptionOpt = Some(s"""If '${Params.FromRemote.name}' is provided,' ${Params.Branch.name}' can be omitted, with the same name used locally.""")
+  override def descriptionOpt = Some(s"""If '${Params.FromRemote.name}' is provided, '${Params.Branch.name}' can be omitted, with the same name used locally.""")
 }
