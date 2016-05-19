@@ -30,7 +30,8 @@ object BranchesFunction extends MashFunction("git.branches") {
 
   def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
-    val (upstreamBranch, aheadCount, behindCount) = StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
+    val (upstreamBranch, aheadCount, behindCount) =
+      StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
     val name = ref.getName.replaceAll("^refs/heads/", "")
     import BranchClass.Fields._
     MashObject(
@@ -43,7 +44,7 @@ object BranchesFunction extends MashFunction("git.branches") {
       BranchClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(BranchClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(BranchClass))
 
   override def summary = "List branches in the repository"
 

@@ -12,6 +12,7 @@ object GitNamespace {
     CloneFunction,
     CommitFunction,
     CreateBranchFunction,
+    DeleteBranchFunction,
     FetchFunction,
     LogFunction,
     PullFunction,
