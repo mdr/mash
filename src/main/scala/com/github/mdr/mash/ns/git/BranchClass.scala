@@ -16,6 +16,8 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.evaluator.MashList
 import org.eclipse.jgit.api.Git
 import scala.collection.JavaConverters._
+import com.github.mdr.mash.evaluator.Truthiness
+import com.github.mdr.mash.ns.core.NumberClass
 
 object BranchClass extends MashClass("git.Branch") {
 
@@ -23,16 +25,19 @@ object BranchClass extends MashClass("git.Branch") {
     val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))
     val Commit = Field("commit", "The commit the branch is pointing to", Type.Tagged(StringClass, CommitHashClass))
     val UpstreamBranch = Field("upstreamBranch", "The upstream branch this branch is tracking, if any, else null", Type.Tagged(StringClass, RemoteBranchNameClass))
+    val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", NumberClass)
+    val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", NumberClass)
   }
 
   import Fields._
 
-  override lazy val fields = Seq(Name, Commit, UpstreamBranch)
+  override lazy val fields = Seq(Name, Commit, UpstreamBranch, AheadCount, BehindCount)
 
   def summary = "A git branch"
 
   override lazy val methods = Seq(
     LogMethod,
+    PushMethod,
     SwitchMethod,
     ToStringMethod)
 
@@ -57,9 +62,31 @@ object BranchClass extends MashClass("git.Branch") {
       }
     }
 
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(CommitClass))
+
+    override def summary = "Return a list of commits from this branch"
+
+  }
+
+  object PushMethod extends MashMethod("push") {
+
+    import PushFunction.Params._
+
+    val params = ParameterModel(Seq(Force))
+
+    def apply(target: Any, arguments: Arguments) {
+      val boundParams = params.validate(arguments)
+      val force = Truthiness.isTruthy(boundParams(Force))
+
+      val branchName = Wrapper(target).name.s
+      GitHelper.withGit { git ⇒
+        git.push.add(branchName).setForce(force).call()
+      }
+    }
+
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
 
-    override def summary = """Return a list of commits from this branch"""
+    override def summary = "Push this branch"
 
   }
 
@@ -77,7 +104,7 @@ object BranchClass extends MashClass("git.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
 
-    override def summary = """Switch to this branch"""
+    override def summary = "Switch to this branch"
 
   }
 

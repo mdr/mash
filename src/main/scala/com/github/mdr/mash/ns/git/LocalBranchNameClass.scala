@@ -24,6 +24,7 @@ object LocalBranchNameClass extends MashClass("git.LocalBranchName") {
     lifter.liftField(BranchClass.Fields.UpstreamBranch),
     lifter.liftMethod(BranchClass.LogMethod),
     lifter.liftMethod(BranchClass.SwitchMethod),
+    lifter.liftMethod(BranchClass.PushMethod),
     InfoMethod)
 
   object InfoMethod extends MashMethod("info") {

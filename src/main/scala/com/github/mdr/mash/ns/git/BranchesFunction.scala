@@ -30,15 +30,16 @@ object BranchesFunction extends MashFunction("git.branches") {
 
   def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
-    val trackingStatusOpt = Option(BranchTrackingStatus.of(repo, ref.getName)).map(status ⇒
-      MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", "")))
+    val (upstreamBranch, aheadCount, behindCount) = StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
     val name = ref.getName.replaceAll("^refs/heads/", "")
     import BranchClass.Fields._
     MashObject(
       ListMap(
         Name -> MashString(name, LocalBranchNameClass),
         Commit -> MashString(id, CommitHashClass),
-        UpstreamBranch -> trackingStatusOpt.orNull),
+        UpstreamBranch -> upstreamBranch,
+        AheadCount -> aheadCount,
+        BehindCount -> behindCount),
       BranchClass)
   }
 

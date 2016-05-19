@@ -51,15 +51,13 @@ object StatusFunction extends MashFunction("git.status") {
     val removed = mashify(status.getRemoved)
     val missing = mashify(status.getMissing)
     val conflicting = mashify(status.getConflicting)
-    val aheadCount = branchTrackingStatusOpt.map(_.getAheadCount).getOrElse(0)
-    val behindCount = branchTrackingStatusOpt.map(_.getBehindCount).getOrElse(0)
-    val remoteTrackingBranchOpt = branchTrackingStatusOpt.map(s ⇒ trimUnwantedPrefix(s.getRemoteTrackingBranch))
+    val (upstreamBranch, aheadCount, behindCount) = mashify(branchTrackingStatusOpt)
     import StatusClass.Fields._
     MashObject(ListMap(
       Branch -> MashString(branch, LocalBranchNameClass),
-      RemoteTrackingBranch -> remoteTrackingBranchOpt.map(MashString(_)).orNull,
-      AheadCount -> MashNumber(aheadCount),
-      BehindCount -> MashNumber(behindCount),
+      UpstreamBranch -> upstreamBranch,
+      AheadCount -> aheadCount,
+      BehindCount -> behindCount,
       Added -> added,
       Changed -> changed,
       Missing -> missing,
@@ -68,6 +66,16 @@ object StatusFunction extends MashFunction("git.status") {
       Untracked -> untracked,
       Conflicting -> conflicting), StatusClass)
 
+  }
+
+  def mashify(statusOpt: Option[BranchTrackingStatus]) = statusOpt match {
+    case Some(status) ⇒
+      (
+        MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", "")),
+        MashNumber(status.getAheadCount),
+        MashNumber(status.getBehindCount))
+    case None ⇒
+      (null, MashNumber(0), MashNumber(0))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(StatusClass))
