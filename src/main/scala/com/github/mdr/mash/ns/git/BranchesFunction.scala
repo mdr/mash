@@ -8,10 +8,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashList
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy

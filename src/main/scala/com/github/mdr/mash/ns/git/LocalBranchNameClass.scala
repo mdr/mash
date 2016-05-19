@@ -22,6 +22,7 @@ object LocalBranchNameClass extends MashClass("git.LocalBranchName") {
   override lazy val methods = Seq(
     lifter.liftField(BranchClass.Fields.Commit),
     lifter.liftField(BranchClass.Fields.UpstreamBranch),
+    lifter.liftMethod(BranchClass.LogMethod),
     lifter.liftMethod(BranchClass.SwitchMethod),
     InfoMethod)
 
@@ -41,14 +42,13 @@ object LocalBranchNameClass extends MashClass("git.LocalBranchName") {
 
   }
 
-  private def getBranchInfo(branchName: MashString): MashObject = {
+  private def getBranchInfo(branchName: MashString): MashObject =
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val ref = git.branchList.call().asScala.find(_.getName == "refs/heads/" + branchName).getOrElse(
         throw new EvaluatorException("No branch with name " + branchName))
       BranchesFunction.asMashObject(repo)(ref)
     }
-  }
 
 }
   

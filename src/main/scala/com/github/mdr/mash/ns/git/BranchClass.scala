@@ -13,13 +13,16 @@ import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.evaluator.MashList
+import org.eclipse.jgit.api.Git
+import scala.collection.JavaConverters._
 
 object BranchClass extends MashClass("git.Branch") {
 
   object Fields {
     val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))
     val Commit = Field("commit", "The commit the branch is pointing to", Type.Tagged(StringClass, CommitHashClass))
-    val UpstreamBranch = Field("upstreamBranch", "The upstream branch this branch is tracking, if any, else null", Type.Instance(StringClass))
+    val UpstreamBranch = Field("upstreamBranch", "The upstream branch this branch is tracking, if any, else null", Type.Tagged(StringClass, RemoteBranchNameClass))
   }
 
   import Fields._
@@ -29,12 +32,34 @@ object BranchClass extends MashClass("git.Branch") {
   def summary = "A git branch"
 
   override lazy val methods = Seq(
+    LogMethod,
     SwitchMethod,
     ToStringMethod)
 
   private case class Wrapper(target: Any) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
+
+  }
+
+  object LogMethod extends MashMethod("log") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashList = {
+      params.validate(arguments)
+      val branchName = Wrapper(target).name.s
+      GitHelper.withRepository { repo ⇒
+        val git = new Git(repo)
+        val branchId = repo.resolve(branchName)
+        val commits = git.log.add(branchId).call().asScala.toSeq.reverse
+        MashList(commits.map(LogFunction.asCommitObject))
+      }
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
+
+    override def summary = """Return a list of commits from this branch"""
 
   }
 
