@@ -9,6 +9,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.evaluator.EvaluatedArgument
+import scala.PartialFunction.cond
 
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 
@@ -26,11 +27,13 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
   private def handleLastArg() {
     for {
       lastParam ← params.lastParamOpt
+      paramName = lastParam.name
       lastArg ← arguments.positionArgs.lastOption
+      if !arguments.isProvidedAsNamedArg(paramName)
     } {
-      boundParams += lastParam.name -> lastArg
-      posToParam += arguments.arguments.indexOf(lastArg) -> lastParam
       lastParameterConsumed = true
+      boundParams += lastParam.name -> lastArg
+      posToParam += posOfArg(lastArg) -> lastParam
     }
   }
 
@@ -43,15 +46,19 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
         val varargs = positionArgs.drop(regularPosParams.size)
         val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
         boundParams += variadicParam.name -> AnnotatedExpr(None, Some(Type.Seq(varargType)))
-        for (pos ← regularPosParams.size to positionArgs.size - 1)
-          posToParam += arguments.arguments.indexOf(pos) -> variadicParam
+        val extraArgs = positionArgs.drop(regularPosParams.size)
+        for (arg ← extraArgs)
+          posToParam += posOfArg(arg) -> variadicParam
       }
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
       boundParams += param.name -> arg
-      posToParam += arguments.arguments.indexOf(arg) -> param
+      posToParam += posOfArg(arg) -> param
     }
   }
+
+  private def posOfArg(arg: AnnotatedExpr): Int =
+    arguments.arguments.indexWhere(cond(_) { case TypedArgument.PositionArg(`arg`) ⇒ true })
 
   private def handleFlagArgs() {
     for (paramName ← arguments.argSet)

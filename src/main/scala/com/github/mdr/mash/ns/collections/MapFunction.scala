@@ -50,10 +50,13 @@ object MapFunction extends MashFunction("collections.map") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = {
     val argBindings = MapFunction.params.bindTypes(arguments)
-    (argPos, argBindings.get(Sequence)) match {
-      case (0, Some(AnnotatedExpr(_, Some(Type.Seq(elementType))))) ⇒ Seq(CompletionSpec.Members(elementType))
-      case _ ⇒ Seq()
-    }
+    val specOpt =
+      for {
+        param ← argBindings.paramAt(argPos)
+        if param == F
+        AnnotatedExpr(_, Some(Type.Seq(elementType))) ← argBindings.get(Sequence)
+      } yield CompletionSpec.Members(elementType)
+    specOpt.toSeq
   }
 
   override def summary = "Transform each element of a sequence by a given function"

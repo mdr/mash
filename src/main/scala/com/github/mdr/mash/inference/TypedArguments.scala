@@ -34,6 +34,8 @@ trait TypedArguments {
     case TypedArgument.LongFlag(flag, value) ⇒ flag -> value
   }.toMap
 
+  def isProvidedAsNamedArg(name: String): Boolean = argSet.contains(name) || argValues.contains(name)
+
 }
 
 case class SimpleTypedArguments(arguments: Seq[TypedArgument]) extends TypedArguments

@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.git
 
-import scala.collection.JavaConverters._
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.MashFunction
@@ -10,17 +9,13 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.evaluator.Truthiness
-import com.github.mdr.mash.evaluator.EvaluatorException
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
-import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
 object DeleteBranchFunction extends MashFunction("git.deleteBranch") {
 
   object Params {
-    lazy val Branch: Parameter = Parameter(
+    val Branch = Parameter(
       name = "branch",
-      summary = "Name to give the new local branch")
+      summary = "Name of the local branch to delete")
   }
   import Params._
 
@@ -30,7 +25,7 @@ object DeleteBranchFunction extends MashFunction("git.deleteBranch") {
     val boundParams = params.validate(arguments)
     val branch = boundParams.validateString(Branch).s
     GitHelper.withGit { git ⇒
-      git.branchDelete().setBranchNames(branch)
+      git.branchDelete().setForce(true).setBranchNames(branch).call()
     }
   }
 
@@ -39,7 +34,7 @@ object DeleteBranchFunction extends MashFunction("git.deleteBranch") {
       case Branch ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(UnitClass)
 
   override def summary = "Delete a local branch"
 }

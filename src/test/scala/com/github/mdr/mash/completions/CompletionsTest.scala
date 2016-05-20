@@ -61,7 +61,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     "d▶ | cd" shouldGiveCompletions ("dir/")
     """cd --directory="d"▶""" shouldGiveCompletions ("dir/")
-//    """cd --directory=d▶""" shouldGiveCompletions ("dir/")
+    //    """cd --directory=d▶""" shouldGiveCompletions ("dir/")
   }
 
   {
@@ -149,8 +149,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   // To get this to work, we need to be able to identify the name corresponding to the nth argument (by syntactical position)
-  // This can be done by ParameterModel.bindTypes
-  // "map --sequence=ls permiss▶" shouldGiveCompletions ("permissions")
+  "map --sequence=ls permiss▶" shouldGiveCompletions ("permissions")
 
   """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
   """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
