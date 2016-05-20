@@ -96,7 +96,7 @@ class ReplTest extends FlatSpec with Matchers {
 object ReplTest {
 
   def makeRepl(fileSystem: FileSystem = new MockFileSystem) =
-    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions)
+    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = new MemoryHistory)
 
   implicit class RichRepl(repl: Repl) {
 

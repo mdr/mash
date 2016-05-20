@@ -26,7 +26,7 @@ object PrintFunction extends MashFunction("core.print") {
     output.println(ToStringifier.stringify(item))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Print the given argument to standard output"
 

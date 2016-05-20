@@ -39,5 +39,5 @@ object Type {
     Type.Seq(xs.head)
   }
   implicit def pathClassToType[T](x: PathClass.type): Type = Type.Tagged(StringClass, PathClass)
-
+  implicit def unitToType[T](x: Unit.type): Type = Type.Instance(UnitClass)
 }

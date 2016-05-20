@@ -29,7 +29,7 @@ import com.github.mdr.mash.tips.Tips
 
 object Repl {
 
-  val MashRcPath = History.mashDir.resolve("mashrc")
+  val MashRcPath = History.MashDir.resolve("mashrc")
 
 }
 
@@ -37,7 +37,8 @@ class Repl(
   protected val terminal: Terminal,
   protected val output: PrintStream,
   fileSystem: FileSystem,
-  envInteractions: EnvironmentInteractions)
+  envInteractions: EnvironmentInteractions,
+  history: History)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
@@ -47,11 +48,8 @@ class Repl(
 
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  val state = new ReplState
+  val state = new ReplState(history = history)
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
-
-  // TODO: obviously this is horrible, will be fixed when DI gets sorted out
-  Singletons.history = state.history
 
   def run() {
     processMashRc()
