@@ -29,19 +29,10 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
     invocationExpr.function.typeOpt.collect {
       case Type.DefinedFunction(f) ⇒
-        f.getCompletionSpecs(argPos, typedArguments(invocationExpr))
+        f.getCompletionSpecs(argPos, SimpleTypedArguments.from(invocationExpr))
       case Type.BoundMethod(targetType, m) ⇒
-        m.getCompletionSpecs(argPos, Some(targetType), typedArguments(invocationExpr))
+        m.getCompletionSpecs(argPos, Some(targetType), SimpleTypedArguments.from(invocationExpr))
     }
-
-  private def annotateArg(arg: Argument): TypedArgument = arg match {
-    case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
-    case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
-    case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
-  }
-
-  private def typedArguments(invocationExpr: InvocationExpr): TypedArguments =
-    SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Option[CompletionResult] =
     completionSpecs.map(spec ⇒ completeFromSpec(spec, literalToken)).fold(None)(CompletionResult.merge)

@@ -18,4 +18,6 @@ case class Parameter(
 
   def isMandatory = defaultValueGeneratorOpt.isEmpty
 
+  override def toString = name
+  
 }

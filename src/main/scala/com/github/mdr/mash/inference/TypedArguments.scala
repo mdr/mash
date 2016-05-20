@@ -38,4 +38,17 @@ trait TypedArguments {
 
 }
 
+object SimpleTypedArguments {
+
+  private def annotateArg(arg: Argument): TypedArgument = arg match {
+    case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(AnnotatedExpr(Some(e), e.typeOpt))
+    case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
+    case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), e.typeOpt)))
+  }
+
+  def from(invocationExpr: InvocationExpr): TypedArguments =
+    SimpleTypedArguments(invocationExpr.arguments.map(annotateArg))
+
+}
+
 case class SimpleTypedArguments(arguments: Seq[TypedArgument]) extends TypedArguments

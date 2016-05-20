@@ -22,7 +22,6 @@ case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 object TypeInferencer {
 
   def buildBindings(env: Environment, includeGlobal: Boolean = true): Map[String, Type] = {
-
     val envBindings =
       for ((k, v) ← env.bindings)
         yield k -> ValueTypeDetector.getType(v)
@@ -193,19 +192,20 @@ class TypeInferencer {
     }
   }
 
-  private def annotateArg(arg: Argument, bindings: Map[String, Type]): TypedArgument =
+  private def inferTypeArg(arg: Argument, bindings: Map[String, Type]) {
     arg match {
-      case Argument.PositionArg(e, _) ⇒
-        TypedArgument.PositionArg(AnnotatedExpr(Some(e), inferType(e, bindings)))
-      case Argument.ShortFlag(flags, _) ⇒
-        TypedArgument.ShortFlag(flags)
-      case Argument.LongFlag(flag, valueOpt, _) ⇒
-        TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ AnnotatedExpr(Some(e), inferType(e, bindings))))
+      case Argument.PositionArg(e, _)              ⇒ inferType(e, bindings)
+      case Argument.LongFlag(flag, Some(value), _) ⇒ inferType(value, bindings)
+      case _                                       ⇒
     }
+  }
 
   private def inferTypeInvocationExpr(invocationExpr: InvocationExpr, bindings: Map[String, Type]): Option[Type] = {
     val InvocationExpr(f, args, _) = invocationExpr
-    val typedArgs = SimpleTypedArguments(args.map(annotateArg(_, bindings)))
+    
+    args.foreach(inferTypeArg(_, bindings))
+    val typedArgs = SimpleTypedArguments.from(invocationExpr)
+    
     inferType(f, bindings, immediateExec = false).flatMap {
       case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
         for {
@@ -233,7 +233,8 @@ class TypeInferencer {
           argType ← typeOpt
           typ ← inferType(expr, lambdaBindings ++ bindings + (parameter -> argType))
         } yield typ
-      case _ ⇒ None
+      case _ ⇒ 
+        None
     }
   }
 

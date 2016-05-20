@@ -1,15 +1,12 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
+import scala.PartialFunction.cond
+
 import com.github.mdr.mash.inference.AnnotatedExpr
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArgument
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.evaluator.EvaluatedArgument
-import scala.PartialFunction.cond
 
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 
@@ -61,10 +58,12 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     arguments.arguments.indexWhere(cond(_) { case TypedArgument.PositionArg(`arg`) ⇒ true })
 
   private def handleFlagArgs() {
-    for (paramName ← arguments.argSet)
-      bindFlagParam(paramName, expr = AnnotatedExpr(None, Some(Type.Instance(BooleanClass))))
-    for ((paramName, valueOpt) ← arguments.argValues; value ← valueOpt)
-      bindFlagParam(paramName, expr = value)
+    for (flagArg ← arguments.argSet)
+      bindFlagParam(flagArg, expr = AnnotatedExpr(None, Some(Type.Instance(BooleanClass))))
+    for {
+      (flagArg, valueOpt) ← arguments.argValues
+      value ← valueOpt
+    } bindFlagParam(flagArg, expr = value)
   }
 
   private def bindFlagParam(paramName: String, expr: AnnotatedExpr) =
