@@ -20,5 +20,6 @@ object GitNamespace {
     StatusFunction,
     SwitchFunction,
     StashApplyFunction,
-    StashCreateFunction)
+    StashCreateFunction,
+    UnstageFunction)
 }

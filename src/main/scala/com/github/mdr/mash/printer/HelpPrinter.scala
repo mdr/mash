@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import java.io.PrintStream
 import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.evaluator.Field
 
 /**
  * Render function/method/field help objects in a similar style to man pages
@@ -72,13 +73,14 @@ class HelpPrinter(output: PrintStream) {
     import ParameterHelpClass.Fields._
     def paramNameStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     output.print(indentSpace)
+    def boolParam(field: Field) = param.field(field).asInstanceOf[Boolean]
     var qualifiers: Seq[String] = Seq()
-    val isFlag = param.field(IsFlagParameter).asInstanceOf[Boolean]
-    if (param.field(IsLast).asInstanceOf[Boolean])
+    val isFlag = boolParam(IsFlagParameter)
+    if (boolParam(IsLast))
       qualifiers +:= "last"
-    if (param.field(IsOptional).asInstanceOf[Boolean])
+    if (boolParam(IsOptional))
       qualifiers +:= "optional"
-    if (param.field(IsVariadic).asInstanceOf[Boolean])
+    if (boolParam(IsVariadic))
       qualifiers +:= "variadic"
     val qualifierString = qualifiers match {
       case Seq() ⇒ ""
