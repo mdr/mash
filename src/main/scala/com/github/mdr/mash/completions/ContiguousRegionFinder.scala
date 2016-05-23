@@ -10,7 +10,7 @@ object ContiguousRegionFinder {
   private val IlliberalStopTokens: Set[TokenType] = {
     import TokenType._
     Set[TokenType](LPAREN, LPAREN_INVOKE, RPAREN, LBRACE, RBRACE, LSQUARE, LSQUARE_LOOKUP, RSQUARE,
-      MISH_INTERPOLATION_START, MISH_INTERPOLATION_START)
+      MISH_INTERPOLATION_START, MISH_INTERPOLATION_START, SHORT_EQUALS)
   }
 
   /**
