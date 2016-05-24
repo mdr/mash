@@ -53,7 +53,7 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
   lazy val memberNames: Seq[String] = fields.map(_.name) ++ methods.map(_.name)
 
-  override def toString = fullyQualifiedName
+  override def toString = fullyQualifiedName.toString
 
   def parentOpt: Option[MashClass] = Some(ObjectClass)
 

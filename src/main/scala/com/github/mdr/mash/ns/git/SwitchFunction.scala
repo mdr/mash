@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git
 
 import scala.collection.JavaConverters._
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.MashFunction
@@ -11,9 +10,12 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.functions.FullyQualifiedName
 
-object SwitchFunction extends MashFunction("git.switch") {
+object SwitchFunction extends MashFunction("git.branch.switch") {
 
+  override def aliases = Seq(FullyQualifiedName("git.switch"))
+  
   object Params {
     val Branch = Parameter(
       name = "branch",

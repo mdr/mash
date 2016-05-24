@@ -10,6 +10,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.inference.TypedArguments
+import scala.collection.JavaConverters._
 
 object UnstageFunction extends MashFunction("git.unstage") {
 
@@ -35,7 +36,12 @@ object UnstageFunction extends MashFunction("git.unstage") {
     }
   }
 
-  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = {
+    val status = GitHelper.withGit { _.status.call() }
+    val stagedFiles =
+      status.getAdded.asScala ++ status.getChanged.asScala ++ status.getRemoved.asScala
+    Seq(CompletionSpec.Items(stagedFiles.toSeq))
+  }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 

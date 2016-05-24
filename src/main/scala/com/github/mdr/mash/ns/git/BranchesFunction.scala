@@ -15,7 +15,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.git.BranchClass.Fields
 
-object BranchesFunction extends MashFunction("git.branches") {
+object BranchesFunction extends MashFunction("git.branch.list") {
 
   val params = ParameterModel(Seq())
 

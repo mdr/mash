@@ -17,10 +17,11 @@ object NamespaceCreator {
         Seq(BrowserFunction, RawFunction) ++
         Seq(FromFileFunction) ++
         StandardFunctions.AllClasses
-    createNamespace(allObjects.map(makeThing))
+    createNamespace(allObjects.flatMap(makeThings))
   }
 
-  private def makeThing(hasName: HasName): Thing = Thing(hasName.segments, hasName)
+  private def makeThings(hasName: HasName): Seq[Thing] =
+    hasName.aliases.map { alias ⇒ Thing(alias.segments, hasName) } :+ Thing(hasName.segments, hasName)
 
   private case class Thing(segments: Seq[String], value: Any) {
     def first: String = segments.head

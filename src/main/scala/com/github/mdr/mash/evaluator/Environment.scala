@@ -51,7 +51,7 @@ object Environment {
       "git" -> git,
       "json" -> json,
       "view" -> view,
-      "ns" -> NamespaceCreator.createNamespace)
+      "ns" -> ns)
     mutable.Map(nameFunctionPairs ++ aliasPairs ++ otherPairs: _*)
   }
 

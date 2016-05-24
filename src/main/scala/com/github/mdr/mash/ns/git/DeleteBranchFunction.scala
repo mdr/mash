@@ -10,7 +10,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 
-object DeleteBranchFunction extends MashFunction("git.deleteBranch") {
+object DeleteBranchFunction extends MashFunction("git.branch.delete") {
 
   object Params {
     val Branch = Parameter(

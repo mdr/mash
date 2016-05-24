@@ -27,7 +27,7 @@ object ClassClass extends MashClass("core.Class") {
 
     def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
-      MashString(target.asInstanceOf[MashClass].fullyQualifiedName)
+      MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))

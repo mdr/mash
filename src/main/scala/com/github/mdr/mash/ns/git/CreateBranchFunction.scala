@@ -15,7 +15,7 @@ import com.github.mdr.mash.evaluator.EvaluatorException
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
-object CreateBranchFunction extends MashFunction("git.createBranch") {
+object CreateBranchFunction extends MashFunction("git.branch.create") {
 
   object Params {
     lazy val Branch: Parameter = Parameter(

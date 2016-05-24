@@ -42,7 +42,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     MashObject(
       ListMap(
         Name -> MashString(f.name),
-        FullyQualifiedName -> MashString(f.fullyQualifiedName),
+        FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
         Summary -> MashString(f.summary),
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
         Description -> f.descriptionOpt.map(MashString(_)).orNull,
@@ -66,7 +66,7 @@ object HelpFunction extends MashFunction("core.help.help") {
         CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
         Description -> m.descriptionOpt.map(MashString(_)).orNull,
         Parameters -> MashList(m.params.params.map(getHelp)),
-        Class -> MashString(klass.fullyQualifiedName)),
+        Class -> MashString(klass.fullyQualifiedName.toString)),
       FunctionHelpClass)
   }
 
@@ -75,7 +75,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     MashObject(
       ListMap(
         Name -> MashString(field.name),
-        Class -> MashString(klass.fullyQualifiedName),
+        Class -> MashString(klass.fullyQualifiedName.toString),
         Summary -> MashString(field.summary),
         Description -> field.descriptionOpt.map(MashString(_)).orNull),
       FieldHelpClass)
@@ -103,10 +103,10 @@ object HelpFunction extends MashFunction("core.help.help") {
     MashObject(
       ListMap(
         Name -> MashString(klass.name),
-        FullyQualifiedName -> MashString(klass.fullyQualifiedName),
+        FullyQualifiedName -> MashString(klass.fullyQualifiedName.toString),
         Summary -> MashString(klass.summary),
         Description -> klass.descriptionOpt.map(MashString(_)).orNull,
-        Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName)).orNull,
+        Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).orNull,
         Fields -> MashList(fields),
         Methods -> MashList(methods)),
       ClassHelpClass)
