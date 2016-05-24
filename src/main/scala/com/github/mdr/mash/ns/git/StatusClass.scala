@@ -38,7 +38,7 @@ object StatusClass extends MashClass("git.Status") {
   override lazy val fields = 
     Seq(Branch, UpstreamBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked, Conflicting)
 
-  def summary = "Show the status of the git repository"
+  def summary = "The status of a git repository"
 
   case class Wrapper(obj: MashObject) {
     private def unmashify(field: Field): Seq[String] =

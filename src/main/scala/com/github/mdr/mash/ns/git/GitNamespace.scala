@@ -17,6 +17,7 @@ object GitNamespace {
     LogFunction,
     PullFunction,
     PushFunction,
+    StageFunction,
     StatusFunction,
     SwitchFunction,
     StashApplyFunction,
