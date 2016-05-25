@@ -6,12 +6,10 @@ import java.time.Instant
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
 
-case class HistoryEntry(timestamp: Instant, command: String, mish: Boolean)
-
-object History {
-
-  lazy val MashDir: Path = new File(System.getProperty("user.home"), ".mash").toPath
-
+case class HistoryEntry(sessionId: String, timestamp: Instant, command: String, mish: Boolean) {
+  
+  def sessionIdOpt = Option(sessionId)
+  
 }
 
 trait History {

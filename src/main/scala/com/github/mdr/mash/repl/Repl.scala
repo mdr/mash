@@ -24,10 +24,11 @@ import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.repl.history.History
+import com.github.mdr.mash.Mash
 
 object Repl {
 
-  val MashRcPath = History.MashDir.resolve("mashrc")
+  val MashRcPath = Mash.MashDir.resolve("mashrc")
 
 }
 
@@ -57,6 +58,7 @@ class Repl(
   }
 
   private def getMashRcLines: Seq[String] = {
+    Mash.ensureMashDirExists()
     if (Files.exists(MashRcPath)) {
       try
         FileUtils.readLines(MashRcPath.toFile, StandardCharsets.UTF_8).asScala

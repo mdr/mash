@@ -2,7 +2,6 @@ package com.github.mdr.mash.repl.history
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Path
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -10,17 +9,24 @@ import scala.util.Try
 import org.apache.commons.io.FileUtils
 
 import com.fatboyindustrial.gsonjavatime.Converters
+import com.github.mdr.mash.Mash
 import com.google.gson.GsonBuilder
 
+object FileBackedHistoryStorage {
+  
+  private val HistoryFile = Mash.MashDir.resolve("history")
+  
+}
+
 class FileBackedHistoryStorage extends HistoryStorage {
-
-  private val historyFile: Path = History.MashDir.resolve("history")
-
+  
+  import FileBackedHistoryStorage._
+  
   private val gson = Converters.registerAll(new GsonBuilder()).create()
 
   def loadHistory(): Seq[HistoryEntry] =
-    if (Files.exists(historyFile)) {
-      val lines = FileUtils.readLines(historyFile.toFile, StandardCharsets.UTF_8).asScala
+    if (Files.exists(HistoryFile)) {
+      val lines = FileUtils.readLines(HistoryFile.toFile, StandardCharsets.UTF_8).asScala
       lines.flatMap(loadHistoryEntry).sortBy(_.timestamp).reverse
     } else
       Seq()
@@ -29,9 +35,8 @@ class FileBackedHistoryStorage extends HistoryStorage {
     Try(gson.fromJson(s, classOf[HistoryEntry])).toOption
 
   def saveEntry(entry: HistoryEntry) {
-    if (!Files.exists(History.MashDir))
-      Files.createDirectory(History.MashDir)
+    Mash.ensureMashDirExists()
     val json = gson.toJson(entry)
-    FileUtils.writeLines(historyFile.toFile, Seq(json).asJava, true)
+    FileUtils.writeLines(HistoryFile.toFile, Seq(json).asJava, true)
   }
 }

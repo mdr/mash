@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils
 import com.fatboyindustrial.gsonjavatime.Converters
 import com.google.gson.GsonBuilder
 import scala.util.Try
+import java.util.UUID
 
 trait HistoryStorage {
 
@@ -24,7 +25,10 @@ object HistoryImpl {
 
 }
 
-class HistoryImpl(storage: HistoryStorage, clock: Clock = Clock.systemDefaultZone) extends History {
+class HistoryImpl(
+    storage: HistoryStorage,
+    clock: Clock = Clock.systemDefaultZone,
+    sessionId: String = UUID.randomUUID().toString()) extends History {
 
   import HistoryImpl._
 
@@ -36,10 +40,11 @@ class HistoryImpl(storage: HistoryStorage, clock: Clock = Clock.systemDefaultZon
   def goForwards(): Option[String] =
     if (historyPos >= 0) {
       historyPos -= 1
-      if (historyPos != NotInHistory)
-        Some(history(historyPos).command)
-      else
-        Some("")
+      Some(
+        if (historyPos == NotInHistory)
+          ""
+        else
+          history(historyPos).command)
     } else
       None
 
@@ -51,7 +56,7 @@ class HistoryImpl(storage: HistoryStorage, clock: Clock = Clock.systemDefaultZon
       None
 
   def record(cmd: String, mish: Boolean) {
-    val entry = HistoryEntry(clock.instant, cmd, mish)
+    val entry = HistoryEntry(sessionId, clock.instant, cmd, mish)
     history = entry +: history
     storage.saveEntry(entry)
   }

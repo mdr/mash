@@ -20,12 +20,13 @@ object HistoryFunction extends MashFunction("os.history") {
 
   def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    MashList(history.getHistory.map(asObject))
+    MashList(history.getHistory.reverse.map(asObject))
   }
 
   private def asObject(entry: HistoryEntry): MashObject = {
     import HistoryClass.Fields._
     MashObject(ListMap(
+      Session -> entry.sessionIdOpt.map(MashString(_)).orNull,
       Timestamp -> entry.timestamp,
       Command -> MashString(entry.command),
       Mish -> entry.mish), HistoryClass)
