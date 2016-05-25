@@ -1,5 +1,7 @@
 package com.github.mdr.mash.parser
 
+import scala.annotation.tailrec
+
 /**
  * @param escapeMap -- map from position in the original string to the position in the escaped string
  */
@@ -30,30 +32,27 @@ object StringEscapes {
   }
 
   def unescape(s: String): String = {
-    val sb = new StringBuilder()
-    val it = s.iterator
-    while (it.hasNext) {
-      it.next() match {
-        case '\\' ⇒
-          if (it.hasNext)
-            sb.append(it.next() match {
-              case '\\' ⇒ '\\'
-              case 'r'  ⇒ '\r'
-              case 'n'  ⇒ '\n'
-              case 't'  ⇒ '\t'
-              case '"'  ⇒ '"'
-              case '\'' ⇒ '\''
-              case '$'  ⇒ '$'
-              case '~'  ⇒ '~'
-              case c    ⇒ "" + '\'' + c
-            })
-          else
-            sb.append('\\')
-        case c ⇒
-          sb.append(c)
+    def unescapeChar(c: Char): Char =
+      c match {
+        case 'r' ⇒ '\r'
+        case 'n' ⇒ '\n'
+        case 't' ⇒ '\t'
+        case c   ⇒ c
       }
-    }
-    sb.toString
+    @tailrec
+    def recurse(s: List[Char], acc: List[Char] = Nil, processingEscape: Boolean = false): String =
+      if (processingEscape)
+        s match {
+          case Nil       ⇒ ('\\' :: acc).reverse.mkString
+          case (c :: cs) ⇒ recurse(cs, unescapeChar(c) :: acc)
+        }
+      else
+        s match {
+          case Nil          ⇒ acc.reverse.mkString
+          case ('\\' :: cs) ⇒ recurse(cs, acc, processingEscape = true)
+          case (c :: cs)    ⇒ recurse(cs, c :: acc)
+        }
+    recurse(s.toList)
   }
 
 }
