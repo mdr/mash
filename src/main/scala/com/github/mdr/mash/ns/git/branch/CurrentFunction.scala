@@ -12,7 +12,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.git.GitHelper
 
-object CurrentBranchFunction extends MashFunction("git.branch.current") {
+object CurrentFunction extends MashFunction("git.branch.current") {
 
   val params = ParameterModel(Seq())
 
@@ -22,7 +22,7 @@ object CurrentBranchFunction extends MashFunction("git.branch.current") {
       val git = new Git(repo)
       val currentBranch = repo.getFullBranch
       val branch = git.branchList.call().asScala.find(_.getName == currentBranch).get
-      BranchesFunction.asMashObject(repo)(branch)
+      ListFunction.asMashObject(repo)(branch)
     }
   }
 

@@ -16,7 +16,7 @@ import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import com.github.mdr.mash.ns.git.GitHelper
 
-object CreateBranchFunction extends MashFunction("git.branch.create") {
+object CreateFunction extends MashFunction("git.branch.create") {
 
   object Params {
     lazy val Branch: Parameter = Parameter(

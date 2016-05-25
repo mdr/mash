@@ -21,10 +21,11 @@ object PullFunction extends MashFunction("git.pull") {
     params.validate(arguments)
     GitHelper.withGit { git =>
       val pullResult = git.pull.call()
+      pullResult
     }
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Fetch from and integrate with another repository or a local branch"
 

@@ -1,11 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.ns.git.stash._
-import com.github.mdr.mash.ns.git.branch.SwitchFunction
-import com.github.mdr.mash.ns.git.branch.CurrentBranchFunction
-import com.github.mdr.mash.ns.git.branch.CreateBranchFunction
-import com.github.mdr.mash.ns.git.branch.DeleteBranchFunction
-import com.github.mdr.mash.ns.git.branch.BranchesFunction
+import com.github.mdr.mash.ns.git.branch._
 
 object GitNamespace {
 
@@ -13,13 +9,13 @@ object GitNamespace {
 
   val GitFunctions = Seq(
     AddFunction,
-    BranchesFunction,
     CloneFunction,
     CommitFunction,
-    CreateBranchFunction,
-    CurrentBranchFunction,
-    DeleteBranchFunction,
+    CreateFunction,
+    CurrentFunction,
+    DeleteFunction,
     FetchFunction,
+    ListFunction,
     LogFunction,
     PullFunction,
     PushFunction,

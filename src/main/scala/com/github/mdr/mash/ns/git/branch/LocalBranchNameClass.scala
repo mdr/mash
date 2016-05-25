@@ -51,7 +51,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
       val git = new Git(repo)
       val ref = git.branchList.call().asScala.find(_.getName == "refs/heads/" + branchName).getOrElse(
         throw new EvaluatorException("No branch with name " + branchName))
-      BranchesFunction.asMashObject(repo)(ref)
+      ListFunction.asMashObject(repo)(ref)
     }
 
 }

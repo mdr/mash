@@ -16,7 +16,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.api.Git
 import scala.collection.immutable.ListMap
 
-object BranchesFunction extends MashFunction("git.branch.list") {
+object ListFunction extends MashFunction("git.branch.list") {
 
   val params = ParameterModel(Seq())
 
