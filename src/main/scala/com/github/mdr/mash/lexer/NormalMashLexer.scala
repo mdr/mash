@@ -34,7 +34,7 @@ trait NormalMashLexer { self: MashLexer ⇒
     case '\\' ⇒
       nextChar()
       ch match {
-        case '\\' | '$' | 'n' | 'r' | 't' | '"' | '\'' ⇒
+        case '\\' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
           nextChar()
           getStringLiteralRest(delimiter)
         case c ⇒
