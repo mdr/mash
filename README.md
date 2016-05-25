@@ -1,4 +1,4 @@
-Mash is an experimental object shell for Linux.
+Mash is an experimental object shell for Unix.
 
 Website: http://mash-shell.org
 
