@@ -24,6 +24,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
   override lazy val methods = Seq(
     lifter.liftField(BranchClass.Fields.Commit),
     lifter.liftField(BranchClass.Fields.UpstreamBranch),
+    lifter.liftMethod(BranchClass.DeleteMethod),
     lifter.liftMethod(BranchClass.LogMethod),
     lifter.liftMethod(BranchClass.SwitchMethod),
     lifter.liftMethod(BranchClass.PushMethod),
