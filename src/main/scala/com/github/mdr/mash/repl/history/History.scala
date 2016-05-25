@@ -1,9 +1,8 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.history
 
 import java.io.File
 import java.nio.file.Path
 import java.time.Instant
-
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
 

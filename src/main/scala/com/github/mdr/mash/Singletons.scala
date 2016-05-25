@@ -3,7 +3,7 @@ package com.github.mdr.mash
 import com.github.mdr.mash.terminal.TerminalControl
 import java.nio.file.Path
 import com.github.mdr.mash.evaluator.ExecutionContext
-import com.github.mdr.mash.repl.History
+import com.github.mdr.mash.repl.history.History
 
 /**
  * Horrible global singletons, until we get the DI story sorted.

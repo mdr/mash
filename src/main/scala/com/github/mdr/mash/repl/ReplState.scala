@@ -9,6 +9,7 @@ import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
+import com.github.mdr.mash.repl.history.History
 
 case class YankLastArgState(count: Int, region: Region)
 

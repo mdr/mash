@@ -16,6 +16,7 @@ import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.LineBufferTestHelper._
 import com.github.mdr.mash.evaluator.MashString
 import com.github.mdr.mash.os.MockFileObject._
+import com.github.mdr.mash.repl.history.HistoryImpl
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -95,8 +96,10 @@ class ReplTest extends FlatSpec with Matchers {
 
 object ReplTest {
 
-  def makeRepl(fileSystem: FileSystem = new MockFileSystem) =
-    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = new MemoryHistory)
+  def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
+    val history = new HistoryImpl(new InMemoryHistoryStorage())
+    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history)
+  }
 
   implicit class RichRepl(repl: Repl) {
 
