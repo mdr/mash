@@ -144,7 +144,7 @@ object ReplRenderer {
     tokenType match {
       case COMMENT ⇒ Style(foregroundColour = Colour.Cyan)
       case NUMBER_LITERAL ⇒ Style(foregroundColour = Colour.Yellow)
-      case IDENTIFIER | MISH_WORD ⇒ Style(foregroundColour = Colour.Blue)
+      case IDENTIFIER | MISH_WORD ⇒ Style(foregroundColour = Colour.Yellow)
       case ERROR ⇒ Style(foregroundColour = Colour.Red, bold = true)
       case t if t.isFlag ⇒ Style(foregroundColour = Colour.Blue, bold = true)
       case t if t.isKeyword ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
