@@ -9,7 +9,7 @@ import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.json.FromFileFunction
-import com.github.mdr.mash.ns.git.branch._
+import com.github.mdr.mash.ns.git.branch.{ DeleteFunction => _, _ }
 
 object StandardFunctions {
 
