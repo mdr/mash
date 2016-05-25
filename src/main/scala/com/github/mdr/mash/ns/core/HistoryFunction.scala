@@ -19,7 +19,7 @@ object HistoryFunction extends MashFunction("os.history") {
   val params = ParameterModel()
 
   def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+    params.validate(arguments)
     MashList(history.getHistory.reverse.map(asObject))
   }
 
@@ -32,7 +32,7 @@ object HistoryFunction extends MashFunction("os.history") {
       Mish -> entry.mish), HistoryClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(HistoryClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(HistoryClass))
 
   override def summary = "Return the command history as a sequence of History objects"
 

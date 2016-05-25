@@ -24,6 +24,9 @@ import com.github.mdr.mash.ns.git.StatusClass
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
 import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.ns.core.help.HelpFunction
+import com.github.mdr.mash.ns.core.ClassClass
+import com.github.mdr.mash.evaluator.MashClass
 
 object Printer {
 
@@ -64,10 +67,12 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         new GitStatusPrinter(output).print(mo)
       case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
-      case f: MashFunction ⇒
-        renderFunction(f)
-      case bm: BoundMethod ⇒
-        renderBoundMethod(bm)
+      case f: MashFunction if !disableCustomViews ⇒
+        render(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+      case bm: BoundMethod if !disableCustomViews ⇒
+        render(HelpFunction.getHelp(bm), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+      case klass: MashClass if !disableCustomViews ⇒
+        render(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case () ⇒ // Don't print out Unit 
       case _ ⇒
         val f = StringUtils.ellipsisise(renderField(x), maxLength = terminalInfo.columns)
@@ -85,19 +90,6 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
     for (line ← (topLine +: contentLines :+ bottomLine))
       output.println(line)
-  }
-
-  private def renderFunction(f: MashFunction) {
-    val title = f.name
-    val lines = Seq(f.summary, "", f.name + " " + f.params.callingSyntax)
-    renderBox(title, lines)
-  }
-
-  private def renderBoundMethod(boundMethod: BoundMethod) {
-    val title = boundMethod.name
-    val method = boundMethod.method
-    val lines = Seq(method.summary, "", "target." + method.name + " " + method.params.callingSyntax)
-    renderBox(title, lines)
   }
 
   def renderField(x: Any, inCell: Boolean = false): String = x match {
