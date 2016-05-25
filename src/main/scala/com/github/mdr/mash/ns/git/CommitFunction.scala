@@ -21,14 +21,14 @@ object CommitFunction extends MashFunction("git.commit") {
       summary = "Message")
     val All = Parameter(
       name = "all",
-      summary = "Automatically stage files that have been modified and deleted, but new files are not affected",
+      summary = "Automatically stage files that have been modified and deleted, but new files are not affected (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isBooleanFlag = true)
     val Amend = Parameter(
       name = "amend",
-      summary = "Replace the tip of the current branch by creating a new commit",
+      summary = "Replace the tip of the current branch by creating a new commit (default false)",
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ false),
       isBooleanFlag = true)

@@ -80,6 +80,6 @@ class FileBackedHistory extends History {
     FileUtils.writeLines(historyFile.toFile, Seq(json).asJava, true)
   }
 
-  def getHistory: Seq[HistoryEntry] = history.sortBy(_.timestamp)
+  def getHistory: Seq[HistoryEntry] = history.sortBy(_.timestamp).reverse
 
 }
