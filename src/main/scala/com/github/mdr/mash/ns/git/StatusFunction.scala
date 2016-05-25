@@ -22,6 +22,7 @@ import java.{ util ⇒ ju }
 import org.eclipse.jgit.lib.BranchTrackingStatus
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
 
 object StatusFunction extends MashFunction("git.status") {
 

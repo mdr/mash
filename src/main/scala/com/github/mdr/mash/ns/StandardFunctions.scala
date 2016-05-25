@@ -5,11 +5,11 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.os.{ GroupClass ⇒ _, _ }
 import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.ns.core.HistoryFunction
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.json.FromFileFunction
+import com.github.mdr.mash.ns.git.branch._
 
 object StandardFunctions {
 
@@ -124,6 +124,8 @@ object StandardFunctions {
     CommitClass,
     CommitHashClass,
     IdentityClass,
+    LocalBranchNameClass,
+    RemoteBranchNameClass,
     FileTypeClass,
     GidClass,
     com.github.mdr.mash.ns.os.GroupClass,

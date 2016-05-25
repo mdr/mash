@@ -1,4 +1,4 @@
-package com.github.mdr.mash.ns.git
+package com.github.mdr.mash.ns.git.branch
 
 import scala.collection.JavaConverters._
 import com.github.mdr.mash.completions.CompletionSpec
@@ -11,6 +11,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.functions.FullyQualifiedName
+import com.github.mdr.mash.ns.git.GitHelper
 
 object SwitchFunction extends MashFunction("git.branch.switch") {
 

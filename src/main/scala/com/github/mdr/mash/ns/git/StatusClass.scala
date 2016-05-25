@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.evaluator.MashList
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
 
 object StatusClass extends MashClass("git.Status") {
 

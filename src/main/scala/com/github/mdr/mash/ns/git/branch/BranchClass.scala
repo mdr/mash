@@ -1,25 +1,23 @@
-package com.github.mdr.mash.ns.git
+package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import scala.collection.JavaConverters._
+import org.eclipse.jgit.api.Git
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.Type.classToType
+import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.evaluator.MashList
-import org.eclipse.jgit.api.Git
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator.Truthiness
-import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.ns.git.CommitClass
+import com.github.mdr.mash.ns.git.CommitHashClass
+import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.ns.git.LogFunction
+import com.github.mdr.mash.ns.git.PushFunction
 
-object BranchClass extends MashClass("git.Branch") {
+object BranchClass extends MashClass("git.branch.Branch") {
 
   object Fields {
     val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))
@@ -36,6 +34,7 @@ object BranchClass extends MashClass("git.Branch") {
   def summary = "A git branch"
 
   override lazy val methods = Seq(
+    DeleteMethod,
     LogMethod,
     PushMethod,
     SwitchMethod,
@@ -44,6 +43,26 @@ object BranchClass extends MashClass("git.Branch") {
   private case class Wrapper(target: Any) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
+
+  }
+
+  object DeleteMethod extends MashMethod("delete") {
+
+    import PushFunction.Params._
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments) {
+      params.validate(arguments)
+      val branchName = Wrapper(target).name.s
+      GitHelper.withGit { git ⇒
+        git.branchDelete.setBranchNames(branchName).call()
+      }
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
+
+    override def summary = "Delete this branch"
 
   }
 

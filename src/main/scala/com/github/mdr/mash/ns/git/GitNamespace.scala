@@ -1,6 +1,11 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.ns.git.stash._
+import com.github.mdr.mash.ns.git.branch.SwitchFunction
+import com.github.mdr.mash.ns.git.branch.CurrentBranchFunction
+import com.github.mdr.mash.ns.git.branch.CreateBranchFunction
+import com.github.mdr.mash.ns.git.branch.DeleteBranchFunction
+import com.github.mdr.mash.ns.git.branch.BranchesFunction
 
 object GitNamespace {
 
@@ -12,6 +17,7 @@ object GitNamespace {
     CloneFunction,
     CommitFunction,
     CreateBranchFunction,
+    CurrentBranchFunction,
     DeleteBranchFunction,
     FetchFunction,
     LogFunction,

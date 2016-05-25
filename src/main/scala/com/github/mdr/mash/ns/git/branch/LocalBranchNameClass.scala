@@ -1,4 +1,4 @@
-package com.github.mdr.mash.ns.git
+package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.MashString
@@ -12,8 +12,10 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.ns.git.MemberLifter
 
-object LocalBranchNameClass extends MashClass("git.LocalBranchName") {
+object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
   def summary = "A git local branch name"
 

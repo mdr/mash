@@ -1,4 +1,4 @@
-package com.github.mdr.mash.ns.git
+package com.github.mdr.mash.ns.git.branch
 
 import scala.collection.JavaConverters._
 import com.github.mdr.mash.completions.CompletionSpec
@@ -14,6 +14,7 @@ import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.evaluator.EvaluatorException
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
+import com.github.mdr.mash.ns.git.GitHelper
 
 object CreateBranchFunction extends MashFunction("git.branch.create") {
 

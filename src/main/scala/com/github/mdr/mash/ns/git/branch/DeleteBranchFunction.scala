@@ -1,4 +1,4 @@
-package com.github.mdr.mash.ns.git
+package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
@@ -6,9 +6,9 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.ns.git.GitHelper
 
 object DeleteBranchFunction extends MashFunction("git.branch.delete") {
 
