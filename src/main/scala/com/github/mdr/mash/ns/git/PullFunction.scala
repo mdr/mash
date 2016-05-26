@@ -21,7 +21,7 @@ object PullFunction extends MashFunction("git.pull") {
     params.validate(arguments)
     GitHelper.withGit { git =>
       val pullResult = git.pull.call()
-      pullResult
+      pullResult.getFetchResult
     }
   }
 
