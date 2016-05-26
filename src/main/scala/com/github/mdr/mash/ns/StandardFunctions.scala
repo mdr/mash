@@ -120,7 +120,7 @@ object StandardFunctions {
     RegexClass,
     StringClass,
     UnitClass,
-    BranchClass,
+    LocalBranchClass,
     CommitClass,
     CommitHashClass,
     IdentityClass,

@@ -17,7 +17,7 @@ import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.LogFunction
 import com.github.mdr.mash.ns.git.PushFunction
 
-object BranchClass extends MashClass("git.branch.Branch") {
+object LocalBranchClass extends MashClass("git.branch.Branch") {
 
   object Fields {
     val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))

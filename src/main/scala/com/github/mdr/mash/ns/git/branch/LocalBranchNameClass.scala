@@ -22,12 +22,12 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
   val lifter = new MemberLifter(getBranchInfo)
 
   override lazy val methods = Seq(
-    lifter.liftField(BranchClass.Fields.Commit),
-    lifter.liftField(BranchClass.Fields.UpstreamBranch),
-    lifter.liftMethod(BranchClass.DeleteMethod),
-    lifter.liftMethod(BranchClass.LogMethod),
-    lifter.liftMethod(BranchClass.SwitchMethod),
-    lifter.liftMethod(BranchClass.PushMethod),
+    lifter.liftField(LocalBranchClass.Fields.Commit),
+    lifter.liftField(LocalBranchClass.Fields.UpstreamBranch),
+    lifter.liftMethod(LocalBranchClass.DeleteMethod),
+    lifter.liftMethod(LocalBranchClass.LogMethod),
+    lifter.liftMethod(LocalBranchClass.SwitchMethod),
+    lifter.liftMethod(LocalBranchClass.PushMethod),
     InfoMethod)
 
   object InfoMethod extends MashMethod("info") {
@@ -40,7 +40,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
       getBranchInfo(branchName)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BranchClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(LocalBranchClass))
 
     override def summary = "Get information about the local branch with this name"
 

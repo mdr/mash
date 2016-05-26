@@ -9,7 +9,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 
-object StashApplyFunction extends MashFunction("git.stash.apply") {
+object ApplyFunction extends MashFunction("git.stash.apply") {
 
   private val filesystem = LinuxFileSystem
 

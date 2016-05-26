@@ -8,45 +8,41 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.git.branch.BranchClass.Fields
+import com.github.mdr.mash.ns.git.branch.LocalBranchClass.Fields
 import com.github.mdr.mash.ns.git.CommitHashClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.StatusFunction
 import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.api.Git
 import scala.collection.immutable.ListMap
+import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
-object ListFunction extends MashFunction("git.branch.list") {
+object ListRemoteFunction extends MashFunction("git.branch.listRemote") {
 
-  val params = ParameterModel(Seq())
+  val params = ParameterModel()
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
-      val branches = git.branchList.call().asScala.filter(_.getName startsWith "refs/heads/")
+      val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala
       MashList(branches.map(asMashObject(repo)))
     }
   }
 
   def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
-    val (upstreamBranch, aheadCount, behindCount) =
-      StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
-    val name = ref.getName.replaceAll("^refs/heads/", "")
-    import BranchClass.Fields._
+    val name = ref.getName.replaceAll("^refs/remotes/", "")
+    import LocalBranchClass.Fields._
     MashObject(
       ListMap(
-        Name -> MashString(name, LocalBranchNameClass),
-        Commit -> MashString(id, CommitHashClass),
-        UpstreamBranch -> upstreamBranch,
-        AheadCount -> aheadCount,
-        BehindCount -> behindCount),
-      BranchClass)
+        Name -> MashString(name, RemoteBranchNameClass),
+        Commit -> MashString(id, CommitHashClass)),
+      RemoteBranchClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(BranchClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(LocalBranchClass))
 
-  override def summary = "List branches in the repository"
+  override def summary = "List remote branches in the repository"
 
 }

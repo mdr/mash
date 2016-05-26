@@ -23,7 +23,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   private def validateBranch(boundParams: BoundParams, branch: Any): String =
    branch match {
       case MashString(s, _)                       ⇒ s
-      case obj @ MashObject(_, Some(BranchClass)) ⇒ obj.field(BranchClass.Fields.Name).asInstanceOf[MashString].s
+      case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ obj.field(LocalBranchClass.Fields.Name).asInstanceOf[MashString].s
       case _                                      ⇒ boundParams.throwInvalidArgument(Branches, "Must be a branch")
     }
 
