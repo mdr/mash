@@ -1,20 +1,21 @@
 package com.github.mdr.mash.ns.git.branch
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.asScalaBufferConverter
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
+import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.evaluator.Truthiness
-import com.github.mdr.mash.evaluator.EvaluatorException
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
-import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.functions.BoundParams
+import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.evaluator.MashObject
 
 object CreateFunction extends MashFunction("git.branch.create") {
 
@@ -41,13 +42,26 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
   val params = ParameterModel(Seq(Branch, Switch, FromRemote))
 
+  private def validateRemote(boundParams: BoundParams): Option[String] =
+    Option(boundParams(FromRemote)).map {
+      case MashString(s, _) ⇒ s
+      case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ obj.field(RemoteBranchClass.Fields.Name).asInstanceOf[MashString].s
+      case _ ⇒ boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
+    }.map { s ⇒
+      if (getRemoteBranches contains s)
+        s
+      else
+        boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
+    }
+
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val branchOpt = boundParams.validateStringOpt(Branch).map(_.s)
-    val fromRemoteOpt = boundParams.validateStringOpt(FromRemote).map(_.s)
+    val fromRemoteOpt = validateRemote(boundParams)
     val switch = Truthiness.isTruthy(boundParams(Switch))
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
       throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
+    
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
       val cmd = git.branchCreate().setName(localName)
@@ -66,11 +80,11 @@ object CreateFunction extends MashFunction("git.branch.create") {
       case FromRemote ⇒ CompletionSpec.Items(getRemoteBranches)
     }
 
-  private def getRemoteBranches: Seq[String] =
+  def getRemoteBranches: Seq[String] =
     try
       GitHelper.withGit { git ⇒
         val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala
-        branches.map(_.getName.replaceAll("^refs/remotes/", ""))
+        branches.map(_.getName.replaceAll("^refs/remotes/", "")).filterNot(_.endsWith("/HEAD"))
       }
     catch {
       case _: Exception ⇒ Seq()

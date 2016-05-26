@@ -13,21 +13,16 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   private val filesystem = LinuxFileSystem
 
-  object Params {
-  }
-
-  import Params._
-
   val params = ParameterModel()
 
   def apply(arguments: Arguments) {
     params.validate(arguments)
     GitHelper.withGit { git ⇒
-      git.stashApply().call()
+      git.stashApply.call()
     }
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Apply stashed changes to the current working directory"
 

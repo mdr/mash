@@ -120,12 +120,16 @@ object StandardFunctions {
     RegexClass,
     StringClass,
     UnitClass,
-    LocalBranchClass,
+    // git
     CommitClass,
     CommitHashClass,
     IdentityClass,
+    LocalBranchClass,
     LocalBranchNameClass,
+    RemoteBranchClass,
     RemoteBranchNameClass,
+    RemoteNameClass,
+    //
     FileTypeClass,
     GidClass,
     com.github.mdr.mash.ns.os.GroupClass,

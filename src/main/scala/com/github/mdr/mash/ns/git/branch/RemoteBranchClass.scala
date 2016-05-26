@@ -16,27 +16,34 @@ import com.github.mdr.mash.ns.git.CommitHashClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.LogFunction
 import com.github.mdr.mash.ns.git.PushFunction
+import com.github.mdr.mash.ns.core.StringClass
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object Fields {
-    val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, RemoteBranchNameClass))
+    val Remote = Field("remote", "Name of the remote this branch is in", Type.Tagged(StringClass, RemoteNameClass))
+    val Name = Field("name", "Name of the remote this branch is in", StringClass)
     val Commit = Field("commit", "The commit the branch is pointing to", Type.Tagged(StringClass, CommitHashClass))
   }
 
   import Fields._
 
-  override lazy val fields = Seq(Name, Commit)
+  override lazy val fields = Seq(Remote, Name, Commit)
 
   def summary = "A remote git branch"
 
   override lazy val methods = Seq(
+    FullNameMethod,
     LogMethod,
     ToStringMethod)
 
   private case class Wrapper(target: Any) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
+
+    def remote = target.asInstanceOf[MashObject].field(Fields.Remote).asInstanceOf[MashString]
+
+    def fullName: MashString = MashString(s"$remote/$name", RemoteBranchNameClass)
 
   }
 
@@ -46,7 +53,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     def apply(target: Any, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val branchName = Wrapper(target).name.s
+      val branchName = Wrapper(target).fullName.s
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
         val branchId = repo.resolve(branchName)
@@ -67,12 +74,27 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     def apply(target: Any, arguments: Arguments): MashString = {
       params.validate(arguments)
-      Wrapper(target).name
+      Wrapper(target).fullName
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = ObjectClass.ToStringMethod.summary
+
+  }
+
+  object FullNameMethod extends MashMethod("fullName") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments): MashString = {
+      params.validate(arguments)
+      Wrapper(target).fullName
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+
+    override def summary = "Full name of the remote branch, e.g. origin/master"
 
   }
 

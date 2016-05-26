@@ -11,11 +11,6 @@ object CreateFunction extends MashFunction("git.stash.create") {
 
   private val filesystem = LinuxFileSystem
 
-  object Params {
-  }
-  
-  import Params._
-
   val params = ParameterModel()
 
   def apply(arguments: Arguments) {

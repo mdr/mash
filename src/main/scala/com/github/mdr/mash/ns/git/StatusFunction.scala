@@ -23,6 +23,8 @@ import org.eclipse.jgit.lib.BranchTrackingStatus
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.evaluator.MashNumber
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
+import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
+import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
 
 object StatusFunction extends MashFunction("git.status") {
 
@@ -72,14 +74,14 @@ object StatusFunction extends MashFunction("git.status") {
   def mashify(statusOpt: Option[BranchTrackingStatus]) = statusOpt match {
     case Some(status) ⇒
       (
-        MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", "")),
+        MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", ""), RemoteBranchNameClass),
         MashNumber(status.getAheadCount),
         MashNumber(status.getBehindCount))
     case None ⇒
       (null, MashNumber(0), MashNumber(0))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(StatusClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StatusClass)
 
   override def summary = "Return the working tree status"
 
