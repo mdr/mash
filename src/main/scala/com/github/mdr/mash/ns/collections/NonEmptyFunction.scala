@@ -19,7 +19,7 @@ object NonEmptyFunction extends MashFunction("collections.nonEmpty") {
     sequence.nonEmpty
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(BooleanClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
 
   override def summary = "Check whether a given sequence is non-empty"
 

@@ -24,7 +24,7 @@ object ExitFunction extends MashFunction("core.exit") {
     System.exit(status)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Exit mash"
 

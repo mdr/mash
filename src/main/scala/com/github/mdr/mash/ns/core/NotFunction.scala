@@ -22,7 +22,7 @@ object NotFunction extends MashFunction("core.not") {
     Truthiness.isFalsey(boundParams(Item))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(BooleanClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
 
   override def summary = "Logically negate the given item"
 

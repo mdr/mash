@@ -23,7 +23,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
       localDateTime.toLocalDate
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(LocalDateClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(LocalDateClass)
 
     override def summary = "Date portion of this date and time"
 

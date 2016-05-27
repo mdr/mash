@@ -73,7 +73,7 @@ object ProcessClass extends MashClass("os.Process") {
       processInteractions.kill(pid, signal)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(UnitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Kill this process"
 
@@ -97,7 +97,7 @@ object ProcessClass extends MashClass("os.Process") {
       parentProcessOpt.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ProcessClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)
 
     override def summary = "The parent process"
 

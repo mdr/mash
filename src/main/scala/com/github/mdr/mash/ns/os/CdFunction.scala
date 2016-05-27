@@ -55,7 +55,7 @@ object CdFunction extends MashFunction("os.cd") {
       throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.Directory)
 

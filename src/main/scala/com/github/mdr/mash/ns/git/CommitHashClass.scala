@@ -36,7 +36,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
       getCommit(hash)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(CommitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(CommitClass)
 
     override def summary = "Get information about the commit with this hash"
 

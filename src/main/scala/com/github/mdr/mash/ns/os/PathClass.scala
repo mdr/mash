@@ -67,7 +67,7 @@ object PathClass extends MashClass("os.Path") {
       fileSystem.exists(path)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Whether or not an item exists at this location"
 
@@ -84,7 +84,7 @@ object PathClass extends MashClass("os.Path") {
       PathSummaryClass.asMashObject(summary)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(PathSummaryClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(PathSummaryClass)
 
     override def summary = "Get PathSummary object for this path"
 
@@ -137,7 +137,7 @@ object PathClass extends MashClass("os.Path") {
       CdFunction.changeDirectory(path)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(UnitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Change directory to this path"
 
@@ -156,7 +156,7 @@ object PathClass extends MashClass("os.Path") {
         null
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "File extension, if any, else null"
 
@@ -172,7 +172,7 @@ object PathClass extends MashClass("os.Path") {
       MashString(FilenameUtils.getBaseName(name))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "Name without extension"
 
@@ -300,7 +300,7 @@ The default character encoding and line separator are used.""")
       ProcessResultClass.fromResult(result)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ProcessResultClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessResultClass)
 
     override def summary = "Execute the command at the given path, with the given arguments"
 
@@ -395,7 +395,7 @@ The default character encoding and line separator are used.""")
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(UnitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Copy this file or directory to another location"
 
@@ -482,7 +482,7 @@ The default character encoding and line separator are used.""")
 
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(UnitClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Delete this path"
 
@@ -512,7 +512,7 @@ The default character encoding and line separator are used.""")
       Files.isDirectory(FunctionHelpers.interpretAsPath(target))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check if path is a directory"
 
@@ -528,7 +528,7 @@ The default character encoding and line separator are used.""")
       Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check if path is an empty directory"
 
@@ -543,7 +543,7 @@ The default character encoding and line separator are used.""")
       Files.isRegularFile(FunctionHelpers.interpretAsPath(target))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check if path is a directory"
 
@@ -558,7 +558,7 @@ The default character encoding and line separator are used.""")
       fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(DateTimeClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
     override def summary = "Last time path was modified"
 
@@ -607,7 +607,7 @@ The default character encoding and line separator are used.""")
       PermissionsClass.asMashObject(permissions)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(PermissionsClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(PermissionsClass)
 
     override def summary = "Permissions for this path"
 

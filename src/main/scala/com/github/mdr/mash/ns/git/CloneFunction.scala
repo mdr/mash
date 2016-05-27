@@ -44,7 +44,7 @@ object CloneFunction extends MashFunction("git.clone") {
     repo.close()
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Clone a repository into a new directory."
 

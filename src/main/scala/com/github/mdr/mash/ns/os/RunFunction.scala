@@ -37,7 +37,7 @@ object RunFunction extends MashFunction("os.run") {
     ProcessResultClass.fromResult(result)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(ProcessResultClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ProcessResultClass)
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

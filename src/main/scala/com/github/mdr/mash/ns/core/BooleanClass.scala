@@ -20,7 +20,7 @@ object BooleanClass extends MashClass("core.Boolean") {
       !target.asInstanceOf[Boolean]
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Negate this boolean"
 

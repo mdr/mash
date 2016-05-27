@@ -126,7 +126,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].tagClassOpt.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ClassClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
     override def summary = "This string's tagged type, if any"
   }
@@ -140,7 +140,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].copy(tagClassOpt = None)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "This string without any tag class"
   }
@@ -163,7 +163,7 @@ object StringClass extends MashClass("core.String") {
       Pattern.compile(pattern).matcher(s).find
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Test whether this string contains a match within it to a given regular expression"
 
@@ -254,7 +254,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].length
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(NumberClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
     override def summary = "Length of this string"
 
@@ -301,7 +301,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summary = "Parse this string as a number"
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(NumberClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
   }
 
@@ -401,7 +401,7 @@ object StringClass extends MashClass("core.String") {
       s.startsWith(pattern)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check if this string starts with another"
 

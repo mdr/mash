@@ -46,7 +46,7 @@ object RegexClass extends MashClass("core.Regex") {
       }.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(MatchClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(MatchClass)
 
     override def summary = "Find the first match of the regex in the given string, or else null"
   }

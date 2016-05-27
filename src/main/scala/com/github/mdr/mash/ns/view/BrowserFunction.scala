@@ -30,7 +30,7 @@ object BrowserFunction extends MashFunction("view.browser") {
       UseBrowser -> true), ViewClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(ViewClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
 
   override def summary = "View data in the object browser, where possible"
 

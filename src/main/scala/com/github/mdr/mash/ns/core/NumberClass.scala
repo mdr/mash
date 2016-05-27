@@ -55,7 +55,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].tagClassOpt.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ClassClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
     override def summary = "This number's tagged type if any, else null"
 
@@ -70,7 +70,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].copy(tagClassOpt = None)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(NumberClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
     override def summary = "This number without any tag class"
   }

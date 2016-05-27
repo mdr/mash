@@ -59,7 +59,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
       fullNameOpt.orNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "Full name of this user"
 

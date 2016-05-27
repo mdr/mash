@@ -19,7 +19,7 @@ object NowFunction extends MashFunction("time.now") {
     clock.instant
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(DateTimeClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(DateTimeClass)
 
   override def summary = "The current date and time"
 

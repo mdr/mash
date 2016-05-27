@@ -37,7 +37,7 @@ object UpFunction extends MashFunction("os.up") {
     ()
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Change the current working directory to a parent (or ancestor)"
 

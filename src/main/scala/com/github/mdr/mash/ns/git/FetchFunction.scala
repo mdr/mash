@@ -24,7 +24,7 @@ object FetchFunction extends MashFunction("git.fetch") {
     }
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(UnitClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
   override def summary = "Download objects and refs from another repository."
 

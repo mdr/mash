@@ -60,7 +60,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Delete this branch"
 
@@ -103,7 +103,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Push this branch"
 
@@ -121,7 +121,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UnitClass)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Switch to this branch"
 
@@ -136,7 +136,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       Wrapper(target).name
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = ObjectClass.ToStringMethod.summary
 

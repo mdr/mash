@@ -30,7 +30,7 @@ object RawFunction extends MashFunction("view.raw") {
       UseBrowser -> false), ViewClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(ViewClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
 
   override def summary = "View an object without custom formatting"
 

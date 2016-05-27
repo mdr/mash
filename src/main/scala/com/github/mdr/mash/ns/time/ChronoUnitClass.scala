@@ -28,7 +28,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       now.minus(amount, unit).atZone(clock.getZone).toInstant
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(DateTimeClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
     override def summary = "Point in time this many " + unit.name.toLowerCase + " ago"
 
@@ -45,7 +45,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       now.plus(amount, unit).atZone(clock.getZone).toInstant
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(DateTimeClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
     override def summary = "Point in time this many " + unit.name.toLowerCase + " from now"
 

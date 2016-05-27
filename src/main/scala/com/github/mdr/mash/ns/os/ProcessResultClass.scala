@@ -76,7 +76,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashString(Wrapper(target).line)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "The first line of the standard output of the process (or empty, if no output)"
 
@@ -94,7 +94,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def summary = "Parse the stdout of the process as a number"
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(NumberClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
   }
 

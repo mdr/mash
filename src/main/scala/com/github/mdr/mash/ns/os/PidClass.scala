@@ -80,7 +80,7 @@ object PidClass extends MashClass("os.Pid") {
       ProcessClass.makeProcess(processInfo)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ProcessClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)
 
     override def summary = "Get information about the process with this pid"
 

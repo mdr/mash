@@ -38,7 +38,7 @@ object ObjectClass extends MashClass("core.Object") {
       case _: MashClass    ⇒ ClassClass
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(ClassClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
     override def summary = "The class of the object"
 
@@ -80,7 +80,7 @@ object ObjectClass extends MashClass("core.Object") {
       case _                ⇒ "" + x
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(StringClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
     override def summary = "Represent this object as a string"
 
@@ -103,7 +103,7 @@ object ObjectClass extends MashClass("core.Object") {
       sequence.contains(target)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Instance(BooleanClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check whether this element is contained in a sequence"
   }

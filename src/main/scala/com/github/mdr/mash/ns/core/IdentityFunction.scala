@@ -22,7 +22,7 @@ object IdentityFunction extends MashFunction("core.identity") {
     boundParams(Item)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(BooleanClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
 
   override def summary = "Return the argument unchanged"
 

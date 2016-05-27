@@ -22,7 +22,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
     MashNumber(s.s.toDouble)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Instance(NumberClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(NumberClass)
 
   override def summary = "Parse the given string as a number"
 
