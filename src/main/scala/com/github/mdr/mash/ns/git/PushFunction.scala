@@ -1,19 +1,21 @@
 package com.github.mdr.mash.ns.git
 
+import scala.collection.JavaConverters._
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ConfigConstants
+import org.eclipse.jgit.lib.Constants
+import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.evaluator.MashList
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.ns.core.UnitClass
-import org.eclipse.jgit.lib.ConfigConstants
-import org.eclipse.jgit.lib.Constants
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.git.branch.SwitchFunction
+import com.github.mdr.mash.ns.git.branch.DeleteFunction
 
 object PushFunction extends MashFunction("git.push") {
 
@@ -34,34 +36,36 @@ object PushFunction extends MashFunction("git.push") {
       isBooleanFlag = true)
     val Remote = Parameter(
       name = "remote",
+      isFlag = true,
       summary = "Remote to push to",
       defaultValueGeneratorOpt = Some(() ⇒ null))
-    val References = Parameter(
-      name = "refs",
-      summary = "References to push",
+    val Branches = Parameter(
+      name = "branches",
+      summary = "Local branch to push",
       isVariadic = true)
   }
   import Params._
 
-  val params = ParameterModel(Seq(SetUpstream, Force, Remote, References))
+  val params = ParameterModel(Seq(SetUpstream, Force, Remote, Branches))
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val refs = boundParams(References).asInstanceOf[MashList].items.map(ToStringifier.stringify)
+    val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
+
     val setUpstream = Truthiness.isTruthy(boundParams(SetUpstream))
     val force = Truthiness.isTruthy(boundParams(Force))
 
     GitHelper.withGit { git ⇒
       val cmd = git.push
-      for (ref ← refs)
-        cmd.add(ref)
+      for (branch ← branches)
+        cmd.add(branch)
       for (remote ← remoteOpt)
         cmd.setRemote(remote)
       cmd.setForce(force)
       cmd.call()
       if (setUpstream)
-        setUpstreamConfig(git, refs, remoteOpt)
+        setUpstreamConfig(git, branches, remoteOpt)
     }
   }
 
@@ -79,4 +83,14 @@ object PushFunction extends MashFunction("git.push") {
 
   override def summary = "Update remote refs along with associated objects"
 
+  def getRemotes: Seq[String] =
+    GitHelper.withRepository { repo ⇒
+      repo.getConfig.getSubsections("remote").asScala.toSeq
+    }
+
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
+    params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
+      case Remote   ⇒ CompletionSpec.Items(getRemotes)
+      case Branches ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches)
+    }
 }
