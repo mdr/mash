@@ -17,6 +17,7 @@ import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.LogFunction
 import com.github.mdr.mash.ns.git.PushFunction
 import com.github.mdr.mash.ns.core.StringClass
+import org.eclipse.jgit.transport.RefSpec
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
@@ -33,6 +34,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
   def summary = "A remote git branch"
 
   override lazy val methods = Seq(
+    DeleteMethod,
     FullNameMethod,
     LogMethod,
     ToStringMethod)
@@ -44,6 +46,25 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     def remote = target.asInstanceOf[MashObject].field(Fields.Remote).asInstanceOf[MashString]
 
     def fullName: MashString = MashString(s"$remote/$name", RemoteBranchNameClass)
+
+  }
+
+  object DeleteMethod extends MashMethod("delete") {
+
+    val params = ParameterModel()
+
+    def apply(target: Any, arguments: Arguments) {
+      params.validate(arguments)
+      val wrapper = Wrapper(target)
+      GitHelper.withGit { git ⇒
+        val refSpec = new RefSpec(":" + wrapper.name)
+        git.push.setRemote(wrapper.remote.s).setRefSpecs(refSpec).call()
+      }
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+
+    override def summary = "Delete this remote branch"
 
   }
 

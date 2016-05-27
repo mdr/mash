@@ -12,6 +12,7 @@ object GitNamespace {
     CloneFunction,
     CommitFunction,
     FetchFunction,
+    InitFunction,
     LogFunction,
     PullFunction,
     PushFunction,
