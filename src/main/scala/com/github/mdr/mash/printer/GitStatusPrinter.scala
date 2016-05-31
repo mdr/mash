@@ -35,6 +35,7 @@ class GitStatusPrinter(output: PrintStream) {
 
     if (status.hasChangesToBeCommitted) {
       output.println("Changes to be committed:")
+      output.println("""(use "git.unstage <file>..." to unstage)""")
       output.println()
       for (path ← status.added)
         output.println(green(indent + "new file:   " + path))
@@ -46,7 +47,8 @@ class GitStatusPrinter(output: PrintStream) {
     }
     if (status.hasUnstagedChanges) {
       output.println("Changed not staged for commit:")
-      output.println("""  (use "git.add <file>..." to update what will be committed)""")
+      output.println("""  (use "git.stage <file>..." to update what will be committed)""")
+      output.println("""  (use "git.restore <file>..." to discard changes in working directory)""")
       output.println()
       for (path ← status.modified)
         output.println(red(indent + "modified:   " + path))
@@ -56,7 +58,7 @@ class GitStatusPrinter(output: PrintStream) {
     }
     if (status.conflicting.nonEmpty) {
       output.println("Unmerged paths:")
-      output.println("""  (use "git.add <file>..." to mark resolution)""")
+      output.println("""  (use "git.stage <file>..." to mark resolution)""")
       output.println()
       for (path ← status.conflicting)
         output.println(red(indent + "both modified:   " + path))
@@ -64,7 +66,7 @@ class GitStatusPrinter(output: PrintStream) {
     }
     if (status.untracked.nonEmpty) {
       output.println("Untracked files:")
-      output.println("""  (use "git.add <file>..." to include in what will be committed)""")
+      output.println("""  (use "git.stage <file>..." to include in what will be committed)""")
       output.println()
       for (path ← status.untracked)
         output.println(red(indent + path))

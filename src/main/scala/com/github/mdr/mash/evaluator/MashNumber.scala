@@ -7,25 +7,20 @@ import com.github.mdr.mash.utils.NumberUtils
 object MashNumber {
 
   def apply(n: Any, tagClass: MashClass): MashNumber = apply(n, Some(tagClass))
-  
-  def apply(n: Any, tagClassOpt: Option[MashClass]): MashNumber = n match {
-    case n: Double ⇒ MashNumber(n, tagClassOpt)
-    case n: Float  ⇒ MashNumber(n.toDouble, tagClassOpt)
-    case n: Int    ⇒ MashNumber(n.toDouble, tagClassOpt)
-    case n: Long   ⇒ MashNumber(n.toDouble, tagClassOpt)
-  }
+
+  def apply(n: Any, tagClassOpt: Option[MashClass]): MashNumber =
+    n match {
+      case n: Double ⇒ MashNumber(n, tagClassOpt)
+      case n: Float  ⇒ MashNumber(n.toDouble, tagClassOpt)
+      case n: Int    ⇒ MashNumber(n.toDouble, tagClassOpt)
+      case n: Long   ⇒ MashNumber(n.toDouble, tagClassOpt)
+    }
 
   def min(n1: MashNumber, n2: MashNumber): MashNumber =
-    if (n1.compareTo(n2) <= 0)
-      n1
-    else
-      n2
+    if (n1.compareTo(n2) <= 0) n1 else n2
 
   def max(n1: MashNumber, n2: MashNumber): MashNumber =
-    if (n1.compareTo(n2) >= 0)
-      n1
-    else
-      n2
+    if (n1.compareTo(n2) >= 0) n1 else n2
 
 }
 

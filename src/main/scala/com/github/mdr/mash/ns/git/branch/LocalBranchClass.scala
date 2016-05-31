@@ -56,7 +56,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
-        git.branchDelete.setBranchNames(branchName).call()
+        git.branchDelete.setBranchNames(branchName).setForce(true).call()
       }
     }
 

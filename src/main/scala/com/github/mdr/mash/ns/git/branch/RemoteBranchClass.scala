@@ -39,7 +39,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     LogMethod,
     ToStringMethod)
 
-  private case class Wrapper(target: Any) {
+  case class Wrapper(target: Any) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
 

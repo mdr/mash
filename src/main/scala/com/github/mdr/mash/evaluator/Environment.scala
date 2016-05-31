@@ -27,10 +27,9 @@ case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[
 
   def addBinding(name: String, value: Any) = Environment(bindings + (name -> value), globalVariables)
 
-  def valuesMap: Map[String, Any] = {
+  def valuesMap: Map[String, Any] = 
     (for ((k, v) ← globalVariables.toMap) yield k -> v) ++
       (for ((k, v) ← bindings) yield k -> v)
-  }
 
 }
 

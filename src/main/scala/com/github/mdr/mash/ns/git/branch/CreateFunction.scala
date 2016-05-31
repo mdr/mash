@@ -45,7 +45,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
   private def validateRemote(boundParams: BoundParams): Option[String] =
     Option(boundParams(FromRemote)).map {
       case MashString(s, _) ⇒ s
-      case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ obj.field(RemoteBranchClass.Fields.Name).asInstanceOf[MashString].s
+      case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
       case _ ⇒ boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
     }.map { s ⇒
       if (getRemoteBranches contains s)
@@ -61,7 +61,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     val switch = Truthiness.isTruthy(boundParams(Switch))
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
       throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
-    
+
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
       val cmd = git.branchCreate().setName(localName)
