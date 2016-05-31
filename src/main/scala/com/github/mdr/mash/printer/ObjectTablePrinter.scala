@@ -10,7 +10,14 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import java.io.PrintStream
 import com.github.mdr.mash.ns.git.CommitClass
 
+object ObjectTablePrinter {
+
+  private val IndexColumnName = "#"
+
+}
+
 class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, alwaysUseBrowser: Boolean = false) {
+  import ObjectTablePrinter._
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   private def printer = new Printer(output, terminalInfo)
@@ -31,22 +38,23 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
   def renderObjects(objects: Seq[MashObject]): ObjectTableModel = {
     val columns = getColumnSpecs(objects)
 
-    val renderedObjects: Seq[ListMap[String, String]] = objects.map(renderObject(_, columns))
+    val renderedObjects: Seq[Map[String, String]] =
+      objects.zipWithIndex.map { case (obj, i) ⇒ renderObject(obj, i, columns) }
 
     def desiredColumnWidth(member: String): Int = (renderedObjects.map(_(member)) :+ member).map(_.size).max
     val requestedColumnWidths: Map[ColumnSpec, Int] = (for (c ← columns) yield (c -> desiredColumnWidth(c.name))).toMap
 
-    val columnNames = columns.map(_.name)
-
-    val totalAvailableWidth = terminalInfo.columns - 1 - columns.size // accounting for the table and column borders
+    val columnNames = IndexColumnName +: columns.map(_.name)
+    val indexColumnWidth = objects.size.toString.length
+    val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columns.size + 1) // accounting for the table and column borders
     val columnWidths =
-      for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
-        yield c.name -> w
+      (for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
+        yield c.name -> w) + (IndexColumnName -> indexColumnWidth)
 
     ObjectTableModel(columnNames, columnWidths, renderedObjects)
   }
 
-  private def renderObject(obj: MashObject, columns: Seq[ColumnSpec]): ListMap[String, String] = {
+  private def renderObject(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): Map[String, String] = {
     val pairs =
       for {
         ColumnSpec(name, _, isNullaryMethod) ← columns
@@ -54,7 +62,7 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
         value = if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue) else rawValue
         renderedValue = printer.renderField(value, inCell = true)
       } yield name -> renderedValue
-    ListMap(pairs: _*)
+    (pairs :+ (IndexColumnName -> index.toString)).toMap
   }
 
   def renderTopRow(model: ObjectTableModel): String = {

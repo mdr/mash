@@ -54,7 +54,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
         boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
     }
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
     val branchOpt = boundParams.validateStringOpt(Branch).map(_.s)
     val fromRemoteOpt = validateRemote(boundParams)
@@ -64,14 +64,16 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
-      val cmd = git.branchCreate().setName(localName)
+      val cmd = git.branchCreate.setName(localName)
       for (remoteName ← fromRemoteOpt) {
         cmd.setStartPoint(remoteName)
         cmd.setUpstreamMode(SetupUpstreamMode.TRACK)
       }
-      cmd.call()
+      val branchRef = cmd.call()
+      val branch = ListFunction.asMashObject(git.getRepository)(branchRef)
       if (switch)
         git.checkout().setName(localName).call()
+      branch
     }
   }
 
@@ -90,7 +92,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
       case _: Exception ⇒ Seq()
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(LocalBranchClass)
 
   override def summary = "Create a new local branch"
 

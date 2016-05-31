@@ -17,7 +17,7 @@ import org.eclipse.jgit.api.Git
 import scala.collection.immutable.ListMap
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
-object ListRemoteFunction extends MashFunction("git.branch.listRemote") {
+object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
   val params = ParameterModel()
 

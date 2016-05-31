@@ -28,7 +28,7 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
-    val branch = boundParams.validateString(Branch).s
+    val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     GitHelper.withGit { git ⇒
       git.checkout().setName(branch).call()
     }

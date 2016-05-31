@@ -40,7 +40,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
     SwitchMethod,
     ToStringMethod)
 
-  private case class Wrapper(target: Any) {
+  case class Wrapper(target: Any) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
 

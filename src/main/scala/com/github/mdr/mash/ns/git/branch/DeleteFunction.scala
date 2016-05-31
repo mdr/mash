@@ -20,12 +20,16 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
 
   val params = ParameterModel(Seq(Branches))
 
-  private def validateBranch(boundParams: BoundParams, param: Parameter, branch: Any): String =
-    branch match {
+  def validateBranch(boundParams: BoundParams, param: Parameter, branch: Any): String = {
+    val branchName = branch match {
       case MashString(s, _) ⇒ s
-      case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ obj.field(LocalBranchClass.Fields.Name).asInstanceOf[MashString].s
-      case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a branch")
+      case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ LocalBranchClass.Wrapper(obj).name.s
+      case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a local branch")
     }
+    if (!SwitchFunction.getLocalBranches.contains(branchName))
+      boundParams.throwInvalidArgument(param, "Must be a local branch")
+    branchName
+  }
 
   def validateBranches(boundParams: BoundParams, param: Parameter): Seq[String] =
     boundParams.validateSequence(param).map(branch ⇒ validateBranch(boundParams, param, branch))
@@ -33,10 +37,6 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
     val branches = validateBranches(boundParams, Branches)
-    val localBranches = SwitchFunction.getLocalBranches.toSet
-    for (branch ← branches)
-      if (!localBranches.contains(branch))
-        boundParams.throwInvalidArgument(Branches, s"'$branch' is not a local branch")
     GitHelper.withGit { git ⇒
       git.branchDelete.setForce(true).setBranchNames(branches: _*).call()
     }

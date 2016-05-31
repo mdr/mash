@@ -12,7 +12,7 @@ import com.github.mdr.mash.ns.git.StatusFunction
 import com.github.mdr.mash.ns.git.branch.LocalBranchClass.Fields
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 
-object ListFunction extends MashFunction("git.branch.list") {
+object ListFunction extends MashFunction("git.branch.localBranches") {
 
   override def aliases = Seq(FullyQualifiedName("git.branches"))
 
