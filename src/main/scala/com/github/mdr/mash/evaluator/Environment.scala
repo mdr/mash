@@ -48,6 +48,7 @@ object Environment {
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,
       "git" -> git,
+      "it" -> null,
       "json" -> json,
       "view" -> view,
       "ns" -> ns)

@@ -12,6 +12,8 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.terminal.Terminal
+import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.ns.view.ViewClass
 
 trait NormalActionHandler { self: Repl ⇒
 
@@ -123,11 +125,15 @@ trait NormalActionHandler { self: Repl ⇒
       state.history.record(cmd, state.mish)
 
     for (result ← resultOpt) {
-      state.globalVariables += ReplState.It -> result
+      val actualResult = result match {
+        case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data)
+        case _                                    ⇒ result
+      }
+      state.globalVariables += ReplState.It -> actualResult
       val newResults =
         state.globalVariables.get(ReplState.Res) match {
-          case Some(MashList(oldResults @ _*)) ⇒ MashList(oldResults :+ result)
-          case _                               ⇒ MashList(Seq(result))
+          case Some(MashList(oldResults @ _*)) ⇒ MashList(oldResults :+ actualResult)
+          case _                               ⇒ MashList(Seq(actualResult))
         }
       state.globalVariables += ReplState.Res -> newResults
 

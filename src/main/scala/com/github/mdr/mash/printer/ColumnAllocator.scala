@@ -16,10 +16,11 @@ object ColumnAllocator {
 
     val remainingWidth = availableWidth - satisfiedAllocations.values.sum
     val remainingColumns = columns.filterNot(c ⇒ satisfiedAllocations.contains(c))
-    if (remainingWidth < availableWidth)
-      satisfiedAllocations ++ allocateColumns(remainingColumns, requestedWidths, remainingWidth)
-    else
-      satisfiedAllocations ++ allocateByWeight(remainingColumns, remainingWidth)
+    satisfiedAllocations ++ (
+      if (remainingWidth < availableWidth)
+        allocateColumns(remainingColumns, requestedWidths, remainingWidth)
+      else
+        allocateByWeight(remainingColumns, remainingWidth))
   }
 
   private def allocateByWeight(columns: Seq[ColumnSpec], availableWidth: Int): Map[ColumnSpec, Int] =
