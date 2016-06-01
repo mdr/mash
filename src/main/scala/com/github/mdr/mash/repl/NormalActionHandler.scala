@@ -119,33 +119,35 @@ trait NormalActionHandler { self: Repl ⇒
           e.printStackTrace()
           DebugLogger.logException(e)
       }
+    val actualResultOpt = resultOpt.map {
+      case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
+      case result                               ⇒ result
+    }
     if (toggleMish)
       state.mish = !state.mish
     else {
-      state.history.record(cmd, state.commandNumber, state.mish)
+      state.history.record(cmd, state.commandNumber, state.mish, actualResultOpt)
       state.commandNumber += 1
     }
+    actualResultOpt.foreach(saveResult)
 
-    for (result ← resultOpt) {
-      val actualResult = result match {
-        case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(result)
-        case _                                    ⇒ result
-      }
-      state.globalVariables += ReplState.It -> actualResult
-      val newResults =
-        state.globalVariables.get(ReplState.Res) match {
-          case Some(MashList(oldResults @ _*)) ⇒ MashList(oldResults :+ actualResult)
-          case _                               ⇒ MashList(Seq(actualResult))
-        }
-      state.globalVariables += ReplState.Res -> newResults
-
-      for (resultIndex ← insertReferenceOpt) {
-        val resultsIndex = newResults.size - 1
-        val toInsert = s"${ReplState.Res}[$resultsIndex][$resultIndex]"
-        state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
-      }
-
+    for (resultIndex ← insertReferenceOpt) {
+      val commandNumber = state.commandNumber - 1
+      val toInsert = s"${ReplState.Res}[$commandNumber][$resultIndex]"
+      state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
     }
+
+  }
+
+  private def saveResult(result: Any) {
+    state.globalVariables += ReplState.It -> result
+    val oldResults = state.globalVariables.get(ReplState.Res) match {
+      case Some(MashList(oldResults @ _*)) ⇒ oldResults
+      case _                               ⇒ Seq()
+    }
+    val number = state.commandNumber - 1
+    val newResults = MashList((oldResults ++ Seq.fill(oldResults.length + 1 - number)(null)).updated(number, result))
+    state.globalVariables += ReplState.Res -> newResults
   }
 
   private def handleComplete() =

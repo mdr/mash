@@ -31,7 +31,8 @@ object HistoryFunction extends MashFunction("os.history") {
         CommandNumber -> MashNumber(entry.commandNumber),
         Timestamp -> entry.timestamp,
         Command -> MashString(entry.command),
-        Mish -> entry.mish),
+        Mish -> entry.mish, 
+        Result -> entry.resultOpt.orNull),
       HistoryClass)
   }
 

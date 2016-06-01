@@ -55,10 +55,10 @@ class HistoryImpl(
     } else
       None
 
-  def record(cmd: String, commandNumber: Int, mish: Boolean) {
-    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish)
+  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[Any]) {
+    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.orNull)
     history = entry +: history
-    storage.saveEntry(entry)
+    storage.saveEntry(entry.copy(result = null))
   }
 
   def getHistory: Seq[HistoryEntry] = history.sortBy(_.timestamp).reverse

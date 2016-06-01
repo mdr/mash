@@ -6,15 +6,16 @@ import java.time.Instant
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
 
-case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean) {
+case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: Any) {
   
-  def sessionIdOpt = Option(sessionId)
+  def sessionIdOpt: Option[String] = Option(sessionId)
   
+  def resultOpt: Option[Any] = Option(result)
 }
 
 trait History {
 
-  def record(cmd: String, commandNumber: Int, mish: Boolean)
+  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[Any])
 
   def resetHistoryPosition()
 

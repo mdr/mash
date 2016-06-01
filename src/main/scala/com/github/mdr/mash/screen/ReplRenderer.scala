@@ -73,20 +73,24 @@ object ReplRenderer {
       topLine +: contentLines :+ bottomLine
     }.getOrElse(Seq())
 
-  private def getPrompt(mishByDefault: Boolean): Seq[StyledCharacter] = {
-    val pwd = fileSystem.pwd.toString
+  private def getPrompt(commandNumber: Int, mishByDefault: Boolean): Seq[StyledCharacter] = {
+    val num = s"[$commandNumber] "
+    val numStyle = Style(foregroundColour = Colour.Yellow)
+    val numStyled = num.map(StyledCharacter(_, numStyle))
+
+    val pwd = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
     val pwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
-    val pwdStyled = new TildeExpander(envInteractions).retilde(pwd).map(StyledCharacter(_, pwdStyle))
+    val pwdStyled = pwd.map(StyledCharacter(_, pwdStyle))
 
     val promptChar = if (mishByDefault) "!" else "$"
     val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
     val promptCharStyled = s" $promptChar ".map(StyledCharacter(_, promptCharStyle))
 
-    pwdStyled ++ promptCharStyled
+    numStyled ++ pwdStyled ++ promptCharStyled
   }
 
   private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
-    val prompt = getPrompt(state.mish)
+    val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
     val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables, state.bareWords)
     val cursorPos = prompt.length + lineBuffer.cursorPos

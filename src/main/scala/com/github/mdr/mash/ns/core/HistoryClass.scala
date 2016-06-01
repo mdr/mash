@@ -14,11 +14,12 @@ object HistoryClass extends MashClass("core.History") {
     val Timestamp = Field("timestamp", "Time command was executed", Type.Instance(DateTimeClass))
     val Command = Field("command", "Command", Type.Instance(StringClass))
     val Mish = Field("mish", "Whether the command was executed in mish mode", Type.Instance(BooleanClass))
+    val Result = Field("result", "Result of the command (if available, else null)", Type.Any)
   }
 
   import Fields._
 
-  override val fields = Seq(Session, CommandNumber, Timestamp, Command, Mish)
+  override val fields = Seq(Session, CommandNumber, Timestamp, Command, Mish, Result)
 
   override def summary = "A record in Mash command history"
 
