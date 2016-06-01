@@ -14,6 +14,7 @@ object GitNamespace {
     FetchFunction,
     InitFunction,
     LogFunction,
+    MergeFunction,
     PullFunction,
     PushFunction,
     RestoreFunction,

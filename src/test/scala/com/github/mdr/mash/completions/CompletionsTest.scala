@@ -12,7 +12,7 @@ import java.nio.file.Paths
 
 class CompletionsTest extends FlatSpec with Matchers {
 
-  // Note: ▶ denotes the cursor position when completions are requested
+  // ▶ denotes the cursor position when completions are requested
 
   {
     implicit val filesystem = MockFileSystem.of("/foo")
@@ -254,7 +254,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "a = { foobar: 42}.foo▶" shouldGiveCompletions ("foobar")
 
   "kill --signal=H▶" shouldGiveCompletions ("HUP")
-  
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {
