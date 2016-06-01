@@ -29,6 +29,7 @@ object ReplState {
 
 class ReplState(
     var lineBuffer: LineBuffer = LineBuffer.Empty,
+    var commandNumber: Int = 0,
     var completionStateOpt: Option[CompletionState] = None,
     var assistanceStateOpt: Option[AssistanceState] = None,
     val history: History,

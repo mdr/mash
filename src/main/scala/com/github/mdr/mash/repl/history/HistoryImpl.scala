@@ -55,8 +55,8 @@ class HistoryImpl(
     } else
       None
 
-  def record(cmd: String, mish: Boolean) {
-    val entry = HistoryEntry(sessionId, clock.instant, cmd, mish)
+  def record(cmd: String, commandNumber: Int, mish: Boolean) {
+    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish)
     history = entry +: history
     storage.saveEntry(entry)
   }

@@ -121,12 +121,14 @@ trait NormalActionHandler { self: Repl ⇒
       }
     if (toggleMish)
       state.mish = !state.mish
-    else
-      state.history.record(cmd, state.mish)
+    else {
+      state.history.record(cmd, state.commandNumber, state.mish)
+      state.commandNumber += 1
+    }
 
     for (result ← resultOpt) {
       val actualResult = result match {
-        case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data)
+        case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(result)
         case _                                    ⇒ result
       }
       state.globalVariables += ReplState.It -> actualResult

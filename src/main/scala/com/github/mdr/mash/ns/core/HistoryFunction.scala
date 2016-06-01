@@ -25,11 +25,14 @@ object HistoryFunction extends MashFunction("os.history") {
 
   private def asObject(entry: HistoryEntry): MashObject = {
     import HistoryClass.Fields._
-    MashObject(ListMap(
-      Session -> entry.sessionIdOpt.map(MashString(_)).orNull,
-      Timestamp -> entry.timestamp,
-      Command -> MashString(entry.command),
-      Mish -> entry.mish), HistoryClass)
+    MashObject(
+      ListMap(
+        Session -> entry.sessionIdOpt.map(MashString(_)).orNull,
+        CommandNumber -> MashNumber(entry.commandNumber),
+        Timestamp -> entry.timestamp,
+        Command -> MashString(entry.command),
+        Mish -> entry.mish),
+      HistoryClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(HistoryClass))
