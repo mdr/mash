@@ -3,17 +3,17 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.CommandResult
 import com.github.mdr.mash.CommandRunner
 import com.github.mdr.mash.DebugLogger
+import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.evaluator.MashObject
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.completions.Completion
+import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.terminal.Terminal
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.utils.Region
 
 trait NormalActionHandler { self: Repl ⇒
 
@@ -111,14 +111,20 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def runCommand(cmd: String) {
     val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
-    val CommandResult(resultOpt, toggleMish, insertReferenceOpt) =
+    val commandResult =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)
       catch {
         case e: Exception ⇒
           e.printStackTrace()
           DebugLogger.logException(e)
+          return
       }
+    processCommandResult(cmd, commandResult)
+  }
+
+  private def processCommandResult(cmd: String, commandResult: CommandResult) {
+    val CommandResult(resultOpt, toggleMish, insertReferenceOpt) = commandResult
     val actualResultOpt = resultOpt.map {
       case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
       case result                               ⇒ result
@@ -136,7 +142,6 @@ trait NormalActionHandler { self: Repl ⇒
       val toInsert = s"${ReplState.Res}[$commandNumber][$resultIndex]"
       state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
     }
-
   }
 
   private def saveResult(number: Int)(result: Any) {

@@ -26,6 +26,7 @@ object GitNamespace {
     branch.DeleteFunction,
     branch.ListFunction,
     branch.ListRemoteFunction,
+    branch.SetCommitFunction,
     branch.SwitchFunction,
     stash.ApplyFunction,
     stash.CreateFunction)

@@ -16,6 +16,9 @@ import com.github.mdr.mash.ns.git.CommitHashClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.LogFunction
 import com.github.mdr.mash.ns.git.PushFunction
+import com.github.mdr.mash.ns.git.MergeFunction
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.completions.CompletionSpec
 
 object LocalBranchClass extends MashClass("git.branch.Branch") {
 
@@ -37,6 +40,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
     DeleteMethod,
     LogMethod,
     PushMethod,
+    SetCommitMethod,
     SwitchMethod,
     ToStringMethod)
 
@@ -125,6 +129,32 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     override def summary = "Switch to this branch"
 
+  }
+
+  object SetCommitMethod extends MashMethod("setCommit") {
+
+    object Params {
+      val Commit = SetCommitFunction.Params.Commit
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Commit))
+
+    def apply(target: Any, arguments: Arguments) {
+      val boundParams = params.validate(arguments)
+      val branch = Wrapper(target).name.s
+      val commit = MergeFunction.validateCommit(boundParams, Commit)
+      SetCommitFunction.setCommit(branch, commit)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+
+    override def summary = "Update this branch to point to a given commit"
+
+    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
+      params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
+        case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
+      }
   }
 
   object ToStringMethod extends MashMethod("toString") {

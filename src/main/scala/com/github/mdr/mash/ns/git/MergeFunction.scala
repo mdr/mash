@@ -15,6 +15,7 @@ import com.github.mdr.mash.ns.git.branch.CreateFunction
 import com.github.mdr.mash.ns.git.branch.LocalBranchClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
+import org.eclipse.jgit.lib.ObjectId
 
 object MergeFunction extends MashFunction("git.merge") {
 
@@ -34,14 +35,19 @@ object MergeFunction extends MashFunction("git.merge") {
 
   val params = ParameterModel(Seq(Commit, Squash))
 
-  def validateCommit(boundParams: BoundParams, param: Parameter): String =
-    boundParams(param) match {
+  def validateCommit(boundParams: BoundParams, param: Parameter): ObjectId = {
+    val commit = boundParams(param) match {
       case MashString(s, _) ⇒ s
       case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ LocalBranchClass.Wrapper(obj).name.s
       case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
       case obj @ MashObject(_, Some(CommitClass)) ⇒ CommitClass.Wrapper(obj).hash.s
       case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a name of a commit")
     }
+    GitHelper.withGit { git ⇒
+      Option(git.getRepository.resolve(commit)).getOrElse(
+        boundParams.throwInvalidArgument(Commit, "Must be the name of a commit"))
+    }
+  }
 
   def apply(arguments: Arguments) {
     val boundParams = params.validate(arguments)
@@ -49,9 +55,7 @@ object MergeFunction extends MashFunction("git.merge") {
     val squash = Truthiness.isTruthy(boundParams(Squash))
 
     GitHelper.withGit { git ⇒
-      val objectId = Option(git.getRepository.resolve(commit)).getOrElse(
-        boundParams.throwInvalidArgument(Commit, "Must be the name of a commit"))
-      git.merge.include(objectId).setSquash(squash).call()
+      git.merge.include(commit).setSquash(squash).call()
     }
   }
 

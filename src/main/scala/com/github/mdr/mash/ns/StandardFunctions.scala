@@ -124,6 +124,7 @@ object StandardFunctions {
     CommitClass,
     CommitHashClass,
     IdentityClass,
+    FetchBranchUpdateClass,
     LocalBranchClass,
     LocalBranchNameClass,
     RemoteBranchClass,
