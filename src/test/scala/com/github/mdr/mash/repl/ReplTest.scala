@@ -1,22 +1,21 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import java.io.OutputStream
 import java.io.PrintStream
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+
+import org.scalatest._
+
+import com.github.mdr.mash.Config
 import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.os.MockEnvironmentInteractions
+import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.repl.LineBufferTestHelper._
+import com.github.mdr.mash.repl.NormalActions.SelfInsert
+import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.repl._
-import com.github.mdr.mash.os.MockFileSystem
-import com.github.mdr.mash.os.MockEnvironmentInteractions
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.LineBufferTestHelper._
-import com.github.mdr.mash.evaluator.MashString
-import com.github.mdr.mash.os.MockFileObject._
-import com.github.mdr.mash.repl.history.HistoryImpl
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -89,7 +88,7 @@ class ReplTest extends FlatSpec with Matchers {
     repl.input("foo").acceptLine()
     repl.it should equal(() /* Repl should have emitted an error */ )
   }
-
+  
   private def newRepl = makeRepl()
 
 }
@@ -104,7 +103,7 @@ object ReplTest {
   implicit class RichRepl(repl: Repl) {
 
     import com.github.mdr.mash.repl.NormalActions._
-
+    
     def input(s: String): Repl = { repl.handleAction(SelfInsert(s)); repl }
 
     def complete(): Repl = { repl.handleAction(Complete); repl }

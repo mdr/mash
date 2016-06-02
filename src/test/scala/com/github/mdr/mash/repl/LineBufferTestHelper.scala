@@ -1,6 +1,5 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.utils.Utils
 
 object LineBufferTestHelper {

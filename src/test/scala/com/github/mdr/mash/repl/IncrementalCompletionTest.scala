@@ -1,13 +1,11 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.repl
 
 import org.scalatest._
-import com.github.mdr.mash.repl.IncrementalCompletionState
-import com.github.mdr.mash.repl.Repl
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.MockFileSystem
-import com.github.mdr.mash.LineBufferTestHelper._
+import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.os.MockFileObject._
+import com.github.mdr.mash.repl.ReplTest._
 
 class IncrementalCompletionTest extends FlatSpec with Matchers {
 

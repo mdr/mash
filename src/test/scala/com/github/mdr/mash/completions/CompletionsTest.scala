@@ -1,7 +1,7 @@
 package com.github.mdr.mash.completions
 
 import org.scalatest._
-import com.github.mdr.mash.LineBufferTestHelper
+import com.github.mdr.mash.repl.LineBufferTestHelper
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
