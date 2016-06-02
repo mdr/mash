@@ -123,30 +123,30 @@ trait NormalActionHandler { self: Repl ⇒
       case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
       case result                               ⇒ result
     }
+    val commandNumber = state.commandNumber
     if (toggleMish)
       state.mish = !state.mish
     else {
-      state.history.record(cmd, state.commandNumber, state.mish, actualResultOpt)
+      state.history.record(cmd, commandNumber, state.mish, actualResultOpt)
       state.commandNumber += 1
     }
-    actualResultOpt.foreach(saveResult)
+    actualResultOpt.foreach(saveResult(commandNumber))
 
     for (resultIndex ← insertReferenceOpt) {
-      val commandNumber = state.commandNumber - 1
       val toInsert = s"${ReplState.Res}[$commandNumber][$resultIndex]"
       state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
     }
 
   }
 
-  private def saveResult(result: Any) {
+  private def saveResult(number: Int)(result: Any) {
     state.globalVariables += ReplState.It -> result
     val oldResults = state.globalVariables.get(ReplState.Res) match {
       case Some(MashList(oldResults @ _*)) ⇒ oldResults
       case _                               ⇒ Seq()
     }
-    val number = state.commandNumber - 1
-    val newResults = MashList((oldResults ++ Seq.fill(oldResults.length + 1 - number)(null)).updated(number, result))
+    val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(null)
+    val newResults = MashList(extendedResults.updated(number, result))
     state.globalVariables += ReplState.Res -> newResults
   }
 
