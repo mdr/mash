@@ -14,8 +14,12 @@ import com.github.mdr.mash.parser.SourceInfo
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
+import scala.PartialFunction.cond
 
-case class MemberCompletionResult(isMemberExpr: Boolean, completionResultOpt: Option[CompletionResult])
+case class MemberCompletionResult(
+  isMemberExpr: Boolean,
+  completionResultOpt: Option[CompletionResult],
+  spaceBeforeDot: Boolean)
 
 object MemberCompleter {
 
@@ -51,7 +55,17 @@ object MemberCompleter {
         completions = members.filter(_.name startsWith identifier.text).map(_.asCompletion(isQuoted = false))
         result ← CompletionResult.of(completions, identifier.region)
       } yield result
-    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt)
+    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt, spaceBeforeDot(memberExprOpt))
+  }
+
+  private def spaceBeforeDot(memberExprOpt: Option[MemberExpr]): Boolean = memberExprOpt.exists { memberExpr ⇒
+    memberExpr.sourceInfoOpt.exists {
+      case SourceInfo(expr) ⇒
+        cond(expr) {
+          case ConcreteSyntax.MemberExpr(before, dot, after) ⇒
+            dot.offset > 0 && dot.source.charAt(dot.offset - 1).isWhitespace
+        }
+    }
   }
 
   private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] =

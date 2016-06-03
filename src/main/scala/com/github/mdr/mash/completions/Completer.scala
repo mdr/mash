@@ -83,17 +83,22 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, identiferToken, parser)
-    val MemberCompletionResult(isMemberExpr, memberResultOpt) =
+    val MemberCompletionResult(isMemberExpr, memberResultOpt, spaceBeforeDot) =
       MemberCompleter.completeIdentifier(text, identiferToken, parser)
     val bindingResultOpt =
       if (isMemberExpr)
         None // It would be misleading to try and complete bindings in member position
       else
         BindingCompleter.completeBindings(parser.env, identiferToken.text, identiferToken.region)
-    if (isPathCompletion)
-      CompletionResult.merge(asStringResultOpt, bindingResultOpt)
+    val stringBindingResultOpt =
+      if (isPathCompletion)
+        CompletionResult.merge(asStringResultOpt, bindingResultOpt)
+      else
+        asStringResultOpt orElse bindingResultOpt
+    if (spaceBeforeDot)
+      stringBindingResultOpt orElse memberResultOpt
     else
-      asStringResultOpt orElse memberResultOpt orElse bindingResultOpt
+      memberResultOpt orElse stringBindingResultOpt
   }
 
   private def completeDot(text: String, dotToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
