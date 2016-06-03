@@ -43,11 +43,20 @@ object ObjectBrowser {
 
 }
 
+case class ObjectBrowserState(
+    currentRow: Int,
+    firstRow: Int) {
+
+  def adjustCurrentRow(delta: Int) = copy(currentRow = currentRow + delta)
+
+  def adjustFirstRow(delta: Int) = copy(firstRow = firstRow + delta)
+
+}
+
 class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output: PrintStream) {
   private val fileSystem = LinuxFileSystem
 
-  private var currentRow = 0
-  private var firstRow = 0
+  private var state = ObjectBrowserState(0, 0)
   private var previousScreenOpt: Option[Screen] = None
   private var continue = true
   private var insertRowOpt: Option[Int] = None
@@ -62,6 +71,10 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
   }
 
   private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
+
+  private def currentRow = state.currentRow
+
+  private def firstRow = state.firstRow
 
   private def render: Screen = {
     val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo)
@@ -82,8 +95,8 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
     val statusLine = Line(countChars ++ keyChars)
     val footerLines = Seq(footerLine, statusLine)
 
-    val currentRowRelative = currentRow - firstRow
-    val objects = model.objects.drop(firstRow).take(windowSize)
+    val currentRowRelative = state.currentRow - state.firstRow
+    val objects = model.objects.drop(state.firstRow).take(windowSize)
     def renderObject(obj: Map[String, String], isSelected: Boolean): Line = {
       val side = boxCharacterSupplier.doubleVertical.map(StyledCharacter(_))
       val internalVertical = boxCharacterSupplier.singleVertical.map(StyledCharacter(_, Style(inverse = isSelected)))
@@ -120,50 +133,52 @@ class ObjectBrowser(model: ObjectTableModel, terminalInfo: TerminalInfo, output:
   private def adjustWindowToFit() {
     val delta = currentRow - (firstRow + windowSize - 1)
     if (delta >= 0)
-      firstRow += delta
+      state = state.adjustFirstRow(delta)
     val delta2 = firstRow - currentRow
     if (delta2 >= 0)
-      firstRow -= delta2
+      state = state.adjustFirstRow(-delta2)
   }
 
-  private def handleAction(action: InputAction) = action match {
-    case NextItem ⇒
-      if (currentRow < model.objects.size - 1) {
-        currentRow += 1
+  private def handleAction(action: InputAction) =
+    action match {
+      case NextItem ⇒
+        if (currentRow < model.objects.size - 1) {
+          state = state.adjustCurrentRow(1)
+          adjustWindowToFit()
+          draw()
+        }
+      case NextPage ⇒
+        val newRow = math.min(model.objects.size - 1, currentRow + windowSize - 1)
+        state = state.copy(currentRow = newRow)
         adjustWindowToFit()
         draw()
-      }
-    case NextPage ⇒
-      currentRow += windowSize - 1
-      currentRow = math.min(model.objects.size - 1, currentRow)
-      adjustWindowToFit()
-      draw()
-    case PreviousItem ⇒
-      if (currentRow > 0) {
-        currentRow -= 1
+      case PreviousItem ⇒
+        if (currentRow > 0) {
+          state = state.adjustCurrentRow(-1)
+          adjustWindowToFit()
+          draw()
+        }
+      case PreviousPage ⇒
+        val newRow = math.max(0, currentRow - windowSize - 1)
+        state = state.copy(currentRow = newRow)
         adjustWindowToFit()
         draw()
-      }
-    case PreviousPage ⇒
-      currentRow -= windowSize - 1
-      currentRow = math.max(0, currentRow)
-      adjustWindowToFit()
-      draw()
-    case ExitBrowser ⇒
-      continue = false
-    case FirstItem ⇒
-      currentRow = 0
-      adjustWindowToFit()
-      draw()
-    case LastItem ⇒
-      currentRow = model.objects.size - 1
-      adjustWindowToFit()
-      draw()
-    case InsertItem ⇒
-      continue = false
-      insertRowOpt = Some(currentRow)
-    case _ ⇒
-  }
+      case ExitBrowser ⇒
+        continue = false
+      case FirstItem ⇒
+        state = state.copy(currentRow = 0)
+        adjustWindowToFit()
+        draw()
+      case LastItem ⇒
+        val newRow = model.objects.size - 1
+        state = state.copy(currentRow = newRow)
+        adjustWindowToFit()
+        draw()
+      case InsertItem ⇒
+        continue = false
+        insertRowOpt = Some(currentRow)
+      case _ ⇒
+    }
 
 }
 
