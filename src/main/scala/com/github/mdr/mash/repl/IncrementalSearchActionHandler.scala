@@ -35,7 +35,7 @@ trait IncrementalSearchActionHandler { self: Repl ⇒
       if (searchString.isEmpty)
         ""
       else
-        state.history.findMatches(searchString).distinct.drop(resultIndex).headOption.getOrElse(""))
+        history.findMatches(searchString).distinct.drop(resultIndex).headOption.getOrElse(""))
     state.incrementalSearchStateOpt = Some(IncrementalSearchState(searchString, resultIndex))
   }
 }

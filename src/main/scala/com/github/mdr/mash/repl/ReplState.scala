@@ -32,7 +32,6 @@ class ReplState(
     var commandNumber: Int = 0,
     var completionStateOpt: Option[CompletionState] = None,
     var assistanceStateOpt: Option[AssistanceState] = None,
-    val history: History,
     var continue: Boolean = true, // Whether to loop or exit
     var globalVariables: mutable.Map[String, Any] = Environment.createGlobalVariables(),
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,

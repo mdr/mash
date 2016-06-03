@@ -23,8 +23,8 @@ trait NormalActionHandler { self: Repl ⇒
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
-      case PreviousHistory          ⇒ for (cmd ← state.history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
-      case NextHistory              ⇒ for (cmd ← state.history.goForwards()) state.lineBuffer = LineBuffer(cmd)
+      case PreviousHistory          ⇒ for (cmd ← history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
+      case NextHistory              ⇒ for (cmd ← history.goForwards()) state.lineBuffer = LineBuffer(cmd)
       case BeginningOfLine          ⇒ state.updateLineBuffer(_.moveCursorToStart)
       case EndOfLine                ⇒ state.updateLineBuffer(_.moveCursorToEnd)
       case ForwardChar              ⇒ state.updateLineBuffer(_.cursorRight)
@@ -76,7 +76,7 @@ trait NormalActionHandler { self: Repl ⇒
       case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
       case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
     }
-    state.history.getLastArg(argIndex) match {
+    history.getLastArg(argIndex) match {
       case Some(newArg) ⇒
         val newS = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
@@ -90,7 +90,7 @@ trait NormalActionHandler { self: Repl ⇒
     updateScreenAfterAccept()
     previousReplRenderResultOpt = None
 
-    state.history.resetHistoryPosition()
+    history.resetHistoryPosition()
 
     val cmd = state.lineBuffer.text
     state.lineBuffer = LineBuffer.Empty
@@ -133,7 +133,7 @@ trait NormalActionHandler { self: Repl ⇒
     if (toggleMish)
       state.mish = !state.mish
     else {
-      state.history.record(cmd, commandNumber, state.mish, actualResultOpt)
+      history.record(cmd, commandNumber, state.mish, actualResultOpt)
       state.commandNumber += 1
     }
     actualResultOpt.foreach(saveResult(commandNumber))

@@ -37,7 +37,7 @@ class Repl(
   protected val output: PrintStream,
   fileSystem: FileSystem,
   envInteractions: EnvironmentInteractions,
-  history: History)
+  protected val history: History)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
@@ -47,7 +47,7 @@ class Repl(
 
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  val state = new ReplState(history = history)
+  val state = new ReplState
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
   def run() {
