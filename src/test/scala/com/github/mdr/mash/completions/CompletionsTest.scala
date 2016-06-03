@@ -262,6 +262,12 @@ class CompletionsTest extends FlatSpec with Matchers {
     "[{ gitty: 42 }] .gi▶" shouldGiveCompletions (".git")
   }
 
+  {
+    implicit val fileSystem = MockFileSystem.of("/file")
+    
+    "ls -r▶" shouldGiveCompletions ()
+  }
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {

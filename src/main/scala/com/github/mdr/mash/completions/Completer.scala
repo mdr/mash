@@ -47,12 +47,14 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     })
   }
 
-  private def completeToken(text: String, pos: Int, parser: CompletionParser)(nearbyToken: Token) =
+  private def completeToken(text: String, pos: Int, parser: CompletionParser)(nearbyToken: Token): Option[CompletionResult] =
     nearbyToken.tokenType match {
       case TokenType.STRING_LITERAL ⇒
         completeStringLiteral(text, nearbyToken, parser)
       case TokenType.LONG_FLAG ⇒
         completeLongFlag(text, nearbyToken, parser)
+      case TokenType.SHORT_FLAG ⇒
+        stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
       case TokenType.MINUS ⇒
         completeMinus(text, nearbyToken, parser)
       case TokenType.IDENTIFIER ⇒
@@ -64,8 +66,6 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     }
 
   private def completeStringLiteral(text: String, stringLiteral: Token, parser: CompletionParser): Option[CompletionResult] =
-    stringCompleter.completeString(text, stringLiteral, parser, substring = false).completionResultOpt orElse
-      stringCompleter.completeString(text, stringLiteral, parser, substring = true).completionResultOpt orElse
       stringCompleter.completeAsString(text, stringLiteral, parser).completionResultOpt
 
   private def completeLongFlag(text: String, flag: Token, parser: CompletionParser): Option[CompletionResult] = {
