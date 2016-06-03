@@ -2,12 +2,11 @@ package com.github.mdr.mash.screen
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import org.fusesource.jansi.Ansi._
-import org.fusesource.jansi.Ansi.Color._
+
 import com.github.mdr.mash.MishCommand
-import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
+import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
@@ -16,9 +15,9 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.parser.Abstractifier
 import com.github.mdr.mash.parser.MashParser
+import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.evaluator.TildeExpander
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 
@@ -33,21 +32,25 @@ object ReplRenderer {
   private val envInteractions = LinuxEnvironmentInteractions
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = {
-    val bufferScreen = renderLineBuffer(state, terminalInfo)
-    val bufferLines = bufferScreen.lines
-    val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
-    val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
-    val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
-    val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - incrementalSearchLines.size)
-    val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
-      CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
-    val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
-    val truncatedLines = lines.take(terminalInfo.rows)
-    val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
-    val title = fileSystem.pwd.toString
-    val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
-    ReplRenderResult(screen, numberOfCompletionColumns)
+  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateOpt match {
+    case Some(objectBrowserState) ⇒
+      val screen = ObjectBrowserRenderer.renderObjectBrowser(objectBrowserState, terminalInfo)
+      ReplRenderResult(screen, 0)
+    case None ⇒
+      val bufferScreen = renderLineBuffer(state, terminalInfo)
+      val bufferLines = bufferScreen.lines
+      val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
+      val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
+      val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
+      val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - incrementalSearchLines.size)
+      val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
+        CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
+      val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
+      val truncatedLines = lines.take(terminalInfo.rows)
+      val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
+      val title = fileSystem.pwd.toString
+      val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
+      ReplRenderResult(screen, numberOfCompletionColumns)
   }
 
   private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {

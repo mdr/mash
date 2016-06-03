@@ -36,7 +36,8 @@ class ReplState(
     var globalVariables: mutable.Map[String, Any] = Environment.createGlobalVariables(),
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
     var mish: Boolean = false,
-    var yankLastArgStateOpt: Option[YankLastArgState] = None) {
+    var yankLastArgStateOpt: Option[YankLastArgState] = None,
+    var objectBrowserStateOpt: Option[ObjectBrowserState] = None) {
 
   import ReplState._
 
@@ -53,12 +54,15 @@ class ReplState(
   }
 
   def mode: ReplMode =
-    completionStateOpt match {
-      case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
-      case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
-      case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
-      case None                                        ⇒ ReplMode.Normal
-    }
+    if (objectBrowserStateOpt.isDefined)
+      ReplMode.ObjectBrowser
+    else
+      completionStateOpt match {
+        case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
+        case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
+        case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
+        case None                                        ⇒ ReplMode.Normal
+      }
 
   private def getConfigObject: Option[MashObject] = globalVariables.get("config") collect {
     case mo: MashObject ⇒ mo

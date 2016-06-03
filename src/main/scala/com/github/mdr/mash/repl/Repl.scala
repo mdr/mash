@@ -25,6 +25,7 @@ import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.Mash
+import com.github.mdr.mash.input.ObjectBrowserKeyMap
 
 object Repl {
 
@@ -41,7 +42,8 @@ class Repl(
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
-    with BrowseCompletionActionHandler {
+    with BrowseCompletionActionHandler
+    with ObjectBrowserActionHandler {
 
   import Repl._
 
@@ -99,7 +101,6 @@ class Repl(
     output.flush()
   }
 
-
   @tailrec
   private def inputLoop() {
     try
@@ -129,6 +130,7 @@ class Repl(
   private def fetchAction(): InputAction = {
     val isLineEmpty = state.lineBuffer.isEmpty
     val keyMap = state.mode match {
+      case ReplMode.ObjectBrowser     ⇒ ObjectBrowserKeyMap
       case ReplMode.BrowseCompletions ⇒ BrowseCompletionsKeyMap
       case _                          ⇒ NormalKeyMap
     }
@@ -136,19 +138,22 @@ class Repl(
   }
 
   def handleAction(action: InputAction) {
-    state.completionStateOpt match {
-      case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
-      case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
+    state.objectBrowserStateOpt match {
+      case Some(state) ⇒
+        handleObjectBrowserAction(action, state)
       case None ⇒
-        state.incrementalSearchStateOpt match {
-          case Some(searchState) ⇒
-            handleIncrementalSearchAction(action, searchState)
+        state.completionStateOpt match {
+          case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
+          case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
           case None ⇒
-            handleNormalAction(action)
+            state.incrementalSearchStateOpt match {
+              case Some(searchState) ⇒ handleIncrementalSearchAction(action, searchState)
+              case None              ⇒ handleNormalAction(action)
+            }
         }
+        if (state.assistanceStateOpt.isDefined)
+          updateInvocationAssistance()
     }
-    if (state.assistanceStateOpt.isDefined)
-      updateInvocationAssistance()
   }
 
   protected def updateInvocationAssistance() {

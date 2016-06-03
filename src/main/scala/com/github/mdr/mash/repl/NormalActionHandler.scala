@@ -124,7 +124,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def processCommandResult(cmd: String, commandResult: CommandResult) {
-    val CommandResult(resultOpt, toggleMish, insertReferenceOpt) = commandResult
+    val CommandResult(resultOpt, toggleMish, objectTableModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
       case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
       case result                               ⇒ result
@@ -138,10 +138,8 @@ trait NormalActionHandler { self: Repl ⇒
     }
     actualResultOpt.foreach(saveResult(commandNumber))
 
-    for (resultIndex ← insertReferenceOpt) {
-      val toInsert = s"${ReplState.Res}[$commandNumber][$resultIndex]"
-      state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
-    }
+    for (objectTableModel ← objectTableModelOpt)
+      state.objectBrowserStateOpt = Some(ObjectBrowserState(objectTableModel))
   }
 
   private def saveResult(number: Int)(result: Any) {

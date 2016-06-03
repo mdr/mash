@@ -17,7 +17,7 @@ import java.io.PrintStream
 case class CommandResult(
   value: Option[Any] = None,
   toggleMish: Boolean = false,
-  insertReferenceOpt: Option[Int] = None)
+  objectTableModelOpt: Option[ObjectTableModel] = None)
 
 object MishCommand {
 
@@ -66,8 +66,8 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     exprOpt.map { expr ⇒
       val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
-      val PrintResult(insertReferenceOpt) = printer.render(result)
-      CommandResult(Some(result), insertReferenceOpt = insertReferenceOpt)
+      val PrintResult(objectTableModelOpt) = printer.render(result)
+      CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
     }.getOrElse(CommandResult())
   }
 

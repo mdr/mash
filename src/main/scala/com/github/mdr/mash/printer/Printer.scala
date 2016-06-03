@@ -37,7 +37,7 @@ object Printer {
 
 }
 
-case class PrintResult(insertReferenceOpt: Option[Int] = None)
+case class PrintResult(objectTableModelOpt: Option[ObjectTableModel] = None)
 
 class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
@@ -55,8 +55,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val items = xs.items.asInstanceOf[Seq[MashObject]]
         val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo, alwaysUseBrowser = alwaysUseBrowser)
-        val insertReferenceOpt = objectTablePrinter.printTable(items)
-        return PrintResult(insertReferenceOpt)
+        val objectTableModelOpt = objectTablePrinter.printTable(items)
+        return PrintResult(objectTableModelOpt)
       case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
         helpPrinter.printFunctionHelp(mo)
       case mo: MashObject if mo.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒

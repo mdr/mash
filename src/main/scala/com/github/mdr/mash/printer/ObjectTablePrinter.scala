@@ -22,17 +22,15 @@ class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, always
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   private def printer = new Printer(output, terminalInfo)
 
-  /**
-   * @return an optional reference to a selected item
-   */
-  def printTable(objects: Seq[MashObject]): Option[Int] = {
+  def printTable(objects: Seq[MashObject]): Option[ObjectTableModel] = {
     val model = renderObjects(objects)
     val nonDataRows = 3 /* header */ + 1 /* footer */
-    if (objects.size <= terminalInfo.rows - nonDataRows && !alwaysUseBrowser) {
+    if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows)
+      Some(model)
+    else {
       printTable(model)
       None
-    } else
-      ObjectBrowser.launch(model, terminalInfo, output)
+    }
   }
 
   def renderObjects(objects: Seq[MashObject]): ObjectTableModel = {
