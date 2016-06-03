@@ -69,6 +69,15 @@ object ConcreteSyntax {
 
   }
 
+  case class HeadlessMemberExpr(dot: Token, name: Token) extends Expr {
+    require(dot.tokenType == TokenType.DOT || dot.tokenType == TokenType.DOT_NULL_SAFE)
+
+    def isNullSafe = dot.tokenType == TokenType.DOT_NULL_SAFE
+
+    lazy val tokens = Seq(dot, name)
+
+  }
+
   case class LookupExpr(expr: Expr, lsquare: Token, indexExpr: Expr, rsquare: Token) extends Expr {
     lazy val tokens = (expr.tokens :+ lsquare) ++ indexExpr.tokens :+ rsquare
   }

@@ -17,7 +17,7 @@ object AbstractSyntax {
     val sourceInfoOpt: Option[SourceInfo]
 
     def locationOpt: Option[PointedRegion] = sourceInfoOpt.map(_.location)
-    
+
     def children: Seq[AstNode]
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]): AstNode
@@ -31,7 +31,7 @@ object AbstractSyntax {
     def transform(f: PartialFunction[AstNode, AstNode]): AstNode = {
       val withTransformedDescendents =
         this match {
-          case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) ⇒
+          case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
             this
           case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
             InterpolatedString(start, parts.map {
@@ -148,12 +148,25 @@ object AbstractSyntax {
     def children = Seq()
   }
 
+  sealed trait AbstractMemberExpr extends Expr {
+    val name: String
+    val isNullSafe: Boolean
+  }
+
   /**
    * An expression of the form: target.member or target?.member
    */
-  case class MemberExpr(target: Expr, name: String, isNullSafe: Boolean, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class MemberExpr(target: Expr, name: String, isNullSafe: Boolean, sourceInfoOpt: Option[SourceInfo]) extends AbstractMemberExpr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(target)
+  }
+
+  /**
+   * An expression of the form: .member or ?.member
+   */
+  case class HeadlessMemberExpr(name: String, isNullSafe: Boolean, sourceInfoOpt: Option[SourceInfo]) extends AbstractMemberExpr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
   }
 
   /**

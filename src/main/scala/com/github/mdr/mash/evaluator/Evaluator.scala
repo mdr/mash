@@ -79,7 +79,7 @@ object Evaluator {
    */
   private def simpleEvaluate(expr: Expr, env: Environment): Any =
     expr match {
-      case Hole(_) | PipeExpr(_, _, _) ⇒ // Should have been removed from the AST by now
+      case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
       case interpolatedString: InterpolatedString ⇒
         evaluateInterpolatedString(interpolatedString, env)
@@ -274,10 +274,11 @@ object Evaluator {
     evaluateMemberExpr_(memberExpr, target, env, immediatelyResolveNullaryWhenVectorising)
   }
 
-  private def evaluateMemberExpr_(memberExpr: MemberExpr, target: Any, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
-    val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
-    val locationOpt = sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
-      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ PointedRegion(name.offset, name.region)
+  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: Any, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+    val name = memberExpr.name
+    val isNullSafe = memberExpr.isNullSafe
+    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
+      case ConcreteSyntax.MemberExpr(_, _, name)      ⇒ PointedRegion(name.offset, name.region)
     })
     if (target == null && isNullSafe)
       MemberExprEvalResult(null, wasVectorised = false)
@@ -442,7 +443,7 @@ object Evaluator {
             addLocationToExceptionIfMissing(invocationLocationOpt) {
               immediatelyResolveNullaryFunctions(intermediateResult)
             }
-          case _ =>
+          case _ ⇒
             throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
         }
       case f: MashFunction ⇒

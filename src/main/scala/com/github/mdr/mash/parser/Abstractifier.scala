@@ -46,6 +46,7 @@ object Abstractifier {
     case Concrete.Hole(_)                                   ⇒ Abstract.Hole(Some(SourceInfo(expr)))
     case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), Some(SourceInfo(expr)))
     case mexpr @ Concrete.MemberExpr(e, _, name)            ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, Some(SourceInfo(expr)))
+    case mexpr @ Concrete.HeadlessMemberExpr(_, name)       ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, Some(SourceInfo(expr)))
     case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), Some(SourceInfo(expr)))
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), Some(SourceInfo(expr)))
     case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), Some(SourceInfo(expr)))

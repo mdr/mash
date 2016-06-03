@@ -27,7 +27,8 @@ object Compiler {
     bareWords: Boolean = true): Option[Expr] =
     MashParser.parse(s, forgiving = forgiving, mish = mish).map { concreteExpr ⇒
       val abstractExpr = Abstractifier.abstractify(concreteExpr)
-      val withoutHoles = DesugarHoles.desugarHoles(abstractExpr)
+      val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
+      val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
       val withoutParens = ParenRemover.removeParens(withoutHoles)
       val withoutPipes = DesugarPipes.desugarPipes(withoutHoles)
       val bareStringified =

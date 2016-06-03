@@ -26,19 +26,20 @@ object PrettyPrinter {
         case ExprPart(expr) ⇒ pretty(expr)
       }
       "\"" + start + chunks.mkString + end + "\""
-    case Identifier(n, _)                        ⇒ n.toString
-    case MishFunction(w, _)                      ⇒ "!" + w.toString
-    case Hole(_)                                 ⇒ "_"
-    case MinusExpr(subExpr, _)                   ⇒ "-" + parens(pretty(subExpr))
-    case MemberExpr(left, member, isNullSafe, _) ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isNullSafe) "?." else ".") + member
-    case LookupExpr(expr, index, _)              ⇒ parens(pretty(expr), simpleOmitParens(expr)) + "[" + pretty(index) + "]"
-    case PipeExpr(left, right, _)                ⇒ "(" + pretty(left) + ") | (" + pretty(right) + ")"
-    case ParenExpr(body, _)                      ⇒ "(" + pretty(body) + ")"
-    case LambdaExpr(v, body, _)                  ⇒ v + " => " + pretty(body)
-    case BinOpExpr(left, op, right, _)           ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
-    case ListExpr(items, _)                      ⇒ items.mkString("[", ", ", "]")
-    case ObjectExpr(entries, _)                  ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")
-    case AssignmentExpr(left, right, alias, _)   ⇒ parens(pretty(left), simpleOmitParens(left)) + " = " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
+    case Identifier(n, _)                          ⇒ n.toString
+    case MishFunction(w, _)                        ⇒ "!" + w.toString
+    case Hole(_)                                   ⇒ "_"
+    case MinusExpr(subExpr, _)                     ⇒ "-" + parens(pretty(subExpr))
+    case MemberExpr(left, member, isNullSafe, _)   ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isNullSafe) "?." else ".") + member
+    case HeadlessMemberExpr(member, isNullSafe, _) ⇒ (if (isNullSafe) "?." else ".") + member
+    case LookupExpr(expr, index, _)                ⇒ parens(pretty(expr), simpleOmitParens(expr)) + "[" + pretty(index) + "]"
+    case PipeExpr(left, right, _)                  ⇒ "(" + pretty(left) + ") | (" + pretty(right) + ")"
+    case ParenExpr(body, _)                        ⇒ "(" + pretty(body) + ")"
+    case LambdaExpr(v, body, _)                    ⇒ v + " => " + pretty(body)
+    case BinOpExpr(left, op, right, _)             ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
+    case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
+    case ObjectExpr(entries, _)                    ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")
+    case AssignmentExpr(left, right, alias, _)     ⇒ parens(pretty(left), simpleOmitParens(left)) + " = " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
     case InvocationExpr(function, args, _) ⇒
       parens(pretty(function), simpleOmitParens(function)) + " " + args.map(arg ⇒
         arg match {

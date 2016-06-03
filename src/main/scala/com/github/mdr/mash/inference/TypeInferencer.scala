@@ -67,6 +67,7 @@ class TypeInferencer {
   private def inferType_(expr: Expr, bindings: Map[String, Type], immediateExec: Boolean = true): Option[Type] =
     expr match {
       case Hole(_) | PipeExpr(_, _, _)                  ⇒ None // should not be present in AST at this point
+      case memberExpr: HeadlessMemberExpr               ⇒ None // should not be present in AST at this point
       case MishFunction(command, _)                     ⇒ Some(Type.DefinedFunction(SystemCommandFunction(command)))
       case ParenExpr(body, _)                           ⇒ inferType(body, bindings)
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
@@ -202,10 +203,10 @@ class TypeInferencer {
 
   private def inferTypeInvocationExpr(invocationExpr: InvocationExpr, bindings: Map[String, Type]): Option[Type] = {
     val InvocationExpr(f, args, _) = invocationExpr
-    
+
     args.foreach(inferTypeArg(_, bindings))
     val typedArgs = SimpleTypedArguments.from(invocationExpr)
-    
+
     inferType(f, bindings, immediateExec = false).flatMap {
       case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
         for {
@@ -233,7 +234,7 @@ class TypeInferencer {
           argType ← typeOpt
           typ ← inferType(expr, lambdaBindings ++ bindings + (parameter -> argType))
         } yield typ
-      case _ ⇒ 
+      case _ ⇒
         None
     }
   }

@@ -42,7 +42,7 @@ object DesugarHoles {
     case PipeExpr(left, right, sourceInfoOpt) ⇒
       for (left ← desugarHoles_(left))
         yield PipeExpr(left, addLambdaIfNeeded(right), sourceInfoOpt)
-    case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) ⇒ Result(expr)
+    case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒ Result(expr)
     case MemberExpr(target, name, isNullSafe, sourceInfoOpt) ⇒
       for (newTarget ← desugarHoles_(target))
         yield MemberExpr(newTarget, name, isNullSafe, sourceInfoOpt)

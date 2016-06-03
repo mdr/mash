@@ -37,7 +37,7 @@ class BareStringificationContext {
         } bareWords += token
         StringLiteral(name, QuotationType.Double, tildePrefix = false, sourceInfoOpt = sourceInfoOpt)
       }
-    case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _) ⇒
+    case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
       expr
     case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
       val newParts = parts.map {

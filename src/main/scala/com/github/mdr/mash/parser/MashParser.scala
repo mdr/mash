@@ -281,6 +281,17 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       val minus = nextToken()
       val expr = prefixExpr()
       MinusExpr(minus, expr)
+    } else if (DOT || DOT_NULL_SAFE) {
+      val dotToken = nextToken()
+      val identifier =
+        if (IDENTIFIER)
+          nextToken()
+        else if (forgiving)
+          syntheticToken(IDENTIFIER, dotToken)
+        else
+          errorExpectedToken("identifier")
+      val expr: Expr = HeadlessMemberExpr(dotToken, identifier)
+      suffixExpr_(expr)
     } else
       suffixExpr()
 
