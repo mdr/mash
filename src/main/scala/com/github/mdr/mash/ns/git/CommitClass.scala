@@ -22,6 +22,12 @@ import com.github.mdr.mash.ns.os.PathClass
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.ObjectId
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.ns.git.branch.SwitchFunction
+import com.github.mdr.mash.ns.git.branch.CreateFunction
 
 object CommitClass extends MashClass("git.Commit") {
 
@@ -40,6 +46,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   override lazy val methods = Seq(
     DiffMethod,
+    IsAncestorOfMethod,
     ParentMethod,
     ToStringMethod)
 
@@ -54,6 +61,12 @@ object CommitClass extends MashClass("git.Commit") {
 
     def parentOpt: Option[MashString] = parents.headOption
 
+  }
+
+  object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
+
+    override def commitName(target: Any) = Wrapper(target).hash.s
+    
   }
 
   object ToStringMethod extends MashMethod("toString") {
@@ -141,5 +154,41 @@ object CommitClass extends MashClass("git.Commit") {
     override def summary = "Return the difference between the first parent of this commit, and this commit"
 
   }
+
+}
+
+abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
+
+  def commitName(target: Any): String
+  
+  object Params {
+    val Commit = Parameter(
+      name = "commit",
+      summary = "Name of a commit to test if it is descendant")
+  }
+  import Params._
+
+  val params = ParameterModel(Seq(Commit))
+
+  def apply(target: Any, arguments: Arguments): Boolean = {
+    val boundParams = params.validate(arguments)
+    val commit = MergeFunction.validateCommit(boundParams, Commit)
+
+    GitHelper.withRepository { repo ⇒
+      val revWalk = new RevWalk(repo)
+      val thisCommit = revWalk.parseCommit(repo.resolve(commitName(target)))
+      val thatCommit = revWalk.parseCommit(commit)
+      revWalk.isMergedInto(thisCommit, thatCommit)
+    }
+  }
+
+  override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+  override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
+    params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
+      case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
+    }
+
+  override def summary = "Return true if this is an ancestor of the given commit"
 
 }

@@ -18,6 +18,7 @@ import com.github.mdr.mash.ns.git.LogFunction
 import com.github.mdr.mash.ns.git.PushFunction
 import com.github.mdr.mash.ns.core.StringClass
 import org.eclipse.jgit.transport.RefSpec
+import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
@@ -36,6 +37,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
   override lazy val methods = Seq(
     DeleteMethod,
     FullNameMethod,
+    IsAncestorOfMethod,
     LogMethod,
     ToStringMethod)
 
@@ -65,6 +67,12 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Delete this remote branch"
+
+  }
+
+  object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
+
+    override def commitName(target: Any) = Wrapper(target).fullName.s
 
   }
 

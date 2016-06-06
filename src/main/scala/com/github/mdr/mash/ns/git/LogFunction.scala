@@ -26,7 +26,8 @@ object LogFunction extends MashFunction("git.log") {
   object Params {
     val Commit = Parameter(
       name = "commit",
-      summary = "Name of a commit to merge")
+      summary = "Commit to find the log of",
+      defaultValueGeneratorOpt = Some(() => null))
   }
   import Params._
 
@@ -34,9 +35,13 @@ object LogFunction extends MashFunction("git.log") {
 
   def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    val commit = MergeFunction.validateCommit(boundParams, Commit)
     GitHelper.withGit { git ⇒
-      val commits = git.log.add(commit).call().asScala.toSeq.reverse
+      val cmd = git.log
+      if (boundParams(Commit) != null) {
+        val commit = MergeFunction.validateCommit(boundParams, Commit)
+        cmd.add(commit)
+      }
+      val commits = cmd.call().asScala.toSeq.reverse
       MashList(commits.map(asCommitObject))
     }
   }

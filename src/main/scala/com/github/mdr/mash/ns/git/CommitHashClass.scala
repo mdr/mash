@@ -21,6 +21,8 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     lifter.liftField(CommitClass.Fields.Committer),
     lifter.liftField(CommitClass.Fields.Summary),
     lifter.liftField(CommitClass.Fields.Parents),
+    lifter.liftMethod(CommitClass.DiffMethod),
+    lifter.liftMethod(CommitClass.IsAncestorOfMethod),
     lifter.liftMethod(CommitClass.ParentMethod),
     InfoMethod)
 

@@ -19,6 +19,10 @@ import com.github.mdr.mash.ns.git.PushFunction
 import com.github.mdr.mash.ns.git.MergeFunction
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.ns.core.BooleanClass
+import org.eclipse.jgit.revwalk.RevWalk
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
 
 object LocalBranchClass extends MashClass("git.branch.Branch") {
 
@@ -39,6 +43,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
   override lazy val methods = Seq(
     DeleteMethod,
     LogMethod,
+    IsAncestorOfMethod,
     PushMethod,
     SetCommitMethod,
     SwitchMethod,
@@ -67,6 +72,12 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
     override def summary = "Delete this branch"
+
+  }
+
+  object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
+
+    override def commitName(target: Any) = Wrapper(target).name.s
 
   }
 
