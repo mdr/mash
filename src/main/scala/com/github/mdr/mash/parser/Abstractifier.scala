@@ -3,8 +3,8 @@ package com.github.mdr.mash.parser
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashString
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax.Argument

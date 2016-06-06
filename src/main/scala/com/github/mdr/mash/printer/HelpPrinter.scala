@@ -1,16 +1,16 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.ns.core.help.ParameterHelpClass
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
 import java.util.regex.Pattern
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import java.io.PrintStream
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.Field
 
 /**

@@ -6,8 +6,8 @@ import java.io.PrintStream
 import org.scalatest._
 
 import com.github.mdr.mash.Config
-import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.MockEnvironmentInteractions
 import com.github.mdr.mash.os.MockFileSystem

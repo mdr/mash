@@ -6,8 +6,8 @@ import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.editor.QuoteToggler
-import com.github.mdr.mash.evaluator.MashList
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.view.ViewClass

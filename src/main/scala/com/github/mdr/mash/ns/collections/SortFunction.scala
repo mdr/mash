@@ -7,7 +7,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 
 object SortFunction extends MashFunction("collections.sort") {
 

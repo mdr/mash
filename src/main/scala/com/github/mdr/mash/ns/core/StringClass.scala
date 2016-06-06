@@ -11,6 +11,9 @@ import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.ns.os.PathClass
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object StringClass extends MashClass("core.String") {
 

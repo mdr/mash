@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.utils.StringUtils

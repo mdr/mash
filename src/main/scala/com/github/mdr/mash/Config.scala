@@ -1,6 +1,6 @@
 package com.github.mdr.mash
 
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import scala.collection.mutable.LinkedHashMap
 
 case class ConfigOption(name: String, defaultValue: Any) {

@@ -2,8 +2,8 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.BoundParams
 import com.github.mdr.mash.functions.MashFunction

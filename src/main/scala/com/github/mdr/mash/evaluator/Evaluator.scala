@@ -25,6 +25,10 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.ns.os.ProcessResultClass
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object Evaluator {
 

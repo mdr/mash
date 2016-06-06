@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.GitHelper
 import org.eclipse.jgit.api.Git
 import scala.collection.JavaConverters._
+import com.github.mdr.mash.runtime.MashObject
 
 object GetFunction extends MashFunction("git.branch.get") {
 

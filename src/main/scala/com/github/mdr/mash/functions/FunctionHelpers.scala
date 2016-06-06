@@ -7,12 +7,12 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatedArgument
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 
 object FunctionHelpers {
 

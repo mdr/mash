@@ -13,6 +13,8 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import java.nio.file.Path
 import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashList
 
 object LsFunction extends MashFunction("os.ls") {
 

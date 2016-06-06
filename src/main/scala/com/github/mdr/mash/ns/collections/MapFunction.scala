@@ -10,11 +10,11 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.inference.Inferencer
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 
 object MapFunction extends MashFunction("collections.map") {
 

@@ -7,6 +7,10 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.AnonymousFunction
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 /** Detect the type of runtime values **/
 object ValueTypeDetector {

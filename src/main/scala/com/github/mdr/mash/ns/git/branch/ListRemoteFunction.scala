@@ -16,6 +16,9 @@ import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.api.Git
 import scala.collection.immutable.ListMap
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 

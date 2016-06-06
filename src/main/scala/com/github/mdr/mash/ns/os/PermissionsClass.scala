@@ -7,6 +7,7 @@ import com.github.mdr.mash.os.PathSummary
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.os.Permissions
+import com.github.mdr.mash.runtime.MashObject
 
 object PermissionsClass extends MashClass("os.Permissions") {
 

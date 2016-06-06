@@ -20,6 +20,8 @@ import com.github.mdr.mash.ns.time.ChronoUnitClass
 import com.github.mdr.mash.ns.time.ChronoUnitClass
 import com.github.mdr.mash.ns.view.RawFunction
 import com.github.mdr.mash.ns.view.BrowserFunction
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 
 case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
 

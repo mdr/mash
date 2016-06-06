@@ -8,6 +8,7 @@ import com.github.mdr.mash.os.linux.LinuxProcessInteractions
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.runtime.MashList
 
 object ProcessesFunction extends MashFunction("os.processes") {
 

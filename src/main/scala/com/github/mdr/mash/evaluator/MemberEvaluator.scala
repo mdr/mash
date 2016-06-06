@@ -9,6 +9,10 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.utils.PointedRegion
 import java.time.LocalDate
 import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object MemberEvaluator {
 

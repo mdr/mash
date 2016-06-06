@@ -3,9 +3,9 @@ package com.github.mdr.mash.utils
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete }
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.utils.Utils._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

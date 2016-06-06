@@ -4,8 +4,8 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 

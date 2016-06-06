@@ -1,8 +1,8 @@
-package com.github.mdr.mash.evaluator
+package com.github.mdr.mash.runtime
 
 import scala.PartialFunction.cond
-
 import com.github.mdr.mash.utils.NumberUtils
+import com.github.mdr.mash.evaluator.MashClass
 
 object MashNumber {
 
@@ -24,7 +24,7 @@ object MashNumber {
 
 }
 
-case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends Comparable[MashNumber] {
+case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends MashValue with Comparable[MashNumber] {
 
   def compareTo(that: MashNumber) = n.compareTo(that.n)
 

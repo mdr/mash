@@ -22,6 +22,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashString
 
 object CdFunction extends MashFunction("os.cd") {
 

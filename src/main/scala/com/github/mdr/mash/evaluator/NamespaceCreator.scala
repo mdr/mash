@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions.HasName
 import com.github.mdr.mash.ns.git.GitNamespace
 import com.github.mdr.mash.ns.view._
 import com.github.mdr.mash.ns.json._
+import com.github.mdr.mash.runtime.MashObject
 
 object NamespaceCreator {
 

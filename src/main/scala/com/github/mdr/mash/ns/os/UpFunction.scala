@@ -12,6 +12,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashNumber
 
 object UpFunction extends MashFunction("os.up") {
 

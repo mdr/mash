@@ -1,7 +1,7 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.ns.git.StatusClass
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color

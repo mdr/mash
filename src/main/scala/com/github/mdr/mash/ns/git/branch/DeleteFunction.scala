@@ -6,6 +6,8 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 
 object DeleteFunction extends MashFunction("git.branch.delete") {
 

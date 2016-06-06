@@ -11,6 +11,8 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object ReadLinesFunction extends MashFunction("os.readLines") {
 

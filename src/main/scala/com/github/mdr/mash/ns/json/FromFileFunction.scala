@@ -6,10 +6,10 @@ import scala.collection.immutable.ListMap
 import org.apache.commons.io.FileUtils
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.MashList
-import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel

@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 
 object SkipWhileFunction extends MashFunction("collections.skipWhile") {
 

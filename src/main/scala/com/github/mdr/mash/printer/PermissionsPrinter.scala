@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.ns.os.PermissionsSectionClass
 import com.github.mdr.mash.evaluator.MemberEvaluator
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.ns.os.PermissionsClass
 import com.github.mdr.mash.evaluator.Field
 

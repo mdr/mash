@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.evaluator.EvaluatedArgument
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 
 class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 

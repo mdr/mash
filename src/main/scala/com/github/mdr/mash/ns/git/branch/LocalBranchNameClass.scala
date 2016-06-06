@@ -1,10 +1,10 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import org.eclipse.jgit.api.Git
 import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel

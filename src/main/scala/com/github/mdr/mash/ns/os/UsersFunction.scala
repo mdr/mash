@@ -10,6 +10,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.PasswdEntry
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.runtime.MashList
 
 object UsersFunction extends MashFunction("os.users") {
 

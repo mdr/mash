@@ -1,6 +1,10 @@
 package com.github.mdr.mash.evaluator
 
 import scala.PartialFunction.cond
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object Truthiness {
 

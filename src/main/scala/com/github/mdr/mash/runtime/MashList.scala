@@ -1,4 +1,4 @@
-package com.github.mdr.mash.evaluator
+package com.github.mdr.mash.runtime
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -12,7 +12,7 @@ object MashList {
 
 }
 
-class MashList(val items: ArrayBuffer[Any]) {
+class MashList(val items: ArrayBuffer[Any]) extends MashValue {
 
   def nonEmpty: Boolean = items.nonEmpty
 

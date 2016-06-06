@@ -11,6 +11,10 @@ import java.time.Instant
 import com.github.mdr.mash.functions.MashFunction
 import java.time.LocalDate
 import scala.collection.immutable.ListMap
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object ObjectClass extends MashClass("core.Object") {
 

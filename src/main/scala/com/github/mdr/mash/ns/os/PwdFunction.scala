@@ -10,6 +10,7 @@ import com.github.mdr.mash.os._
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.runtime.MashString
 
 object PwdFunction extends MashFunction("os.pwd") {
 

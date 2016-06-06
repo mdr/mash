@@ -12,6 +12,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.runtime.MashList
 
 object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 

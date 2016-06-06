@@ -4,9 +4,9 @@ import java.io.PrintStream
 import java.time.Instant
 import java.util.Date
 import org.ocpsoft.prettytime.PrettyTime
-import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.evaluator.MashObject
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
@@ -19,7 +19,7 @@ import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.ns.git.StatusClass
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color

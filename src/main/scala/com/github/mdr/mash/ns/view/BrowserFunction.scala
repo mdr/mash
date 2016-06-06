@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
+import com.github.mdr.mash.runtime.MashObject
 
 object BrowserFunction extends MashFunction("view.browser") {
 

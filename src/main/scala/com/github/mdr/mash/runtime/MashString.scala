@@ -1,6 +1,8 @@
-package com.github.mdr.mash.evaluator
+package com.github.mdr.mash.runtime
 
 import scala.PartialFunction.cond
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.ToStringifier
 
 object MashString {
 
@@ -8,7 +10,7 @@ object MashString {
   
 }
 
-case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends Comparable[MashString] {
+case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends MashValue with Comparable[MashString] {
 
   def lookup(i: Int) = {
     val index = if (i < 0) i + s.size else i

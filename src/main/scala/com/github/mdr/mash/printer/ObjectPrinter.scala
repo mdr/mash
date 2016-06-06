@@ -1,6 +1,6 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.terminal.TerminalInfo
 import java.io.PrintStream

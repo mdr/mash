@@ -5,6 +5,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.runtime.MashNumber
 
 object ExitFunction extends MashFunction("core.exit") {
 

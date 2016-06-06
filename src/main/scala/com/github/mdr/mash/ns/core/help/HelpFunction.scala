@@ -8,6 +8,9 @@ import com.github.mdr.mash.inference._
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.ns.core.ClassClass
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object HelpFunction extends MashFunction("core.help.help") {
 

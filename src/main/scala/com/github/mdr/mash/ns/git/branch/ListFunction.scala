@@ -11,6 +11,9 @@ import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.StatusFunction
 import com.github.mdr.mash.ns.git.branch.LocalBranchClass.Fields
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object ListFunction extends MashFunction("git.branch.localBranches") {
 

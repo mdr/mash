@@ -19,6 +19,9 @@ import com.github.mdr.mash.ns.git.PushFunction
 import com.github.mdr.mash.ns.core.StringClass
 import org.eclipse.jgit.transport.RefSpec
 import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 

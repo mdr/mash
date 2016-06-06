@@ -6,7 +6,7 @@ import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 
 object SortByFunction extends MashFunction(("collections.sortBy")) {
 

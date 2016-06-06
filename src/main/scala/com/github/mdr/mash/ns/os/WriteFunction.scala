@@ -20,6 +20,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.UnitClass
 import java.nio.charset.StandardCharsets
+import com.github.mdr.mash.runtime.MashList
 
 object WriteFunction extends MashFunction("os.write") {
 

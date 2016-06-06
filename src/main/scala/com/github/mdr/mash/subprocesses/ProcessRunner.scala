@@ -5,7 +5,7 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.runtime.MashNumber
 import org.fusesource.jansi.Ansi
 import org.apache.commons.io.IOUtils
 import scala.collection.JavaConverters._

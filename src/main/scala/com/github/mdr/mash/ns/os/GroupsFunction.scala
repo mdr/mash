@@ -9,6 +9,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.runtime.MashList
 
 object GroupsFunction extends MashFunction("os.groups") {
 

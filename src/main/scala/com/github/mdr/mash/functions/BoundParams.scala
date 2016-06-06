@@ -2,16 +2,16 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatedArgument
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.evaluator.MashNumber
+import com.github.mdr.mash.runtime.MashNumber
 import java.nio.file.Path
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 import scala.util.control.Exception._
 
 case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[Argument]]) {

@@ -13,6 +13,10 @@ import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.PasswdEntry
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object UserSummaryClass extends MashClass("os.UserSummary") {
 

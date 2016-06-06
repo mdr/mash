@@ -14,8 +14,8 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.functions.BoundParams
-import com.github.mdr.mash.evaluator.MashString
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashObject
 
 object CreateFunction extends MashFunction("git.branch.create") {
 

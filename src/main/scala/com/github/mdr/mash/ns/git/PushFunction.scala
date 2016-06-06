@@ -6,7 +6,7 @@ import org.eclipse.jgit.lib.ConfigConstants
 import org.eclipse.jgit.lib.Constants
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.MashFunction

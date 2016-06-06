@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel

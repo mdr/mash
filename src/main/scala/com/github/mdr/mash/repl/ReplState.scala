@@ -5,7 +5,7 @@ import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import scala.collection.mutable
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption

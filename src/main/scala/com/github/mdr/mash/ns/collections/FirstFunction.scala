@@ -1,8 +1,8 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashNumber
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
@@ -11,7 +11,7 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.evaluator.MashList
+import com.github.mdr.mash.runtime.MashList
 
 object FirstFunction extends MashFunction("collections.first") {
 

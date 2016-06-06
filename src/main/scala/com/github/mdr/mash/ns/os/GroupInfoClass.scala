@@ -9,6 +9,10 @@ import scala.collection.immutable.ListMap
 import com.github.mdr.mash.os.PasswdEntry
 import com.github.mdr.mash.os.GroupEntry
 import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object GroupInfoClass extends MashClass("os.GroupInfo") {
 

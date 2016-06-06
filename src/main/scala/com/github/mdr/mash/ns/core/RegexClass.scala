@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.evaluator.MashString
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.MashMethod
@@ -12,7 +12,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.Parameter
 import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashObject
+import com.github.mdr.mash.runtime.MashObject
 import scala.collection.immutable.ListMap
 
 object RegexClass extends MashClass("core.Regex") {

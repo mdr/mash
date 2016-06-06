@@ -11,6 +11,10 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.repl.history.History
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.repl.history.HistoryEntry
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashList
 
 object HistoryFunction extends MashFunction("os.history") {
 

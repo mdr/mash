@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.core.help.ParameterHelpClass
 import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.core.help.HelpFunction
+import com.github.mdr.mash.runtime.MashObject
 
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 

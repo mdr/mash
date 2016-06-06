@@ -2,12 +2,12 @@ package com.github.mdr.mash.ns.time
 
 import java.time._
 import java.time.temporal.ChronoUnit
-
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.runtime.MashNumber
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 

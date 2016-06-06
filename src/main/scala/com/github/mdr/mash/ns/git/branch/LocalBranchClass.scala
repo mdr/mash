@@ -23,6 +23,9 @@ import com.github.mdr.mash.ns.core.BooleanClass
 import org.eclipse.jgit.revwalk.RevWalk
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashList
 
 object LocalBranchClass extends MashClass("git.branch.Branch") {
 
