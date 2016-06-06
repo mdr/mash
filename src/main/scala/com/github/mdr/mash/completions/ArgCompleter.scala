@@ -48,9 +48,19 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
       case Members(targetType) ⇒
         val members = MemberCompleter.completeString(targetType, withoutQuotes)
         CompletionResult.of(members, literalToken.region)
-      case Items(items) =>
+      case Items(items) ⇒
         val matches = items.filter(_.startsWith(withoutQuotes))
-        CompletionResult.of(matches.map(s => Completion(s, isQuoted = true)), literalToken.region)
+        val prefixResult = CompletionResult.of(matches.map(s ⇒ Completion(s, isQuoted = true)), literalToken.region)
+        prefixResult.orElse { // substring:
+          val matches = items.filter(_.contains(withoutQuotes))
+          def makeCompletion(item: String): Completion = {
+            val index = item.indexOf(withoutQuotes)
+            val location = CompletionLocation(index, index)
+            Completion(item, isQuoted = true, location = location)
+          }
+          CompletionResult.of(matches.map(makeCompletion), literalToken.region)
+        }
+
     }
   }
 
