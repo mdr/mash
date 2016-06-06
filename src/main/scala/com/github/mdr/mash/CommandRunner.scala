@@ -31,6 +31,13 @@ object MishCommand {
 
 }
 
+object SuffixMishCommand {
+
+  def unapply(s: String): Option[(String, String)] =
+    if (s endsWith "!") Some(s.dropRight(1) -> s.takeRight(1)) else None
+
+}
+
 object DebugCommand {
 
   def unapply(s: String): Option[(String, String)] = {
@@ -55,6 +62,8 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
           CommandResult(toggleMish = true)
         else
           runCommand(mishCmd, mish = true, bareWords = bareWords)
+      case SuffixMishCommand(mishCmd, suffix) ⇒
+        runCommand(mishCmd, mish = true, bareWords = bareWords)
       case _ if mish ⇒
         runCommand(cmd, mish = true, bareWords = bareWords)
       case _ ⇒ // regular mash
@@ -62,8 +71,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     }
 
   private def runCommand(cmd: String, bareWords: Boolean, mish: Boolean): CommandResult = {
-    val exprOpt = safeCompile(cmd, bareWords = bareWords, mish = mish)
-    exprOpt.map { expr ⇒
+    safeCompile(cmd, bareWords = bareWords, mish = mish).map { expr ⇒
       val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
       val PrintResult(objectTableModelOpt) = printer.render(result)

@@ -18,6 +18,7 @@ import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.SuffixMishCommand
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 
@@ -123,6 +124,9 @@ object ReplRenderer {
 
     val (tokens, bareTokens) =
       rawChars match {
+        case SuffixMishCommand(mishCmd, suffix) ⇒
+          val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
+          (MashLexer.tokenise(mishCmd, includeCommentsAndWhitespace = true, forgiving = true, mish = true), bareTokens)
         case MishCommand(prefix, mishCmd) ⇒
           styledChars ++= prefix.map(StyledCharacter(_, Style(bold = true)))
           val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
@@ -140,6 +144,11 @@ object ReplRenderer {
 
       if (!token.isEof)
         styledChars ++= token.text.map(StyledCharacter(_, style))
+    }
+    rawChars match {
+      case SuffixMishCommand(mishCmd, suffix) ⇒
+        styledChars ++= suffix.map(StyledCharacter(_, Style(bold = true)))
+      case _ ⇒
     }
     styledChars
   }
