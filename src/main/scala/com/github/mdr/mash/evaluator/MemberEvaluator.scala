@@ -16,6 +16,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashWrapped
 
 object MemberEvaluator {
 
@@ -46,19 +47,19 @@ object MemberEvaluator {
 
   def maybeLookup(target: Any, name: String): Option[Any] =
     target match {
-      case MashNumber(n, tagClassOpt) ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case MashString(s, tagClassOpt) ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case MashNull                   ⇒ lookupMethod(target, NullClass, name)
-      case MashUnit                   ⇒ lookupMethod(target, UnitClass, name)
-      case b: MashBoolean             ⇒ lookupMethod(b, BooleanClass, name)
-      case xs: MashList               ⇒ lookupMethod(xs, SeqClass, name)
-      case obj: MashObject            ⇒ obj.getField(name) orElse lookupMethod(obj, name)
-      case f: MashFunction            ⇒ lookupMethod(f, FunctionClass, name)
-      case bm: BoundMethod            ⇒ lookupMethod(bm, BoundMethodClass, name)
-      case klass: MashClass           ⇒ lookupMethod(klass, ClassClass, name)
-      case dt: Instant                ⇒ lookupMethod(dt, DateTimeClass, name)
-      case date: LocalDate            ⇒ lookupMethod(date, LocalDateClass, name)
-      case _                          ⇒ None
+      case MashNumber(n, tagClassOpt)   ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
+      case MashString(s, tagClassOpt)   ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
+      case MashNull                     ⇒ lookupMethod(target, NullClass, name)
+      case MashUnit                     ⇒ lookupMethod(target, UnitClass, name)
+      case b: MashBoolean               ⇒ lookupMethod(b, BooleanClass, name)
+      case xs: MashList                 ⇒ lookupMethod(xs, SeqClass, name)
+      case obj: MashObject              ⇒ obj.getField(name) orElse lookupMethod(obj, name)
+      case f: MashFunction              ⇒ lookupMethod(f, FunctionClass, name)
+      case bm: BoundMethod              ⇒ lookupMethod(bm, BoundMethodClass, name)
+      case klass: MashClass             ⇒ lookupMethod(klass, ClassClass, name)
+      case MashWrapped(dt: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
+      case MashWrapped(date: LocalDate) ⇒ lookupMethod(date, LocalDateClass, name)
+      case _                            ⇒ None
     }
 
 }

@@ -1,23 +1,13 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.ns.os.PermissionsSectionClass
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
-import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.ns.os.PathClass
+import com.github.mdr.mash.runtime._
 
 object StatusClass extends MashClass("git.Status") {
 

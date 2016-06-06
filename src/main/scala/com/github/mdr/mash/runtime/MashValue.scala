@@ -13,7 +13,7 @@ object MashValue {
     case MashNull | MashUnit | MashBoolean.True | MashBoolean.False | MashString(_, _) | MashNumber(_, _) | MashObject(_, _) ⇒
     case _: MashFunction | _: BoundMethod ⇒
     case _: MashClass ⇒
-    case _: Instant | _: LocalDate ⇒
+    case MashWrapped(_: Instant | _: LocalDate) ⇒
     case xs: MashList ⇒
     case _ ⇒ throw EvaluatorException("Unexpected runtime type: " + x.getClass)
   }

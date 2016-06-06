@@ -1,11 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.parser.AbstractSyntax
+import com.github.mdr.mash.evaluator.MashClass
 
 object FileTypeClass extends MashClass("os.FileType") {
 

@@ -17,6 +17,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashWrapped
 
 object HistoryFunction extends MashFunction("os.history") {
 
@@ -35,7 +36,7 @@ object HistoryFunction extends MashFunction("os.history") {
       ListMap(
         Session -> entry.sessionIdOpt.map(MashString(_)).getOrElse(MashNull),
         CommandNumber -> MashNumber(entry.commandNumber),
-        Timestamp -> entry.timestamp,
+        Timestamp -> MashWrapped(entry.timestamp),
         Command -> MashString(entry.command),
         Mish -> MashBoolean(entry.mish), 
         Result -> entry.resultOpt.orNull),

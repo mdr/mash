@@ -28,6 +28,7 @@ import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashWrapped
 
 object PathClass extends MashClass("os.Path") {
 
@@ -563,9 +564,9 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Instant = {
+    def apply(target: Any, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
-      fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified
+      MashWrapped(fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)

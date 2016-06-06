@@ -34,6 +34,7 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashWrapped
 
 object Evaluator {
 
@@ -377,6 +378,7 @@ object Evaluator {
     def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean =
       MashBoolean(PartialFunction.cond(leftResult) {
         case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult), 0)
+        case MashWrapped(l: Comparable[_]) ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult.asInstanceOf[MashWrapped].x), 0)
       })
     op match {
       case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult

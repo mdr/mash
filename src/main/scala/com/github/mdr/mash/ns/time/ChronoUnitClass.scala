@@ -8,6 +8,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashWrapped
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 
@@ -21,11 +22,11 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Instant = {
+    def apply(target: Any, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
-      now.minus(amount, unit).atZone(clock.getZone).toInstant
+      MashWrapped(now.minus(amount, unit).atZone(clock.getZone).toInstant)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
@@ -38,11 +39,11 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Instant = {
+    def apply(target: Any, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
-      now.plus(amount, unit).atZone(clock.getZone).toInstant
+      MashWrapped(now.plus(amount, unit).atZone(clock.getZone).toInstant)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)

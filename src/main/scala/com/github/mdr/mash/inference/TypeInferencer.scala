@@ -8,7 +8,6 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.collections.SeqClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.ns.collections.GroupClass

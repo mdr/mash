@@ -18,6 +18,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashWrapped
 
 object ObjectClass extends MashClass("core.Object") {
 
@@ -32,17 +33,18 @@ object ObjectClass extends MashClass("core.Object") {
     val params = ParameterModel()
 
     def apply(target: Any, arguments: Arguments): MashClass = target match {
-      case MashNull        ⇒ NullClass
-      case MashUnit        ⇒ UnitClass
-      case obj: MashObject ⇒ obj.classOpt.getOrElse(ObjectClass)
-      case _: MashNumber   ⇒ NumberClass
-      case _: MashString   ⇒ StringClass
-      case _: MashBoolean  ⇒ BooleanClass
-      case _: Seq[_]       ⇒ SeqClass
-      case _: Instant      ⇒ DateTimeClass
-      case _: MashFunction ⇒ FunctionClass
-      case _: BoundMethod  ⇒ BoundMethodClass
-      case _: MashClass    ⇒ ClassClass
+      case MashNull                  ⇒ NullClass
+      case MashUnit                  ⇒ UnitClass
+      case obj: MashObject           ⇒ obj.classOpt.getOrElse(ObjectClass)
+      case _: MashNumber             ⇒ NumberClass
+      case _: MashString             ⇒ StringClass
+      case _: MashBoolean            ⇒ BooleanClass
+      case _: Seq[_]                 ⇒ SeqClass
+      case MashWrapped(_: Instant)   ⇒ DateTimeClass
+      case MashWrapped(_: LocalDate) ⇒ LocalDateClass
+      case _: MashFunction           ⇒ FunctionClass
+      case _: BoundMethod            ⇒ BoundMethodClass
+      case _: MashClass              ⇒ ClassClass
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)

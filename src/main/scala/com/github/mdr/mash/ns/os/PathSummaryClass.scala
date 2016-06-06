@@ -14,6 +14,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashWrapped
 
 object PathSummaryClass extends MashClass("os.PathSummary") {
 
@@ -84,7 +85,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
         Fields.Owner -> MashString(owner, UsernameClass),
         Fields.Group -> MashString(group, GroupClass),
         Fields.Permissions -> PermissionsClass.asMashObject(permissions),
-        Fields.LastModified -> lastModified),
+        Fields.LastModified -> MashWrapped(lastModified)),
       PathSummaryClass)
   }
 

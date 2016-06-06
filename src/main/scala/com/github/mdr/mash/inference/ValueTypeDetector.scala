@@ -1,19 +1,29 @@
 package com.github.mdr.mash.inference
 
 import java.time.Instant
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.functions.MashFunction
+import java.time.LocalDate
+
+import com.github.mdr.mash.evaluator.BoundMethod
+import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.AnonymousFunction
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.ns.collections.GroupClass
+import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.ns.core.ClassClass
+import com.github.mdr.mash.ns.core.NullClass
+import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashWrapped
 
 /** Detect the type of runtime values **/
 object ValueTypeDetector {
@@ -28,7 +38,8 @@ object ValueTypeDetector {
     case MashNumber(_, None)                 ⇒ Type.Instance(NumberClass)
     case MashNumber(_, Some(tagClass))       ⇒ Type.Tagged(NumberClass, tagClass)
     case _: MashBoolean                      ⇒ Type.Instance(BooleanClass)
-    case _: Instant                          ⇒ Type.Instance(DateTimeClass)
+    case MashWrapped(_: Instant)             ⇒ Type.Instance(DateTimeClass)
+    case MashWrapped(_: LocalDate)           ⇒ Type.Instance(LocalDateClass)
     case _: MashClass                        ⇒ Type.Instance(ClassClass)
     case MashUnit                            ⇒ Type.Instance(UnitClass)
     case mo @ MashObject(_, Some(GroupClass)) ⇒

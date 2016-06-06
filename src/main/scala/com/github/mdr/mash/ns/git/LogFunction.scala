@@ -21,6 +21,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.ns.git.branch.CreateFunction
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashWrapped
 
 object LogFunction extends MashFunction("git.log") {
 
@@ -57,7 +58,7 @@ object LogFunction extends MashFunction("git.log") {
     MashObject(
       ListMap(
         Hash -> commitHash(commit),
-        CommitTime -> commitTime,
+        CommitTime -> MashWrapped(commitTime),
         Author -> asIdentityObject(commit.getAuthorIdent),
         Committer -> asIdentityObject(commit.getCommitterIdent),
         Summary -> MashString(commit.getShortMessage),
