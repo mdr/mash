@@ -155,11 +155,15 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   "[null] | groupBy --includeNull (x => x) | select 'key' 'count'" shouldEvaluateTo
     "[ { key: null, count: 1 } ]"
+  "[null] | groupBy --includeNull='nope' (x => x) | select 'key'" shouldEvaluateTo
+    "[ { key: 'nope' } ]"
+  
   "[1, 2, 1] | groupBy --total (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'Total', count: 3 } ]"
   "[1, 2, 1] | groupBy --total='totalCount' (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
 
+  
   // identity
   "identity 1" shouldEvaluateTo "1"
 
@@ -446,6 +450,16 @@ class EvaluatorTest extends FlatSpec with Matchers {
   // headless members
   "{ foo: 42 } | .foo" shouldEvaluateTo "42"
   "[1, 2, 3] | .last 2" shouldEvaluateTo "[2, 3]"
+  
+  // .class
+  "1.class" shouldEvaluateTo "ns.core.Number"
+  "true.class" shouldEvaluateTo "ns.core.Boolean"
+  "'foo'.class" shouldEvaluateTo "ns.core.String"
+  "now.class" shouldEvaluateTo "ns.time.DateTime"
+  "now.date.class" shouldEvaluateTo "ns.time.Date"
+ 
+  // regex
+  "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "wibble"
   
   implicit class RichString(s: String) {
 

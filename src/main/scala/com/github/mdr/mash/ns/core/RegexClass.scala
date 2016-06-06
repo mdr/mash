@@ -25,21 +25,22 @@ object RegexClass extends MashClass("core.Regex") {
 
   object MatchMethod extends MashMethod("match") {
 
+    object Params {
+      val String = Parameter(
+        "string",
+        "String to search within for matches")
+    }
+
     private val String = "string"
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        String,
-        "String to search within for matches")))
+    val params = ParameterModel(Seq(Params.String))
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       val boundParams = params.validate(arguments)
       val regex = target.asInstanceOf[MashString].s.r
-      val s = boundParams(String).asInstanceOf[MashString].s
+      val s = boundParams.validateString(Params.String).s
       val matchOption = regex.findFirstMatchIn(s)
       matchOption.map { m ⇒
-        m.matched
-        m.subgroups
         import MatchClass.Fields
         MashObject(
           ListMap(
