@@ -443,6 +443,10 @@ class EvaluatorTest extends FlatSpec with Matchers {
 
   """ "foo" { foo: 42 } { foo: 42 }  """ shouldThrowAnException
 
+  // headless members
+  "{ foo: 42 } | .foo" shouldEvaluateTo "42"
+  "[1, 2, 3] | .last 2" shouldEvaluateTo "[2, 3]"
+  
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {

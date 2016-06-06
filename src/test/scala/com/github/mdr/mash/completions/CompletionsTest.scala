@@ -264,9 +264,11 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   {
     implicit val fileSystem = MockFileSystem.of("/file")
-    
+
     "ls -r▶" shouldGiveCompletions ()
   }
+
+  "{ foobar: 42 } | .foo▶" shouldGiveCompletions ("foobar")
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,

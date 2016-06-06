@@ -180,7 +180,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "help readLines" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
   "help [].maxBy" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
   "help 42.class" shouldBeInferredAsHavingType Instance(ClassHelpClass)
-  "ls? .parameters" shouldBeInferredAsHavingType Seq(Instance(ParameterHelpClass))
+  "ls? .parameters" shouldBeInferredAsHavingType Seq(ParameterHelpClass)
 
   // target
   "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberType)
@@ -192,6 +192,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "git['status']" shouldBeInferredAsHavingType DefinedFunction(StatusFunction)
   "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), SeqClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
+  
+  "{ foo: 42 } | .foo" shouldBeInferredAsHavingType(NumberClass)
   
   private implicit class RichString(s: String) {
 
