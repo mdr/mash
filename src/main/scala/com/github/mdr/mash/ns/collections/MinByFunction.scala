@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.runtime.MashValue
 
 object MinByFunction extends MashFunction("collections.minBy") {
 
@@ -21,7 +22,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
 
   val params = ParameterModel(Seq(Attribute, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val attribute = boundParams.validateFunction(Attribute)

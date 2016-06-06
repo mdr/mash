@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git
 
 import org.eclipse.jgit.revwalk.RevWalk
-
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.runtime.MashObject
@@ -10,6 +9,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.runtime.MashValue
 
 object CommitHashClass extends MashClass("git.CommitHash") {
 
@@ -32,7 +32,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       val hash = target.asInstanceOf[MashString].s
       getCommit(hash)

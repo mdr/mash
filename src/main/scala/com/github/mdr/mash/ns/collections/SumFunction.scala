@@ -14,6 +14,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.AnnotatedExpr
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.runtime.MashValue
 
 object SumFunction extends MashFunction("collections.sum") {
 
@@ -31,7 +32,7 @@ object SumFunction extends MashFunction("collections.sum") {
 
   val params = ParameterModel(Seq(EmptyValue, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     if (sequence.isEmpty)

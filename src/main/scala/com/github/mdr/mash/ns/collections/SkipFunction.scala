@@ -8,6 +8,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object SkipFunction extends MashFunction("collections.skip") {
 
@@ -26,7 +27,7 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)

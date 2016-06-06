@@ -15,6 +15,7 @@ import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object MapFunction extends MashFunction("collections.map") {
 
@@ -32,7 +33,7 @@ object MapFunction extends MashFunction("collections.map") {
 
   val params = ParameterModel(Seq(F, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)

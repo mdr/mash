@@ -14,6 +14,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.MemberLifter
+import com.github.mdr.mash.runtime.MashValue
 
 object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
@@ -36,7 +37,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       val branchName = target.asInstanceOf[MashString]
       getBranchInfo(branchName)

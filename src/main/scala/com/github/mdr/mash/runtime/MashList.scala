@@ -4,15 +4,15 @@ import scala.collection.mutable.ArrayBuffer
 
 object MashList {
 
-  def apply(xs: Seq[_]): MashList = new MashList(ArrayBuffer(xs: _*))
+  def apply(xs: Seq[_ <: MashValue]): MashList = new MashList(ArrayBuffer(xs: _*))
 
-  def of(xs: Any*): MashList = new MashList(ArrayBuffer(xs: _*))
+  def of(xs: MashValue*): MashList = new MashList(ArrayBuffer(xs: _*))
 
-  def unapplySeq(x: MashList): Some[Seq[Any]] = Some(x.items)
+  def unapplySeq(x: MashList): Some[Seq[MashValue]] = Some(x.items)
 
 }
 
-class MashList(val items: ArrayBuffer[Any]) extends MashValue {
+class MashList(val items: ArrayBuffer[MashValue]) extends MashValue {
 
   def nonEmpty: Boolean = items.nonEmpty
 
@@ -22,19 +22,19 @@ class MashList(val items: ArrayBuffer[Any]) extends MashValue {
 
   def last = items.last
 
-  def forall(p: Any ⇒ Boolean): Boolean = items.forall(p)
+  def forall(p: MashValue ⇒ Boolean): Boolean = items.forall(p)
 
-  def foreach(f: Any ⇒ Any): Unit = items.foreach(f)
+  def foreach(f: MashValue ⇒ Unit): Unit = items.foreach(f)
 
   def size = items.size
 
   def length = size
 
-  def apply(i: Int) = items(i)
+  def apply(i: Int): MashValue = items(i)
 
   def ++(that: MashList): MashList = new MashList(this.items ++ that.items)
 
-  def map(f: Any ⇒ Any): MashList = new MashList(this.items.map(f))
+  def map(f: MashValue ⇒ MashValue): MashList = new MashList(this.items.map(f))
 
   def take(n: Int) = new MashList(this.items.take(n))
 

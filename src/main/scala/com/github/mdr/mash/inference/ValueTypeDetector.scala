@@ -2,7 +2,6 @@ package com.github.mdr.mash.inference
 
 import java.time.Instant
 import java.time.LocalDate
-
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.AnonymousFunction
@@ -24,11 +23,12 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
 
 /** Detect the type of runtime values **/
 object ValueTypeDetector {
 
-  def getType(x: Any): Type = x match {
+  def getType(x: MashValue): Type = x match {
     case MashNull                            ⇒ Type.Instance(NullClass)
     case AnonymousFunction(param, body, env) ⇒ Type.Lambda(param, body, TypeInferencer.buildBindings(env, includeGlobal = false))
     case f: MashFunction                     ⇒ Type.DefinedFunction(f)

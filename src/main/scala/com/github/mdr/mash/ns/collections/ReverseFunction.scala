@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object ReverseFunction extends MashFunction("collections.reverse") {
 
@@ -20,7 +21,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     boundParams.validateSequence(Sequence)
     boundParams(Sequence) match {

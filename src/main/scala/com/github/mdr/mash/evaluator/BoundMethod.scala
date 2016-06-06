@@ -4,7 +4,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime.MashValue
 
-case class BoundMethod(target: Any, method: MashMethod, klass: MashClass) extends MashValue {
+case class BoundMethod(target: MashValue, method: MashMethod, klass: MashClass) extends MashValue {
 
   def fullyQualifiedName = klass.fullyQualifiedName + "." + method.name
 

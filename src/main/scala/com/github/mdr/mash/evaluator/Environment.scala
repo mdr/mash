@@ -23,14 +23,15 @@ import com.github.mdr.mash.ns.view.BrowserFunction
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
-case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
+case class Environment(bindings: Map[String, MashValue], globalVariables: mutable.Map[String, MashValue]) {
 
-  def get(name: String): Option[Any] = bindings.get(name)
+  def get(name: String): Option[MashValue] = bindings.get(name)
 
-  def addBinding(name: String, value: Any) = Environment(bindings + (name -> value), globalVariables)
+  def addBinding(name: String, value: MashValue) = Environment(bindings + (name -> value), globalVariables)
 
-  def valuesMap: Map[String, Any] = 
+  def valuesMap: Map[String, MashValue] = 
     (for ((k, v) ← globalVariables.toMap) yield k -> v) ++
       (for ((k, v) ← bindings) yield k -> v)
 
@@ -40,7 +41,7 @@ object Environment {
 
   def create = Environment(Map(), createGlobalVariables())
 
-  def createGlobalVariables(): mutable.Map[String, Any] = {
+  def createGlobalVariables(): mutable.Map[String, MashValue] = {
     val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = StandardFunctions.StandardFunctions.map(f ⇒ f.name -> f)
     val aliasPairs = StandardFunctions.Aliases.toSeq
@@ -59,7 +60,7 @@ object Environment {
   }
 
   private def systemEnvironment = {
-    val fields: Map[String, Any] =
+    val fields: Map[String, MashValue] =
       for ((k, v) ← System.getenv.asScala.toMap)
         yield k -> MashString(v)
     MashObject(ListMap(fields.toSeq: _*), classOpt = None)

@@ -9,6 +9,7 @@ import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 
@@ -22,7 +23,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashWrapped = {
+    def apply(target: MashValue, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
@@ -39,7 +40,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashWrapped = {
+    def apply(target: MashValue, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt

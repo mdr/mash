@@ -39,7 +39,7 @@ object HistoryFunction extends MashFunction("os.history") {
         Timestamp -> MashWrapped(entry.timestamp),
         Command -> MashString(entry.command),
         Mish -> MashBoolean(entry.mish), 
-        Result -> entry.resultOpt.orNull),
+        Result -> entry.resultOpt.getOrElse(MashNull)),
       HistoryClass)
   }
 

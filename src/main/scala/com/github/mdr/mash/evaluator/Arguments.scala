@@ -1,5 +1,7 @@
 package com.github.mdr.mash.evaluator
 
+import com.github.mdr.mash.runtime.MashValue
+
 case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
 
   def positionArgs: Seq[EvaluatedArgument.PositionArg] =
@@ -10,7 +12,7 @@ case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
     case EvaluatedArgument.LongFlag(flag, None, _) ⇒ Seq(flag)
   }.flatten.toSet
 
-  def argValues: Map[String, Any] = evaluatedArguments.collect {
+  def argValues: Map[String, MashValue] = evaluatedArguments.collect {
     case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒ flag -> value
   }.toMap
 

@@ -21,6 +21,9 @@ import com.google.gson._
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object FromFileFunction extends MashFunction("json.fromFile") {
 
@@ -35,7 +38,7 @@ object FromFileFunction extends MashFunction("json.fromFile") {
 
   val params = ParameterModel(Seq(File))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(File)
     val parser = new JsonParser
@@ -44,12 +47,12 @@ object FromFileFunction extends MashFunction("json.fromFile") {
     asMashObject(json)
   }
 
-  private def asMashObject(e: JsonElement): Any = e match {
-    case _: JsonNull      ⇒ null
+  private def asMashObject(e: JsonElement): MashValue = e match {
+    case _: JsonNull      ⇒ MashNull
     case array: JsonArray ⇒ MashList(array.iterator.asScala.toSeq.map(asMashObject))
     case p: JsonPrimitive ⇒
       if (p.isNumber) MashNumber(p.getAsDouble)
-      else if (p.isBoolean) p.getAsBoolean
+      else if (p.isBoolean) MashBoolean(p.getAsBoolean)
       else if (p.isString) MashString(p.getAsString)
       else throw new EvaluatorException("Unknown primitive in JSON: " + p)
     case obj: JsonObject ⇒

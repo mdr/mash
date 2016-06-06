@@ -15,6 +15,7 @@ import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 trait NormalActionHandler { self: Repl ⇒
 
@@ -143,7 +144,7 @@ trait NormalActionHandler { self: Repl ⇒
       state.objectBrowserStateOpt = Some(ObjectBrowserState(objectTableModel))
   }
 
-  private def saveResult(number: Int)(result: Any) {
+  private def saveResult(number: Int)(result: MashValue) {
     state.globalVariables += ReplState.It -> result
     val oldResults = state.globalVariables.get(ReplState.Res) match {
       case Some(MashList(oldResults @ _*)) ⇒ oldResults

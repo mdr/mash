@@ -8,6 +8,7 @@ import com.github.mdr.mash.ns.git.GitNamespace
 import com.github.mdr.mash.ns.view._
 import com.github.mdr.mash.ns.json._
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashValue
 
 object NamespaceCreator {
 
@@ -21,10 +22,10 @@ object NamespaceCreator {
     createNamespace(allObjects.flatMap(makeThings))
   }
 
-  private def makeThings(hasName: HasName): Seq[Thing] =
+  private def makeThings(hasName: HasName with MashValue): Seq[Thing] =
     hasName.aliases.map { alias ⇒ Thing(alias.segments, hasName) } :+ Thing(hasName.segments, hasName)
 
-  private case class Thing(segments: Seq[String], value: Any) {
+  private case class Thing(segments: Seq[String], value: MashValue) {
     def first: String = segments.head
     def rest: Thing = Thing(segments.tail, value)
     def isLeaf = segments.size == 1
@@ -32,7 +33,7 @@ object NamespaceCreator {
 
   private def createNamespace(things: Seq[Thing]): MashObject = {
     val thingsByName: Map[String, Seq[Thing]] = things.groupBy(_.first)
-    val fields: Seq[(String, Any)] =
+    val fields: Seq[(String, MashValue)] =
       thingsByName.map {
         case (name, things) ⇒
           val value = things match {

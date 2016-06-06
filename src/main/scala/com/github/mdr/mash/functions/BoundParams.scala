@@ -14,16 +14,17 @@ import java.nio.file.Path
 import com.github.mdr.mash.runtime.MashList
 import scala.util.control.Exception._
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
-case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[Argument]]) {
+case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String, Seq[Argument]]) {
 
-  def apply(param: String): Any = params(param)
+  def apply(param: String): MashValue = params(param)
 
-  def apply(param: Parameter): Any = params(param.name)
+  def apply(param: Parameter): MashValue = params(param.name)
 
-  def get(param: Parameter): Option[Any] = params.get(param.name)
+  def get(param: Parameter): Option[MashValue] = params.get(param.name)
 
-  def get(param: String): Option[Any] = params.get(param)
+  def get(param: String): Option[MashValue] = params.get(param)
 
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
@@ -34,7 +35,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[
   private def locationOpt(param: Parameter): Option[PointedRegion] =
     argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(_ merge _))
 
-  def validateSequence(param: Parameter): Seq[Any] = this(param) match {
+  def validateSequence(param: Parameter): Seq[MashValue] = this(param) match {
     case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x ⇒
@@ -57,7 +58,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[
       throw new EvaluatorException(message, locationOpt(param))
   }
 
-  def validateFunction(param: Parameter): Any ⇒ Any =
+  def validateFunction(param: Parameter): MashValue ⇒ MashValue =
     this(param) match {
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
         (o ⇒ Evaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
@@ -84,7 +85,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[
 
   object MashInteger {
 
-    def unapply(x: Any): Option[Int] = x match {
+    def unapply(x: MashValue): Option[Int] = x match {
       case n: MashNumber ⇒ n.asInt
       case _             ⇒ None
     }

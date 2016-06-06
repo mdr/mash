@@ -11,7 +11,7 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
-  def apply(arguments: Arguments): Any
+  def apply(arguments: Arguments): MashValue
 
   /**
    * When true, it is possible to call this function with no arguments

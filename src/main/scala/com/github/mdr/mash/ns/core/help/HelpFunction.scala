@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 object HelpFunction extends MashFunction("core.help.help") {
 
@@ -35,7 +36,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   override def summary = "Find help for the given function, method, field or class"
 
-  def getHelp(item: Any): MashObject = item match {
+  def getHelp(item: MashValue): MashObject = item match {
     case f: MashFunction  ⇒ getHelp(f)
     case bm: BoundMethod  ⇒ getHelp(bm)
     case klass: MashClass ⇒ getHelp(klass)

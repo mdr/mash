@@ -7,6 +7,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
@@ -19,7 +20,7 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
   import Fields._
 
-  case class Wrapper(any: Any) {
+  case class Wrapper(any: MashValue) {
     val obj = any.asInstanceOf[MashObject]
     def name = obj(Name).asInstanceOf[MashString].s
     def klass = obj(Class).asInstanceOf[MashString].s

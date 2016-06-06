@@ -5,17 +5,18 @@ import java.nio.file.Path
 import java.time.Instant
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
+import com.github.mdr.mash.runtime.MashValue
 
-case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: Any) {
+case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue) {
   
   def sessionIdOpt: Option[String] = Option(sessionId)
   
-  def resultOpt: Option[Any] = Option(result)
+  def resultOpt: Option[MashValue] = Option(result)
 }
 
 trait History {
 
-  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[Any])
+  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue])
 
   def resetHistoryPosition()
 

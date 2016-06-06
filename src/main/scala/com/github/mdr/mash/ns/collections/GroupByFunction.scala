@@ -12,6 +12,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 object GroupByFunction extends MashFunction("collections.groupBy") {
 
@@ -60,11 +61,11 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val includeTotalGroup = Truthiness.isTruthy(boundParams(Total))
 
     val nullKey = boundParams.get(IncludeNull) match {
-      case Some(true) | None ⇒ MashNull
+      case Some(MashBoolean.True) | None ⇒ MashNull
       case Some(x)           ⇒ x
     }
-    def translateKey(k: Any) = k match {
-      case null ⇒ nullKey
+    def translateKey(k: MashValue) = k match {
+      case MashNull ⇒ nullKey
       case _    ⇒ k
     }
     var groups =
@@ -76,7 +77,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
     if (includeTotalGroup) {
       val totalKey = boundParams(Total) match {
-        case true ⇒ MashString(DefaultTotalKeyName)
+        case MashBoolean.True ⇒ MashString(DefaultTotalKeyName)
         case x    ⇒ x
       }
       val totalGroup = makeGroup(totalKey, sequence)
@@ -86,7 +87,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     MashList(groups)
   }
 
-  private def makeGroup(key: Any, values: Seq[Any]) = {
+  private def makeGroup(key: MashValue, values: Seq[MashValue]) = {
     import GroupClass.Fields._
     MashObject(
       ListMap(

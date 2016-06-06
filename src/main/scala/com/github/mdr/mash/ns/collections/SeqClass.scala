@@ -8,6 +8,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core._
+import com.github.mdr.mash.runtime.MashValue
 
 object SeqClass extends MashClass("collections.Seq") {
 
@@ -58,7 +59,7 @@ object SeqClass extends MashClass("collections.Seq") {
 
     val params = function.params.copy(function.params.params.filterNot(_.name == "sequence"))
 
-    def apply(target: Any, arguments: Arguments): Any =
+    def apply(target: MashValue, arguments: Arguments): MashValue =
       function.apply(Arguments(arguments.evaluatedArguments :+ EvaluatedArgument.PositionArg(target, None)))
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {

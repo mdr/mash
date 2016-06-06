@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 /**
  * Select members of an object
@@ -37,11 +38,11 @@ object SelectFunction extends MashFunction("collections.select") {
 
   val params = ParameterModel(Seq(Target, Add))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments, ignoreAdditionalParameters = true)
     val add = Truthiness.isTruthy(boundParams(Add))
     val target = boundParams(Target)
-    val fieldsAndFunctions: Seq[(String, Any ⇒ Any)] = arguments.evaluatedArguments.init.flatMap {
+    val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
       case EvaluatedArgument.PositionArg(value, _) ⇒
         value match {
           case MashString(s, _) ⇒ Some(s -> FunctionHelpers.interpretAsFunction(value))
@@ -66,8 +67,8 @@ object SelectFunction extends MashFunction("collections.select") {
     }
   }
 
-  private def doSelect(target: Any, fieldsAndFunctions: Seq[(String, Any ⇒ Any)], add: Boolean) = {
-    val baseFields: ListMap[String, Any] =
+  private def doSelect(target: MashValue, fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)], add: Boolean): MashObject = {
+    val baseFields: ListMap[String, MashValue] =
       if (add) {
         target match {
           case MashObject(fields, _) ⇒ ListMap(fields.toSeq: _*)

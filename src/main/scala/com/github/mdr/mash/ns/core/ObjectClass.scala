@@ -19,6 +19,7 @@ import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
 
 object ObjectClass extends MashClass("core.Object") {
 
@@ -32,7 +33,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashClass = target match {
+    def apply(target: MashValue, arguments: Arguments): MashClass = target match {
       case MashNull                  ⇒ NullClass
       case MashUnit                  ⇒ UnitClass
       case obj: MashObject           ⇒ obj.classOpt.getOrElse(ObjectClass)
@@ -57,7 +58,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = target match {
+    def apply(target: MashValue, arguments: Arguments): MashList = target match {
       case MashObject(fields, _) ⇒
         MashList(fields.toSeq.map {
           case (name, value) ⇒
@@ -79,9 +80,9 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = MashString(stringify(target))
+    def apply(target: MashValue, arguments: Arguments): MashString = MashString(stringify(target))
 
-    def stringify(x: Any): String = x match {
+    def stringify(x: MashValue): String = x match {
       case MashString(s, _) ⇒ s
       case klass: MashClass ⇒ klass.fullyQualifiedName.toString
       case xs: MashList     ⇒ xs.items.map(ToStringifier.stringify).mkString("[", ", ", "]")
@@ -106,7 +107,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel(Seq(Sequence))
 
-    def apply(target: Any, arguments: Arguments): MashBoolean = {
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
       val sequence = boundParams.validateSequence(Sequence)
       MashBoolean(sequence.contains(target))

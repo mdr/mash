@@ -6,6 +6,7 @@ import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 /**
  * Trees representing the abstract syntax of mash, losing much of the lexical information.
@@ -110,7 +111,7 @@ object AbstractSyntax {
 
   }
 
-  case class Literal(value: Any, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class Literal(value: MashValue, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     assert(value == MashNull || value.isInstanceOf[MashBoolean] || value.isInstanceOf[MashNumber])
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()

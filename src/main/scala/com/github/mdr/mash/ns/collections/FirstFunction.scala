@@ -13,6 +13,7 @@ import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object FirstFunction extends MashFunction("collections.first") {
 
@@ -30,7 +31,7 @@ object FirstFunction extends MashFunction("collections.first") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)

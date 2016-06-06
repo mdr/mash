@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.runtime.MashValue
 
 object BindingCompleter {
 
@@ -18,7 +19,7 @@ object BindingCompleter {
     CompletionResult.of(completions, region)
   }
 
-  private def getBindingTypeAndDescription(value: Any): (CompletionType, String) = value match {
+  private def getBindingTypeAndDescription(value: MashValue): (CompletionType, String) = value match {
     case mf: MashFunction ⇒ (CompletionType.Function, mf.summary)
     case bf: BoundMethod  ⇒ (CompletionType.Method, bf.method.summary)
     case x                ⇒ (CompletionType.Binding, ToStringifier.stringify(x))

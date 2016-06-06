@@ -40,7 +40,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     FullNameMethod,
     GroupsMethod)
 
-  case class Wrapper(target: Any) {
+  case class Wrapper(target: MashValue) {
     
     private val user = target.asInstanceOf[MashObject]
     
@@ -54,7 +54,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashValue = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val username = Wrapper(target).username
       val fullNameOpt =
@@ -75,7 +75,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val user = Wrapper(target)
       val primaryGroup = user.primaryGroup 

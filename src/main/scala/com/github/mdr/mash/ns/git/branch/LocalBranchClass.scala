@@ -27,6 +27,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
 
 object LocalBranchClass extends MashClass("git.branch.Branch") {
 
@@ -53,7 +54,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
     SwitchMethod,
     ToStringMethod)
 
-  case class Wrapper(target: Any) {
+  case class Wrapper(target: MashValue) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
 
@@ -65,7 +66,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
@@ -82,7 +83,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
-    override def commitName(target: Any) = Wrapper(target).name.s
+    override def commitName(target: MashValue) = Wrapper(target).name.s
 
   }
 
@@ -90,7 +91,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withRepository { repo ⇒
@@ -113,7 +114,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Force))
 
-    def apply(target: Any, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val force = Truthiness.isTruthy(boundParams(Force))
 
@@ -134,7 +135,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
@@ -158,7 +159,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Commit))
 
-    def apply(target: Any, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val branch = Wrapper(target).name.s
       val commit = MergeFunction.validateCommit(boundParams, Commit)
@@ -180,7 +181,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       Wrapper(target).name
     }

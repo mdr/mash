@@ -12,6 +12,7 @@ import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashValue
 
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 
@@ -23,7 +24,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       HelpFunction.getHelp(target.asInstanceOf[BoundMethod])
     }
@@ -38,7 +39,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       target.asInstanceOf[BoundMethod].target
     }

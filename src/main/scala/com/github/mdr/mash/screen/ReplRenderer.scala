@@ -2,7 +2,6 @@ package com.github.mdr.mash.screen
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
 import com.github.mdr.mash.MishCommand
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
@@ -18,6 +17,7 @@ import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.runtime.MashValue
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int)
 
@@ -109,7 +109,7 @@ object ReplRenderer {
     LinesAndCursorPos(lines, Point(row, column))
   }
 
-  private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, Any]): Set[Token] = {
+  private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
     MashParser.parse(s, forgiving = true, mish = mish).map { concreteExpr ⇒
       val abstractExpr = Abstractifier.abstractify(concreteExpr)
@@ -117,7 +117,7 @@ object ReplRenderer {
     }.getOrElse(Set())
   }
 
-  private def renderLineBufferChars(rawChars: String, prompt: Seq[StyledCharacter], mishByDefault: Boolean, globalVariables: mutable.Map[String, Any], bareWords: Boolean): Seq[StyledCharacter] = {
+  private def renderLineBufferChars(rawChars: String, prompt: Seq[StyledCharacter], mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {
     val styledChars = new ArrayBuffer[StyledCharacter]
     styledChars ++= prompt
 

@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder
 import scala.util.Try
 import java.util.UUID
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 trait HistoryStorage {
 
@@ -56,7 +57,7 @@ class HistoryImpl(
     } else
       None
 
-  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[Any]) {
+  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue]) {
     val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.getOrElse(MashNull))
     history = entry +: history
     storage.saveEntry(entry.copy(result = null))

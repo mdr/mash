@@ -14,6 +14,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import scala.collection.JavaConverters._
 import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.runtime.MashValue
 
 object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 
@@ -40,7 +41,7 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       val branchName = target.asInstanceOf[MashString]
       getBranchInfo(branchName)

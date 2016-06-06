@@ -7,18 +7,28 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashWrapped
 
 object DateTimeClass extends MashClass("time.DateTime") {
 
   override val methods = Seq(DateMethod)
 
+  case class Wrapper(target: MashValue) {
+
+    def instant: Instant = target match {
+      case MashWrapped(i: Instant) ⇒ i
+    }
+
+  }
+
   object DateMethod extends MashMethod("date") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashWrapped = {
+    def apply(target: MashValue, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
-      val instant = target.asInstanceOf[Instant]
+      val instant = Wrapper(target).instant
       val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault)
       MashWrapped(localDateTime.toLocalDate)
     }

@@ -9,6 +9,7 @@ import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
 
 object DeleteFunction extends MashFunction("git.branch.delete") {
 
@@ -23,7 +24,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
 
   val params = ParameterModel(Seq(Branches))
 
-  def validateBranch(boundParams: BoundParams, param: Parameter, branch: Any): String = {
+  def validateBranch(boundParams: BoundParams, param: Parameter, branch: MashValue): String = {
     val branchName = branch match {
       case MashString(s, _) ⇒ s
       case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ LocalBranchClass.Wrapper(obj).name.s

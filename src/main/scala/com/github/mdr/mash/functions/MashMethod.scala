@@ -3,10 +3,11 @@ package com.github.mdr.mash.functions
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.runtime.MashValue
 
 abstract class MashMethod(val name: String) {
 
-  def apply(target: Any, arguments: Arguments): Any
+  def apply(target: MashValue, arguments: Arguments): MashValue
 
   def params: ParameterModel
 

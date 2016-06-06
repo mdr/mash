@@ -8,6 +8,7 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object GroupClass extends MashClass("collections.Group") {
 
@@ -21,7 +22,7 @@ object GroupClass extends MashClass("collections.Group") {
 
   override val methods = Seq(CountMethod)
 
-  private case class Wrapper(target: Any) {
+  private case class Wrapper(target: MashValue) {
 
     val mo = target.asInstanceOf[MashObject]
 
@@ -33,7 +34,7 @@ object GroupClass extends MashClass("collections.Group") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashNumber = {
+    def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       MashNumber(Wrapper(target).values.length)
     }

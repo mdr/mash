@@ -10,6 +10,7 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object RunFunction extends MashFunction("os.run") {
 
@@ -26,7 +27,7 @@ object RunFunction extends MashFunction("os.run") {
 
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
-    val args: Seq[_] =
+    val args: Seq[MashValue] =
       boundParams(Command) match {
         case MashList(xs: MashList)     ⇒ xs.items
         case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_))

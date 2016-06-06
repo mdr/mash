@@ -29,6 +29,9 @@ import com.github.mdr.mash.ns.core.ClassClass
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashBoolean
 
 object Printer {
 
@@ -45,15 +48,15 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def render(x: Any, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
+  def render(x: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
     x match {
       case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
         val data = mo(ViewClass.Fields.Data)
-        val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == true
-        val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == true
+        val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
+        val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == MashBoolean.True
         return render(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
-        xs.foreach(output.println)
+        xs.items.foreach(output.println)
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val items = xs.items.asInstanceOf[Seq[MashObject]]
         val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo, alwaysUseBrowser = alwaysUseBrowser)
@@ -94,12 +97,12 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       output.println(line)
   }
 
-  def renderField(x: Any, inCell: Boolean = false): String = x match {
+  def renderField(x: MashValue, inCell: Boolean = false): String = x match {
     case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
     case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
     case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
     case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
-    case i: Instant ⇒ new PrettyTime().format(Date.from(i))
+    case MashWrapped(i: Instant) ⇒ new PrettyTime().format(Date.from(i))
     case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
     case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
     case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))

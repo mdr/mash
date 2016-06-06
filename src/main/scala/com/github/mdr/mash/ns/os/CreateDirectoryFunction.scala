@@ -14,6 +14,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
@@ -37,7 +38,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
   val params = ParameterModel(Seq(CreateIntermediates, Paths))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))

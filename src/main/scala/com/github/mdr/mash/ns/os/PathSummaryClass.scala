@@ -15,6 +15,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
 
 object PathSummaryClass extends MashClass("os.PathSummary") {
 
@@ -40,7 +41,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     ToStringMethod +: liftedMethods
   }
 
-  private case class Wrapper(obj: Any) {
+  private case class Wrapper(obj: MashValue) {
     def path: MashString = obj.asInstanceOf[MashObject].field(Fields.Path).asInstanceOf[MashString]
   }
 
@@ -48,7 +49,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
     val params = method.params
 
-    def apply(target: Any, arguments: Arguments): Any =
+    def apply(target: MashValue, arguments: Arguments): MashValue =
       method.apply(Wrapper(target).path, arguments)
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
@@ -66,7 +67,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString =
+    def apply(target: MashValue, arguments: Arguments): MashString =
       Wrapper(target).path
 
     override def typeInferenceStrategy = ObjectClass.ToStringMethod.typeInferenceStrategy

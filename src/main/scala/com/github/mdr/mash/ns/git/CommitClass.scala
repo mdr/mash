@@ -55,7 +55,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   def summary = "A git commit object"
 
-  case class Wrapper(target: Any) {
+  case class Wrapper(target: MashValue) {
 
     def hash: MashString = target.asInstanceOf[MashObject].field(Hash).asInstanceOf[MashString]
 
@@ -68,7 +68,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
-    override def commitName(target: Any) = Wrapper(target).hash.s
+    override def commitName(target: MashValue) = Wrapper(target).hash.s
     
   }
 
@@ -76,7 +76,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       Wrapper(target).hash
     }
@@ -91,7 +91,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashValue = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       Wrapper(target).parentOpt.getOrElse(MashNull)
     }
@@ -105,7 +105,7 @@ object CommitClass extends MashClass("git.Commit") {
   object DiffMethod extends MashMethod("diff") {
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) = {
+    def apply(target: MashValue, arguments: Arguments) = {
       params.validate(arguments)
       val wrapper = Wrapper(target)
       val parentSha = wrapper.parentOpt.get.s
@@ -162,7 +162,7 @@ object CommitClass extends MashClass("git.Commit") {
 
 abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
-  def commitName(target: Any): String
+  def commitName(target: MashValue): String
   
   object Params {
     val Commit = Parameter(
@@ -173,7 +173,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   val params = ParameterModel(Seq(Commit))
 
-  def apply(target: Any, arguments: Arguments): MashBoolean = {
+  def apply(target: MashValue, arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
     val commit = MergeFunction.validateCommit(boundParams, Commit)
 

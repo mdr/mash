@@ -7,6 +7,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.runtime.MashValue
 
 class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
@@ -14,7 +15,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
@@ -34,7 +35,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = method.params
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
       method.apply(obj, arguments)

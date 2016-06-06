@@ -12,6 +12,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashValue
 
 object PidClass extends MashClass("os.Pid") {
 
@@ -23,7 +24,7 @@ object PidClass extends MashClass("os.Pid") {
     (InfoMethod +: liftedMethods) ++ liftedFields
   }
 
-  private case class Wrapper(target: Any) {
+  private case class Wrapper(target: MashValue) {
 
     val pid = target.asInstanceOf[MashNumber].asInt.getOrElse(throw new EvaluatorException("Invalid pid: " + target))
 
@@ -33,7 +34,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = method.params
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
@@ -55,7 +56,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
@@ -75,7 +76,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       val pid = Wrapper(target).pid
       val processInfo = getProcessInfo(pid)

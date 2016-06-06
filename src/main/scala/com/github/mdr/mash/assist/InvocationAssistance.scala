@@ -64,7 +64,7 @@ object InvocationAssistance {
           f.summary,
           "",
           callingSyntax(f)))
-    case Type.BoundMethod(t, m) ⇒
+    case bm @ Type.BoundMethod(t, m) ⇒
       AssistanceState(
         m.name,
         Seq(

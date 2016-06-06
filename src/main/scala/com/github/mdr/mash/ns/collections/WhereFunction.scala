@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object WhereFunction extends MashFunction("collections.where") {
 
@@ -24,7 +25,7 @@ object WhereFunction extends MashFunction("collections.where") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
@@ -33,7 +34,7 @@ object WhereFunction extends MashFunction("collections.where") {
     reassembleSequence(inSequence, newSequence)
   }
 
-  def reassembleSequence(inSequence: Any, newSequence: Seq[_]): Any =
+  def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =
     inSequence match {
       case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
       case _                     ⇒ MashList(newSequence)

@@ -17,9 +17,9 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
     copy(s(index).toString)
   }
 
-  def +(that: Any): MashString = copy(s = this.s + ToStringifier.stringify(that))
+  def +(that: MashValue): MashString = copy(s = this.s + ToStringifier.stringify(that))
 
-  def rplus(that: Any): MashString = copy(s = ToStringifier.stringify(that) + this.s)
+  def rplus(that: MashValue): MashString = copy(s = ToStringifier.stringify(that) + this.s)
 
   def reverse = copy(s = s.reverse)
 

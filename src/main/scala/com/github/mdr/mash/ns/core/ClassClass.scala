@@ -27,7 +27,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
     }
@@ -42,7 +42,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       MashString(target.asInstanceOf[MashClass].name)
     }
@@ -57,7 +57,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashValue = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)
     }
@@ -72,7 +72,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       HelpFunction.getHelp(target.asInstanceOf[MashClass])
     }

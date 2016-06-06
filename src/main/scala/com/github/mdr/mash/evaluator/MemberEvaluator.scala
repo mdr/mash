@@ -17,10 +17,11 @@ import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashValue
 
 object MemberEvaluator {
 
-  private def lookupMethod(target: Any, klass: MashClass, name: String): Option[Any] = {
+  private def lookupMethod(target: MashValue, klass: MashClass, name: String): Option[MashValue] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
@@ -29,37 +30,37 @@ object MemberEvaluator {
     directResultOpt orElse parentResultOpt
   }
 
-  private def lookupMethod(target: MashObject, name: String): Option[Any] =
+  private def lookupMethod(target: MashObject, name: String): Option[MashValue] =
     for {
       klass ← target.classOpt orElse Some(ObjectClass)
       boundMethod ← lookupMethod(target, klass, name)
     } yield boundMethod
 
-  def lookup(target: Any, field: Field): Any =
+  def lookup(target: MashValue, field: Field): MashValue =
     lookup(target, field.name)
 
-  def lookup(target: Any, name: String, locationOpt: Option[PointedRegion] = None): Any =
+  def lookup(target: MashValue, name: String, locationOpt: Option[PointedRegion] = None): MashValue =
     maybeLookup(target, name).getOrElse(
       throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt))
 
-  def hasMember(target: Any, name: String): Boolean =
+  def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
 
-  def maybeLookup(target: Any, name: String): Option[Any] =
+  def maybeLookup(target: MashValue, name: String): Option[MashValue] =
     target match {
-      case MashNumber(n, tagClassOpt)   ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case MashString(s, tagClassOpt)   ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case MashNull                     ⇒ lookupMethod(target, NullClass, name)
-      case MashUnit                     ⇒ lookupMethod(target, UnitClass, name)
-      case b: MashBoolean               ⇒ lookupMethod(b, BooleanClass, name)
-      case xs: MashList                 ⇒ lookupMethod(xs, SeqClass, name)
-      case obj: MashObject              ⇒ obj.getField(name) orElse lookupMethod(obj, name)
-      case f: MashFunction              ⇒ lookupMethod(f, FunctionClass, name)
-      case bm: BoundMethod              ⇒ lookupMethod(bm, BoundMethodClass, name)
-      case klass: MashClass             ⇒ lookupMethod(klass, ClassClass, name)
-      case MashWrapped(dt: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
-      case MashWrapped(date: LocalDate) ⇒ lookupMethod(date, LocalDateClass, name)
-      case _                            ⇒ None
+      case MashNumber(n, tagClassOpt)       ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
+      case MashString(s, tagClassOpt)       ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
+      case MashNull                         ⇒ lookupMethod(target, NullClass, name)
+      case MashUnit                         ⇒ lookupMethod(target, UnitClass, name)
+      case b: MashBoolean                   ⇒ lookupMethod(b, BooleanClass, name)
+      case xs: MashList                     ⇒ lookupMethod(xs, SeqClass, name)
+      case obj: MashObject                  ⇒ obj.getField(name) orElse lookupMethod(obj, name)
+      case f: MashFunction                  ⇒ lookupMethod(f, FunctionClass, name)
+      case bm: BoundMethod                  ⇒ lookupMethod(bm, BoundMethodClass, name)
+      case klass: MashClass                 ⇒ lookupMethod(klass, ClassClass, name)
+      case dt @ MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
+      case date @ MashWrapped(_: LocalDate) ⇒ lookupMethod(date, LocalDateClass, name)
+      case _                                ⇒ None
     }
 
 }

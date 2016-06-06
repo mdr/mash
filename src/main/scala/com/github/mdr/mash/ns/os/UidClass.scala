@@ -11,6 +11,7 @@ import com.github.mdr.mash.os.linux.LinuxUserInteractions
 import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashValue
 
 object UidClass extends MashClass("os.Uid") {
 
@@ -26,7 +27,7 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
@@ -47,7 +48,7 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = method.params
 
-    def apply(target: Any, arguments: Arguments): Any = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
@@ -69,7 +70,7 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get

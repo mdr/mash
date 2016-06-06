@@ -2,8 +2,10 @@ package com.github.mdr.mash
 
 import com.github.mdr.mash.runtime.MashObject
 import scala.collection.mutable.LinkedHashMap
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
-case class ConfigOption(name: String, defaultValue: Any) {
+case class ConfigOption(name: String, defaultValue: MashValue) {
   
   def path: Seq[String] = name.split("\\.").toSeq
   
@@ -14,16 +16,16 @@ case class ConfigOption(name: String, defaultValue: Any) {
 object Config {
 
   object Language {
-    val BareWords = ConfigOption("language.bareWords", defaultValue = false)
+    val BareWords = ConfigOption("language.bareWords", defaultValue = MashBoolean.False)
   }
 
   object Cli {
-    val ShowStartupTips = ConfigOption("cli.showStartupTips", defaultValue = true)
+    val ShowStartupTips = ConfigOption("cli.showStartupTips", defaultValue = MashBoolean.True)
   }
 
   val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips)
 
- def getConfig(configOpt: Option[MashObject], configOption: ConfigOption): Any = {
+ def getConfig(configOpt: Option[MashObject], configOption: ConfigOption): MashValue = {
     val valueOpt = for {
       config <- configOpt
       value <- getConfig(config, configOption.path)
@@ -31,7 +33,7 @@ object Config {
     valueOpt.getOrElse(configOption.defaultValue)
   }
 
-  private def getConfig(mo: MashObject, path: Seq[String]): Option[Any] = {
+  private def getConfig(mo: MashObject, path: Seq[String]): Option[MashValue] = {
     for {
       first ← path.headOption
       rest = path.tail
@@ -51,7 +53,7 @@ object Config {
   
  def defaultConfig = {
     val config = MashObject(LinkedHashMap())
-    def addConfigOption(obj: MashObject, path: Seq[String], value: Any) {
+    def addConfigOption(obj: MashObject, path: Seq[String], value: MashValue) {
       path match {
         case Seq()    ⇒
         case Seq(key) ⇒ obj.set(key, value)

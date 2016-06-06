@@ -5,10 +5,12 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.evaluator.EvaluatedArgument
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
 class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 
-  private var boundParams: Map[String, Any] = Map()
+  private var boundParams: Map[String, MashValue] = Map()
   private var argumentNodes: Map[String, Seq[Argument]] = Map()
   private var lastParameterConsumed = false
 
@@ -72,9 +74,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       argument match {
         case EvaluatedArgument.ShortFlag(flags, argNodeOpt) ⇒
           for (flag ← flags)
-            bindFlagParam(flag, argNodeOpt, value = true)
+            bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
         case EvaluatedArgument.LongFlag(flag, None, argNodeOpt) ⇒
-          bindFlagParam(flag, argNodeOpt, value = true)
+          bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
           bindFlagParam(flag, argNodeOpt, value)
         case posArg: EvaluatedArgument.PositionArg ⇒
@@ -82,7 +84,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       }
   }
 
-  private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: Any) = {
+  private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: MashValue) = {
     lazy val errorLocation = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
     params.paramByName.get(paramName) match {
       case Some(param) ⇒

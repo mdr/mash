@@ -21,7 +21,7 @@ object MashClass {
 
     val params = method.params
 
-    def apply(target: Any, arguments: Arguments): Any =
+    def apply(target: MashValue, arguments: Arguments): MashValue =
       method.apply(target, arguments)
 
     override def typeInferenceStrategy = method.typeInferenceStrategy

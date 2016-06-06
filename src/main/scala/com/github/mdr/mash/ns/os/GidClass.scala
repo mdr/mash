@@ -12,6 +12,7 @@ import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashValue
 
 object GidClass extends MashClass("os.Gid") {
 
@@ -25,7 +26,7 @@ object GidClass extends MashClass("os.Gid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(
@@ -43,7 +44,7 @@ object GidClass extends MashClass("os.Gid") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(

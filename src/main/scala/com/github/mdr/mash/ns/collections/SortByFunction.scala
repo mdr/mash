@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 object SortByFunction extends MashFunction(("collections.sortBy")) {
 
@@ -31,7 +32,7 @@ object SortByFunction extends MashFunction(("collections.sortBy")) {
 
   val params = ParameterModel(Seq(Descending, Attribute, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)

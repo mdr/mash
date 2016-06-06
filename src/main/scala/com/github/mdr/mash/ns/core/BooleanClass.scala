@@ -6,6 +6,7 @@ import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashValue
 
 object BooleanClass extends MashClass("core.Boolean") {
 
@@ -16,7 +17,7 @@ object BooleanClass extends MashClass("core.Boolean") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashBoolean = {
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
       target.asInstanceOf[MashBoolean].negate
     }

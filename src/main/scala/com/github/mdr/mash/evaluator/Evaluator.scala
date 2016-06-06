@@ -40,7 +40,7 @@ object Evaluator {
 
   private val environmentInteractions = LinuxEnvironmentInteractions
 
-  def evaluate(expr: Expr, env: Environment): Any = {
+  def evaluate(expr: Expr, env: Environment): MashValue = {
     try {
       ExecutionContext.checkInterrupted()
       val v = simpleEvaluate(expr, env)
@@ -68,7 +68,7 @@ object Evaluator {
    * If the given value is a function or bound method that allows nullary invocation, invoke it immediately and
    * return the result.
    */
-  def immediatelyResolveNullaryFunctions(v: Any): Any =
+  def immediatelyResolveNullaryFunctions(v: MashValue): MashValue =
     v match {
       case f: MashFunction if f.allowsNullary ⇒ f(Arguments(Seq()))
       case BoundMethod(target, method, _) if method.allowsNullary ⇒ method(target, Arguments(Seq()))
@@ -78,7 +78,7 @@ object Evaluator {
   /**
    * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
    */
-  private def simpleEvaluate(expr: Expr, env: Environment): Any =
+  private def simpleEvaluate(expr: Expr, env: Environment): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
@@ -199,12 +199,12 @@ object Evaluator {
     }
   }
 
-  private def lookupField(target: Any, name: String): Option[(Field, MashClass)] =
+  private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =
     condOpt(target) {
       case MashObject(_, Some(klass)) ⇒ klass.fields.find(_.name == name).map(field ⇒ (field, klass))
     }.flatten
 
-  private def getHelpForMember(target: Any, name: String): Option[MashObject] = {
+  private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
     val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpFunction.getHelp(field, klass) }
     lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
       case method: BoundMethod ⇒ HelpFunction.getHelp(method)
@@ -236,11 +236,11 @@ object Evaluator {
       case ExprPart(expr) ⇒ evaluate(expr, env)
     }
 
-  private def evaluateMishExpr(expr: MishExpr, env: Environment): Any = {
+  private def evaluateMishExpr(expr: MishExpr, env: Environment): MashValue = {
     val MishExpr(command, args, captureProcessOutput, _) = expr
     val evaluatedCommand = evaluate(command, env)
     val evaluatedArgs = args.map(evaluate(_, env))
-    val flattenedArgs: Seq[Any] = evaluatedArgs.flatMap {
+    val flattenedArgs: Seq[MashValue] = evaluatedArgs.flatMap {
       case xs: MashList ⇒ xs.items
       case x            ⇒ Seq(x)
     }
@@ -271,7 +271,7 @@ object Evaluator {
   private def makeAnonymousFunction(parameter: String, body: Expr, env: Environment): AnonymousFunction =
     AnonymousFunction(parameter, body, env)
 
-  private case class MemberExprEvalResult(result: Any, wasVectorised: Boolean)
+  private case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
 
   private def evaluateMemberExpr(memberExpr: MemberExpr, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
     val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
@@ -279,7 +279,7 @@ object Evaluator {
     evaluateMemberExpr_(memberExpr, target, env, immediatelyResolveNullaryWhenVectorising)
   }
 
-  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: Any, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
@@ -295,7 +295,7 @@ object Evaluator {
     }
   }
 
-  private def vectorisedMemberLookup(target: Any, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
+  private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
     target match {
       case xs: MashList ⇒
         val options = xs.items.map {
@@ -346,7 +346,7 @@ object Evaluator {
     }
   }
 
-  private def evaluateLookupExpr(lookupExpr: LookupExpr, env: Environment) = {
+  private def evaluateLookupExpr(lookupExpr: LookupExpr, env: Environment): MashValue = {
     val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
     val target = evaluate(targetExpr, env)
     val index = evaluate(indexExpr, env)
@@ -371,13 +371,13 @@ object Evaluator {
     }
   }
 
-  private def evaluateBinOp(binOp: BinOpExpr, env: Environment) = {
+  private def evaluateBinOp(binOp: BinOpExpr, env: Environment): MashValue = {
     val BinOpExpr(left, op, right, _) = binOp
     lazy val leftResult = evaluate(left, env)
     lazy val rightResult = evaluate(right, env)
     def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean =
       MashBoolean(PartialFunction.cond(leftResult) {
-        case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult), 0)
+        case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[MashValue]].compareTo(rightResult), 0)
         case MashWrapped(l: Comparable[_]) ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult.asInstanceOf[MashWrapped].x), 0)
       })
     op match {
@@ -397,7 +397,7 @@ object Evaluator {
     }
   }
 
-  private def arithmeticOp(left: Any, right: Any, locationOpt: Option[PointedRegion], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
+  private def arithmeticOp(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
     (left, right) match {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
@@ -405,14 +405,14 @@ object Evaluator {
         throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
     }
 
-  private def multiply(left: Any, right: Any, locationOpt: Option[PointedRegion]) = (left, right) match {
+  private def multiply(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]) = (left, right) match {
     case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
     case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
     case (left: MashNumber, right: MashNumber) ⇒ left * right
     case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
   }
 
-  def add(left: Any, right: Any, locationOpt: Option[PointedRegion]): Any = (left, right) match {
+  def add(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
     case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
@@ -420,10 +420,10 @@ object Evaluator {
     case _                                     ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
   }
 
-  private def callFunction(function: Any, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): Any =
+  private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
     callFunction(function, arguments, Some(functionExpr), Some(invocationExpr))
 
-  private def addLocationToExceptionIfMissing[T](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
+  private def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
     try
       p
     catch {
@@ -431,7 +431,7 @@ object Evaluator {
         throw e.copy(locationOpt = locationOpt)
     }
 
-  def callFunction(function: Any, arguments: Arguments, functionExprOpt: Option[Expr] = None, invocationExprOpt: Option[Expr] = None): Any = {
+  def callFunction(function: MashValue, arguments: Arguments, functionExprOpt: Option[Expr] = None, invocationExprOpt: Option[Expr] = None): MashValue = {
     val functionLocationOpt = functionExprOpt.flatMap(_.locationOpt)
     val invocationLocationOpt = invocationExprOpt.flatMap(_.locationOpt)
     function match {

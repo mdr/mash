@@ -7,6 +7,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object FindFunction extends MashFunction("collections.find") {
 
@@ -23,7 +24,7 @@ object FindFunction extends MashFunction("collections.find") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val predicate = boundParams.validateFunction(Predicate)

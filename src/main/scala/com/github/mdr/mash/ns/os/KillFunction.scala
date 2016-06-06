@@ -17,6 +17,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
 
 object KillFunction extends MashFunction("os.kill") {
 
@@ -69,7 +70,7 @@ The default signal is TERM."""))
       case x             ⇒ boundParams.throwInvalidArgument(param, s"invalid signal '$x'")
     }
 
-  private def getPids(x: Any): Seq[Int] = x match {
+  private def getPids(x: MashValue): Seq[Int] = x match {
     case n: MashNumber                           ⇒ Seq(n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n)))
     case obj @ MashObject(_, Some(ProcessClass)) ⇒ Seq(ProcessClass.Wrapper(obj).pid)
     case xs: MashList                            ⇒ xs.items.flatMap(getPids)

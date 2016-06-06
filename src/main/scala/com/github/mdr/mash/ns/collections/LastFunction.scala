@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object LastFunction extends MashFunction("collections.last") {
 
@@ -24,7 +25,7 @@ object LastFunction extends MashFunction("collections.last") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams(Sequence)
     val countOpt = boundParams.validateIntegerOrNull(N)

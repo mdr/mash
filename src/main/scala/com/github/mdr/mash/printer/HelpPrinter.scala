@@ -124,7 +124,7 @@ class HelpPrinter(output: PrintStream) {
         output.println()
       }
     }
-    val methods = mo.field(Methods).asInstanceOf[MashList]
+    val methods = mo.field(Methods).asInstanceOf[MashList].items
     if (methods.nonEmpty) {
       output.println(bold("METHODS"))
       for (method ← methods) {

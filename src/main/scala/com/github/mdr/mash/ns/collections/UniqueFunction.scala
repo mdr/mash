@@ -5,6 +5,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
+import com.github.mdr.mash.runtime.MashValue
 
 object UniqueFunction extends MashFunction("collections.unique") {
 
@@ -18,7 +19,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(arguments: Arguments): Any = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)

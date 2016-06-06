@@ -12,6 +12,7 @@ import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashValue
 
 object FunctionClass extends MashClass("core.Function") {
 
@@ -22,7 +23,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
       HelpFunction.getHelp(target.asInstanceOf[MashFunction])
     }

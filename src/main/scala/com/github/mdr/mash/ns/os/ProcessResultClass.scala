@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.subprocesses.ProcessResult
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashValue
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
@@ -46,7 +47,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       ProcessResultClass)
   }
 
-  case class Wrapper(x: Any) {
+  case class Wrapper(x: MashValue) {
     val obj = x.asInstanceOf[MashObject]
     def stdout = obj(Stdout).asInstanceOf[MashString].s
     def line: String = Wrapper(x).stdout.split("\n").headOption.getOrElse("")
@@ -56,7 +57,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       MashList(Wrapper(target).stdout.split("\n").map(MashString(_)))
     }
@@ -71,7 +72,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       MashString(Wrapper(target).line)
     }
@@ -87,7 +88,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashNumber = {
+    def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       MashNumber(Wrapper(target).line.toDouble)
     }
@@ -102,7 +103,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       MashString(Wrapper(target).line, PathClass)
     }
@@ -117,7 +118,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       MashString(Wrapper(target).stdout)
     }

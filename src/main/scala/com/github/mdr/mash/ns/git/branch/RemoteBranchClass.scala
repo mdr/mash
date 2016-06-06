@@ -23,6 +23,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
@@ -45,7 +46,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     LogMethod,
     ToStringMethod)
 
-  case class Wrapper(target: Any) {
+  case class Wrapper(target: MashValue) {
 
     def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
 
@@ -59,7 +60,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val wrapper = Wrapper(target)
       GitHelper.withGit { git ⇒
@@ -77,7 +78,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
-    override def commitName(target: Any) = Wrapper(target).fullName.s
+    override def commitName(target: MashValue) = Wrapper(target).fullName.s
 
   }
 
@@ -85,7 +86,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashList = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val branchName = Wrapper(target).fullName.s
       GitHelper.withRepository { repo ⇒
@@ -106,7 +107,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       Wrapper(target).fullName
     }
@@ -121,7 +122,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       Wrapper(target).fullName
     }

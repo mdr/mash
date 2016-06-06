@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils
 import scala.collection.JavaConverters._
 import java.nio.charset.StandardCharsets
 import java.io.PrintStream
+import com.github.mdr.mash.runtime.MashValue
 
 object ProcessRunner {
 
@@ -18,7 +19,7 @@ object ProcessRunner {
   private val envInteractions: EnvironmentInteractions = LinuxEnvironmentInteractions
   private val output: PrintStream = System.out
 
-  def runProcess(args: Seq[Any], expandTilde: Boolean = false, captureProcess: Boolean = false): ProcessResult = {
+  def runProcess(args: Seq[MashValue], expandTilde: Boolean = false, captureProcess: Boolean = false): ProcessResult = {
     terminalControl.setEchoEnabled(true)
     var stringArgs = args.map(ToStringifier.stringify)
     if (expandTilde) {

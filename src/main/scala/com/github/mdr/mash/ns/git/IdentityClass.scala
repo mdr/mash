@@ -9,6 +9,7 @@ import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashValue
 
 object IdentityClass extends MashClass("git.Identity") {
 
@@ -25,7 +26,7 @@ object IdentityClass extends MashClass("git.Identity") {
 
   def summary = "A combination of a person identity and time in Git"
 
-  case class Wrapper(target: Any) {
+  case class Wrapper(target: MashValue) {
     def name: MashString = target.asInstanceOf[MashObject].field(Name).asInstanceOf[MashString]
     def email: MashString = target.asInstanceOf[MashObject].field(Email).asInstanceOf[MashString]
   }
@@ -34,7 +35,7 @@ object IdentityClass extends MashClass("git.Identity") {
 
     val params = ObjectClass.ToStringMethod.params
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
       val identity = Wrapper(target)
       MashString(s"${identity.name} <${identity.email}>")

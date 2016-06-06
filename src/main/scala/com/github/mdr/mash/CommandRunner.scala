@@ -1,6 +1,6 @@
 package com.github.mdr.mash
 
-import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.lexer._
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.evaluator._
@@ -15,7 +15,7 @@ import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 
 case class CommandResult(
-  value: Option[Any] = None,
+  value: Option[MashValue] = None,
   toggleMish: Boolean = false,
   objectTableModelOpt: Option[ObjectTableModel] = None)
 
@@ -71,7 +71,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
     }.getOrElse(CommandResult())
   }
 
-  private def runExpr(expr: AbstractSyntax.Expr, cmd: String): Any =
+  private def runExpr(expr: AbstractSyntax.Expr, cmd: String): MashValue =
     try {
       val ctx = new ExecutionContext(Thread.currentThread)
       Singletons.setExecutionContext(ctx)
@@ -81,10 +81,10 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
       case e @ EvaluatorException(msg, locationOpt, cause) ⇒
         printError("Error", msg, cmd, locationOpt)
         DebugLogger.logException(e)
-        ()
+        MashUnit
       case _: EvaluationInterruptedException ⇒
         output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
-        ()
+        MashUnit
     }
 
   private def safeCompile(cmd: String, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
