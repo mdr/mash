@@ -16,6 +16,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashUnit
 
 object ProcessClass extends MashClass("os.Process") {
 
@@ -72,11 +73,12 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel(Seq(Signal))
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val pid = Wrapper(target).pid
       val signal = KillFunction.getSignal(boundParams, Params.Signal)
       processInteractions.kill(pid, signal)
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)

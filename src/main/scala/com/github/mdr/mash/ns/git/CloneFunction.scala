@@ -14,6 +14,7 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.UnitClass
 import java.io.File
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashUnit
 
 object CloneFunction extends MashFunction("git.clone") {
 
@@ -30,7 +31,7 @@ object CloneFunction extends MashFunction("git.clone") {
 
   val params = ParameterModel(Seq(Repository, Directory))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val repository = boundParams.validateString(Repository).s
     val directoryOpt = boundParams.validateStringOpt(Directory).map(_.s)
@@ -43,6 +44,7 @@ object CloneFunction extends MashFunction("git.clone") {
     }
     val repo = cmd.call()
     repo.close()
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

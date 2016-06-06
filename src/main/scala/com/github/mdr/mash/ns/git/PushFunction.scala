@@ -18,6 +18,7 @@ import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.ns.git.branch.DeleteFunction
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object PushFunction extends MashFunction("git.push") {
 
@@ -50,7 +51,7 @@ object PushFunction extends MashFunction("git.push") {
 
   val params = ParameterModel(Seq(SetUpstream, Force, Remote, Branches))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
@@ -69,6 +70,7 @@ object PushFunction extends MashFunction("git.push") {
       if (setUpstream)
         setUpstreamConfig(git, branches, remoteOpt)
     }
+    MashUnit
   }
 
   private def setUpstreamConfig(git: Git, refs: Seq[String], remoteOpt: Option[String]) {

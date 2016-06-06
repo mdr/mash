@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashUnit
 
 object DeleteFunction extends MashFunction("git.branch.delete") {
 
@@ -36,12 +37,13 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   def validateBranches(boundParams: BoundParams, param: Parameter): Seq[String] =
     boundParams.validateSequence(param).map(branch ⇒ validateBranch(boundParams, param, branch))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val branches = validateBranches(boundParams, Branches)
     GitHelper.withGit { git ⇒
       git.branchDelete.setForce(true).setBranchNames(branches: _*).call()
     }
+    MashUnit
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =

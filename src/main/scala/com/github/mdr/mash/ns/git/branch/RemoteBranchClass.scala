@@ -22,6 +22,7 @@ import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashUnit
 
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
@@ -58,13 +59,14 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val wrapper = Wrapper(target)
       GitHelper.withGit { git ⇒
         val refSpec = new RefSpec(":" + wrapper.name)
         git.push.setRemote(wrapper.remote.s).setRefSpecs(refSpec).call()
       }
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)

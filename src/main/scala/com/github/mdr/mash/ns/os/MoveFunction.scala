@@ -12,6 +12,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os._
 import java.nio.file.Path
+import com.github.mdr.mash.runtime.MashUnit
 
 object MoveFunction extends MashFunction("os.move") {
 
@@ -31,13 +32,14 @@ object MoveFunction extends MashFunction("os.move") {
 
   val params = ParameterModel(Seq(Paths, Destination))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val destination = boundParams.validatePath(Destination)
     if (sourcePaths.isEmpty)
       throw new EvaluatorException("Must have at least one source path")
     move(sourcePaths, destination)
+    MashUnit
   }
 
   private def move(sourcePaths: Seq[Path], destination: Path) {

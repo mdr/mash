@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.runtime.MashUnit
 
 object ApplyFunction extends MashFunction("git.stash.apply") {
 
@@ -15,11 +16,12 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     params.validate(arguments)
     GitHelper.withGit { git ⇒
       git.stashApply.call()
     }
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

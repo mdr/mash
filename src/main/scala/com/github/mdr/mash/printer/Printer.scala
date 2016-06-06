@@ -28,6 +28,7 @@ import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.ns.core.ClassClass
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashUnit
 
 object Printer {
 
@@ -74,7 +75,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         render(HelpFunction.getHelp(bm), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case klass: MashClass if !disableCustomViews ⇒
         render(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-      case () ⇒ // Don't print out Unit 
+      case MashUnit ⇒ // Don't print out Unit 
       case _ ⇒
         val f = StringUtils.ellipsisise(renderField(x), maxLength = terminalInfo.columns)
         output.println(f)

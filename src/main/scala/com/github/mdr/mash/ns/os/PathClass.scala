@@ -27,6 +27,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object PathClass extends MashClass("os.Path") {
 
@@ -138,10 +139,11 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       CdFunction.changeDirectory(path)
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
@@ -385,7 +387,7 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel(Seq(Destination))
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val source = FunctionHelpers.interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
@@ -400,6 +402,7 @@ The default character encoding and line separator are used.""")
         else
           Files.copy(source, destination)
       }
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
@@ -479,14 +482,14 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
       if (Files.isDirectory(path))
         FileUtils.deleteDirectory(path.toFile)
       else
         Files.delete(path)
-
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)

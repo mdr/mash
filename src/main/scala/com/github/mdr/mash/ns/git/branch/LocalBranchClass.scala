@@ -26,6 +26,7 @@ import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashUnit
 
 object LocalBranchClass extends MashClass("git.branch.Branch") {
 
@@ -64,12 +65,13 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
         git.branchDelete.setBranchNames(branchName).setForce(true).call()
       }
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
@@ -111,7 +113,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Force))
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val force = Truthiness.isTruthy(boundParams(Force))
 
@@ -119,6 +121,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
       GitHelper.withGit { git ⇒
         git.push.add(branchName).setForce(force).call()
       }
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
@@ -131,12 +134,13 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       params.validate(arguments)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
         git.checkout().setName(branchName).call()
       }
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
@@ -154,11 +158,12 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Commit))
 
-    def apply(target: Any, arguments: Arguments) {
+    def apply(target: Any, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val branch = Wrapper(target).name.s
       val commit = MergeFunction.validateCommit(boundParams, Commit)
       SetCommitFunction.setCommit(branch, commit)
+      MashUnit
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)

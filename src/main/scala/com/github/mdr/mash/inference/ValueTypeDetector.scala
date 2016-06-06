@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 /** Detect the type of runtime values **/
 object ValueTypeDetector {
@@ -29,7 +30,7 @@ object ValueTypeDetector {
     case _: MashBoolean                      ⇒ Type.Instance(BooleanClass)
     case _: Instant                          ⇒ Type.Instance(DateTimeClass)
     case _: MashClass                        ⇒ Type.Instance(ClassClass)
-    case ()                                  ⇒ Type.Instance(UnitClass)
+    case MashUnit                            ⇒ Type.Instance(UnitClass)
     case mo @ MashObject(_, Some(GroupClass)) ⇒
       val groupTypeOpt =
         for {

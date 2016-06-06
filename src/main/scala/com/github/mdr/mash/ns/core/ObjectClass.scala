@@ -17,6 +17,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object ObjectClass extends MashClass("core.Object") {
 
@@ -32,11 +33,11 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: Any, arguments: Arguments): MashClass = target match {
       case MashNull        ⇒ NullClass
-      case ()              ⇒ UnitClass
+      case MashUnit        ⇒ UnitClass
       case obj: MashObject ⇒ obj.classOpt.getOrElse(ObjectClass)
       case _: MashNumber   ⇒ NumberClass
       case _: MashString   ⇒ StringClass
-      case _: Boolean      ⇒ BooleanClass
+      case _: MashBoolean  ⇒ BooleanClass
       case _: Seq[_]       ⇒ SeqClass
       case _: Instant      ⇒ DateTimeClass
       case _: MashFunction ⇒ FunctionClass
@@ -82,7 +83,7 @@ object ObjectClass extends MashClass("core.Object") {
       case MashString(s, _) ⇒ s
       case klass: MashClass ⇒ klass.fullyQualifiedName.toString
       case xs: MashList     ⇒ xs.items.map(ToStringifier.stringify).mkString("[", ", ", "]")
-      case ()               ⇒ ""
+      case MashUnit         ⇒ ""
       case _                ⇒ "" + x
     }
 

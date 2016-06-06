@@ -22,6 +22,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import java.nio.charset.StandardCharsets
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object WriteFunction extends MashFunction("os.write") {
 
@@ -46,7 +47,7 @@ Otherwise, write the item as a string."""))
 
   val params = ParameterModel(Seq(Append, File, Data))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val append = Truthiness.isTruthy(boundParams(Append))
     val file = boundParams.validatePath(File).toFile
@@ -58,6 +59,7 @@ Otherwise, write the item as a string."""))
       case x ⇒
         FileUtils.write(file, ToStringifier.stringify(x), StandardCharsets.UTF_8, append)
     }
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

@@ -13,6 +13,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashUnit
 
 object UpFunction extends MashFunction("os.up") {
 
@@ -29,13 +30,13 @@ object UpFunction extends MashFunction("os.up") {
 
   val params = ParameterModel(Seq(N))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val times = boundParams.validateInteger(N)
     workingDirectoryStack.push(fileSystem.pwd)
     for (n ← 1 to times)
       Posix.posix.chdir("..")
-    ()
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

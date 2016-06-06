@@ -23,6 +23,7 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashUnit
 
 object CdFunction extends MashFunction("os.cd") {
 
@@ -40,10 +41,11 @@ object CdFunction extends MashFunction("os.cd") {
 
   val params = ParameterModel(Seq(Directory))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(Directory)
     changeDirectory(path)
+    MashUnit
   }
 
   private def home = MashString(environmentInteractions.home.toString, Some(PathClass))

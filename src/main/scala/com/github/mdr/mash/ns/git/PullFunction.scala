@@ -12,17 +12,19 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashUnit
 
 object PullFunction extends MashFunction("git.pull") {
 
   val params = ParameterModel(Seq())
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     params.validate(arguments)
-    GitHelper.withGit { git =>
+    GitHelper.withGit { git ⇒
       val pullResult = git.pull.call()
       pullResult.getFetchResult
     }
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

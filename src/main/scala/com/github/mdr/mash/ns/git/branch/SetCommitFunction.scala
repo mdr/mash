@@ -10,6 +10,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.ns.git.MergeFunction
 import org.eclipse.jgit.lib.ObjectId
+import com.github.mdr.mash.runtime.MashUnit
 
 object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
@@ -25,11 +26,12 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
   val params = ParameterModel(Seq(Branch, Commit))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments) : MashUnit ={
     val boundParams = params.validate(arguments)
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     val commit = MergeFunction.validateCommit(boundParams, Commit)
     setCommit(branch, commit)
+    MashUnit
   }
 
   def setCommit(branch: String, commit: ObjectId) {

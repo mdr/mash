@@ -16,6 +16,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashUnit
 
 object KillFunction extends MashFunction("os.kill") {
 
@@ -49,7 +50,7 @@ The default signal is TERM."""))
 
   val params = ParameterModel(Seq(Params.Signal, Params.Processes))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val signal = getSignal(boundParams, Params.Signal)
     val processes = boundParams.validateSequence(Params.Processes)
@@ -58,6 +59,7 @@ The default signal is TERM."""))
     val pids = processes.flatMap(getPids)
     for (pid ← pids)
       processInteractions.kill(pid, signal)
+    MashUnit
   }
 
   def getSignal(boundParams: BoundParams, param: Parameter): Int =

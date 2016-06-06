@@ -17,6 +17,7 @@ import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import org.eclipse.jgit.lib.ObjectId
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object MergeFunction extends MashFunction("git.merge") {
 
@@ -50,7 +51,7 @@ object MergeFunction extends MashFunction("git.merge") {
     }
   }
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val commit = validateCommit(boundParams, Commit)
     val squash = Truthiness.isTruthy(boundParams(Squash))
@@ -58,6 +59,7 @@ object MergeFunction extends MashFunction("git.merge") {
     GitHelper.withGit { git ⇒
       git.merge.include(commit).setSquash(squash).call()
     }
+    MashUnit
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =

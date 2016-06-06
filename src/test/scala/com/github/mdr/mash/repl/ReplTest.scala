@@ -2,9 +2,7 @@ package com.github.mdr.mash.repl
 
 import java.io.OutputStream
 import java.io.PrintStream
-
 import org.scalatest._
-
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashString
@@ -16,6 +14,7 @@ import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.runtime.MashUnit
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -86,7 +85,7 @@ class ReplTest extends FlatSpec with Matchers {
 
     repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
     repl.input("foo").acceptLine()
-    repl.it should equal(() /* Repl should have emitted an error */ )
+    repl.it should equal(MashUnit /* Repl should have emitted an error */ )
   }
   
   private def newRepl = makeRepl()

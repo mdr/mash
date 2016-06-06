@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashUnit
 
 object ExitFunction extends MashFunction("core.exit") {
 
@@ -19,10 +20,11 @@ object ExitFunction extends MashFunction("core.exit") {
 
   val params = ParameterModel(Seq(Status))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val status = boundParams.validateInteger(Status)
     System.exit(status)
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

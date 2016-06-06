@@ -10,7 +10,7 @@ import com.github.mdr.mash.evaluator.MashClass
 object MashValue {
 
   def checkIsValidRuntimeValue(x: Any) = x match {
-    case MashNull | () | MashBoolean.True | MashBoolean.False | MashString(_, _) | MashNumber(_, _) | MashObject(_, _) ⇒
+    case MashNull | MashUnit | MashBoolean.True | MashBoolean.False | MashString(_, _) | MashNumber(_, _) | MashObject(_, _) ⇒
     case _: MashFunction | _: BoundMethod ⇒
     case _: MashClass ⇒
     case _: Instant | _: LocalDate ⇒

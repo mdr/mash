@@ -12,6 +12,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.functions.FullyQualifiedName
 import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.runtime.MashUnit
 
 object SwitchFunction extends MashFunction("git.branch.switch") {
 
@@ -26,12 +27,13 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
 
   val params = ParameterModel(Seq(Branch))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     GitHelper.withGit { git ⇒
       git.checkout().setName(branch).call()
     }
+    MashUnit
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =

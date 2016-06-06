@@ -11,6 +11,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object CommitFunction extends MashFunction("git.commit") {
 
@@ -38,14 +39,15 @@ object CommitFunction extends MashFunction("git.commit") {
 
   val params = ParameterModel(Seq(Message, All, Amend))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val all = Truthiness.isTruthy(boundParams(All))
     val amend = Truthiness.isTruthy(boundParams(Amend))
     val message = boundParams.validateString(Message).s
-    GitHelper.withGit { git =>
+    GitHelper.withGit { git ⇒
       git.commit.setMessage(message).setAll(all).setAmend(amend).call()
     }
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

@@ -10,6 +10,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashUnit
 
 object DeleteFunction extends MashFunction("os.delete") {
 
@@ -24,7 +25,7 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   val params = ParameterModel(Seq(Paths))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     if (paths.isEmpty)
@@ -34,7 +35,7 @@ object DeleteFunction extends MashFunction("os.delete") {
         FileUtils.deleteDirectory(path.toFile)
       else
         Files.delete(path)
-    ()
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

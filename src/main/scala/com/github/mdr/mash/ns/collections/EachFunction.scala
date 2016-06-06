@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashUnit
 
 object EachFunction extends MashFunction("collections.each") {
 
@@ -21,12 +22,12 @@ object EachFunction extends MashFunction("collections.each") {
 
   val params = ParameterModel(Seq(Action, Sequence))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val action = boundParams.validateFunction(Action)
     sequence.foreach(action)
-    ()
+    MashUnit
   }
 
   override def typeInferenceStrategy = EachTypeInferenceStrategy

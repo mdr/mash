@@ -32,6 +32,8 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashUnit
 
 object Evaluator {
 
@@ -125,7 +127,7 @@ object Evaluator {
 
     }
 
-  private def evaluateFunctionDecl(decl: FunctionDeclaration, env: Environment) {
+  private def evaluateFunctionDecl(decl: FunctionDeclaration, env: Environment): MashUnit = {
     val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
     val parameters: Seq[Parameter] = params.map {
       case SimpleParam(name, _)   ⇒ Parameter(name, s"Parameter '$name'")
@@ -138,22 +140,22 @@ object Evaluator {
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
     val fn = UserDefinedFunction(name, ParameterModel(parameters), body, env)
     env.globalVariables += name -> fn
-    ()
+    MashUnit
   }
 
-  private def evaluateAssignment(expr: AssignmentExpr, env: Environment): Any = {
+  private def evaluateAssignment(expr: AssignmentExpr, env: Environment): MashUnit = {
     val AssignmentExpr(left, right, alias, _) = expr
     val rightValue = if (alias) simpleEvaluate(right, env) else evaluate(right, env)
     left match {
       case Identifier(name, _) ⇒
         env.globalVariables += name -> rightValue
-        ()
+        MashUnit
       case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
         val targetValue = evaluate(target, env)
         targetValue match {
           case MashObject(fields, _) ⇒
             fields += member -> rightValue
-            ()
+            MashUnit
           case _ ⇒
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
         }
@@ -169,8 +171,10 @@ object Evaluator {
                     val items = xs.items
                     if (i < 0 || i > items.size - 1)
                       throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt)
-                    else
+                    else {
                       xs.items(i) = rightValue
+                      MashUnit
+                    }
                   case None ⇒
                     throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
                 }
@@ -179,8 +183,10 @@ object Evaluator {
             }
           case mo: MashObject ⇒
             indexValue match {
-              case MashString(s, _) ⇒
+              case MashString(s, _) ⇒ {
                 mo.fields(s) = rightValue
+                MashUnit
+              }
               case _ ⇒
                 throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
             }
@@ -243,7 +249,7 @@ object Evaluator {
       ProcessResultClass.fromResult(processResult)
     } else {
       ProcessRunner.runProcess(allArgs, expandTilde = true)
-      ()
+      MashUnit
     }
   }
 
@@ -334,7 +340,7 @@ object Evaluator {
     if (Truthiness.isTruthy(result))
       evaluate(body, env)
     else elseOpt match {
-      case None           ⇒ ()
+      case None           ⇒ MashUnit
       case Some(elseBody) ⇒ evaluate(elseBody, env)
     }
   }

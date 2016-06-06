@@ -13,6 +13,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashUnit
 
 object RestoreFunction extends MashFunction("git.restore") {
 
@@ -33,7 +34,7 @@ object RestoreFunction extends MashFunction("git.restore") {
 
   val params = ParameterModel(Seq(Paths, All))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val all = Truthiness.isTruthy(boundParams(All))
@@ -48,6 +49,7 @@ object RestoreFunction extends MashFunction("git.restore") {
         cmd.addPath(path.toString)
       cmd.call()
     }
+    MashUnit
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =

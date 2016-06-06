@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
 import java.io.PrintStream
+import com.github.mdr.mash.runtime.MashUnit
 
 object PrintFunction extends MashFunction("core.print") {
 
@@ -20,10 +21,11 @@ object PrintFunction extends MashFunction("core.print") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val item = boundParams(Item)
     output.println(ToStringifier.stringify(item))
+    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

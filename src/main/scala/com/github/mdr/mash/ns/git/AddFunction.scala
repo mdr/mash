@@ -9,6 +9,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.runtime.MashUnit
 
 object AddFunction extends MashFunction("git.add") {
 
@@ -23,7 +24,7 @@ object AddFunction extends MashFunction("git.add") {
 
   val params = ParameterModel(Seq(Paths))
 
-  def apply(arguments: Arguments) {
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     GitHelper.withGit { git ⇒
@@ -32,6 +33,7 @@ object AddFunction extends MashFunction("git.add") {
         cmd.addFilepattern(path.toString)
       cmd.call()
     }
+    MashUnit
   }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
