@@ -8,6 +8,7 @@ import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashBoolean
 
 object SortFunction extends MashFunction("collections.sort") {
 
@@ -20,7 +21,7 @@ object SortFunction extends MashFunction("collections.sort") {
       name = "descending",
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
   }

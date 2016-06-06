@@ -12,6 +12,7 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashBoolean
 
 /**
  * Select members of an object
@@ -29,7 +30,7 @@ object SelectFunction extends MashFunction("collections.select") {
       name = "add",
       summary = "Add the fields to the existing set of members, rather than replacing",
       shortFlagOpt = Some(AddShortFlag),
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true)
   }
   import Params._

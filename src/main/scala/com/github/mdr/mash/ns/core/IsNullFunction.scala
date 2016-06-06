@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object IsNullFunction extends MashFunction("core.isNull") {
 
@@ -18,9 +19,9 @@ object IsNullFunction extends MashFunction("core.isNull") {
 
   val params = ParameterModel(Seq(Value))
 
-  def apply(arguments: Arguments): Boolean = {
+  def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
-    boundParams(Value) == MashNull
+    MashBoolean(boundParams(Value) == MashNull)
   }
 
   override def summary = "Check whether or not the given argument is null"

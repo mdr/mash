@@ -31,6 +31,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
 object Evaluator {
 
@@ -275,7 +276,7 @@ object Evaluator {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
-      case ConcreteSyntax.MemberExpr(_, _, name)      ⇒ PointedRegion(name.offset, name.region)
+      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ PointedRegion(name.offset, name.region)
     })
     if (target == MashNull && isNullSafe)
       MemberExprEvalResult(MashNull, wasVectorised = false)
@@ -367,15 +368,15 @@ object Evaluator {
     val BinOpExpr(left, op, right, _) = binOp
     lazy val leftResult = evaluate(left, env)
     lazy val rightResult = evaluate(right, env)
-    def compareWith(f: (Int, Int) ⇒ Boolean): Boolean =
-      PartialFunction.cond(leftResult) {
+    def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean =
+      MashBoolean(PartialFunction.cond(leftResult) {
         case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult), 0)
-      }
+      })
     op match {
       case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult
-      case BinaryOperator.Equals            ⇒ leftResult == rightResult
-      case BinaryOperator.NotEquals         ⇒ leftResult != rightResult
+      case BinaryOperator.Equals            ⇒ MashBoolean(leftResult == rightResult)
+      case BinaryOperator.NotEquals         ⇒ MashBoolean(leftResult != rightResult)
       case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOp.locationOpt)
       case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOp.locationOpt, "subtract", _ - _)
       case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, binOp.locationOpt)

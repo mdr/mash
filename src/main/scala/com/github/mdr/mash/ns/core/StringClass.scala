@@ -16,6 +16,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
 object StringClass extends MashClass("core.String") {
 
@@ -64,9 +65,9 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      target.asInstanceOf[MashString].s.isEmpty
+      MashBoolean(target.asInstanceOf[MashString].s.isEmpty)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -74,14 +75,14 @@ object StringClass extends MashClass("core.String") {
     override def summary = "Return true if this is the empty string"
 
   }
-  
+
   object NonEmptyMethod extends MashMethod("nonEmpty") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      target.asInstanceOf[MashString].s.nonEmpty
+      MashBoolean(target.asInstanceOf[MashString].s.nonEmpty)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -161,11 +162,11 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(_Pattern))
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString].s
       val pattern = boundParams(_Pattern).asInstanceOf[MashString].s
-      Pattern.compile(pattern).matcher(s).find
+      MashBoolean(Pattern.compile(pattern).matcher(s).find)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -181,7 +182,7 @@ object StringClass extends MashClass("core.String") {
         name = "regex",
         shortFlagOpt = Some('r'),
         summary = "Interpret separator as a regular expression",
-        defaultValueGeneratorOpt = Some(() ⇒ false),
+        defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isFlag = true,
         isBooleanFlag = true)
       val Separator = Parameter(
@@ -399,11 +400,11 @@ object StringClass extends MashClass("core.String") {
         Prefix,
         "Prefix to test")))
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString]
       val pattern = boundParams(Prefix).asInstanceOf[MashString]
-      s.startsWith(pattern)
+      MashBoolean(s.startsWith(pattern))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)

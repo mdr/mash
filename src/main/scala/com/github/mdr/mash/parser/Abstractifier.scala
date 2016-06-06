@@ -10,6 +10,7 @@ import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.lexer.TokenType.MISH_INTERPOLATION_START
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 /**
  * Convert from concrete to abstract syntax trees.
@@ -29,8 +30,8 @@ object Abstractifier {
   private def abstractifyLiteral(token: Token, sourceInfo: SourceInfo): Abstract.Expr =
     token.tokenType match {
       case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), Some(sourceInfo))
-      case TokenType.TRUE           ⇒ Abstract.Literal(true, Some(sourceInfo))
-      case TokenType.FALSE          ⇒ Abstract.Literal(false, Some(sourceInfo))
+      case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, Some(sourceInfo))
+      case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, Some(sourceInfo))
       case TokenType.NULL           ⇒ Abstract.Literal(MashNull, Some(sourceInfo))
       case TokenType.STRING_LITERAL ⇒
         val s = token.text

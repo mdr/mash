@@ -10,6 +10,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.runtime.MashBoolean
 
 object CommitFunction extends MashFunction("git.commit") {
 
@@ -24,13 +25,13 @@ object CommitFunction extends MashFunction("git.commit") {
       summary = "Automatically stage files that have been modified and deleted, but new files are not affected (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Amend = Parameter(
       name = "amend",
       summary = "Replace the tip of the current branch by creating a new commit (default false)",
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

@@ -7,6 +7,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashBoolean
 
 object SortByFunction extends MashFunction(("collections.sortBy")) {
 
@@ -15,7 +16,7 @@ object SortByFunction extends MashFunction(("collections.sortBy")) {
       name = "descending",
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Attribute = Parameter(

@@ -11,6 +11,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object GroupByFunction extends MashFunction("collections.groupBy") {
 
@@ -24,7 +25,7 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
       name = "total",
       summary = "Include a total group containing all the results",
       shortFlagOpt = Some('t'),
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some(s"""If true, include an additional group containing all the elements.
@@ -35,7 +36,7 @@ Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
       name = "includeNull",
       summary = "Include groups that have null keys",
       shortFlagOpt = Some('n'),
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some("""If true, include a group with null keys, if any elements exist for such a group.

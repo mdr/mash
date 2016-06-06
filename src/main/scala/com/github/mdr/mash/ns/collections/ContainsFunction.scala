@@ -8,6 +8,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.runtime.MashBoolean
 
 object ContainsFunction extends MashFunction("collections.contains") {
 
@@ -24,11 +25,11 @@ object ContainsFunction extends MashFunction("collections.contains") {
 
   val params = ParameterModel(Seq(Element, Sequence))
 
-  def apply(arguments: Arguments): Boolean = {
+  def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val element = boundParams(Element)
-    sequence.contains(element)
+    MashBoolean(sequence.contains(element))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)

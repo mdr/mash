@@ -15,6 +15,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashBoolean
 
 object ChildrenFunction extends MashFunction("os.children") {
 
@@ -30,14 +31,14 @@ object ChildrenFunction extends MashFunction("os.children") {
       summary = "Ignore files starting with a dot (.) (default false)",
       shortFlagOpt = Some('i'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Recursive = Parameter(
       name = "recursive",
       summary = "Recursively retrieve results from subdirectories (default false)",
       shortFlagOpt = Some('r'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

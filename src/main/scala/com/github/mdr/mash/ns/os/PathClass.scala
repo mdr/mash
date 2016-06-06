@@ -26,6 +26,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
 object PathClass extends MashClass("os.Path") {
 
@@ -67,10 +68,10 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      fileSystem.exists(path)
+      MashBoolean(fileSystem.exists(path))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -99,14 +100,14 @@ object PathClass extends MashClass("os.Path") {
   object MkdirMethod extends MashMethod("createDirectory") {
 
     import CreateDirectoryFunction.Params.CreateIntermediates
-    
+
     val params = ParameterModel(Seq(CreateIntermediates))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))
       val path = FunctionHelpers.interpretAsPath(target)
-      val resultPath  = fileSystem.createDirectory(path, createIntermediates)
+      val resultPath = fileSystem.createDirectory(path, createIntermediates)
       asPathString(resultPath)
     }
 
@@ -513,9 +514,9 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      Files.isDirectory(FunctionHelpers.interpretAsPath(target))
+      MashBoolean(Files.isDirectory(FunctionHelpers.interpretAsPath(target)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -528,10 +529,10 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
       val path = FunctionHelpers.interpretAsPath(target)
-      Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty
+      MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -544,9 +545,9 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): Boolean = {
+    def apply(target: Any, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      Files.isRegularFile(FunctionHelpers.interpretAsPath(target))
+      MashBoolean(Files.isRegularFile(FunctionHelpers.interpretAsPath(target)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)

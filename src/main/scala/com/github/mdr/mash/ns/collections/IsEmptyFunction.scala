@@ -6,6 +6,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.runtime.MashBoolean
 
 object IsEmptyFunction extends MashFunction("collections.isEmpty") {
 
@@ -19,10 +20,10 @@ object IsEmptyFunction extends MashFunction("collections.isEmpty") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(arguments: Arguments): Boolean = {
+  def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
-    sequence.isEmpty
+    MashBoolean(sequence.isEmpty)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)

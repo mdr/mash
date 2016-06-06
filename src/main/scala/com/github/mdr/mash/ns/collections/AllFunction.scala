@@ -6,6 +6,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.runtime.MashBoolean
 
 object AllFunction extends MashFunction("collections.all") {
 
@@ -23,11 +24,11 @@ object AllFunction extends MashFunction("collections.all") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(arguments: Arguments): Boolean = {
+  def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    sequence.forall(x ⇒ Truthiness.isTruthy(predicate(x)))
+    MashBoolean(sequence.forall(x ⇒ Truthiness.isTruthy(predicate(x))))
   }
 
   override def typeInferenceStrategy = AllTypeInferenceStrategy
@@ -54,7 +55,7 @@ object AllTypeInferenceStrategy extends TypeInferenceStrategy {
     val sequenceExprOpt = argBindings.get(Sequence)
     val predicateExprOpt = argBindings.get(Predicate)
     MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
-    Some(Type.Instance(BooleanClass))
+    Some(BooleanClass)
   }
 
 }

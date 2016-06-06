@@ -30,6 +30,7 @@ import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.ns.git.branch.CreateFunction
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashBoolean
 
 object CommitClass extends MashClass("git.Commit") {
 
@@ -172,7 +173,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   val params = ParameterModel(Seq(Commit))
 
-  def apply(target: Any, arguments: Arguments): Boolean = {
+  def apply(target: Any, arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
     val commit = MergeFunction.validateCommit(boundParams, Commit)
 
@@ -180,7 +181,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
       val revWalk = new RevWalk(repo)
       val thisCommit = revWalk.parseCommit(repo.resolve(commitName(target)))
       val thatCommit = revWalk.parseCommit(commit)
-      revWalk.isMergedInto(thisCommit, thatCommit)
+      MashBoolean(revWalk.isMergedInto(thisCommit, thatCommit))
     }
   }
 

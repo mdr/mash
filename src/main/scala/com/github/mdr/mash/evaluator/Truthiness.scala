@@ -6,11 +6,12 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object Truthiness {
 
   def isFalsey(x: Any): Boolean = cond(x) {
-    case false | MashNull | MashNumber(0, _) | MashString("", _) | MashList() ⇒ true
+    case MashBoolean.False | MashNull | MashNumber(0, _) | MashString("", _) | MashList() ⇒ true
     case MashObject(fields, None) ⇒ fields.isEmpty
   }
 

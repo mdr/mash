@@ -9,6 +9,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.Parameter
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashBoolean
 
 object BrowserFunction extends MashFunction("view.browser") {
 
@@ -27,8 +28,8 @@ object BrowserFunction extends MashFunction("view.browser") {
     import ViewClass.Fields._
     MashObject(ListMap(
       Data -> data,
-      DisableCustomViews -> false,
-      UseBrowser -> true), ViewClass)
+      DisableCustomViews -> MashBoolean.False,
+      UseBrowser -> MashBoolean.True), ViewClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)

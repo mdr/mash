@@ -17,6 +17,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.ns.git.branch.DeleteFunction
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object PushFunction extends MashFunction("git.push") {
 
@@ -26,14 +27,14 @@ object PushFunction extends MashFunction("git.push") {
       summary = "Add upstream tracking branch (default false)",
       shortFlagOpt = Some('u'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Force = Parameter(
       name = "force",
       summary = "Force push (default false)",
       shortFlagOpt = Some('f'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Remote = Parameter(
       name = "remote",

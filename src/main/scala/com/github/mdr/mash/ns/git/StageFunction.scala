@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.git
 import scala.annotation.migration
 import scala.collection.JavaConverters.asScalaSetConverter
 import scala.util.Try
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
@@ -15,6 +14,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.runtime.MashBoolean
 
 object StageFunction extends MashFunction("git.stage") {
 
@@ -28,7 +28,7 @@ object StageFunction extends MashFunction("git.stage") {
       summary = "Stage all unstaged files (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

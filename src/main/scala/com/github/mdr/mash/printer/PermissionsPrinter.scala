@@ -5,12 +5,13 @@ import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.ns.os.PermissionsClass
 import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.runtime.MashBoolean
 
 object PermissionsPrinter {
 
   def permissionsSectionString(section: MashObject): String = {
     val s = new StringBuilder
-    def test(field: Field) = MemberEvaluator.lookup(section, field).asInstanceOf[Boolean]
+    def test(field: Field) = MemberEvaluator.lookup(section, field).asInstanceOf[MashBoolean].value
     import PermissionsSectionClass.Fields
     if (test(Fields.CanRead)) s.append("r") else s.append("-")
     if (test(Fields.CanWrite)) s.append("w") else s.append("-")

@@ -15,6 +15,7 @@ import java.nio.file.Path
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashBoolean
 
 object LsFunction extends MashFunction("os.ls") {
 
@@ -36,21 +37,21 @@ If no paths are provided, the default is the current working directory."""))
       summary = "Include files starting with a dot (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Recursive = Parameter(
       name = "recursive",
       summary = "Recursively retrieve results from directories (default false)",
       shortFlagOpt = Some('r'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Directory = Parameter(
       name = "directory",
       summary = "List directories themselves, not their contents (default false)",
       shortFlagOpt = Some('d'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
 

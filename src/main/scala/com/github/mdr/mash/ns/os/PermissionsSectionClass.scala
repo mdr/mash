@@ -7,6 +7,7 @@ import com.github.mdr.mash.os.PermissionsSection
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashBoolean
 
 object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
 
@@ -23,9 +24,9 @@ object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
   def asMashObject(section: PermissionsSection): MashObject = {
     val PermissionsSection(canRead, canWrite, canExecute) = section
     MashObject(ListMap(
-      CanRead -> canRead,
-      CanWrite -> canWrite,
-      CanExecute -> canExecute),
+      CanRead -> MashBoolean(canRead),
+      CanWrite -> MashBoolean(canWrite),
+      CanExecute -> MashBoolean(canExecute)),
       PermissionsSectionClass)
   }
 

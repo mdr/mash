@@ -1,13 +1,13 @@
 package com.github.mdr.mash.functions
 
 import org.scalatest._
-
 import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.inference.SimpleTypedArguments
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
 import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.runtime.MashBoolean
 
 class BindTypesTest extends FlatSpec with Matchers {
 
@@ -57,21 +57,21 @@ class BindTypesTest extends FlatSpec with Matchers {
   }
 
   "Last arguments" should "be tied to the last parameter with optionals" in {
-    val param1 = Parameter("param1", "test param", defaultValueGeneratorOpt = Some(() ⇒ true))
+    val param1 = Parameter("param1", "test param", defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.True))
     val param2 = Parameter("param2", "test param", isLast = true)
     ParameterModel(Seq(param1, param2)).boundTypeParams("f 1").posToParam should equal(
       Map(0 -> param2))
   }
 
   "Last arguments" should "not be used if specified by name" in {
-    val param1 = Parameter("param1", "test param", defaultValueGeneratorOpt = Some(() ⇒ true))
+    val param1 = Parameter("param1", "test param", defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.True))
     val param2 = Parameter("param2", "test param", isLast = true)
     ParameterModel(Seq(param1, param2)).boundTypeParams("f 1 --param2=2").posToParam should equal(
       Map(0 -> param1, 1 -> param2))
   }
 
   "All the features" should "work together" in {
-    val optionalParam = Parameter("optional", "test param", defaultValueGeneratorOpt = Some(() ⇒ true))
+    val optionalParam = Parameter("optional", "test param", defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.True))
     val variadicParam = Parameter("variadic", "test param", isVariadic = true)
     val lastParam = Parameter("last", "test param", isLast = true)
     val positionalParam = Parameter("positional", "test param")

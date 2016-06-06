@@ -21,6 +21,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.UnitClass
 import java.nio.charset.StandardCharsets
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashBoolean
 
 object WriteFunction extends MashFunction("os.write") {
 
@@ -30,7 +31,7 @@ object WriteFunction extends MashFunction("os.write") {
       summary = "Append to the end of the file, if it already exists",
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val File = Parameter(
       name = "file",

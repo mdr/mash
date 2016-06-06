@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.git.branch.LocalBranchClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import org.eclipse.jgit.lib.ObjectId
+import com.github.mdr.mash.runtime.MashBoolean
 
 object MergeFunction extends MashFunction("git.merge") {
 
@@ -28,7 +29,7 @@ object MergeFunction extends MashFunction("git.merge") {
       summary = "Squash commits (default false)",
       shortFlagOpt = Some('s'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

@@ -12,6 +12,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object HelpFunction extends MashFunction("core.help.help") {
 
@@ -93,10 +94,10 @@ object HelpFunction extends MashFunction("core.help.help") {
         Summary -> MashString(param.summary),
         Description -> param.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).getOrElse(MashNull),
-        IsFlagParameter -> param.isFlag,
-        IsOptional -> param.isOptional,
-        IsLast -> param.isLast,
-        IsVariadic -> param.isVariadic),
+        IsFlagParameter -> MashBoolean(param.isFlag),
+        IsOptional -> MashBoolean(param.isOptional),
+        IsLast -> MashBoolean(param.isLast),
+        IsVariadic -> MashBoolean(param.isVariadic)),
       ParameterHelpClass)
   }
 

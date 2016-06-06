@@ -13,6 +13,7 @@ import java.io.PrintStream
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 /**
  * Render function/method/field help objects in a similar style to man pages
@@ -74,7 +75,7 @@ class HelpPrinter(output: PrintStream) {
     import ParameterHelpClass.Fields._
     def paramNameStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     output.print(indentSpace)
-    def boolParam(field: Field) = param.field(field).asInstanceOf[Boolean]
+    def boolParam(field: Field) = param.field(field).asInstanceOf[MashBoolean].value
     var qualifiers: Seq[String] = Seq()
     val isFlag = boolParam(IsFlagParameter)
     if (boolParam(IsLast))

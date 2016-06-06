@@ -17,6 +17,7 @@ import com.github.mdr.mash.functions.BoundParams
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashBoolean
 
 object CreateFunction extends MashFunction("git.branch.create") {
 
@@ -31,7 +32,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
       summary = "Switch to the new branch after creating it (default false)",
       shortFlagOpt = Some('s'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     lazy val FromRemote = Parameter(
       name = "fromRemote",

@@ -13,6 +13,7 @@ import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashBoolean
 
 object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
@@ -24,7 +25,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
       summary = "Create intermediate directories as required (default false)",
       shortFlagOpt = Some('c'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Paths = Parameter(
       name = "paths",

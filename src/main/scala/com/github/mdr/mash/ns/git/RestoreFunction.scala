@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.git
 
 import scala.collection.JavaConverters._
 import scala.util.Try
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
@@ -13,6 +12,7 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.runtime.MashBoolean
 
 object RestoreFunction extends MashFunction("git.restore") {
 
@@ -26,7 +26,7 @@ object RestoreFunction extends MashFunction("git.restore") {
       summary = "Restore all modified paths (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ false),
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._
