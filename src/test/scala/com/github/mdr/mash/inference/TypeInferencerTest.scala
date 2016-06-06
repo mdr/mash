@@ -12,6 +12,7 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.time._
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {
@@ -194,6 +195,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
   
   "{ foo: 42 } | .foo" shouldBeInferredAsHavingType(NumberClass)
+  
+  "now" shouldBeInferredAsHavingType(DateTimeClass)
+  "now.date" shouldBeInferredAsHavingType(LocalDateClass)
   
   private implicit class RichString(s: String) {
 
