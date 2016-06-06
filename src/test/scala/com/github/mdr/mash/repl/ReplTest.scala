@@ -15,6 +15,7 @@ import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -131,7 +132,7 @@ object ReplTest {
 
     def draw(): Repl = { repl.draw(); repl }
 
-    def it: Any = { repl.state.globalVariables(ReplState.It) }
+    def it: MashValue = { repl.state.globalVariables(ReplState.It) }
 
     def incrementalCompletionState = repl.state.completionStateOpt.collect {
       case ics: IncrementalCompletionState ⇒ ics
