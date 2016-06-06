@@ -460,6 +460,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
  
   // regex
   "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "wibble"
+ 
+  // date/time comparisons
+  "now > 3.days.ago" shouldEvaluateTo "true"
+  "now < 3.days.ago" shouldEvaluateTo "false"
+  "now.date > 3.days.ago.date" shouldEvaluateTo "true"
+  "now.date < 3.days.ago.date" shouldEvaluateTo "false"
   
   implicit class RichString(s: String) {
 
