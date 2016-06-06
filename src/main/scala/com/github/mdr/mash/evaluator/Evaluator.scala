@@ -29,6 +29,8 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object Evaluator {
 
@@ -44,7 +46,7 @@ object Evaluator {
           addLocationToExceptionIfMissing(expr.locationOpt) { immediatelyResolveNullaryFunctions(v) }
         case _ ⇒ v
       }
-      checkIsValidRuntimeValue(result)
+      MashValue.checkIsValidRuntimeValue(result)
       result
     } catch {
       case e: EvaluatorException ⇒
@@ -56,15 +58,6 @@ object Evaluator {
           locationOpt = expr.locationOpt,
           cause = t)
     }
-  }
-
-  def checkIsValidRuntimeValue(x: Any) = x match {
-    case null | () | true | false | MashString(_, _) | MashNumber(_, _) | MashObject(_, _) ⇒
-    case _: MashFunction | _: BoundMethod ⇒
-    case _: MashClass ⇒
-    case _: Instant | _: LocalDate ⇒
-    case xs: MashList ⇒
-    case _ ⇒ throw EvaluatorException("Unexpected runtime type: " + x.getClass)
   }
 
   /**
@@ -284,8 +277,8 @@ object Evaluator {
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
       case ConcreteSyntax.MemberExpr(_, _, name)      ⇒ PointedRegion(name.offset, name.region)
     })
-    if (target == null && isNullSafe)
-      MemberExprEvalResult(null, wasVectorised = false)
+    if (target == MashNull && isNullSafe)
+      MemberExprEvalResult(MashNull, wasVectorised = false)
     else {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
       lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
@@ -298,7 +291,7 @@ object Evaluator {
     target match {
       case xs: MashList ⇒
         val options = xs.items.map {
-          case null if isNullSafe ⇒ Some(null)
+          case MashNull if isNullSafe ⇒ Some(MashNull)
           case x ⇒
             val lookupOpt = MemberEvaluator.maybeLookup(x, name)
             if (immediatelyResolveNullaryWhenVectorising)

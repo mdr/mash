@@ -10,6 +10,7 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object GroupByFunction extends MashFunction("collections.groupBy") {
 
@@ -58,7 +59,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val includeTotalGroup = Truthiness.isTruthy(boundParams(Total))
 
     val nullKey = boundParams.get(IncludeNull) match {
-      case Some(true) | None ⇒ null
+      case Some(true) | None ⇒ MashNull
       case Some(x)           ⇒ x
     }
     def translateKey(k: Any) = k match {
@@ -68,7 +69,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     var groups =
       for {
         (key, values) ← sequence.groupBy(discriminator).toSeq
-        if key != null || includeNulls
+        if key != MashNull || includeNulls
         groupKey = translateKey(key)
       } yield makeGroup(groupKey, values)
 

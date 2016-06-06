@@ -25,6 +25,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
+import com.github.mdr.mash.runtime.MashNull
 
 object StatusFunction extends MashFunction("git.status") {
 
@@ -78,7 +79,7 @@ object StatusFunction extends MashFunction("git.status") {
         MashNumber(status.getAheadCount),
         MashNumber(status.getBehindCount))
     case None ⇒
-      (null, MashNumber(0), MashNumber(0))
+      (MashNull, MashNumber(0), MashNumber(0))
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StatusClass)

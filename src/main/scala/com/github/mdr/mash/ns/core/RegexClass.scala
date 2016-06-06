@@ -14,6 +14,8 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.runtime.MashObject
 import scala.collection.immutable.ListMap
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object RegexClass extends MashClass("core.Regex") {
 
@@ -29,7 +31,7 @@ object RegexClass extends MashClass("core.Regex") {
         String,
         "String to search within for matches")))
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       val boundParams = params.validate(arguments)
       val regex = target.asInstanceOf[MashString].s.r
       val s = boundParams(String).asInstanceOf[MashString].s
@@ -43,7 +45,7 @@ object RegexClass extends MashClass("core.Regex") {
             Fields.Matched -> MashString(m.matched),
             Fields.Groups -> m.subgroups.map(MashString(_))),
           classOpt = Some(MatchClass))
-      }.orNull
+      }.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(MatchClass)

@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import java.nio.file.Path
 import com.github.mdr.mash.runtime.MashList
 import scala.util.control.Exception._
+import com.github.mdr.mash.runtime.MashNull
 
 case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[Argument]]) {
 
@@ -50,7 +51,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[
 
   def validateStringOpt(param: Parameter): Option[MashString] = this(param) match {
     case s: MashString ⇒ Some(s)
-    case null          ⇒ None
+    case MashNull      ⇒ None
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
       throw new EvaluatorException(message, locationOpt(param))
@@ -101,7 +102,7 @@ case class BoundParams(params: Map[String, Any], argumentNodes: Map[String, Seq[
   def validateIntegerOrNull(param: Parameter): Option[Int] = this(param) match {
     case MashInteger(n) ⇒
       Some(n)
-    case null ⇒
+    case MashNull ⇒
       None
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be an integer, but was '${ToStringifier.stringify(x)}'"

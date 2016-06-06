@@ -17,6 +17,8 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object UserSummaryClass extends MashClass("os.UserSummary") {
 
@@ -52,7 +54,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val username = Wrapper(target).username
       val fullNameOpt =
@@ -60,7 +62,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
           entry ← userInteractions.passwdEntries.find(_.username == username)
           fullName ← entry.fullNameOpt
         } yield MashString(fullName)
-      fullNameOpt.orNull
+      fullNameOpt.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
@@ -93,7 +95,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val group = userInteractions.groupEntries
       .find(_.gid == entry.gid)
       .map(ge => MashString(ge.group, GroupClass))
-      .orNull
+      .getOrElse(MashNull)
     val uid = MashNumber(entry.uid, UidClass)
     val home = MashString(entry.homeDirectory, PathClass)
     val shell = MashString(entry.shell, PathClass)

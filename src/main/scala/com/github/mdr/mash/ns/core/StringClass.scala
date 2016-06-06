@@ -14,6 +14,8 @@ import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object StringClass extends MashClass("core.String") {
 
@@ -124,9 +126,9 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashClass = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      target.asInstanceOf[MashString].tagClassOpt.orNull
+      target.asInstanceOf[MashString].tagClassOpt.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
@@ -185,7 +187,7 @@ object StringClass extends MashClass("core.String") {
       val Separator = Parameter(
         name = "separator",
         summary = "Separator to split string on",
-        defaultValueGeneratorOpt = Some(() ⇒ null))
+        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
     import Params._
 
@@ -198,7 +200,7 @@ object StringClass extends MashClass("core.String") {
       val targetString = target.asInstanceOf[MashString]
       val regex = Truthiness.isTruthy(boundParams(Regex))
       val pieces = boundParams(Separator) match {
-        case null ⇒
+        case MashNull ⇒
           targetString.s.split("\\s+")
         case MashString(separator, _) ⇒
           val delimiterPattern = if (regex) separator else Pattern.quote(separator)
@@ -330,11 +332,11 @@ object StringClass extends MashClass("core.String") {
     val params = ParameterModel(Seq(Parameter(
       name = N,
       summary = "Number of elements",
-      defaultValueGeneratorOpt = Some(() ⇒ null))))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
-      val countOpt = Option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
+      val countOpt = MashNull.option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
       val s = target.asInstanceOf[MashString]
       countOpt match {
         case None    ⇒ s.last
@@ -355,11 +357,11 @@ object StringClass extends MashClass("core.String") {
     val params = ParameterModel(Seq(Parameter(
       name = N,
       summary = "Number of elements",
-      defaultValueGeneratorOpt = Some(() ⇒ null))))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))))
 
     def apply(target: Any, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
-      val countOpt = Option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
+      val countOpt = MashNull.option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
       val s = target.asInstanceOf[MashString]
       countOpt match {
         case None    ⇒ s.first

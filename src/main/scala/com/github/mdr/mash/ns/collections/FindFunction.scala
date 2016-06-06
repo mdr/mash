@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import scala.PartialFunction.condOpt
+import com.github.mdr.mash.runtime.MashNull
 
 object FindFunction extends MashFunction("collections.find") {
 
@@ -26,7 +27,7 @@ object FindFunction extends MashFunction("collections.find") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val predicate = boundParams.validateFunction(Predicate)
-    sequence.find(x ⇒ Truthiness.isTruthy(predicate(x))).orNull
+    sequence.find(x ⇒ Truthiness.isTruthy(predicate(x))).getOrElse(MashNull)
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy

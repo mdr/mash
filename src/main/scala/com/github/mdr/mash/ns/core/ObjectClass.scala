@@ -15,6 +15,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object ObjectClass extends MashClass("core.Object") {
 
@@ -29,7 +30,7 @@ object ObjectClass extends MashClass("core.Object") {
     val params = ParameterModel()
 
     def apply(target: Any, arguments: Arguments): MashClass = target match {
-      case null            ⇒ NullClass
+      case MashNull        ⇒ NullClass
       case ()              ⇒ UnitClass
       case obj: MashObject ⇒ obj.classOpt.getOrElse(ObjectClass)
       case _: MashNumber   ⇒ NumberClass

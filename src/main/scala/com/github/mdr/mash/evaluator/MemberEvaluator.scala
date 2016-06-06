@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object MemberEvaluator {
 
@@ -45,7 +46,7 @@ object MemberEvaluator {
     target match {
       case MashNumber(n, tagClassOpt) ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
       case MashString(s, tagClassOpt) ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case null                       ⇒ lookupMethod(target, NullClass, name)
+      case MashNull                   ⇒ lookupMethod(target, NullClass, name)
       case ()                         ⇒ lookupMethod(target, UnitClass, name)
       case b: Boolean                 ⇒ lookupMethod(b, BooleanClass, name)
       case xs: MashList               ⇒ lookupMethod(xs, SeqClass, name)

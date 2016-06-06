@@ -12,6 +12,8 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object ClassClass extends MashClass("core.Class") {
 
@@ -55,9 +57,9 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashClass = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      target.asInstanceOf[MashClass].parentOpt.orNull
+      target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)

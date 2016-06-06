@@ -17,6 +17,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
+import com.github.mdr.mash.runtime.MashNull
 
 object StatusClass extends MashClass("git.Status") {
 
@@ -54,7 +55,7 @@ object StatusClass extends MashClass("git.Status") {
     def hasChangesToBeCommitted = added.nonEmpty || changed.nonEmpty || removed.nonEmpty
     def hasUnstagedChanges = modified.nonEmpty || missing.nonEmpty
     def branch = obj(Branch).asInstanceOf[MashString].s
-    def upstreamBranchOpt: Option[String] = Option(obj(UpstreamBranch)).map(_.asInstanceOf[MashString].s)
+    def upstreamBranchOpt: Option[String] = MashNull.option(obj(UpstreamBranch)).map(_.asInstanceOf[MashString].s)
     def aheadCount = obj(AheadCount).asInstanceOf[MashNumber].asInt.get
     def behindCount = obj(BehindCount).asInstanceOf[MashNumber].asInt.get
   }

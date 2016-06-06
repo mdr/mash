@@ -24,6 +24,8 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object PathClass extends MashClass("os.Path") {
 
@@ -151,13 +153,13 @@ object PathClass extends MashClass("os.Path") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
       if (name contains ".")
         MashString(name.reverse.takeWhile(_ != '.').reverse)
       else
-        null
+        MashNull
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
@@ -330,11 +332,11 @@ The default character encoding and line separator are used.""")
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val parent = FunctionHelpers.interpretAsPath(target).getParent
       if (parent == null)
-        null
+        MashNull
       else
         asPathString(parent)
     }

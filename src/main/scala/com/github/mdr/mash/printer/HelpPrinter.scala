@@ -12,6 +12,7 @@ import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import java.io.PrintStream
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.runtime.MashNull
 
 /**
  * Render function/method/field help objects in a similar style to man pages
@@ -29,7 +30,7 @@ class HelpPrinter(output: PrintStream) {
     output.println(bold("NAME"))
     output.println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
     output.println()
-    val classOpt = Option(mo.field(Class).asInstanceOf[MashString]).map(_.s)
+    val classOpt = MashNull.option(mo.field(Class)).map(_.asInstanceOf[MashString].s)
     for (klass ← classOpt) {
       output.println(bold("CLASS"))
       output.println(indentSpace + klass)
@@ -46,7 +47,7 @@ class HelpPrinter(output: PrintStream) {
       for (param ← parameters)
         printParameterHelp(param.asInstanceOf[MashObject])
     }
-    for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
+    for (description ← MashNull.option(mo.field(Description)).map(_.asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description.s, indent))
       output.println()
@@ -87,9 +88,9 @@ class HelpPrinter(output: PrintStream) {
       case _     ⇒ qualifiers.mkString(" [", ", ", "]")
     }
     val paramName = paramNameStyle("" + (if (isFlag) "--" + param.field(Name) else param.field(Name)))
-    val shortFlagDescription = paramNameStyle(Option(param.field(ShortFlag).asInstanceOf[MashString]).map(f ⇒ s" | -$f").getOrElse(""))
+    val shortFlagDescription = paramNameStyle(MashNull.option(param.field(ShortFlag)).map(f ⇒ s" | -$f").getOrElse(""))
     output.println(paramName + shortFlagDescription + qualifierString + " - " + param.field(Summary))
-    for (description ← Option(param.field(Description).asInstanceOf[MashString]))
+    for (description ← MashNull.option(param.field(Description)).map(_.asInstanceOf[MashString]))
       output.println(shiftLeftMargin(description.s, indent * 2))
     output.println()
   }
@@ -100,12 +101,12 @@ class HelpPrinter(output: PrintStream) {
     output.println(bold("NAME"))
     output.println(indentSpace + bold(mo.field(FullyQualifiedName)) + " - " + mo.field(Summary))
     output.println()
-    for (description ← Option(mo.field(Description).asInstanceOf[MashString])) {
+    for (description ← MashNull.option(mo.field(Description)).map(_.asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description.s, indent))
       output.println()
     }
-    for (parent ← Option(mo.field(Parent).asInstanceOf[MashString])) {
+    for (parent ← MashNull.option(mo.field(Parent)).map(_.asInstanceOf[MashString])) {
       output.println(bold("PARENT"))
       output.println(indentSpace + mo.field(Parent))
       output.println()

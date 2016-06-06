@@ -9,6 +9,7 @@ import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.lexer.TokenType.MISH_INTERPOLATION_START
+import com.github.mdr.mash.runtime.MashNull
 
 /**
  * Convert from concrete to abstract syntax trees.
@@ -30,7 +31,7 @@ object Abstractifier {
       case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), Some(sourceInfo))
       case TokenType.TRUE           ⇒ Abstract.Literal(true, Some(sourceInfo))
       case TokenType.FALSE          ⇒ Abstract.Literal(false, Some(sourceInfo))
-      case TokenType.NULL           ⇒ Abstract.Literal(null, Some(sourceInfo))
+      case TokenType.NULL           ⇒ Abstract.Literal(MashNull, Some(sourceInfo))
       case TokenType.STRING_LITERAL ⇒
         val s = token.text
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single

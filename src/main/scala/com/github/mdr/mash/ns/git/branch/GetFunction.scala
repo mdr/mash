@@ -9,6 +9,8 @@ import com.github.mdr.mash.ns.git.GitHelper
 import org.eclipse.jgit.api.Git
 import scala.collection.JavaConverters._
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object GetFunction extends MashFunction("git.branch.get") {
 
@@ -21,12 +23,12 @@ object GetFunction extends MashFunction("git.branch.get") {
 
   val params = ParameterModel(Seq(Branch))
 
-  def apply(arguments: Arguments): MashObject = {
+  def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
-      git.branchList.call().asScala.find(_.getName == "refs/heads/" + branch).map(ListFunction.asMashObject(repo)).orNull
+      git.branchList.call().asScala.find(_.getName == "refs/heads/" + branch).map(ListFunction.asMashObject(repo)).getOrElse(MashNull)
     }
   }
 

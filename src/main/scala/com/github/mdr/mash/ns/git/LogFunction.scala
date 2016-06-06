@@ -20,6 +20,7 @@ import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.ns.git.branch.CreateFunction
+import com.github.mdr.mash.runtime.MashNull
 
 object LogFunction extends MashFunction("git.log") {
 
@@ -27,7 +28,7 @@ object LogFunction extends MashFunction("git.log") {
     val Commit = Parameter(
       name = "commit",
       summary = "Commit to find the log of",
-      defaultValueGeneratorOpt = Some(() => null))
+      defaultValueGeneratorOpt = Some(() => MashNull))
   }
   import Params._
 
@@ -37,7 +38,7 @@ object LogFunction extends MashFunction("git.log") {
     val boundParams = params.validate(arguments)
     GitHelper.withGit { git ⇒
       val cmd = git.log
-      if (boundParams(Commit) != null) {
+      if (boundParams(Commit) != MashNull) {
         val commit = MergeFunction.validateCommit(boundParams, Commit)
         cmd.add(commit)
       }

@@ -28,6 +28,8 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.ns.git.branch.CreateFunction
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object CommitClass extends MashClass("git.Commit") {
 
@@ -88,9 +90,9 @@ object CommitClass extends MashClass("git.Commit") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashString = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      Wrapper(target).parentOpt.orNull
+      Wrapper(target).parentOpt.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
@@ -139,8 +141,8 @@ object CommitClass extends MashClass("git.Commit") {
         case "/dev/null" ⇒ None
         case _           ⇒ Some(s)
       }
-      def processPath(path: String): MashString =
-        Option(path).flatMap(handleDevNull).map(s ⇒ MashString(s, PathClass)).orNull
+      def processPath(path: String): MashValue =
+        Option(path).flatMap(handleDevNull).map(s ⇒ MashString(s, PathClass)).getOrElse(MashNull)
       MashObject(
         ListMap(
           _Type -> MashString(diff.getChangeType.name.toLowerCase.capitalize),

@@ -14,6 +14,8 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashValue
 
 object ProcessClass extends MashClass("os.Process") {
 
@@ -45,7 +47,7 @@ object ProcessClass extends MashClass("os.Process") {
     def pid: Int = obj.field(Pid).asInstanceOf[MashNumber].asInt.get
 
     def parentPidOpt: Option[Int] =
-      Option(obj.field(ParentPid)).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
+      MashNull.option(obj.field(ParentPid)).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
 
   }
 
@@ -53,7 +55,7 @@ object ProcessClass extends MashClass("os.Process") {
     MashObject(
       ListMap(
         Pid -> MashNumber(info.pid, PidClass),
-        ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, PidClass)).orNull,
+        ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, PidClass)).getOrElse(MashNull),
         Name -> MashString(info.name),
         Command -> MashString(info.command),
         Owner -> MashString(info.owner, UsernameClass),
@@ -90,7 +92,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: Any, arguments: Arguments): MashObject = {
+    def apply(target: Any, arguments: Arguments): MashValue = {
       params.validate(arguments)
       val parentPidOpt = Wrapper(target).parentPidOpt
       val parentProcessOpt =
@@ -98,7 +100,7 @@ object ProcessClass extends MashClass("os.Process") {
           parentPid ← parentPidOpt
           processInfo ← processInteractions.getProcess(parentPid)
         } yield makeProcess(processInfo)
-      parentProcessOpt.orNull
+      parentProcessOpt.getOrElse(MashNull)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)

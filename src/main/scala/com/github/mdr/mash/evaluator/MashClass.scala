@@ -10,6 +10,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.functions.Namespace
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.HasName
+import com.github.mdr.mash.runtime.MashValue
 
 object MashClass {
 
@@ -36,7 +37,7 @@ object MashClass {
 
 }
 
-abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) extends HasName {
+abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 

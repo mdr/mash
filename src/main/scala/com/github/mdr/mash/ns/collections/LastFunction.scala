@@ -6,6 +6,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object LastFunction extends MashFunction("collections.last") {
 
@@ -13,7 +14,7 @@ object LastFunction extends MashFunction("collections.last") {
     val N: Parameter = Parameter(
       name = "n",
       summary = "Number of elements to take",
-      defaultValueGeneratorOpt = Some(() ⇒ null))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to find the last value(s) of",
@@ -35,8 +36,8 @@ object LastFunction extends MashFunction("collections.last") {
         }
       case None ⇒
         sequence match {
-          case s: MashString ⇒ if (s.isEmpty) null else s.last
-          case xs: MashList  ⇒ if (xs.isEmpty) null else xs.last
+          case s: MashString ⇒ if (s.isEmpty) MashNull else s.last
+          case xs: MashList  ⇒ if (xs.isEmpty) MashNull else xs.last
         }
     }
   }

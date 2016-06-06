@@ -11,12 +11,13 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 /** Detect the type of runtime values **/
 object ValueTypeDetector {
 
   def getType(x: Any): Type = x match {
-    case null                                ⇒ Type.Instance(NullClass)
+    case MashNull                            ⇒ Type.Instance(NullClass)
     case AnonymousFunction(param, body, env) ⇒ Type.Lambda(param, body, TypeInferencer.buildBindings(env, includeGlobal = false))
     case f: MashFunction                     ⇒ Type.DefinedFunction(f)
     case BoundMethod(target, method, _)      ⇒ Type.BoundMethod(getType(target), method)

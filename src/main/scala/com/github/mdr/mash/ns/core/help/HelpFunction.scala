@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.core.ClassClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object HelpFunction extends MashFunction("core.help.help") {
 
@@ -48,9 +49,9 @@ object HelpFunction extends MashFunction("core.help.help") {
         FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
         Summary -> MashString(f.summary),
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
-        Description -> f.descriptionOpt.map(MashString(_)).orNull,
+        Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parameters -> MashList(f.params.params.map(getHelp)),
-        Class -> null),
+        Class -> MashNull),
       FunctionHelpClass)
   }
 
@@ -67,7 +68,7 @@ object HelpFunction extends MashFunction("core.help.help") {
         FullyQualifiedName -> MashString(m.name),
         Summary -> MashString(m.summary),
         CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
-        Description -> m.descriptionOpt.map(MashString(_)).orNull,
+        Description -> m.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parameters -> MashList(m.params.params.map(getHelp)),
         Class -> MashString(klass.fullyQualifiedName.toString)),
       FunctionHelpClass)
@@ -80,7 +81,7 @@ object HelpFunction extends MashFunction("core.help.help") {
         Name -> MashString(field.name),
         Class -> MashString(klass.fullyQualifiedName.toString),
         Summary -> MashString(field.summary),
-        Description -> field.descriptionOpt.map(MashString(_)).orNull),
+        Description -> field.descriptionOpt.map(MashString(_)).getOrElse(MashNull)),
       FieldHelpClass)
   }
 
@@ -90,8 +91,8 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(param.name),
         Summary -> MashString(param.summary),
-        Description -> param.descriptionOpt.map(MashString(_)).orNull,
-        ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).orNull,
+        Description -> param.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
+        ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).getOrElse(MashNull),
         IsFlagParameter -> param.isFlag,
         IsOptional -> param.isOptional,
         IsLast -> param.isLast,
@@ -108,8 +109,8 @@ object HelpFunction extends MashFunction("core.help.help") {
         Name -> MashString(klass.name),
         FullyQualifiedName -> MashString(klass.fullyQualifiedName.toString),
         Summary -> MashString(klass.summary),
-        Description -> klass.descriptionOpt.map(MashString(_)).orNull,
-        Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).orNull,
+        Description -> klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
+        Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull),
         Fields -> MashList(fields),
         Methods -> MashList(methods)),
       ClassHelpClass)

@@ -10,6 +10,7 @@ import com.fatboyindustrial.gsonjavatime.Converters
 import com.google.gson.GsonBuilder
 import scala.util.Try
 import java.util.UUID
+import com.github.mdr.mash.runtime.MashNull
 
 trait HistoryStorage {
 
@@ -56,7 +57,7 @@ class HistoryImpl(
       None
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[Any]) {
-    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.orNull)
+    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.getOrElse(MashNull))
     history = entry +: history
     storage.saveEntry(entry.copy(result = null))
   }

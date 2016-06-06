@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.functions.BoundParams
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashNull
 
 object CreateFunction extends MashFunction("git.branch.create") {
 
@@ -23,7 +24,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     lazy val Branch: Parameter = Parameter(
       name = "branch",
       summary = "Name to give the new local branch",
-      defaultValueGeneratorOpt = Some(() ⇒ null),
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
       descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.name}' is provided"))
     lazy val Switch = Parameter(
       name = "switch",
@@ -36,14 +37,14 @@ object CreateFunction extends MashFunction("git.branch.create") {
       name = "fromRemote",
       summary = "Create the new branch as a local tracking branch of the given remote branch",
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ null))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
   }
   import Params._
 
   val params = ParameterModel(Seq(Branch, Switch, FromRemote))
 
   private def validateRemote(boundParams: BoundParams): Option[String] =
-    Option(boundParams(FromRemote)).map {
+    MashNull.option(boundParams(FromRemote)).map {
       case MashString(s, _) ⇒ s
       case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
       case _ ⇒ boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")

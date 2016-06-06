@@ -12,6 +12,7 @@ import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
 
 object FirstFunction extends MashFunction("collections.first") {
 
@@ -19,7 +20,7 @@ object FirstFunction extends MashFunction("collections.first") {
     val N: Parameter = Parameter(
       name = "n",
       summary = "Number of elements",
-      defaultValueGeneratorOpt = Some(() ⇒ null))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to find the first value(s) of",
@@ -43,9 +44,9 @@ object FirstFunction extends MashFunction("collections.first") {
       case None ⇒
         sequence match {
           case s: MashString ⇒
-            if (s.isEmpty) null else s.first
+            if (s.isEmpty) MashNull else s.first
           case xs: MashList ⇒
-            if (xs.isEmpty) null else xs.head
+            if (xs.isEmpty) MashNull else xs.head
         }
     }
   }

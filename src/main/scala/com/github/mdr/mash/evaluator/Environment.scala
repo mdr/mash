@@ -22,6 +22,7 @@ import com.github.mdr.mash.ns.view.RawFunction
 import com.github.mdr.mash.ns.view.BrowserFunction
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashNull
 
 case class Environment(bindings: Map[String, Any], globalVariables: mutable.Map[String, Any]) {
 
@@ -50,7 +51,7 @@ object Environment {
       "env" -> systemEnvironment,
       "config" -> Config.defaultConfig,
       "git" -> git,
-      "it" -> null,
+      "it" -> MashNull,
       "json" -> json,
       "view" -> view,
       "ns" -> ns)

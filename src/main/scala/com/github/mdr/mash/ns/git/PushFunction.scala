@@ -16,6 +16,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.ns.git.branch.DeleteFunction
+import com.github.mdr.mash.runtime.MashNull
 
 object PushFunction extends MashFunction("git.push") {
 
@@ -38,7 +39,7 @@ object PushFunction extends MashFunction("git.push") {
       name = "remote",
       isFlag = true,
       summary = "Remote to push to",
-      defaultValueGeneratorOpt = Some(() ⇒ null))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Branches = Parameter(
       name = "branches",
       summary = "Local branch to push",

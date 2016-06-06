@@ -13,6 +13,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.UnitClass
 import java.io.File
+import com.github.mdr.mash.runtime.MashNull
 
 object CloneFunction extends MashFunction("git.clone") {
 
@@ -23,7 +24,7 @@ object CloneFunction extends MashFunction("git.clone") {
     val Directory = Parameter(
       name = "directory",
       summary = "Name to give to new repository directory",
-      defaultValueGeneratorOpt = Some(() ⇒ null))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
   }
   import Params._
 

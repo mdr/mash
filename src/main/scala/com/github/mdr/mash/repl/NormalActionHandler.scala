@@ -14,6 +14,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.runtime.MashNull
 
 trait NormalActionHandler { self: Repl ⇒
 
@@ -148,7 +149,7 @@ trait NormalActionHandler { self: Repl ⇒
       case Some(MashList(oldResults @ _*)) ⇒ oldResults
       case _                               ⇒ Seq()
     }
-    val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(null)
+    val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(MashNull)
     val newResults = MashList(extendedResults.updated(number, result))
     state.globalVariables += ReplState.Res -> newResults
   }

@@ -27,6 +27,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.ns.core.ClassClass
 import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.runtime.MashNull
 
 object Printer {
 
@@ -50,7 +51,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == true
         val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == true
         return render(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-      case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == null || x.isInstanceOf[MashString]) ⇒
+      case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.foreach(output.println)
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val items = xs.items.asInstanceOf[Seq[MashObject]]
