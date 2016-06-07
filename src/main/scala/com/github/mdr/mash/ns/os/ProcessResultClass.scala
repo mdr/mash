@@ -17,17 +17,21 @@ import com.github.mdr.mash.subprocesses.ProcessResult
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.runtime.MashWrapped
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object Fields {
-    val ExitStatus = Field("exitStatus", "Exit status of process", Type.Instance(NumberClass))
-    val Stdout = Field("stdout", "Captured stdout", Type.Instance(StringClass))
+    val ExitStatus = Field("exitStatus", "Exit status of process", NumberClass)
+    val Stdout = Field("stdout", "Captured stdout", StringClass)
+    val Started = Field("started", "Time process began running", DateTimeClass)
+    val Finished = Field("finished", "Time process finished", DateTimeClass)
   }
 
   import Fields._
 
-  override val fields = Seq(ExitStatus, Stdout)
+  override val fields = Seq(ExitStatus, Stdout, Started, Finished)
 
   def summary = "The result of running a process"
 
@@ -43,7 +47,9 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     MashObject(
       ListMap(
         ExitStatus -> MashNumber(processResult.exitStatus),
-        Stdout -> MashString(processResult.stdout)),
+        Stdout -> MashString(processResult.stdout),
+        Started -> MashWrapped(processResult.start),
+        Finished -> MashWrapped(processResult.stop)),
       ProcessResultClass)
   }
 

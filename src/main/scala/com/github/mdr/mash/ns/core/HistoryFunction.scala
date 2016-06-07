@@ -18,6 +18,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.functions.FunctionHelpers
 
 object HistoryFunction extends MashFunction("os.history") {
 
@@ -39,7 +40,8 @@ object HistoryFunction extends MashFunction("os.history") {
         Timestamp -> MashWrapped(entry.timestamp),
         Command -> MashString(entry.command),
         Mish -> MashBoolean(entry.mish), 
-        Result -> entry.resultOpt.getOrElse(MashNull)),
+        Result -> entry.resultOpt.getOrElse(MashNull),
+        WorkingDirectory -> entry.workingDirectoryOpt.map(FunctionHelpers.asPathString).getOrElse(MashNull)),
       HistoryClass)
   }
 

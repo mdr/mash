@@ -16,8 +16,11 @@ import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.os.linux.LinuxFileSystem
+import java.nio.file.Path
 
 trait NormalActionHandler { self: Repl ⇒
+  private val fileSystem = LinuxFileSystem
 
   def handleNormalAction(action: InputAction) = {
     action match {
@@ -112,6 +115,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def runCommand(cmd: String) {
+    val workingDirectory = fileSystem.pwd
     val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
     val commandResult =
       try
@@ -122,10 +126,10 @@ trait NormalActionHandler { self: Repl ⇒
           DebugLogger.logException(e)
           return
       }
-    processCommandResult(cmd, commandResult)
+    processCommandResult(cmd, commandResult, workingDirectory)
   }
 
-  private def processCommandResult(cmd: String, commandResult: CommandResult) {
+  private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
     val CommandResult(resultOpt, toggleMish, objectTableModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
       case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
@@ -135,7 +139,7 @@ trait NormalActionHandler { self: Repl ⇒
     if (toggleMish)
       state.mish = !state.mish
     else {
-      history.record(cmd, commandNumber, state.mish, actualResultOpt)
+      history.record(cmd, commandNumber, state.mish, actualResultOpt, workingDirectory)
       state.commandNumber += 1
     }
     actualResultOpt.foreach(saveResult(commandNumber))

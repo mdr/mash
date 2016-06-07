@@ -12,6 +12,8 @@ import scala.collection.JavaConverters._
 import java.nio.charset.StandardCharsets
 import java.io.PrintStream
 import com.github.mdr.mash.runtime.MashValue
+import java.time.Instant
+import java.time.Duration
 
 object ProcessRunner {
 
@@ -30,11 +32,12 @@ object ProcessRunner {
     val outputRedirect = if (captureProcess) ProcessBuilder.Redirect.PIPE else ProcessBuilder.Redirect.INHERIT
     try {
       terminalControl.configureTerminalForExternalProcess()
-      val process =
-        new ProcessBuilder(stringArgs: _*)
-          .redirectInput(ProcessBuilder.Redirect.INHERIT)
-          .redirectOutput(outputRedirect)
-          .redirectError(ProcessBuilder.Redirect.INHERIT).start()
+      val builder = new ProcessBuilder(stringArgs: _*)
+        .redirectInput(ProcessBuilder.Redirect.INHERIT)
+        .redirectOutput(outputRedirect)
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
+      val start = Instant.now
+      val process = builder.start()
 
       val stdout =
         if (captureProcess)
@@ -42,16 +45,16 @@ object ProcessRunner {
         else
           ""
       val statusCode = process.waitFor()
-
+      val stop = Instant.now
       // Clear out any partial output
       output.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
       output.flush()
 
-      ProcessResult(statusCode, stdout)
+      ProcessResult(statusCode, stdout, start, stop)
     } finally
       terminalControl.restore()
   }
 
 }
 
-case class ProcessResult(exitStatus: Int, stdout: String)
+case class ProcessResult(exitStatus: Int, stdout: String, start: Instant, stop: Instant)
