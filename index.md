@@ -3,7 +3,7 @@ layout: default
 title: Mash Shell
 ---
 
-**Mash** is an object shell for Unix.
+**Mash** is an experimental object shell for Unix.
 
 ## Features
 
@@ -12,6 +12,7 @@ title: Mash Shell
 * Syntax highlighting
 * Object pretty-printing
 * Built-in command help
+* Support for Linux and OS X
 
 ## Screenshots
 

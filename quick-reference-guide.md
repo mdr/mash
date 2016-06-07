@@ -67,8 +67,8 @@ Anonymous functions:
 As syntax sugar, anonymous functions can be written using the *hole* (`_`) operator. Same
 examples as above:
 
-	_ + 1
-	_.size
+    _ + 1
+    _.size
 
 The scope of the hole is:
 
@@ -78,6 +78,10 @@ The scope of the hole is:
 Holes can be repeated:
 
     _ * _ # equivalent to x => x * x
+
+There is a further syntax sugar for member expressions:
+
+    .size # equivalent to _.size, or x => x.size
 
 ### Function calls:
 
@@ -144,6 +148,7 @@ into Mish by default.
 * Ctrl-a: beginning of line
 * Ctrl-l: clear screen
 * Ctrl-k: kill line
+* Alt-,: toggle mish prefix for this line
 
 ### Tab completion
 
@@ -155,6 +160,11 @@ mode, which will display additional information about the options.
 
 Mash executes commands from `~/.mash/mashrc` on startup, and can be used to add aliases and
 set configuration options.
+
+### Configuration options
+
+   config.language.bareWords = true # Treat unbound identifiers as string literals
+   config.cli.showStartupTips = true # Show tip on startup
 
 ## Standard library
 
