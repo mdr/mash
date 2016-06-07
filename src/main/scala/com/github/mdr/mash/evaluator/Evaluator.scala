@@ -75,12 +75,6 @@ object Evaluator {
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
-      case interpolatedString: InterpolatedString ⇒
-        evaluateInterpolatedString(interpolatedString)
-      case ParenExpr(body, _) ⇒
-        evaluate(body)
-      case Literal(v, _) ⇒
-        v
       case StringLiteral(s, quotationType, tildePrefix, _) ⇒
         val tagOpt = condOpt(quotationType) { case QuotationType.Double ⇒ PathClass }
         val detilded = if (tildePrefix) environmentInteractions.home + s else s
@@ -95,32 +89,26 @@ object Evaluator {
           case n: MashNumber ⇒ n.negate
           case _             ⇒ throw new EvaluatorException("Could not negate a non-number", expr.locationOpt)
         }
-      case memberExpr: MemberExpr ⇒
-        evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
-      case lookupExpr: LookupExpr ⇒
-        evaluateLookupExpr(lookupExpr)
-      case invocationExpr: InvocationExpr ⇒
-        evaluateInvocationExpr(invocationExpr)
-      case LambdaExpr(parameter, body, _) ⇒
-        makeAnonymousFunction(parameter, body)
-      case binOp: BinOpExpr ⇒
-        evaluateBinOp(binOp)
-      case chainedOpExpr: ChainedOpExpr ⇒
-        evaluateChainedOp(chainedOpExpr)
-      case assExpr: AssignmentExpr ⇒ evaluateAssignment(assExpr)
-      case ifExpr: IfExpr ⇒
-        evaluateIfExpr(ifExpr)
-      case ListExpr(items, _) ⇒
-        MashList(items.map(evaluate(_)))
+      case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
+      case ParenExpr(body, _)                     ⇒ evaluate(body)
+      case Literal(v, _)                          ⇒ v
+      case memberExpr: MemberExpr                 ⇒ evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
+      case lookupExpr: LookupExpr                 ⇒ evaluateLookupExpr(lookupExpr)
+      case invocationExpr: InvocationExpr         ⇒ evaluateInvocationExpr(invocationExpr)
+      case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
+      case binOp: BinOpExpr                       ⇒ evaluateBinOp(binOp)
+      case chainedOpExpr: ChainedOpExpr           ⇒ evaluateChainedOp(chainedOpExpr)
+      case assExpr: AssignmentExpr                ⇒ evaluateAssignment(assExpr)
+      case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
+      case ListExpr(items, _)                     ⇒ MashList(items.map(evaluate(_)))
+      case mishExpr: MishExpr                     ⇒ evaluateMishExpr(mishExpr)
+      case expr: MishInterpolation                ⇒ evaluateMishInterpolation(expr)
+      case decl: FunctionDeclaration              ⇒ evaluateFunctionDecl(decl)
+      case MishFunction(command, _)               ⇒ SystemCommandFunction(command)
+      case HelpExpr(expr, _)                      ⇒ evaluateHelpExpr(expr)
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject(fields, classOpt = None)
-      case mishExpr: MishExpr        ⇒ evaluateMishExpr(mishExpr)
-      case expr: MishInterpolation   ⇒ evaluateMishInterpolation(expr)
-      case decl: FunctionDeclaration ⇒ evaluateFunctionDecl(decl)
-      case MishFunction(command, _)  ⇒ SystemCommandFunction(command)
-      case HelpExpr(expr, _)         ⇒ evaluateHelpExpr(expr)
-
     }
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
@@ -374,7 +362,7 @@ object Evaluator {
       case ((leftSuccess, leftResult), (op, right)) ⇒
         lazy val rightResult = evaluate(right)
         lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
-        (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */)
+        (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */ )
     }
     MashBoolean(success)
   }
