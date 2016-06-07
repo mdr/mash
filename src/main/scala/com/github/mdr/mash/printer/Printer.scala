@@ -32,6 +32,8 @@ import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.ns.time.MillisecondsClass
+import com.github.mdr.mash.ns.time.SecondsClass
 
 object Printer {
 
@@ -101,6 +103,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
     case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
     case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
+    case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
+    case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
     case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
     case MashWrapped(i: Instant) ⇒ new PrettyTime().format(Date.from(i))
     case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")

@@ -20,15 +20,21 @@ object NumberClass extends MashClass("core.Number") {
     HoursMethod,
     KbMethod,
     MbMethod,
+    MillisecondsMethod,
+    MinutesMethod,
     MonthsMethod,
     NegateMethod,
+    SecondsMethod,
     TagMethod,
     ToIntMethod,
     UntaggedMethod,
     WeeksMethod,
     alias("day", DaysMethod),
     alias("hour", HoursMethod),
+    alias("millisecond", MillisecondsMethod),
+    alias("minute", MinutesMethod),
     alias("month", MonthsMethod),
+    alias("second", SecondsMethod),
     alias("week", WeeksMethod))
 
   object ToIntMethod extends MashMethod("toInt") {
@@ -153,8 +159,11 @@ object NumberClass extends MashClass("core.Number") {
 
   }
 
-  object DaysMethod extends ChronoUnitMethod("days", DaysClass)
+  object MillisecondsMethod extends ChronoUnitMethod("milliseconds", MillisecondsClass)
+  object SecondsMethod extends ChronoUnitMethod("seconds", SecondsClass)
+  object MinutesMethod extends ChronoUnitMethod("minutes", MinutesClass)
   object HoursMethod extends ChronoUnitMethod("hours", HoursClass)
+  object DaysMethod extends ChronoUnitMethod("days", DaysClass)
   object WeeksMethod extends ChronoUnitMethod("weeks", WeeksClass)
   object MonthsMethod extends ChronoUnitMethod("months", MonthsClass)
 

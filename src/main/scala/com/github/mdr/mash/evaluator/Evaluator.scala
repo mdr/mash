@@ -1,40 +1,32 @@
 package com.github.mdr.mash.evaluator
 
+import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
+import java.time.temporal.TemporalAmount
+
 import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
+
 import com.github.mdr.mash.functions.AnonymousFunction
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.UserDefinedFunction
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.ns.core.help.ParameterHelpClass
+import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.os.RunFunction
+import com.github.mdr.mash.ns.os.ProcessResultClass
+import com.github.mdr.mash.ns.time.ChronoUnitClass
+import com.github.mdr.mash.ns.time.MillisecondsClass
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.parser.ConcreteSyntax
+import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.subprocesses.ProcessResult
+import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.ns.core.FunctionClass
-import com.github.mdr.mash.ns.core.help.HelpFunction
-import com.github.mdr.mash.subprocesses.ProcessRunner
-import com.github.mdr.mash.subprocesses.ProcessResult
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.parser.QuotationType
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.ns.os.ProcessResultClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashWrapped
 
 object Evaluator {
 
@@ -404,7 +396,7 @@ object Evaluator {
       case BinaryOperator.Equals            ⇒ MashBoolean(leftResult == rightResult)
       case BinaryOperator.NotEquals         ⇒ MashBoolean(leftResult != rightResult)
       case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, locationOpt)
-      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "subtract", _ - _)
+      case BinaryOperator.Minus             ⇒ subtract(leftResult, rightResult, locationOpt)
       case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, locationOpt)
       case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "divide", _ / _)
       case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
@@ -430,12 +422,32 @@ object Evaluator {
     case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
   }
 
+  private implicit class RichInstant(instant: Instant) {
+    def +(duration: TemporalAmount): Instant = instant.plus(duration)
+    def -(duration: TemporalAmount): Instant = instant.minus(duration)
+  }
+
   def add(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
     case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber) ⇒ left + right
-    case _                                     ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+    case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
+      MashWrapped(instant + klass.temporalAmount(n.toInt))
+    case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
+      MashWrapped(instant + klass.temporalAmount(n.toInt))
+    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+  }
+
+  def subtract(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
+    case (left: MashNumber, right: MashNumber) ⇒ left - right
+    case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
+      MashWrapped(instant - klass.temporalAmount(n.toInt))
+    case (MashWrapped(instant1: Instant), MashWrapped(instant2: Instant)) ⇒
+      val duration = Duration.between(instant2, instant1)
+      val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
+      MashNumber(millis, Some(MillisecondsClass))
+    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
   }
 
   private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =

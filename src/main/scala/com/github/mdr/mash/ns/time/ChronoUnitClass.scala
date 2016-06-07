@@ -10,6 +10,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.runtime.MashValue
+import java.time.temporal.TemporalAmount
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 
@@ -27,7 +28,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
-      MashWrapped(now.minus(amount, unit).atZone(clock.getZone).toInstant)
+      MashWrapped(now.minus(temporalAmount(amount)).atZone(clock.getZone).toInstant)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
@@ -44,7 +45,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       params.validate(arguments)
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
-      MashWrapped(now.plus(amount, unit).atZone(clock.getZone).toInstant)
+      MashWrapped(now.plus(temporalAmount(amount)).atZone(clock.getZone).toInstant)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
@@ -55,9 +56,34 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
   override def summary = "A tag class for a number of " + unit.name.toLowerCase
 
+  def temporalAmount(n: Int): TemporalAmount
+
 }
 
-object DaysClass extends ChronoUnitClass("time.Days", ChronoUnit.DAYS)
-object HoursClass extends ChronoUnitClass("time.Hours", ChronoUnit.HOURS)
-object WeeksClass extends ChronoUnitClass("time.Weeks", ChronoUnit.WEEKS)
-object MonthsClass extends ChronoUnitClass("time.Months", ChronoUnit.MONTHS)
+object MillisecondsClass extends ChronoUnitClass("time.Milliseconds", ChronoUnit.MILLIS) {
+  override def temporalAmount(n: Int) = Duration.ofMillis(n)
+}
+
+object SecondsClass extends ChronoUnitClass("time.Seconds", ChronoUnit.SECONDS) {
+  override def temporalAmount(n: Int) = Duration.ofSeconds(n)
+}
+
+object MinutesClass extends ChronoUnitClass("time.Minutes", ChronoUnit.MINUTES) {
+  override def temporalAmount(n: Int) = Duration.ofMinutes(n)
+}
+
+object DaysClass extends ChronoUnitClass("time.Days", ChronoUnit.DAYS) {
+  override def temporalAmount(n: Int) = Period.ofDays(n)
+}
+
+object HoursClass extends ChronoUnitClass("time.Hours", ChronoUnit.HOURS) {
+  override def temporalAmount(n: Int) = Duration.ofHours(n)
+}
+
+object WeeksClass extends ChronoUnitClass("time.Weeks", ChronoUnit.WEEKS) {
+  override def temporalAmount(n: Int) = Period.ofWeeks(n)
+}
+
+object MonthsClass extends ChronoUnitClass("time.Months", ChronoUnit.MONTHS) {
+  override def temporalAmount(n: Int) = Period.ofMonths(n)
+}

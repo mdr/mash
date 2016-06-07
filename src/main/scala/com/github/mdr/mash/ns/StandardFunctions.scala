@@ -146,6 +146,13 @@ object StandardFunctions {
     UidClass,
     UsernameClass,
     UserSummaryClass,
+    MillisecondsClass,
+    SecondsClass,
+    MinutesClass,
+    HoursClass,
+    DaysClass,
+    WeeksClass,
+    MonthsClass,
     DateTimeClass,
     LocalDateClass,
     ViewClass)
