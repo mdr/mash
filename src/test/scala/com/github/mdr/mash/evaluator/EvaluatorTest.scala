@@ -40,7 +40,9 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "1 <= 2 < 3" shouldEvaluateTo "true"
   "1 < 100 < 3" shouldEvaluateTo "false"
   "1 < 2 < -100" shouldEvaluateTo "false"
+  "1 < -10 < 100" shouldEvaluateTo "false"
   "a = 0; -100 < (a = a + 1; a) < 100; a" shouldEvaluateTo "1"
+  "a = 0; (a = a + 1; 100) < (a = a + 1; -100) < (a = a + 1; -1000); a" shouldEvaluateTo "2" // short circuits the last
   
   "true and true" shouldEvaluateTo "true"
   "true and false" shouldEvaluateTo "false"

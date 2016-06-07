@@ -376,11 +376,11 @@ object Evaluator {
   private def evaluateChainedOp(chainedOp: ChainedOpExpr, env: Environment): MashValue = {
     val ChainedOpExpr(left, opRights, _) = chainedOp
     val leftResult = evaluate(left, env)
-    val rightResults = for ((op, right) ← opRights) yield op -> evaluate(right, env)
-    val (success, _) = rightResults.foldLeft((true, leftResult)) {
-      case ((leftSuccess, left), (op, right)) ⇒
-        val thisSuccess = evaluateBinOp(left, op, right, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
-        (thisSuccess, right)
+    val (success, _) = opRights.foldLeft((true, leftResult)) {
+      case ((leftSuccess, leftResult), (op, right)) ⇒
+        lazy val rightResult = evaluate(right, env)
+        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
+        (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */)
     }
     MashBoolean(success)
   }
