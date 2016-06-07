@@ -112,8 +112,8 @@ object ConcreteSyntax {
   /**
    * e.g. 0 <= x < y <= 100
    */
-  case class ChainedOpExpr(left: Expr, ops: Seq[(Token, Expr)]) extends Expr {
-    lazy val tokens = left.tokens ++ ops.flatMap { case (token, expr) ⇒ token +: expr.tokens }
+  case class ChainedOpExpr(left: Expr, opRights: Seq[(Token, Expr)]) extends Expr {
+    lazy val tokens = left.tokens ++ opRights.flatMap { case (token, expr) ⇒ token +: expr.tokens }
   }
 
   case class IfExpr(ifToken: Token, cond: Expr, thenToken: Token, body: Expr, elseOpt: Option[(Token, Expr)]) extends Expr {

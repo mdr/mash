@@ -23,30 +23,6 @@ class AbstractifierTest extends FlatSpec with Matchers {
     abstractExpr should equal(StringLiteral("foo", QuotationType.Double, tildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
   }
 
-  "A chained comparison" should "get desugared into a conjunction of binary comparisons" in {
-
-    val s = "0 <= x < 100"
-    val Some(concreteExpr) = MashParser.parse(s)
-    val Concrete.ChainedOpExpr(zeroLiteral, Seq((lt1, xIdentifier), (lt2, hundredLiteral))) = concreteExpr
-    val abstractExpr = Abstractifier.abstractify(concreteExpr)
-
-    abstractExpr should equal(
-      BinOpExpr(
-        BinOpExpr(
-          Literal(MashNumber(0), Some(SourceInfo(zeroLiteral))),
-          BinaryOperator.LessThanEquals,
-          Identifier("x", Some(SourceInfo(xIdentifier))),
-          Some(SourceInfo(concreteExpr))),
-        BinaryOperator.And,
-        BinOpExpr(
-          Identifier("x", Some(SourceInfo(xIdentifier))),
-          BinaryOperator.LessThan,
-          Literal(MashNumber(100), Some(SourceInfo(hundredLiteral))),
-          Some(SourceInfo(concreteExpr))),
-        Some(SourceInfo(concreteExpr))))
-
-  }
-
   "A function invocation" should "have its positional arguments collected" in {
     val s = "ls pwd"
     val Some(concreteExpr) = MashParser.parse(s)

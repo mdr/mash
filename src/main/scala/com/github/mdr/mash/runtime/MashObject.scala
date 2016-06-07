@@ -24,8 +24,6 @@ object MashObject {
 
 case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option[MashClass] = None) extends MashValue {
 
-  fields.values.foreach(MashValue.checkIsValidRuntimeValue)
-
   for (klass ← classOpt) {
     val klassFields = klass.fields.map(_.name)
     val providedFields = fields.keys.toSeq

@@ -11,6 +11,8 @@ import scala.language.postfixOps
 @RunWith(classOf[JUnitRunner])
 class EvaluatorTest extends FlatSpec with Matchers {
 
+  // Comparisons
+  
   "1 < 2" shouldEvaluateTo "true"
   "1 < 1" shouldEvaluateTo "false"
   "1 < 0" shouldEvaluateTo "false"
@@ -33,6 +35,13 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "1 != 1" shouldEvaluateTo "false"
   "1 != 2" shouldEvaluateTo "true"
 
+  // Chained comparisons
+  "1 < 2 < 3" shouldEvaluateTo "true"
+  "1 <= 2 < 3" shouldEvaluateTo "true"
+  "1 < 100 < 3" shouldEvaluateTo "false"
+  "1 < 2 < -100" shouldEvaluateTo "false"
+  "a = 0; -100 < (a = a + 1; a) < 100; a" shouldEvaluateTo "1"
+  
   "true and true" shouldEvaluateTo "true"
   "true and false" shouldEvaluateTo "false"
   "false and true" shouldEvaluateTo "false"

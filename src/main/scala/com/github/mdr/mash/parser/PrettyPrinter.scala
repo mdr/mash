@@ -40,6 +40,13 @@ object PrettyPrinter {
     case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
     case ObjectExpr(entries, _)                    ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")
     case AssignmentExpr(left, right, alias, _)     ⇒ parens(pretty(left), simpleOmitParens(left)) + " = " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
+    case MishExpr(command, args, _, _)             ⇒ pretty(command) + " " + args.map(pretty)
+    case ChainedOpExpr(left, opRights, _) ⇒
+      parens(pretty(left), simpleOmitParens(left)) +
+        opRights.map {
+          case (op, right) ⇒
+            " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
+        }.mkString
     case InvocationExpr(function, args, _) ⇒
       parens(pretty(function), simpleOmitParens(function)) + " " + args.map(arg ⇒
         arg match {
@@ -50,7 +57,6 @@ object PrettyPrinter {
           case Argument.LongFlag(flag, valueOpt, _) ⇒
             "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
         }).mkString(" ")
-    case MishExpr(command, args, _, _) ⇒ pretty(command) + " " + args.map(pretty)
     case MishInterpolation(part, _) ⇒
       part match {
         case StringPart(s)  ⇒ s

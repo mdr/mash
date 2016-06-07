@@ -71,6 +71,8 @@ class BareStringificationContext {
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)
     case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, bindings), sourceInfoOpt)
+    case ChainedOpExpr(left, opRights, sourceInfoOpt) =>
+      ChainedOpExpr(bareStringify(left, bindings), opRights.map { case (op, right) => op -> bareStringify(right, bindings) }, sourceInfoOpt)
     case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
       IfExpr(bareStringify(cond, bindings), bareStringify(body, bindings), elseOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
     case ListExpr(items, sourceInfoOpt) ⇒

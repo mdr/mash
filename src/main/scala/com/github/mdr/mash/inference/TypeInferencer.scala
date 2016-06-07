@@ -75,6 +75,7 @@ class TypeInferencer {
       case is: InterpolatedString                       ⇒ inferType(is, bindings)
       case MinusExpr(_, _)                              ⇒ Some(Type.Instance(NumberClass))
       case binOpExpr: BinOpExpr                         ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
+      case chainedOpExpr: ChainedOpExpr                 ⇒ inferTypeChainedOpExpr(chainedOpExpr, bindings)
       case memberExpr: MemberExpr                       ⇒ inferType(memberExpr, bindings, immediateExec)
       case lookupExpr: LookupExpr                       ⇒ inferType(lookupExpr, bindings)
       case ifExpr: IfExpr                               ⇒ inferType(ifExpr, bindings)
@@ -155,11 +156,22 @@ class TypeInferencer {
     } yield memberType
   }
 
+  private def inferTypeChainedOpExpr(chainedOpExpr: Expr, bindings: Map[String, Type]): Option[Type] = {
+    val ChainedOpExpr(left, opRights, _) = chainedOpExpr
+    inferType(left, bindings)
+    for ((op, right) ← opRights) yield op -> inferType(right, bindings)
+    Some(Type.Instance(BooleanClass))
+  }
+
   private def inferTypeBinOpExpr(binOpExpr: Expr, bindings: Map[String, Type]): Option[Type] = {
-    import BinaryOperator._
     val BinOpExpr(left, op, right, _) = binOpExpr
     val leftTypeOpt = inferType(left, bindings)
     val rightTypeOpt = inferType(right, bindings)
+    inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt)
+  }
+
+  private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type]): Option[Type] = {
+    import BinaryOperator._
     op match {
       case Plus ⇒
         (leftTypeOpt, rightTypeOpt) match {

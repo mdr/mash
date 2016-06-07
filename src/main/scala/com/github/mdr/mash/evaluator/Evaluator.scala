@@ -50,7 +50,6 @@ object Evaluator {
           addLocationToExceptionIfMissing(expr.locationOpt) { immediatelyResolveNullaryFunctions(v) }
         case _ ⇒ v
       }
-      MashValue.checkIsValidRuntimeValue(result)
       result
     } catch {
       case e: EvaluatorException ⇒
@@ -110,8 +109,10 @@ object Evaluator {
         evaluateInvocationExpr(invocationExpr, env)
       case LambdaExpr(parameter, body, _) ⇒
         makeAnonymousFunction(parameter, body, env)
-      case binOp @ BinOpExpr(_, _, _, _) ⇒
+      case binOp: BinOpExpr ⇒
         evaluateBinOp(binOp, env)
+      case chainedOpExpr: ChainedOpExpr ⇒
+        evaluateChainedOp(chainedOpExpr, env)
       case assExpr: AssignmentExpr ⇒ evaluateAssignment(assExpr, env)
       case ifExpr: IfExpr ⇒
         evaluateIfExpr(ifExpr, env)
@@ -371,13 +372,29 @@ object Evaluator {
     }
   }
 
+  private def evaluateChainedOp(chainedOp: ChainedOpExpr, env: Environment): MashValue = {
+    val ChainedOpExpr(left, opRights, _) = chainedOp
+    val leftResult = evaluate(left, env)
+    val rightResults = for ((op, right) ← opRights) yield op -> evaluate(right, env)
+    val (success, _) = rightResults.foldLeft((true, leftResult)) {
+      case ((leftSuccess, left), (op, right)) ⇒
+        val thisSuccess = evaluateBinOp(left, op, right, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
+        (thisSuccess, right)
+    }
+    MashBoolean(success)
+  }
+
   private def evaluateBinOp(binOp: BinOpExpr, env: Environment): MashValue = {
     val BinOpExpr(left, op, right, _) = binOp
     lazy val leftResult = evaluate(left, env)
     lazy val rightResult = evaluate(right, env)
+    evaluateBinOp(leftResult, op, rightResult, binOp.locationOpt)
+  }
+
+  private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[PointedRegion]): MashValue = {
     def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean =
       MashBoolean(PartialFunction.cond(leftResult) {
-        case l: Comparable[_] ⇒ f(l.asInstanceOf[Comparable[MashValue]].compareTo(rightResult), 0)
+        case l: Comparable[_]              ⇒ f(l.asInstanceOf[Comparable[MashValue]].compareTo(rightResult), 0)
         case MashWrapped(l: Comparable[_]) ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult.asInstanceOf[MashWrapped].x), 0)
       })
     op match {
@@ -385,10 +402,10 @@ object Evaluator {
       case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult
       case BinaryOperator.Equals            ⇒ MashBoolean(leftResult == rightResult)
       case BinaryOperator.NotEquals         ⇒ MashBoolean(leftResult != rightResult)
-      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, binOp.locationOpt)
-      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, binOp.locationOpt, "subtract", _ - _)
-      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, binOp.locationOpt)
-      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, binOp.locationOpt, "divide", _ / _)
+      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, locationOpt)
+      case BinaryOperator.Minus             ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "subtract", _ - _)
+      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, locationOpt)
+      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "divide", _ / _)
       case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
       case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
       case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)

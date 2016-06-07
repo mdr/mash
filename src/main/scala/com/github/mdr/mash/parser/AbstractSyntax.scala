@@ -58,6 +58,8 @@ object AbstractSyntax {
             InvocationExpr(function.transform(f), newArguments, sourceInfoOpt)
           case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
             BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
+          case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+            ChainedOpExpr(left.transform(f), opRights.map { case (op, right) => op -> right.transform(f) } , sourceInfoOpt)
           case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
             IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
           case ListExpr(items, sourceInfoOpt) ⇒
@@ -198,6 +200,11 @@ object AbstractSyntax {
   case class BinOpExpr(left: Expr, op: BinaryOperator, right: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(left, right)
+  }
+
+  case class ChainedOpExpr(left: Expr, opRights: Seq[(BinaryOperator, Expr)], sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = left +: opRights.map(_._2)
   }
 
   case class IfExpr(cond: Expr, body: Expr, elseOpt: Option[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {

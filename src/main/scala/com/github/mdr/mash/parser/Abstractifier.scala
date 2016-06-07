@@ -163,22 +163,11 @@ object Abstractifier {
     Abstract.InvocationExpr(abstractify(function), abstractArgs, Some(SourceInfo(invocationExpr)))
   }
 
-  /**
-   * Unroll a chained comparison into a conjunction of binary comparisons
-   */
   private def abstractifyChainedComparision(chainedExpr: Concrete.ChainedOpExpr): Abstract.Expr = {
     val Concrete.ChainedOpExpr(left, opRights) = chainedExpr
-    var previous = abstractify(left)
-    val binaryExprs =
-      for ((opToken, right) ← opRights) yield {
-        val current = abstractify(right)
-        val binaryExpr = Abstract.BinOpExpr(previous, getBinaryOperator(opToken), current, Some(SourceInfo(chainedExpr)))
-        previous = current
-        binaryExpr
-      }
-    def and(e1: Abstract.Expr, e2: Abstract.Expr): Abstract.Expr =
-      Abstract.BinOpExpr(e1, BinaryOperator.And, e2, Some(SourceInfo(chainedExpr)))
-    binaryExprs.reduce(and)
+    Abstract.ChainedOpExpr(abstractify(left), opRights.map {
+      case (opToken, right) ⇒ (getBinaryOperator(opToken), abstractify(right))
+    }, Some(SourceInfo(chainedExpr)))
   }
 
   private def getBinaryOperator(token: Token): BinaryOperator =

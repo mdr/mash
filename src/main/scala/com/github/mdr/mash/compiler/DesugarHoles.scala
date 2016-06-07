@@ -77,6 +77,12 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield BinOpExpr(newLeft, op, newRight, sourceInfoOpt)
+    case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+      val newOpRights = for ((op, right) ← opRights) yield op -> desugarHoles_(right)
+      for {
+        newLeft ← desugarHoles_(left)
+        newOpRights ← sequencePairs(for ((op, right) ← opRights) yield op -> desugarHoles_(right))
+      } yield ChainedOpExpr(newLeft, newOpRights, sourceInfoOpt)
     case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
       for {
         newLeft ← desugarHoles_(left)
@@ -130,6 +136,7 @@ object DesugarHoles {
         tail ← sequence(xs.tail)
       } yield head +: tail
   }
+
   private def sequence[T](resultMap: ListMap[String, Result[T]]): Result[ListMap[String, T]] =
     Result(
       for ((k, result) ← resultMap)
@@ -139,5 +146,10 @@ object DesugarHoles {
     Result(
       for ((k, result) ← resultMap)
         yield k -> result.value, hasHole = resultMap.values.exists(_.hasHole))
+
+  private def sequencePairs[U, T](results: Seq[(U, Result[T])]): Result[Seq[(U, T)]] =
+    Result(
+      for ((k, result) ← results)
+        yield k -> result.value, hasHole = results.exists(_._2.hasHole))
 
 }
