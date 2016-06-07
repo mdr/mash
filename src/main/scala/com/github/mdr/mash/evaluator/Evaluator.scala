@@ -151,53 +151,54 @@ object Evaluator {
     left match {
       case Identifier(name, _) ⇒
         env.globalVariables += name -> rightValue
-        MashUnit
       case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
         val targetValue = evaluate(target, env)
         targetValue match {
           case MashObject(fields, _) ⇒
             fields += member -> rightValue
-            MashUnit
           case _ ⇒
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
         }
       case LookupExpr(target, index, _) ⇒
-        val targetValue = evaluate(target, env)
-        val indexValue = evaluate(index, env)
-        targetValue match {
-          case xs: MashList ⇒
-            indexValue match {
-              case n: MashNumber ⇒
-                n.asInt match {
-                  case Some(i) ⇒
-                    val items = xs.items
-                    if (i < 0 || i > items.size - 1)
-                      throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt)
-                    else {
-                      xs.items(i) = rightValue
-                      MashUnit
-                    }
-                  case None ⇒
-                    throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
-                }
-              case _ ⇒
-                throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
-            }
-          case mo: MashObject ⇒
-            indexValue match {
-              case MashString(s, _) ⇒ {
-                mo.fields(s) = rightValue
-                MashUnit
-              }
-              case _ ⇒
-                throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
-            }
-          case _ ⇒
-            throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.locationOpt)
-        }
+        evaluateAssignmentToLookupExpr(target, index, rightValue, env)
       case _ ⇒
         throw new EvaluatorException("Expression is not assignable", left.locationOpt)
     }
+    MashUnit
+  }
+
+  private def evaluateAssignmentToLookupExpr(target: Expr, index: Expr, rightValue: MashValue, env: Environment): MashValue = {
+    val targetValue = evaluate(target, env)
+    val indexValue = evaluate(index, env)
+    targetValue match {
+      case xs: MashList ⇒
+        indexValue match {
+          case n: MashNumber ⇒
+            val i = n.asInt.getOrElse(
+              throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt))
+            val items = xs.items
+            if (i < 0 || i > items.size - 1)
+              throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt)
+            else {
+              xs.items(i) = rightValue
+              MashUnit
+            }
+          case _ ⇒
+            throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
+        }
+      case mo: MashObject ⇒
+        indexValue match {
+          case MashString(s, _) ⇒ {
+            mo.fields(s) = rightValue
+            MashUnit
+          }
+          case _ ⇒
+            throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
+        }
+      case _ ⇒
+        throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.locationOpt)
+    }
+
   }
 
   private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =
