@@ -459,6 +459,8 @@ class EvaluatorTest extends FlatSpec with Matchers {
   // headless members
   "{ foo: 42 } | .foo" shouldEvaluateTo "42"
   "[1, 2, 3] | .last 2" shouldEvaluateTo "[2, 3]"
+  "[{ foo: 42 }] | .foo" shouldEvaluateTo "[42]"
+  "null | ?.foo" shouldEvaluateTo "null"
   
   // .class
   "1.class" shouldEvaluateTo "ns.core.Number"
