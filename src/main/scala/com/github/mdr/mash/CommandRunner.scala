@@ -84,7 +84,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, environment
       val ctx = new ExecutionContext(Thread.currentThread)
       Singletons.setExecutionContext(ctx)
       ExecutionContext.set(ctx)
-      Evaluator.evaluate(expr, environment)
+      Evaluator.evaluate(expr)(EvaluationContext(environment))
     } catch {
       case e @ EvaluatorException(msg, locationOpt, cause) ⇒
         printError("Error", msg, cmd, locationOpt)

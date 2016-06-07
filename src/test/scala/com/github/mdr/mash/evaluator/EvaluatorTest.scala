@@ -487,7 +487,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
         val env = Environment.create
         val Some(expr) = Compiler.compile(s, forgiving = false, environment = env)
         try {
-          val result = Evaluator.evaluate(expr, env)
+          val result = Evaluator.evaluate(expr)(EvaluationContext(env))
           fail("Expected an exception during evaluation, but got a result of: " + result)
         } catch {
           case _: EvaluatorException ⇒ // exception expected here
@@ -499,16 +499,17 @@ class EvaluatorTest extends FlatSpec with Matchers {
       "Evaluator" should s"not throw an exception when evaluating '$s'" in {
         val env = Environment.create
         val Some(expr) = Compiler.compile(s, forgiving = false, environment = env)
-        Evaluator.evaluate(expr, env)
+        Evaluator.evaluate(expr)(EvaluationContext(env))
       }
     }
     def shouldEvaluateTo(expectedString: String) = {
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = Environment.create
+        val ctx = EvaluationContext(env)
         val Some(expr1) = Compiler.compile(s, forgiving = false, environment = env)
         val Some(expr2) = Compiler.compile(expectedString, forgiving = false, environment = env)
-        val actual = Evaluator.evaluate(expr1, env)
-        val expected = Evaluator.evaluate(expr2, env)
+        val actual = Evaluator.evaluate(expr1)(ctx)
+        val expected = Evaluator.evaluate(expr2)(ctx)
         actual should equal(expected)
       }
     }

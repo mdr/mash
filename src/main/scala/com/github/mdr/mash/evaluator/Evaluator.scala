@@ -28,14 +28,16 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Utils
 
+case class EvaluationContext(environment: Environment)
+
 object Evaluator {
 
   private val environmentInteractions = LinuxEnvironmentInteractions
 
-  def evaluate(expr: Expr, env: Environment): MashValue = {
+  def evaluate(expr: Expr)(implicit context: EvaluationContext): MashValue = {
     try {
       ExecutionContext.checkInterrupted()
-      val v = simpleEvaluate(expr, env)
+      val v = simpleEvaluate(expr)
       ExecutionContext.checkInterrupted()
       val result = expr match {
         case _: Identifier | _: MemberExpr ⇒
@@ -69,14 +71,14 @@ object Evaluator {
   /**
    * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
    */
-  private def simpleEvaluate(expr: Expr, env: Environment): MashValue =
+  private def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
       case interpolatedString: InterpolatedString ⇒
-        evaluateInterpolatedString(interpolatedString, env)
+        evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _) ⇒
-        evaluate(body, env)
+        evaluate(body)
       case Literal(v, _) ⇒
         v
       case StringLiteral(s, quotationType, tildePrefix, _) ⇒
@@ -84,44 +86,44 @@ object Evaluator {
         val detilded = if (tildePrefix) environmentInteractions.home + s else s
         MashString(detilded, tagOpt)
       case Identifier(name, _) ⇒
-        env.get(name).orElse(env.globalVariables.get(name)).getOrElse {
+        context.environment.get(name).orElse(context.environment.globalVariables.get(name)).getOrElse {
           val locationOpt = expr.locationOpt
           throw EvaluatorException(s"No binding for '$name'", locationOpt)
         }
       case MinusExpr(subExpr, _) ⇒
-        evaluate(subExpr, env) match {
+        evaluate(subExpr) match {
           case n: MashNumber ⇒ n.negate
           case _             ⇒ throw new EvaluatorException("Could not negate a non-number", expr.locationOpt)
         }
       case memberExpr: MemberExpr ⇒
-        evaluateMemberExpr(memberExpr, env, immediatelyResolveNullaryWhenVectorising = true).result
+        evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
       case lookupExpr: LookupExpr ⇒
-        evaluateLookupExpr(lookupExpr, env)
+        evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr ⇒
-        evaluateInvocationExpr(invocationExpr, env)
+        evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(parameter, body, _) ⇒
-        makeAnonymousFunction(parameter, body, env)
+        makeAnonymousFunction(parameter, body)
       case binOp: BinOpExpr ⇒
-        evaluateBinOp(binOp, env)
+        evaluateBinOp(binOp)
       case chainedOpExpr: ChainedOpExpr ⇒
-        evaluateChainedOp(chainedOpExpr, env)
-      case assExpr: AssignmentExpr ⇒ evaluateAssignment(assExpr, env)
+        evaluateChainedOp(chainedOpExpr)
+      case assExpr: AssignmentExpr ⇒ evaluateAssignment(assExpr)
       case ifExpr: IfExpr ⇒
-        evaluateIfExpr(ifExpr, env)
+        evaluateIfExpr(ifExpr)
       case ListExpr(items, _) ⇒
-        MashList(items.map(evaluate(_, env)))
+        MashList(items.map(evaluate(_)))
       case ObjectExpr(entries, _) ⇒
-        val fields = for ((label, value) ← entries) yield label -> evaluate(value, env)
+        val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject(fields, classOpt = None)
-      case mishExpr: MishExpr        ⇒ evaluateMishExpr(mishExpr, env)
-      case expr: MishInterpolation   ⇒ evaluateMishInterpolation(expr, env)
-      case decl: FunctionDeclaration ⇒ evaluateFunctionDecl(decl, env)
+      case mishExpr: MishExpr        ⇒ evaluateMishExpr(mishExpr)
+      case expr: MishInterpolation   ⇒ evaluateMishInterpolation(expr)
+      case decl: FunctionDeclaration ⇒ evaluateFunctionDecl(decl)
       case MishFunction(command, _)  ⇒ SystemCommandFunction(command)
-      case HelpExpr(expr, _)         ⇒ evaluateHelpExpr(expr, env)
+      case HelpExpr(expr, _)         ⇒ evaluateHelpExpr(expr)
 
     }
 
-  private def evaluateFunctionDecl(decl: FunctionDeclaration, env: Environment): MashUnit = {
+  private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
     val parameters: Seq[Parameter] = params.map {
       case SimpleParam(name, _)   ⇒ Parameter(name, s"Parameter '$name'")
@@ -132,19 +134,19 @@ object Evaluator {
     val variadicIndex = parameters.indexWhere(_.isVariadic)
     if (variadicIndex >= 0 && variadicIndex < params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
-    val fn = UserDefinedFunction(name, ParameterModel(parameters), body, env)
-    env.globalVariables += name -> fn
+    val fn = UserDefinedFunction(name, ParameterModel(parameters), body, context)
+    context.environment.globalVariables += name -> fn
     MashUnit
   }
 
-  private def evaluateAssignment(expr: AssignmentExpr, env: Environment): MashUnit = {
+  private def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashUnit = {
     val AssignmentExpr(left, right, alias, _) = expr
-    val rightValue = if (alias) simpleEvaluate(right, env) else evaluate(right, env)
+    val rightValue = if (alias) simpleEvaluate(right) else evaluate(right)
     left match {
       case Identifier(name, _) ⇒
-        env.globalVariables += name -> rightValue
+        context.environment.globalVariables += name -> rightValue
       case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
-        val targetValue = evaluate(target, env)
+        val targetValue = evaluate(target)
         targetValue match {
           case MashObject(fields, _) ⇒
             fields += member -> rightValue
@@ -152,16 +154,16 @@ object Evaluator {
             throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
         }
       case LookupExpr(target, index, _) ⇒
-        evaluateAssignmentToLookupExpr(target, index, rightValue, env)
+        evaluateAssignmentToLookupExpr(target, index, rightValue)
       case _ ⇒
         throw new EvaluatorException("Expression is not assignable", left.locationOpt)
     }
     MashUnit
   }
 
-  private def evaluateAssignmentToLookupExpr(target: Expr, index: Expr, rightValue: MashValue, env: Environment): MashValue = {
-    val targetValue = evaluate(target, env)
-    val indexValue = evaluate(index, env)
+  private def evaluateAssignmentToLookupExpr(target: Expr, index: Expr, rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
+    val targetValue = evaluate(target)
+    val indexValue = evaluate(index)
     targetValue match {
       case xs: MashList ⇒
         indexValue match {
@@ -206,34 +208,34 @@ object Evaluator {
     fieldHelpOpt orElse memberHelpOpt
   }
 
-  private def evaluateHelpExpr(expr: Expr, env: Environment): MashObject =
+  private def evaluateHelpExpr(expr: Expr)(implicit context: EvaluationContext): MashObject =
     expr match {
       case memberExpr @ MemberExpr(targetExpr, name, _, _) ⇒
-        val target = evaluate(targetExpr, env)
+        val target = evaluate(targetExpr)
         val scalarHelpOpt = getHelpForMember(target, name)
         lazy val vectorHelpOpt = condOpt(target) {
           case MashList(x, _*) ⇒ getHelpForMember(x, name)
         }.flatten
         lazy val directHelp = {
-          val result = evaluateMemberExpr_(memberExpr, target, env, immediatelyResolveNullaryWhenVectorising = true).result
+          val result = evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
           HelpFunction.getHelp(result)
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
       case _ ⇒
-        val x = simpleEvaluate(expr, env)
+        val x = simpleEvaluate(expr)
         HelpFunction.getHelp(x)
     }
 
-  private def evaluateMishInterpolation(expr: MishInterpolation, env: Environment) =
+  private def evaluateMishInterpolation(expr: MishInterpolation)(implicit context: EvaluationContext) =
     expr.part match {
       case StringPart(s)  ⇒ MashString(s, PathClass)
-      case ExprPart(expr) ⇒ evaluate(expr, env)
+      case ExprPart(expr) ⇒ evaluate(expr)
     }
 
-  private def evaluateMishExpr(expr: MishExpr, env: Environment): MashValue = {
+  private def evaluateMishExpr(expr: MishExpr)(implicit context: EvaluationContext): MashValue = {
     val MishExpr(command, args, captureProcessOutput, _) = expr
-    val evaluatedCommand = evaluate(command, env)
-    val evaluatedArgs = args.map(evaluate(_, env))
+    val evaluatedCommand = evaluate(command)
+    val evaluatedArgs = args.map(evaluate(_))
     val flattenedArgs: Seq[MashValue] = evaluatedArgs.flatMap {
       case xs: MashList ⇒ xs.items
       case x            ⇒ Seq(x)
@@ -248,13 +250,13 @@ object Evaluator {
     }
   }
 
-  private def evaluateInterpolatedString(interpolatedString: InterpolatedString, env: Environment): MashString = {
+  private def evaluateInterpolatedString(interpolatedString: InterpolatedString)(implicit context: EvaluationContext): MashString = {
     val InterpolatedString(start, parts, end, _) = interpolatedString
     val chunks =
       MashString(start, PathClass) +:
         parts.map {
           case StringPart(s) ⇒ MashString(s, PathClass)
-          case ExprPart(expr) ⇒ evaluate(expr, env) match {
+          case ExprPart(expr) ⇒ evaluate(expr) match {
             case ms: MashString ⇒ ms
             case x              ⇒ MashString(ToStringifier.stringify(x))
           }
@@ -262,18 +264,18 @@ object Evaluator {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(parameter: String, body: Expr, env: Environment): AnonymousFunction =
-    AnonymousFunction(parameter, body, env)
+  private def makeAnonymousFunction(parameter: String, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+    AnonymousFunction(parameter, body, context)
 
   private case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
 
-  private def evaluateMemberExpr(memberExpr: MemberExpr, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+  private def evaluateMemberExpr(memberExpr: MemberExpr, immediatelyResolveNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
-    val target = evaluate(expr, env)
-    evaluateMemberExpr_(memberExpr, target, env, immediatelyResolveNullaryWhenVectorising)
+    val target = evaluate(expr)
+    evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising)
   }
 
-  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, env: Environment, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, context: EvaluationContext, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
@@ -306,44 +308,44 @@ object Evaluator {
         None
     }
 
-  private def evaluateArgument(arg: Argument, env: Environment): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr, env), Some(arg))
+  private def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
+    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr), Some(arg))
     case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags, Some(arg))
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v, env)), Some(arg))
+    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v)), Some(arg))
   }
 
-  private def evaluateInvocationExpr(invocationExpr: InvocationExpr, env: Environment) = {
+  private def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext) = {
     val InvocationExpr(functionExpr, arguments, _) = invocationExpr
-    val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_, env)))
+    val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
     functionExpr match {
       case memberExpr: MemberExpr ⇒
-        val MemberExprEvalResult(result, wasVectorised) = evaluateMemberExpr(memberExpr, env, immediatelyResolveNullaryWhenVectorising = false)
+        val MemberExprEvalResult(result, wasVectorised) = evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = false)
         if (wasVectorised) {
           val functions = result.asInstanceOf[MashList]
           functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
         } else
           callFunction(result, evaluatedArguments, functionExpr, invocationExpr)
       case _ ⇒
-        val function = simpleEvaluate(functionExpr, env)
+        val function = simpleEvaluate(functionExpr)
         callFunction(function, evaluatedArguments, functionExpr, invocationExpr)
     }
   }
 
-  private def evaluateIfExpr(ifExpr: IfExpr, env: Environment) = {
+  private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
-    val result = evaluate(cond, env)
+    val result = evaluate(cond)
     if (Truthiness.isTruthy(result))
-      evaluate(body, env)
+      evaluate(body)
     else elseOpt match {
       case None           ⇒ MashUnit
-      case Some(elseBody) ⇒ evaluate(elseBody, env)
+      case Some(elseBody) ⇒ evaluate(elseBody)
     }
   }
 
-  private def evaluateLookupExpr(lookupExpr: LookupExpr, env: Environment): MashValue = {
+  private def evaluateLookupExpr(lookupExpr: LookupExpr)(implicit context: EvaluationContext): MashValue = {
     val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
-    val target = evaluate(targetExpr, env)
-    val index = evaluate(indexExpr, env)
+    val target = evaluate(targetExpr)
+    val index = evaluate(indexExpr)
     val targetLocationOpt = targetExpr.locationOpt
     val indexLocationOpt = indexExpr.locationOpt
     val lookupLocationOpt = lookupExpr.locationOpt
@@ -365,22 +367,22 @@ object Evaluator {
     }
   }
 
-  private def evaluateChainedOp(chainedOp: ChainedOpExpr, env: Environment): MashValue = {
+  private def evaluateChainedOp(chainedOp: ChainedOpExpr)(implicit context: EvaluationContext): MashValue = {
     val ChainedOpExpr(left, opRights, _) = chainedOp
-    val leftResult = evaluate(left, env)
+    val leftResult = evaluate(left)
     val (success, _) = opRights.foldLeft((true, leftResult)) {
       case ((leftSuccess, leftResult), (op, right)) ⇒
-        lazy val rightResult = evaluate(right, env)
+        lazy val rightResult = evaluate(right)
         lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
         (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */)
     }
     MashBoolean(success)
   }
 
-  private def evaluateBinOp(binOp: BinOpExpr, env: Environment): MashValue = {
+  private def evaluateBinOp(binOp: BinOpExpr)(implicit context: EvaluationContext): MashValue = {
     val BinOpExpr(left, op, right, _) = binOp
-    lazy val leftResult = evaluate(left, env)
-    lazy val rightResult = evaluate(right, env)
+    lazy val leftResult = evaluate(left)
+    lazy val rightResult = evaluate(right)
     evaluateBinOp(leftResult, op, rightResult, binOp.locationOpt)
   }
 
