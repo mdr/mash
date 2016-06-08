@@ -10,6 +10,7 @@ import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.runtime.MashValue
 
 object Completer {
 
@@ -27,8 +28,8 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
   private val stringCompleter = new StringCompleter(fileSystem, envInteractions)
 
-  def complete(s: String, pos: Int, env: Environment, mish: Boolean): Option[CompletionResult] = {
-    val parser = new CompletionParser(env, mish)
+  def complete(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[CompletionResult] = {
+    val parser = new CompletionParser(bindings, mish)
     findNearbyToken(s, pos, parser).flatMap(completeToken(s, pos, parser)).map(_.sorted)
   }
 

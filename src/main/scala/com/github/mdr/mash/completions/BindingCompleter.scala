@@ -9,10 +9,10 @@ import com.github.mdr.mash.runtime.MashValue
 
 object BindingCompleter {
 
-  def completeBindings(env: Environment, prefix: String, region: Region): Option[CompletionResult] = {
+  def completeBindings(bindings: Map[String, MashValue], prefix: String, region: Region): Option[CompletionResult] = {
     val completions =
       for {
-        (name, value) ← env.valuesMap.toSeq
+        (name, value) ← bindings.toSeq
         if name startsWith prefix
         (completionType, description) = getBindingTypeAndDescription(value)
       } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = Some(description))

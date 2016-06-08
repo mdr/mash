@@ -25,16 +25,17 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 
-case class Environment(bindings: Map[String, MashValue], globalVariables: mutable.Map[String, MashValue]) {
+case class Environment(bindings_ : Map[String, MashValue], globalVariables: mutable.Map[String, MashValue]) {
 
   def get(name: String): Option[MashValue] = bindings.get(name)
 
   def addBinding(name: String, value: MashValue) = Environment(bindings + (name -> value), globalVariables)
 
-  def valuesMap: Map[String, MashValue] = 
+  def valuesMap: Map[String, MashValue] =
     (for ((k, v) ← globalVariables.toMap) yield k -> v) ++
-      (for ((k, v) ← bindings) yield k -> v)
+      (for ((k, v) ← bindings_) yield k -> v)
 
+  def bindings: Map[String, MashValue] = bindings_ ++ globalVariables
 }
 
 object Environment {

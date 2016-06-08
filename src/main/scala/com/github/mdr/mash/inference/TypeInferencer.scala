@@ -15,22 +15,15 @@ import com.github.mdr.mash.evaluator.SystemCommandFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.ns.os.ProcessResultClass
+import com.github.mdr.mash.runtime.MashValue
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
 object TypeInferencer {
 
-  def buildBindings(env: Environment, includeGlobal: Boolean = true): Map[String, Type] = {
-    val envBindings =
-      for ((k, v) ← env.bindings)
-        yield k -> ValueTypeDetector.getType(v)
-    if (includeGlobal) {
-      val globalBindings =
-        for ((k, v) ← env.globalVariables.toMap)
-          yield k -> ValueTypeDetector.getType(v)
-      globalBindings ++ envBindings
-    } else
-      envBindings
+  def buildBindings(bindings: Map[String, MashValue], includeGlobal: Boolean = true): Map[String, Type] = {
+    for ((k, v) ← bindings)
+      yield k -> ValueTypeDetector.getType(v)
   }
 
 }

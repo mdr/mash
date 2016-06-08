@@ -116,7 +116,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def runCommand(cmd: String) {
     val workingDirectory = fileSystem.pwd
-    val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
+    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
     val commandResult =
       try
         commandRunner.run(cmd, state.mish, state.bareWords)

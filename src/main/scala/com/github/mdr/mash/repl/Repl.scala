@@ -26,6 +26,7 @@ import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.Mash
 import com.github.mdr.mash.input.ObjectBrowserKeyMap
+import com.github.mdr.mash.runtime.MashValue
 
 object Repl {
 
@@ -77,7 +78,7 @@ class Repl(
 
   private def processMashRc() {
     val lines = getMashRcLines
-    val commandRunner = new CommandRunner(output, terminal.info, getEnvironment)
+    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
     for (line ← lines) {
       try
         commandRunner.run(line, state.mish, state.bareWords)
@@ -164,11 +165,11 @@ class Repl(
         case MishCommand(prefix, mishCmd) ⇒
           val newPos = pos - prefix.length // adjust for the prefix
           if (newPos >= 0)
-            InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, newPos, getEnvironment, mish = true)
+            InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, newPos, getBindings, mish = true)
           else
             None
         case _ ⇒
-          InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getEnvironment, mish = state.mish)
+          InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getBindings, mish = state.mish)
       }
   }
 
@@ -184,14 +185,14 @@ class Repl(
         val shift = prefix.length // adjust for the prefix
         val newPos = pos - shift
         if (newPos >= 0)
-          completer.complete(mishCmd, pos = newPos, getEnvironment, mish = true).map(_.translate(shift))
+          completer.complete(mishCmd, pos = newPos, getBindings, mish = true).map(_.translate(shift))
         else
           None
       case _ ⇒
-        completer.complete(text, pos, getEnvironment, mish = state.mish)
+        completer.complete(text, pos, getBindings, mish = state.mish)
     }
   }
 
-  protected def getEnvironment = Environment(Map(), state.globalVariables)
+  protected def getBindings: Map[String, MashValue] = Map() ++ state.globalVariables
 
 }

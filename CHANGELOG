@@ -23,6 +23,7 @@ v0.0.2 (..)
 * Support substring path completions
 * Headless member exprs
 * Date arithmetic
+* Local variable scopes
 
 v0.0.1 (19/January/2016)
 ------------------------

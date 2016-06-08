@@ -6,6 +6,7 @@ import com.github.mdr.mash.parser.Abstractifier
 import com.github.mdr.mash.inference.TypeInferencer
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.runtime.MashValue
 
 object Compiler {
 
@@ -20,7 +21,7 @@ object Compiler {
   @throws[MashParserException]
   def compile(
     s: String,
-    environment: Environment,
+    bindings: Map[String, MashValue],
     forgiving: Boolean = true,
     inferTypes: Boolean = false,
     mish: Boolean = false,
@@ -33,14 +34,14 @@ object Compiler {
       val withoutPipes = DesugarPipes.desugarPipes(withoutHoles)
       val bareStringified =
         if (bareWords)
-          BareStringify.bareStringify(withoutPipes, environment.bindings.keySet ++ environment.globalVariables.keySet)
+          BareStringify.bareStringify(withoutPipes, bindings.keySet)
         else
           withoutPipes
       val finalExpr = bareStringified
 
       if (inferTypes) {
         val typeInferencer = new TypeInferencer
-        val typeBindings = TypeInferencer.buildBindings(environment)
+        val typeBindings = TypeInferencer.buildBindings(bindings)
         typeInferencer.inferType(finalExpr, typeBindings)
       }
 

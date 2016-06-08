@@ -28,7 +28,7 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Utils
 
-case class EvaluationContext(environment: Environment)
+case class EvaluationContext(scopeStack: ScopeStack)
 
 object Evaluator {
 
@@ -80,9 +80,8 @@ object Evaluator {
         val detilded = if (tildePrefix) environmentInteractions.home + s else s
         MashString(detilded, tagOpt)
       case Identifier(name, _) ⇒
-        context.environment.get(name).orElse(context.environment.globalVariables.get(name)).getOrElse {
-          val locationOpt = expr.locationOpt
-          throw EvaluatorException(s"No binding for '$name'", locationOpt)
+        context.scopeStack.lookup(name).getOrElse {
+          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt)
         }
       case MinusExpr(subExpr, _) ⇒
         evaluate(subExpr) match {
@@ -123,7 +122,7 @@ object Evaluator {
     if (variadicIndex >= 0 && variadicIndex < params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
     val fn = UserDefinedFunction(name, ParameterModel(parameters), body, context)
-    context.environment.globalVariables += name -> fn
+    context.scopeStack.set(name, fn)
     MashUnit
   }
 
@@ -132,7 +131,7 @@ object Evaluator {
     val rightValue = if (alias) simpleEvaluate(right) else evaluate(right)
     left match {
       case Identifier(name, _) ⇒
-        context.environment.globalVariables += name -> rightValue
+        context.scopeStack.set(name, rightValue)
       case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
         val targetValue = evaluate(target)
         targetValue match {

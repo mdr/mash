@@ -12,7 +12,7 @@ import scala.language.postfixOps
 class EvaluatorTest extends FlatSpec with Matchers {
 
   // Comparisons
-  
+
   "1 < 2" shouldEvaluateTo "true"
   "1 < 1" shouldEvaluateTo "false"
   "1 < 0" shouldEvaluateTo "false"
@@ -43,7 +43,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "1 < -10 < 100" shouldEvaluateTo "false"
   "a = 0; -100 < (a = a + 1; a) < 100; a" shouldEvaluateTo "1"
   "a = 0; (a = a + 1; 100) < (a = a + 1; -100) < (a = a + 1; -1000); a" shouldEvaluateTo "2" // short circuits the last
-  
+
   "true and true" shouldEvaluateTo "true"
   "true and false" shouldEvaluateTo "false"
   "false and true" shouldEvaluateTo "false"
@@ -168,13 +168,12 @@ class EvaluatorTest extends FlatSpec with Matchers {
     "[ { key: null, count: 1 } ]"
   "[null] | groupBy --includeNull='nope' (x => x) | select 'key'" shouldEvaluateTo
     "[ { key: 'nope' } ]"
-  
+
   "[1, 2, 1] | groupBy --total (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'Total', count: 3 } ]"
   "[1, 2, 1] | groupBy --total='totalCount' (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
 
-  
   // identity
   "identity 1" shouldEvaluateTo "1"
 
@@ -463,31 +462,31 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "[1, 2, 3] | .last 2" shouldEvaluateTo "[2, 3]"
   "[{ foo: 42 }] | .foo" shouldEvaluateTo "[42]"
   "null | ?.foo" shouldEvaluateTo "null"
-  
+
   // .class
   "1.class" shouldEvaluateTo "ns.core.Number"
   "true.class" shouldEvaluateTo "ns.core.Boolean"
   "'foo'.class" shouldEvaluateTo "ns.core.String"
   "now.class" shouldEvaluateTo "ns.time.DateTime"
   "now.date.class" shouldEvaluateTo "ns.time.Date"
- 
+
   // regex
   "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "wibble"
- 
+
   // date/time comparisons
   "now > 3.days.ago" shouldEvaluateTo "true"
   "now < 3.days.ago" shouldEvaluateTo "false"
   "now.date > 3.days.ago.date" shouldEvaluateTo "true"
   "now.date < 3.days.ago.date" shouldEvaluateTo "false"
-  
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
       "Evaluator" should s"throw an exception when evaluating '$s'" in {
         val env = Environment.create
-        val Some(expr) = Compiler.compile(s, forgiving = false, environment = env)
+        val Some(expr) = Compiler.compile(s, forgiving = false, bindings = env.valuesMap)
         try {
-          val result = Evaluator.evaluate(expr)(EvaluationContext(env))
+          val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
           fail("Expected an exception during evaluation, but got a result of: " + result)
         } catch {
           case _: EvaluatorException ⇒ // exception expected here
@@ -498,16 +497,16 @@ class EvaluatorTest extends FlatSpec with Matchers {
     def shouldNotThrowAnException = {
       "Evaluator" should s"not throw an exception when evaluating '$s'" in {
         val env = Environment.create
-        val Some(expr) = Compiler.compile(s, forgiving = false, environment = env)
-        Evaluator.evaluate(expr)(EvaluationContext(env))
+        val Some(expr) = Compiler.compile(s, forgiving = false, bindings = env.valuesMap)
+        Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
       }
     }
     def shouldEvaluateTo(expectedString: String) = {
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = Environment.create
-        val ctx = EvaluationContext(env)
-        val Some(expr1) = Compiler.compile(s, forgiving = false, environment = env)
-        val Some(expr2) = Compiler.compile(expectedString, forgiving = false, environment = env)
+        val ctx = EvaluationContext(ScopeStack(env.globalVariables))
+        val Some(expr1) = Compiler.compile(s, forgiving = false, bindings = ctx.scopeStack.bindings)
+        val Some(expr2) = Compiler.compile(expectedString, forgiving = false, bindings = ctx.scopeStack.bindings)
         val actual = Evaluator.evaluate(expr1)(ctx)
         val expected = Evaluator.evaluate(expr2)(ctx)
         actual should equal(expected)

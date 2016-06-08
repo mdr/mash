@@ -15,10 +15,11 @@ case class UserDefinedFunction(
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    var newEnv = context.environment
-    for (param ← params.params)
-      newEnv = newEnv.addBinding(param.name, boundParams(param))
-    Evaluator.evaluate(body)(context.copy(environment = newEnv))
+    val pairs =
+      for (param ← params.params)
+        yield param.name -> boundParams(param)
+    val newScopeStack = context.scopeStack.withFunctionCallScope(pairs.toMap)
+    Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 
   override def summary = s"User defined function '$name'"
