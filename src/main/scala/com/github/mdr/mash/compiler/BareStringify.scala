@@ -6,6 +6,7 @@ import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.parser.QuotationType
+import scala.collection.mutable.ArrayBuffer
 
 object BareStringify {
 
@@ -47,6 +48,18 @@ class BareStringificationContext {
       InterpolatedString(start, newParts, end, sourceInfoOpt)
     case ParenExpr(expr, sourceInfoOpt) ⇒
       ParenExpr(bareStringify(expr, bindings), sourceInfoOpt)
+    case StatementSeq(statements, sourceInfoOpt) ⇒
+      var res = ArrayBuffer[Expr]()
+      var newBindings = bindings
+      for (s ← statements) {
+        res += bareStringify(s, newBindings)
+        val extraGlobals = s.findAll {
+          case AssignmentExpr(left @ Identifier(name, _), _, _, _) ⇒ name
+          case FunctionDeclaration(name, _, _, _)                  ⇒ name
+        }
+        newBindings = newBindings ++ extraGlobals
+      }
+      StatementSeq(res, sourceInfoOpt)
     case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
       LambdaExpr(parameter, bareStringify(body, bindings + parameter), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt) ⇒
@@ -71,8 +84,8 @@ class BareStringificationContext {
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)
     case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, bindings), sourceInfoOpt)
-    case ChainedOpExpr(left, opRights, sourceInfoOpt) =>
-      ChainedOpExpr(bareStringify(left, bindings), opRights.map { case (op, right) => op -> bareStringify(right, bindings) }, sourceInfoOpt)
+    case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+      ChainedOpExpr(bareStringify(left, bindings), opRights.map { case (op, right) ⇒ op -> bareStringify(right, bindings) }, sourceInfoOpt)
     case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
       IfExpr(bareStringify(cond, bindings), bareStringify(body, bindings), elseOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
     case ListExpr(items, sourceInfoOpt) ⇒

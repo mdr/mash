@@ -60,6 +60,18 @@ object ConcreteSyntax {
     lazy val tokens = lparen +: expr.tokens :+ rparen
   }
 
+  case class Statement(statementOpt: Option[Expr], semiOpt: Option[Token]) extends AstNode {
+    lazy val tokens = statementOpt.toSeq.flatMap(_.tokens) ++ semiOpt.toSeq
+  }
+
+  case class StatementSeq(statements: Seq[Statement]) extends Expr {
+    lazy val tokens = statements.flatMap(_.tokens)
+  }
+
+  case class BlockExpr(lbrace: Token, statements: StatementSeq, rbrace: Token) extends Expr {
+    lazy val tokens = lbrace +: statements.tokens :+ rbrace
+  }
+
   case class MemberExpr(expr: Expr, dot: Token, name: Token) extends Expr {
     require(dot.tokenType == TokenType.DOT || dot.tokenType == TokenType.DOT_NULL_SAFE)
 

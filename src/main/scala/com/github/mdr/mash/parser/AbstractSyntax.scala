@@ -45,6 +45,8 @@ object AbstractSyntax {
             AssignmentExpr(left.transform(f), right.transform(f), alias, sourceInfoOpt)
           case ParenExpr(expr, sourceInfoOpt) ⇒
             ParenExpr(expr.transform(f), sourceInfoOpt)
+          case StatementSeq(statements, sourceInfoOpt) ⇒
+            StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
           case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
             LambdaExpr(parameter, body.transform(f), sourceInfoOpt)
           case PipeExpr(left, right, sourceInfoOpt) ⇒
@@ -59,7 +61,7 @@ object AbstractSyntax {
           case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
             BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
           case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
-            ChainedOpExpr(left.transform(f), opRights.map { case (op, right) => op -> right.transform(f) } , sourceInfoOpt)
+            ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
           case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
             IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
           case ListExpr(items, sourceInfoOpt) ⇒
@@ -190,6 +192,11 @@ object AbstractSyntax {
   case class ParenExpr(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(expr)
+  }
+
+  case class StatementSeq(statements: Seq[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = statements
   }
 
   case class LambdaExpr(parameter: String, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {

@@ -89,6 +89,10 @@ object TreePrettyPrinter {
         println("ListExpr" + typeDescription)
         for (item ← items)
           printTree(item, depth + 1)
+      case StatementSeq(statements, _) ⇒
+        println("StatementSeq" + typeDescription)
+        for (statement ← statements)
+          printTree(statement, depth + 1)
       case ObjectExpr(entries, _) ⇒
         println("ObjectExpr" + typeDescription)
         for ((label, body) ← entries) {

@@ -36,7 +36,7 @@ class ParenRemoverTest extends FlatSpec with Matchers {
 
   }
 
-  private def parse(s: String): Expr = Abstractifier.abstractify(MashParser.parse(s).get)
+  private def parse(s: String): Expr = Abstractifier.abstractify(MashParser.parseExpr(s).get)
 
   private def removeSourceInfo(e: Expr) = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 

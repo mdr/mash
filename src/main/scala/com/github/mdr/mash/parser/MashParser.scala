@@ -1,15 +1,17 @@
 package com.github.mdr.mash.parser
 
-import scala.language.implicitConversions
+import scala.PartialFunction.cond
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
+import scala.language.implicitConversions
+
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.lexer.TokenType._
-import com.github.mdr.mash.parser.ConcreteSyntax._
+import com.github.mdr.mash.parser.ConcreteSyntax.Expr
 import com.github.mdr.mash.utils.PointedRegion
-import scala.PartialFunction.cond
+
+import ConcreteSyntax._
 
 object MashParser {
 
@@ -20,6 +22,15 @@ object MashParser {
       Some(parse.mishExpr())
     else
       parse.command()
+  }
+
+  def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Option[Expr] = {
+    val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
+    val parse = new MashParse(tokens, forgiving = forgiving)
+    if (mish)
+      Some(parse.mishExpr())
+    else
+      Some(parse.expr())
   }
 
 }
@@ -68,14 +79,22 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     if (EOF)
       None
     else {
-      val result = expr()
+      val result = statementSeq()
       if (!EOF && !forgiving)
         errorExpectedToken("end of input")
       Some(result)
     }
   }
 
-  def mishItem(): MishItem = {
+  def mishExpr(): MishExpr = {
+    val command = mishItem()
+    val args = ArrayBuffer[MishItem]()
+    while (MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX)
+      args += mishItem()
+    MishExpr(command, args)
+  }
+
+  private def mishItem(): MishItem = {
     if (MISH_WORD)
       MishWord(nextToken())
     else if (STRING_LITERAL)
@@ -90,22 +109,10 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
   }
 
-  def mishExpr(): MishExpr = {
-    val command = mishItem()
-    val args = ArrayBuffer[MishItem]()
-    while (MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX)
-      args += mishItem()
-    MishExpr(command, args)
-  }
-
-  private def expr(): Expr = sequenceExpr()
+  def expr(): Expr = statementExpr()
 
   private def sequenceExpr(): Expr = {
-    val firstExpr =
-      if (DEF)
-        functionDeclaration()
-      else
-        pipeExpr()
+    val firstExpr = statementExpr()
     if (SEMI) {
       val semi = nextToken()
       val secondExpr = sequenceExpr()
@@ -113,6 +120,12 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     } else
       firstExpr
   }
+
+  private def statementExpr(): Expr =
+    if (DEF)
+      functionDeclaration()
+    else
+      pipeExpr()
 
   private def pipeExpr(): Expr = {
     val expr = lambdaExpr(mayContainPipe = true)
@@ -350,7 +363,6 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     } else {
       val firstArg = pipeExpr()
       val args = ArrayBuffer[(Token, Expr)]()
-      var continue = true
       while (COMMA) {
         val comma = nextToken()
         val arg = pipeExpr()
@@ -371,7 +383,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
 
   private def complexInterpolation(): ComplexInterpolation = {
     val interpolationStart = nextToken()
-    val interpolatedExpr = expr()
+    val interpolatedExpr = pipeExpr()
     val rbrace =
       if (RBRACE)
         nextToken()
@@ -443,14 +455,54 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       parenExpr()
     else if (LSQUARE)
       listExpr()
-    else if (LBRACE)
-      objectExpr()
-    else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
+    else if (LBRACE) {
+      if (lookahead(1).isIdentifier && lookahead(2) == COLON || lookahead(1) == RBRACE)
+        objectExpr()
+      else
+        blockExpr()
+    } else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
       mishInterpolation()
     else if (forgiving)
       Literal(syntheticToken(STRING_LITERAL))
     else
       throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
+
+  private def statementSeq(): StatementSeq = {
+    var statements = ArrayBuffer[Statement]()
+    var continue = true
+    var statementOpt: Option[Statement] = None
+    while (continue) {
+      if (RBRACE || EOF) {
+        continue = false
+      } else if (SEMI) {
+        val semi = nextToken()
+        statements += Statement(statementOpt = None, Some(semi))
+      } else {
+        val statement = statementExpr()
+        if (SEMI) {
+          val semi = nextToken()
+          statements += Statement(Some(statement), Some(semi))
+        } else {
+          statements += Statement(Some(statement), semiOpt = None)
+          continue = false
+        }
+      }
+    }
+    StatementSeq(statements)
+  }
+
+  private def blockExpr(): BlockExpr = {
+    val lbrace = nextToken()
+    val statements = statementSeq()
+    val rbrace =
+      if (RBRACE)
+        nextToken()
+      else if (forgiving)
+        syntheticToken(RBRACE)
+      else
+        errorExpectedToken("}")
+    BlockExpr(lbrace, statements, rbrace)
+  }
 
   private def mishInterpolation(): MishInterpolationExpr = {
     val start = nextToken()

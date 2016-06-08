@@ -39,10 +39,14 @@ object DesugarHoles {
       Result(LambdaExpr(parameter, addLambdaIfNeeded(body), sourceInfoOpt))
     case ParenExpr(expr, sourceInfoOpt) ⇒
       Result(ParenExpr(addLambdaIfNeeded(expr), sourceInfoOpt))
+    case StatementSeq(statements, sourceInfoOpt) ⇒
+      for (newStatements ← sequence(statements.map(desugarHoles_)))
+        yield StatementSeq(newStatements, sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt) ⇒
       for (left ← desugarHoles_(left))
         yield PipeExpr(left, addLambdaIfNeeded(right), sourceInfoOpt)
-    case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒ Result(expr)
+    case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
+      Result(expr)
     case MemberExpr(target, name, isNullSafe, sourceInfoOpt) ⇒
       for (newTarget ← desugarHoles_(target))
         yield MemberExpr(newTarget, name, isNullSafe, sourceInfoOpt)

@@ -79,6 +79,7 @@ class TypeInferencer {
       case invocationExpr: InvocationExpr               ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
       case interpolation: MishInterpolation             ⇒ inferType(interpolation, bindings)
       case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
+      case StatementSeq(statements, _)                  ⇒ statements.flatMap(s ⇒ inferType(s, bindings)).lastOption
       case AssignmentExpr(left, right, _, _) ⇒
         inferType(left, bindings)
         inferType(right, bindings)

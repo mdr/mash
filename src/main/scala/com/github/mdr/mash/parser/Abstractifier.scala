@@ -51,6 +51,8 @@ object Abstractifier {
     case mexpr @ Concrete.HeadlessMemberExpr(_, name)       ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, Some(SourceInfo(expr)))
     case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), Some(SourceInfo(expr)))
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), Some(SourceInfo(expr)))
+    case Concrete.BlockExpr(_, statements, _)               ⇒ abstractify(statements)
+    case Concrete.StatementSeq(statements)                  ⇒ Abstract.StatementSeq(statements.flatMap(_.statementOpt).map(abstractify), Some(SourceInfo(expr)))
     case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), Some(SourceInfo(expr)))
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), Some(SourceInfo(expr)))
     case Concrete.AssignmentExpr(left, _, aliasOpt, right)  ⇒ Abstract.AssignmentExpr(abstractify(left), abstractify(right), aliasOpt.isDefined, Some(SourceInfo(expr)))

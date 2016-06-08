@@ -13,7 +13,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class MashParserTest extends FlatSpec with Matchers {
 
-  def parse(s: String) = MashParser.parse(s).get
+  def parse(s: String) = MashParser.parseExpr(s).get
 
   "Parsing inequality" should "work" in {
     val s = "10 != 20"

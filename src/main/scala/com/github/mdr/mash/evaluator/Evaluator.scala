@@ -108,6 +108,11 @@ object Evaluator {
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject(fields, classOpt = None)
+      case StatementSeq(statements, _) ⇒
+        var result: MashValue = MashUnit
+        for (statement ← statements)
+          result = evaluate(statement)
+        result
     }
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {

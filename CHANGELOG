@@ -24,6 +24,7 @@ v0.0.2 (..)
 * Headless member exprs
 * Date arithmetic
 * Local variable scopes
+* Block expressions
 
 v0.0.1 (19/January/2016)
 ------------------------
