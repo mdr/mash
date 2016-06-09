@@ -111,16 +111,6 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
 
   def expr(): Expr = statementExpr()
 
-  private def sequenceExpr(): Expr = {
-    val firstExpr = statementExpr()
-    if (SEMI) {
-      val semi = nextToken()
-      val secondExpr = sequenceExpr()
-      BinOpExpr(firstExpr, semi, secondExpr)
-    } else
-      firstExpr
-  }
-
   private def statementExpr(): Expr =
     if (DEF)
       functionDeclaration()
@@ -467,12 +457,11 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     else
       throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
 
-  private def statementSeq(): StatementSeq = {
+  private def statementSeq(): Expr = {
     var statements = ArrayBuffer[Statement]()
     var continue = true
-    var statementOpt: Option[Statement] = None
     while (continue) {
-      if (RBRACE || EOF) {
+      if (RBRACE || RPAREN || EOF) {
         continue = false
       } else if (SEMI) {
         val semi = nextToken()
@@ -488,7 +477,10 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
         }
       }
     }
-    StatementSeq(statements)
+    statements match {
+      case Seq(Statement(Some(statement), None)) ⇒ statement
+      case _                                     ⇒ StatementSeq(statements)
+    }
   }
 
   private def blockExpr(): BlockExpr = {
@@ -519,7 +511,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
 
   private def parenExpr(): Expr = {
     val lparen = nextToken()
-    val expr = sequenceExpr()
+    val expr = statementSeq()
     val rparen =
       if (RPAREN)
         nextToken()

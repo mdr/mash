@@ -68,7 +68,7 @@ object ConcreteSyntax {
     lazy val tokens = statements.flatMap(_.tokens)
   }
 
-  case class BlockExpr(lbrace: Token, statements: StatementSeq, rbrace: Token) extends Expr {
+  case class BlockExpr(lbrace: Token, statements: Expr, rbrace: Token) extends Expr {
     lazy val tokens = lbrace +: statements.tokens :+ rbrace
   }
 
