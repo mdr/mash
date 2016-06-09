@@ -89,6 +89,12 @@ class ReplTest extends FlatSpec with Matchers {
     repl.it should equal(MashUnit /* Repl should have emitted an error */ )
   }
   
+  "Type inference loop bug" should "not happen" in {
+    val repl = newRepl
+    repl.input("a => a").acceptLine()
+    repl.complete() // previously blew up here
+  }
+  
   private def newRepl = makeRepl()
 
 }

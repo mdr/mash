@@ -1,10 +1,10 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.MashParser
-import com.github.mdr.mash.parser.Abstractifier
 import com.github.mdr.mash.inference.TypeInferencer
-import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.inference.ValueTypeDetector
+import com.github.mdr.mash.parser.AbstractSyntax.Expr
+import com.github.mdr.mash.parser.Abstractifier
+import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.runtime.MashValue
 
@@ -41,7 +41,7 @@ object Compiler {
 
       if (inferTypes) {
         val typeInferencer = new TypeInferencer
-        val typeBindings = TypeInferencer.buildBindings(bindings)
+        val typeBindings = new ValueTypeDetector().buildBindings(bindings)
         typeInferencer.inferType(finalExpr, typeBindings)
       }
 

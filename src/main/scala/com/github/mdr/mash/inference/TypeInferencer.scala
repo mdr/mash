@@ -19,15 +19,6 @@ import com.github.mdr.mash.runtime.MashValue
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
-object TypeInferencer {
-
-  def buildBindings(bindings: Map[String, MashValue], includeGlobal: Boolean = true): Map[String, Type] = {
-    for ((k, v) ← bindings)
-      yield k -> ValueTypeDetector.getType(v)
-  }
-
-}
-
 class TypeInferencer {
 
   /**

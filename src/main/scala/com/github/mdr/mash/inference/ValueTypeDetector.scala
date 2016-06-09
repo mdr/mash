@@ -24,13 +24,37 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.runtime.MashValue
+import java.util.IdentityHashMap
 
-/** Detect the type of runtime values **/
 object ValueTypeDetector {
 
-  def getType(x: MashValue): Type = x match {
+  def getType(x: MashValue): Type = new ValueTypeDetector().getType(x)
+
+}
+
+/** Detect the type of runtime values **/
+class ValueTypeDetector {
+
+  private val visitedMap: IdentityHashMap[MashValue, Boolean] = new IdentityHashMap
+
+  def buildBindings(bindings: Map[String, MashValue], includeGlobal: Boolean = true): Map[String, Type] =
+    for ((k, v) ← bindings)
+      yield k -> getType(v)
+
+  def getType(x: MashValue): Type =
+    if (visitedMap containsKey x)
+      Type.Any
+    else {
+      visitedMap.put(x, true)
+      try
+        getType_(x)
+      finally
+        visitedMap.remove(x)
+    }
+
+  def getType_(x: MashValue): Type = x match {
     case MashNull                            ⇒ Type.Instance(NullClass)
-    case AnonymousFunction(param, body, ctx) ⇒ Type.Lambda(param, body, TypeInferencer.buildBindings(ctx.scopeStack.bindings, includeGlobal = false))
+    case AnonymousFunction(param, body, ctx) ⇒ Type.Lambda(param, body, buildBindings(ctx.scopeStack.bindings, includeGlobal = false))
     case f: MashFunction                     ⇒ Type.DefinedFunction(f)
     case BoundMethod(target, method, _)      ⇒ Type.BoundMethod(getType(target), method)
     case MashString(_, None)                 ⇒ Type.Instance(StringClass)
