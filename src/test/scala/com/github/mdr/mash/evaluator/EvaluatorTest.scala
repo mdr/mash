@@ -469,6 +469,7 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "'foo'.class" shouldEvaluateTo "ns.core.String"
   "now.class" shouldEvaluateTo "ns.time.DateTime"
   "now.date.class" shouldEvaluateTo "ns.time.Date"
+  "().class" shouldEvaluateTo "ns.core.Unit"
 
   // regex
   "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "wibble"
@@ -479,6 +480,9 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "now.date > 3.days.ago.date" shouldEvaluateTo "true"
   "now.date < 3.days.ago.date" shouldEvaluateTo "false"
 
+  // Block expressions
+  "{ a = 0; a = a + 1; a }" shouldEvaluateTo "1"
+  
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {

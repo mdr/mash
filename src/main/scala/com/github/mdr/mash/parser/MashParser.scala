@@ -457,7 +457,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     else
       unexpectedToken()
 
-  private def unexpectedToken() = 
+  private def unexpectedToken() =
     if (EOF)
       throw new MashParserException(s"Unexpected end-of-input", currentLocation)
     else
@@ -467,9 +467,9 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     var statements = ArrayBuffer[Statement]()
     var continue = true
     while (continue) {
-      if (RBRACE || RPAREN || EOF) {
+      if (RBRACE || RPAREN || EOF)
         continue = false
-      } else if (SEMI) {
+      else if (SEMI) {
         val semi = nextToken()
         statements += Statement(statementOpt = None, Some(semi))
       } else {

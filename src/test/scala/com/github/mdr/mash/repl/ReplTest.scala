@@ -95,6 +95,15 @@ class ReplTest extends FlatSpec with Matchers {
     repl.complete() // previously blew up here
   }
   
+  "Local variables" should "not collide with global" in {
+    val repl = newRepl
+    repl.input("a = 0").acceptLine()
+    repl.input("def setA n = { a = n }").acceptLine()
+    repl.input("setA 42").acceptLine()
+    repl.input("a").acceptLine()
+    repl.it should equal(MashNumber(0))
+  }
+  
   private def newRepl = makeRepl()
 
 }
