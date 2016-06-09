@@ -106,7 +106,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     else if (forgiving)
       MishWord(syntheticToken(MISH_WORD))
     else
-      throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
+      unexpectedToken()
   }
 
   def expr(): Expr = statementExpr()
@@ -455,6 +455,12 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     else if (forgiving)
       Literal(syntheticToken(STRING_LITERAL))
     else
+      unexpectedToken()
+
+  private def unexpectedToken() = 
+    if (EOF)
+      throw new MashParserException(s"Unexpected end-of-input", currentLocation)
+    else
       throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
 
   private def statementSeq(): Expr = {
@@ -530,7 +536,6 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     } else {
       val firstItem = pipeExpr()
       val items = ArrayBuffer[(Token, Expr)]()
-      var continue = true
       while (COMMA) {
         val comma = nextToken()
         val item = pipeExpr()
