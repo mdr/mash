@@ -516,7 +516,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
       if (RPAREN)
         nextToken()
       else if (forgiving)
-        syntheticToken(RPAREN, expr.tokens.last)
+        syntheticToken(RPAREN, expr.tokens.lastOption.getOrElse(lparen))
       else
         errorExpectedToken(")")
     ParenExpr(lparen, expr, rparen)
@@ -627,9 +627,12 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
   }
 
   private def syntheticToken(tokenType: TokenType): Token =
-    Token(tokenType, 0, 0, "")
+    syntheticToken(tokenType, afterTokenOpt = None)
 
   private def syntheticToken(tokenType: TokenType, afterToken: Token): Token =
-    Token(tokenType, afterToken.region.posAfter, 0, afterToken.source)
+    syntheticToken(tokenType, Some(afterToken))
+
+  private def syntheticToken(tokenType: TokenType, afterTokenOpt: Option[Token]): Token =
+    Token(tokenType, afterTokenOpt.map(_.region.posAfter).getOrElse(0), 0, afterTokenOpt.map(_.source).getOrElse(""))
 
 }
