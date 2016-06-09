@@ -25,7 +25,7 @@ object FetchFunction extends MashFunction("git.fetch") {
     }
   }
 
-  private def asMashObject(update: TrackingRefUpdate): MashObject = {
+  def asMashObject(update: TrackingRefUpdate): MashObject = {
     val branchName = update.getLocalName.replaceAll("^refs/remotes/", "")
     import FetchBranchUpdateClass.Fields._
     MashObject(

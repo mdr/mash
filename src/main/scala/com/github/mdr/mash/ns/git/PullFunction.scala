@@ -1,5 +1,6 @@
 package com.github.mdr.mash.ns.git
 
+import scala.collection.JavaConverters._
 import org.eclipse.jgit.api.Git
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.Truthiness
@@ -18,16 +19,17 @@ object PullFunction extends MashFunction("git.pull") {
 
   val params = ParameterModel(Seq())
 
-  def apply(arguments: Arguments): MashUnit = {
+  def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
     GitHelper.withGit { git ⇒
       val pullResult = git.pull.call()
-      pullResult.getFetchResult
+      val fetchResult = pullResult.getFetchResult
+      val updates = fetchResult.getTrackingRefUpdates.asScala.toSeq
+      MashList(updates.map(FetchFunction.asMashObject))
     }
-    MashUnit
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(FetchBranchUpdateClass))
 
   override def summary = "Fetch from and integrate with another repository or a local branch"
 
