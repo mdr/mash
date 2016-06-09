@@ -199,6 +199,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "now" shouldBeInferredAsHavingType(DateTimeClass)
   "now.date" shouldBeInferredAsHavingType(LocalDateClass)
   
+  "()" shouldBeInferredAsHavingType(UnitClass)
+  
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {
