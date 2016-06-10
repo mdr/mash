@@ -29,19 +29,15 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
     val ObjectBrowserState(model, currentRow, firstRow) = browserState
     action match {
       case NextItem ⇒
-        if (currentRow < model.objects.size - 1) {
-          val newState = adjustWindowToFit(browserState.adjustCurrentRow(1))
-          updateState(newState)
-        }
+        val newState = adjustWindowToFit(browserState.adjustCurrentRow(1))
+        updateState(newState)
       case NextPage ⇒
         val newRow = math.min(model.objects.size - 1, currentRow + windowSize - 1)
         val newState = adjustWindowToFit(browserState.copy(currentRow = newRow))
         updateState(newState)
       case PreviousItem ⇒
-        if (currentRow > 0) {
-          val newState = adjustWindowToFit(browserState.adjustCurrentRow(-1))
-          updateState(newState)
-        }
+        val newState = adjustWindowToFit(browserState.adjustCurrentRow(-1))
+        updateState(newState)
       case PreviousPage ⇒
         val newRow = math.max(0, currentRow - windowSize - 1)
         val newState = adjustWindowToFit(browserState.copy(currentRow = newRow))
