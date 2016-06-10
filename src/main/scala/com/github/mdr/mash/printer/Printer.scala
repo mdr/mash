@@ -42,6 +42,19 @@ object Printer {
     case c                         ⇒ c
   }
 
+  def renderField(x: MashValue, inCell: Boolean = false): String = x match {
+    case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
+    case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
+    case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
+    case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
+    case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
+    case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
+    case MashWrapped(i: Instant) ⇒ new PrettyTime().format(Date.from(i))
+    case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
+    case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
+    case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))
+  }
+
 }
 
 case class PrintResult(objectTableModelOpt: Option[ObjectTableModel] = None)
@@ -50,13 +63,13 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def render(x: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
+  def print(x: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
     x match {
       case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
         val data = mo(ViewClass.Fields.Data)
         val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
         val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == MashBoolean.True
-        return render(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
@@ -75,20 +88,20 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒
-        render(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        print(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case bm: BoundMethod if !disableCustomViews ⇒
-        render(HelpFunction.getHelp(bm), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        print(HelpFunction.getHelp(bm), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case klass: MashClass if !disableCustomViews ⇒
-        render(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case MashUnit ⇒ // Don't print out Unit 
       case _ ⇒
-        val f = StringUtils.ellipsisise(renderField(x), maxLength = terminalInfo.columns)
+        val f = StringUtils.ellipsisise(Printer.renderField(x), maxLength = terminalInfo.columns)
         output.println(f)
     }
     PrintResult()
   }
   
-  def renderBox(title: String, lines: Seq[String]) {
+  def printBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
     val innerWidth = boxWidth - 4
     val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
@@ -98,19 +111,6 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
     for (line ← (topLine +: contentLines :+ bottomLine))
       output.println(line)
-  }
-
-  def renderField(x: MashValue, inCell: Boolean = false): String = x match {
-    case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
-    case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
-    case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
-    case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
-    case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
-    case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant) ⇒ new PrettyTime().format(Date.from(i))
-    case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
-    case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
-    case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))
   }
 
 }

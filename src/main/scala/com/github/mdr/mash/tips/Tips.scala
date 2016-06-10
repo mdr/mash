@@ -32,7 +32,7 @@ object Tips {
 
   def showTip(output: PrintStream, terminalInfo: TerminalInfo) {
     val printer = new Printer(output, terminalInfo)
-    printer.renderBox("Tip", Seq(randomTip))
+    printer.printBox("Tip", Seq(randomTip))
   }
 
 }

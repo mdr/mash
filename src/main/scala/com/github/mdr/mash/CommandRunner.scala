@@ -75,7 +75,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
     safeCompile(cmd, bareWords = bareWords, mish = mish).map { expr ⇒
       val result = runExpr(expr, cmd)
       val printer = new Printer(output, terminalInfo)
-      val PrintResult(objectTableModelOpt) = printer.render(result)
+      val PrintResult(objectTableModelOpt) = printer.print(result)
       CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
     }.getOrElse(CommandResult())
   }

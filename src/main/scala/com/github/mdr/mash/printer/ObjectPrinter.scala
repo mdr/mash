@@ -15,7 +15,7 @@ class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     else {
       val keys = mo.fields.keySet
       val requestedKeyWidth = mo.fields.keySet.map(_.size).max
-      val requestedValueWidth = mo.fields.values.map(printer.renderField(_, inCell = true)).map(_.size).max
+      val requestedValueWidth = mo.fields.values.map(Printer.renderField(_, inCell = true)).map(_.size).max
       val keyColumn = ColumnSpec("keys", 10)
       val valuesColumn = ColumnSpec("values", 1)
       val requestedWidths = Map(keyColumn -> requestedKeyWidth, valuesColumn -> requestedValueWidth)
@@ -35,7 +35,7 @@ class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
         output.print("║")
         output.print(StringUtils.fitToWidth(k + "", keyWidth))
         output.print("│")
-        output.print(StringUtils.fitToWidth(printer.renderField(v, inCell = true), valuesWidth))
+        output.print(StringUtils.fitToWidth(Printer.renderField(v, inCell = true), valuesWidth))
         output.println("║")
       }
 
