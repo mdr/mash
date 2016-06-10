@@ -112,15 +112,22 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     import PushFunction.Params._
 
-    val params = ParameterModel(Seq(Force))
+    val params = ParameterModel(Seq(Force, SetUpstream, Remote))
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
       val force = Truthiness.isTruthy(boundParams(Force))
-
+      val setUpstream = Truthiness.isTruthy(boundParams(SetUpstream))
+      val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒
-        git.push.add(branchName).setForce(force).call()
+        val cmd = git.push
+        cmd.add(branchName).setForce(force)
+        for (remote ← remoteOpt)
+          cmd.setRemote(remote)
+        cmd.call()
+        if (setUpstream)
+          PushFunction.setUpstreamConfig(git, Seq(branchName), remoteOpt)
       }
       MashUnit
     }

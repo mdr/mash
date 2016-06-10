@@ -73,7 +73,7 @@ object PushFunction extends MashFunction("git.push") {
     MashUnit
   }
 
-  private def setUpstreamConfig(git: Git, refs: Seq[String], remoteOpt: Option[String]) {
+  def setUpstreamConfig(git: Git, refs: Seq[String], remoteOpt: Option[String]) {
     val config = git.getRepository.getConfig
     for (ref ← refs) {
       val remoteName = remoteOpt.getOrElse(Constants.DEFAULT_REMOTE_NAME)

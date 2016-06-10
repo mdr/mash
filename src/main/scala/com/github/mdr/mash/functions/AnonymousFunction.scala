@@ -15,7 +15,7 @@ case class AnonymousFunction(parameter: String, body: Expr, context: EvaluationC
     Evaluator.evaluate(body)(newCtx)
   }
 
-  val params = ParameterModel(Seq(Parameter("arg", "Argument")))
+  val params = ParameterModel(Seq(Parameter(parameter, "Argument")))
 
   override def summary = "anonymous function"
 

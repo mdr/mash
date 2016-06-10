@@ -126,7 +126,7 @@ object Evaluator {
     val variadicIndex = parameters.indexWhere(_.isVariadic)
     if (variadicIndex >= 0 && variadicIndex < params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
-    val fn = UserDefinedFunction(name, ParameterModel(parameters), body, context)
+    val fn = new UserDefinedFunction(name, ParameterModel(parameters), body, context)
     context.scopeStack.set(name, fn)
     MashUnit
   }

@@ -7,9 +7,9 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.evaluator.EvaluationContext
 
-case class UserDefinedFunction(
+class UserDefinedFunction(
     functionName: String,
-    params: ParameterModel,
+    val params: ParameterModel,
     body: Expr,
     context: EvaluationContext) extends MashFunction(nameOpt = Some(functionName)) {
 
@@ -24,4 +24,5 @@ case class UserDefinedFunction(
 
   override def summary = s"User defined function '$name'"
 
+ 
 }
