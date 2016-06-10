@@ -14,4 +14,5 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("q") -> ExitBrowser,
   OtherSequence("g") -> FirstItem,
   OtherSequence("G") -> LastItem,
+  OtherSequence("s") -> ToggleSelected,
   OtherSequence("i") -> InsertItem))

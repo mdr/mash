@@ -87,6 +87,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     }
     PrintResult()
   }
+  
   def renderBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
     val innerWidth = boxWidth - 4

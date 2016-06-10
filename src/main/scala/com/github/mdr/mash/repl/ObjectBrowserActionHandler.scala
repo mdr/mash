@@ -26,7 +26,7 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
   }
 
   protected def handleObjectBrowserAction(action: InputAction, browserState: ObjectBrowserState) {
-    val ObjectBrowserState(model, currentRow, firstRow) = browserState
+    val ObjectBrowserState(model, currentRow, firstRow, selectedRows) = browserState
     action match {
       case NextItem ⇒
         val newState = adjustWindowToFit(browserState.adjustCurrentRow(1))
@@ -53,9 +53,19 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
         updateState(newState)
       case InsertItem ⇒
         val commandNumber = state.commandNumber - 1
-        val toInsert = s"${ReplState.Res}[$commandNumber][$currentRow]"
+        val command = s"${ReplState.Res}[$commandNumber]"
+        val toInsert =
+          if (browserState.selectedRows.isEmpty)
+            s"$command[$currentRow]"
+          else {
+            val rows = browserState.selectedRows.toSeq.sorted
+            val items = rows.map(i => s"$command[$i]").mkString(", ")
+            s"[$items]"
+          }
         state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
         state.objectBrowserStateOpt = None
+      case ToggleSelected ⇒
+        updateState(browserState.toggleSelectionOfCurrentRow)
       case _ ⇒
     }
   }

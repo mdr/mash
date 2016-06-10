@@ -12,5 +12,6 @@ object ObjectBrowserActions {
   case object LastItem extends InputAction
   case object ExitBrowser extends InputAction
   case object InsertItem extends InputAction
+  case object ToggleSelected extends InputAction
 
 }
