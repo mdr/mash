@@ -40,20 +40,20 @@ object ObjectBrowserRenderer {
     val statusLine = Line(countChars ++ keyChars)
     val footerLines = Seq(footerLine, statusLine)
 
-    val currentRowRelative = state.currentRow - state.firstRow
     val objects = model.objects.drop(state.firstRow).take(windowSize)
-    def renderObject(obj: ObjectTableRow, isSelected: Boolean, isSelected2: Boolean): Line = {
+    def renderObject(obj: ObjectTableRow, cursorRow: Boolean, isSelected: Boolean): Line = {
       val side = boxCharacterSupplier.doubleVertical.map(StyledCharacter(_))
-      val selected = ((if (isSelected2) "X" else " ") + boxCharacterSupplier.singleVertical).map(StyledCharacter(_))
-      val internalVertical = boxCharacterSupplier.singleVertical.map(StyledCharacter(_, Style(inverse = isSelected)))
-      def renderCell(name: String) = StringUtils.fitToWidth(obj.data(name), model.columnWidth(name)).map(StyledCharacter(_, Style(inverse = isSelected)))
+      val selected = ((if (isSelected) "▒" else " ") + boxCharacterSupplier.singleVertical).map(StyledCharacter(_))
+      val internalVertical = boxCharacterSupplier.singleVertical.map(StyledCharacter(_, Style(inverse = cursorRow)))
+      def renderCell(name: String) = StringUtils.fitToWidth(obj.data(name), model.columnWidth(name)).map(StyledCharacter(_, Style(inverse = cursorRow)))
       val innerChars = Utils.intercalate(model.columnNames.map(renderCell), internalVertical)
       Line(side ++ selected ++ innerChars ++ side)
     }
     val dataLines =
       for {
         (obj, i) ← objects.zipWithIndex
-      } yield renderObject(obj, i == currentRowRelative, state.selectedRows contains i)
+        actualIndex = i + state.firstRow
+      } yield renderObject(obj, actualIndex == state.currentRow, state.selectedRows contains actualIndex)
 
     val title = "mash " + fileSystem.pwd.toString
 
