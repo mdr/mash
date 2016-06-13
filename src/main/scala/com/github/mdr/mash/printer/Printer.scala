@@ -69,7 +69,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
         if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
-          val model = new ObjectTableRenderer(terminalInfo, showSelections = true).renderObjects(objects)
+          val model = new ObjectTableModelCreator(terminalInfo, showSelections = true).create(objects)
           return PrintResult(Some(model))
         } else
           new ObjectTablePrinter(output, terminalInfo).printTable(objects)

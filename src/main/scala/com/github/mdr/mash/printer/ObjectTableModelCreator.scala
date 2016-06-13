@@ -8,22 +8,20 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
-object ObjectTableRenderer {
+object ObjectTableModelCreator {
 
   private val IndexColumnName = "#"
 
 }
 
-class ObjectTableRenderer(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
-  import ObjectTableRenderer._
+class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
+  import ObjectTableModelCreator._
 
-  private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
-
-  def renderObjects(objects: Seq[MashObject]): ObjectTableModel = {
+  def create(objects: Seq[MashObject]): ObjectTableModel = {
     val columns = getColumnSpecs(objects)
 
     val renderedObjects: Seq[ObjectTableRow] =
-      objects.zipWithIndex.map { case (obj, i) ⇒ renderObject(obj, i, columns) }
+      objects.zipWithIndex.map { case (obj, i) ⇒ createRow(obj, i, columns) }
 
     def desiredColumnWidth(member: String): Int = (renderedObjects.map(_.data(member)) :+ member).map(_.size).max
     val requestedColumnWidths: Map[ColumnSpec, Int] = (for (c ← columns) yield (c -> desiredColumnWidth(c.name))).toMap
@@ -39,7 +37,7 @@ class ObjectTableRenderer(terminalInfo: TerminalInfo, showSelections: Boolean = 
     ObjectTableModel(columnNames, columnWidths, renderedObjects)
   }
 
-  private def renderObject(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {
+  private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {
     val pairs =
       for {
         ColumnSpec(name, _, isNullaryMethod) ← columns
@@ -49,61 +47,6 @@ class ObjectTableRenderer(terminalInfo: TerminalInfo, showSelections: Boolean = 
       } yield name -> renderedValue
     val data = (pairs :+ (IndexColumnName -> index.toString)).toMap
     ObjectTableRow(data)
-  }
-
-  def renderTopRow(model: ObjectTableModel): String = {
-    import boxCharacterSupplier._
-    val sb = new StringBuilder()
-    sb.append(doubleTopLeft)
-    if (showSelections)
-      sb.append(doubleHorizontal + doubleHorizontalSingleDown)
-    sb.append(model.columnNames.map(name ⇒ doubleHorizontal * model.columnWidth(name)).mkString(doubleHorizontalSingleDown))
-    sb.append(doubletopRight)
-    sb.toString
-  }
-
-  def renderHeaderRow(model: ObjectTableModel): String = {
-    import boxCharacterSupplier._
-    def renderColumn(name: String) = StringUtils.fitToWidth(name, model.columnWidth(name))
-    val sb = new StringBuilder()
-    sb.append(doubleVertical)
-    if (showSelections)
-      sb.append(" " + singleVertical)
-    sb.append(model.columnNames.map(renderColumn).mkString(singleVertical))
-    sb.append(doubleVertical)
-    sb.toString
-  }
-
-  def renderBelowHeaderRow(model: ObjectTableModel): String = {
-    import boxCharacterSupplier._
-    val sb = new StringBuilder()
-    sb.append(doubleVerticalSingleRight)
-    if (showSelections)
-      sb.append(singleHorizontal + singleIntersect)
-    sb.append(model.columnNames.map(name ⇒ singleHorizontal * model.columnWidth(name)).mkString(singleIntersect))
-    sb.append(doubleVerticalSingleLeft)
-    sb.toString
-  }
-
-  def renderObjectRow(model: ObjectTableModel, renderedObject: ObjectTableRow): String = {
-    import boxCharacterSupplier._
-    def renderCell(name: String) = StringUtils.fitToWidth(renderedObject.data(name), model.columnWidth(name))
-    new StringBuilder()
-      .append(doubleVertical)
-      .append(model.columnNames.map(renderCell).mkString(singleVertical))
-      .append(doubleVertical)
-      .toString
-  }
-
-  def renderBottomRow(model: ObjectTableModel): String = {
-    import boxCharacterSupplier._
-    val sb = new StringBuilder()
-    sb.append(doubleBottomLeft)
-    if (showSelections)
-      sb.append(doubleHorizontal + doubleHorizontalSingleUp)
-    sb.append(model.columnNames.map(name ⇒ doubleHorizontal * model.columnWidths(name)).mkString(doubleHorizontalSingleUp))
-    sb.append(doubleBottomRight)
-    sb.toString
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {

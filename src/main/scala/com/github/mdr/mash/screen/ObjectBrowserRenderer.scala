@@ -1,9 +1,8 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.BoxCharacterSupplier
-import com.github.mdr.mash.printer.ObjectTableRenderer
 import com.github.mdr.mash.printer.ObjectTableRow
+import com.github.mdr.mash.printer.ObjectTableStringifier
 import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
 import com.github.mdr.mash.repl.ObjectBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
@@ -14,7 +13,7 @@ import com.github.mdr.mash.utils.Utils
 class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectTablePrinter = new ObjectTableRenderer(terminalInfo, showSelections = true)
+  private val objectTableStringifier = new ObjectTableStringifier(terminalInfo, showSelections = true)
 
   def renderObjectBrowser: Screen = {
     val lines = renderLines
@@ -32,9 +31,9 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
 
   private def renderHeaderLines: Seq[Line] =
     Seq(
-      objectTablePrinter.renderTopRow(model),
-      objectTablePrinter.renderHeaderRow(model),
-      objectTablePrinter.renderBelowHeaderRow(model)).map(s ⇒ Line(s.style))
+      objectTableStringifier.renderTopRow(model),
+      objectTableStringifier.renderHeaderRow(model),
+      objectTableStringifier.renderBelowHeaderRow(model)).map(s ⇒ Line(s.style))
 
   private def renderDataLines: Seq[Line] = {
     val objects = model.objects.drop(state.firstRow).take(windowSize)
@@ -57,7 +56,7 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
     Line(side ++ selected ++ innerChars ++ side)
   }
 
-  private def renderFooterLine = Line(objectTablePrinter.renderBottomRow(model).style)
+  private def renderFooterLine = Line(objectTableStringifier.renderBottomRow(model).style)
 
   private def renderStatusLine: Line = {
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
