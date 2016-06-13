@@ -4,6 +4,7 @@ import com.github.mdr.mash.terminal.TerminalControl
 import java.nio.file.Path
 import com.github.mdr.mash.evaluator.ExecutionContext
 import com.github.mdr.mash.repl.history.History
+import com.github.mdr.mash.runtime.MashObject
 
 /**
  * Horrible global singletons, until we get the DI story sorted.
@@ -22,4 +23,6 @@ object Singletons {
 
   def setExecutionContext(ctx: ExecutionContext): Unit = synchronized { _executionContextOpt = Some(ctx) }
 
+  var environment: MashObject = _
+  
 }

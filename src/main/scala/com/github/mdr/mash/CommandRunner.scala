@@ -14,6 +14,7 @@ import org.fusesource.jansi.Ansi
 import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 import scala.collection.mutable
+import scala.collection.immutable.ListMap
 
 case class CommandResult(
   value: Option[MashValue] = None,
@@ -83,6 +84,10 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   private def runExpr(expr: AbstractSyntax.Expr, cmd: String): MashValue =
     try {
       val ctx = new ExecutionContext(Thread.currentThread)
+      Singletons.environment = globalVariables.get("env") match {
+        case Some(mo: MashObject) ⇒ mo
+        case _                    ⇒ MashObject(ListMap[String, MashValue](), classOpt = None)
+      }
       Singletons.setExecutionContext(ctx)
       ExecutionContext.set(ctx)
       Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables)))

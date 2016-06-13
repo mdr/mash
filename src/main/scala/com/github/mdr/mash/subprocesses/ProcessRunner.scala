@@ -30,12 +30,12 @@ object ProcessRunner {
     }
 
     val outputRedirect = if (captureProcess) ProcessBuilder.Redirect.PIPE else ProcessBuilder.Redirect.INHERIT
-    try {
-      terminalControl.configureTerminalForExternalProcess()
+    terminalControl.externalProcess {
       val builder = new ProcessBuilder(stringArgs: _*)
-        .redirectInput(ProcessBuilder.Redirect.INHERIT)
-        .redirectOutput(outputRedirect)
-        .redirectError(ProcessBuilder.Redirect.INHERIT)
+      builder.redirectInput(ProcessBuilder.Redirect.INHERIT)
+      builder.redirectOutput(outputRedirect)
+      builder.redirectError(ProcessBuilder.Redirect.INHERIT)
+      setEnvironment(builder.environment())
       val start = Instant.now
       val process = builder.start()
 
@@ -51,8 +51,13 @@ object ProcessRunner {
       output.flush()
 
       ProcessResult(statusCode, stdout, start, stop)
-    } finally
-      terminalControl.restore()
+    }
+  }
+
+  private def setEnvironment(env: java.util.Map[String, String]) = {
+    env.clear()
+    for ((k, v) ← Singletons.environment.fields)
+      env.put(k, ToStringifier.stringify(v))
   }
 
 }

@@ -7,6 +7,15 @@ trait TerminalControl {
   def configureTerminalForExternalProcess()
 
   def restore()
+  
+  def externalProcess[T](p: =>T): T = {
+    configureTerminalForExternalProcess()
+    try
+      p
+    finally
+      restore()
+  }
+  
 }
 
 class TerminalControlImpl(terminal: jline.Terminal) extends TerminalControl {
