@@ -52,21 +52,29 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
         val newState = adjustWindowToFit(browserState.copy(currentRow = newRow))
         updateState(newState)
       case InsertItem ⇒
-        val commandNumber = state.commandNumber - 1
-        val command = s"${ReplState.Res}[$commandNumber]"
-        val toInsert =
-          if (browserState.selectedRows.isEmpty)
-            s"$command[$currentRow]"
-          else {
-            val rows = browserState.selectedRows.toSeq.sorted
-            val items = rows.map(i => s"$command[$i]").mkString(", ")
-            s"[$items]"
-          }
-        state.lineBuffer = state.lineBuffer.addCharactersAtCursor(toInsert)
-        state.objectBrowserStateOpt = None
+        handleInsertItem(browserState)
       case ToggleSelected ⇒
         updateState(browserState.toggleSelectionOfCurrentRow)
       case _ ⇒
+    }
+  }
+
+  private def handleInsertItem(browserState: ObjectBrowserState) {
+    val commandNumber = state.commandNumber - 1
+    val toInsert = getInsertExpression(browserState)
+    state.lineBuffer = LineBuffer(toInsert)
+    state.objectBrowserStateOpt = None
+  }
+
+  private def getInsertExpression(browserState: ObjectBrowserState): String = {
+    val commandNumber = state.commandNumber - 1
+    val command = s"${ReplState.Res}[$commandNumber]"
+    if (browserState.selectedRows.isEmpty)
+      s"$command[${browserState.currentRow}]"
+    else {
+      val rows = browserState.selectedRows.toSeq.sorted
+      val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")
+      s"[$items]"
     }
   }
 

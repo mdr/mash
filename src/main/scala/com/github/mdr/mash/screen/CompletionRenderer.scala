@@ -13,6 +13,7 @@ import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.completions.CompletionFragment
+import com.github.mdr.mash.screen.Style.StylableString
 
 case class CompletionRenderResult(lines: Seq[Line], numberOfCompletionColumns: Int)
 
@@ -60,20 +61,20 @@ object CompletionRenderer {
       val colour = getCompletionColour(completionTypeOpt)
 
       val commonFragmentStyle = Style(foregroundColour = colour, bold = true, inverse = active)
-      val commonFragmentStyled = completionFragment.text.map(StyledCharacter(_, commonFragmentStyle))
+      val commonFragmentStyled = completionFragment.text.style(commonFragmentStyle)
 
       val commonPrefix = completionFragment.prefix
-      val commonPrefixStyled = commonPrefix.map(StyledCharacter(_, commonFragmentStyle))
+      val commonPrefixStyled = commonPrefix.style(commonFragmentStyle)
 
       val beforeAfterStyle = Style(foregroundColour = colour, inverse = active)
       val before = truncatedText.drop(completionFragment.prefix.length).take(location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
-      val beforeStyled = before.map(StyledCharacter(_, beforeAfterStyle))
+      val beforeStyled = before.style(beforeAfterStyle)
       val after = truncatedText.drop(location.displayPos + completionFragment.after.length)
-      val afterStyled = after.map(StyledCharacter(_, beforeAfterStyle))
+      val afterStyled = after.style(beforeAfterStyle)
 
       val padding = " " * (columnWidth - truncatedText.length)
       val paddingStyle = Style(foregroundColour = colour, inverse = active)
-      val paddingStyled = padding.map(StyledCharacter(_, paddingStyle))
+      val paddingStyled = padding.style(paddingStyle)
 
       commonPrefixStyled ++ beforeStyled ++ commonFragmentStyled ++ afterStyled ++ paddingStyled
     }
@@ -82,7 +83,7 @@ object CompletionRenderer {
       for {
         completionRow ← completions.zipWithIndex.grouped(numberOfCompletionColumns).toSeq
         styledChars = completionRow.map { case (completion, index) ⇒ renderCompletion(completion, index) }
-        charsWithGaps = Utils.intercalate(styledChars, columnGap.map(StyledCharacter(_)))
+        charsWithGaps = Utils.intercalate(styledChars, columnGap.style)
       } yield Line(charsWithGaps, endsInNewline = true)
 
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)
@@ -107,9 +108,9 @@ object CompletionRenderer {
           val displayTitle = StringUtils.ellipsisise(title, innerWidth)
           val displayDescription = StringUtils.ellipsisise(Printer.replaceProblematicChars(description), innerWidth)
           Seq(
-            Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").map(StyledCharacter(_))),
-            Line(("│ " + displayDescription + " " * (innerWidth - displayDescription.length) + " │").map(StyledCharacter(_))),
-            Line(("└─" + "─" * innerWidth + "─┘").map(StyledCharacter(_))))
+            Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style),
+            Line(("│ " + displayDescription + " " * (innerWidth - displayDescription.length) + " │").style),
+            Line(("└─" + "─" * innerWidth + "─┘").style))
         }
       case _ ⇒ Seq()
     }

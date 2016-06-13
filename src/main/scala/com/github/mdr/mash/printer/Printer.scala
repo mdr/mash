@@ -65,18 +65,21 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   def print(x: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
     x match {
+      case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
+        val objects = xs.items.asInstanceOf[Seq[MashObject]]
+        val nonDataRows = 4 // 3 header rows + 1 footer
+        if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
+          val model = new ObjectTableRenderer(terminalInfo, showSelections = true).renderObjects(objects)
+          return PrintResult(Some(model))
+        } else
+          new ObjectTablePrinter(output, terminalInfo).printTable(objects)
+      case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
+        xs.items.foreach(output.println)
       case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
         val data = mo(ViewClass.Fields.Data)
         val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
         val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == MashBoolean.True
         return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-      case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
-        xs.items.foreach(output.println)
-      case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
-        val items = xs.items.asInstanceOf[Seq[MashObject]]
-        val objectTablePrinter = new ObjectTablePrinter(output, terminalInfo, alwaysUseBrowser = alwaysUseBrowser)
-        val objectTableModelOpt = objectTablePrinter.printTable(items)
-        return PrintResult(objectTableModelOpt)
       case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
         helpPrinter.printFunctionHelp(mo)
       case mo: MashObject if mo.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒
@@ -100,7 +103,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     }
     PrintResult()
   }
-  
+
   def printBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
     val innerWidth = boxWidth - 4

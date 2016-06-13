@@ -19,8 +19,10 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.SuffixMishCommand
+import com.github.mdr.mash.repl.ObjectBrowserState
+import com.github.mdr.mash.screen.Style.StylableString
 
-case class ReplRenderResult(screen: Screen, completionColumns: Int)
+case class ReplRenderResult(screen: Screen, completionColumns: Int = 0)
 
 case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
 
@@ -34,29 +36,35 @@ object ReplRenderer {
   private val fileSystem = LinuxFileSystem
 
   def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateOpt match {
-    case Some(objectBrowserState) ⇒
-      val screen = ObjectBrowserRenderer.renderObjectBrowser(objectBrowserState, terminalInfo)
-      ReplRenderResult(screen, 0)
-    case None ⇒
-      val bufferScreen = renderLineBuffer(state, terminalInfo)
-      val bufferLines = bufferScreen.lines
-      val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
-      val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
-      val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
-      val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - incrementalSearchLines.size)
-      val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
-        CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
-      val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
-      val truncatedLines = lines.take(terminalInfo.rows)
-      val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
-      val title = fileSystem.pwd.toString
-      val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
-      ReplRenderResult(screen, numberOfCompletionColumns)
+    case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalInfo)
+    case None                     ⇒ renderRegularRepl(state, terminalInfo)
+  }
+
+  private def renderRegularRepl(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val bufferScreen = renderLineBuffer(state, terminalInfo)
+    val bufferLines = bufferScreen.lines
+    val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
+    val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
+    val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
+    val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - incrementalSearchLines.size)
+    val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
+      CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
+    val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
+    val truncatedLines = lines.take(terminalInfo.rows)
+    val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
+    val title = fileSystem.pwd.toString
+    val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
+    ReplRenderResult(screen, numberOfCompletionColumns)
+  }
+
+  private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new ObjectBrowserRenderer(state, terminalInfo).renderObjectBrowser
+    ReplRenderResult(screen)
   }
 
   private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
-    val prefixChars: Seq[StyledCharacter] = "Incremental history search: ".map(StyledCharacter(_))
-    val searchChars: Seq[StyledCharacter] = searchState.searchString.map(c ⇒ StyledCharacter(c, Style(foregroundColour = Colour.Cyan)))
+    val prefixChars: Seq[StyledCharacter] = "Incremental history search: ".style
+    val searchChars: Seq[StyledCharacter] = searchState.searchString.style(Style(foregroundColour = Colour.Cyan))
     val chars = (prefixChars ++ searchChars).take(terminalInfo.columns)
     val line = Line((prefixChars ++ searchChars).take(terminalInfo.columns))
     val cursorPos = Point(0, chars.size)
@@ -71,24 +79,24 @@ object ReplRenderer {
       val innerWidth = boxWidth - 4
       val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
       val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
-      val topLine = Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").map(StyledCharacter(_)))
-      val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").map(StyledCharacter(_)))
-      val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").map(StyledCharacter(_))))
+      val topLine = Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style)
+      val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
+      val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").style))
       topLine +: contentLines :+ bottomLine
     }.getOrElse(Seq())
 
   private def getPrompt(commandNumber: Int, mishByDefault: Boolean): Seq[StyledCharacter] = {
     val num = s"[$commandNumber] "
     val numStyle = Style(foregroundColour = Colour.Yellow)
-    val numStyled = num.map(StyledCharacter(_, numStyle))
+    val numStyled = num.style(numStyle)
 
     val pwd = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
     val pwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
-    val pwdStyled = pwd.map(StyledCharacter(_, pwdStyle))
+    val pwdStyled = pwd.style(pwdStyle)
 
     val promptChar = if (mishByDefault) "!" else "$"
     val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
-    val promptCharStyled = s" $promptChar ".map(StyledCharacter(_, promptCharStyle))
+    val promptCharStyled = s" $promptChar ".style(promptCharStyle)
 
     numStyled ++ pwdStyled ++ promptCharStyled
   }
@@ -143,11 +151,11 @@ object ReplRenderer {
           getTokenStyle(token)
 
       if (!token.isEof)
-        styledChars ++= token.text.map(StyledCharacter(_, style))
+        styledChars ++= token.text.style(style)
     }
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
-        styledChars ++= suffix.map(StyledCharacter(_, Style(bold = true)))
+        styledChars ++= suffix.style(Style(bold = true))
       case _ ⇒
     }
     styledChars
@@ -158,13 +166,14 @@ object ReplRenderer {
   private def getTokenStyle(tokenType: TokenType): Style = {
     import TokenType._
     tokenType match {
-      case COMMENT ⇒ Style(foregroundColour = Colour.Cyan)
-      case NUMBER_LITERAL ⇒ Style(foregroundColour = Colour.Yellow)
+      case COMMENT                ⇒ Style(foregroundColour = Colour.Cyan)
+      case NUMBER_LITERAL         ⇒ Style(foregroundColour = Colour.Yellow)
       case IDENTIFIER | MISH_WORD ⇒ Style(foregroundColour = Colour.Yellow)
-      case ERROR ⇒ Style(foregroundColour = Colour.Red, bold = true)
-      case t if t.isFlag ⇒ Style(foregroundColour = Colour.Blue, bold = true)
-      case t if t.isKeyword ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = Colour.Green)
+      case ERROR                  ⇒ Style(foregroundColour = Colour.Red, bold = true)
+      case t if t.isFlag          ⇒ Style(foregroundColour = Colour.Blue, bold = true)
+      case t if t.isKeyword       ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒
+        Style(foregroundColour = Colour.Green)
       case _ ⇒ Style()
     }
   }
