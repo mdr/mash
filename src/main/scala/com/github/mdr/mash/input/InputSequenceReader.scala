@@ -1,6 +1,7 @@
 package com.github.mdr.mash.input
 
 import com.github.mdr.mash.utils.PrefixTree
+import com.github.mdr.mash.Singletons
 
 object InputSequenceReader {
 
@@ -44,29 +45,33 @@ object InputSequenceReader {
   private def readChar(): Char = System.in.read().asInstanceOf[Char]
 
   def fetchInputSequence(): InputSequence =
-    readChar() match {
-      case Esc ⇒
-        EscapeSequenceTree.get(readChar()) match {
-          case Left(chars)     ⇒ EscapeSequence(chars.mkString)
-          case Right(keyPress) ⇒ keyPress
-        }
-      case '\u0000'   ⇒ shift(Key.Space)
-      case '\u0001'   ⇒ control('a')
-      case '\u0002'   ⇒ control('b')
-      case '\u0004'   ⇒ control('d')
-      case '\u0005'   ⇒ control('e')
-      case '\u0006'   ⇒ control('f')
-      case '\u000B'   ⇒ control('k')
-      case '\u000C'   ⇒ control('l')
-      case '\u000E'   ⇒ control('n')
-      case '\u0010'   ⇒ control('p')
-      case '\u0011'   ⇒ control('q')
-      case '\u0012'   ⇒ control('r')
-      case '\t'       ⇒ KeyPress(Key.Tab)
-      case '\n'       ⇒ KeyPress(Key.Enter)
-      case '\r'       ⇒ KeyPress(Key.Enter)
-      case '\b' | Del ⇒ KeyPress(Key.Backspace)
-      case c          ⇒ OtherSequence(c + "")
-    }
+    if (Singletons.terminalWindowChanged) {
+      Singletons.terminalWindowChanged = false
+      InputSequence.TerminalWindowChanged
+    } else
+      readChar() match {
+        case Esc ⇒
+          EscapeSequenceTree.get(readChar()) match {
+            case Left(chars)     ⇒ EscapeSequence(chars.mkString)
+            case Right(keyPress) ⇒ keyPress
+          }
+        case '\u0000'   ⇒ shift(Key.Space)
+        case '\u0001'   ⇒ control('a')
+        case '\u0002'   ⇒ control('b')
+        case '\u0004'   ⇒ control('d')
+        case '\u0005'   ⇒ control('e')
+        case '\u0006'   ⇒ control('f')
+        case '\u000B'   ⇒ control('k')
+        case '\u000C'   ⇒ control('l')
+        case '\u000E'   ⇒ control('n')
+        case '\u0010'   ⇒ control('p')
+        case '\u0011'   ⇒ control('q')
+        case '\u0012'   ⇒ control('r')
+        case '\t'       ⇒ KeyPress(Key.Tab)
+        case '\n'       ⇒ KeyPress(Key.Enter)
+        case '\r'       ⇒ KeyPress(Key.Enter)
+        case '\b' | Del ⇒ KeyPress(Key.Backspace)
+        case c          ⇒ OtherSequence(c + "")
+      }
 
 }

@@ -34,7 +34,7 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
       (for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
         yield c.name -> w) + (IndexColumnName -> indexColumnWidth)
 
-    ObjectTableModel(columnNames, columnWidths, renderedObjects)
+    ObjectTableModel(columnNames, columnWidths, renderedObjects, objects)
   }
 
   private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {

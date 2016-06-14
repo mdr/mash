@@ -1,6 +1,7 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.printer.ObjectTableModelCreator
 
 trait ObjectBrowserActionHandler { self: Repl ⇒
   import ObjectBrowserActions._
@@ -55,6 +56,10 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
         handleInsertItem(browserState)
       case ToggleSelected ⇒
         updateState(browserState.toggleSelectionOfCurrentRow)
+      case Rerender ⇒
+        val model = new ObjectTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects)
+        updateState(browserState.copy(model = model))
+        previousReplRenderResultOpt = None
       case _ ⇒
     }
   }

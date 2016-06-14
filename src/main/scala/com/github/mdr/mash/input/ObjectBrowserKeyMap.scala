@@ -15,4 +15,5 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("g") -> FirstItem,
   OtherSequence("G") -> LastItem,
   OtherSequence("s") -> ToggleSelected,
-  OtherSequence("i") -> InsertItem))
+  OtherSequence("i") -> InsertItem,
+  TerminalWindowChanged -> Rerender))

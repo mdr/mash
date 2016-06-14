@@ -12,6 +12,7 @@ import sun.misc.SignalHandler
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.repl.history.FileBackedHistoryStorage
+import scala.language.implicitConversions
 
 object Main extends App {
 
@@ -21,7 +22,7 @@ object Main extends App {
     launchRepl()
 
   private def launchRepl() = {
-    handleSigint()
+    handleSignals()
     TerminalHelper.withTerminal { terminal ⇒
       // TODO: obviously this is horrible, will be fixed when DI gets sorted out
       Singletons.terminalControl = new TerminalControlImpl(terminal)
@@ -40,13 +41,20 @@ object Main extends App {
     process.waitFor()
   }
 
-  private def handleSigint() {
-    Signal.handle(new Signal("INT"), new SignalHandler() {
-      override def handle(sig: Signal) {
-        for (executionContext ← Singletons.executionContextOpt)
-          executionContext.interrupt()
-      }
-    })
+  implicit def signalHandler(f: Signal ⇒ Unit): SignalHandler = new SignalHandler() {
+    override def handle(sig: Signal) = f(sig)
   }
 
+  private def handleSignals() {
+    Signal.handle(new Signal("INT"), handleInterrupt _)
+    Signal.handle(new Signal("WINCH"), handleWindowChange _)
+  }
+
+  private def handleInterrupt(sig: Signal) {
+    for (executionContext ← Singletons.executionContextOpt)
+      executionContext.interrupt()
+  }
+  private def handleWindowChange(sig: Signal) {
+    Singletons.terminalWindowChanged = true
+  }
 }

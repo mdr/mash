@@ -11,5 +11,5 @@ object InputSequence {
   case class KeyPress(key: Key, shift: Boolean = false, control: Boolean = false, alt: Boolean = false) extends InputSequence
   case class EscapeSequence(s: String) extends InputSequence
   case class OtherSequence(s: String) extends InputSequence
-
+  case object TerminalWindowChanged extends InputSequence
 }

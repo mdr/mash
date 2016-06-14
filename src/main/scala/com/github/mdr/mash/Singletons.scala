@@ -25,4 +25,5 @@ object Singletons {
 
   var environment: MashObject = _
   
+  var terminalWindowChanged = false
 }
