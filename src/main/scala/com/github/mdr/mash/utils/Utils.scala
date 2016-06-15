@@ -3,6 +3,9 @@ package com.github.mdr.mash.utils
 import scala.collection.mutable.ArrayBuffer
 import scala.PartialFunction.cond
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashString
 
 object Utils {
 
@@ -21,10 +24,6 @@ object Utils {
         case None    ⇒ return None
       })
     Some(result)
-  }
-
-  val AnyOrdering: Ordering[MashValue] = new Ordering[MashValue] {
-    def compare(x: MashValue, y: MashValue): Int = x.asInstanceOf[Comparable[MashValue]].compareTo(y)
   }
 
   /**

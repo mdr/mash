@@ -19,6 +19,7 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashValueOrdering
 
 object MaxFunction extends MashFunction("collections.max") {
 
@@ -38,7 +39,7 @@ If multiple arguments are provided, the largest argument is returned."""),
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = getSequence(boundParams, Items)
-    sequence.max(Utils.AnyOrdering)
+    sequence.max(MashValueOrdering)
   }
 
   def getSequence(boundParams: BoundParams, itemsParam: Parameter) =

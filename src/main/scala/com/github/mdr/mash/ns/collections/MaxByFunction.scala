@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashValueOrdering
 
 object MaxByFunction extends MashFunction("collections.maxBy") {
 
@@ -26,7 +27,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val attribute = boundParams.validateFunction(Attribute)
-    sequence.maxBy(attribute)(Utils.AnyOrdering)
+    sequence.maxBy(attribute)(MashValueOrdering)
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy

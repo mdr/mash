@@ -10,6 +10,7 @@ import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashValueOrdering
 
 object SortFunction extends MashFunction("collections.sort") {
 
@@ -35,7 +36,7 @@ object SortFunction extends MashFunction("collections.sort") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = Truthiness.isTruthy(boundParams(Descending))
-    val sorted = sequence.sorted(Utils.AnyOrdering)
+    val sorted = sequence.sorted(MashValueOrdering)
     val newSequence =
       if (descending)
         sorted.reverse

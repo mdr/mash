@@ -379,11 +379,7 @@ object Evaluator {
   }
 
   private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[PointedRegion]): MashValue = {
-    def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean =
-      MashBoolean(PartialFunction.cond(leftResult) {
-        case l: Comparable[_]              ⇒ f(l.asInstanceOf[Comparable[MashValue]].compareTo(rightResult), 0)
-        case MashWrapped(l: Comparable[_]) ⇒ f(l.asInstanceOf[Comparable[Any]].compareTo(rightResult.asInstanceOf[MashWrapped].x), 0)
-      })
+    def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean = MashBoolean(f(MashValueOrdering.compare(leftResult, rightResult), 0))
     op match {
       case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult

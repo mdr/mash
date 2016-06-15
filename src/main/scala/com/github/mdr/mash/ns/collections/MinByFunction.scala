@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashValueOrdering
 
 object MinByFunction extends MashFunction("collections.minBy") {
 
@@ -26,7 +27,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)   
     val attribute = boundParams.validateFunction(Attribute)
-    sequence.minBy(attribute)(Utils.AnyOrdering)
+    sequence.minBy(attribute)(MashValueOrdering)
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy
