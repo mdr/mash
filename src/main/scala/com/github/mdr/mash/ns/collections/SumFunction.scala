@@ -15,6 +15,7 @@ import com.github.mdr.mash.inference.AnnotatedExpr
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.BinaryOperatorEvaluator
 
 object SumFunction extends MashFunction("collections.sum") {
 
@@ -38,7 +39,7 @@ object SumFunction extends MashFunction("collections.sum") {
     if (sequence.isEmpty)
       boundParams(EmptyValue)
     else
-      sequence.reduce(Evaluator.add(_, _, None))
+      sequence.reduce(BinaryOperatorEvaluator.add(_, _, None))
   }
 
   override def typeInferenceStrategy = SumTypeInferenceStrategy

@@ -95,9 +95,9 @@ object Evaluator {
       case lookupExpr: LookupExpr                 ⇒ evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
-      case binOp: BinOpExpr                       ⇒ evaluateBinOp(binOp)
-      case chainedOpExpr: ChainedOpExpr           ⇒ evaluateChainedOp(chainedOpExpr)
-      case assExpr: AssignmentExpr                ⇒ evaluateAssignment(assExpr)
+      case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOp(binOp)
+      case chainedOpExpr: ChainedOpExpr           ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
+      case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
       case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
       case ListExpr(items, _)                     ⇒ MashList(items.map(evaluate(_)))
       case mishExpr: MishExpr                     ⇒ evaluateMishExpr(mishExpr)
@@ -117,10 +117,8 @@ object Evaluator {
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
-    val parameters: Seq[Parameter] = params.map {
-      case SimpleParam(name, _)   ⇒ Parameter(name, s"Parameter '$name'")
-      case VariadicParam(name, _) ⇒ Parameter(name, s"Parameter '$name'", isVariadic = true)
-    }
+    val parameters: Seq[Parameter] = params.map(param ⇒
+      Parameter(name, s"Parameter '$name'", isVariadic = param.isVariadic))
     if (parameters.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")
     val variadicIndex = parameters.indexWhere(_.isVariadic)
@@ -130,63 +128,6 @@ object Evaluator {
     context.scopeStack.set(name, fn)
     MashUnit
   }
-
-  private def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashUnit = {
-    val AssignmentExpr(left, right, alias, _) = expr
-    val rightValue = if (alias) simpleEvaluate(right) else evaluate(right)
-    left match {
-      case Identifier(name, _) ⇒
-        context.scopeStack.set(name, rightValue)
-      case MemberExpr(target, member, /* isNullSafe */ false, _) ⇒
-        val targetValue = evaluate(target)
-        targetValue match {
-          case MashObject(fields, _) ⇒
-            fields += member -> rightValue
-          case _ ⇒
-            throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
-        }
-      case LookupExpr(target, index, _) ⇒
-        evaluateAssignmentToLookupExpr(target, index, rightValue)
-      case _ ⇒
-        throw new EvaluatorException("Expression is not assignable", left.locationOpt)
-    }
-    MashUnit
-  }
-
-  private def evaluateAssignmentToLookupExpr(target: Expr, index: Expr, rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
-    val targetValue = evaluate(target)
-    val indexValue = evaluate(index)
-    targetValue match {
-      case xs: MashList ⇒
-        indexValue match {
-          case n: MashNumber ⇒
-            val i = n.asInt.getOrElse(
-              throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt))
-            val items = xs.items
-            if (i < 0 || i > items.size - 1)
-              throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt)
-            else {
-              xs.items(i) = rightValue
-              MashUnit
-            }
-          case _ ⇒
-            throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
-        }
-      case mo: MashObject ⇒
-        indexValue match {
-          case MashString(s, _) ⇒ {
-            mo.fields(s) = rightValue
-            MashUnit
-          }
-          case _ ⇒
-            throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
-        }
-      case _ ⇒
-        throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.locationOpt)
-    }
-
-  }
-
   private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =
     condOpt(target) {
       case MashObject(_, Some(klass)) ⇒ klass.fields.find(_.name == name).map(field ⇒ (field, klass))
@@ -293,87 +234,6 @@ object Evaluator {
       case _ ⇒
         throw new EvaluatorException("Unable to lookup", indexLocationOpt)
     }
-  }
-
-  private def evaluateChainedOp(chainedOp: ChainedOpExpr)(implicit context: EvaluationContext): MashValue = {
-    val ChainedOpExpr(left, opRights, _) = chainedOp
-    val leftResult = evaluate(left)
-    val (success, _) = opRights.foldLeft((true, leftResult)) {
-      case ((leftSuccess, leftResult), (op, right)) ⇒
-        lazy val rightResult = evaluate(right)
-        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
-        (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */ )
-    }
-    MashBoolean(success)
-  }
-
-  private def evaluateBinOp(binOp: BinOpExpr)(implicit context: EvaluationContext): MashValue = {
-    val BinOpExpr(left, op, right, _) = binOp
-    lazy val leftResult = evaluate(left)
-    lazy val rightResult = evaluate(right)
-    evaluateBinOp(leftResult, op, rightResult, binOp.locationOpt)
-  }
-
-  private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[PointedRegion]): MashValue = {
-    def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean = MashBoolean(f(MashValueOrdering.compare(leftResult, rightResult), 0))
-    op match {
-      case BinaryOperator.And               ⇒ if (Truthiness.isTruthy(leftResult)) rightResult else leftResult
-      case BinaryOperator.Or                ⇒ if (Truthiness.isFalsey(leftResult)) rightResult else leftResult
-      case BinaryOperator.Equals            ⇒ MashBoolean(leftResult == rightResult)
-      case BinaryOperator.NotEquals         ⇒ MashBoolean(leftResult != rightResult)
-      case BinaryOperator.Plus              ⇒ add(leftResult, rightResult, locationOpt)
-      case BinaryOperator.Minus             ⇒ subtract(leftResult, rightResult, locationOpt)
-      case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, locationOpt)
-      case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "divide", _ / _)
-      case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
-      case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
-      case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)
-      case BinaryOperator.GreaterThanEquals ⇒ compareWith(_ >= _)
-      case BinaryOperator.Sequence          ⇒ leftResult; rightResult
-    }
-  }
-
-  private def arithmeticOp(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
-    (left, right) match {
-      case (left: MashNumber, right: MashNumber) ⇒
-        f(left, right)
-      case _ ⇒
-        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
-    }
-
-  private def multiply(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]) = (left, right) match {
-    case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
-    case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
-    case (left: MashNumber, right: MashNumber) ⇒ left * right
-    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
-  }
-
-  private implicit class RichInstant(instant: Instant) {
-    def +(duration: TemporalAmount): Instant = instant.plus(duration)
-    def -(duration: TemporalAmount): Instant = instant.minus(duration)
-  }
-
-  def add(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
-    case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
-    case (s: MashString, right)                ⇒ s + right
-    case (left, s: MashString)                 ⇒ s.rplus(left)
-    case (left: MashNumber, right: MashNumber) ⇒ left + right
-    case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
-      MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
-      MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
-  }
-
-  def subtract(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
-    case (left: MashNumber, right: MashNumber) ⇒ left - right
-    case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
-      MashWrapped(instant - klass.temporalAmount(n.toInt))
-    case (MashWrapped(instant1: Instant), MashWrapped(instant2: Instant)) ⇒
-      val duration = Duration.between(instant2, instant1)
-      val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
-      MashNumber(millis, Some(MillisecondsClass))
-    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
   }
 
   def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =

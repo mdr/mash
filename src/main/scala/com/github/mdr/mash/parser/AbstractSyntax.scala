@@ -286,16 +286,19 @@ object AbstractSyntax {
 
   sealed trait FunctionParam extends AstNode {
     val name: String
+    def isVariadic: Boolean
   }
 
   case class SimpleParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
+    def isVariadic = false
   }
 
   case class VariadicParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
+    def isVariadic = true
   }
 
   case class FunctionDeclaration(name: String, params: Seq[FunctionParam], body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

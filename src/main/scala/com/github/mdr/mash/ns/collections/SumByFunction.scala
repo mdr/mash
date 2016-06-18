@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.BinaryOperatorEvaluator
 
 object SumByFunction extends MashFunction("collections.sumBy") {
 
@@ -36,7 +37,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
     if (attributes.isEmpty)
       boundParams(EmptyValue)
     else
-      attributes.reduce(Evaluator.add(_, _, None))
+      attributes.reduce(BinaryOperatorEvaluator.add(_, _, None))
   }
 
   override def typeInferenceStrategy = SumByTypeInferenceStrategy
