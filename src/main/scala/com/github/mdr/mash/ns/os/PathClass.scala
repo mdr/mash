@@ -666,7 +666,7 @@ The default character encoding and line separator are used.""")
       MashList(segments.map(FunctionHelpers.asPathString))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(StringClass))
 
     override def summary = "A sequence of the segments of this path (the parts of the path separated by /)"
 

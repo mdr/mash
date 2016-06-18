@@ -15,6 +15,7 @@ import com.github.mdr.mash.runtime.MashList
 import scala.util.control.Exception._
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.InvocationEvaluator
 
 case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String, Seq[Argument]]) {
 
@@ -61,7 +62,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
   def validateFunction(param: Parameter): MashValue ⇒ MashValue =
     this(param) match {
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
-        (o ⇒ Evaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
+        (o ⇒ InvocationEvaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
       case x ⇒
         val message = s"Invalid argument '${param.name}'. Must be a function, but was '${ToStringifier.stringify(x)}'"
         throw new EvaluatorException(message, locationOpt(param))

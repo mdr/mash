@@ -18,8 +18,52 @@ import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.runtime.MashValue
+import scala.PartialFunction.condOpt
+import com.github.mdr.mash.parser.ConcreteSyntax
+import com.github.mdr.mash.utils.Utils
 
 object MemberEvaluator {
+
+  case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
+
+  def evaluateMemberExpr(memberExpr: MemberExpr, immediatelyResolveNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
+    val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
+    val target = Evaluator.evaluate(expr)
+    evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising)
+  }
+
+  def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, context: EvaluationContext, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+    val name = memberExpr.name
+    val isNullSafe = memberExpr.isNullSafe
+    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
+      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ PointedRegion(name.offset, name.region)
+    })
+    if (target == MashNull && isNullSafe)
+      MemberExprEvalResult(MashNull, wasVectorised = false)
+    else {
+      lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
+      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
+        x ⇒ MemberExprEvalResult(x, wasVectorised = true))
+      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
+    }
+  }
+
+  private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
+    target match {
+      case xs: MashList ⇒
+        val options = xs.items.map {
+          case MashNull if isNullSafe ⇒ Some(MashNull)
+          case x ⇒
+            val lookupOpt = MemberEvaluator.maybeLookup(x, name)
+            if (immediatelyResolveNullaryWhenVectorising)
+              lookupOpt.map(Evaluator.immediatelyResolveNullaryFunctions)
+            else
+              lookupOpt
+        }
+        Utils.sequence(options).map(MashList(_))
+      case _ ⇒
+        None
+    }
 
   private def lookupMethod(target: MashValue, klass: MashClass, name: String): Option[MashValue] = {
     val directResultOpt =

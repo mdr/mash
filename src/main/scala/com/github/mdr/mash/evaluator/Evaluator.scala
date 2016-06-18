@@ -71,7 +71,7 @@ object Evaluator {
   /**
    * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
    */
-  private def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
+  def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
@@ -91,9 +91,9 @@ object Evaluator {
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case Literal(v, _)                          ⇒ v
-      case memberExpr: MemberExpr                 ⇒ evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
+      case memberExpr: MemberExpr                 ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
       case lookupExpr: LookupExpr                 ⇒ evaluateLookupExpr(lookupExpr)
-      case invocationExpr: InvocationExpr         ⇒ evaluateInvocationExpr(invocationExpr)
+      case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
       case binOp: BinOpExpr                       ⇒ evaluateBinOp(binOp)
       case chainedOpExpr: ChainedOpExpr           ⇒ evaluateChainedOp(chainedOpExpr)
@@ -209,7 +209,7 @@ object Evaluator {
           case MashList(x, _*) ⇒ getHelpForMember(x, name)
         }.flatten
         lazy val directHelp = {
-          val result = evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
+          val result = MemberEvaluator.evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
           HelpFunction.getHelp(result)
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
@@ -258,70 +258,6 @@ object Evaluator {
 
   private def makeAnonymousFunction(parameter: String, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
     AnonymousFunction(parameter, body, context)
-
-  private case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
-
-  private def evaluateMemberExpr(memberExpr: MemberExpr, immediatelyResolveNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
-    val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
-    val target = evaluate(expr)
-    evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising)
-  }
-
-  private def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, context: EvaluationContext, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
-    val name = memberExpr.name
-    val isNullSafe = memberExpr.isNullSafe
-    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
-      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ PointedRegion(name.offset, name.region)
-    })
-    if (target == MashNull && isNullSafe)
-      MemberExprEvalResult(MashNull, wasVectorised = false)
-    else {
-      lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
-      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
-        x ⇒ MemberExprEvalResult(x, wasVectorised = true))
-      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
-    }
-  }
-
-  private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
-    target match {
-      case xs: MashList ⇒
-        val options = xs.items.map {
-          case MashNull if isNullSafe ⇒ Some(MashNull)
-          case x ⇒
-            val lookupOpt = MemberEvaluator.maybeLookup(x, name)
-            if (immediatelyResolveNullaryWhenVectorising)
-              lookupOpt.map(Evaluator.immediatelyResolveNullaryFunctions)
-            else
-              lookupOpt
-        }
-        Utils.sequence(options).map(MashList(_))
-      case _ ⇒
-        None
-    }
-
-  private def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(evaluate(expr), Some(arg))
-    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags, Some(arg))
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ evaluate(v)), Some(arg))
-  }
-
-  private def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext) = {
-    val InvocationExpr(functionExpr, arguments, _) = invocationExpr
-    val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
-    functionExpr match {
-      case memberExpr: MemberExpr ⇒
-        val MemberExprEvalResult(result, wasVectorised) = evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = false)
-        if (wasVectorised) {
-          val functions = result.asInstanceOf[MashList]
-          functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
-        } else
-          callFunction(result, evaluatedArguments, functionExpr, invocationExpr)
-      case _ ⇒
-        val function = simpleEvaluate(functionExpr)
-        callFunction(function, evaluatedArguments, functionExpr, invocationExpr)
-    }
-  }
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
@@ -440,48 +376,11 @@ object Evaluator {
     case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
   }
 
-  private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
-    callFunction(function, arguments, Some(functionExpr), Some(invocationExpr))
-
-  private def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
+  def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
     try
       p
     catch {
       case e: EvaluatorException if e.locationOpt.isEmpty ⇒
         throw e.copy(locationOpt = locationOpt)
     }
-
-  def callFunction(function: MashValue, arguments: Arguments, functionExprOpt: Option[Expr] = None, invocationExprOpt: Option[Expr] = None): MashValue = {
-    val functionLocationOpt = functionExprOpt.flatMap(_.locationOpt)
-    val invocationLocationOpt = invocationExprOpt.flatMap(_.locationOpt)
-    function match {
-      case MashString(memberName, _) ⇒
-        arguments.positionArgs match {
-          case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
-            xs.map { target ⇒
-              val intermediateResult = MemberEvaluator.lookup(target, memberName, functionLocationOpt)
-              addLocationToExceptionIfMissing(invocationLocationOpt) {
-                immediatelyResolveNullaryFunctions(intermediateResult)
-              }
-            }
-          case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
-            val intermediateResult = MemberEvaluator.lookup(target, memberName, functionLocationOpt)
-            addLocationToExceptionIfMissing(invocationLocationOpt) {
-              immediatelyResolveNullaryFunctions(intermediateResult)
-            }
-          case _ ⇒
-            throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
-        }
-      case f: MashFunction ⇒
-        addLocationToExceptionIfMissing(invocationLocationOpt) {
-          f(arguments)
-        }
-      case BoundMethod(target, method, _) ⇒
-        addLocationToExceptionIfMissing(invocationLocationOpt) {
-          method(target, arguments)
-        }
-      case _ ⇒
-        throw EvaluatorException(s"Not callable", functionLocationOpt)
-    }
-  }
 }

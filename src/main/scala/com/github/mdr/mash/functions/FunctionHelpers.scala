@@ -2,18 +2,13 @@ package com.github.mdr.mash.functions
 
 import java.nio.file.Path
 import java.nio.file.Paths
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatedArgument
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.evaluator.MemberEvaluator
-import com.github.mdr.mash.ns.os.PathSummaryClass
+
+import scala.PartialFunction._
+
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.os.PathSummaryClass
+import com.github.mdr.mash.runtime._
 
 object FunctionHelpers {
 
@@ -40,7 +35,7 @@ object FunctionHelpers {
 
   def interpretAsFunction(f: MashValue): (MashValue ⇒ MashValue) = o ⇒ {
     val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))
-    Evaluator.callFunction(f, args)
+    InvocationEvaluator.callFunction(f, args)
   }
 
   def interpretAsSequence(x: MashValue): Seq[MashValue] = x match {
