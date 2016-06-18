@@ -75,24 +75,11 @@ object Evaluator {
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
-      case StringLiteral(s, quotationType, tildePrefix, _) ⇒
-        val tagOpt = condOpt(quotationType) { case QuotationType.Double ⇒ PathClass }
-        val detilded = if (tildePrefix) environmentInteractions.home + s else s
-        MashString(detilded, tagOpt)
-      case Identifier(name, _) ⇒
-        context.scopeStack.lookup(name).getOrElse {
-          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt)
-        }
-      case MinusExpr(subExpr, _) ⇒
-        evaluate(subExpr) match {
-          case n: MashNumber ⇒ n.negate
-          case _             ⇒ throw new EvaluatorException("Could not negate a non-number", expr.locationOpt)
-        }
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case Literal(v, _)                          ⇒ v
       case memberExpr: MemberExpr                 ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
-      case lookupExpr: LookupExpr                 ⇒ evaluateLookupExpr(lookupExpr)
+      case lookupExpr: LookupExpr                 ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
       case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOp(binOp)
@@ -100,20 +87,41 @@ object Evaluator {
       case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
       case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
       case ListExpr(items, _)                     ⇒ MashList(items.map(evaluate(_)))
-      case mishExpr: MishExpr                     ⇒ evaluateMishExpr(mishExpr)
-      case expr: MishInterpolation                ⇒ evaluateMishInterpolation(expr)
-      case decl: FunctionDeclaration              ⇒ evaluateFunctionDecl(decl)
+      case mishExpr: MishExpr                     ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
+      case expr: MishInterpolation                ⇒ MishEvaluator.evaluateMishInterpolation(expr)
       case MishFunction(command, _)               ⇒ SystemCommandFunction(command)
-      case HelpExpr(expr, _)                      ⇒ evaluateHelpExpr(expr)
+      case decl: FunctionDeclaration              ⇒ evaluateFunctionDecl(decl)
+      case HelpExpr(expr, _)                      ⇒ HelpEvaluator.evaluateHelpExpr(expr)
+      case StatementSeq(statements, _)            ⇒ evaluateStatements(statements)
+      case lit: StringLiteral                     ⇒ evaluateStringLiteral(lit)
+      case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
+      case Identifier(name, _) ⇒
+        context.scopeStack.lookup(name).getOrElse {
+          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt)
+        }
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject(fields, classOpt = None)
-      case StatementSeq(statements, _) ⇒
-        var result: MashValue = MashUnit
-        for (statement ← statements)
-          result = evaluate(statement)
-        result
     }
+
+  private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
+    case n: MashNumber ⇒ n.negate
+    case _             ⇒ throw new EvaluatorException("Could not negate a non-number", subExpr.locationOpt)
+  }
+
+  private def evaluateStringLiteral(lit: StringLiteral): MashValue = {
+    val StringLiteral(s, quotationType, tildePrefix, _) = lit
+    val tagOpt = condOpt(quotationType) { case QuotationType.Double ⇒ PathClass }
+    val detilded = if (tildePrefix) environmentInteractions.home + s else s
+    MashString(detilded, tagOpt)
+  }
+
+  private def evaluateStatements(statements: Seq[Expr])(implicit context: EvaluationContext): MashValue = {
+    var result: MashValue = MashUnit
+    for (statement ← statements)
+      result = evaluate(statement)
+    result
+  }
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val FunctionDeclaration(name, params, body, sourceInfoOpt) = decl
@@ -127,60 +135,6 @@ object Evaluator {
     val fn = new UserDefinedFunction(name, ParameterModel(parameters), body, context)
     context.scopeStack.set(name, fn)
     MashUnit
-  }
-  private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =
-    condOpt(target) {
-      case MashObject(_, Some(klass)) ⇒ klass.fields.find(_.name == name).map(field ⇒ (field, klass))
-    }.flatten
-
-  private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
-    val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpFunction.getHelp(field, klass) }
-    lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
-      case method: BoundMethod ⇒ HelpFunction.getHelp(method)
-    }
-    fieldHelpOpt orElse memberHelpOpt
-  }
-
-  private def evaluateHelpExpr(expr: Expr)(implicit context: EvaluationContext): MashObject =
-    expr match {
-      case memberExpr @ MemberExpr(targetExpr, name, _, _) ⇒
-        val target = evaluate(targetExpr)
-        val scalarHelpOpt = getHelpForMember(target, name)
-        lazy val vectorHelpOpt = condOpt(target) {
-          case MashList(x, _*) ⇒ getHelpForMember(x, name)
-        }.flatten
-        lazy val directHelp = {
-          val result = MemberEvaluator.evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
-          HelpFunction.getHelp(result)
-        }
-        scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
-      case _ ⇒
-        val x = simpleEvaluate(expr)
-        HelpFunction.getHelp(x)
-    }
-
-  private def evaluateMishInterpolation(expr: MishInterpolation)(implicit context: EvaluationContext) =
-    expr.part match {
-      case StringPart(s)  ⇒ MashString(s, PathClass)
-      case ExprPart(expr) ⇒ evaluate(expr)
-    }
-
-  private def evaluateMishExpr(expr: MishExpr)(implicit context: EvaluationContext): MashValue = {
-    val MishExpr(command, args, captureProcessOutput, _) = expr
-    val evaluatedCommand = evaluate(command)
-    val evaluatedArgs = args.map(evaluate(_))
-    val flattenedArgs: Seq[MashValue] = evaluatedArgs.flatMap {
-      case xs: MashList ⇒ xs.items
-      case x            ⇒ Seq(x)
-    }
-    val allArgs = evaluatedCommand +: flattenedArgs
-    if (captureProcessOutput) {
-      val processResult = ProcessRunner.runProcess(allArgs, expandTilde = true, captureProcess = captureProcessOutput)
-      ProcessResultClass.fromResult(processResult)
-    } else {
-      ProcessRunner.runProcess(allArgs, expandTilde = true)
-      MashUnit
-    }
   }
 
   private def evaluateInterpolatedString(interpolatedString: InterpolatedString)(implicit context: EvaluationContext): MashString = {
@@ -211,30 +165,7 @@ object Evaluator {
     }
   }
 
-  private def evaluateLookupExpr(lookupExpr: LookupExpr)(implicit context: EvaluationContext): MashValue = {
-    val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
-    val target = evaluate(targetExpr)
-    val index = evaluate(indexExpr)
-    val targetLocationOpt = targetExpr.locationOpt
-    val indexLocationOpt = indexExpr.locationOpt
-    val lookupLocationOpt = lookupExpr.locationOpt
-    index match {
-      case MashString(memberName, _) ⇒ MemberEvaluator.lookup(target, memberName, indexLocationOpt)
-      case n: MashNumber ⇒
-        val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup, non-integer index: " + n, lookupLocationOpt))
-        target match {
-          case xs: MashList ⇒
-            val index = if (i < 0) i + xs.size else i
-            if (index >= xs.size)
-              throw new EvaluatorException("Index out of range " + n, indexLocationOpt)
-            xs(index)
-          case s: MashString ⇒ s.lookup(i)
-          case _             ⇒ throw new EvaluatorException("Unable to lookup", lookupLocationOpt)
-        }
-      case _ ⇒
-        throw new EvaluatorException("Unable to lookup", indexLocationOpt)
-    }
-  }
+  
 
   def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
     try
