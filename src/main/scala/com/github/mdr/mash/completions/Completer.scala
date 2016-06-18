@@ -105,26 +105,10 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   private def completeDot(text: String, dotToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
     lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, dotToken, pos, parser)
     lazy val asStringResultOpt = stringCompleter.completeAsString(text, dotToken, parser).completionResultOpt
-
-    // Prefer string completions in situations like "ls .emacs" by checking the char before the dot:
-    val posBefore = dotToken.offset - 1
-    val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace
-
-    // Prefer string completions for bare strings:
-    val isAfterBareString: Boolean =
-      (for {
-        previousToken ← parser.tokenise(text).find(_.region.posAfter == dotToken.offset)
-        bareTokens = parser.getBareTokens(text)
-      } yield bareTokens.contains(previousToken)).getOrElse(false)
-
-    if (isMemberDot && !isAfterBareString)
-      memberResultOpt orElse asStringResultOpt
-    else
-      asStringResultOpt orElse memberResultOpt
+    asStringResultOpt orElse memberResultOpt
   }
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
-    //    val asStringRegion = Region(pos, 0) //if (nearbyToken.isWhitespace) Region(pos, 0) else nearbyToken.region
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, nearbyToken.region, parser) orElse
         stringCompleter.completeAsString(text, Region(pos, 0), parser)

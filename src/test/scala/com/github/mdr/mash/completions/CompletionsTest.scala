@@ -76,9 +76,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     "readLines .▶".completions should contain theSameElementsAs Seq("./", "../", ".dotfile")
   }
 
-  "Completing after a dot when a file with that name exists" should "prioritise member completion" in {
+  "Completing after a dot when a file with that name exists" should "prioritise file name completion" in {
     implicit val filesystem = MockFileSystem.of("/readLines.txt")
-    "readLines.▶".completions should contain("toString")
+    "readLines.▶".completions should contain theSameElementsAs Seq("readLines.txt")
   }
 
   ".▶" shouldGiveCompletions ("../", "./")
@@ -269,6 +269,13 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   "{ foobar: 42 } | .foo▶" shouldGiveCompletions ("foobar")
+
+  {
+    implicit val fileSystem = MockFileSystem.of("/.dotfiles/.bashrc")
+
+    """ls ".dotfiles/."▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
+    """ls ".dotfiles/".▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
+  }
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
