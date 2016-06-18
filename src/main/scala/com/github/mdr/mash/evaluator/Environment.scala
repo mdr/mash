@@ -1,29 +1,12 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.ns.os.{ GroupClass ⇒ _, _ }
-import com.github.mdr.mash.ns.collections._
-import scala.collection.mutable
 import scala.collection.JavaConverters._
-import com.github.mdr.mash.ns.StandardFunctions
 import scala.collection.immutable.ListMap
-import scala.collection.mutable.LinkedHashMap
-import com.github.mdr.mash.ns.git._
+import scala.collection.mutable
+
 import com.github.mdr.mash.Config
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.ns.core.help.ClassHelpClass
-import com.github.mdr.mash.ns.core.help.ParameterHelpClass
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.ns.time.ChronoUnitClass
-import com.github.mdr.mash.ns.time.ChronoUnitClass
-import com.github.mdr.mash.ns.view.RawFunction
-import com.github.mdr.mash.ns.view.BrowserFunction
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.MashRoot
+import com.github.mdr.mash.runtime._
 
 case class Environment(bindings_ : Map[String, MashValue], globalVariables: mutable.Map[String, MashValue]) {
 
@@ -44,8 +27,8 @@ object Environment {
 
   def createGlobalVariables(): mutable.Map[String, MashValue] = {
     val ns = NamespaceCreator.createNamespace
-    val nameFunctionPairs = StandardFunctions.StandardFunctions.map(f ⇒ f.name -> f)
-    val aliasPairs = StandardFunctions.Aliases.toSeq
+    val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ f.name -> f)
+    val aliasPairs = MashRoot.Aliases.toSeq
     val git = ns.getField("git").get
     val http = ns.getField("http").get
     val json = ns.getField("json").get

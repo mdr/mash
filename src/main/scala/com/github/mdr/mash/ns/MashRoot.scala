@@ -9,14 +9,23 @@ import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.json.FromFileFunction
-import com.github.mdr.mash.ns.git.branch.{ DeleteFunction => _, _ }
+import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
+import com.github.mdr.mash.ns.view._
 
-object StandardFunctions {
+object MashRoot {
 
+  lazy val AllFunctions = StandardFunctions ++ OtherFunctions
+  
   /**
-   * Functions imported into the default namespace
+   * Functions to be imported into the default namespace
    */
   lazy val StandardFunctions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
+
+  lazy private val OtherFunctions =
+    GitNamespace.GitFunctions ++
+      Seq(BrowserFunction, RawFunction) ++
+      Seq(FromFileFunction) ++
+      Seq(http.GetFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
@@ -155,5 +164,6 @@ object StandardFunctions {
     MonthsClass,
     DateTimeClass,
     LocalDateClass,
-    ViewClass)
+    ViewClass,
+    http.ResponseClass)
 }
