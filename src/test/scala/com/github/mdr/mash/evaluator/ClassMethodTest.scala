@@ -10,7 +10,7 @@ class ClassMethodTest extends AbstractEvaluatorTest {
   "().class" shouldEvaluateTo "ns.core.Unit"
   "null.class" shouldEvaluateTo "ns.core.Null"
   "{}.class" shouldEvaluateTo "ns.core.Object"
-  "[].class" shouldEvaluateTo "ns.collections.Seq"
+  "[].class" shouldEvaluateTo "ns.collections.List"
   "identity.class" shouldEvaluateTo "ns.core.Function"
   "'foo'.startsWith.class" shouldEvaluateTo "ns.core.BoundMethod"
   "1.class.class" shouldEvaluateTo "ns.core.Class"
