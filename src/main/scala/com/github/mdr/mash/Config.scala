@@ -6,11 +6,11 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
 
 case class ConfigOption(name: String, defaultValue: MashValue) {
-  
+
   def path: Seq[String] = name.split("\\.").toSeq
-  
+
   override def toString = name
-  
+
 }
 
 object Config {
@@ -25,10 +25,10 @@ object Config {
 
   val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips)
 
- def getConfig(configOpt: Option[MashObject], configOption: ConfigOption): MashValue = {
+  def getConfig(configOpt: Option[MashObject], configOption: ConfigOption): MashValue = {
     val valueOpt = for {
-      config <- configOpt
-      value <- getConfig(config, configOption.path)
+      config ← configOpt
+      value ← getConfig(config, configOption.path)
     } yield value
     valueOpt.getOrElse(configOption.defaultValue)
   }
@@ -50,8 +50,7 @@ object Config {
     } yield restValue
   }
 
-  
- def defaultConfig = {
+  def defaultConfig = {
     val config = MashObject(LinkedHashMap())
     def addConfigOption(obj: MashObject, path: Seq[String], value: MashValue) {
       path match {

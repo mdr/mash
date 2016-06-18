@@ -55,4 +55,3 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 
   def summary = "A git remote branch name"
 }
-  

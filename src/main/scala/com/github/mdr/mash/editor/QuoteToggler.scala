@@ -98,4 +98,4 @@ object QuoteToggler {
         }
       cursorPos + shift
     }
-}    
+}

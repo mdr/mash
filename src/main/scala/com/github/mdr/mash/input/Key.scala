@@ -3,7 +3,7 @@ package com.github.mdr.mash.input
 sealed trait Key
 
 object Key {
-  
+
   case class BasicKey(c: Character) extends Key
   case object Enter extends Key
   case object Space extends Key
@@ -19,5 +19,5 @@ object Key {
   case object Left extends Key
   case object Right extends Key
   case object Tab extends Key
-  
+
 }

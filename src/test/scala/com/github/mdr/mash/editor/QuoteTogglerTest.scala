@@ -36,13 +36,13 @@ class QuoteTogglerTest extends FlatSpec with Matchers {
   """foo▶"""" ==> """"foo▶""""
   """"f▶oo""" ==> """"f▶oo""""
   """▶"foo""" ==> """▶"foo""""
-    
-  "foo ▶ bar" ==> "foo ▶ bar"  
-  
+
+  "foo ▶ bar" ==> "foo ▶ bar"
+
   """foo "▶""" ==> """foo ""▶"""
-  
+
   """"\$"▶""" ==> "$▶"
-    
+
   implicit class RichString(s: String) {
     def ==>(expectedStr: String) {
       "QuoteToggler" should s"transform $s into $expectedStr" in {

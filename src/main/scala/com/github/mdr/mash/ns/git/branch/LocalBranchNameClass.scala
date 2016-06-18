@@ -58,4 +58,4 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
     }
 
 }
-  
+

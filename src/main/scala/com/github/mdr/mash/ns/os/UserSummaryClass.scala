@@ -41,15 +41,15 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     GroupsMethod)
 
   case class Wrapper(target: MashValue) {
-    
+
     private val user = target.asInstanceOf[MashObject]
-    
+
     def username: String = user.field(Name).asInstanceOf[MashString].s
 
     def primaryGroup: MashString = user.field(PrimaryGroup).asInstanceOf[MashString]
 
   }
-    
+
   object FullNameMethod extends MashMethod("fullName") {
 
     val params = ParameterModel()
@@ -78,7 +78,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val user = Wrapper(target)
-      val primaryGroup = user.primaryGroup 
+      val primaryGroup = user.primaryGroup
       val username = user.username
       val secondaryGroups = userInteractions.groupEntries.filter(_.users.contains(username)).map(entry ⇒ MashString(entry.group, Some(GroupClass)))
       MashList(primaryGroup +: secondaryGroups)
@@ -94,7 +94,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val username = MashString(entry.username, UsernameClass)
     val group = userInteractions.groupEntries
       .find(_.gid == entry.gid)
-      .map(ge => MashString(ge.group, GroupClass))
+      .map(ge ⇒ MashString(ge.group, GroupClass))
       .getOrElse(MashNull)
     val uid = MashNumber(entry.uid, UidClass)
     val home = MashString(entry.homeDirectory, PathClass)

@@ -58,6 +58,3 @@ case class CompletionFragment(prefix: String, beforeReversed: String, after: Str
 
 }
 
-
-
-

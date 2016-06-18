@@ -1,9 +1,9 @@
 package com.github.mdr.mash.terminal
 
 object Terminal {
-  
+
   val ClearScreenEscapeSequence = "\u001b[H\u001b[2J"
-  
+
 }
 
 trait Terminal {

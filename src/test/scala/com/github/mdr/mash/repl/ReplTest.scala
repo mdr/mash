@@ -88,13 +88,13 @@ class ReplTest extends FlatSpec with Matchers {
     repl.input("foo").acceptLine()
     repl.it should equal(MashUnit /* Repl should have emitted an error */ )
   }
-  
+
   "Type inference loop bug" should "not happen" in {
     val repl = newRepl
     repl.input("a => a").acceptLine()
     repl.complete() // previously blew up here
   }
-  
+
   "Local variables" should "not collide with global" in {
     val repl = newRepl
     repl.input("a = 0").acceptLine()
@@ -103,7 +103,7 @@ class ReplTest extends FlatSpec with Matchers {
     repl.input("a").acceptLine()
     repl.it should equal(MashNumber(0))
   }
-  
+
   private def newRepl = makeRepl()
 
 }
@@ -118,7 +118,7 @@ object ReplTest {
   implicit class RichRepl(repl: Repl) {
 
     import com.github.mdr.mash.repl.NormalActions._
-    
+
     def input(s: String): Repl = { repl.handleAction(SelfInsert(s)); repl }
 
     def complete(): Repl = { repl.handleAction(Complete); repl }

@@ -13,5 +13,5 @@ object NumberUtils {
   def prettyString(d: Double) = DoubleFormat.format(d)
 
   def asIntOpt(s: String): Option[Int] = Try(s.toInt).toOption
-  
+
 }

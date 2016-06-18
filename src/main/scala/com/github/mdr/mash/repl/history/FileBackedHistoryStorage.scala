@@ -13,15 +13,15 @@ import com.github.mdr.mash.Mash
 import com.google.gson.GsonBuilder
 
 object FileBackedHistoryStorage {
-  
+
   private val HistoryFile = Mash.MashDir.resolve("history")
-  
+
 }
 
 class FileBackedHistoryStorage extends HistoryStorage {
-  
+
   import FileBackedHistoryStorage._
-  
+
   private val gson = Converters.registerAll(new GsonBuilder()).create()
 
   def loadHistory(): Seq[HistoryEntry] =

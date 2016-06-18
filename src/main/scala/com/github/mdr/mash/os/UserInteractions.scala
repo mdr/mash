@@ -13,9 +13,9 @@ case class PasswdEntry(username: String, uid: Int, gid: Int, gecos: String, home
 case class GroupEntry(group: String, gid: Long, users: Seq[String])
 
 object UserInteractions {
-  
+
   def default: UserInteractions = if (SystemUtils.IS_OS_MAC_OSX) OsXUserInteractions else LinuxUserInteractions
-  
+
 }
 
 trait UserInteractions {
@@ -24,6 +24,6 @@ trait UserInteractions {
 
   def groupEntries: Seq[GroupEntry]
 
-  def currentUsername: String 
-  
+  def currentUsername: String
+
 }

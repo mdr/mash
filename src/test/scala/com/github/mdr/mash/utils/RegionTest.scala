@@ -14,9 +14,9 @@ class RegionTest extends FlatSpec with Matchers {
 
     Region(0, 10).overlaps(Region(10, 20)) should be(false)
     Region(0, 11).overlaps(Region(10, 20)) should be(true)
-    
-    Region(0, 10).overlaps(Region(5, 0)) should be (true)
-    Region(0, 10).overlaps(Region(0, 0)) should be (true)
+
+    Region(0, 10).overlaps(Region(5, 0)) should be(true)
+    Region(0, 10).overlaps(Region(0, 0)) should be(true)
   }
 
 }

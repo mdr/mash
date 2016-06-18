@@ -28,7 +28,7 @@ case class IncrementalCompletionState(
     immediatelyAfterCompletion: Boolean,
     mementoOpt: Option[ReplStateMemento] = None) extends CompletionState {
 
-  def getCommonDisplayFragment: CompletionFragment = 
+  def getCommonDisplayFragment: CompletionFragment =
     CompletionFragment.getCommonFragment(completions, CompletionContext.Display)
 
 }

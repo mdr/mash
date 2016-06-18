@@ -23,7 +23,7 @@ object UserFunction extends MashFunction("os.user") {
       throw new EvaluatorException(s"Could not find full user information for user '$username'"))
     UserSummaryClass.fromPasswdEntry(passwdEntry)
   }
-  
+
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(UserSummaryClass)
 
   override def summary = "The current user"

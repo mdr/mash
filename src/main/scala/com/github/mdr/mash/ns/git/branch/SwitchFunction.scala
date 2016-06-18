@@ -17,7 +17,7 @@ import com.github.mdr.mash.runtime.MashUnit
 object SwitchFunction extends MashFunction("git.branch.switch") {
 
   override def aliases = Seq(FullyQualifiedName("git.switch"))
-  
+
   object Params {
     val Branch = Parameter(
       name = "branch",

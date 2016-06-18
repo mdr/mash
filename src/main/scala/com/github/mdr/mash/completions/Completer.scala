@@ -67,7 +67,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     }
 
   private def completeStringLiteral(text: String, stringLiteral: Token, parser: CompletionParser): Option[CompletionResult] =
-      stringCompleter.completeAsString(text, stringLiteral, parser).completionResultOpt
+    stringCompleter.completeAsString(text, stringLiteral, parser).completionResultOpt
 
   private def completeLongFlag(text: String, flag: Token, parser: CompletionParser): Option[CompletionResult] = {
     val flagResultOpt = FlagCompleter.completeLongFlag(text, flag, parser)

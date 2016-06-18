@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator.ToStringifier
 object MashString {
 
   def apply(s: String, tagClass: MashClass): MashString = MashString(s, Some(tagClass))
-  
+
 }
 
 case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends MashValue with Comparable[MashString] {

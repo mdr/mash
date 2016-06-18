@@ -54,7 +54,7 @@ object NumberClass extends MashClass("core.Number") {
     override def summary = "Convert number to an integer (rounding towards zero)"
 
   }
-  
+
   object TagMethod extends MashMethod("tag") {
 
     val params = ParameterModel()

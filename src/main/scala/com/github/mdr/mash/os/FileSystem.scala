@@ -36,7 +36,7 @@ trait FileSystem {
   def exists(path: Path): Boolean
 
   def isDirectory(path: Path): Boolean
-  
+
   def createDirectory(path: Path, createIntermediates: Boolean): Path
-  
+
 }

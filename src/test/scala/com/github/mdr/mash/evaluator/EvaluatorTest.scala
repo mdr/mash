@@ -481,10 +481,10 @@ class EvaluatorTest extends FlatSpec with Matchers {
   "now.date < 3.days.ago.date" shouldEvaluateTo "false"
 
   "a = now; b = 3.days.ago; min a b" shouldEvaluateTo "b"
-  
+
   // Block expressions
   "{ a = 0; a = a + 1; a }" shouldEvaluateTo "1"
-  
+
   implicit class RichString(s: String) {
 
     def shouldThrowAnException = {
@@ -507,18 +507,18 @@ class EvaluatorTest extends FlatSpec with Matchers {
         Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
       }
     }
-    
+
     def shouldEvaluateTo(expectedString: String) = {
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = Environment.create
         val ctx = EvaluationContext(ScopeStack(env.globalVariables))
-        
+
         val Some(expr1) = Compiler.compile(s, forgiving = false, bindings = ctx.scopeStack.bindings)
         val actual = Evaluator.evaluate(expr1)(ctx)
-        
+
         val Some(expr2) = Compiler.compile(expectedString, forgiving = false, bindings = ctx.scopeStack.bindings)
         val expected = Evaluator.evaluate(expr2)(ctx)
-        
+
         actual should equal(expected)
       }
     }

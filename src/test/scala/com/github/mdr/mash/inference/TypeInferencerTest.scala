@@ -193,14 +193,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "git['status']" shouldBeInferredAsHavingType DefinedFunction(StatusFunction)
   "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), SeqClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
-  
-  "{ foo: 42 } | .foo" shouldBeInferredAsHavingType(NumberClass)
-  
-  "now" shouldBeInferredAsHavingType(DateTimeClass)
-  "now.date" shouldBeInferredAsHavingType(LocalDateClass)
-  
-  "()" shouldBeInferredAsHavingType(UnitClass)
-  
+
+  "{ foo: 42 } | .foo" shouldBeInferredAsHavingType (NumberClass)
+
+  "now" shouldBeInferredAsHavingType (DateTimeClass)
+  "now.date" shouldBeInferredAsHavingType (LocalDateClass)
+
+  "()" shouldBeInferredAsHavingType (UnitClass)
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

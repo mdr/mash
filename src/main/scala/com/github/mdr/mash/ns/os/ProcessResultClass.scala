@@ -89,7 +89,6 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   }
 
-
   object ToNumberMethod extends MashMethod("toNumber") {
 
     val params = ParameterModel()
@@ -118,7 +117,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
 
-  }  
+  }
 
   object ToStringMethod extends MashMethod("toString") {
 

@@ -26,7 +26,7 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
   val params = ParameterModel(Seq(Branch, Commit))
 
-  def apply(arguments: Arguments) : MashUnit ={
+  def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     val commit = MergeFunction.validateCommit(boundParams, Commit)

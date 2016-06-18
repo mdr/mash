@@ -26,7 +26,7 @@ object FindFunction extends MashFunction("collections.find") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams.validateSequence(Sequence)   
+    val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
     sequence.find(x ⇒ Truthiness.isTruthy(predicate(x))).getOrElse(MashNull)
   }

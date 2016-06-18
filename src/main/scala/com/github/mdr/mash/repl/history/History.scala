@@ -9,13 +9,13 @@ import com.github.mdr.mash.runtime.MashValue
 import java.nio.file.Paths
 
 case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue, workingDirectory: String) {
-  
+
   def sessionIdOpt: Option[String] = Option(sessionId)
-  
+
   def resultOpt: Option[MashValue] = Option(result)
-  
-  def workingDirectoryOpt: Option[Path] = Option(workingDirectory).map(s => Paths.get(s))
-  
+
+  def workingDirectoryOpt: Option[Path] = Option(workingDirectory).map(s ⇒ Paths.get(s))
+
 }
 
 trait History {

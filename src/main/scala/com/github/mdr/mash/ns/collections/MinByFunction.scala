@@ -25,7 +25,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams.validateSequence(Sequence)   
+    val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
     sequence.minBy(attribute)(MashValueOrdering)
   }

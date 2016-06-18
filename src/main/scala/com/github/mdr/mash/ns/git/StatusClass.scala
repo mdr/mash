@@ -27,7 +27,7 @@ object StatusClass extends MashClass("git.Status") {
 
   import Fields._
 
-  override lazy val fields = 
+  override lazy val fields =
     Seq(Branch, UpstreamBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked, Conflicting)
 
   def summary = "The status of a git repository"

@@ -69,7 +69,7 @@ object CommitClass extends MashClass("git.Commit") {
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
     override def commitName(target: MashValue) = Wrapper(target).hash.s
-    
+
   }
 
   object ToStringMethod extends MashMethod("toString") {
@@ -163,7 +163,7 @@ object CommitClass extends MashClass("git.Commit") {
 abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   def commitName(target: MashValue): String
-  
+
   object Params {
     val Commit = Parameter(
       name = "commit",

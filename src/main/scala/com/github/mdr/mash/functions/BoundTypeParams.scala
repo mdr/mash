@@ -15,7 +15,7 @@ case class BoundTypeParams(params: Map[String, AnnotatedExpr], posToParam: Map[I
   def contains(param: String) = get(param).isDefined
 
   def contains(param: Parameter) = get(param).isDefined
-  
+
   def paramAt(pos: Int): Option[Parameter] = posToParam.get(pos)
-  
+
 }

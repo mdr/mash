@@ -22,7 +22,7 @@ object IsEmptyFunction extends MashFunction("collections.isEmpty") {
 
   def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams.validateSequence(Sequence)   
+    val sequence = boundParams.validateSequence(Sequence)
     MashBoolean(sequence.isEmpty)
   }
 

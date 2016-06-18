@@ -24,6 +24,6 @@ object Singletons {
   def setExecutionContext(ctx: ExecutionContext): Unit = synchronized { _executionContextOpt = Some(ctx) }
 
   var environment: MashObject = _
-  
+
   var terminalWindowChanged = false
 }

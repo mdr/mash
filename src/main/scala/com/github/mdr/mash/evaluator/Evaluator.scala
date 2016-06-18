@@ -165,8 +165,6 @@ object Evaluator {
     }
   }
 
-  
-
   def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
     try
       p

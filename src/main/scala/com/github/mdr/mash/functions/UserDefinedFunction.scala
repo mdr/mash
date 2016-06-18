@@ -24,5 +24,4 @@ class UserDefinedFunction(
 
   override def summary = s"User defined function '$name'"
 
- 
 }

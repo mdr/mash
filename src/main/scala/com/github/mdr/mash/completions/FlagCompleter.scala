@@ -48,7 +48,7 @@ object FlagCompleter {
       functionType ← invocationExpr.function.typeOpt
       flags ← getFlags(functionType)
       completions = flags.flatMap(getCompletions)
-      result <- CompletionResult.of(completions, minusToken.region)
+      result ← CompletionResult.of(completions, minusToken.region)
     } yield result
   }
 

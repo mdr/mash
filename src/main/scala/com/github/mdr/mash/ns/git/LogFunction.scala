@@ -29,7 +29,7 @@ object LogFunction extends MashFunction("git.log") {
     val Commit = Parameter(
       name = "commit",
       summary = "Commit to find the log of",
-      defaultValueGeneratorOpt = Some(() => MashNull))
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
   }
   import Params._
 

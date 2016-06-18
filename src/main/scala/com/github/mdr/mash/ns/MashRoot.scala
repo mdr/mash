@@ -15,7 +15,7 @@ import com.github.mdr.mash.ns.view._
 object MashRoot {
 
   lazy val AllFunctions = StandardFunctions ++ OtherFunctions
-  
+
   /**
    * Functions to be imported into the default namespace
    */

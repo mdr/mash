@@ -51,4 +51,4 @@ object GetFunction extends MashFunction("http.get") {
 
   override def summary = "Make an HTTP request "
 
-}  
+}

@@ -25,7 +25,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val sequence = boundParams.validateSequence(Sequence)   
+    val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
     sequence.maxBy(attribute)(MashValueOrdering)
   }

@@ -30,7 +30,7 @@ case class ScopeStack(scopes: List[Scope]) {
   def set(name: String, value: MashValue) {
     set(name, value, scopes)
   }
-  
+
   private def set(name: String, value: MashValue, scopes: List[Scope]): Unit =
     scopes match {
       case (scope: LambdaScope) :: rest ⇒
@@ -38,9 +38,9 @@ case class ScopeStack(scopes: List[Scope]) {
           throw new EvaluatorException("Cannot assign to a parameter")
         else
           set(name, value, rest)
-      case (scope: FullScope) :: rest =>
+      case (scope: FullScope) :: rest ⇒
         scope.set(name, value)
-      case Nil =>
+      case Nil ⇒
         throw new AssertionError("Missing global scope")
     }
 
