@@ -33,24 +33,11 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashClass = target match {
-      case MashNull                  ⇒ NullClass
-      case MashUnit                  ⇒ UnitClass
-      case obj: MashObject           ⇒ obj.classOpt.getOrElse(ObjectClass)
-      case _: MashNumber             ⇒ NumberClass
-      case _: MashString             ⇒ StringClass
-      case _: MashBoolean            ⇒ BooleanClass
-      case _: Seq[_]                 ⇒ SeqClass
-      case MashWrapped(_: Instant)   ⇒ DateTimeClass
-      case MashWrapped(_: LocalDate) ⇒ LocalDateClass
-      case _: MashFunction           ⇒ FunctionClass
-      case _: BoundMethod            ⇒ BoundMethodClass
-      case _: MashClass              ⇒ ClassClass
-    }
-
+    def apply(target: MashValue, arguments: Arguments): MashClass = target.primaryClass
+    
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
-    override def summary = "The class of the object"
+    override def summary = "The class of this object"
 
   }
 

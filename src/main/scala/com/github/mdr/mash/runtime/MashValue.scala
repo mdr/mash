@@ -4,8 +4,40 @@ import scala.PartialFunction.condOpt
 import java.time.LocalDate
 import java.time.Instant
 import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.BoundMethod
+import com.github.mdr.mash.ns.core.NullClass
+import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.core.FunctionClass
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.ns.core.ClassClass
+import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.ns.core.BoundMethodClass
 
-trait MashValue
+trait MashValue {
+
+  def primaryClass: MashClass = this match {
+    case MashNull                  ⇒ NullClass
+    case MashUnit                  ⇒ UnitClass
+    case obj: MashObject           ⇒ obj.classOpt.getOrElse(ObjectClass)
+    case _: MashNumber             ⇒ NumberClass
+    case _: MashString             ⇒ StringClass
+    case _: MashBoolean            ⇒ BooleanClass
+    case _: MashList               ⇒ SeqClass
+    case MashWrapped(_: Instant)   ⇒ DateTimeClass
+    case MashWrapped(_: LocalDate) ⇒ LocalDateClass
+    case _: MashFunction           ⇒ FunctionClass
+    case _: BoundMethod            ⇒ BoundMethodClass
+    case _: MashClass              ⇒ ClassClass
+  }
+
+}
 
 object MashValueOrdering extends Ordering[MashValue] {
 

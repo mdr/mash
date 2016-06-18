@@ -16,6 +16,7 @@ object AssignmentEvaluator {
       case LookupExpr(target, index, _) ⇒
         evaluateAssignmentToLookupExpr(target, index, rightValue)
       case _ ⇒
+        // TODO: this is purely syntactic, and therefore should be handled by the parser/compiler, not evaluator
         throw new EvaluatorException("Expression is not assignable", left.locationOpt)
     }
   }
@@ -26,8 +27,8 @@ object AssignmentEvaluator {
       case MashObject(fields, _) ⇒
         fields += member -> rightValue
         MashUnit
-      case _ ⇒
-        throw new EvaluatorException("Cannot assign to fields of an object of this type", expr.locationOpt)
+      case x ⇒
+        throw new EvaluatorException("Cannot assign to fields of a value of type " + x.primaryClass, expr.locationOpt)
     }
   }
 
@@ -43,11 +44,11 @@ object AssignmentEvaluator {
             mo.fields(s) = rightValue
             MashUnit
           }
-          case _ ⇒
-            throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
+          case x ⇒
+            throw new EvaluatorException("Invalid object index of type " + x.primaryClass, index.locationOpt)
         }
-      case _ ⇒
-        throw new EvaluatorException("Cannot assign to indexes of objects of this type", target.locationOpt)
+      case x ⇒
+        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.primaryClass, target.locationOpt)
     }
   }
 
@@ -63,8 +64,8 @@ object AssignmentEvaluator {
           xs.items(i) = rightValue
           MashUnit
         }
-      case _ ⇒
-        throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt)
+      case x ⇒
+        throw new EvaluatorException("Invalid list index of type " + x.primaryClass, index.locationOpt)
     }
 
   private def evaluateAssignmentToObject(obj: MashObject, index: Expr, indexValue: MashValue, rightValue: MashValue): MashValue =
@@ -73,7 +74,7 @@ object AssignmentEvaluator {
         obj.fields(s) = rightValue
         MashUnit
       }
-      case _ ⇒
-        throw new EvaluatorException("Invalid object index '" + indexValue + "'", index.locationOpt)
+      case x ⇒
+        throw new EvaluatorException("Invalid object index of type " + x.primaryClass, index.locationOpt)
     }
 }

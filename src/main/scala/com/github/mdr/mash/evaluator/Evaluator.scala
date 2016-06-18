@@ -1,32 +1,18 @@
 package com.github.mdr.mash.evaluator
 
-import java.time.Duration
-import java.time.Instant
-import java.time.temporal.TemporalAmount
-
 import scala.PartialFunction.condOpt
-import scala.collection.immutable.ListMap
 
 import com.github.mdr.mash.functions.AnonymousFunction
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.UserDefinedFunction
-import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.os.ProcessResultClass
-import com.github.mdr.mash.ns.time.ChronoUnitClass
-import com.github.mdr.mash.ns.time.MillisecondsClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.BinaryOperator
-import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.subprocesses.ProcessResult
-import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.utils.Utils
 
 case class EvaluationContext(scopeStack: ScopeStack)
 
@@ -106,7 +92,7 @@ object Evaluator {
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
-    case _             ⇒ throw new EvaluatorException("Could not negate a non-number", subExpr.locationOpt)
+    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, subExpr.locationOpt)
   }
 
   private def evaluateStringLiteral(lit: StringLiteral): MashValue = {
