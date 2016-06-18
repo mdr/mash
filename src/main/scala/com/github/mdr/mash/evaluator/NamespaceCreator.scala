@@ -9,6 +9,7 @@ import com.github.mdr.mash.ns.view._
 import com.github.mdr.mash.ns.json._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.git.branch.GetFunction
 
 object NamespaceCreator {
 
@@ -18,6 +19,7 @@ object NamespaceCreator {
         GitNamespace.GitFunctions ++
         Seq(BrowserFunction, RawFunction) ++
         Seq(FromFileFunction) ++
+        Seq(com.github.mdr.mash.ns.http.GetFunction) ++
         StandardFunctions.AllClasses
     createNamespace(allObjects.flatMap(makeThings))
   }

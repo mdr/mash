@@ -41,9 +41,12 @@ object FromFileFunction extends MashFunction("json.fromFile") {
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(File)
-    val parser = new JsonParser
+    val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
+    parseJson(s)
+  }
 
-    val json = parser.parse(FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8))
+  def parseJson(s: String): MashValue = {
+    val json = new JsonParser().parse(s)
     asMashObject(json)
   }
 
