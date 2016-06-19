@@ -89,7 +89,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
       else
         name startsWith fragment
     if (matches)
-      Some((path, name.indexOf(fragment)))
+      Some((path, name indexOf fragment))
     else
       None
   }
@@ -130,7 +130,8 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   private def getSpecialDotDirs(searchPath: Path, prefix: String): Seq[PathCompletion] =
     getSpecialDotDirs(prefix).map { dir ⇒
       val path = searchPath.resolve(dir).toString + "/"
-      PathCompletion(path, Some(CompletionType.Directory), pos = 0, prefixLength = 0)
+      val pos = if (searchPath.toString.isEmpty) 0 else searchPath.toString.length + 1
+      PathCompletion(path, Some(CompletionType.Directory), pos = pos, prefixLength = pos)
     }
 
   private def getSpecialDotDirs(prefix: String): Seq[String] =

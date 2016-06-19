@@ -104,6 +104,12 @@ class ReplTest extends FlatSpec with Matchers {
     repl.it should equal(MashNumber(0))
   }
 
+  "Completing dotfiles" should "not have a bug where the original input is truncated" in {
+    val repl = makeRepl(MockFileSystem.of("/.dotfiles/.bashrc"))
+    repl.input(""""/.dotfiles/".""").complete()
+    repl.text should equal(""""/.dotfiles/."""") // bug was it was "."
+  }
+
   private def newRepl = makeRepl()
 
 }
