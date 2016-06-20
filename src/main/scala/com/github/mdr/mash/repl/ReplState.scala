@@ -1,17 +1,16 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import scala.collection.mutable
-import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.evaluator.Truthiness
+
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
-import com.github.mdr.mash.repl.history.History
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.evaluator.Truthiness
+import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.utils.Region
 
 case class YankLastArgState(count: Int, region: Region)
 

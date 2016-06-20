@@ -1,16 +1,12 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.runtime.MashValue
 
 object Completer {
 

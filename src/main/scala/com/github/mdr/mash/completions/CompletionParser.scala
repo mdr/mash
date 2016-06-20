@@ -2,7 +2,6 @@ package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.lexer.MashLexer
