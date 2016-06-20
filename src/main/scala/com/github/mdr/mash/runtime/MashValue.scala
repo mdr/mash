@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.ns.core.NullClass
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core.FunctionClass
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.UnitClass
@@ -29,7 +29,7 @@ trait MashValue {
     case _: MashNumber             ⇒ NumberClass
     case _: MashString             ⇒ StringClass
     case _: MashBoolean            ⇒ BooleanClass
-    case _: MashList               ⇒ SeqClass
+    case _: MashList               ⇒ ListClass
     case MashWrapped(_: Instant)   ⇒ DateTimeClass
     case MashWrapped(_: LocalDate) ⇒ LocalDateClass
     case _: MashFunction           ⇒ FunctionClass

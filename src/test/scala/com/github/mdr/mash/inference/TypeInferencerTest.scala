@@ -11,7 +11,7 @@ import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git._
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.evaluator.StandardEnvironment
 
@@ -192,7 +192,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "git.status" shouldBeInferredAsHavingType Instance(StatusClass)
   "git['status']" shouldBeInferredAsHavingType DefinedFunction(StatusFunction)
-  "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), SeqClass.methods.find(_.name == "reverse").get)
+  "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), ListClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
 
   "{ foo: 42 } | .foo" shouldBeInferredAsHavingType (NumberClass)

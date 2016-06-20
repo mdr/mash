@@ -112,7 +112,7 @@ object MashRoot {
 
   val AllClasses: Seq[MashClass] = Seq(
     GroupClass,
-    SeqClass,
+    ListClass,
     BooleanClass,
     BoundMethodClass,
     BytesClass,

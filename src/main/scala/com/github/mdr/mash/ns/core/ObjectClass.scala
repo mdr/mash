@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import java.time.Instant
 import com.github.mdr.mash.functions.MashFunction
 import java.time.LocalDate

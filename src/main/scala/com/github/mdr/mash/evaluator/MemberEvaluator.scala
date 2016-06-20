@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 
 import java.time.Instant
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -97,7 +97,7 @@ object MemberEvaluator {
       case MashNull                         ⇒ lookupMethod(target, NullClass, name)
       case MashUnit                         ⇒ lookupMethod(target, UnitClass, name)
       case b: MashBoolean                   ⇒ lookupMethod(b, BooleanClass, name)
-      case xs: MashList                     ⇒ lookupMethod(xs, SeqClass, name)
+      case xs: MashList                     ⇒ lookupMethod(xs, ListClass, name)
       case obj: MashObject                  ⇒ obj.getField(name) orElse lookupMethod(obj, name)
       case f: MashFunction                  ⇒ lookupMethod(f, FunctionClass, name)
       case bm: BoundMethod                  ⇒ lookupMethod(bm, BoundMethodClass, name)

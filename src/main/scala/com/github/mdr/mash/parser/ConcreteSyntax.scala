@@ -133,24 +133,24 @@ object ConcreteSyntax {
       elseOpt.map { case (token, expr) ⇒ token +: expr.tokens }.getOrElse(Seq())
   }
 
-  case class ListExprContents(firstItem: Expr, otherItems: Seq[(Token, Expr)]) extends AstNode {
-    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
-  }
-
   case class ListExpr(lsquare: Token, contentsOpt: Option[ListExprContents], rsquare: Token) extends Expr {
     lazy val tokens = lsquare +: contentsOpt.toSeq.flatMap(_.tokens) :+ rsquare
+  }
+
+  case class ListExprContents(firstItem: Expr, otherItems: Seq[(Token, Expr)]) extends AstNode {
+    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
   }
 
   case class ObjectEntry(fieldLabel: Token, colon: Token, value: Expr) extends AstNode {
     lazy val tokens = fieldLabel +: colon +: value.tokens
   }
 
-  case class ObjectExprContents(firstEntry: ObjectEntry, otherEntries: Seq[(Token, ObjectEntry)]) extends AstNode {
-    lazy val tokens = firstEntry.tokens ++ otherEntries.flatMap { case (colon, entry) ⇒ colon +: entry.tokens }
-  }
-
   case class ObjectExpr(lbrace: Token, contentsOpt: Option[ObjectExprContents], rbrace: Token) extends Expr {
     lazy val tokens = lbrace +: contentsOpt.toSeq.flatMap(_.tokens) :+ rbrace
+  }
+
+  case class ObjectExprContents(firstEntry: ObjectEntry, otherEntries: Seq[(Token, ObjectEntry)]) extends AstNode {
+    lazy val tokens = firstEntry.tokens ++ otherEntries.flatMap { case (colon, entry) ⇒ colon +: entry.tokens }
   }
 
   case class MinusExpr(minus: Token, expr: Expr) extends Expr {
@@ -173,6 +173,9 @@ object ConcreteSyntax {
     lazy val tokens = Seq(flag) ++ equalsValueOpt.toSeq.flatMap { case (token, expr) ⇒ token +: expr.tokens }
   }
 
+  /**
+   * Mish item (command or argument), either a bare word, a quoted string, or a Mash interpolation
+   */
   sealed trait MishItem extends AstNode
 
   case class MishWord(token: Token) extends MishItem {
@@ -187,6 +190,9 @@ object ConcreteSyntax {
     lazy val tokens = part.tokens
   }
 
+  /**
+   * Raw mish command of the form: cmd arg1 arg2 arg3
+   */
   case class MishExpr(command: MishItem, args: Seq[MishItem]) extends Expr {
     lazy val tokens = command.tokens ++ args.flatMap(_.tokens)
   }
@@ -212,6 +218,9 @@ object ConcreteSyntax {
     lazy val tokens = Seq(defToken, name) ++ params.flatMap(_.tokens) ++ Seq(equals) ++ body.tokens
   }
 
+  /**
+   * An expression of the form: !less
+   */
   case class MishFunction(word: Token) extends Expr {
     lazy val tokens = Seq(word)
   }

@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core.BoundMethodClass
 import com.github.mdr.mash.ns.core.FunctionClass
 import com.github.mdr.mash.ns.core.ObjectClass
@@ -106,7 +106,7 @@ object MemberCompleter {
       val fieldMembers = fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true))
       distinct(fieldMembers ++ getMembers(ObjectClass))
     case Type.Seq(elementType) ⇒
-      val seqMembers = getMembers(SeqClass)
+      val seqMembers = getMembers(ListClass)
       if (canVectorise) {
         val elementMembers = getMembers(elementType, canVectorise = false).map(_.copy(isVectorised = true))
         distinct(seqMembers ++ elementMembers)

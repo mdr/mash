@@ -3,40 +3,33 @@ package com.github.mdr.mash.printer
 import java.io.PrintStream
 import java.time.Instant
 import java.util.Date
+
 import org.ocpsoft.prettytime.PrettyTime
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
+
+import com.github.mdr.mash.evaluator.BoundMethod
+import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.core.help.ClassHelpClass
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
+import com.github.mdr.mash.ns.core.help.HelpFunction
+import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.ns.os.PermissionsClass
 import com.github.mdr.mash.ns.os.PermissionsSectionClass
+import com.github.mdr.mash.ns.time.MillisecondsClass
+import com.github.mdr.mash.ns.time.SecondsClass
+import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.ns.git.StatusClass
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi.Color
-import com.github.mdr.mash.ns.view.ViewClass
-import com.github.mdr.mash.ns.core.help.HelpFunction
-import com.github.mdr.mash.ns.core.ClassClass
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashWrapped
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.ns.time.MillisecondsClass
-import com.github.mdr.mash.ns.time.SecondsClass
 
 object Printer {
 
+  private val prettyTime = new PrettyTime
+  
   def replaceProblematicChars(s: String): String = s.map {
     case '\t' | '\n' | '\r' | '\b' ⇒ ' '
     case c                         ⇒ c
@@ -49,7 +42,7 @@ object Printer {
     case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
     case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
     case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant) ⇒ new PrettyTime().format(Date.from(i))
+    case MashWrapped(i: Instant) ⇒ prettyTime.format(Date.from(i))
     case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
     case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
     case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))

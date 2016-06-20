@@ -5,7 +5,7 @@ import java.time.Instant
 import java.util.IdentityHashMap
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.ns.collections.SeqClass
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -253,7 +253,7 @@ class TypeInferencer {
     val intermediate = typ match {
       case Type.Instance(klass)             ⇒ memberLookup(typ, klass, name)
       case Type.Tagged(baseClass, tagClass) ⇒ memberLookup(typ, baseClass, name) orElse memberLookup(typ, tagClass, name)
-      case Type.Seq(elementType)            ⇒ memberLookup(typ, SeqClass, name) orElse memberLookup(elementType, name, immediateExec).map(Type.Seq)
+      case Type.Seq(elementType)            ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec).map(Type.Seq)
       case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
       case Type.DefinedFunction(_)          ⇒ memberLookup(typ, FunctionClass, name)
       case Type.BoundMethod(_, _)           ⇒ memberLookup(typ, BoundMethodClass, name)

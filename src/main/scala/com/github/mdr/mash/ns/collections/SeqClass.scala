@@ -10,7 +10,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.runtime.MashValue
 
-object SeqClass extends MashClass("collections.List") {
+object ListClass extends MashClass("collections.List") {
 
   import MashClass.alias
 
