@@ -90,7 +90,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       }
       Singletons.setExecutionContext(ctx)
       ExecutionContext.set(ctx)
-      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables)))
+      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables), expr))
     } catch {
       case e @ EvaluatorException(msg, locationOpt, cause) ⇒
         printError("Error", msg, cmd, locationOpt)

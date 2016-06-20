@@ -14,7 +14,7 @@ import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.PointedRegion
 
-case class EvaluationContext(scopeStack: ScopeStack)
+case class EvaluationContext(scopeStack: ScopeStack, program: Expr) 
 
 object Evaluator {
 
@@ -118,7 +118,7 @@ object Evaluator {
     val variadicIndex = parameters.indexWhere(_.isVariadic)
     if (variadicIndex >= 0 && variadicIndex < params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
-    val fn = new UserDefinedFunction(functionName, ParameterModel(parameters), body, context)
+    val fn = new UserDefinedFunction(context.program, functionName, ParameterModel(parameters), body, context)
     context.scopeStack.set(functionName, fn)
     MashUnit
   }
