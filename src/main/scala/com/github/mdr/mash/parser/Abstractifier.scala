@@ -188,6 +188,6 @@ object Abstractifier {
       case _                             ⇒ throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
 
-  private def sourceInfo(node: Concrete.AstNode): Option[SourceInfo] = Some(SourceInfo(node))
+  private def sourceInfo(node: Concrete.AstNode) = Some(SourceInfo(node))
 
 }

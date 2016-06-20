@@ -104,7 +104,6 @@ object LinuxFileSystem extends FileSystem {
 
   override def glob(pattern: String): Seq[PathSummary] = {
     val startDir = GlobHelper.globStart(pattern)
-    println(startDir)
     val matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern)
     val foundPaths = ArrayBuffer[Path]()
     val visitor = new SimpleFileVisitor[Path]() {
