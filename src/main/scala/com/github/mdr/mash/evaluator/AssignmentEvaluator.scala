@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 
-object AssignmentEvaluator {
+object AssignmentEvaluator extends EvaluatorHelper {
 
   def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashUnit = {
     val AssignmentExpr(left, right, alias, _) = expr
@@ -17,7 +17,7 @@ object AssignmentEvaluator {
         evaluateAssignmentToLookupExpr(target, index, rightValue)
       case _ ⇒
         // TODO: this is purely syntactic, and therefore should be handled by the parser/compiler, not evaluator
-        throw new EvaluatorException("Expression is not assignable", left.locationOpt.map(SourceLocation))
+        throw new EvaluatorException("Expression is not assignable", sourceLocation(left))
     }
   }
 
@@ -28,7 +28,7 @@ object AssignmentEvaluator {
         fields += member -> rightValue
         MashUnit
       case x ⇒
-        throw new EvaluatorException("Cannot assign to fields of a value of type " + x.primaryClass, expr.locationOpt.map(SourceLocation))
+        throw new EvaluatorException("Cannot assign to fields of a value of type " + x.primaryClass, sourceLocation(expr))
     }
   }
 
@@ -45,36 +45,36 @@ object AssignmentEvaluator {
             MashUnit
           }
           case x ⇒
-            throw new EvaluatorException("Invalid object index of type " + x.primaryClass, index.locationOpt.map(SourceLocation))
+            throw new EvaluatorException("Invalid object index of type " + x.primaryClass, sourceLocation(index))
         }
       case x ⇒
-        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.primaryClass, target.locationOpt.map(SourceLocation))
+        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.primaryClass, sourceLocation(target))
     }
   }
 
-  private def evaluateAssignmentToListIndex(xs: MashList, index: Expr, indexValue: MashValue, rightValue: MashValue): MashUnit =
+  private def evaluateAssignmentToListIndex(xs: MashList, index: Expr, indexValue: MashValue, rightValue: MashValue)(implicit context: EvaluationContext): MashUnit =
     indexValue match {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(
-          throw new EvaluatorException("Invalid list index '" + indexValue + "'", index.locationOpt.map(SourceLocation)))
+          throw new EvaluatorException("Invalid list index '" + indexValue + "'", sourceLocation(index)))
         val items = xs.items
         if (i < 0 || i > items.size - 1)
-          throw new EvaluatorException("Index out of range '" + indexValue + "'", index.locationOpt.map(SourceLocation))
+          throw new EvaluatorException("Index out of range '" + indexValue + "'", sourceLocation(index))
         else {
           xs.items(i) = rightValue
           MashUnit
         }
       case x ⇒
-        throw new EvaluatorException("Invalid list index of type " + x.primaryClass, index.locationOpt.map(SourceLocation))
+        throw new EvaluatorException("Invalid list index of type " + x.primaryClass, sourceLocation(index))
     }
 
-  private def evaluateAssignmentToObject(obj: MashObject, index: Expr, indexValue: MashValue, rightValue: MashValue): MashValue =
+  private def evaluateAssignmentToObject(obj: MashObject, index: Expr, indexValue: MashValue, rightValue: MashValue)(implicit context: EvaluationContext): MashValue =
     indexValue match {
       case MashString(s, _) ⇒ {
         obj.fields(s) = rightValue
         MashUnit
       }
       case x ⇒
-        throw new EvaluatorException("Invalid object index of type " + x.primaryClass, index.locationOpt.map(SourceLocation))
+        throw new EvaluatorException("Invalid object index of type " + x.primaryClass, sourceLocation(index))
     }
 }

@@ -12,7 +12,7 @@ import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.parser.AbstractSyntax._
 
-object BinaryOperatorEvaluator {
+object BinaryOperatorEvaluator extends EvaluatorHelper {
 
   def evaluateChainedOp(chainedOp: ChainedOpExpr)(implicit context: EvaluationContext): MashValue = {
     val ChainedOpExpr(left, opRights, _) = chainedOp
@@ -20,7 +20,7 @@ object BinaryOperatorEvaluator {
     val (success, _) = opRights.foldLeft((true, leftResult)) {
       case ((leftSuccess, leftResult), (op, right)) ⇒
         lazy val rightResult = Evaluator.evaluate(right)
-        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, chainedOp.locationOpt).asInstanceOf[MashBoolean].value
+        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, sourceLocation(chainedOp)).asInstanceOf[MashBoolean].value
         (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */ )
     }
     MashBoolean(success)
@@ -30,10 +30,10 @@ object BinaryOperatorEvaluator {
     val BinOpExpr(left, op, right, _) = binOp
     lazy val leftResult = Evaluator.evaluate(left)
     lazy val rightResult = Evaluator.evaluate(right)
-    evaluateBinOp(leftResult, op, rightResult, binOp.locationOpt)
+    evaluateBinOp(leftResult, op, rightResult, sourceLocation(binOp))
   }
 
-  private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[PointedRegion]): MashValue = {
+  private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[SourceLocation]): MashValue = {
     def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean = MashBoolean(f(MashValueOrdering.compare(leftResult, rightResult), 0))
     op match {
       case BinaryOperator.And               ⇒ if (leftResult.isTruthy) rightResult else leftResult
@@ -52,19 +52,19 @@ object BinaryOperatorEvaluator {
     }
   }
 
-  private def arithmeticOp(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
+  private def arithmeticOp(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
     (left, right) match {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
       case _ ⇒
-        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt.map(SourceLocation))
+        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
     }
 
-  private def multiply(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]) = (left, right) match {
+  private def multiply(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]) = (left, right) match {
     case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
     case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
     case (left: MashNumber, right: MashNumber) ⇒ left * right
-    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt.map(SourceLocation))
+    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
   }
 
   private implicit class RichInstant(instant: Instant) {
@@ -72,7 +72,7 @@ object BinaryOperatorEvaluator {
     def -(duration: TemporalAmount): Instant = instant.minus(duration)
   }
 
-  def add(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
+  def add(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue = (left, right) match {
     case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
@@ -81,10 +81,10 @@ object BinaryOperatorEvaluator {
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt.map(SourceLocation))
+    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
   }
 
-  def subtract(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
+  def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue = (left, right) match {
     case (left: MashNumber, right: MashNumber) ⇒ left - right
     case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
       MashWrapped(instant - klass.temporalAmount(n.toInt))
@@ -92,7 +92,7 @@ object BinaryOperatorEvaluator {
       val duration = Duration.between(instant2, instant1)
       val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
       MashNumber(millis, Some(MillisecondsClass))
-    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt.map(SourceLocation))
+    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
   }
 
 }

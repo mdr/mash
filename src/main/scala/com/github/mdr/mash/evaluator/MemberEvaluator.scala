@@ -22,7 +22,7 @@ import scala.PartialFunction.condOpt
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.utils.Utils
 
-object MemberEvaluator {
+object MemberEvaluator extends EvaluatorHelper {
 
   case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
 
