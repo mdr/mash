@@ -61,8 +61,10 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     }
 
   private def multiply(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]) = (left, right) match {
-    case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
-    case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
+    case (left: MashString, right: MashNumber) if right.isInt ⇒ left * right.asInt.get
+    case (left: MashNumber, right: MashString) if left.isInt ⇒ right * left.asInt.get
+    case (left: MashList, right: MashNumber) if right.isInt ⇒ left * right.asInt.get
+    case (left: MashNumber, right: MashList) if left.isInt ⇒ right * left.asInt.get
     case (left: MashNumber, right: MashNumber) ⇒ left * right
     case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
   }

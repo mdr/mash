@@ -38,6 +38,8 @@ class MashList(val items: ArrayBuffer[MashValue]) extends MashValue {
 
   def take(n: Int) = new MashList(this.items.take(n))
 
+  def *(n: Int) = new MashList(ArrayBuffer((1 to n).flatMap(_ ⇒ items): _*))
+
   override def equals(x: Any) = x match {
     case that: MashList ⇒ this.items == that.items
     case _              ⇒ false
