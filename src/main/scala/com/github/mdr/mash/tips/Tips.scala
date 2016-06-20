@@ -1,14 +1,15 @@
 package com.github.mdr.mash.tips
 
-import scala.util.Random
 import java.io.PrintStream
-import com.github.mdr.mash.repl.ReplState
+
+import scala.util.Random
+
+import com.github.mdr.mash.Config
+import com.github.mdr.mash.ns.os.GlobFunction
 import com.github.mdr.mash.ns.os.OldDirsFunction
 import com.github.mdr.mash.ns.os.UpFunction
-import com.github.mdr.mash.ns.os.GlobFunction
-import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.printer.Printer
-import com.github.mdr.mash.Config
+import com.github.mdr.mash.terminal.TerminalInfo
 
 object Tips {
 

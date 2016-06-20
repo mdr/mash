@@ -18,6 +18,7 @@ sealed trait MashBoolean extends MashValue {
 }
 
 object MashBoolean {
+  
   case object True extends MashBoolean
   case object False extends MashBoolean
 

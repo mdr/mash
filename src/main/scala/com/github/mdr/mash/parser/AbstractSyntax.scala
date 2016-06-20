@@ -3,10 +3,7 @@ package com.github.mdr.mash.parser
 import com.github.mdr.mash.inference.Type
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
 
 /**
  * Trees representing the abstract syntax of mash, losing much of the lexical information.

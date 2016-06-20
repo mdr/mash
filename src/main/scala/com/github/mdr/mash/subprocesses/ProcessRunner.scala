@@ -1,19 +1,18 @@
 package com.github.mdr.mash.subprocesses
 
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.os.EnvironmentInteractions
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets
+import java.time.Instant
+
+import org.apache.commons.io.IOUtils
+import org.fusesource.jansi.Ansi
+
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.runtime.MashNumber
-import org.fusesource.jansi.Ansi
-import org.apache.commons.io.IOUtils
-import scala.collection.JavaConverters._
-import java.nio.charset.StandardCharsets
-import java.io.PrintStream
+import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.os.EnvironmentInteractions
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.runtime.MashValue
-import java.time.Instant
-import java.time.Duration
 
 object ProcessRunner {
 
