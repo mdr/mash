@@ -84,7 +84,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, identiferToken, parser)
-    val MemberCompletionResult(isMemberExpr, memberResultOpt, spaceBeforeDot) =
+    val MemberCompletionResult(isMemberExpr, memberResultOpt, prioritiseMembers) =
       MemberCompleter.completeIdentifier(text, identiferToken, parser)
     val bindingResultOpt =
       if (isMemberExpr)
@@ -96,16 +96,26 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
         CompletionResult.merge(asStringResultOpt, bindingResultOpt)
       else
         asStringResultOpt orElse bindingResultOpt
-    if (spaceBeforeDot)
-      stringBindingResultOpt orElse memberResultOpt
-    else
+
+    if (prioritiseMembers)
       memberResultOpt orElse stringBindingResultOpt
+    else
+      stringBindingResultOpt orElse memberResultOpt
   }
 
   private def completeDot(text: String, dotToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
     lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, dotToken, pos, parser)
     lazy val asStringResultOpt = stringCompleter.completeAsString(text, dotToken, parser).completionResultOpt
-    asStringResultOpt orElse memberResultOpt
+
+    val posBefore = dotToken.offset - 1
+    val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace
+
+    val isAfterStringOrIdent = parser.tokenise(text).find(_.region.posAfter == dotToken.offset).exists(t ⇒ t.isString || t.isIdentifier)
+
+    if (isMemberDot && !isAfterStringOrIdent)
+      memberResultOpt orElse asStringResultOpt
+    else
+      asStringResultOpt orElse memberResultOpt
   }
 
   private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {

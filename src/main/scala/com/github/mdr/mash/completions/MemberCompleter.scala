@@ -15,9 +15,10 @@ import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils
 import scala.PartialFunction.cond
+import com.github.mdr.mash.runtime.MashString
 
 case class MemberCompletionResult(
-  isMemberExpr: Boolean,
+  prioritiseMembers: Boolean,
   completionResultOpt: Option[CompletionResult],
   spaceBeforeDot: Boolean)
 
@@ -55,18 +56,22 @@ object MemberCompleter {
         completions = members.filter(_.name startsWith identifier.text).map(_.asCompletion(isQuoted = false))
         result ← CompletionResult.of(completions, identifier.region)
       } yield result
-    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt, spaceBeforeDot(memberExprOpt))
+    val prioritiseMembers = memberExprOpt.exists(shouldPrioritise)
+    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt, prioritiseMembers)
   }
 
-  private def spaceBeforeDot(memberExprOpt: Option[MemberExpr]): Boolean = memberExprOpt.exists { memberExpr ⇒
-    memberExpr.sourceInfoOpt.exists {
-      case SourceInfo(expr) ⇒
-        cond(expr) {
-          case ConcreteSyntax.MemberExpr(before, dot, after) ⇒
-            dot.offset > 0 && dot.source.charAt(dot.offset - 1).isWhitespace
-        }
+  private def shouldPrioritise(memberExpr: MemberExpr): Boolean =
+    !spaceBeforeDot(memberExpr) && !cond(memberExpr.target) {
+      case _: Identifier | _: StringLiteral ⇒ true
     }
-  }
+
+  private def spaceBeforeDot(memberExpr: MemberExpr): Boolean =
+    memberExpr.sourceInfoOpt.exists { sourceInfo ⇒
+      cond(sourceInfo.expr) {
+        case ConcreteSyntax.MemberExpr(before, dot, after) ⇒
+          dot.offset > 0 && dot.source.charAt(dot.offset - 1).isWhitespace
+      }
+    }
 
   private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] =
     for {

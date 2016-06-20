@@ -9,6 +9,8 @@ import com.github.mdr.mash.os.MockEnvironmentInteractions
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.MockFileSystem
 import java.nio.file.Paths
+import com.github.mdr.mash.runtime.MashString
+import scala.collection.mutable
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -87,9 +89,18 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 
     "read▶" shouldGiveCompletions ("readLines", "readme.txt")
-    "readme.tx▶" shouldGiveCompletions ("readme.txt")
-
+    "readme.t▶" shouldGiveCompletions ("readme.txt")
+    """ "readme.t▶" """ shouldGiveCompletions ("readme.txt")
+    """ "readme".t▶ """ shouldGiveCompletions ("readme.txt")
     "readme.▶" shouldGiveCompletions ("readme.txt")
+  }
+
+  {
+    implicit val filesystem = MockFileSystem.of("/readme.txt")
+    implicit val environment = Environment(Map(), mutable.Map("readme" -> MashString("readme")))
+    
+    "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
+    "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")
   }
 
   {
@@ -259,6 +270,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val filesystem = MockFileSystem.of("/.git")
 
     "[{ gitty: 42 }].gi▶" shouldGiveCompletions ("gitty")
+    "[{ gitty: 42 }].▶" shouldContainCompletion ("gitty")
     "[{ gitty: 42 }] .gi▶" shouldGiveCompletions (".git")
   }
 
@@ -279,7 +291,8 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
-      implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions()) {
+      implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
+      implicit val environment: Environment = Environment.create) {
 
     def shouldGiveCompletions(expectedCompletions: String*) {
       val expectedDescription = expectedCompletions.mkString(", ")
@@ -304,9 +317,8 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     def fullCompletions: Seq[Completion] = {
       val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)
-      val env = Environment.create
       val completer = new Completer(fileSystem, envInteractions)
-      completer.complete(lineBuffer.text, lineBuffer.cursorPos, env.bindings, mish = false).map(_.completions).getOrElse(Seq())
+      completer.complete(lineBuffer.text, lineBuffer.cursorPos, environment.bindings, mish = false).map(_.completions).getOrElse(Seq())
     }
 
   }
