@@ -13,14 +13,14 @@ class AbstractifierTest extends FlatSpec with Matchers {
     val s = "\"foo\""
     val Some(concreteExpr) = MashParser.parseExpr(s)
     val abstractExpr = Abstractifier.abstractify(concreteExpr)
-    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, tildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
   }
 
   "String literals that lack quotes" should "still work" in {
     val s = "\"foo"
     val Some(concreteExpr) = MashParser.parseExpr(s)
     val abstractExpr = Abstractifier.abstractify(concreteExpr)
-    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, tildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
   }
 
   "A function invocation" should "have its positional arguments collected" in {

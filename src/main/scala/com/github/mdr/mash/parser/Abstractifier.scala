@@ -51,9 +51,9 @@ object Abstractifier {
     def dropInitialQuote(s: String) = if (s.startsWith("\"") || s.startsWith("'")) s.tail else s
     def dropFinalQuote(s: String) = if (s.endsWith("\"") || s.endsWith("'")) s.init else s
     val withoutQuotes = dropInitialQuote(dropFinalQuote(s))
-    val tildePrefix = maybeTilde && withoutQuotes.startsWith("~")
-    val withoutTilde = if (tildePrefix) withoutQuotes.tail else withoutQuotes
-    (StringEscapes.unescape(withoutTilde), tildePrefix)
+    val hasTildePrefix = maybeTilde && withoutQuotes.startsWith("~")
+    val withoutTilde = if (hasTildePrefix) withoutQuotes.tail else withoutQuotes
+    (StringEscapes.unescape(withoutTilde), hasTildePrefix)
   }
 
   private def abstractifyLiteral(token: Token, sourceInfo: SourceInfo): Abstract.Expr =
@@ -65,8 +65,8 @@ object Abstractifier {
       case TokenType.STRING_LITERAL ⇒
         val s = token.text
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
-        val (literalText, tildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
-        Abstract.StringLiteral(literalText, quotationType, tildePrefix, Some(sourceInfo))
+        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
+        Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, Some(sourceInfo))
       case _ ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
@@ -109,7 +109,7 @@ object Abstractifier {
     case Concrete.MishString(expr) ⇒
       abstractify(expr)
     case Concrete.MishWord(token) ⇒
-      Abstract.StringLiteral(token.text, QuotationType.Double, tildePrefix = false, sourceInfoOpt = None)
+      Abstract.StringLiteral(token.text, QuotationType.Double)
   }
 
   private def abstractifyEntry(entry: Concrete.ObjectEntry): (String, Abstract.Expr) =

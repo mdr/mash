@@ -36,7 +36,7 @@ class BareStringificationContext {
           sourceInfo ← sourceInfoOpt
           token ← sourceInfo.expr.tokens
         } bareWords += token
-        StringLiteral(name, QuotationType.Double, tildePrefix = false, sourceInfoOpt = sourceInfoOpt)
+        StringLiteral(name, QuotationType.Double, sourceInfoOpt = sourceInfoOpt)
       }
     case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
       expr

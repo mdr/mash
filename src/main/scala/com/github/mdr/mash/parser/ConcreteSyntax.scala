@@ -4,6 +4,7 @@ import scala.language.implicitConversions
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.TokenType
+import com.github.mdr.mash.utils.PointedRegion
 
 /**
  * Trees representing the concrete syntax of mash (retaining all the semantically uninteresting tokens)
@@ -18,8 +19,9 @@ object ConcreteSyntax {
 
     def posAfter: Int = tokens.last.region.posAfter
 
-    def region: Region =
-      Region(startPos, posAfter - startPos)
+    def region = Region(startPos, posAfter - startPos)
+
+    def pointedRegion = PointedRegion(startPos, region)
 
   }
 
@@ -119,6 +121,9 @@ object ConcreteSyntax {
 
   case class BinOpExpr(left: Expr, op: Token, right: Expr) extends Expr {
     lazy val tokens = (left.tokens :+ op) ++ right.tokens
+
+    override def pointedRegion = PointedRegion(op.offset, region)
+
   }
 
   /**

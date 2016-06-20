@@ -121,7 +121,7 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class StringLiteral(s: String, quotationType: QuotationType, tildePrefix: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class StringLiteral(s: String, quotationType: QuotationType, hasTildePrefix: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
   }
@@ -324,12 +324,7 @@ object AbstractSyntax {
 
 case class SourceInfo(expr: ConcreteSyntax.AstNode) {
 
-  def pos = expr match {
-    case ConcreteSyntax.BinOpExpr(_, op, _) ⇒ op.offset
-    case _                                  ⇒ expr.region.offset
-  }
-
-  def location = PointedRegion(pos, expr.region)
+  def location = expr.pointedRegion
 
 }
 

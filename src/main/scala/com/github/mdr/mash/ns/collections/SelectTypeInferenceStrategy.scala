@@ -43,7 +43,7 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
         val typeOpt = inferencer.applyFunction(functionType, elementType, functionExprOpt)
         flag -> typeOpt
       case TypedArgument.LongFlag(flag, None) if !isSpecialFlag(flag) ⇒
-        val dummyStringLiteral = StringLiteral(flag, QuotationType.Single, tildePrefix = false, sourceInfoOpt = None)
+        val dummyStringLiteral = StringLiteral(flag, QuotationType.Single)
         val typeOpt = inferencer.applyFunction(Type.Instance(StringClass), elementType, Some(dummyStringLiteral))
         flag -> typeOpt
     }
