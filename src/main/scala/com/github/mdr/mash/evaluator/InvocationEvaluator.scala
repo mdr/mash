@@ -55,13 +55,13 @@ object InvocationEvaluator extends EvaluatorHelper {
     arguments.positionArgs match {
       case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
         xs.map { target ⇒
-          val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt.map(_.pointedRegion))
+          val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
           Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt.map(_.pointedRegion)) {
             Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
           }
         }
       case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
-        val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt.map(_.pointedRegion))
+        val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
         Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt.map(_.pointedRegion)) {
           Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
         }

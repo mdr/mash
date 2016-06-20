@@ -9,9 +9,8 @@ object LookupEvaluator extends EvaluatorHelper {
     val LookupExpr(targetExpr, indexExpr, _) = lookupExpr
     val target = Evaluator.evaluate(targetExpr)
     val index = Evaluator.evaluate(indexExpr)
-    val indexLocationOpt = indexExpr.locationOpt
     index match {
-      case MashString(memberName, _) ⇒ MemberEvaluator.lookup(target, memberName, indexLocationOpt)
+      case MashString(memberName, _) ⇒ MemberEvaluator.lookup(target, memberName, sourceLocation(indexExpr))
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup, non-integer index: " + n, sourceLocation(lookupExpr)))
         target match {

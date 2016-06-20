@@ -83,9 +83,9 @@ object MemberEvaluator extends EvaluatorHelper {
   def lookup(target: MashValue, field: Field): MashValue =
     lookup(target, field.name)
 
-  def lookup(target: MashValue, name: String, locationOpt: Option[PointedRegion] = None): MashValue =
+  def lookup(target: MashValue, name: String, locationOpt: Option[SourceLocation] = None): MashValue =
     maybeLookup(target, name).getOrElse(
-      throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt.map(SourceLocation)))
+      throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt))
 
   def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
