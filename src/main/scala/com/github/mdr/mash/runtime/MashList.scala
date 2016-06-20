@@ -8,6 +8,8 @@ object MashList {
 
   def of(xs: MashValue*): MashList = new MashList(ArrayBuffer(xs: _*))
 
+  def empty: MashList = of()
+  
   def unapplySeq(x: MashList): Some[Seq[MashValue]] = Some(x.items)
 
 }

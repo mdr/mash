@@ -415,6 +415,7 @@ object StringClass extends MashClass("core.String") {
 
   override def summary = "A string"
 
+  def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
 }
 
 object SameStringMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {

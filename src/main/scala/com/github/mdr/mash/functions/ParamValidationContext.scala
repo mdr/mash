@@ -81,11 +81,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   }
 
   private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: MashValue) = {
-    lazy val errorLocation = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
+    lazy val errorLocationOpt = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location).map(SourceLocation)
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param.name)
-          throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocation.map(SourceLocation))
+          throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocationOpt)
         else {
           boundParams += param.name -> value
           for (argNode ← argNodeOpt)
@@ -93,7 +93,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         }
       case None ⇒
         if (!ignoreAdditionalParameters)
-          throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocation.map(SourceLocation))
+          throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocationOpt)
     }
   }
 
@@ -107,7 +107,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
             if (param.variadicAtLeastOne)
               throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
             else
-              boundParams += param.name -> MashList.of()
+              boundParams += param.name -> MashList.empty
           else
             throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
       }
