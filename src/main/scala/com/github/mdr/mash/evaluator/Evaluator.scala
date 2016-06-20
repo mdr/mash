@@ -38,7 +38,7 @@ object Evaluator {
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          locationOpt = expr.locationOpt,
+          locationOpt = expr.locationOpt.map(SourceLocation),
           cause = t)
     }
   }
@@ -60,7 +60,7 @@ object Evaluator {
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt)
+        throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt.map(SourceLocation))
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case Literal(v, _)                          ⇒ v
@@ -83,7 +83,7 @@ object Evaluator {
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
       case Identifier(name, _) ⇒
         context.scopeStack.lookup(name).getOrElse {
-          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt)
+          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt.map(SourceLocation))
         }
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
@@ -92,7 +92,7 @@ object Evaluator {
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
-    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, subExpr.locationOpt)
+    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, subExpr.locationOpt.map(SourceLocation))
   }
 
   private def evaluateStringLiteral(lit: StringLiteral): MashValue = {
@@ -156,6 +156,6 @@ object Evaluator {
       p
     catch {
       case e: EvaluatorException if e.locationOpt.isEmpty ⇒
-        throw e.copy(locationOpt = locationOpt)
+        throw e.copy(locationOpt = locationOpt.map(SourceLocation))
     }
 }

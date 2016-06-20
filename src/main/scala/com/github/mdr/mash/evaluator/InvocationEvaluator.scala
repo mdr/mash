@@ -49,7 +49,7 @@ object InvocationEvaluator {
           method(target, arguments)
         }
       case _ ⇒
-        throw EvaluatorException(s"Not callable", functionLocationOpt)
+        throw EvaluatorException(s"Not callable", functionLocationOpt.map(SourceLocation))
     }
   }
 
@@ -68,7 +68,7 @@ object InvocationEvaluator {
           Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
         }
       case _ ⇒
-        throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
+        throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt.map(SourceLocation))
     }
 
 }

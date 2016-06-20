@@ -57,14 +57,14 @@ object BinaryOperatorEvaluator {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
       case _ ⇒
-        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
+        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt.map(SourceLocation))
     }
 
   private def multiply(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]) = (left, right) match {
     case (left: MashString, right: MashNumber) if right.isInt ⇒ left.modify(_ * right.asInt.get)
     case (left: MashNumber, right: MashString) if left.isInt ⇒ right.modify(_ * left.asInt.get)
     case (left: MashNumber, right: MashNumber) ⇒ left * right
-    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
+    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt.map(SourceLocation))
   }
 
   private implicit class RichInstant(instant: Instant) {
@@ -81,7 +81,7 @@ object BinaryOperatorEvaluator {
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt.map(SourceLocation))
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[PointedRegion]): MashValue = (left, right) match {
@@ -92,7 +92,7 @@ object BinaryOperatorEvaluator {
       val duration = Duration.between(instant2, instant1)
       val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
       MashNumber(millis, Some(MillisecondsClass))
-    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
+    case _ ⇒ throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt.map(SourceLocation))
   }
 
 }

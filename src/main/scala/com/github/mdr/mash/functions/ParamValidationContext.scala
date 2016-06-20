@@ -1,12 +1,8 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.evaluator.EvaluatedArgument
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.runtime._
 
 class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 
@@ -58,7 +54,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           if (!ignoreAdditionalParameters) {
             val firstExcessArgument = arguments.positionArgs.drop(maxPositionArgs).head
             val locationOpt = firstExcessArgument.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
-            throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
+            throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt.map(SourceLocation))
           }
       }
 
@@ -89,7 +85,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param.name)
-          throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocation)
+          throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocation.map(SourceLocation))
         else {
           boundParams += param.name -> value
           for (argNode ← argNodeOpt)
@@ -97,7 +93,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         }
       case None ⇒
         if (!ignoreAdditionalParameters)
-          throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocation)
+          throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocation.map(SourceLocation))
     }
   }
 

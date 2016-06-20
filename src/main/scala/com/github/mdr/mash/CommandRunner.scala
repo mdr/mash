@@ -106,17 +106,17 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       Compiler.compile(cmd, Map() ++ globalVariables, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
     catch {
       case MashParserException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Some(location))
+        printError("Syntax error", msg, cmd, Some(SourceLocation(location)))
         None
       case MashLexerException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Some(location))
+        printError("Syntax error", msg, cmd, Some(SourceLocation(location)))
         None
     }
 
-  private def printError(msgType: String, msg: String, cmd: String, regionOpt: Option[PointedRegion]) = {
+  private def printError(msgType: String, msg: String, cmd: String, locationOpt: Option[SourceLocation]) = {
     output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
     output.println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
-    for (PointedRegion(point, region @ Region(offset, length)) ← regionOpt) {
+    for (PointedRegion(point, region @ Region(offset, length)) ← locationOpt.map(_.pointedRegion)) {
       output.print(Ansi.ansi().fg(Ansi.Color.RED))
       for (i ← 0 to region.posAfter)
         output.print(i match {

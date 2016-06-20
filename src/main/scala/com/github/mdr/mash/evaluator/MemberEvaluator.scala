@@ -44,7 +44,7 @@ object MemberEvaluator {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
       lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
         x ⇒ MemberExprEvalResult(x, wasVectorised = true))
-      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
+      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt.map(SourceLocation)))
     }
   }
 
@@ -85,7 +85,7 @@ object MemberEvaluator {
 
   def lookup(target: MashValue, name: String, locationOpt: Option[PointedRegion] = None): MashValue =
     maybeLookup(target, name).getOrElse(
-      throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt))
+      throw new EvaluatorException(s"Cannot find member '$name' in $target", locationOpt.map(SourceLocation)))
 
   def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
