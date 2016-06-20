@@ -36,7 +36,7 @@ object MemberEvaluator extends EvaluatorHelper {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
-      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ PointedRegion(name.offset, name.region)
+      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ SourceLocation(PointedRegion(name.offset, name.region))
     })
     if (target == MashNull && isNullSafe)
       MemberExprEvalResult(MashNull, wasVectorised = false)
@@ -44,7 +44,7 @@ object MemberEvaluator extends EvaluatorHelper {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
       lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
         x ⇒ MemberExprEvalResult(x, wasVectorised = true))
-      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt.map(SourceLocation)))
+      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
     }
   }
 

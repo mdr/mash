@@ -27,7 +27,7 @@ object Evaluator extends EvaluatorHelper {
       ExecutionContext.checkInterrupted()
       val result = expr match {
         case _: Identifier | _: MemberExpr ⇒
-          addLocationToExceptionIfMissing(expr.locationOpt) { immediatelyResolveNullaryFunctions(v) }
+          addLocationToExceptionIfMissing(sourceLocation(expr)) { immediatelyResolveNullaryFunctions(v) }
         case _ ⇒ v
       }
       result
@@ -151,12 +151,12 @@ object Evaluator extends EvaluatorHelper {
     }
   }
 
-  def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[PointedRegion])(p: ⇒ T): T =
+  def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[SourceLocation])(p: ⇒ T): T =
     try
       p
     catch {
       case e: EvaluatorException if e.locationOpt.isEmpty ⇒
-        throw e.copy(locationOpt = locationOpt.map(SourceLocation))
+        throw e.copy(locationOpt = locationOpt)
     }
 
 }
