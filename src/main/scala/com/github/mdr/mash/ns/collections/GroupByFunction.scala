@@ -57,8 +57,8 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
-    val includeNulls = Truthiness.isTruthy(boundParams(IncludeNull))
-    val includeTotalGroup = Truthiness.isTruthy(boundParams(Total))
+    val includeNulls = boundParams(IncludeNull).isTruthy
+    val includeTotalGroup = boundParams(Total).isTruthy
 
     val nullKey = boundParams.get(IncludeNull) match {
       case Some(MashBoolean.True) | None ⇒ MashNull

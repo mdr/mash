@@ -49,7 +49,7 @@ Otherwise, write the item as a string."""))
 
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
-    val append = Truthiness.isTruthy(boundParams(Append))
+    val append = boundParams(Append).isTruthy
     val file = boundParams.validatePath(File).toFile
     val data = boundParams(Data)
     data match {

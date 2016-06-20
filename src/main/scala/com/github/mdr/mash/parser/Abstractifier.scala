@@ -18,30 +18,6 @@ import com.github.mdr.mash.runtime.MashBoolean
 object Abstractifier {
   import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete, AbstractSyntax ⇒ Abstract }
 
-  private def getStringText(s: String, maybeTilde: Boolean): (String, Boolean) = {
-    def dropInitialQuote(s: String) = if (s.startsWith("\"") || s.startsWith("'")) s.tail else s
-    def dropFinalQuote(s: String) = if (s.endsWith("\"") || s.endsWith("'")) s.init else s
-    val withoutQuotes = dropInitialQuote(dropFinalQuote(s))
-    val tildePrefix = maybeTilde && withoutQuotes.startsWith("~")
-    val withoutTilde = if (tildePrefix) withoutQuotes.tail else withoutQuotes
-    (StringEscapes.unescape(withoutTilde), tildePrefix)
-  }
-
-  private def abstractifyLiteral(token: Token, sourceInfo: SourceInfo): Abstract.Expr =
-    token.tokenType match {
-      case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), Some(sourceInfo))
-      case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, Some(sourceInfo))
-      case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, Some(sourceInfo))
-      case TokenType.NULL           ⇒ Abstract.Literal(MashNull, Some(sourceInfo))
-      case TokenType.STRING_LITERAL ⇒
-        val s = token.text
-        val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
-        val (literalText, tildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
-        Abstract.StringLiteral(literalText, quotationType, tildePrefix, Some(sourceInfo))
-      case _ ⇒
-        throw new RuntimeException("Unexpected token type: " + token.tokenType)
-    }
-
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, SourceInfo(expr))
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, Some(SourceInfo(expr)))
@@ -70,6 +46,30 @@ object Abstractifier {
     case Concrete.HelpExpr(expr, _)                         ⇒ Abstract.HelpExpr(abstractify(expr), Some(SourceInfo(expr)))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
   }
+
+  private def getStringText(s: String, maybeTilde: Boolean): (String, Boolean) = {
+    def dropInitialQuote(s: String) = if (s.startsWith("\"") || s.startsWith("'")) s.tail else s
+    def dropFinalQuote(s: String) = if (s.endsWith("\"") || s.endsWith("'")) s.init else s
+    val withoutQuotes = dropInitialQuote(dropFinalQuote(s))
+    val tildePrefix = maybeTilde && withoutQuotes.startsWith("~")
+    val withoutTilde = if (tildePrefix) withoutQuotes.tail else withoutQuotes
+    (StringEscapes.unescape(withoutTilde), tildePrefix)
+  }
+
+  private def abstractifyLiteral(token: Token, sourceInfo: SourceInfo): Abstract.Expr =
+    token.tokenType match {
+      case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), Some(sourceInfo))
+      case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, Some(sourceInfo))
+      case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, Some(sourceInfo))
+      case TokenType.NULL           ⇒ Abstract.Literal(MashNull, Some(sourceInfo))
+      case TokenType.STRING_LITERAL ⇒
+        val s = token.text
+        val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
+        val (literalText, tildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
+        Abstract.StringLiteral(literalText, quotationType, tildePrefix, Some(sourceInfo))
+      case _ ⇒
+        throw new RuntimeException("Unexpected token type: " + token.tokenType)
+    }
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(_, name, params, _, body) = decl

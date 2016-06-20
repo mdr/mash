@@ -6,7 +6,6 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashValue
@@ -71,7 +70,7 @@ class ReplState(
 
   private def getBooleanConfig(configOption: ConfigOption): Boolean = {
     val rawValue = Config.getConfig(getConfigObject, configOption)
-    Truthiness.isTruthy(rawValue)
+    rawValue.isTruthy
   }
 
   def bareWords: Boolean = getBooleanConfig(Config.Language.BareWords)

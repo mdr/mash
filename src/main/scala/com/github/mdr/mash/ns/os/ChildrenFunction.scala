@@ -52,8 +52,8 @@ object ChildrenFunction extends MashFunction("os.children") {
       boundParams.throwInvalidArgument(Directory, s"'$parentDir' does not exist")
     if (!fileSystem.isDirectory(parentDir))
       boundParams.throwInvalidArgument(Directory, s"'$parentDir' is not a directory")
-    val ignoreDotFiles = Truthiness.isTruthy(boundParams(IgnoreDotFiles))
-    val recursive = Truthiness.isTruthy(boundParams(Recursive))
+    val ignoreDotFiles = boundParams(IgnoreDotFiles).isTruthy
+    val recursive = boundParams(Recursive).isTruthy
     MashList(getChildren(parentDir, ignoreDotFiles = ignoreDotFiles, recursive = recursive))
   }
 

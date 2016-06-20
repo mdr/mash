@@ -40,7 +40,7 @@ object SelectFunction extends MashFunction("collections.select") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments, ignoreAdditionalParameters = true)
-    val add = Truthiness.isTruthy(boundParams(Add))
+    val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
       case EvaluatedArgument.PositionArg(value, _) ⇒

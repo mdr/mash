@@ -41,7 +41,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
-    val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))
+    val createIntermediates = boundParams(CreateIntermediates).isTruthy
     val resultPaths =
       for (path ← paths)
         yield fileSystem.createDirectory(path, createIntermediates)

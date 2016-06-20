@@ -6,7 +6,6 @@ import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
@@ -60,7 +59,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     val boundParams = params.validate(arguments)
     val branchOpt = boundParams.validateStringOpt(Branch).map(_.s)
     val fromRemoteOpt = validateRemote(boundParams)
-    val switch = Truthiness.isTruthy(boundParams(Switch))
+    val switch = boundParams(Switch).isTruthy
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
       throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
 

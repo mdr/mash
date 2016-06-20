@@ -199,7 +199,7 @@ object StringClass extends MashClass("core.String") {
     def apply(target: MashValue, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
-      val regex = Truthiness.isTruthy(boundParams(Regex))
+      val regex = boundParams(Regex).isTruthy
       val pieces = boundParams(Separator) match {
         case MashNull ⇒
           targetString.s.split("\\s+")

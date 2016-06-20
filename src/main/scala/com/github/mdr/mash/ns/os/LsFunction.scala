@@ -61,9 +61,9 @@ If no paths are provided, the default is the current working directory."""))
 
   def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    val ignoreDotFiles = Truthiness.isFalsey(boundParams(All))
-    val recursive = Truthiness.isTruthy(boundParams(Recursive))
-    val directory = Truthiness.isTruthy(boundParams(Directory))
+    val ignoreDotFiles = boundParams(All).isFalsey
+    val recursive = boundParams(Recursive).isTruthy
+    val directory = boundParams(Directory).isTruthy
     val paths = boundParams.validatePaths(Paths)
 
     def listPath(path: Path): Seq[MashObject] =

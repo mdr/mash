@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashString
@@ -30,7 +29,7 @@ object WhereFunction extends MashFunction("collections.where") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    val newSequence = sequence.filter(x ⇒ Truthiness.isTruthy(predicate(x)))
+    val newSequence = sequence.filter(x ⇒ predicate(x).isTruthy)
     reassembleSequence(inSequence, newSequence)
   }
 

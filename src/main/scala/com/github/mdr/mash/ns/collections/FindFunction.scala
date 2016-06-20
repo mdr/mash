@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
@@ -28,7 +27,7 @@ object FindFunction extends MashFunction("collections.find") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    sequence.find(x ⇒ Truthiness.isTruthy(predicate(x))).getOrElse(MashNull)
+    sequence.find(x ⇒ predicate(x).isTruthy).getOrElse(MashNull)
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy

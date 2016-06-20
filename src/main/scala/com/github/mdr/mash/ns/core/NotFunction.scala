@@ -20,7 +20,7 @@ object NotFunction extends MashFunction("core.not") {
 
   def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
-    MashBoolean(Truthiness.isFalsey(boundParams(Item)))
+    MashBoolean(boundParams(Item).isFalsey)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)

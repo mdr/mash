@@ -14,9 +14,9 @@ import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.PointedRegion
 
-case class EvaluationContext(scopeStack: ScopeStack, program: Expr) 
+case class EvaluationContext(scopeStack: ScopeStack, program: Expr)
 
-object Evaluator {
+object Evaluator extends EvaluatorHelper {
 
   private val environmentInteractions = LinuxEnvironmentInteractions
 
@@ -38,7 +38,7 @@ object Evaluator {
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          locationOpt = expr.locationOpt.map(SourceLocation),
+          locationOpt = sourceLocation(expr),
           cause = t)
     }
   }
@@ -60,7 +60,7 @@ object Evaluator {
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw EvaluatorException("Unexpected AST node: " + expr, expr.locationOpt.map(SourceLocation))
+        throw EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case Literal(v, _)                          ⇒ v
@@ -83,7 +83,7 @@ object Evaluator {
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
       case Identifier(name, _) ⇒
         context.scopeStack.lookup(name).getOrElse {
-          throw EvaluatorException(s"No binding for '$name'", expr.locationOpt.map(SourceLocation))
+          throw EvaluatorException(s"No binding for '$name'", sourceLocation(expr))
         }
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
@@ -92,7 +92,7 @@ object Evaluator {
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
-    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, subExpr.locationOpt.map(SourceLocation))
+    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, sourceLocation(subExpr))
   }
 
   private def evaluateStringLiteral(lit: StringLiteral): MashValue = {
@@ -143,7 +143,7 @@ object Evaluator {
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
     val result = evaluate(cond)
-    if (Truthiness.isTruthy(result))
+    if (result.isTruthy)
       evaluate(body)
     else elseOpt match {
       case None           ⇒ MashUnit
@@ -158,4 +158,5 @@ object Evaluator {
       case e: EvaluatorException if e.locationOpt.isEmpty ⇒
         throw e.copy(locationOpt = locationOpt.map(SourceLocation))
     }
+
 }

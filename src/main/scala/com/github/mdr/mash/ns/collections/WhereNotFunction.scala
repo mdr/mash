@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
@@ -18,7 +17,7 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    val newSequence = sequence.filterNot(x ⇒ Truthiness.isTruthy(predicate(x)))
+    val newSequence = sequence.filterNot(x ⇒ predicate(x).isTruthy)
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 

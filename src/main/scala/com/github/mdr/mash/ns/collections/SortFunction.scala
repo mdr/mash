@@ -4,7 +4,6 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.runtime.MashString
@@ -35,7 +34,7 @@ object SortFunction extends MashFunction("collections.sort") {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
-    val descending = Truthiness.isTruthy(boundParams(Descending))
+    val descending = boundParams(Descending).isTruthy
     val sorted = sequence.sorted(MashValueOrdering)
     val newSequence =
       if (descending)

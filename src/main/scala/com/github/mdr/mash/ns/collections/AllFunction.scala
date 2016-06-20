@@ -4,7 +4,6 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.runtime.MashBoolean
 
@@ -28,7 +27,7 @@ object AllFunction extends MashFunction("collections.all") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
-    MashBoolean(sequence.forall(x ⇒ Truthiness.isTruthy(predicate(x))))
+    MashBoolean(sequence.forall(x ⇒ predicate(x).isTruthy))
   }
 
   override def typeInferenceStrategy = AllTypeInferenceStrategy

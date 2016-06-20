@@ -5,7 +5,6 @@ import scala.util.Try
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
@@ -37,7 +36,7 @@ object RestoreFunction extends MashFunction("git.restore") {
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
-    val all = Truthiness.isTruthy(boundParams(All))
+    val all = boundParams(All).isTruthy
     if (paths.isEmpty && !all)
       throw new EvaluatorException(s"Must provide either '$Paths' or '$All'")
     GitHelper.withGit { git ⇒

@@ -107,7 +107,7 @@ object PathClass extends MashClass("os.Path") {
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
-      val createIntermediates = Truthiness.isTruthy(boundParams(CreateIntermediates))
+      val createIntermediates = boundParams(CreateIntermediates).isTruthy
       val path = FunctionHelpers.interpretAsPath(target)
       val resultPath = fileSystem.createDirectory(path, createIntermediates)
       asPathString(resultPath)
@@ -356,8 +356,8 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
-      val ignoreDotFiles = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.IgnoreDotFiles))
-      val recursive = Truthiness.isTruthy(boundParams(ChildrenFunction.Params.Recursive))
+      val ignoreDotFiles = boundParams(ChildrenFunction.Params.IgnoreDotFiles).isTruthy
+      val recursive = boundParams(ChildrenFunction.Params.Recursive).isTruthy
       val parentDir = FunctionHelpers.interpretAsPath(target)
       if (!fileSystem.exists(parentDir))
         throw new EvaluatorException(s"'$parentDir' does not exist")

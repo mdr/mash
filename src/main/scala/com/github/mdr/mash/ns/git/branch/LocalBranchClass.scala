@@ -116,8 +116,8 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
-      val force = Truthiness.isTruthy(boundParams(Force))
-      val setUpstream = Truthiness.isTruthy(boundParams(SetUpstream))
+      val force = boundParams(Force).isTruthy
+      val setUpstream = boundParams(SetUpstream).isTruthy
       val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
       val branchName = Wrapper(target).name.s
       GitHelper.withGit { git ⇒

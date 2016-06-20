@@ -8,7 +8,6 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.evaluator.Truthiness
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
@@ -56,8 +55,8 @@ object PushFunction extends MashFunction("git.push") {
     val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
 
-    val setUpstream = Truthiness.isTruthy(boundParams(SetUpstream))
-    val force = Truthiness.isTruthy(boundParams(Force))
+    val setUpstream = boundParams(SetUpstream).isTruthy
+    val force = boundParams(Force).isTruthy
 
     GitHelper.withGit { git ⇒
       val cmd = git.push
