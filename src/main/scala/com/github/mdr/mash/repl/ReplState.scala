@@ -11,6 +11,7 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.StandardEnvironment
 
 case class YankLastArgState(count: Int, region: Region)
 
@@ -34,7 +35,7 @@ class ReplState(
     var completionStateOpt: Option[CompletionState] = None,
     var assistanceStateOpt: Option[AssistanceState] = None,
     var continue: Boolean = true, // Whether to loop or exit
-    var globalVariables: mutable.Map[String, MashValue] = Environment.createGlobalVariables(),
+    var globalVariables: mutable.Map[String, MashValue] = StandardEnvironment.createGlobalVariables(),
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
     var mish: Boolean = false,
     var yankLastArgStateOpt: Option[YankLastArgState] = None,

@@ -11,6 +11,7 @@ import com.github.mdr.mash.os.MockFileSystem
 import java.nio.file.Paths
 import com.github.mdr.mash.runtime.MashString
 import scala.collection.mutable
+import com.github.mdr.mash.evaluator.StandardEnvironment
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -97,7 +98,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
-    implicit val environment = Environment(Map(), mutable.Map("readme" -> MashString("readme")))
+    implicit val environment = Environment(mutable.Map("readme" -> MashString("readme")))
     
     "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
     "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")
@@ -292,7 +293,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
-      implicit val environment: Environment = Environment.create) {
+      implicit val environment: Environment = StandardEnvironment.create) {
 
     def shouldGiveCompletions(expectedCompletions: String*) {
       val expectedDescription = expectedCompletions.mkString(", ")
