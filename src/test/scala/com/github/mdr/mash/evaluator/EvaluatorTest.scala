@@ -451,6 +451,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
   "'x' * 1" shouldEvaluateTo "'x'"
   "'x' * 0" shouldEvaluateTo "''"
+  
+  "[1, 2] * 3" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
+  "3 * [1, 2]" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
+  "[1] * 1" shouldEvaluateTo "[1]"
+  "[1] * 0" shouldEvaluateTo "[]"
 
   "3.14.toInt" shouldEvaluateTo "3"
   "(-3.14).toInt" shouldEvaluateTo "-3"

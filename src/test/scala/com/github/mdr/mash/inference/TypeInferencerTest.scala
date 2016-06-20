@@ -54,8 +54,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "2 * 2" shouldBeInferredAsHavingType NumberType
   "'foo' * 2" shouldBeInferredAsHavingType StringType
   "2 * 'foo'" shouldBeInferredAsHavingType StringType
-  """ "foo" * 2""" shouldBeInferredAsHavingType TaggedStringType
-
+  """ "foo" * 2 """ shouldBeInferredAsHavingType TaggedStringType
+  "[1, 2] * 3" shouldBeInferredAsHavingType Seq(NumberType)
+  "3 * [1, 2]" shouldBeInferredAsHavingType Seq(NumberType)
+  
   // Map
   "[true].map 'not' " shouldBeInferredAsHavingType Seq(BooleanType)
   "['f', 'g'].map ('foo'.startsWith)" shouldBeInferredAsHavingType Seq(BooleanType)

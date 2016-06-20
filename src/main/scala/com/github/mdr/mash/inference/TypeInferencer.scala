@@ -170,9 +170,9 @@ class TypeInferencer {
         }
       case Multiply ⇒
         (leftTypeOpt, rightTypeOpt) match {
-          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ rightTypeOpt
-          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass))) ⇒ rightTypeOpt
-          case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
+          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
+          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_))) ⇒ rightTypeOpt
+          case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
           case _ ⇒ Some(Type.Instance(NumberClass))
         }
       case Minus | Divide ⇒

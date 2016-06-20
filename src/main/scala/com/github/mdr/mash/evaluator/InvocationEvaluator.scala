@@ -6,7 +6,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 
-object InvocationEvaluator {
+object InvocationEvaluator extends EvaluatorHelper {
 
   def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext) = {
     val InvocationExpr(functionExpr, arguments, _) = invocationExpr
