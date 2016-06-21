@@ -7,7 +7,6 @@ import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.runtime.MashValue
 
 class UserDefinedFunction(
-    program: Expr,
     functionName: String,
     val params: ParameterModel,
     body: Expr,
@@ -19,7 +18,7 @@ class UserDefinedFunction(
       for (param ← params.params)
         yield param.name -> boundParams(param)
     val newScopeStack = context.scopeStack.withFunctionCallScope(pairs.toMap)
-    Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack, program = program))
+    Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 
   override def summary = s"User defined function '$name'"
