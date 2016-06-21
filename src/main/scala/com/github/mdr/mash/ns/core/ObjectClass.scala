@@ -67,14 +67,14 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = MashString(stringify(target))
+    def apply(target: MashValue, arguments: Arguments) = MashString(stringify(target))
 
     def stringify(x: MashValue): String = x match {
       case MashString(s, _) ⇒ s
       case klass: MashClass ⇒ klass.fullyQualifiedName.toString
       case xs: MashList     ⇒ xs.items.map(ToStringifier.stringify).mkString("[", ", ", "]")
       case MashUnit         ⇒ ""
-      case _                ⇒ "" + x
+      case _                ⇒ x.toString
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
