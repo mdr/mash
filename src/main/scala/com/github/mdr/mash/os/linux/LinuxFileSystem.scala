@@ -104,6 +104,7 @@ object LinuxFileSystem extends FileSystem {
 
   override def glob(pattern: String): Seq[PathSummary] = {
     val startDir = GlobHelper.globStart(pattern)
+    val recurse = pattern.contains("**")
     val matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern)
     val foundPaths = ArrayBuffer[Path]()
     val visitor = new SimpleFileVisitor[Path]() {
@@ -124,7 +125,7 @@ object LinuxFileSystem extends FileSystem {
         FileVisitResult.CONTINUE
 
     }
-    Files.walkFileTree(startDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor)
+    Files.walkFileTree(startDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), if (recurse) Integer.MAX_VALUE else 1, visitor)
     foundPaths.map(getPathSummary)
   }
 
