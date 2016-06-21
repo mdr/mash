@@ -15,7 +15,7 @@ object HistoryClass extends MashClass("core.History") {
     val Command = Field("command", "Command", Type.Instance(StringClass))
     val Mish = Field("mish", "Whether the command was executed in mish mode", Type.Instance(BooleanClass))
     val Result = Field("result", "Result of the command (if available, else null)", Type.Any)
-    val WorkingDirectory = Field("workingDirectory", "Directory where the command was executed", Type.Tagged(StringClass, PathClass))
+    val WorkingDirectory = Field("workingDirectory", "Directory where the command was executed", StringClass taggedWith PathClass)
   }
 
   import Fields._

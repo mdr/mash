@@ -10,8 +10,8 @@ object FileDiffClass extends MashClass("git.FileDiff") {
 
   object Fields {
     val _Type = Field("type", "Type of the change", StringClass)
-    val OldPath = Field("oldPath", "Old path", Type.Tagged(StringClass, PathClass))
-    val NewPath = Field("newPath", "Old path", Type.Tagged(StringClass, PathClass))
+    val OldPath = Field("oldPath", "Old path", StringClass taggedWith PathClass)
+    val NewPath = Field("newPath", "Old path", StringClass taggedWith PathClass)
   }
   import Fields._
 

@@ -322,7 +322,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summary = "Tag this string as a path"
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
   }
 
@@ -416,6 +416,7 @@ object StringClass extends MashClass("core.String") {
   override def summary = "A string"
 
   def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
+
 }
 
 object SameStringMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {

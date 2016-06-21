@@ -36,7 +36,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
   }
 
   override lazy val methods = {
-    val omittedMethods = fields.map(_.name).toSet + PathClass.InfoMethod.name
+    val omittedMethods = fields.map(_.name).toSet + PathClassInfoMethod.name
     val liftedMethods = PathClass.methods.filterNot(m ⇒ omittedMethods contains m.name).map(liftPathMethod)
     ToStringMethod +: liftedMethods
   }

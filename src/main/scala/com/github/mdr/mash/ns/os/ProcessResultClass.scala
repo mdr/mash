@@ -115,7 +115,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def summary = "Tag the stdout as a path"
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
   }
 

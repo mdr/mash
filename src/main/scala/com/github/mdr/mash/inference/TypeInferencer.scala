@@ -54,7 +54,7 @@ class TypeInferencer {
       case MishFunction(command, _)                     ⇒ Some(Type.DefinedFunction(SystemCommandFunction(command)))
       case ParenExpr(body, _)                           ⇒ inferType(body, bindings)
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
-      case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(Type.Tagged(StringClass, PathClass))
+      case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(StringClass taggedWith PathClass)
       case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(Type.Instance(StringClass))
       case is: InterpolatedString                       ⇒ inferType(is, bindings)
       case MinusExpr(_, _)                              ⇒ Some(Type.Instance(NumberClass))
@@ -112,7 +112,7 @@ class TypeInferencer {
       case ExprPart(expr) ⇒
         inferType(expr, bindings)
     }
-    Some(Type.Tagged(StringClass, PathClass))
+    Some(StringClass taggedWith PathClass)
   }
 
   private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {

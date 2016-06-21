@@ -24,7 +24,7 @@ class ValueTypeDetectorTest extends FlatSpec with Matchers {
     ValueTypeDetector.getType(MashWrapped(Instant.now)) shouldEqual (Type.Instance(DateTimeClass))
     ValueTypeDetector.getType(MashWrapped(LocalDate.now)) shouldEqual (Type.Instance(LocalDateClass))
     ValueTypeDetector.getType(MashString("foo")) shouldEqual (Type.Instance(StringClass))
-    ValueTypeDetector.getType(MashString("foo", Some(PathClass))) shouldEqual (Type.Tagged(StringClass, PathClass))
+    ValueTypeDetector.getType(MashString("foo", Some(PathClass))) shouldEqual (StringClass taggedWith PathClass)
     ValueTypeDetector.getType(MashNumber(1)) shouldEqual (Type.Instance(NumberClass))
     ValueTypeDetector.getType(MashNumber(1, Some(DaysClass))) shouldEqual (Type.Tagged(NumberClass, DaysClass))
   }

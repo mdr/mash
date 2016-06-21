@@ -23,7 +23,7 @@ object PwdFunction extends MashFunction("os.pwd") {
     asPathString(fileSystem.pwd)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Tagged(StringClass, PathClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
 
   override def summary = "Return the current working directory"
 

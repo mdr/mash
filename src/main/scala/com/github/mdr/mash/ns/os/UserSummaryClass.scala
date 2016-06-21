@@ -28,8 +28,8 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val Name = Field("name", "Name of user", Type.Tagged(StringClass, UsernameClass))
     val Uid = Field("uid", "Id of user (UID)", Type.Tagged(StringClass, UidClass))
     val PrimaryGroup = Field("primaryGroup", "Primary group to which the user belongs", Type.Tagged(StringClass, GroupClass))
-    val Home = Field("home", "Home directory of this user", Type.Tagged(StringClass, PathClass))
-    val Shell = Field("shell", "Shell used by this user", Type.Tagged(StringClass, PathClass))
+    val Home = Field("home", "Home directory of this user", StringClass taggedWith PathClass)
+    val Shell = Field("shell", "Shell used by this user", StringClass taggedWith PathClass)
   }
 
   import Fields._

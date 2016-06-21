@@ -187,4 +187,7 @@ object NumberClass extends MashClass("core.Number") {
   }
 
   def summary = "A number"
+
+  def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
+
 }

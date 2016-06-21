@@ -38,7 +38,7 @@ object Type {
     require(xs.length == 1)
     Type.Seq(xs.head)
   }
-  implicit def pathClassToType[T](x: PathClass.type): Type = Type.Tagged(StringClass, PathClass)
+  implicit def pathClassToType[T](x: PathClass.type): Type = StringClass taggedWith PathClass
   implicit def unitToType[T](x: Unit.type): Type = Type.Instance(UnitClass)
 
 }
