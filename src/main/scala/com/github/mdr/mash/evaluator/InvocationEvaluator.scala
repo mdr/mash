@@ -34,20 +34,20 @@ object InvocationEvaluator extends EvaluatorHelper {
   private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr)(implicit context: EvaluationContext): MashValue =
     callFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
 
-  def callFunction(function: MashValue, arguments: Arguments, functionLocationOpt: Option[SourceLocation] = None, invocationLocationOpt: Option[SourceLocation] = None): MashValue = 
+  def callFunction(function: MashValue, arguments: Arguments, functionLocationOpt: Option[SourceLocation] = None, invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
       case MashString(memberName, _) ⇒
         callStringAsFunction(memberName, arguments, functionLocationOpt, invocationLocationOpt)
       case f: MashFunction ⇒
-        Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt) {
+        addInvocationToStackOnException(invocationLocationOpt) {
           f(arguments)
         }
       case BoundMethod(target, method, _) ⇒
-        Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt) {
+        addInvocationToStackOnException(invocationLocationOpt) {
           method(target, arguments)
         }
       case _ ⇒
-        throw EvaluatorException(s"Not callable", functionLocationOpt)
+        throw new EvaluatorException(s"Not callable", functionLocationOpt)
     }
 
   private def callStringAsFunction(s: String, arguments: Arguments, functionLocationOpt: Option[SourceLocation], invocationLocationOpt: Option[SourceLocation]): MashValue =
@@ -55,17 +55,25 @@ object InvocationEvaluator extends EvaluatorHelper {
       case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
         xs.map { target ⇒
           val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-          Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt) {
+          addInvocationToStackOnException(invocationLocationOpt) {
             Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
           }
         }
       case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
         val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-        Evaluator.addLocationToExceptionIfMissing(invocationLocationOpt) {
+        addInvocationToStackOnException(invocationLocationOpt) {
           Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
         }
       case _ ⇒
-        throw EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
+        throw new EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
+    }
+
+  def addInvocationToStackOnException[T <: MashValue](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
+    try
+      p
+    catch {
+      case e: EvaluatorException ⇒
+        throw invocationLocationOpt.map(loc ⇒ e.copy(stack = loc :: e.stack)).getOrElse(e)
     }
 
 }

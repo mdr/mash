@@ -92,8 +92,8 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       ExecutionContext.set(ctx)
       Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables)))
     } catch {
-      case e @ EvaluatorException(msg, locationOpt, cause) ⇒
-        printError("Error", msg, cmd, locationOpt)
+      case e @ EvaluatorException(msg, stack, cause) ⇒
+        printError("Error", msg, cmd, stack.reverse)
         DebugLogger.logException(e)
         MashUnit
       case _: EvaluationInterruptedException ⇒
@@ -106,17 +106,20 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       Compiler.compile(cmd, Map() ++ globalVariables, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
     catch {
       case MashParserException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Some(SourceLocation(cmd, location)))
+        printError("Syntax error", msg, cmd, Seq(SourceLocation(cmd, location)))
         None
       case MashLexerException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Some(SourceLocation(cmd, location)))
+        printError("Syntax error", msg, cmd, Seq(SourceLocation(cmd, location)))
         None
     }
 
-  private def printError(msgType: String, msg: String, cmd: String, locationOpt: Option[SourceLocation]) = {
+  private def printError(msgType: String, msg: String, cmd: String, stack: Seq[SourceLocation]) = {
     output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
-    locationOpt match {
-      case Some(SourceLocation(source, PointedRegion(point, region @ Region(offset, length)))) ⇒
+    if (stack.isEmpty)
+      output.println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
+    else {
+      for (entry ← stack) {
+        val SourceLocation(source, PointedRegion(point, region @ Region(offset, length))) = entry
         output.println(Ansi.ansi().fg(Ansi.Color.RED).a(source).reset())
         output.print(Ansi.ansi().fg(Ansi.Color.RED))
         for (i ← 0 to region.posAfter)
@@ -126,8 +129,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
             case _                       ⇒ " "
           })
         output.println(Ansi.ansi().reset())
-      case None ⇒
-        output.println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
+      }
     }
   }
 

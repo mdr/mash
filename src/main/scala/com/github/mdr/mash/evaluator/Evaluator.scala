@@ -27,7 +27,7 @@ object Evaluator extends EvaluatorHelper {
       ExecutionContext.checkInterrupted()
       val result = expr match {
         case _: Identifier | _: MemberExpr ⇒
-          addLocationToExceptionIfMissing(sourceLocation(expr)) { immediatelyResolveNullaryFunctions(v) }
+          InvocationEvaluator.addInvocationToStackOnException(sourceLocation(expr)) { immediatelyResolveNullaryFunctions(v) }
         case _ ⇒ v
       }
       result
@@ -38,7 +38,7 @@ object Evaluator extends EvaluatorHelper {
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          locationOpt = sourceLocation(expr),
+          stack = sourceLocation(expr).toList,
           cause = t)
     }
   }
@@ -60,7 +60,7 @@ object Evaluator extends EvaluatorHelper {
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
+        throw EvaluatorException("Unexpected AST node: " + expr, stack = sourceLocation(expr).toList)
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case Literal(v, _)                          ⇒ v
@@ -83,7 +83,7 @@ object Evaluator extends EvaluatorHelper {
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
       case Identifier(name, _) ⇒
         context.scopeStack.lookup(name).getOrElse {
-          throw EvaluatorException(s"No binding for '$name'", sourceLocation(expr))
+          throw new EvaluatorException(s"No binding for '$name'", sourceLocation(expr))
         }
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
@@ -150,13 +150,5 @@ object Evaluator extends EvaluatorHelper {
       case Some(elseBody) ⇒ evaluate(elseBody)
     }
   }
-
-  def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[SourceLocation])(p: ⇒ T): T =
-    try
-      p
-    catch {
-      case e: EvaluatorException if e.locationOpt.isEmpty ⇒
-        throw e.copy(locationOpt = locationOpt)
-    }
 
 }

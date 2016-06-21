@@ -7,10 +7,13 @@ case class SourceLocation(source: String, pointedRegion: PointedRegion)
 
 case class EvaluatorException(
   message: String,
-  locationOpt: Option[SourceLocation] = None,
+  stack: List[SourceLocation] = Nil,
   cause: Throwable = null)
     extends RuntimeException(message, cause) {
-
+  
+  def this(message: String, locationOpt: Option[SourceLocation]) = 
+    this(message, locationOpt.toList, null)
+  
   def causeOpt: Option[Throwable] = Option(cause)
 
 }
