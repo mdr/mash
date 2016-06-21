@@ -25,6 +25,11 @@ v0.0.2 (..)
 * Date arithmetic
 * Local variable scopes
 * Block expressions
+* Basic stack traces
+* flatMap
+* Object browser selection
+* Numbered results
+* History objects
 
 v0.0.1 (19/January/2016)
 ------------------------
