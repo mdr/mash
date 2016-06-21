@@ -15,7 +15,8 @@ scalacOptions += "-feature"
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
   "junit" % "junit" % "4.12" % Test,
-  "org.pegdown" % "pegdown" % "1.6.0" % Test) // Needed for test reports
+  "org.pegdown" % "pegdown" % "1.6.0" % Test, // Needed for test reports
+  "com.lihaoyi" % "ammonite-repl" % "0.6.2" % Test cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
   "org.fusesource.jansi" % "jansi" % "1.12",
@@ -33,7 +34,6 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-nop" % "1.7.21" /* suppress logging from jgit */,
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5")
-
 
 // == Eclipse integration =====================================================================
 
@@ -64,6 +64,8 @@ fork in test := true
 testFrameworks := Seq(TestFrameworks.ScalaTest)
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT", "-h", "target/report") // T => show reminder of failed tests with short stack trace 
+
+initialCommands in (Test, console) := "ammonite.repl.Main().run()"
 
 // == Docker =================================================================================
 
