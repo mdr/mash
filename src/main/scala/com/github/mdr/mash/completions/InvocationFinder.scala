@@ -22,7 +22,7 @@ object InvocationFinder {
       case ConcreteSyntax.LongArg(_, Some((_, ConcreteSyntax.Literal(`literalToken`)))) ⇒ true
     }
     expr.find {
-      case iexpr @ InvocationExpr(_, _, Some(SourceInfo(ArgSite(args)))) if args.exists(isLiteralArg) ⇒
+      case iexpr @ InvocationExpr(_, _, Some(SourceInfo(_, ArgSite(args)))) if args.exists(isLiteralArg) ⇒
         InvocationInfo(iexpr, args.indexWhere(isLiteralArg))
     }
   }
@@ -35,7 +35,7 @@ object InvocationFinder {
       case ConcreteSyntax.ShortArg(`flagToken`) | ConcreteSyntax.LongArg(`flagToken`, _) ⇒ true
     }
     expr.find {
-      case iexpr @ InvocationExpr(_, _, Some(SourceInfo(ArgSite(args)))) if args.exists(isFlagArg) ⇒
+      case iexpr @ InvocationExpr(_, _, Some(SourceInfo(_, ArgSite(args)))) if args.exists(isFlagArg) ⇒
         InvocationInfo(iexpr, args.indexWhere(isFlagArg))
     }
   }

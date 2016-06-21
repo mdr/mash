@@ -12,13 +12,13 @@ object EqualityFinder {
 
   def findEqualityExprWithLiteralArg(expr: Expr, literalToken: Token): Option[Type] =
     (expr.find {
-      case BinOpExpr(Literal(_, Some(SourceInfo(ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
+      case BinOpExpr(Literal(_, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
         right.typeOpt
-      case BinOpExpr(StringLiteral(_, _, _, Some(SourceInfo(ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
+      case BinOpExpr(StringLiteral(_, _, _, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
         right.typeOpt
-      case BinOpExpr(left, BinaryOperator.Equals | BinaryOperator.NotEquals, Literal(_, Some(SourceInfo(ConcreteSyntax.Literal(`literalToken`)))), _) ⇒
+      case BinOpExpr(left, BinaryOperator.Equals | BinaryOperator.NotEquals, Literal(_, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), _) ⇒
         left.typeOpt
-      case BinOpExpr(left, BinaryOperator.Equals | BinaryOperator.NotEquals, StringLiteral(_, _, _, Some(SourceInfo(ConcreteSyntax.Literal(`literalToken`)))), _) ⇒
+      case BinOpExpr(left, BinaryOperator.Equals | BinaryOperator.NotEquals, StringLiteral(_, _, _, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), _) ⇒
         left.typeOpt
     }).flatten
 

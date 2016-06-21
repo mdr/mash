@@ -12,15 +12,15 @@ class AbstractifierTest extends FlatSpec with Matchers {
   "Abstract representation of a string literal" should "not include the quotes" in {
     val s = "\"foo\""
     val Some(concreteExpr) = MashParser.parseExpr(s)
-    val abstractExpr = Abstractifier.abstractify(concreteExpr)
-    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+    val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
+    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
   "String literals that lack quotes" should "still work" in {
     val s = "\"foo"
     val Some(concreteExpr) = MashParser.parseExpr(s)
-    val abstractExpr = Abstractifier.abstractify(concreteExpr)
-    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+    val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
+    abstractExpr should equal(StringLiteral("foo", QuotationType.Double, hasTildePrefix = false, sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
   "A function invocation" should "have its positional arguments collected" in {
@@ -28,13 +28,13 @@ class AbstractifierTest extends FlatSpec with Matchers {
     val Some(concreteExpr) = MashParser.parseExpr(s)
     val Concrete.InvocationExpr(function, Seq(arg: Concrete.Expr)) = concreteExpr
 
-    val abstractExpr = Abstractifier.abstractify(concreteExpr)
+    val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
 
     abstractExpr should equal(
       InvocationExpr(
-        Identifier("ls", Some(SourceInfo(function))),
-        Seq(Argument.PositionArg(Identifier("pwd", Some(SourceInfo(arg))), Some(SourceInfo(arg)))),
-        sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+        Identifier("ls", Some(SourceInfo(s, function))),
+        Seq(Argument.PositionArg(Identifier("pwd", Some(SourceInfo(s, arg))), Some(SourceInfo(s, arg)))),
+        sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
   "A function invocation" should "have its flag arguments collected" in {
@@ -43,13 +43,13 @@ class AbstractifierTest extends FlatSpec with Matchers {
     val Concrete.InvocationExpr(function, Seq(longArg)) = concreteExpr
     val Concrete.LongArg(flagName, Some((equals, arg))) = longArg
 
-    val abstractExpr = Abstractifier.abstractify(concreteExpr)
+    val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
 
     abstractExpr should equal(
       InvocationExpr(
-        Identifier("foo", Some(SourceInfo(function))),
-        Seq(Argument.LongFlag("bar", Some(Identifier("baz", Some(SourceInfo(arg)))), Some(SourceInfo(longArg)))),
-        sourceInfoOpt = Some(SourceInfo(concreteExpr))))
+        Identifier("foo", Some(SourceInfo(s, function))),
+        Seq(Argument.LongFlag("bar", Some(Identifier("baz", Some(SourceInfo(s, arg)))), Some(SourceInfo(s, longArg)))),
+        sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
 }

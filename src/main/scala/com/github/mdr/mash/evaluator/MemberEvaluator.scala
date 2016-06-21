@@ -36,7 +36,7 @@ object MemberEvaluator extends EvaluatorHelper {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
-      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ SourceLocation(PointedRegion(name.offset, name.region))
+      case ConcreteSyntax.MemberExpr(_, _, name) ⇒ SourceLocation(info.source, PointedRegion(name.offset, name.region))
     })
     if (target == MashNull && isNullSafe)
       MemberExprEvalResult(MashNull, wasVectorised = false)

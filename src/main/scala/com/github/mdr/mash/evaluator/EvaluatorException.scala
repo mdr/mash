@@ -3,7 +3,7 @@ package com.github.mdr.mash.evaluator
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.parser.ConcreteSyntax
 
-case class SourceLocation(pointedRegion: PointedRegion)
+case class SourceLocation(source: String, pointedRegion: PointedRegion)
 
 case class EvaluatorException(
   message: String,

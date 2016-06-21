@@ -22,25 +22,28 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
     val fullMessage = s"Invalid argument '${param.name}'. $message"
-    throw new EvaluatorException(fullMessage, locationOpt(param).map(SourceLocation))
+    throw new EvaluatorException(fullMessage, locationOpt(param))
   }
 
-  private def locationOpt(param: Parameter): Option[PointedRegion] =
-    argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(_ merge _))
+  private def mergeLocation(location1: SourceLocation, location2: SourceLocation): SourceLocation =
+    SourceLocation(location1.source, location1.pointedRegion merge location2.pointedRegion)
+
+  private def locationOpt(param: Parameter): Option[SourceLocation] =
+    argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
 
   def validateSequence(param: Parameter): Seq[MashValue] = this(param) match {
     case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be a sequence, but was '${ToStringifier.stringify(x)}'"
-      throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+      throw new EvaluatorException(message, locationOpt(param))
   }
 
   def validateString(param: Parameter): MashString = this(param) match {
     case s: MashString ⇒ s
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
-      throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+      throw new EvaluatorException(message, locationOpt(param))
   }
 
   def validateStringOpt(param: Parameter): Option[MashString] = this(param) match {
@@ -48,7 +51,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
     case MashNull      ⇒ None
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
-      throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+      throw new EvaluatorException(message, locationOpt(param))
   }
 
   def validateFunction(param: Parameter): MashValue ⇒ MashValue =
@@ -57,7 +60,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
         (o ⇒ InvocationEvaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
       case x ⇒
         val message = s"Invalid argument '${param.name}'. Must be a function, but was '${ToStringifier.stringify(x)}'"
-        throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+        throw new EvaluatorException(message, locationOpt(param))
     }
 
   def validatePath(param: Parameter): Path = {
@@ -66,14 +69,14 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
       case Some(path) ⇒ path
       case None ⇒
         val message = s"Invalid argument '${param.name}'. Must be a path, but was '${ToStringifier.stringify(x)}'"
-        throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+        throw new EvaluatorException(message, locationOpt(param))
     }
   }
 
   def validatePaths(param: Parameter): Seq[Path] = {
     val x = this(param)
     catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(x) getOrElse (
-      throw new EvaluatorException(s"Invalid argument '${param.name}', could not interpret as path.", locationOpt(param).map(SourceLocation)))
+      throw new EvaluatorException(s"Invalid argument '${param.name}', could not interpret as path.", locationOpt(param)))
   }
 
   object MashInteger {
@@ -90,7 +93,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
       n
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be an integer, but was '${ToStringifier.stringify(x)}'"
-      throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+      throw new EvaluatorException(message, locationOpt(param))
   }
 
   def validateIntegerOrNull(param: Parameter): Option[Int] = this(param) match {
@@ -100,7 +103,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
       None
     case x ⇒
       val message = s"Invalid argument '${param.name}'. Must be an integer, but was '${ToStringifier.stringify(x)}'"
-      throw new EvaluatorException(message, locationOpt(param).map(SourceLocation))
+      throw new EvaluatorException(message, locationOpt(param))
   }
 
 }

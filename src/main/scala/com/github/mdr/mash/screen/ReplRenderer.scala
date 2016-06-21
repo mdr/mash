@@ -121,7 +121,7 @@ object ReplRenderer {
   private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
     MashParser.parse(s, forgiving = true, mish = mish).map { concreteExpr ⇒
-      val abstractExpr = Abstractifier.abstractify(concreteExpr)
+      val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
       BareStringify.getBareTokens(abstractExpr, bindings)
     }.getOrElse(Set())
   }

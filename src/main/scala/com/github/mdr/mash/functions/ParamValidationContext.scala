@@ -54,7 +54,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           if (!ignoreAdditionalParameters) {
             val firstExcessArgument = arguments.positionArgs.drop(maxPositionArgs).head
             val locationOpt = firstExcessArgument.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
-            throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt.map(SourceLocation))
+            throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
           }
       }
 
@@ -81,7 +81,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   }
 
   private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: MashValue) = {
-    lazy val errorLocationOpt = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location).map(SourceLocation)
+    lazy val errorLocationOpt = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param.name)

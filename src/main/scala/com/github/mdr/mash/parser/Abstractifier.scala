@@ -13,11 +13,11 @@ import com.github.mdr.mash.runtime.MashNumber
 /**
  * Convert from concrete to abstract syntax trees.
  */
-object Abstractifier {
+class Abstractifier(source: String) {
   import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete, AbstractSyntax ⇒ Abstract }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
-    case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, SourceInfo(expr))
+    case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
     case Concrete.Hole(_)                                   ⇒ Abstract.Hole(sourceInfo(expr))
     case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), sourceInfo(expr))
@@ -54,17 +54,17 @@ object Abstractifier {
     (StringEscapes.unescape(withoutTilde), hasTildePrefix)
   }
 
-  private def abstractifyLiteral(token: Token, sourceInfo: SourceInfo): Abstract.Expr =
+  private def abstractifyLiteral(token: Token, sourceInfoOpt: Option[SourceInfo]): Abstract.Expr =
     token.tokenType match {
-      case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), Some(sourceInfo))
-      case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, Some(sourceInfo))
-      case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, Some(sourceInfo))
-      case TokenType.NULL           ⇒ Abstract.Literal(MashNull, Some(sourceInfo))
+      case TokenType.NUMBER_LITERAL ⇒ Abstract.Literal(MashNumber(token.text.toDouble), sourceInfoOpt)
+      case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, sourceInfoOpt)
+      case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, sourceInfoOpt)
+      case TokenType.NULL           ⇒ Abstract.Literal(MashNull, sourceInfoOpt)
       case TokenType.STRING_LITERAL ⇒
         val s = token.text
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
         val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
-        Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, Some(sourceInfo))
+        Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
       case _ ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
@@ -188,6 +188,6 @@ object Abstractifier {
       case _                             ⇒ throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
 
-  private def sourceInfo(node: Concrete.AstNode) = Some(SourceInfo(node))
+  private def sourceInfo(node: Concrete.AstNode) = Some(SourceInfo(source, node))
 
 }

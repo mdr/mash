@@ -82,8 +82,8 @@ object MemberCompleter {
     } yield memberExpr
 
   private def findMemberExpr(expr: Expr, token: Token): Option[MemberExpr] = expr.find {
-    case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(ConcreteSyntax.MemberExpr(_, _, `token`))))      ⇒ mexpr
-    case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(ConcreteSyntax.HeadlessMemberExpr(_, `token`)))) ⇒ mexpr
+    case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.MemberExpr(_, _, `token`))))      ⇒ mexpr
+    case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.HeadlessMemberExpr(_, `token`)))) ⇒ mexpr
   }
 
   private def getMembers(klass: MashClass): Seq[MemberInfo] = {

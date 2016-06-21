@@ -28,7 +28,7 @@ class DesugarHolesTest extends FlatSpec with Matchers {
     }
   }
 
-  private def parse(s: String): Expr = Abstractifier.abstractify(MashParser.parseExpr(s).get)
+  private def parse(s: String): Expr = new Abstractifier(s).abstractify(MashParser.parseExpr(s).get)
 
   private def removeSourceInfo(e: Expr): Expr = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 

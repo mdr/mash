@@ -4,6 +4,7 @@ import com.github.mdr.mash.inference.Type
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.evaluator.SourceLocation
 
 /**
  * Trees representing the abstract syntax of mash, losing much of the lexical information.
@@ -16,7 +17,7 @@ object AbstractSyntax {
 
     val sourceInfoOpt: Option[SourceInfo]
 
-    def locationOpt: Option[PointedRegion] = sourceInfoOpt.map(_.location)
+    def locationOpt: Option[SourceLocation] = sourceInfoOpt.map(_.location)
 
     def children: Seq[AstNode]
 
@@ -319,9 +320,9 @@ object AbstractSyntax {
 
 }
 
-case class SourceInfo(expr: ConcreteSyntax.AstNode) {
+case class SourceInfo(source: String, expr: ConcreteSyntax.AstNode) {
 
-  def location = expr.pointedRegion
+  def location = SourceLocation(source, expr.pointedRegion)
 
 }
 
