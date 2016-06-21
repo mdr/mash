@@ -219,6 +219,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " 'abc'.length " shouldEvaluateTo "3"
   " 'abc' | length " shouldEvaluateTo "3"
 
+  // flatMap
+  "[1, 2, 3].flatMap (n => [n * 10, n])" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
+  "flatMap (n => [n * 10, n]) [1, 2, 3]" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
+  
   // map
   "[1, 2, 3].map (_ * 2)" shouldEvaluateTo "[2, 4, 6]"
   "map --f=(_ * 2) --sequence=[1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"

@@ -67,6 +67,7 @@ object MashRoot {
     CountMatchesFunction,
     EachFunction,
     FindFunction,
+    FlatMapFunction,
     FirstFunction,
     GroupByFunction,
     IsEmptyFunction,

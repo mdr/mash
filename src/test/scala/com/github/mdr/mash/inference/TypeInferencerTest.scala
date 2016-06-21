@@ -69,6 +69,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "map (x => x x) [1, 2, 3]" shouldBeInferredAsHavingType Seq(Any)
   "map (_.toNumber) '123'" shouldBeInferredAsHavingType Seq(NumberType)
 
+  // flatMap
+  "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringType)
+  
   "42.toString" shouldBeInferredAsHavingType StringType
 
   "ls.first.children" shouldBeInferredAsHavingType Seq(Instance(PathSummaryClass))

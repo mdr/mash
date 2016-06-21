@@ -1,20 +1,17 @@
 package com.github.mdr.mash.ns.collections
 
+import scala.PartialFunction.condOpt
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.functions._
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.inference.TypeInferenceStrategy
+import com.github.mdr.mash.ns.collections.MapFunction.Params
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.inference.Inferencer
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashValue
 
 object MapFunction extends MashFunction("collections.map") {
@@ -73,20 +70,6 @@ Examples:
 
 object MapTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceExprOpt: Option[AnnotatedExpr]): Option[Type] = {
-    for {
-      AnnotatedExpr(functionExprOpt, functionTypeOpt) ← functionExprOpt
-      functionType ← functionTypeOpt
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
-      sequenceType ← sequenceTypeOpt
-      elementType ← condOpt(sequenceType) {
-        case Type.Seq(elementType)                                    ⇒ elementType
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
-      }
-      newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt)
-    } yield newElementType
-  }
-
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = MapFunction.params.bindTypes(arguments)
     import MapFunction.Params._
@@ -111,4 +94,17 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
     } yield newSequenceType
   }
 
+  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceExprOpt: Option[AnnotatedExpr]): Option[Type] = {
+    for {
+      AnnotatedExpr(functionExprOpt, functionTypeOpt) ← functionExprOpt
+      functionType ← functionTypeOpt
+      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
+      sequenceType ← sequenceTypeOpt
+      elementType ← condOpt(sequenceType) {
+        case Type.Seq(elementType)                                    ⇒ elementType
+        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+      }
+      newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt)
+    } yield newElementType
+  }
 }

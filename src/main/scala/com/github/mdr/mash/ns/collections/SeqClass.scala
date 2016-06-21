@@ -20,6 +20,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(ContainsFunction),
     methodise(CountMatchesFunction),
     methodise(EachFunction),
+    methodise(FlatMapFunction),
     methodise(FindFunction),
     methodise(FirstFunction),
     methodise(GroupByFunction),
