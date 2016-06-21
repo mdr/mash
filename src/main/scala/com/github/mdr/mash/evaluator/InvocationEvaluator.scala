@@ -5,6 +5,7 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
+import com.github.mdr.mash.functions.ArgumentException
 
 object InvocationEvaluator extends EvaluatorHelper {
 
@@ -72,6 +73,8 @@ object InvocationEvaluator extends EvaluatorHelper {
     try
       p
     catch {
+      case e: ArgumentException ⇒
+        throw new EvaluatorException(e.message, e.locationOpt)
       case e: EvaluatorException ⇒
         throw invocationLocationOpt.map(loc ⇒ e.copy(stack = loc :: e.stack)).getOrElse(e)
     }

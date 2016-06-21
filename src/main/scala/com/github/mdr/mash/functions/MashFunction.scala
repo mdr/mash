@@ -4,6 +4,9 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.SourceLocation
+
+case class ArgumentException(message: String, locationOpt: Option[SourceLocation]) extends RuntimeException(message)
 
 abstract class MashFunction(
     val nameOpt: Option[String],
@@ -11,6 +14,7 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
+  @throws[ArgumentException]
   def apply(arguments: Arguments): MashValue
 
   /**
