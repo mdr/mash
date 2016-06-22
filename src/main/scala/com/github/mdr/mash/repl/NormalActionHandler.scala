@@ -117,9 +117,10 @@ trait NormalActionHandler { self: Repl ⇒
   private def runCommand(cmd: String) {
     val workingDirectory = fileSystem.pwd
     val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
+    val unitName = s"command-${state.commandNumber}"
     val commandResult =
       try
-        commandRunner.run(cmd, state.mish, state.bareWords)
+        commandRunner.run(cmd, unitName, state.mish, state.bareWords)
       catch {
         case e: Exception ⇒
           e.printStackTrace()

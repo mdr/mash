@@ -80,12 +80,13 @@ class Repl(
   private def processMashRc() {
     val lines = getMashRcLines
     val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
-    for (line ← lines) {
+    for ((line, i) ← lines.zipWithIndex) {
+      val unitName = s"init.mash:$i"
       try
-        commandRunner.run(line, state.mish, state.bareWords)
+        commandRunner.run(line, unitName, state.mish, state.bareWords)
       catch {
         case e: Exception ⇒
-          output.println("Error executing: " + line)
+          output.println(s"Error executing init.mash at line ${i + 1}: $line")
           e.printStackTrace(output)
           DebugLogger.logException(e)
           return

@@ -321,11 +321,13 @@ object AbstractSyntax {
 
 }
 
-case class SourceInfo(source: String, expr: ConcreteSyntax.AstNode) {
+case class SourceInfo(provenance: Provenance, expr: ConcreteSyntax.AstNode) {
 
-  def location = SourceLocation(source, expr.pointedRegion)
+  def location = SourceLocation(provenance, expr.pointedRegion)
 
 }
+
+case class Provenance(name: String, source: String)
 
 sealed trait QuotationType
 object QuotationType {

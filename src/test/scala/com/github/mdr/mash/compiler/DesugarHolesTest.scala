@@ -5,6 +5,7 @@ import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.Abstractifier
+import com.github.mdr.mash.parser.Provenance
 
 class DesugarHolesTest extends FlatSpec with Matchers {
 
@@ -28,7 +29,7 @@ class DesugarHolesTest extends FlatSpec with Matchers {
     }
   }
 
-  private def parse(s: String): Expr = new Abstractifier(s).abstractify(MashParser.parseExpr(s).get)
+  private def parse(s: String): Expr = new Abstractifier(Provenance(s, "test")).abstractify(MashParser.parseExpr(s).get)
 
   private def removeSourceInfo(e: Expr): Expr = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 

@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
 import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.compiler.CompilationUnit
 
 class BindTypesTest extends FlatSpec with Matchers {
 
@@ -87,7 +88,7 @@ class BindTypesTest extends FlatSpec with Matchers {
       parameters.bindTypes(getArguments(s))
 
     private def getArguments(s: String): TypedArguments = {
-      val Some(expr) = Compiler.compile(s, StandardEnvironment.create.bindings)
+      val Some(expr) = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings)
       val Some(invocationExpr) = expr.find {
         case iexpr: InvocationExpr ⇒ iexpr
       }

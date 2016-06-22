@@ -36,7 +36,7 @@ object CloneFunction extends MashFunction("git.clone") {
     cmd.setURI(repository)
     cmd.setCloneAllBranches(true)
     cmd.setNoCheckout(false)
-    for (directory ← directoryOpt) 
+    for (directory ← directoryOpt)
       cmd.setDirectory(new File(directory))
     val repo = cmd.call()
     repo.close()

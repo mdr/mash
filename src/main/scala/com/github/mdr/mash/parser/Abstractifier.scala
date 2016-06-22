@@ -13,7 +13,7 @@ import com.github.mdr.mash.runtime.MashNumber
 /**
  * Convert from concrete to abstract syntax trees.
  */
-class Abstractifier(source: String) {
+class Abstractifier(provenance: Provenance) {
   import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete, AbstractSyntax ⇒ Abstract }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
@@ -188,6 +188,6 @@ class Abstractifier(source: String) {
       case _                             ⇒ throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
 
-  private def sourceInfo(node: Concrete.AstNode) = Some(SourceInfo(source, node))
+  private def sourceInfo(node: Concrete.AstNode) = Some(SourceInfo(provenance, node))
 
 }

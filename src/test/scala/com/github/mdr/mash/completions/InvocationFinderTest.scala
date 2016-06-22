@@ -6,6 +6,7 @@ import org.scalatest.Matchers
 import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.Environment
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.compiler.CompilationUnit
 
 class InvocationFinderTest extends FlatSpec with Matchers {
 
@@ -32,7 +33,7 @@ class InvocationFinderTest extends FlatSpec with Matchers {
   }
 
   private def invocationPos(s: String): Int = {
-    val Some(expr) = Compiler.compile(s, StandardEnvironment.create.bindings, forgiving = true)
+    val Some(expr) = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings, forgiving = true)
     val Some(literalToken) = expr.sourceInfoOpt.get.expr.tokens.find(_.isString)
     val Some(InvocationInfo(_, pos)) = InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
     pos

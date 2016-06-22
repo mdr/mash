@@ -7,6 +7,13 @@ import com.github.mdr.mash.parser.Abstractifier
 import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.parser.Provenance
+
+case class CompilationUnit(text: String, name: String = "N/A") {
+  
+  def provenance = Provenance(name = name, source = text)
+  
+}
 
 object Compiler {
 
@@ -20,14 +27,15 @@ object Compiler {
    */
   @throws[MashParserException]
   def compile(
-    s: String,
+    compilationUnit: CompilationUnit,
     bindings: Map[String, MashValue],
     forgiving: Boolean = true,
     inferTypes: Boolean = false,
     mish: Boolean = false,
     bareWords: Boolean = true): Option[Expr] =
-    MashParser.parse(s, forgiving = forgiving, mish = mish).map { concreteExpr ⇒
-      val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
+    MashParser.parse(compilationUnit.text, forgiving = forgiving, mish = mish).map { concreteExpr ⇒
+      val provenance = Provenance(compilationUnit.name, compilationUnit.text)
+      val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
       val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
       val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
       val withoutParens = ParenRemover.removeParens(withoutHoles)

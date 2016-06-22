@@ -6,6 +6,7 @@ import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.parser.Abstractifier
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import com.github.mdr.mash.parser.Provenance
 
 @RunWith(classOf[JUnitRunner])
 class DesugarPipesTest extends FlatSpec with Matchers {
@@ -29,7 +30,7 @@ class DesugarPipesTest extends FlatSpec with Matchers {
 
   private def parse(s: String): Expr = {
     val Some(concreteExpr) = MashParser.parse(s)
-    val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
+    val abstractExpr = new Abstractifier(Provenance(s, "test")).abstractify(concreteExpr)
     ParenRemover.removeParens(abstractExpr)
   }
 

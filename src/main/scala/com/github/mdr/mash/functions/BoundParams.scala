@@ -26,7 +26,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
   }
 
   private def mergeLocation(location1: SourceLocation, location2: SourceLocation): SourceLocation =
-    SourceLocation(location1.source, location1.pointedRegion merge location2.pointedRegion)
+    SourceLocation(location1.provenance, location1.pointedRegion merge location2.pointedRegion)
 
   private def locationOpt(param: Parameter): Option[SourceLocation] =
     argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))

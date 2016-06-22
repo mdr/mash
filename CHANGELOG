@@ -1,5 +1,6 @@
 v0.0.3 (..)
 -----------
+* Add provenance information to stack trace entries
 
 v0.0.2 (22/June/2016)
 ---------------------

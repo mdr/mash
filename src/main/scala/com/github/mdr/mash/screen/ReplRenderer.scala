@@ -21,6 +21,7 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.SuffixMishCommand
 import com.github.mdr.mash.repl.ObjectBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.parser.Provenance
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int = 0)
 
@@ -121,7 +122,8 @@ object ReplRenderer {
   private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
     MashParser.parse(s, forgiving = true, mish = mish).map { concreteExpr ⇒
-      val abstractExpr = new Abstractifier(s).abstractify(concreteExpr)
+      val provenance = Provenance("not required", s)
+      val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
       BareStringify.getBareTokens(abstractExpr, bindings)
     }.getOrElse(Set())
   }

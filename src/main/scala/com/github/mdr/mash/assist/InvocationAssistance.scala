@@ -1,7 +1,6 @@
 package com.github.mdr.mash.assist
 
 import scala.PartialFunction.condOpt
-
 import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.completions.ContiguousRegionFinder
 import com.github.mdr.mash.completions.InvocationFinder
@@ -15,6 +14,7 @@ import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.compiler.CompilationUnit
 
 object InvocationAssistance {
 
@@ -26,7 +26,7 @@ object InvocationAssistance {
       val region = ContiguousRegionFinder.getContiguousRegion(s, nearbyToken.region, mish = mish, liberal = true)
       val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
       val replaced = StringUtils.replace(s, region, replacement)
-      val exprOpt = Compiler.compile(replaced, bindings, forgiving = true, inferTypes = true, mish = mish)
+      val exprOpt = Compiler.compile(CompilationUnit(replaced), bindings, forgiving = true, inferTypes = true, mish = mish)
       def isNearbyStringToken(token: Token) = token.isString && isNearby(region.offset, token)
       for {
         expr ← exprOpt
@@ -41,7 +41,7 @@ object InvocationAssistance {
       val region = Region(pos, 0)
       val replacement = "\"" + region.of(s).filterNot('"' == _) + "\""
       val replaced = StringUtils.replace(s, region, replacement)
-      val exprOpt = Compiler.compile(replaced, bindings, forgiving = true, inferTypes = true, mish = mish)
+      val exprOpt = Compiler.compile(CompilationUnit(replaced), bindings, forgiving = true, inferTypes = true, mish = mish)
       def isNearbyStringToken(token: Token) = token.isString && isNearby(region.offset, token)
       for {
         expr ← exprOpt

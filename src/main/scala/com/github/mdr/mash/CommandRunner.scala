@@ -54,7 +54,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   /**
    * @return the (optional) result of the command
    */
-  def run(cmd: String, mish: Boolean = false, bareWords: Boolean): CommandResult =
+  def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean): CommandResult = {
     cmd match {
       case DebugCommand(keyword, args) ⇒
         runDebugCommand(keyword, args, bareWords)
@@ -62,26 +62,32 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       case MishCommand(prefix, mishCmd) ⇒
         if (mishCmd == "")
           CommandResult(toggleMish = true)
-        else
-          runCommand(mishCmd, mish = true, bareWords = bareWords)
+        else {
+          val unit = CompilationUnit(mishCmd, unitName)
+          runCommand(unit, mish = true, bareWords = bareWords)
+        }
       case SuffixMishCommand(mishCmd, suffix) ⇒
-        runCommand(mishCmd, mish = true, bareWords = bareWords)
+        val unit = CompilationUnit(mishCmd, unitName)
+        runCommand(unit, mish = true, bareWords = bareWords)
       case _ if mish ⇒
-        runCommand(cmd, mish = true, bareWords = bareWords)
+        val unit = CompilationUnit(cmd, unitName)
+        runCommand(unit, mish = true, bareWords = bareWords)
       case _ ⇒ // regular mash
-        runCommand(cmd, mish = false, bareWords = bareWords)
+        val unit = CompilationUnit(cmd, unitName)
+        runCommand(unit, mish = false, bareWords = bareWords)
     }
+  }
 
-  private def runCommand(cmd: String, bareWords: Boolean, mish: Boolean): CommandResult = {
-    safeCompile(cmd, bareWords = bareWords, mish = mish).map { expr ⇒
-      val result = runExpr(expr, cmd)
+  private def runCommand(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): CommandResult = {
+    safeCompile(unit, bareWords = bareWords, mish = mish).map { expr ⇒
+      val result = runExpr(expr, unit)
       val printer = new Printer(output, terminalInfo)
       val PrintResult(objectTableModelOpt) = printer.print(result)
       CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
     }.getOrElse(CommandResult())
   }
 
-  private def runExpr(expr: AbstractSyntax.Expr, cmd: String): MashValue =
+  private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
     try {
       val ctx = new ExecutionContext(Thread.currentThread)
       Singletons.environment = globalVariables.get("env") match {
@@ -93,7 +99,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables)))
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
-        printError("Error", msg, cmd, stack.reverse)
+        printError("Error", msg, unit, stack.reverse)
         DebugLogger.logException(e)
         MashUnit
       case _: EvaluationInterruptedException ⇒
@@ -101,27 +107,34 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
         MashUnit
     }
 
-  private def safeCompile(cmd: String, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
     try
-      Compiler.compile(cmd, Map() ++ globalVariables, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
+      Compiler.compile(unit, Map() ++ globalVariables, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
     catch {
       case MashParserException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Seq(SourceLocation(cmd, location)))
+        printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None
       case MashLexerException(msg, location) ⇒
-        printError("Syntax error", msg, cmd, Seq(SourceLocation(cmd, location)))
+        printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None
     }
 
-  private def printError(msgType: String, msg: String, cmd: String, stack: Seq[SourceLocation]) = {
+  private def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[SourceLocation]) = {
     output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
     if (stack.isEmpty)
-      output.println(Ansi.ansi().fg(Ansi.Color.RED).a(cmd).reset())
+      output.println(Ansi.ansi().fg(Ansi.Color.RED).a(unit.text).reset())
     else {
       for (entry ← stack) {
-        val SourceLocation(source, PointedRegion(point, region @ Region(offset, length))) = entry
-        output.println(Ansi.ansi().fg(Ansi.Color.RED).a(source).reset())
+        val SourceLocation(provenance, PointedRegion(point, region @ Region(offset, length))) = entry
+        if (unit.provenance == provenance) {
+          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(provenance.source).reset())
+        } else {
+          output.print(Ansi.ansi().bold.fg(Ansi.Color.RED).a(provenance.name).reset())
+          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(": " + provenance.source).reset())
+        }
         output.print(Ansi.ansi().fg(Ansi.Color.RED))
+        val padding = if (unit.provenance == provenance) "" else " " * (provenance.name.length + ": ".length)
+        output.print(padding)
         for (i ← 0 to region.posAfter)
           output.print(i match {
             case i if i == point         ⇒ "^"
@@ -136,13 +149,13 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   private def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
     (keyword, args) match {
       case ("p" | "pretty", actualCmd) ⇒
-        for (expr ← Compiler.compile(actualCmd, Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
           TreePrettyPrinter.printTree(expr)
       case ("e" | "expression", actualCmd) ⇒
-        for (expr ← Compiler.compile(actualCmd, Map() ++ globalVariables, forgiving = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, bareWords = bareWords))
           output.println(PrettyPrinter.pretty(expr))
       case ("t" | "type", actualCmd) ⇒
-        for (expr ← Compiler.compile(actualCmd, Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
           output.println(expr.typeOpt.getOrElse("Could not infer type"))
       case ("tokens", actualCmd) ⇒
         MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(output.println)
