@@ -31,7 +31,7 @@ import com.github.mdr.mash.tips.Tips
 
 object Repl {
 
-  val MashRcPath = Mash.MashDir.resolve("mashrc")
+  val InitPath = Mash.MashDir.resolve("init.mash")
 
 }
 
@@ -55,20 +55,20 @@ class Repl(
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
   def run() {
-    processMashRc()
+    processInitFile()
     if (state.showStartupTips)
       Tips.showTip(output, terminal.info)
     inputLoop()
   }
 
-  private def getMashRcLines: Seq[String] = {
+  private def getInitLines: Seq[String] = {
     Mash.ensureMashDirExists()
-    if (Files.exists(MashRcPath)) {
+    if (Files.exists(InitPath)) {
       try
-        FileUtils.readLines(MashRcPath.toFile, StandardCharsets.UTF_8).asScala
+        FileUtils.readLines(InitPath.toFile, StandardCharsets.UTF_8).asScala
       catch {
         case e: Exception ⇒
-          output.println("Error reading " + MashRcPath)
+          output.println("Error reading " + InitPath)
           e.printStackTrace(output)
           DebugLogger.logException(e)
           Seq()
@@ -77,8 +77,8 @@ class Repl(
       Seq()
   }
 
-  private def processMashRc() {
-    val lines = getMashRcLines
+  private def processInitFile() {
+    val lines = getInitLines
     val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
     for ((line, i) ← lines.zipWithIndex) {
       val unitName = s"init.mash:$i"
