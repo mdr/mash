@@ -59,75 +59,6 @@ object PathClass extends MashClass("os.Path") {
     PathClassTypeMethod,
     MashClass.alias("rm", PathClassDeleteMethod))
 
-  object PathClassFollowLinkMethod extends MashMethod("followLink") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
-      val resolved = Files.readSymbolicLink(path)
-      MashString(resolved.toString, PathClass)
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
-
-    override def summary = "Follow this symbolic link"
-
-  }
-
-  object PathClassCdMethod extends MashMethod("cd") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
-      CdFunction.changeDirectory(path)
-      MashUnit
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
-
-    override def summary = "Change directory to this path"
-
-  }
-
-  object PathClassExtensionMethod extends MashMethod("extension") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
-      val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
-      if (name contains ".")
-        MashString(name.reverse.takeWhile(_ != '.').reverse)
-      else
-        MashNull
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
-
-    override def summary = "File extension, if any, else null"
-
-  }
-
-  object PathClassBaseNameMethod extends MashMethod("baseName") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
-      MashString(FilenameUtils.getBaseName(name))
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
-
-    override def summary = "Name without extension"
-
-  }
-
   object PathClassReadLinesMethod extends MashMethod("readLines") {
 
     val params = ParameterModel()
@@ -210,35 +141,6 @@ The default character encoding and line separator are used.""")
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
     override def summary = "The parent of this path"
-  }
-
-  object PathClassChildrenMethod extends MashMethod("children") {
-
-    private val fileSystem = LinuxFileSystem
-
-    val params = ParameterModel(ChildrenFunction.params.params.tail)
-
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
-      val ignoreDotFiles = boundParams(ChildrenFunction.Params.IgnoreDotFiles).isTruthy
-      val recursive = boundParams(ChildrenFunction.Params.Recursive).isTruthy
-      val parentDir = FunctionHelpers.interpretAsPath(target)
-      if (!fileSystem.exists(parentDir))
-        throw new EvaluatorException(s"'$parentDir' does not exist")
-      if (!fileSystem.isDirectory(parentDir))
-        throw new EvaluatorException(s"'$parentDir' is not a directory")
-      MashList(ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive))
-    }
-
-    override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {
-      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
-        val newArguments = SimpleTypedArguments(arguments.arguments :+ TypedArgument.PositionArg(AnnotatedExpr(None, targetTypeOpt)))
-        ChildrenFunction.typeInferenceStrategy.inferTypes(inferencer, newArguments)
-      }
-    }
-
-    override def summary = "The children of this path"
-
   }
 
   object PathClassCopyIntoMethod extends MashMethod("copyInto") {
