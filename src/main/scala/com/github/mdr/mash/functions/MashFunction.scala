@@ -6,7 +6,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.evaluator.SourceLocation
 
-case class ArgumentException(message: String, locationOpt: Option[SourceLocation]) extends RuntimeException(message)
+case class ArgumentException(message: String, locationOpt: Option[SourceLocation] = None) extends RuntimeException(message)
 
 abstract class MashFunction(
     val nameOpt: Option[String],

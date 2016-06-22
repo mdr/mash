@@ -74,7 +74,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       p
     catch {
       case e: ArgumentException ⇒
-        throw new EvaluatorException(e.message, e.locationOpt)
+        throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
         throw invocationLocationOpt.map(loc ⇒ e.copy(stack = loc :: e.stack)).getOrElse(e)
     }

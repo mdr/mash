@@ -54,7 +54,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           if (!ignoreAdditionalParameters) {
             val firstExcessArgument = arguments.positionArgs.drop(maxPositionArgs).head
             val locationOpt = firstExcessArgument.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
-            throw new EvaluatorException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
+            throw new ArgumentException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
           }
       }
 
@@ -85,7 +85,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param.name)
-          throw new EvaluatorException(s"Argument '${param.name}' is provided multiple times", errorLocationOpt)
+          throw new ArgumentException(s"Argument '${param.name}' is provided multiple times", errorLocationOpt)
         else {
           boundParams += param.name -> value
           for (argNode ← argNodeOpt)
@@ -93,7 +93,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         }
       case None ⇒
         if (!ignoreAdditionalParameters)
-          throw new EvaluatorException(s"Unexpected named argument '$paramName'", errorLocationOpt)
+          throw new ArgumentException(s"Unexpected named argument '$paramName'", errorLocationOpt)
     }
   }
 
@@ -105,11 +105,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case None ⇒
           if (param.isVariadic)
             if (param.variadicAtLeastOne)
-              throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
+              throw new ArgumentException(s"Missing mandatory argument '${param.name}'")
             else
               boundParams += param.name -> MashList.empty
           else
-            throw new EvaluatorException(s"Missing mandatory argument '${param.name}'")
+            throw new ArgumentException(s"Missing mandatory argument '${param.name}'")
       }
 
 }
