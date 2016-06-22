@@ -10,7 +10,7 @@ import com.github.mdr.mash.functions.ArgumentException
 object InvocationEvaluator extends EvaluatorHelper {
 
   def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext) = {
-    val InvocationExpr(functionExpr, arguments, _) = invocationExpr
+    val InvocationExpr(functionExpr, arguments, _, _) = invocationExpr
     val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
     functionExpr match {
       case memberExpr: MemberExpr ⇒

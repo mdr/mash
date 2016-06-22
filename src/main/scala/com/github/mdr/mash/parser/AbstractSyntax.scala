@@ -53,9 +53,9 @@ object AbstractSyntax {
             MemberExpr(expr.transform(f), name, isNullSafe, sourceInfoOpt)
           case LookupExpr(expr, index, sourceInfoOpt) ⇒
             LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
-          case InvocationExpr(function, arguments, sourceInfoOpt) ⇒
+          case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt) ⇒
             val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
-            InvocationExpr(function.transform(f), newArguments, sourceInfoOpt)
+            InvocationExpr(function.transform(f), newArguments, isParenInvocation, sourceInfoOpt)
           case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
             BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
           case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
@@ -235,6 +235,7 @@ object AbstractSyntax {
   case class InvocationExpr(
       function: Expr,
       arguments: Seq[Argument],
+      isParenInvocation: Boolean,
       sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)

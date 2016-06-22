@@ -68,13 +68,13 @@ class BareStringificationContext {
       MemberExpr(bareStringify(expr, bindings), name, isNullSafe, sourceInfoOpt)
     case LookupExpr(expr, index, sourceInfoOpt) ⇒
       LookupExpr(bareStringify(expr, bindings), bareStringify(index, bindings), sourceInfoOpt)
-    case InvocationExpr(function, arguments, sourceInfoOpt) ⇒
+    case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt) ⇒
       val newArguments = arguments.map {
         case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ Argument.PositionArg(bareStringify(expr, bindings), sourceInfoOpt)
         case arg @ Argument.ShortFlag(_, sourceInfoOpt)       ⇒ arg
         case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ Argument.LongFlag(flag, valueOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
       }
-      InvocationExpr(bareStringify(function, bindings), newArguments, sourceInfoOpt)
+      InvocationExpr(bareStringify(function, bindings), newArguments, isParenInvocation, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
       val extraGlobals = left.findAll {
         case AssignmentExpr(left @ Identifier(name, _), _, _, _) ⇒ name

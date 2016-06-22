@@ -143,7 +143,7 @@ class Abstractifier(source: String) {
         case None ⇒
           Seq()
       }).map(arg ⇒ Argument.PositionArg(arg, arg.sourceInfoOpt))
-    Abstract.InvocationExpr(abstractify(function), args, sourceInfo(invocationExpr))
+    Abstract.InvocationExpr(abstractify(function), args, isParenInvocation = true, sourceInfo(invocationExpr))
   }
 
   private def abstractifyInvocation(invocationExpr: Concrete.InvocationExpr): Abstract.InvocationExpr = {
@@ -160,7 +160,7 @@ class Abstractifier(source: String) {
       case x ⇒
         throw new RuntimeException("Unexpected argument: " + x)
     }
-    Abstract.InvocationExpr(abstractify(function), abstractArgs, sourceInfo(invocationExpr))
+    Abstract.InvocationExpr(abstractify(function), abstractArgs, isParenInvocation = false, sourceInfo(invocationExpr))
   }
 
   private def abstractifyChainedComparision(chainedExpr: Concrete.ChainedOpExpr): Abstract.Expr = {

@@ -486,4 +486,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Block expressions
   "{ a = 0; a = a + 1; a }" shouldEvaluateTo "1"
 
+  // Holes in paren invocation args
+  "[{foo: 42}].map(_.foo)" shouldEvaluateTo "[42]"
+  
 }

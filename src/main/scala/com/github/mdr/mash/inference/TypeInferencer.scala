@@ -199,7 +199,7 @@ class TypeInferencer {
   }
 
   private def inferTypeInvocationExpr(invocationExpr: InvocationExpr, bindings: Map[String, Type]): Option[Type] = {
-    val InvocationExpr(f, args, _) = invocationExpr
+    val InvocationExpr(f, args, _, _) = invocationExpr
 
     args.foreach(inferTypeArg(_, bindings))
     val typedArgs = SimpleTypedArguments.from(invocationExpr)

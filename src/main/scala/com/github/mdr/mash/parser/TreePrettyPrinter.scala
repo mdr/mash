@@ -47,7 +47,7 @@ object TreePrettyPrinter {
         println("LookupExpr" + typeDescription)
         printTree(expr, depth + 1)
         printTree(index, depth + 2)
-      case InvocationExpr(function, args, _) ⇒
+      case InvocationExpr(function, args, _, _) ⇒
         println("InvocationExpr" + typeDescription)
         printTree(function, depth + 1)
         for (arg ← args)

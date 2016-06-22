@@ -207,6 +207,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "()" shouldBeInferredAsHavingType (UnitClass)
 
+  "[{foo: 42}].map(_.foo)" shouldBeInferredAsHavingType Seq(NumberClass)
+  
+  
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

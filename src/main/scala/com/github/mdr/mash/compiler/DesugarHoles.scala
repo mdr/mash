@@ -17,8 +17,19 @@ object DesugarHoles {
       newExpr
   }
 
+  private def addLambdaIfNeeded(argument: Argument.PositionArg): Argument.PositionArg = {
+    val Result(newArgument, hasHole) = desugarHoles_(argument)
+    if (hasHole)
+      Argument.PositionArg(LambdaExpr(VariableName, newArgument.expr, None), newArgument.sourceInfoOpt)
+    else
+      newArgument
+  }
+
+  private def desugarHoles_(argument: Argument.PositionArg): Result[Argument.PositionArg] =
+    desugarHoles_(argument.expr).map(Argument.PositionArg(_, argument.sourceInfoOpt))
+
   private def desugarHoles_(argument: Argument): Result[Argument] = argument match {
-    case Argument.PositionArg(expr, sourceInfoOpt)          ⇒ desugarHoles_(expr).map(Argument.PositionArg(_, sourceInfoOpt))
+    case posArg @ Argument.PositionArg(_, _)                ⇒ desugarHoles_(posArg)
     case Argument.ShortFlag(_, sourceInfoOpt)               ⇒ Result(argument)
     case Argument.LongFlag(flag, None, sourceInfoOpt)       ⇒ Result(Argument.LongFlag(flag, None, sourceInfoOpt))
     case Argument.LongFlag(flag, Some(expr), sourceInfoOpt) ⇒ desugarHoles_(expr).map(e ⇒ Argument.LongFlag(flag, Some(e), sourceInfoOpt))
@@ -58,11 +69,17 @@ object DesugarHoles {
         newExpr ← desugarHoles_(expr)
         newIndex ← desugarHoles_(index)
       } yield LookupExpr(newExpr, newIndex, sourceInfoOpt)
-    case InvocationExpr(function, args, sourceInfoOpt) ⇒
-      for {
-        newFunction ← desugarHoles_(function)
-        newArgs ← sequence(args.map(desugarHoles_))
-      } yield InvocationExpr(newFunction, newArgs, sourceInfoOpt)
+    case InvocationExpr(function, args, isParenInvocation, sourceInfoOpt) ⇒
+      if (isParenInvocation)
+        for {
+          newFunction ← desugarHoles_(function)
+          newArgs = args.collect { case arg: Argument.PositionArg ⇒ arg }.map(addLambdaIfNeeded)
+        } yield InvocationExpr(newFunction, newArgs, isParenInvocation, sourceInfoOpt)
+      else
+        for {
+          newFunction ← desugarHoles_(function)
+          newArgs ← sequence(args.map(desugarHoles_))
+        } yield InvocationExpr(newFunction, newArgs, isParenInvocation, sourceInfoOpt)
     case ListExpr(items, sourceInfoOpt) ⇒
       for (newItems ← sequence(items.map(desugarHoles_)))
         yield ListExpr(newItems, sourceInfoOpt)

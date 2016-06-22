@@ -48,7 +48,7 @@ object PrettyPrinter {
           case (op, right) ⇒
             " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
         }.mkString
-    case InvocationExpr(function, args, _) ⇒
+    case InvocationExpr(function, args, _, _) ⇒
       parens(pretty(function), simpleOmitParens(function)) + " " + args.map(arg ⇒
         arg match {
           case Argument.PositionArg(e, _) ⇒

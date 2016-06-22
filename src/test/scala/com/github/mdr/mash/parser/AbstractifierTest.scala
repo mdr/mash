@@ -34,6 +34,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
       InvocationExpr(
         Identifier("ls", Some(SourceInfo(s, function))),
         Seq(Argument.PositionArg(Identifier("pwd", Some(SourceInfo(s, arg))), Some(SourceInfo(s, arg)))),
+        isParenInvocation = false,
         sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
@@ -49,6 +50,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
       InvocationExpr(
         Identifier("foo", Some(SourceInfo(s, function))),
         Seq(Argument.LongFlag("bar", Some(Identifier("baz", Some(SourceInfo(s, arg)))), Some(SourceInfo(s, longArg)))),
+        isParenInvocation = false,
         sourceInfoOpt = Some(SourceInfo(s, concreteExpr))))
   }
 
