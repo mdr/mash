@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" % "ammonite-repl" % "0.6.2" % Test cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
-  "org.fusesource.jansi" % "jansi" % "1.12",
+  "org.fusesource.jansi" % "jansi" % "1.13",
   "commons-io" % "commons-io" % "2.5",
   "org.apache.commons" % "commons-lang3" % "3.4",
   "com.github.jnr" % "jnr-posix" % "3.0.29",
@@ -27,8 +27,8 @@ libraryDependencies ++= Seq(
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
   "jline" % "jline" % "2.14.2",
   "com.ibm.icu" % "icu4j" % "57.1",
-  "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta2",
-  "com.google.code.gson" % "gson" % "2.6.2",
+  "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta3",
+  "com.google.code.gson" % "gson" % "2.7",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.0.201605250940-rc1",
   "org.slf4j" % "slf4j-nop" % "1.7.21" /* suppress logging from jgit */,
