@@ -157,16 +157,25 @@ object StringClass extends MashClass("core.String") {
       val _Pattern = Parameter(
         name = "pattern",
         summary = "Regular expression pattern")
+      val IgnoreCase = Parameter(
+        name = "ignoreCase",
+        summary = "Perform a case-insensitive match",
+        shortFlagOpt = Some('i'),
+        isFlag = true,
+        defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+        isBooleanFlag = true)
     }
     import Params._
 
-    val params = ParameterModel(Seq(_Pattern))
+    val params = ParameterModel(Seq(_Pattern, IgnoreCase))
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString].s
       val pattern = boundParams(_Pattern).asInstanceOf[MashString].s
-      MashBoolean(Pattern.compile(pattern).matcher(s).find)
+      val ignoreCase = boundParams(IgnoreCase).isTruthy
+      val flags = if (ignoreCase) Pattern.CASE_INSENSITIVE else 0
+      MashBoolean(Pattern.compile(pattern, flags).matcher(s).find)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
