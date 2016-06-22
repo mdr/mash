@@ -51,7 +51,7 @@ fields and methods. Why might using objects be preferable to text?
   identifiers, and can be easily introspected to provide additional user documentation.
 * Existing shells don't provide any interactive assistance for extracting information out of
   the output of commands. Mash is able provide completions and other assistance on result
-  objects. With type inference, this can happen even before execution.
+  objects. With type inference, completions are available before execution.
 
 ## Why not just port Powershell?
 
@@ -87,7 +87,7 @@ The plan is to integrate in two ways:
 1. Develop Mash wrappers for the most widely-used tools and utilities. For example, working
   with filesystems, processes, users/groups, and common applications (e.g. Git etc). While
   it would be infeasible to wrap every tool that exists, it should be possible to cover the
-  majority of day-to-day tasks. Open source contributions would be vital here.
+  majority of day-to-day tasks. Contributions would be vital here.
 2. Mash has a subsyntax for more traditional shell-like command execution called
   *Mish*. Mash expressions can embed Mish fragments, and vice versa. In this way, existing
   command-line programs that aren't yet wrapped can be executed as in existing shells.

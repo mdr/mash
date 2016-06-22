@@ -8,7 +8,7 @@ permalink: /installation/
 
 Prerequisites: Java 8
 
-Download: [mash-assembly.jar](https://github.com/mdr/mash/releases/download/v0.0.1/mash-assembly-0.0.1.jar)
+Download: [mash-assembly.jar](https://github.com/mdr/mash/releases/download/v0.0.2/mash-assembly-0.0.2.jar)
 
 Run:
 
