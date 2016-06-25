@@ -107,6 +107,11 @@ object AbstractSyntax {
 
     var typeOpt: Option[Type] = None
 
+    /**
+     * The type it had before it was invoked as a nullary function/method
+     */
+    var preInvocationTypeOpt: Option[Type] = None
+
     var typeBindings: Map[String, Type] = Map()
 
     override def toString: String = PrettyPrinter.pretty(this)

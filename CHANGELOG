@@ -5,6 +5,7 @@ v0.0.3 (..)
 * Object addition: { foo: 42 } + { bar: 100 }
 * Object field subtraction: { foo: 42 } - "foo"
 * Fix bugs in os.up and git.clone
+* Improve Ctrl-Space invocation assistance
 
 v0.0.2 (22/June/2016)
 ---------------------

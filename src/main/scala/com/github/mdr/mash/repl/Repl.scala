@@ -162,7 +162,7 @@ class Repl(
   protected def updateInvocationAssistance() {
     val text = state.lineBuffer.text
     val pos = state.lineBuffer.cursorPos
-    state.assistanceStateOpt =
+    val newAssistanceStateOpt =
       text match {
         case MishCommand(prefix, mishCmd) ⇒
           val newPos = pos - prefix.length // adjust for the prefix
@@ -173,6 +173,7 @@ class Repl(
         case _ ⇒
           InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getBindings, mish = state.mish)
       }
+    state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt
   }
 
   /**

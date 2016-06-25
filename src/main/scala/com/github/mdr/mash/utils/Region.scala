@@ -22,6 +22,8 @@ case class Region(offset: Int, length: Int) {
 
   def replace(s: String, replacement: String) = StringUtils.replace(s, this, replacement)
 
+  def grow(n: Int) = Region(offset, length + 1)
+  
   def overlaps(that: Region): Boolean =
     if (this.length == 0) that.contains(this.offset)
     else if (that.length == 0) this.contains(that.offset)

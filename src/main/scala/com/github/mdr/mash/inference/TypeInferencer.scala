@@ -120,9 +120,11 @@ class TypeInferencer {
   private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val Identifier(s, _) = identifier
     bindings.get(s).flatMap {
-      case Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
+      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
+        identifier.preInvocationTypeOpt = Some(typ)
         f.typeInferenceStrategy.inferTypes(InferencerImpl(this, bindings), SimpleTypedArguments(Seq()))
-      case x ⇒ Some(x)
+      case x ⇒
+        Some(x)
     }
   }
 
@@ -140,7 +142,7 @@ class TypeInferencer {
     val MemberExpr(target, name, _, _) = memberExpr
     for {
       targetType ← inferType(target, bindings)
-      memberType ← memberLookup(targetType, name, immediateExec = immediateExec)
+      memberType ← memberLookup(targetType, name, immediateExec = immediateExec, Some(memberExpr))
     } yield memberType
   }
 
@@ -296,11 +298,11 @@ class TypeInferencer {
       klass.getMethod(name).map { method ⇒ Type.BoundMethod(typ, method) } orElse
       klass.parentOpt.flatMap(superClass ⇒ memberLookup(typ, superClass, name))
 
-  def memberLookup(typ: Type, name: String, immediateExec: Boolean): Option[Type] = {
+  def memberLookup(typ: Type, name: String, immediateExec: Boolean, memberExprOpt: Option[MemberExpr] = None): Option[Type] = {
     val intermediate = typ match {
       case Type.Instance(klass)             ⇒ memberLookup(typ, klass, name)
       case Type.Tagged(baseClass, tagClass) ⇒ memberLookup(typ, baseClass, name) orElse memberLookup(typ, tagClass, name)
-      case Type.Seq(elementType)            ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec).map(Type.Seq)
+      case Type.Seq(elementType)            ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
       case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
       case Type.DefinedFunction(_)          ⇒ memberLookup(typ, FunctionClass, name)
       case Type.BoundMethod(_, _)           ⇒ memberLookup(typ, BoundMethodClass, name)
@@ -316,8 +318,10 @@ class TypeInferencer {
     if (immediateExec)
       intermediate match {
         case Some(Type.BoundMethod(typ, method)) if method.allowsNullary ⇒
+          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
           method.typeInferenceStrategy.inferTypes(InferencerImpl(this, Map()), Some(typ), SimpleTypedArguments(Seq()))
         case Some(Type.DefinedFunction(f)) if f.allowsNullary ⇒
+          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
           val arguments = SimpleTypedArguments(Seq())
           f.typeInferenceStrategy.inferTypes(InferencerImpl(this, Map()), arguments)
         case x ⇒

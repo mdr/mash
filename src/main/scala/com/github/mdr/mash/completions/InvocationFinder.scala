@@ -1,10 +1,15 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.parser.ConcreteSyntax
-import com.github.mdr.mash.parser.AbstractSyntax._
+import scala.PartialFunction.cond
+import scala.PartialFunction.condOpt
 import com.github.mdr.mash.lexer.Token
-import scala.PartialFunction.{ cond, condOpt }
+import com.github.mdr.mash.parser.AbstractSyntax.Expr
+import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
+import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.parser.SourceInfo
+import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.inference.Type
 
 /**
  * @param argPos -- index into the invocationExpr's argument list
@@ -55,6 +60,7 @@ object InvocationFinder {
       case ConcreteSyntax.ParenInvocationExpr(_, _, Some(ConcreteSyntax.ParenInvocationArgs(firstArg, otherArgs)), _) ⇒
         firstArg +: otherArgs.map(_._2)
     }
+
   }
 
 }

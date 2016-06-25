@@ -126,9 +126,9 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
     else {
       for (entry ← stack) {
         val SourceLocation(provenance, PointedRegion(point, region @ Region(offset, length))) = entry
-        if (unit.provenance == provenance) {
+        if (unit.provenance == provenance)
           output.println(Ansi.ansi().fg(Ansi.Color.RED).a(provenance.source).reset())
-        } else {
+        else {
           output.print(Ansi.ansi().bold.fg(Ansi.Color.RED).a(provenance.name).reset())
           output.println(Ansi.ansi().fg(Ansi.Color.RED).a(": " + provenance.source).reset())
         }
