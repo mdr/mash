@@ -52,21 +52,29 @@ object InvocationEvaluator extends EvaluatorHelper {
     }
 
   private def callStringAsFunction(s: String, arguments: Arguments, functionLocationOpt: Option[SourceLocation], invocationLocationOpt: Option[SourceLocation]): MashValue =
-    arguments.positionArgs match {
-      case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
-        xs.map { target ⇒
-          val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-          addInvocationToStackOnException(invocationLocationOpt) {
-            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
-          }
+    (arguments.evaluatedArguments.collectFirst {
+      case EvaluatedArgument.LongFlag(_, _, argumentNodeOpt) ⇒ argumentNodeOpt.flatMap(_.locationOpt)
+      case EvaluatedArgument.ShortFlag(_, argumentNodeOpt)   ⇒ argumentNodeOpt.flatMap(_.locationOpt)
+    }) match {
+      case Some(locationOpt) ⇒
+        throw new EvaluatorException(s"Cannot call a String with flag arguments", locationOpt)
+      case None ⇒
+        arguments.positionArgs match {
+          case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
+            xs.map { target ⇒
+              val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+              addInvocationToStackOnException(invocationLocationOpt) {
+                Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
+              }
+            }
+          case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
+            val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+            addInvocationToStackOnException(invocationLocationOpt) {
+              Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
+            }
+          case Seq(_, second, _*) ⇒
+              throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
         }
-      case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
-        val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-        addInvocationToStackOnException(invocationLocationOpt) {
-          Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
-        }
-      case _ ⇒
-        throw new EvaluatorException(s"Cannot call a String on multiple arguments", invocationLocationOpt)
     }
 
   def addInvocationToStackOnException[T <: MashValue](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =

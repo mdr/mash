@@ -6,15 +6,23 @@ import com.github.mdr.mash.runtime.MashValue
 sealed trait EvaluatedArgument {
 
   def argumentNodeOpt: Option[Argument]
+  
+  def isPositionArg: Boolean
 
 }
 
 object EvaluatedArgument {
 
-  case class PositionArg(value: MashValue, argumentNodeOpt: Option[Argument]) extends EvaluatedArgument
+  case class PositionArg(value: MashValue, argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+    def isPositionArg = true
+  }
 
-  case class LongFlag(flag: String, valueOpt: Option[MashValue], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument
+  case class LongFlag(flag: String, valueOpt: Option[MashValue], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+    def isPositionArg = false
+  }
 
-  case class ShortFlag(flags: Seq[String], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument
+  case class ShortFlag(flags: Seq[String], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+    def isPositionArg = false
+  }
 
 }
