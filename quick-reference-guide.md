@@ -156,9 +156,9 @@ Hit tab once to complete methods, functions, files, arguments, etc. The list of 
 completions is displayed. If you hit tab again immediately, you enter completion browsing
 mode, which will display additional information about the options.
 
-### mashrc
+### `init.mash`
 
-Mash executes commands from `~/.mash/mashrc` on startup, and can be used to add aliases and
+Mash executes commands from `~/.mash/init.mash` on startup and can be used to add aliases and
 set configuration options.
 
 ### Configuration options
