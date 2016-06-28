@@ -3,15 +3,18 @@ package com.github.mdr.mash.ns.git
 import java.io.File
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.transport.URIish
 
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type.unitToType
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashString
 
 object CloneFunction extends MashFunction("git.clone") {
 
@@ -28,22 +31,25 @@ object CloneFunction extends MashFunction("git.clone") {
 
   val params = ParameterModel(Seq(Repository, Directory))
 
-  def apply(arguments: Arguments): MashUnit = {
+  def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
     val repository = boundParams.validateString(Repository).s
-    val directoryOpt = boundParams.validateStringOpt(Directory).map(_.s)
+    val directory = boundParams.validateStringOpt(Directory).map(_.s).getOrElse(new URIish(repository).getHumanishName)
     val cmd = Git.cloneRepository
     cmd.setURI(repository)
     cmd.setCloneAllBranches(true)
     cmd.setNoCheckout(false)
-    for (directory ← directoryOpt)
-      cmd.setDirectory(new File(directory))
-    val repo = cmd.call()
-    repo.close()
-    MashUnit
+    cmd.setDirectory(new File(directory))
+    val git = cmd.call()
+    val path =
+      try
+        git.getRepository.getWorkTree
+      finally
+        git.close()
+    FunctionHelpers.asPathString(path)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
 
   override def summary = "Clone a repository into a new directory."
 

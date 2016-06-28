@@ -2,13 +2,12 @@ package com.github.mdr.mash.functions
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import scala.PartialFunction._
-
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.runtime._
+import java.io.File
 
 object FunctionHelpers {
 
@@ -32,6 +31,8 @@ object FunctionHelpers {
   def asPathString(p: Path) = MashString(p.toString, PathClass)
 
   def asPathString(s: String) = MashString(s, PathClass)
+
+  def asPathString(f: File) = MashString(f.toString, PathClass)
 
   def interpretAsFunction(f: MashValue): (MashValue ⇒ MashValue) = o ⇒ {
     val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))

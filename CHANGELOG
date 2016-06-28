@@ -4,6 +4,7 @@ v0.0.3 (..)
 * Separate Object from Any
 * Object addition: { foo: 42 } + { bar: 100 }
 * Object field subtraction: { foo: 42 } - "foo"
+* Fix bugs in os.up and git.clone
 
 v0.0.2 (22/June/2016)
 ---------------------
