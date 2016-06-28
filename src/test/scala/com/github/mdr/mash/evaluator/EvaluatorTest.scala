@@ -222,7 +222,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // flatMap
   "[1, 2, 3].flatMap (n => [n * 10, n])" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
   "flatMap (n => [n * 10, n]) [1, 2, 3]" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
-  
+
   // map
   "[1, 2, 3].map (_ * 2)" shouldEvaluateTo "[2, 4, 6]"
   "map --f=(_ * 2) --sequence=[1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
@@ -455,7 +455,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
   "'x' * 1" shouldEvaluateTo "'x'"
   "'x' * 0" shouldEvaluateTo "''"
-  
+
   "[1, 2] * 3" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
   "3 * [1, 2]" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
   "[1] * 1" shouldEvaluateTo "[1]"
@@ -488,9 +488,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Holes in paren invocation args
   "[{foo: 42}].map(_.foo)" shouldEvaluateTo "[42]"
-  
+
   // .fields
-  "{ foo: 42 }.fields.name" shouldEvaluateTo "['foo']" 
-  "42.fields" shouldThrowAnException 
-  
+  "{ foo: 42 }.fields.name" shouldEvaluateTo "['foo']"
+  "42.fields" shouldThrowAnException
+
+  // object addition
+  "{ foo: 42 } + { bar: 100 }" shouldEvaluateTo "{ foo: 42, bar: 100 }"
+  "{ foo: 42 } + { }" shouldEvaluateTo "{ foo: 42 }"
+  "{ foo: 42 } + { foo: 100 }" shouldEvaluateTo "{ foo: 100 }"
+
 }

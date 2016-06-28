@@ -11,6 +11,7 @@ import java.time.Duration
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.parser.AbstractSyntax._
+import scala.collection.mutable.LinkedHashMap
 
 object BinaryOperatorEvaluator extends EvaluatorHelper {
 
@@ -79,11 +80,17 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (s: MashString, right)                ⇒ s + right
     case (left, s: MashString)                 ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber) ⇒ left + right
+    case (left: MashObject, right: MashObject) ⇒ combineObjects(left, right)
     case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+  }
+
+  private def combineObjects(left: MashObject, right: MashObject): MashObject = {
+    val fields = LinkedHashMap((left.fields ++ right.fields).toSeq: _*)
+    MashObject(fields, classOpt = None)
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue = (left, right) match {

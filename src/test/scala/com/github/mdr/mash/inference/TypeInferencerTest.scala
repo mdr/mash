@@ -50,6 +50,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   " 'foo'.untagged + 'bar'.untagged" shouldBeInferredAsHavingType StringType
   "42 + 24" shouldBeInferredAsHavingType NumberType
   "[1] + [2]" shouldBeInferredAsHavingType Seq(NumberType)
+  "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType, "bar" -> NumberType))
 
   // Multiplication
   "2 * 2" shouldBeInferredAsHavingType NumberType
@@ -58,7 +59,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   """ "foo" * 2 """ shouldBeInferredAsHavingType TaggedStringType
   "[1, 2] * 3" shouldBeInferredAsHavingType Seq(NumberType)
   "3 * [1, 2]" shouldBeInferredAsHavingType Seq(NumberType)
-  
+
   // Map
   "[true].map 'not' " shouldBeInferredAsHavingType Seq(BooleanType)
   "['f', 'g'].map ('foo'.startsWith)" shouldBeInferredAsHavingType Seq(BooleanType)
@@ -72,7 +73,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // flatMap
   "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringType)
-  
+
   "42.toString" shouldBeInferredAsHavingType StringType
 
   "ls.first.children" shouldBeInferredAsHavingType Seq(Instance(PathSummaryClass))
@@ -209,8 +210,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "()" shouldBeInferredAsHavingType (UnitClass)
 
   "[{foo: 42}].map(_.foo)" shouldBeInferredAsHavingType Seq(NumberClass)
-  
-  
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

@@ -50,15 +50,15 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
 
   private def handle(inputType: Type, fieldsAndTypes: Seq[(String, Option[Type])], inferencer: Inferencer, add: Boolean): Type = {
     def newType(typ: Type) = {
-      val baseFields: ListMap[String, Type] =
+      val baseFields: Map[String, Type] =
         if (add)
           inputType match {
             case Type.Object(fields)  ⇒ fields
-            case Type.Instance(klass) ⇒ ListMap(klass.fieldsMap.mapValues(_.fieldType).toSeq: _*)
-            case _                    ⇒ ListMap()
+            case Type.Instance(klass) ⇒ Map(klass.fieldsMap.mapValues(_.fieldType).toSeq: _*)
+            case _                    ⇒ Map()
           }
         else
-          ListMap()
+          Map()
       val fieldPairs =
         for {
           (field, fieldTypeOpt) ← fieldsAndTypes

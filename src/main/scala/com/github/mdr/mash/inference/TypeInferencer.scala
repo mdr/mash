@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.ns.os.ProcessResultClass
 import com.github.mdr.mash.runtime.MashValue
+import scala.collection.immutable.ListMap
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
@@ -156,25 +157,41 @@ class TypeInferencer {
     inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt)
   }
 
+  private def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
+    (leftTypeOpt, rightTypeOpt) match {
+      case (Some(Type.Seq(elementType)), Some(Type.Seq(_)))                    ⇒ leftTypeOpt
+      case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass)), _) ⇒ leftTypeOpt
+      case (_, Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass))) ⇒ rightTypeOpt
+      case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), _) ⇒ leftTypeOpt
+      case (_, Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ rightTypeOpt
+      case _ ⇒
+        val objectAdditionTypeOpt =
+          for {
+            leftFields ← leftTypeOpt.flatMap(fields)
+            rightFields ← rightTypeOpt.flatMap(fields)
+          } yield Type.Object(leftFields ++ rightFields)
+        objectAdditionTypeOpt orElse Some(Type.Instance(NumberClass))
+    }
+
+  private def fields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
+    case Type.Instance(klass) ⇒ klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
+    case Type.Object(fields)  ⇒ fields
+    case Type.Group(_, _)     ⇒ GroupClass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
+  }
+
+  private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
+    (leftTypeOpt, rightTypeOpt) match {
+      case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
+      case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_))) ⇒ rightTypeOpt
+      case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
+      case _ ⇒ Some(Type.Instance(NumberClass))
+    }
+
   private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type]): Option[Type] = {
     import BinaryOperator._
     op match {
-      case Plus ⇒
-        (leftTypeOpt, rightTypeOpt) match {
-          case (Some(Type.Seq(elementType)), Some(Type.Seq(_))) ⇒ leftTypeOpt
-          case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass)), _) ⇒ leftTypeOpt
-          case (_, Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass))) ⇒ rightTypeOpt
-          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), _) ⇒ leftTypeOpt
-          case (_, Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ rightTypeOpt
-          case _ ⇒ Some(Type.Instance(NumberClass))
-        }
-      case Multiply ⇒
-        (leftTypeOpt, rightTypeOpt) match {
-          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
-          case (Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass)), Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_))) ⇒ rightTypeOpt
-          case (Some(Type.Tagged(StringClass, _) | Type.Instance(StringClass) | Type.Seq(_)), Some(Type.Tagged(NumberClass, _) | Type.Instance(NumberClass))) ⇒ leftTypeOpt
-          case _ ⇒ Some(Type.Instance(NumberClass))
-        }
+      case Plus     ⇒ inferTypeAdd(leftTypeOpt, rightTypeOpt)
+      case Multiply ⇒ inferTypeMultiply(leftTypeOpt, rightTypeOpt)
       case Minus | Divide ⇒
         (leftTypeOpt, rightTypeOpt) match {
           case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
