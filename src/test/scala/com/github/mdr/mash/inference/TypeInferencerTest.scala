@@ -52,6 +52,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1] + [2]" shouldBeInferredAsHavingType Seq(NumberType)
   "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType, "bar" -> NumberType))
 
+  // subtraction
+  "2 - 1" shouldBeInferredAsHavingType NumberType
+  "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberType))
+  
   // Multiplication
   "2 * 2" shouldBeInferredAsHavingType NumberType
   "'foo' * 2" shouldBeInferredAsHavingType StringType

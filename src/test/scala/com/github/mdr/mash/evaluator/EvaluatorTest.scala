@@ -498,4 +498,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42 } + { }" shouldEvaluateTo "{ foo: 42 }"
   "{ foo: 42 } + { foo: 100 }" shouldEvaluateTo "{ foo: 100 }"
 
+  // object field subtraction
+  "{ foo: 42, bar: 100 } - 'foo'" shouldEvaluateTo "{ bar: 100 }"
+  "{ foo: 42 } - 'bar'" shouldEvaluateTo "{ foo: 42 }"
 }

@@ -41,6 +41,16 @@ case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option
 
   def field(field: Field): MashValue = fields(field.name)
 
+  def -(fieldName: String): MashObject = {
+    val newFields = LinkedHashMap(fields.filterKeys(_ != fieldName).toSeq: _*)
+    MashObject(newFields)
+  }
+
+  def +(that: MashObject): MashObject = {
+    val newFields = LinkedHashMap((this.fields ++ that.fields).toSeq: _*)
+    MashObject(newFields, classOpt = None)
+  }
+
   override def toString = {
     val fieldString = fields.map { case (k, v) ⇒ s"$k: $v" }.mkString(", ")
     val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
