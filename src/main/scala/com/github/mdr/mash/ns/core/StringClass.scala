@@ -426,6 +426,8 @@ object StringClass extends MashClass("core.String") {
 
   def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
 
+  override def parentOpt = Some(AnyClass)
+
 }
 
 object SameStringMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {

@@ -190,4 +190,6 @@ object NumberClass extends MashClass("core.Number") {
 
   def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
 
+  override def parentOpt = Some(AnyClass)
+
 }

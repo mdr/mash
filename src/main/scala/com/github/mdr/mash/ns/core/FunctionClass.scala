@@ -35,4 +35,6 @@ object FunctionClass extends MashClass("core.Function") {
 
   override def summary = "A function"
 
+  override def parentOpt = Some(AnyClass)
+
 }

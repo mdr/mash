@@ -84,4 +84,6 @@ object ClassClass extends MashClass("core.Class") {
 
   override def summary = "A class"
 
+  override def parentOpt = Some(AnyClass)
+
 }

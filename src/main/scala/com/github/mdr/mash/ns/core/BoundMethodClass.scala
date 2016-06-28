@@ -62,4 +62,6 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   override def summary = "A method bound to a target"
 
+  override def parentOpt = Some(AnyClass)
+
 }

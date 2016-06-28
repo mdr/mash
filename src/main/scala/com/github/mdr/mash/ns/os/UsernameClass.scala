@@ -12,6 +12,7 @@ import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.core.AnyClass
 
 object UsernameClass extends MashClass("os.Username") {
   private val userInteractions = UserInteractions.default
@@ -85,4 +86,7 @@ object UsernameClass extends MashClass("os.Username") {
   override def enumerationValues: Option[Seq[String]] = Some(userInteractions.passwdEntries.map(_.username).sorted)
 
   override def summary = "A username"
+
+  override def parentOpt = Some(AnyClass)
+
 }

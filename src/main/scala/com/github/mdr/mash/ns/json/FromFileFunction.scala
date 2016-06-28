@@ -18,7 +18,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.google.gson._
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.runtime.MashValue

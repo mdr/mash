@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.ns.core.AnyClass
 
 object FileTypeClass extends MashClass("os.FileType") {
 
@@ -17,5 +18,7 @@ object FileTypeClass extends MashClass("os.FileType") {
     Some(Seq(Dir, File, Link, Other))
 
   override def summary = "Type of filesystem object"
+
+  override def parentOpt = Some(AnyClass)
 
 }

@@ -9,9 +9,12 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.ns.core.AnyClass
 
 object LocalDateClass extends MashClass("time.Date") {
 
   override def summary = "A date"
+
+  override def parentOpt = Some(AnyClass)
 
 }

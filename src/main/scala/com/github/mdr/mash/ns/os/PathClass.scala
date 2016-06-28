@@ -3,26 +3,51 @@ package com.github.mdr.mash.ns.os
 import java.nio.file.Files
 import java.nio.file.Path
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.FilenameUtils
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions._
-import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.inference._
+import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.functions.FunctionHelpers.asPathString
+import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.inference.Type.classToType
+import com.github.mdr.mash.inference.Type.seqToType
+import com.github.mdr.mash.inference.Type.unitToType
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.os.pathClass._
+import com.github.mdr.mash.ns.os.pathClass.PathClassBaseNameMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassCdMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassChildrenMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassCopyMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassCreateDirectoryMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassExistsMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassExtensionMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassFollowLinkMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassRenameByMethod
+import com.github.mdr.mash.ns.os.pathClass.PathClassRenameToMethod
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.subprocesses.ProcessRunner
 
 object PathClass extends MashClass("os.Path") {
@@ -418,5 +443,7 @@ The default character encoding and line separator are used.""")
   }
 
   override def summary = "Tag class for a filesystem path"
+
+  override def parentOpt = Some(AnyClass)
 
 }

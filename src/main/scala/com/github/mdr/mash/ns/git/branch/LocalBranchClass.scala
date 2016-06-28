@@ -8,7 +8,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.CommitClass
@@ -186,7 +186,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
   object ToStringMethod extends MashMethod("toString") {
 
-    val params = ObjectClass.ToStringMethod.params
+    val params = AnyClass.ToStringMethod.params
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
@@ -195,7 +195,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = ObjectClass.ToStringMethod.summary
+    override def summary = AnyClass.ToStringMethod.summary
 
   }
 

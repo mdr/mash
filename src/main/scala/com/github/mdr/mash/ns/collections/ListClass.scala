@@ -88,5 +88,7 @@ object ListClass extends MashClass("collections.List") {
 
   override def summary = "A sequence of objects"
 
+  override def parentOpt = Some(AnyClass)
+
 }
 

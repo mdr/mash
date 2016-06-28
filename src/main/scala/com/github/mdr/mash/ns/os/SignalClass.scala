@@ -2,6 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator.MashClass
 import jnr.constants.platform.linux.Signal
+import com.github.mdr.mash.ns.core.AnyClass
 
 object SignalClass extends MashClass("os.Signal") {
 
@@ -10,5 +11,7 @@ object SignalClass extends MashClass("os.Signal") {
   val Signals = Signal.values.toSeq.map(_.name.drop(3))
 
   override def summary = "A signal"
+
+  override def parentOpt = Some(AnyClass)
 
 }

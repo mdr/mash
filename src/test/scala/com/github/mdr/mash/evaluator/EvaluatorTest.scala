@@ -489,4 +489,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Holes in paren invocation args
   "[{foo: 42}].map(_.foo)" shouldEvaluateTo "[42]"
   
+  // .fields
+  "{ foo: 42 }.fields.name" shouldEvaluateTo "['foo']" 
+  "42.fields" shouldThrowAnException 
+  
 }

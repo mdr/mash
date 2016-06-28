@@ -6,4 +6,6 @@ object NullClass extends MashClass("core.Null") {
 
   override def summary = "The type of null"
 
+  override def parentOpt = Some(AnyClass)
+
 }

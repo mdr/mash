@@ -12,7 +12,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.subprocesses.ProcessResult
 import scala.collection.immutable.ListMap
 import com.github.mdr.mash.runtime.MashNumber
@@ -128,9 +128,9 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashString(Wrapper(target).stdout)
     }
 
-    override def typeInferenceStrategy = ObjectClass.ToStringMethod.typeInferenceStrategy
+    override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
 
-    override def summary = ObjectClass.ToStringMethod.summary
+    override def summary = AnyClass.ToStringMethod.summary
 
   }
 

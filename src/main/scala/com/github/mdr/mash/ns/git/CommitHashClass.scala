@@ -10,6 +10,7 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.core.AnyClass
 
 object CommitHashClass extends MashClass("git.CommitHash") {
 
@@ -54,6 +55,8 @@ object CommitHashClass extends MashClass("git.CommitHash") {
       } finally
         walk.dispose()
     }
+
+  override def parentOpt = Some(AnyClass)
 
 }
 

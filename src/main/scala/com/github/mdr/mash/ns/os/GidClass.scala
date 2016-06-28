@@ -61,4 +61,6 @@ object GidClass extends MashClass("os.Gid") {
 
   override def summary = "Tag class for a group ID (GID)"
 
+  override def parentOpt = Some(AnyClass)
+
 }

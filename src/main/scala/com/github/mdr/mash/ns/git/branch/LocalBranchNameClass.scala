@@ -15,6 +15,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.MemberLifter
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.core.AnyClass
 
 object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
@@ -56,6 +57,8 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
         throw new EvaluatorException("No branch with name " + branchName))
       ListFunction.asMashObject(repo)(ref)
     }
+  
+  override def parentOpt = Some(AnyClass)
 
 }
 

@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.GroupEntry
 import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.ns.core.AnyClass
 
 object GroupClass extends MashClass("os.Group") {
 
@@ -71,5 +72,7 @@ object GroupClass extends MashClass("os.Group") {
   override def enumerationValues: Option[Seq[String]] = Some(userInteractions.groupEntries.map(_.group).sorted)
 
   override def summary = "A tag class for user group names"
+
+  override def parentOpt = Some(AnyClass)
 
 }

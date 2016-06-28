@@ -10,7 +10,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.time.DateTimeClass
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
@@ -74,7 +74,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   object ToStringMethod extends MashMethod("toString") {
 
-    val params = ObjectClass.ToStringMethod.params
+    val params = AnyClass.ToStringMethod.params
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
@@ -83,7 +83,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
 
-    override def summary = ObjectClass.ToStringMethod.summary
+    override def summary = AnyClass.ToStringMethod.summary
 
   }
 

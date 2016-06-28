@@ -65,14 +65,14 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   object ToStringMethod extends MashMethod("toString") {
 
-    val params = ObjectClass.ToStringMethod.params
+    val params = AnyClass.ToStringMethod.params
 
     def apply(target: MashValue, arguments: Arguments): MashString =
       Wrapper(target).path
 
-    override def typeInferenceStrategy = ObjectClass.ToStringMethod.typeInferenceStrategy
+    override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
 
-    override def summary = ObjectClass.ToStringMethod.summary
+    override def summary = AnyClass.ToStringMethod.summary
 
   }
 

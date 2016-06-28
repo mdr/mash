@@ -11,6 +11,7 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashWrapped
 import com.github.mdr.mash.runtime.MashValue
 import java.time.temporal.TemporalAmount
+import com.github.mdr.mash.ns.core.AnyClass
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 
@@ -57,6 +58,8 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
   override def summary = "A tag class for a number of " + unit.name.toLowerCase
 
   def temporalAmount(n: Int): TemporalAmount
+
+  override def parentOpt = Some(AnyClass)
 
 }
 

@@ -127,6 +127,7 @@ object MashRoot {
     NullClass,
     NumberClass,
     ObjectClass,
+    AnyClass,
     RegexClass,
     StringClass,
     UnitClass,

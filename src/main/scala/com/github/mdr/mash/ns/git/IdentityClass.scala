@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
@@ -33,7 +33,7 @@ object IdentityClass extends MashClass("git.Identity") {
 
   object ToStringMethod extends MashMethod("toString") {
 
-    val params = ObjectClass.ToStringMethod.params
+    val params = AnyClass.ToStringMethod.params
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
@@ -43,8 +43,10 @@ object IdentityClass extends MashClass("git.Identity") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = ObjectClass.ToStringMethod.summary
+    override def summary = AnyClass.ToStringMethod.summary
 
   }
+
+  override def parentOpt = Some(AnyClass)
 
 }

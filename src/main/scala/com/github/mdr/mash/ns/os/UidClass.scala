@@ -12,6 +12,7 @@ import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.core.AnyClass
 
 object UidClass extends MashClass("os.Uid") {
 
@@ -84,4 +85,7 @@ object UidClass extends MashClass("os.Uid") {
   }
 
   override def summary = "Tag class for user ID (UID)"
+
+  override def parentOpt = Some(AnyClass)
+
 }

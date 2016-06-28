@@ -97,4 +97,6 @@ object PidClass extends MashClass("os.Pid") {
 
   override def summary = "Tag class for process ID (PID)"
 
+  override def parentOpt = Some(AnyClass)
+
 }

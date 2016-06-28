@@ -6,4 +6,6 @@ object UnitClass extends MashClass("core.Unit") {
 
   override def summary = "The type of the unit value"
 
+  override def parentOpt = Some(AnyClass)
+
 }

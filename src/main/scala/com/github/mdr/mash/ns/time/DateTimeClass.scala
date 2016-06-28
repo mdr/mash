@@ -6,9 +6,8 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.runtime.MashWrapped
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.ns.core.AnyClass
 
 object DateTimeClass extends MashClass("time.DateTime") {
 
@@ -40,6 +39,8 @@ object DateTimeClass extends MashClass("time.DateTime") {
   }
 
   override def summary = "An instant in time"
+
+  override def parentOpt = Some(AnyClass)
 
 }
 
