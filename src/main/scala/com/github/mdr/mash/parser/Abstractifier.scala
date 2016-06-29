@@ -41,7 +41,7 @@ class Abstractifier(provenance: Provenance) {
     case str: Concrete.InterpolatedString                   ⇒ abstractifyInterpolatedString(str)
     case decl: Concrete.FunctionDeclaration                 ⇒ abstractifyFunctionDeclaration(decl)
     case Concrete.MishFunction(word)                        ⇒ Abstract.MishFunction(word.text.tail, sourceInfo(expr))
-    case Concrete.HelpExpr(expr, _)                         ⇒ Abstract.HelpExpr(abstractify(expr), sourceInfo(expr))
+    case Concrete.HelpExpr(subExpr, _)                      ⇒ Abstract.HelpExpr(abstractify(subExpr), sourceInfo(expr))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
   }
 

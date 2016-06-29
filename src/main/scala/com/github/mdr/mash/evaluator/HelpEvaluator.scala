@@ -7,8 +7,8 @@ import scala.PartialFunction.condOpt
 
 object HelpEvaluator {
 
-  def evaluateHelpExpr(expr: Expr)(implicit context: EvaluationContext): MashObject =
-    expr match {
+  def evaluateHelpExpr(helpExpr: HelpExpr)(implicit context: EvaluationContext): MashObject =
+    helpExpr.expr match {
       case memberExpr @ MemberExpr(targetExpr, name, _, _) ⇒
         val target = Evaluator.evaluate(targetExpr)
         val scalarHelpOpt = getHelpForMember(target, name)
@@ -18,13 +18,13 @@ object HelpEvaluator {
         lazy val directHelp = {
           val result = MemberEvaluator.evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
           HelpFunction.getHelp(result).getOrElse(
-            throw new EvaluatorException("No help available for value of type " + result.primaryClass))
+            throw new EvaluatorException("No help available for value of type " + result.primaryClass, helpExpr.locationOpt))
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
-      case _ ⇒
+      case expr ⇒
         val result = Evaluator.simpleEvaluate(expr)
         HelpFunction.getHelp(result).getOrElse(
-          throw new EvaluatorException("No help available for value of type " + result.primaryClass))
+          throw new EvaluatorException("No help available for value of type " + result.primaryClass, helpExpr.locationOpt))
     }
 
   private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =

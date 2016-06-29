@@ -77,7 +77,7 @@ object Evaluator extends EvaluatorHelper {
       case expr: MishInterpolation                ⇒ MishEvaluator.evaluateMishInterpolation(expr)
       case MishFunction(command, _)               ⇒ SystemCommandFunction(command)
       case decl: FunctionDeclaration              ⇒ evaluateFunctionDecl(decl)
-      case HelpExpr(expr, _)                      ⇒ HelpEvaluator.evaluateHelpExpr(expr)
+      case helpExpr: HelpExpr                     ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
       case StatementSeq(statements, _)            ⇒ evaluateStatements(statements)
       case lit: StringLiteral                     ⇒ evaluateStringLiteral(lit)
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
