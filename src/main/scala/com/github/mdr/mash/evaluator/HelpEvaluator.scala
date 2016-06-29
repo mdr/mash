@@ -17,12 +17,14 @@ object HelpEvaluator {
         }.flatten
         lazy val directHelp = {
           val result = MemberEvaluator.evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising = true).result
-          HelpFunction.getHelp(result)
+          HelpFunction.getHelp(result).getOrElse(
+            throw new EvaluatorException("No help available for value of type " + result.primaryClass))
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
       case _ ⇒
-        val x = Evaluator.simpleEvaluate(expr)
-        HelpFunction.getHelp(x)
+        val result = Evaluator.simpleEvaluate(expr)
+        HelpFunction.getHelp(result).getOrElse(
+          throw new EvaluatorException("No help available for value of type " + result.primaryClass))
     }
 
   private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =

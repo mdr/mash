@@ -27,7 +27,7 @@ object LsFunction extends MashFunction("os.ls") {
       summary = "Paths to list files",
       isVariadic = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashList.of(asPathString(""))),
-      descriptionOpt = Some("""Paths can either be strings or PathSummary objects. 
+      descriptionOpt = Some(s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects. 
 If a given path is a file, it will be included in the output. 
 If a given path is a directory, its children will be included, unless the
    directory parameter is true, then it will be included directly. 
@@ -80,7 +80,7 @@ If no paths are provided, the default is the current working directory."""))
 
   override def summary = "List files"
 
-  override def descriptionOpt = Some("""List files and directories, returning a sequence of PathSummary objects. 
+  override def descriptionOpt = Some(s"""List files and directories, returning a sequence of ${PathSummaryClass.fullyQualifiedName} objects. 
 If no paths are supplied, the current directory is used as the default.""")
 
 }

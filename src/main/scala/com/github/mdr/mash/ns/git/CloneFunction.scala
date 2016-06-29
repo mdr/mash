@@ -21,7 +21,7 @@ object CloneFunction extends MashFunction("git.clone") {
   object Params {
     val Repository = Parameter(
       name = "repository",
-      summary = "Repository to clone")
+      summary = "Repository URL to clone")
     val Directory = Parameter(
       name = "directory",
       summary = "Name to give to new repository directory",
@@ -51,6 +51,11 @@ object CloneFunction extends MashFunction("git.clone") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
 
-  override def summary = "Clone a repository into a new directory."
+  override def summary = "Clone a Git repository into a new directory."
 
+  override def descriptionOpt = Some("""Returns the path to the new directory.
+    
+Examples:
+  git.clone "https://github.com/github/testrepo.git"     # clones into "testRepo"
+  git.clone "https://github.com/github/testrepo.git" dir # clones into "dir"""")
 }

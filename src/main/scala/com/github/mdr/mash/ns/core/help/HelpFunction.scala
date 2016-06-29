@@ -14,7 +14,7 @@ import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashValue
-
+import scala.PartialFunction.condOpt
 object HelpFunction extends MashFunction("core.help.help") {
 
   object Params {
@@ -29,18 +29,18 @@ object HelpFunction extends MashFunction("core.help.help") {
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
     val item = boundParams(Item)
-    getHelp(item)
+    getHelp(item).getOrElse(
+      boundParams.throwInvalidArgument(Item, "No help available for value of type " + item.primaryClass))
   }
 
   override def typeInferenceStrategy = HelpTypeInferenceStrategy
 
   override def summary = "Find help for the given function, method, field or class"
 
-  def getHelp(item: MashValue): MashObject = item match {
+  def getHelp(item: MashValue): Option[MashObject] = condOpt(item) {
     case f: MashFunction  ⇒ getHelp(f)
     case bm: BoundMethod  ⇒ getHelp(bm)
     case klass: MashClass ⇒ getHelp(klass)
-    case _                ⇒ throw new EvaluatorException("No help available")
   }
 
   def getHelp(f: MashFunction): MashObject = {

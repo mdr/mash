@@ -85,7 +85,8 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒ throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+    case _ ⇒ 
+      throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue =
