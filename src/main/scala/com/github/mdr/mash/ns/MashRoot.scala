@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.json.FromFileFunction
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
 import com.github.mdr.mash.ns.view._
+import org.apache.commons.lang3.SystemUtils
 
 object MashRoot {
 
@@ -55,10 +56,14 @@ object MashRoot {
     DeleteFunction,
     UpFunction,
     WriteFunction,
-    GroupsFunction,
-    UserFunction,
-    UsersFunction,
-    ProcessesFunction)
+    ProcessesFunction) ++ (
+      if (SystemUtils.IS_OS_MAC_OSX)
+        Seq()
+      else
+        Seq(
+          GroupsFunction,
+          UserFunction,
+          UsersFunction))
 
   private val CollectionsFunctions = Seq(
     AllFunction,

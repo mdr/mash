@@ -1,27 +1,31 @@
 package com.github.mdr.mash.ns.os
 
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArguments
+import org.apache.commons.lang3.SystemUtils
+
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.os.linux.LinuxUserInteractions
-import com.github.mdr.mash.os.UserInteractions
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.inference.Type.classToType
+import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.runtime._
 
 object UsernameClass extends MashClass("os.Username") {
   private val userInteractions = UserInteractions.default
 
-  override lazy val methods = {
-    val liftedFields = UserSummaryClass.fields.map(liftUserSummaryField)
-    val liftedMethods = UserSummaryClass.methods.map(liftUserSummaryMethod)
-    (InfoMethod +: liftedFields) ++ liftedMethods
-  }
+  override lazy val methods =
+    if (SystemUtils.IS_OS_MAC_OSX)
+      Seq()
+    else {
+      val liftedFields = UserSummaryClass.fields.map(liftUserSummaryField)
+      val liftedMethods = UserSummaryClass.methods.map(liftUserSummaryMethod)
+      (InfoMethod +: liftedFields) ++ liftedMethods
+    }
 
   private def liftUserSummaryField(field: Field) = new MashMethod(field.name) {
 

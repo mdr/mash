@@ -15,6 +15,7 @@ import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.compiler.CompilationUnit
+import org.apache.commons.lang3.SystemUtils
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {
@@ -55,7 +56,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // subtraction
   "2 - 1" shouldBeInferredAsHavingType NumberType
   "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberType))
-  
+
   // Multiplication
   "2 * 2" shouldBeInferredAsHavingType NumberType
   "'foo' * 2" shouldBeInferredAsHavingType StringType
@@ -86,9 +87,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[].join" shouldBeInferredAsHavingType StringType
 
-  "user.groups" shouldBeInferredAsHavingType Seq(Tagged(StringClass, GroupClass))
-  "user.primaryGroup" shouldBeInferredAsHavingType Tagged(StringClass, GroupClass)
-  "user.primaryGroup.gid" shouldBeInferredAsHavingType Tagged(NumberClass, GidClass)
+  if (!SystemUtils.IS_OS_MAC_OSX) {
+    "user.groups" shouldBeInferredAsHavingType Seq(Tagged(StringClass, GroupClass))
+    "user.primaryGroup" shouldBeInferredAsHavingType Tagged(StringClass, GroupClass)
+    "user.primaryGroup.gid" shouldBeInferredAsHavingType Tagged(NumberClass, GidClass)
+  }
 
   // last
   "last [1, 2, 3]" shouldBeInferredAsHavingType NumberType

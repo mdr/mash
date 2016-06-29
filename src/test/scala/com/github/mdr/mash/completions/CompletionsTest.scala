@@ -12,6 +12,7 @@ import java.nio.file.Paths
 import com.github.mdr.mash.runtime.MashString
 import scala.collection.mutable
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import org.apache.commons.lang3.SystemUtils
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -99,7 +100,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
     implicit val environment = Environment(mutable.Map("readme" -> MashString("readme")))
-    
+
     "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
     "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")
   }
@@ -162,9 +163,6 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   // To get this to work, we need to be able to identify the name corresponding to the nth argument (by syntactical position)
   "map --sequence=ls permiss▶" shouldGiveCompletions ("permissions")
-
-  """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
-  """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
 
   {
     implicit val filesystem = MockFileSystem.of("/dollar$ign")
@@ -288,6 +286,11 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     """ls ".dotfiles/."▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
     """ls ".dotfiles/".▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
+  }
+
+  if (!SystemUtils.IS_OS_MAC_OSX) {
+    """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
+    """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
   }
 
   private implicit class RichString(s: String)(
