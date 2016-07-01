@@ -74,10 +74,10 @@ class TypeInferencer {
       case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
-      case AssignmentExpr(left, right, _, _) ⇒
+      case AssignmentExpr(left, operatorOpt, right, _, _) ⇒
         inferType(left, bindings)
         inferType(right, bindings)
-        Some(Type.Instance(UnitClass))
+        Some(Unit)
       case LambdaExpr(v, body, _) ⇒
         inferType(body, bindings + (v -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
         Some(Type.Lambda(v, body, bindings))
@@ -163,10 +163,10 @@ class TypeInferencer {
   private def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
       case (Some(Type.Seq(elementType)), Some(Type.Seq(_))) ⇒ leftTypeOpt
-      case (Some(StringLike(_)), _) ⇒ leftTypeOpt
-      case (_, Some(StringLike(_))) ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _) ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_))) ⇒ rightTypeOpt
+      case (Some(StringLike(_)), _)                         ⇒ leftTypeOpt
+      case (_, Some(StringLike(_)))                         ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _)                         ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_)))                         ⇒ rightTypeOpt
       case _ ⇒
         val objectAdditionTypeOpt =
           for {
@@ -205,7 +205,7 @@ class TypeInferencer {
       case Type.Tagged(NumberClass, _) | Type.Instance(NumberClass) ⇒ typ_
     }
   }
-  
+
   private def inferTypeSubtract(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type], right: Expr): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
       case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt

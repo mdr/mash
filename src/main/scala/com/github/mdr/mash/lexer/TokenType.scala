@@ -33,10 +33,14 @@ object TokenType {
   case object LESS_THAN_EQUALS extends TokenType
   case object LESS_THAN extends TokenType
   case object RIGHT_ARROW extends TokenType // =>
-  case object PLUS extends TokenType // =>
-  case object MINUS extends TokenType // =>
-  case object TIMES extends TokenType // =>
-  case object DIVIDE extends TokenType // =>
+  case object PLUS extends TokenType // +
+  case object MINUS extends TokenType // -
+  case object TIMES extends TokenType // *
+  case object DIVIDE extends TokenType // /
+  case object PLUS_EQUALS extends TokenType // +=
+  case object MINUS_EQUALS extends TokenType // -=
+  case object TIMES_EQUALS extends TokenType // *=
+  case object DIVIDE_EQUALS extends TokenType // /=
   case object PIPE extends TokenType // |
   case object LPAREN extends TokenType // (
   case object LPAREN_INVOKE extends TokenType // foo(

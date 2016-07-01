@@ -68,7 +68,7 @@ object Evaluator extends EvaluatorHelper {
       case lookupExpr: LookupExpr                 ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
-      case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOp(binOp)
+      case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
       case chainedOpExpr: ChainedOpExpr           ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
       case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
       case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
@@ -81,14 +81,18 @@ object Evaluator extends EvaluatorHelper {
       case StatementSeq(statements, _)            ⇒ evaluateStatements(statements)
       case lit: StringLiteral                     ⇒ evaluateStringLiteral(lit)
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
-      case Identifier(name, _) ⇒
-        context.scopeStack.lookup(name).getOrElse {
-          throw new EvaluatorException(s"No binding for '$name'", sourceLocation(expr))
-        }
+      case identifier: Identifier                 ⇒ evaluateIdentifier(identifier)
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject(fields, classOpt = None)
     }
+
+  def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue = {
+    val Identifier(name, _) = identifier
+    context.scopeStack.lookup(name).getOrElse {
+      throw new EvaluatorException(s"No binding for '$name'", sourceLocation(identifier))
+    }
+  }
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate

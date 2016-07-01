@@ -437,9 +437,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
   "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" shouldEvaluateTo "'OOF'"
 
-  "a = [1, 2, 3]; a[1] = 42; a" shouldEvaluateTo "[1, 42, 3]"
-  "a = {}; a['foo'] = 42; a.foo" shouldEvaluateTo "42"
-
   "a = alias ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
 
   "[].sumBy.target" shouldEvaluateTo "[]"
@@ -501,4 +498,17 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // object field subtraction
   "{ foo: 42, bar: 100 } - 'foo'" shouldEvaluateTo "{ bar: 100 }"
   "{ foo: 42 } - 'bar'" shouldEvaluateTo "{ foo: 42 }"
+  
+  // assignment 
+  "a = 42; a" shouldEvaluateTo "42"
+  "a = {}; a['foo'] = 42; a.foo" shouldEvaluateTo "42"
+  "a = [1, 2, 3]; a[1] = 42; a" shouldEvaluateTo "[1, 42, 3]"
+  
+  "a = 0; a += 42; a" shouldEvaluateTo "42"
+  "a = 42; a -= 42; a" shouldEvaluateTo "0"
+  "a = 3; a *= 4; a" shouldEvaluateTo "12"
+  "a = 15; a /= 5; a" shouldEvaluateTo "3"
+  "a = { foo: 0 }; a.foo += 42; a" shouldEvaluateTo "{ foo: 42 }"
+  "a = [1, 0, 3]; a[1] += 42; a" shouldEvaluateTo "[1, 42, 3]"
+  
 }

@@ -104,11 +104,11 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newOpRights ← sequencePairs(for ((op, right) ← opRights) yield op -> desugarHoles_(right))
       } yield ChainedOpExpr(newLeft, newOpRights, sourceInfoOpt)
-    case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
+    case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
       for {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
-      } yield AssignmentExpr(newLeft, newRight, alias, sourceInfoOpt)
+      } yield AssignmentExpr(newLeft, operatorOpt, newRight, alias, sourceInfoOpt)
     case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
       for {
         newCommand ← desugarHoles_(command)

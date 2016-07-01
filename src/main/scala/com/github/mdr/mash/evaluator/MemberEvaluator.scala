@@ -29,10 +29,10 @@ object MemberEvaluator extends EvaluatorHelper {
   def evaluateMemberExpr(memberExpr: MemberExpr, immediatelyResolveNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val MemberExpr(expr, name, isNullSafe, sourceInfoOpt) = memberExpr
     val target = Evaluator.evaluate(expr)
-    evaluateMemberExpr_(memberExpr, target, context, immediatelyResolveNullaryWhenVectorising)
+    evaluateMemberExpr_(memberExpr, target, immediatelyResolveNullaryWhenVectorising)
   }
 
-  def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, context: EvaluationContext, immediatelyResolveNullaryWhenVectorising: Boolean): MemberExprEvalResult = {
+  def evaluateMemberExpr_(memberExpr: AbstractMemberExpr, target: MashValue, immediatelyResolveNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
     val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {

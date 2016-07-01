@@ -1,7 +1,7 @@
 package com.github.mdr.mash.parser
 
 import scala.collection.immutable.ListMap
-
+import scala.PartialFunction.condOpt
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.lexer.TokenType._
@@ -29,7 +29,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.StatementSeq(statements)                  ⇒ Abstract.StatementSeq(statements.flatMap(_.statementOpt).map(abstractify), sourceInfo(expr))
     case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), sourceInfo(expr))
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))
-    case Concrete.AssignmentExpr(left, _, aliasOpt, right)  ⇒ Abstract.AssignmentExpr(abstractify(left), abstractify(right), aliasOpt.isDefined, sourceInfo(expr))
+    case assignmentExpr: Concrete.AssignmentExpr            ⇒ abstractifyAssignmentExpr(assignmentExpr)
     case chainedExpr @ Concrete.ChainedOpExpr(_, _)         ⇒ abstractifyChainedComparision(chainedExpr)
     case iExpr @ Concrete.InvocationExpr(_, _)              ⇒ abstractifyInvocation(iExpr)
     case iExpr @ Concrete.ParenInvocationExpr(_, _, _, _)   ⇒ abstractifyParenInvocation(iExpr)
@@ -43,6 +43,12 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.MishFunction(word)                        ⇒ Abstract.MishFunction(word.text.tail, sourceInfo(expr))
     case Concrete.HelpExpr(subExpr, _)                      ⇒ Abstract.HelpExpr(abstractify(subExpr), sourceInfo(expr))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
+  }
+
+  private def abstractifyAssignmentExpr(assignmentExpr: Concrete.AssignmentExpr): Abstract.AssignmentExpr = {
+    val Concrete.AssignmentExpr(left, equalsToken, aliasOpt, right) = assignmentExpr
+    val op = getAssignmentBinaryOperator(equalsToken)
+    Abstract.AssignmentExpr(abstractify(left), op, abstractify(right), aliasOpt.isDefined, sourceInfo(assignmentExpr))
   }
 
   private def getStringText(s: String, maybeTilde: Boolean): (String, Boolean) = {
@@ -168,6 +174,13 @@ class Abstractifier(provenance: Provenance) {
     Abstract.ChainedOpExpr(abstractify(left), opRights.map {
       case (opToken, right) ⇒ (getBinaryOperator(opToken), abstractify(right))
     }, sourceInfo(chainedExpr))
+  }
+
+  private def getAssignmentBinaryOperator(token: Token): Option[BinaryOperator] = condOpt(token.tokenType) {
+    case TokenType.PLUS_EQUALS   ⇒ BinaryOperator.Plus
+    case TokenType.MINUS_EQUALS  ⇒ BinaryOperator.Minus
+    case TokenType.TIMES_EQUALS  ⇒ BinaryOperator.Multiply
+    case TokenType.DIVIDE_EQUALS ⇒ BinaryOperator.Divide
   }
 
   private def getBinaryOperator(token: Token): BinaryOperator =

@@ -154,16 +154,28 @@ trait NormalMashLexer { self: MashLexer ⇒
       token(RPAREN)
     case '+' ⇒
       nextChar()
-      token(PLUS)
+      if (ch == '=') {
+        nextChar()
+        token(PLUS_EQUALS)
+      } else
+        token(PLUS)
     case '~' ⇒
       nextChar()
       token(TILDE)
     case '*' ⇒
       nextChar()
-      token(TIMES)
+      if (ch == '=') {
+        nextChar()
+        token(TIMES_EQUALS)
+      } else
+        token(TIMES)
     case '/' ⇒
       nextChar()
-      token(DIVIDE)
+      if (ch == '=') {
+        nextChar()
+        token(DIVIDE_EQUALS)
+      } else
+        token(DIVIDE)
     case ';' ⇒
       nextChar()
       token(SEMI)
@@ -215,6 +227,9 @@ trait NormalMashLexer { self: MashLexer ⇒
       if (ch == '-') {
         nextChar()
         getIdentRest(Some(LONG_FLAG))
+      } else if (ch == '=') {
+        nextChar()
+        token(MINUS_EQUALS)
       } else if (ch.isUnicodeIdentifierStart)
         getIdentRest(Some(SHORT_FLAG))
       else

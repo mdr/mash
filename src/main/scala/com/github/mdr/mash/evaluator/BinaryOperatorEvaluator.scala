@@ -27,14 +27,14 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     MashBoolean(success)
   }
 
-  def evaluateBinOp(binOp: BinOpExpr)(implicit context: EvaluationContext): MashValue = {
+  def evaluateBinOpExpr(binOp: BinOpExpr)(implicit context: EvaluationContext): MashValue = {
     val BinOpExpr(left, op, right, _) = binOp
     lazy val leftResult = Evaluator.evaluate(left)
     lazy val rightResult = Evaluator.evaluate(right)
     evaluateBinOp(leftResult, op, rightResult, sourceLocation(binOp))
   }
 
-  private def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[SourceLocation]): MashValue = {
+  def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[SourceLocation]): MashValue = {
     def compareWith(f: (Int, Int) ⇒ Boolean): MashBoolean = MashBoolean(f(MashValueOrdering.compare(leftResult, rightResult), 0))
     op match {
       case BinaryOperator.And               ⇒ if (leftResult.isTruthy) rightResult else leftResult
@@ -85,7 +85,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒ 
+    case _ ⇒
       throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
   }
 

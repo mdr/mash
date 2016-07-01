@@ -40,8 +40,16 @@ object PrettyPrinter {
     case BinOpExpr(left, op, right, _)             ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
     case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
     case ObjectExpr(entries, _)                    ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")
-    case AssignmentExpr(left, right, alias, _)     ⇒ parens(pretty(left), simpleOmitParens(left)) + " = " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
     case MishExpr(command, args, _, _)             ⇒ pretty(command) + " " + args.map(pretty)
+    case AssignmentExpr(left, operatorOpt, right, alias, _) ⇒
+      val operatorSymbol = operatorOpt match {
+        case Some(BinaryOperator.Plus)     ⇒ "+="
+        case Some(BinaryOperator.Minus)    ⇒ "-="
+        case Some(BinaryOperator.Multiply) ⇒ "*="
+        case Some(BinaryOperator.Divide)   ⇒ "/="
+        case _                             ⇒ "="
+      }
+      parens(pretty(left), simpleOmitParens(left)) + " " + operatorSymbol + " " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
     case ChainedOpExpr(left, opRights, _) ⇒
       parens(pretty(left), simpleOmitParens(left)) +
         opRights.map {
@@ -81,7 +89,6 @@ object PrettyPrinter {
     case BinaryOperator.Multiply          ⇒ "*"
     case BinaryOperator.Divide            ⇒ "/"
     case BinaryOperator.Sequence          ⇒ ";"
-
   }
 
   private def parens(s: String, omitParens: Boolean = false): String = if (omitParens) s else "(" + s + ")"

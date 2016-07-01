@@ -54,8 +54,8 @@ class BareStringificationContext {
       for (s ← statements) {
         res += bareStringify(s, newBindings)
         val extraGlobals = s.findAll {
-          case AssignmentExpr(left @ Identifier(name, _), _, _, _) ⇒ name
-          case FunctionDeclaration(name, _, _, _)                  ⇒ name
+          case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
+          case FunctionDeclaration(name, _, _, _)                     ⇒ name
         }
         newBindings = newBindings ++ extraGlobals
       }
@@ -77,7 +77,7 @@ class BareStringificationContext {
       InvocationExpr(bareStringify(function, bindings), newArguments, isParenInvocation, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
       val extraGlobals = left.findAll {
-        case AssignmentExpr(left @ Identifier(name, _), _, _, _) ⇒ name
+        case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
         case FunctionDeclaration(name, _, _, _)                  ⇒ name
       }
       val newBindings = bindings ++ extraGlobals
@@ -95,10 +95,10 @@ class BareStringificationContext {
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt) ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
-    case AssignmentExpr(left @ Identifier(name, _), right, alias, sourceInfoOpt) ⇒
-      AssignmentExpr(left, bareStringify(right, bindings + name), alias, sourceInfoOpt)
-    case AssignmentExpr(left, right, alias, sourceInfoOpt) ⇒
-      AssignmentExpr(bareStringify(left, bindings), bareStringify(right, bindings), alias, sourceInfoOpt)
+    case AssignmentExpr(left @ Identifier(name, _), operatorOpt, right, alias, sourceInfoOpt) ⇒
+      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings + name), alias, sourceInfoOpt)
+    case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
+      AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
       MishExpr(bareStringify(command, bindings), args.map(bareStringify(_, bindings)), captureProcessOutput, sourceInfoOpt)
     case MishInterpolation(part, sourceInfoOpt) ⇒

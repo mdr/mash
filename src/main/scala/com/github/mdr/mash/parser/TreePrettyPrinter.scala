@@ -81,8 +81,8 @@ object TreePrettyPrinter {
         printTree(left, depth + 1)
         for ((op, right) ← opRights)
           printTree(right, depth + 1)
-      case AssignmentExpr(left, right, alias, _) ⇒
-        println("AssignmentExpr" + typeDescription + (if (alias) " (alias)" else ""))
+      case AssignmentExpr(left, operatorOpt, right, alias, _) ⇒
+        println("AssignmentExpr" + typeDescription + (if (alias) " (alias)" else "") + operatorOpt.map(" " + _).getOrElse(""))
         printTree(left, depth + 1)
         printTree(right, depth + 1)
       case ListExpr(items, _) ⇒
