@@ -62,6 +62,20 @@ class ReplTest extends FlatSpec with Matchers {
     repl.previousHistory().text should equal("2")
     repl.previousHistory().text should equal("1")
   }
+  
+  "History" should "reset if an old line is edited" in {
+    val repl = newRepl
+    repl.input("command1").acceptLine()
+    repl.input("command2").acceptLine()
+    repl.input("partial")
+    repl.previousHistory().text should equal("command2")
+    repl.nextHistory().text shouldEqual("partial")
+    repl.previousHistory().backspace().text shouldEqual("command")
+    
+    repl.nextHistory()
+    
+    repl.text should equal("command")
+  }
 
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
     val repl = newRepl

@@ -28,32 +28,56 @@ trait NormalActionHandler { self: Repl ⇒
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
-      case PreviousHistory          ⇒ for (cmd ← history.goBackwards()) state.lineBuffer = LineBuffer(cmd)
-      case NextHistory              ⇒ for (cmd ← history.goForwards()) state.lineBuffer = LineBuffer(cmd)
+      case PreviousHistory          ⇒ handlePreviousHistory()
+      case NextHistory              ⇒ handleNextHistory()
       case BeginningOfLine          ⇒ state.updateLineBuffer(_.moveCursorToStart)
       case EndOfLine                ⇒ state.updateLineBuffer(_.moveCursorToEnd)
       case ForwardChar              ⇒ state.updateLineBuffer(_.cursorRight)
       case BackwardChar             ⇒ state.updateLineBuffer(_.cursorLeft)
       case ForwardWord              ⇒ state.updateLineBuffer(_.forwardWord)
       case BackwardWord             ⇒ state.updateLineBuffer(_.backwardWord)
-      case DeleteChar               ⇒ state.updateLineBuffer(_.delete)
-      case BackwardDeleteChar       ⇒ state.updateLineBuffer(_.backspace)
-      case KillLine                 ⇒ state.updateLineBuffer(_.deleteToEndOfLine)
-      case KillWord                 ⇒ state.updateLineBuffer(_.deleteForwardWord)
-      case BackwardKillWord         ⇒ state.updateLineBuffer(_.deleteBackwardWord)
-      case SelfInsert(s)            ⇒ for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c))
+      case DeleteChar               ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.delete) }
+      case BackwardDeleteChar       ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.backspace) }
+      case KillLine                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteToEndOfLine) }
+      case KillWord                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteForwardWord) }
+      case BackwardKillWord         ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteBackwardWord) }
+      case SelfInsert(s)            ⇒ resetHistoryIfTextChanges { for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c)) }
       case AssistInvocation         ⇒ handleAssistInvocation()
-      case IncrementalHistorySearch ⇒ state.incrementalSearchStateOpt = Some(IncrementalSearchState())
       case YankLastArg              ⇒ handleYankLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
       case ToggleMish               ⇒ handleToggleMish()
+      case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case _                        ⇒
     }
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
   }
 
-  private def handleToggleQuote() {
+  private def handleIncrementalHistorySearch() {
+    state.incrementalSearchStateOpt = Some(IncrementalSearchState())
+    history.resetHistoryPosition()
+  }
+
+  private def resetHistoryIfTextChanges[T](f: ⇒ T): T = {
+    val before = state.lineBuffer.text
+    val result = f
+    val after = state.lineBuffer.text
+    if (before != after)
+      history.resetHistoryPosition()
+    result
+  }
+
+  private def handlePreviousHistory() {
+    for (cmd ← history.goBackwards(state.lineBuffer.text))
+      state.lineBuffer = LineBuffer(cmd)
+  }
+
+  private def handleNextHistory() {
+    for (cmd ← history.goForwards())
+      state.lineBuffer = LineBuffer(cmd)
+  }
+
+  private def handleToggleQuote(): Unit = resetHistoryIfTextChanges {
     state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
   }
 
@@ -68,7 +92,7 @@ trait NormalActionHandler { self: Repl ⇒
     previousReplRenderResultOpt = None
   }
 
-  private def handleToggleMish() {
+  private def handleToggleMish(): Unit = resetHistoryIfTextChanges {
     state.lineBuffer =
       if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
@@ -76,7 +100,7 @@ trait NormalActionHandler { self: Repl ⇒
         state.lineBuffer.insertCharacters("!", 0)
   }
 
-  private def handleYankLastArg() {
+  private def handleYankLastArg(): Unit = resetHistoryIfTextChanges {
     val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
       case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
       case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
@@ -160,12 +184,15 @@ trait NormalActionHandler { self: Repl ⇒
     state.globalVariables += ReplState.Res -> newResults
   }
 
-  private def handleComplete() =
-    for (result ← complete)
+  private def handleComplete() = {
+    for (result ← complete) {
+      history.resetHistoryPosition()
       result.completions match {
         case Seq(completion) ⇒ immediateInsert(completion, result)
         case _               ⇒ enterIncrementalCompletionState(result)
       }
+    }
+  }
 
   private def handleAssistInvocation() {
     if (state.assistanceStateOpt.isDefined)

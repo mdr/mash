@@ -7,6 +7,7 @@ v0.0.3 (..)
 * Fix bugs in os.up and git.clone
 * Improve Ctrl-Space invocation assistance
 * Add compound assignment operators: +=, -=, *=, /=
+* Remember the most recent incomplete command as the last entry in history
 
 v0.0.2 (22/June/2016)
 ---------------------

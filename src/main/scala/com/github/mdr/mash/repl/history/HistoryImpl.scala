@@ -36,26 +36,38 @@ class HistoryImpl(
 
   private var history: Seq[HistoryEntry] = storage.loadHistory()
   private var historyPos = NotInHistory
+  private var inProgressCommandOpt: Option[String] = None
 
-  def resetHistoryPosition() = historyPos = NotInHistory
+  def resetHistoryPosition() = {
+    historyPos = NotInHistory
+    inProgressCommandOpt = None
+  }
+
+  def forgetInProgressCommand() {
+    inProgressCommandOpt = None
+  }
 
   def goForwards(): Option[String] =
     if (historyPos >= 0) {
       historyPos -= 1
-      Some(
-        if (historyPos == NotInHistory)
-          ""
-        else
-          history(historyPos).command)
+      if (historyPos == NotInHistory) {
+        val result = inProgressCommandOpt
+        inProgressCommandOpt = None
+        result
+      } else
+        Some(history(historyPos).command)
     } else
       None
 
-  def goBackwards(): Option[String] =
+  def goBackwards(inProgressCommand: String): Option[String] = {
+    if (historyPos == NotInHistory)
+      inProgressCommandOpt = Some(inProgressCommand)
     if (historyPos < history.size - 1) {
       historyPos += 1
       Some(history(historyPos).command)
     } else
       None
+  }
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path) {
     val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.getOrElse(MashNull), workingDirectory.toString)

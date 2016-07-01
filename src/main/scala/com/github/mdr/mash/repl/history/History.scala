@@ -24,9 +24,11 @@ trait History {
 
   def resetHistoryPosition()
 
+  def forgetInProgressCommand()
+  
   def goForwards(): Option[String]
 
-  def goBackwards(): Option[String]
+  def goBackwards(inProgressCommand: String): Option[String]
 
   def getHistory: Seq[HistoryEntry]
 
