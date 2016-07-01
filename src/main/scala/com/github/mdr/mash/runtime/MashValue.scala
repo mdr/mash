@@ -2,9 +2,7 @@ package com.github.mdr.mash.runtime
 
 import java.time.Instant
 import java.time.LocalDate
-
 import scala.PartialFunction._
-
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.MashClass
@@ -13,8 +11,11 @@ import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.evaluator.SourceLocation
 
 trait MashValue {
+
+  def typeName: String = primaryClass.name
 
   def primaryClass: MashClass = this match {
     case MashNull                  ⇒ NullClass
@@ -42,8 +43,11 @@ trait MashValue {
 
 object MashValueOrdering extends Ordering[MashValue] {
 
-  override def compare(v1: MashValue, v2: MashValue) = compareOpt(v1, v2) getOrElse (
-    throw new EvaluatorException("Incomparable values"))
+  override def compare(v1: MashValue, v2: MashValue): Int = compareWithLocation(v1, v2)
+
+  def compareWithLocation(v1: MashValue, v2: MashValue, locationOpt: Option[SourceLocation] = None): Int =
+    compareOpt(v1, v2).getOrElse(
+      throw new EvaluatorException(s"Incomparable values of type ${v1.typeName} and ${v2.typeName}", locationOpt))
 
   def compareOpt(v1: MashValue, v2: MashValue): Option[Int] =
     condOpt((v1, v2)) {

@@ -35,14 +35,14 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
     case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a sequence, but was '${ToStringifier.stringify(x)}'"
+      val message = s"Invalid argument '${param.name}'. Must be a sequence, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 
   def validateString(param: Parameter): MashString = this(param) match {
     case s: MashString ⇒ s
     case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
+      val message = s"Invalid argument '${param.name}'. Must be a string, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 
@@ -50,7 +50,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
     case s: MashString ⇒ Some(s)
     case MashNull      ⇒ None
     case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a string, but was '${ToStringifier.stringify(x)}'"
+      val message = s"Invalid argument '${param.name}'. Must be a string, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 
@@ -59,7 +59,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
         (o ⇒ InvocationEvaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
       case x ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a function, but was '${ToStringifier.stringify(x)}'"
+        val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
         throw new ArgumentException(message, locationOpt(param))
     }
 
@@ -68,7 +68,7 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
     FunctionHelpers.safeInterpretAsPath(x) match {
       case Some(path) ⇒ path
       case None ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a path, but was '${ToStringifier.stringify(x)}'"
+        val message = s"Invalid argument '${param.name}'. Must be a path, but was a ${x.typeName}"
         throw new ArgumentException(message, locationOpt(param))
     }
   }
@@ -88,22 +88,30 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
 
   }
 
-  def validateInteger(param: Parameter): Int = this(param) match {
-    case MashInteger(n) ⇒
-      n
-    case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be an integer, but was '${ToStringifier.stringify(x)}'"
-      throw new ArgumentException(message, locationOpt(param))
-  }
+  def validateInteger(param: Parameter): Int =
+    this(param) match {
+      case MashInteger(n) ⇒
+        n
+      case n: MashNumber ⇒
+        val message = s"Invalid argument '${param.name}'. Must be an integer, but was '$n'"
+        throw new ArgumentException(message, locationOpt(param))
+      case x ⇒
+        val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${x.typeName}"
+        throw new ArgumentException(message, locationOpt(param))
+    }
 
-  def validateIntegerOrNull(param: Parameter): Option[Int] = this(param) match {
-    case MashInteger(n) ⇒
-      Some(n)
-    case MashNull ⇒
-      None
-    case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be an integer, but was '${ToStringifier.stringify(x)}'"
-      throw new ArgumentException(message, locationOpt(param))
-  }
+  def validateIntegerOrNull(param: Parameter): Option[Int] =
+    this(param) match {
+      case MashInteger(n) ⇒
+        Some(n)
+      case MashNull ⇒
+        None
+      case n: MashNumber ⇒
+        val message = s"Invalid argument '${param.name}'. Must be an integer, but was '$n'"
+        throw new ArgumentException(message, locationOpt(param))
+      case x ⇒
+        val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${x.typeName}"
+        throw new ArgumentException(message, locationOpt(param))
+    }
 
 }

@@ -30,7 +30,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     val boundParams = params.validate(arguments)
     val item = boundParams(Item)
     getHelp(item).getOrElse(
-      boundParams.throwInvalidArgument(Item, "No help available for value of type " + item.primaryClass))
+      boundParams.throwInvalidArgument(Item, "No help available for value of type " + item.typeName))
   }
 
   override def typeInferenceStrategy = HelpTypeInferenceStrategy

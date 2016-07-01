@@ -45,7 +45,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
         case MashList(items @ _*) ⇒
           items
         case badItem ⇒
-          throw new EvaluatorException("Invalid item of type " + badItem.primaryClass)
+          throw new EvaluatorException("Invalid item of type " + badItem.typeName)
       }
     }
     MashList(mapped)

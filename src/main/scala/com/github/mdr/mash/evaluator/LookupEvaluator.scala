@@ -20,10 +20,10 @@ object LookupEvaluator extends EvaluatorHelper {
               throw new EvaluatorException("Index out of range " + n, sourceLocation(indexExpr))
             xs(index)
           case s: MashString ⇒ s.lookup(i)
-          case _             ⇒ throw new EvaluatorException("Unable to lookup", sourceLocation(lookupExpr))
+          case _             ⇒ throw new EvaluatorException("Unable to lookup in target of type " + target.typeName, sourceLocation(lookupExpr))
         }
       case _ ⇒
-        throw new EvaluatorException("Unable to lookup", sourceLocation(indexExpr))
+        throw new EvaluatorException("Unable to lookup index of type " + index.typeName, sourceLocation(indexExpr))
     }
   }
 }

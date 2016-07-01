@@ -96,7 +96,7 @@ object Evaluator extends EvaluatorHelper {
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
-    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.primaryClass, sourceLocation(subExpr))
+    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.typeName, sourceLocation(subExpr))
   }
 
   private def evaluateStringLiteral(lit: StringLiteral): MashValue = {

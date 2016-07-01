@@ -40,7 +40,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case obj: MashObject ⇒
         evaluateAssignmentToObject(lookupExpr, expr, obj, index, indexValue, operatorOpt, rightValue)
       case x ⇒
-        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.primaryClass, sourceLocation(target))
+        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.typeName, sourceLocation(target))
     }
   }
 
@@ -60,7 +60,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         }
         xs.items(i) = actualRightValue
       case x ⇒
-        throw new EvaluatorException("Invalid list index of type " + x.primaryClass, sourceLocation(index))
+        throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
     }
 
   private def evaluateAssignmentToObject(lookupExpr: LookupExpr, assignmentExpr: AssignmentExpr, obj: MashObject, index: Expr, indexValue: MashValue, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): Unit = {
@@ -69,7 +69,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case MashString(fieldName, _) ⇒
         assignToField(obj, fieldName, operatorOpt, rightValue, lookupExpr, assignmentExpr)
       case _ ⇒
-        throw new EvaluatorException("Invalid object index of type " + indexValue.primaryClass, sourceLocation(index))
+        throw new EvaluatorException("Invalid object index of type " + indexValue.typeName, sourceLocation(index))
     }
   }
 
@@ -79,7 +79,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case obj: MashObject ⇒
         assignToField(obj, fieldName, operatorOpt, rightValue, memberExpr, assignmentExpr)
       case targetValue ⇒
-        throw new EvaluatorException("Cannot assign to fields of a value of type " + targetValue.primaryClass, sourceLocation(assignmentExpr))
+        throw new EvaluatorException("Cannot assign to fields of a value of type " + targetValue.typeName, sourceLocation(assignmentExpr))
     }
   }
 
