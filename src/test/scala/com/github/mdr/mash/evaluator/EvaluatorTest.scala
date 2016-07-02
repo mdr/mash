@@ -291,11 +291,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // skipWhile
   "[1, 2, 3, 4, 5, 1] | skipWhile (_ < 3)" shouldEvaluateTo "[3, 4, 5, 1]"
-  "'abcdef' | skipWhile (_ < d)" shouldEvaluateTo "'def'"
+  "'abcdef' | skipWhile (_ < 'd')" shouldEvaluateTo "'def'"
 
   // skipUntil
   "[1, 2, 3, 4, 5, 1] | skipUntil (_ > 3)" shouldEvaluateTo "[4, 5, 1]"
-  "'abcdef' | skipUntil (_ > d)" shouldEvaluateTo "'ef'"
+  "'abcdef' | skipUntil (_ > 'd')" shouldEvaluateTo "'ef'"
 
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "
@@ -470,7 +470,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "null | ?.foo" shouldEvaluateTo "null"
 
   // regex
-  "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "wibble"
+  "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "'wibble'"
 
   // date/time comparisons
   "now > 3.days.ago" shouldEvaluateTo "true"
@@ -498,17 +498,27 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // object field subtraction
   "{ foo: 42, bar: 100 } - 'foo'" shouldEvaluateTo "{ bar: 100 }"
   "{ foo: 42 } - 'bar'" shouldEvaluateTo "{ foo: 42 }"
-  
+
   // assignment 
   "a = 42; a" shouldEvaluateTo "42"
   "a = {}; a['foo'] = 42; a.foo" shouldEvaluateTo "42"
   "a = [1, 2, 3]; a[1] = 42; a" shouldEvaluateTo "[1, 42, 3]"
-  
+
   "a = 0; a += 42; a" shouldEvaluateTo "42"
   "a = 42; a -= 42; a" shouldEvaluateTo "0"
   "a = 3; a *= 4; a" shouldEvaluateTo "12"
   "a = 15; a /= 5; a" shouldEvaluateTo "3"
   "a = { foo: 0 }; a.foo += 42; a" shouldEvaluateTo "{ foo: 42 }"
   "a = [1, 0, 3]; a[1] += 42; a" shouldEvaluateTo "[1, 42, 3]"
-  
+
+  { // bare words
+    implicit val config = Config(bareWords = true)
+
+    "foo" shouldEvaluateTo "'foo'"
+
+    // Was a bug here, where foo was incorrectly identified as a bare word
+    "def foo x = if x == 0 then 1 else foo (x - 1); foo 5" shouldEvaluateTo "1"
+    
+  }
+
 }

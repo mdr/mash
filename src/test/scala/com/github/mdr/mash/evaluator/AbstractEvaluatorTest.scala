@@ -11,12 +11,14 @@ import com.github.mdr.mash.compiler.CompilationUnit
 
 abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 
-  protected implicit class RichString(s: String) {
+  case class Config(bareWords: Boolean = false)
+  
+  protected implicit class RichString(s: String)(implicit config: Config = Config()) {
 
     def shouldThrowAnException =
       "Evaluator" should s"throw an exception when evaluating '$s'" in {
         val env = StandardEnvironment.create
-        val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap)
+        val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap, bareWords = config.bareWords)
         try {
           val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables.fields)))
           fail("Expected an exception during evaluation, but got a result of: " + result)
@@ -28,7 +30,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
     def shouldNotThrowAnException =
       "Evaluator" should s"not throw an exception when evaluating '$s'" in {
         val env = StandardEnvironment.create
-        val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap)
+        val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap, bareWords = config.bareWords)
         Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables.fields)))
       }
 
@@ -36,11 +38,11 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = StandardEnvironment.create
 
-        val Some(expr1) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.bindings)
+        val Some(expr1) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.bindings, bareWords = config.bareWords)
         val ctx1 = EvaluationContext(ScopeStack(env.globalVariables.fields))
         val actual = Evaluator.evaluate(expr1)(ctx1)
 
-        val Some(expr2) = Compiler.compile(CompilationUnit(expectedString), forgiving = false, bindings = env.bindings)
+        val Some(expr2) = Compiler.compile(CompilationUnit(expectedString), forgiving = false, bindings = env.bindings, bareWords = config.bareWords)
         val ctx2 = EvaluationContext(ScopeStack(env.globalVariables.fields))
         val expected = Evaluator.evaluate(expr2)(ctx2)
 

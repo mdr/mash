@@ -96,7 +96,7 @@ class BareStringificationContext {
     case MinusExpr(expr, sourceInfoOpt) ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
     case AssignmentExpr(left @ Identifier(name, _), operatorOpt, right, alias, sourceInfoOpt) ⇒
-      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings + name), alias, sourceInfoOpt)
+      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
       AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
@@ -108,7 +108,7 @@ class BareStringificationContext {
       }
       MishInterpolation(newPart, sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.map(_.name)), sourceInfoOpt)
+      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.map(_.name) + name), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt) ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
