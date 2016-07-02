@@ -18,7 +18,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
         val env = StandardEnvironment.create
         val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap)
         try {
-          val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
+          val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables.fields)))
           fail("Expected an exception during evaluation, but got a result of: " + result)
         } catch {
           case _: EvaluatorException ⇒ // exception expected here
@@ -29,7 +29,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
       "Evaluator" should s"not throw an exception when evaluating '$s'" in {
         val env = StandardEnvironment.create
         val Some(expr) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.valuesMap)
-        Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
+        Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables.fields)))
       }
 
     def shouldEvaluateTo(expectedString: String) =
@@ -37,11 +37,11 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
         val env = StandardEnvironment.create
 
         val Some(expr1) = Compiler.compile(CompilationUnit(s), forgiving = false, bindings = env.bindings)
-        val ctx1 = EvaluationContext(ScopeStack(env.globalVariables))
+        val ctx1 = EvaluationContext(ScopeStack(env.globalVariables.fields))
         val actual = Evaluator.evaluate(expr1)(ctx1)
 
         val Some(expr2) = Compiler.compile(CompilationUnit(expectedString), forgiving = false, bindings = env.bindings)
-        val ctx2 = EvaluationContext(ScopeStack(env.globalVariables))
+        val ctx2 = EvaluationContext(ScopeStack(env.globalVariables.fields))
         val expected = Evaluator.evaluate(expr2)(ctx2)
 
         actual should equal(expected)

@@ -105,7 +105,7 @@ object ReplRenderer {
   private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
-    val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables, state.bareWords)
+    val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables.fields, state.bareWords)
     val cursorPos = prompt.length + lineBuffer.cursorPos
 
     val groups = styledChars.grouped(terminalInfo.columns).toSeq

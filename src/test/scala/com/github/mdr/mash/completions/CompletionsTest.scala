@@ -13,6 +13,8 @@ import com.github.mdr.mash.runtime.MashString
 import scala.collection.mutable
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import org.apache.commons.lang3.SystemUtils
+import com.github.mdr.mash.runtime.MashObject
+import scala.collection.immutable.ListMap
 
 class CompletionsTest extends FlatSpec with Matchers {
 
@@ -99,7 +101,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
-    implicit val environment = Environment(mutable.Map("readme" -> MashString("readme")))
+    implicit val environment = Environment(MashObject(Seq("readme" -> MashString("readme")), classOpt = None))
 
     "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
     "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")

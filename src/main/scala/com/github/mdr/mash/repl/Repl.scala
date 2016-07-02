@@ -196,6 +196,6 @@ class Repl(
     }
   }
 
-  protected def getBindings: Map[String, MashValue] = Map() ++ state.globalVariables
+  private def getBindings: Map[String, MashValue] = state.globalVariables.immutableFields
 
 }

@@ -8,6 +8,7 @@ v0.0.3 (..)
 * Improve Ctrl-Space invocation assistance
 * Add compound assignment operators: +=, -=, *=, /=
 * Remember the most recent incomplete command as the last entry in history
+* Add a globals object, prevent infinite loops when toStringing cycles
 
 v0.0.2 (22/June/2016)
 ---------------------

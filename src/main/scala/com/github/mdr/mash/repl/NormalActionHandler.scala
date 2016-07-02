@@ -174,14 +174,14 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def saveResult(number: Int)(result: MashValue) {
-    state.globalVariables += ReplState.It -> result
-    val oldResults = state.globalVariables.get(ReplState.Res) match {
+    state.globalVariables.set(ReplState.It, result)
+    val oldResults = state.globalVariables.getField(ReplState.Res) match {
       case Some(MashList(oldResults @ _*)) ⇒ oldResults
       case _                               ⇒ Seq()
     }
     val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(MashNull)
     val newResults = MashList(extendedResults.updated(number, result))
-    state.globalVariables += ReplState.Res -> newResults
+    state.globalVariables.set(ReplState.Res, newResults)
   }
 
   private def handleComplete() = {

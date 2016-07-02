@@ -33,7 +33,7 @@ class ReplState(
     var completionStateOpt: Option[CompletionState] = None,
     var assistanceStateOpt: Option[AssistanceState] = None,
     var continue: Boolean = true, // Whether to loop or exit
-    var globalVariables: mutable.Map[String, MashValue] = StandardEnvironment.createGlobalVariables(),
+    var globalVariables: MashObject = StandardEnvironment.createGlobalVariables(),
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
     var mish: Boolean = false,
     var yankLastArgStateOpt: Option[YankLastArgState] = None,
@@ -64,8 +64,8 @@ class ReplState(
         case None                                        ⇒ ReplMode.Normal
       }
 
-  private def getConfigObject: Option[MashObject] = globalVariables.get("config") collect {
-    case mo: MashObject ⇒ mo
+  private def getConfigObject: Option[MashObject] = globalVariables.getField(StandardEnvironment.Config) collect {
+    case obj: MashObject ⇒ obj
   }
 
   private def getBooleanConfig(configOption: ConfigOption): Boolean = {

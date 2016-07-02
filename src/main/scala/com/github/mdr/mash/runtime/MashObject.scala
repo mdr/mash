@@ -6,6 +6,7 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.ToStringifier
 
 object MashObject {
 
@@ -51,7 +52,7 @@ case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option
     MashObject(newFields, classOpt = None)
   }
 
-  override def toString = {
+  override def toString = ToStringifier.visit(this, "{…}") {
     val fieldString = fields.map { case (k, v) ⇒ s"$k: $v" }.mkString(", ")
     val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
     s"{ $classString$fieldString }"

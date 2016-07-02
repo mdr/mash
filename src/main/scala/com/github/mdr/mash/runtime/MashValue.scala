@@ -15,6 +15,10 @@ import com.github.mdr.mash.evaluator.SourceLocation
 
 trait MashValue {
 
+  def asObject: Option[MashObject] = condOpt(this) {
+    case obj: MashObject ⇒ obj
+  }
+  
   def typeName: String = primaryClass.name
 
   def primaryClass: MashClass = this match {

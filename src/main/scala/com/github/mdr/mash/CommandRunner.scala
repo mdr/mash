@@ -49,7 +49,7 @@ object DebugCommand {
 
 }
 
-class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVariables: mutable.Map[String, MashValue]) {
+class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVariables: MashObject) {
 
   /**
    * @return the (optional) result of the command
@@ -90,13 +90,13 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
     try {
       val ctx = new ExecutionContext(Thread.currentThread)
-      Singletons.environment = globalVariables.get("env") match {
+      Singletons.environment = globalVariables.getField("env") match {
         case Some(mo: MashObject) ⇒ mo
         case _                    ⇒ MashObject(ListMap[String, MashValue](), classOpt = None)
       }
       Singletons.setExecutionContext(ctx)
       ExecutionContext.set(ctx)
-      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables)))
+      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables.fields)))
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
         printError("Error", msg, unit, stack.reverse)
@@ -109,7 +109,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
     try
-      Compiler.compile(unit, Map() ++ globalVariables, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
+      Compiler.compile(unit, globalVariables.immutableFields, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
     catch {
       case MashParserException(msg, location) ⇒
         printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
@@ -149,13 +149,13 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   private def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
     (keyword, args) match {
       case ("p" | "pretty", actualCmd) ⇒
-        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), globalVariables.immutableFields, forgiving = true, inferTypes = true, bareWords = bareWords))
           TreePrettyPrinter.printTree(expr)
       case ("e" | "expression", actualCmd) ⇒
-        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), globalVariables.immutableFields, forgiving = true, bareWords = bareWords))
           output.println(PrettyPrinter.pretty(expr))
       case ("t" | "type", actualCmd) ⇒
-        for (expr ← Compiler.compile(CompilationUnit(actualCmd), Map() ++ globalVariables, forgiving = true, inferTypes = true, bareWords = bareWords))
+        for (expr ← Compiler.compile(CompilationUnit(actualCmd), globalVariables.immutableFields, forgiving = true, inferTypes = true, bareWords = bareWords))
           output.println(expr.typeOpt.getOrElse("Could not infer type"))
       case ("tokens", actualCmd) ⇒
         MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(output.println)

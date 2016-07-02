@@ -1,6 +1,7 @@
 package com.github.mdr.mash.runtime
 
 import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.evaluator.ToStringifier
 
 object MashList {
 
@@ -47,7 +48,9 @@ class MashList(val items: ArrayBuffer[MashValue]) extends MashValue {
     case _              ⇒ false
   }
 
-  override def toString = items.mkString("[", ", ", "]")
+  override def toString = ToStringifier.visit(this, "[…]") {
+    items.mkString("[", ", ", "]")
+  }
 
   override def hashCode = this.items.hashCode
 }
