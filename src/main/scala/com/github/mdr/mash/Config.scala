@@ -33,11 +33,11 @@ object Config {
     valueOpt.getOrElse(configOption.defaultValue)
   }
 
-  private def getConfig(mo: MashObject, path: Seq[String]): Option[MashValue] = {
+  private def getConfig(obj: MashObject, path: Seq[String]): Option[MashValue] = {
     for {
       first ← path.headOption
       rest = path.tail
-      firstValue ← mo.getField(first)
+      firstValue ← obj.get(first)
       restValue ← rest match {
         case Seq() ⇒
           Some(firstValue)
@@ -57,7 +57,7 @@ object Config {
         case Seq()    ⇒
         case Seq(key) ⇒ obj.set(key, value)
         case Seq(head, rest @ _*) ⇒
-          val childObj = obj.getField(head) match {
+          val childObj = obj.get(head) match {
             case Some(obj: MashObject) ⇒
               obj
             case _ ⇒

@@ -21,7 +21,7 @@ object StandardEnvironment {
     val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ f.name -> f)
     val aliasPairs = MashRoot.Aliases.toSeq
-    def rootField(s: String) = ns.getField(s).get
+    def rootField(s: String) = ns.get(s).get
     val rootNsPairs = ns.fields.toSeq
     val otherPairs: Seq[(String, MashValue)] =
       Seq(

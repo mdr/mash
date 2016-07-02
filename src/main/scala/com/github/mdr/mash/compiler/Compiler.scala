@@ -22,7 +22,9 @@ object Compiler {
    *
    * @param forgiving - if true, recover from syntax errors. If false, syntax errors will raise an exception.
    * @param inferTypes - if true, the resultant expression will be annotated with types, if it was possible to infer them.
-   *
+   * @param mish - if true, parse outermost expression as mish by default
+   * @param bareWords - if true, unbound identifiers are promoted to string literals
+   * 
    * @return an expr, if found or else None
    */
   @throws[MashParserException]

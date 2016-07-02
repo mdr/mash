@@ -27,8 +27,8 @@ object IdentityClass extends MashClass("git.Identity") {
   def summary = "A combination of a person identity and time in Git"
 
   case class Wrapper(target: MashValue) {
-    def name: MashString = target.asInstanceOf[MashObject].field(Name).asInstanceOf[MashString]
-    def email: MashString = target.asInstanceOf[MashObject].field(Email).asInstanceOf[MashString]
+    def name: MashString = target.asInstanceOf[MashObject](Name).asInstanceOf[MashString]
+    def email: MashString = target.asInstanceOf[MashObject](Email).asInstanceOf[MashString]
   }
 
   object ToStringMethod extends MashMethod("toString") {

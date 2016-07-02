@@ -44,9 +44,9 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     private val user = target.asInstanceOf[MashObject]
 
-    def username: String = user.field(Name).asInstanceOf[MashString].s
+    def username: String = user(Name).asInstanceOf[MashString].s
 
-    def primaryGroup: MashString = user.field(PrimaryGroup).asInstanceOf[MashString]
+    def primaryGroup: MashString = user(PrimaryGroup).asInstanceOf[MashString]
 
   }
 

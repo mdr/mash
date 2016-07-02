@@ -25,7 +25,7 @@ class ReplTest extends FlatSpec with Matchers {
     val repl = newRepl
     repl.input("1")
     repl.acceptLine()
-    repl.state.globalVariables.getField(ReplState.It) should equal(Some(MashNumber(1)))
+    repl.state.globalVariables.get(ReplState.It) should equal(Some(MashNumber(1)))
   }
 
   "Single tab" should "complete a unique completion" in {
@@ -167,7 +167,7 @@ object ReplTest {
 
     def draw(): Repl = { repl.draw(); repl }
 
-    def it: MashValue = { repl.state.globalVariables.getField(ReplState.It).get }
+    def it: MashValue = { repl.state.globalVariables.get(ReplState.It).get }
 
     def incrementalCompletionState = repl.state.completionStateOpt.collect {
       case ics: IncrementalCompletionState ⇒ ics

@@ -56,7 +56,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
 
   case class Wrapper(target: MashValue) {
 
-    def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
+    def name = target.asInstanceOf[MashObject](Fields.Name).asInstanceOf[MashString]
 
   }
 

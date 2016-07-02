@@ -157,7 +157,7 @@ trait NormalActionHandler { self: Repl ⇒
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
     val CommandResult(resultOpt, toggleMish, objectTableModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
-      case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.getField(ViewClass.Fields.Data).getOrElse(obj)
+      case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
       case result                               ⇒ result
     }
     val commandNumber = state.commandNumber
@@ -175,7 +175,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def saveResult(number: Int)(result: MashValue) {
     state.globalVariables.set(ReplState.It, result)
-    val oldResults = state.globalVariables.getField(ReplState.Res) match {
+    val oldResults = state.globalVariables.get(ReplState.Res) match {
       case Some(MashList(oldResults @ _*)) ⇒ oldResults
       case _                               ⇒ Seq()
     }

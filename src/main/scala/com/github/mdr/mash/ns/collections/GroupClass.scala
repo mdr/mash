@@ -26,7 +26,7 @@ object GroupClass extends MashClass("collections.Group") {
 
     val mo = target.asInstanceOf[MashObject]
 
-    def values = mo.field(Values).asInstanceOf[MashList]
+    def values = mo(Values).asInstanceOf[MashList]
 
   }
 

@@ -34,13 +34,13 @@ case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option
 
   def set(fieldName: String, value: MashValue) { fields(fieldName) = value }
 
+  def apply(fieldName: String): MashValue = fields(fieldName)
+  
   def apply(field: Field): MashValue = fields(field.name)
 
-  def getField(fieldName: String): Option[MashValue] = fields.get(fieldName)
+  def get(fieldName: String): Option[MashValue] = fields.get(fieldName)
 
-  def getField(field: Field): Option[MashValue] = getField(field.name)
-
-  def field(field: Field): MashValue = fields(field.name)
+  def get(field: Field): Option[MashValue] = fields.get(field.name)
 
   def -(fieldName: String): MashObject = {
     val newFields = LinkedHashMap(fields.filterKeys(_ != fieldName).toSeq: _*)

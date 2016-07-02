@@ -57,10 +57,10 @@ object CommitClass extends MashClass("git.Commit") {
 
   case class Wrapper(target: MashValue) {
 
-    def hash: MashString = target.asInstanceOf[MashObject].field(Hash).asInstanceOf[MashString]
+    def hash: MashString = target.asInstanceOf[MashObject](Hash).asInstanceOf[MashString]
 
     def parents: Seq[MashString] =
-      target.asInstanceOf[MashObject].field(Parents).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString])
+      target.asInstanceOf[MashObject](Parents).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString])
 
     def parentOpt: Option[MashString] = parents.headOption
 

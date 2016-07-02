@@ -64,9 +64,7 @@ class ReplState(
         case None                                        ⇒ ReplMode.Normal
       }
 
-  private def getConfigObject: Option[MashObject] = globalVariables.getField(StandardEnvironment.Config) collect {
-    case obj: MashObject ⇒ obj
-  }
+  private def getConfigObject: Option[MashObject] = globalVariables.get(StandardEnvironment.Config).flatMap(_.asObject)
 
   private def getBooleanConfig(configOption: ConfigOption): Boolean = {
     val rawValue = Config.getConfig(getConfigObject, configOption)

@@ -48,9 +48,9 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   case class Wrapper(target: MashValue) {
 
-    def name = target.asInstanceOf[MashObject].field(Fields.Name).asInstanceOf[MashString]
+    def name = target.asInstanceOf[MashObject](Fields.Name).asInstanceOf[MashString]
 
-    def remote = target.asInstanceOf[MashObject].field(Fields.Remote).asInstanceOf[MashString]
+    def remote = target.asInstanceOf[MashObject](Fields.Remote).asInstanceOf[MashString]
 
     def fullName: MashString = MashString(s"$remote/$name", RemoteBranchNameClass)
 

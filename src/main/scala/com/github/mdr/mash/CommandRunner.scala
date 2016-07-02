@@ -90,7 +90,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
   private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
     try {
       val ctx = new ExecutionContext(Thread.currentThread)
-      Singletons.environment = globalVariables.getField("env") match {
+      Singletons.environment = globalVariables.get(StandardEnvironment.Env) match {
         case Some(mo: MashObject) ⇒ mo
         case _                    ⇒ MashObject(ListMap[String, MashValue](), classOpt = None)
       }

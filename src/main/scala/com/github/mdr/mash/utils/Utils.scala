@@ -9,9 +9,19 @@ import com.github.mdr.mash.runtime.MashString
 
 object Utils {
 
-  def minBy[A, B](xs: Seq[A], f: A => B)(implicit cmp: Ordering[B]): Option[A] = 
+  def time[T](label: String)(p: ⇒ T) = {
+    val start = System.nanoTime
+    try
+      p
+    finally {
+      val duration = (System.nanoTime - start) / 1000000.0
+      println(s"$label: $duration ms")
+    }
+  }
+
+  def minBy[A, B](xs: Seq[A], f: A ⇒ B)(implicit cmp: Ordering[B]): Option[A] =
     if (xs.isEmpty) None else Some(xs.minBy(f))
-  
+
   def indexOf(s: String, s2: String): Option[Int] = s.indexOf(s2) match {
     case -1 ⇒ None
     case n  ⇒ Some(n)

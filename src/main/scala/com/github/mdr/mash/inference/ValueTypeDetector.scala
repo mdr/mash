@@ -69,9 +69,9 @@ class ValueTypeDetector {
     case mo @ MashObject(_, Some(GroupClass)) ⇒
       val groupTypeOpt =
         for {
-          key ← mo.getField(GroupClass.Fields.Key)
+          key ← mo.get(GroupClass.Fields.Key)
           keyType = getType(key)
-          values ← mo.getField(GroupClass.Fields.Values)
+          values ← mo.get(GroupClass.Fields.Values)
           valuesType = getType(values)
         } yield valuesType match {
           case Type.Seq(valueType) ⇒ Type.Group(keyType, valueType)

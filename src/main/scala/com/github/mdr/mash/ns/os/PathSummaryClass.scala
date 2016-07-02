@@ -42,7 +42,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
   }
 
   private case class Wrapper(obj: MashValue) {
-    def path: MashString = obj.asInstanceOf[MashObject].field(Fields.Path).asInstanceOf[MashString]
+    def path: MashString = obj.asInstanceOf[MashObject](Fields.Path).asInstanceOf[MashString]
   }
 
   private def liftPathMethod(method: MashMethod) = new MashMethod(method.name) {

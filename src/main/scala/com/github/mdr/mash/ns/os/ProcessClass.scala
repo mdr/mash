@@ -45,10 +45,10 @@ object ProcessClass extends MashClass("os.Process") {
 
     private val obj = target.asInstanceOf[MashObject]
 
-    def pid: Int = obj.field(Pid).asInstanceOf[MashNumber].asInt.get
+    def pid: Int = obj(Pid).asInstanceOf[MashNumber].asInt.get
 
     def parentPidOpt: Option[Int] =
-      MashNull.option(obj.field(ParentPid)).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
+      MashNull.option(obj(ParentPid)).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
 
   }
 
