@@ -151,6 +151,13 @@ class MashLexerTest extends FlatSpec with Matchers {
     "03" shouldThrowAnExceptionAtPos (1)
     "$" shouldThrowAnExceptionAtPos (0)
   }
+  
+  // Multilines
+  """foo
+     bar""" shouldProduce Seq(IDENTIFIER, IDENTIFIER)
+
+  """foo #bar
+     baz""" shouldProduce Seq(IDENTIFIER, IDENTIFIER)
 
   implicit class RichString(s: String) {
     def shouldThrowAnExceptionAtPos(pos: Int)(implicit mode: Mode = Mode()) {
