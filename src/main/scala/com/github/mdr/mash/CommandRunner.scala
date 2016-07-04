@@ -52,6 +52,8 @@ object DebugCommand {
 
 class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVariables: MashObject) {
 
+  val errorPrinter = new ErrorPrinter(output, terminalInfo)
+  
   /**
    * @return the (optional) result of the command
    */
@@ -103,7 +105,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globalVariables.fields)))
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
-        printError("Error", msg, unit, stack.reverse)
+        errorPrinter.printError("Error", msg, unit, stack.reverse)
         DebugLogger.logException(e)
         MashUnit
       case _: EvaluationInterruptedException ⇒
@@ -116,46 +118,12 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
       Compiler.compile(unit, globalVariables.immutableFields, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
     catch {
       case MashParserException(msg, location) ⇒
-        printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
+        errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None
       case MashLexerException(msg, location) ⇒
-        printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
+        errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None
     }
-
-  private def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[SourceLocation]) = {
-    output.println(Ansi.ansi().fg(Ansi.Color.RED).bold.a(msgType + ":").boldOff.a(" " + msg).reset())
-    if (stack.isEmpty)
-      output.println(Ansi.ansi().fg(Ansi.Color.RED).a(unit.text).reset())
-    else {
-      for (entry ← stack) {
-        val SourceLocation(provenance, PointedRegion(point, region @ Region(offset, length))) = entry
-        val lineInfo = new LineInfo(provenance.source)
-        val (lineIndex, column) = lineInfo.lineAndColumn(point)
-        val line = lineInfo.lines(lineIndex)
-        val isImmediateError = unit.provenance == provenance && unit.interactive
-        val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}:"
-        if (isImmediateError)
-          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(line).reset())
-        else {
-          output.print(Ansi.ansi().bold.fg(Ansi.Color.RED).a(prefix).reset())
-          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(line).reset())
-        }
-        output.print(Ansi.ansi().fg(Ansi.Color.RED))
-        val padding = " " * prefix.length
-        output.print(padding)
-        val lineStart = lineInfo.lineStart(lineIndex)
-        val lineEnd = lineInfo.lineEnd(lineIndex)
-        for (i ← lineStart until lineEnd)
-          output.print(i match {
-            case i if i == point         ⇒ "^"
-            case i if region.contains(i) ⇒ "-"
-            case _                       ⇒ " "
-          })
-        output.println(Ansi.ansi().reset())
-      }
-    }
-  }
 
   private def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
     (keyword, args) match {

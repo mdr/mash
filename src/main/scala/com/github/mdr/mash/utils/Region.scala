@@ -35,6 +35,8 @@ case class Region(offset: Int, length: Int) {
     Region(offset, posAfter - offset)
   }
 
+  def range = offset until posAfter
+  
 }
 
 /**
