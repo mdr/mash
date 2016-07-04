@@ -41,7 +41,7 @@ object NamespaceCreator {
           }
           name -> value
       }.toSeq.sortBy(_._1)
-    MashObject(ListMap(fields: _*), classOpt = None)
+    MashObject.of(fields)
   }
 
 }

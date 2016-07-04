@@ -14,7 +14,7 @@ object StandardEnvironment {
   val Config = "config"
   val Global = "global"
   val Ns = "ns"
-  
+
   def create = Environment(createGlobalVariables())
 
   def createGlobalVariables(): MashObject = {
@@ -30,8 +30,8 @@ object StandardEnvironment {
         ReplState.It -> MashNull,
         Ns -> ns)
     val allPairs = nameFunctionPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
-    val global =  MashObject(allPairs, None)
-     global.set(Global, global)
+    val global = MashObject.of(allPairs)
+    global.set(Global, global)
     global
   }
 
@@ -39,7 +39,7 @@ object StandardEnvironment {
     val fields: Map[String, MashValue] =
       for ((k, v) ← System.getenv.asScala.toMap)
         yield k -> MashString(v)
-    MashObject(ListMap(fields.toSeq: _*), classOpt = None)
+    MashObject.of(fields)
   }
 }
 

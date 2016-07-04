@@ -36,7 +36,7 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
       StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
     val name = ref.getName.replaceAll("^refs/heads/", "")
     import LocalBranchClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(name, LocalBranchNameClass),
         Commit -> MashString(id, CommitHashClass),

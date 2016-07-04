@@ -45,7 +45,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   def getHelp(f: MashFunction): MashObject = {
     import FunctionHelpClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(f.name),
         FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
@@ -64,7 +64,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   def getHelp(m: MashMethod, klass: MashClass): MashObject = {
     import FunctionHelpClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(m.name),
         FullyQualifiedName -> MashString(m.name),
@@ -78,7 +78,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   def getHelp(field: Field, klass: MashClass): MashObject = {
     import FieldHelpClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(field.name),
         Class -> MashString(klass.fullyQualifiedName.toString),
@@ -89,7 +89,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   def getHelp(param: Parameter): MashObject = {
     import ParameterHelpClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(param.name),
         Summary -> MashString(param.summary),
@@ -106,7 +106,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     import ClassHelpClass.Fields._
     val fields = klass.fields.map(getHelp(_, klass))
     val methods = klass.methods.sortBy(_.name).map(getHelp(_, klass))
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(klass.name),
         FullyQualifiedName -> MashString(klass.fullyQualifiedName.toString),

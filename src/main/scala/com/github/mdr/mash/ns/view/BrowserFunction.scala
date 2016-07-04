@@ -26,7 +26,7 @@ object BrowserFunction extends MashFunction("view.browser") {
     val boundParams = params.validate(arguments)
     val data = boundParams(Data)
     import ViewClass.Fields._
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       Data -> data,
       DisableCustomViews -> MashBoolean.False,
       UseBrowser -> MashBoolean.True), ViewClass)

@@ -78,7 +78,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   def asMashObject(summary: PathSummary): MashObject = {
     val PathSummary(path, fileType, size, owner, group, permissions, lastModified, lastAccessed) = summary
-    MashObject(
+    MashObject.of(
       ListMap(
         Fields.Path -> asPathString(path),
         Fields.Type -> MashString(fileType, FileTypeClass),

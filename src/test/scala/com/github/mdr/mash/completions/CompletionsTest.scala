@@ -101,7 +101,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
-    implicit val environment = Environment(MashObject(Seq("readme" -> MashString("readme")), classOpt = None))
+    implicit val environment = Environment(MashObject.of(Seq("readme" -> MashString("readme"))))
 
     "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
     "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")

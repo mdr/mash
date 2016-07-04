@@ -67,7 +67,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
       val context = new ExecutionContext(Thread.currentThread)
       Singletons.environment = globals.get(StandardEnvironment.Env) match {
         case Some(obj: MashObject) ⇒ obj
-        case _                     ⇒ MashObject(ListMap[String, MashValue](), classOpt = None)
+        case _                     ⇒ MashObject.empty()
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)

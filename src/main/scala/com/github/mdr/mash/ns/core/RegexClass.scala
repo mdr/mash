@@ -36,11 +36,11 @@ object RegexClass extends MashClass("core.Regex") {
       val matchOption = regex.findFirstMatchIn(s)
       matchOption.map { m ⇒
         import MatchClass.Fields
-        MashObject(
+        MashObject.of(
           ListMap(
             Fields.Matched -> MashString(m.matched),
             Fields.Groups -> MashList(m.subgroups.map(MashString(_)))),
-          classOpt = Some(MatchClass))
+          klass = MatchClass)
       }.getOrElse(MashNull)
     }
 

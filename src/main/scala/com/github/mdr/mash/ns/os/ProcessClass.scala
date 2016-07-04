@@ -53,7 +53,7 @@ object ProcessClass extends MashClass("os.Process") {
   }
 
   def makeProcess(info: ProcessInfo): MashObject =
-    MashObject(
+    MashObject.of(
       ListMap(
         Pid -> MashNumber(info.pid, PidClass),
         ParentPid -> info.parentPidOpt.map(pid ⇒ MashNumber(pid, PidClass)).getOrElse(MashNull),

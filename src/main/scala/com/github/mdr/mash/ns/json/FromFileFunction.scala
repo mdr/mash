@@ -62,7 +62,7 @@ object FromFileFunction extends MashFunction("json.fromFile") {
       val fields =
         for (x ← obj.entrySet.iterator.asScala.toSeq)
           yield x.getKey -> asMashObject(x.getValue)
-      MashObject(ListMap(fields: _*), classOpt = None)
+      MashObject.of(fields)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)

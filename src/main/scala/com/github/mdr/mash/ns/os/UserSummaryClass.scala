@@ -99,7 +99,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val uid = MashNumber(entry.uid, UidClass)
     val home = MashString(entry.homeDirectory, PathClass)
     val shell = MashString(entry.shell, PathClass)
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> username,
         Uid -> uid,

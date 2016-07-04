@@ -57,7 +57,7 @@ object StatusFunction extends MashFunction("git.status") {
     val conflicting = mashify(status.getConflicting)
     val (upstreamBranch, aheadCount, behindCount) = mashify(branchTrackingStatusOpt)
     import StatusClass.Fields._
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       Branch -> MashString(branch, LocalBranchNameClass),
       UpstreamBranch -> upstreamBranch,
       AheadCount -> aheadCount,

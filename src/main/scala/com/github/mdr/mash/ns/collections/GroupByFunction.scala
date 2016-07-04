@@ -89,7 +89,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   private def makeGroup(key: MashValue, values: Seq[MashValue]) = {
     import GroupClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Key -> key,
         Values -> MashList(values)),

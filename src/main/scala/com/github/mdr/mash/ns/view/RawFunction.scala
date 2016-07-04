@@ -26,7 +26,7 @@ object RawFunction extends MashFunction("view.raw") {
     val boundParams = params.validate(arguments)
     val data = boundParams(Data)
     import ViewClass.Fields._
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       Data -> data,
       DisableCustomViews -> MashBoolean.True,
       UseBrowser -> MashBoolean.False), ViewClass)

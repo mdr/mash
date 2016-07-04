@@ -144,7 +144,7 @@ object CommitClass extends MashClass("git.Commit") {
       }
       def processPath(path: String): MashValue =
         Option(path).flatMap(handleDevNull).map(s ⇒ MashString(s, PathClass)).getOrElse(MashNull)
-      MashObject(
+      MashObject.of(
         ListMap(
           _Type -> MashString(diff.getChangeType.name.toLowerCase.capitalize),
           OldPath -> processPath(diff.getOldPath),

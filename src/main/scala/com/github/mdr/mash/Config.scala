@@ -51,7 +51,7 @@ object Config {
   }
 
   def defaultConfig = {
-    val config = MashObject(LinkedHashMap())
+    val config = MashObject.empty()
     def addConfigOption(obj: MashObject, path: Seq[String], value: MashValue) {
       path match {
         case Seq()    ⇒
@@ -61,7 +61,7 @@ object Config {
             case Some(obj: MashObject) ⇒
               obj
             case _ ⇒
-              val newObj = MashObject(LinkedHashMap())
+              val newObj = MashObject.empty()
               obj.set(head, newObj)
               newObj
           }

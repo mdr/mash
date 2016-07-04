@@ -38,7 +38,7 @@ object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
     val name = ref.getName.replaceAll("^refs/remotes/", "")
     val Seq(remote, branchName) = name.split("/", 2).toSeq
     import RemoteBranchClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Remote -> MashString(remote, RemoteNameClass),
         Name -> MashString(branchName, RemoteBranchNameClass),

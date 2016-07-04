@@ -55,7 +55,7 @@ object LogFunction extends MashFunction("git.log") {
     val commitTime = Instant.ofEpochSecond(commit.getCommitTime)
     val author = MashString(commit.getAuthorIdent.getName)
     val parents = MashList(commit.getParents.toSeq.map(commitHash))
-    MashObject(
+    MashObject.of(
       ListMap(
         Hash -> commitHash(commit),
         CommitTime -> MashWrapped(commitTime),
@@ -69,7 +69,7 @@ object LogFunction extends MashFunction("git.log") {
 
   private def asIdentityObject(ident: PersonIdent): MashObject = {
     import IdentityClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         Name -> MashString(ident.getName),
         Email -> MashString(ident.getEmailAddress)),

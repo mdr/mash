@@ -24,7 +24,7 @@ object ObjectClass extends MashClass("core.Object") {
       val obj = target.asInstanceOf[MashObject]
       def asObject(name: String, value: MashValue) = {
         import FieldAndValueClass.Fields._
-        MashObject(ListMap(
+        MashObject.of(ListMap(
           Name -> MashString(name),
           Value -> value), FieldAndValueClass)
       }

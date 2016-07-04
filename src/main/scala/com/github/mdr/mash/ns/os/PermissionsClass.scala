@@ -23,7 +23,7 @@ object PermissionsClass extends MashClass("os.Permissions") {
 
   def asMashObject(permissions: Permissions): MashObject = {
     val Permissions(owner, others, group) = permissions
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       Owner -> PermissionsSectionClass.asMashObject(owner),
       Group -> PermissionsSectionClass.asMashObject(group),
       Others -> PermissionsSectionClass.asMashObject(others)),

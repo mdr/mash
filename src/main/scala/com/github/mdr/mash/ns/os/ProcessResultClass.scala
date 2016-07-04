@@ -44,7 +44,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   def fromResult(processResult: ProcessResult): MashObject = {
     import ProcessResultClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         ExitStatus -> MashNumber(processResult.exitStatus),
         Stdout -> MashString(processResult.stdout),

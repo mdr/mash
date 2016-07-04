@@ -28,7 +28,7 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
 
   def makeGroupInfo(groupEntry: GroupEntry, passwdEntries: Seq[PasswdEntry]): MashObject = {
     val users = GroupClass.UsersMethod.getUsers(groupEntry)
-    MashObject(
+    MashObject.of(
       ListMap(
         Fields.Name -> MashString(groupEntry.group, GroupClass),
         Fields.Gid -> MashNumber(groupEntry.gid, GidClass),

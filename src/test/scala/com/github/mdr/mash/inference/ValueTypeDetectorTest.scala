@@ -30,13 +30,13 @@ class ValueTypeDetectorTest extends FlatSpec with Matchers {
   }
 
   "ValueTypeDetector" should "detect object types in a classless object" in {
-    ValueTypeDetector.getType(MashObject(fields = ListMap("foo" -> MashBoolean.True), classOpt = None)) shouldEqual (
+    ValueTypeDetector.getType(MashObject.of(Seq("foo" -> MashBoolean.True))) shouldEqual (
       Type.Object(ListMap("foo" -> BooleanClass)))
   }
 
   "ValueTypeDetector" should "detect object types in an object with a class" in {
     import PermissionsSectionClass.Fields._
-    val obj = MashObject(
+    val obj = MashObject.of(
       fields = ListMap(
         CanRead -> MashBoolean.True,
         CanWrite -> MashBoolean.True,

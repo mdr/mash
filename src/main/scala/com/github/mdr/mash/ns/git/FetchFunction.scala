@@ -31,7 +31,7 @@ object FetchFunction extends MashFunction("git.fetch") {
   def asMashObject(update: TrackingRefUpdate): MashObject = {
     val branchName = update.getLocalName.replaceAll("^refs/remotes/", "")
     import FetchBranchUpdateClass.Fields._
-    MashObject(
+    MashObject.of(
       ListMap(
         RemoteBranch -> MashString(branchName, RemoteBranchNameClass),
         OldCommit -> asCommitHash(update.getOldObjectId),

@@ -1,5 +1,6 @@
 package com.github.mdr.mash.runtime
 
+import scala.language.implicitConversions
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap
 import com.github.mdr.mash.evaluator.Evaluator
@@ -8,22 +9,34 @@ import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
 
-object MashObject {
+trait ViewableAsFields {
+  def fields: LinkedHashMap[String, MashValue]
+}
 
-  def apply(fields: ListMap[Field, MashValue], klass: MashClass): MashObject = {
-    val newFields: ListMap[String, MashValue] = for ((k, v) ← fields) yield k.name -> v
-    MashObject(LinkedHashMap(newFields.toSeq: _*), Some(klass))
+object ViewableAsFields {
+
+  implicit def fromLinkedHashMap(map: LinkedHashMap[String, MashValue]): ViewableAsFields = new ViewableAsFields { def fields = map }
+  implicit def fromMap(map: Map[String, MashValue]): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(map.toSeq: _*) }
+  implicit def fromListMap(map: Map[Field, MashValue]): ViewableAsFields = new ViewableAsFields {
+    def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ field.name -> v }: _*)
   }
-
-  def apply(fields: ListMap[String, MashValue], classOpt: Option[MashClass]): MashObject =
-    MashObject(LinkedHashMap(fields.toSeq: _*), classOpt)
-
-  def apply(fields: Seq[(String, MashValue)], classOpt: Option[MashClass]): MashObject =
-    MashObject(LinkedHashMap(fields: _*), classOpt)
+  implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(pairs: _*) }
 
 }
 
-case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option[MashClass] = None) extends MashValue {
+object MashObject {
+
+  def of[T <% ViewableAsFields](fields: T, klass: MashClass): MashObject =
+    MashObject(fields.fields, Some(klass))
+
+  def of[T <% ViewableAsFields](fields: T): MashObject =
+    MashObject(fields.fields, None)
+
+  def empty() = of(Seq())
+
+}
+
+case class MashObject private (fields: LinkedHashMap[String, MashValue], classOpt: Option[MashClass] = None) extends MashValue {
 
   for (klass ← classOpt) {
     val klassFields = klass.fields.map(_.name)
@@ -35,7 +48,7 @@ case class MashObject(fields: LinkedHashMap[String, MashValue], classOpt: Option
   def set(fieldName: String, value: MashValue) { fields(fieldName) = value }
 
   def apply(fieldName: String): MashValue = fields(fieldName)
-  
+
   def apply(field: Field): MashValue = fields(field.name)
 
   def get(fieldName: String): Option[MashValue] = fields.get(fieldName)

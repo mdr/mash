@@ -86,7 +86,7 @@ object Evaluator extends EvaluatorHelper {
       case identifier: Identifier                 ⇒ evaluateIdentifier(identifier)
       case ObjectExpr(entries, _) ⇒
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
-        MashObject(fields, classOpt = None)
+        MashObject.of(fields)
     }
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue = {

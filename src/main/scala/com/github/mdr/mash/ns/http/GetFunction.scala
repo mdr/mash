@@ -39,7 +39,7 @@ object GetFunction extends MashFunction("http.get") {
     val is = response.getEntity.getContent
     val body = IOUtils.toString(is, "UTF-8")
     import ResponseClass.Fields._
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       Status -> MashNumber(code),
       Body -> MashString(body)), ResponseClass)
 

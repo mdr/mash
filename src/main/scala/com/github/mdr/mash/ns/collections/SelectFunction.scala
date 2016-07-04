@@ -80,7 +80,7 @@ object SelectFunction extends MashFunction("collections.select") {
       for ((field, f) ← fieldsAndFunctions)
         yield field -> f(target)
     val newFields = ListMap((mapPairs): _*)
-    MashObject(baseFields ++ newFields, classOpt = None)
+    MashObject.of(baseFields ++ newFields)
   }
 
   override def typeInferenceStrategy = SelectTypeInferenceStrategy

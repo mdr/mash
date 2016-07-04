@@ -23,7 +23,7 @@ object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
 
   def asMashObject(section: PermissionsSection): MashObject = {
     val PermissionsSection(canRead, canWrite, canExecute) = section
-    MashObject(ListMap(
+    MashObject.of(ListMap(
       CanRead -> MashBoolean(canRead),
       CanWrite -> MashBoolean(canWrite),
       CanExecute -> MashBoolean(canExecute)),
