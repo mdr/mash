@@ -24,38 +24,48 @@ object MashParser {
       parse.command()
   }
 
-  def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Option[Expr] = {
+  def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
     val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
     val parse = new MashParse(tokens, forgiving = forgiving)
     if (mish)
-      Some(parse.mishExpr())
+      parse.mishExpr()
     else
-      Some(parse.expr())
+      parse.expr()
   }
 
 }
 
 class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
+
   import ConcreteSyntax._
   import TokenType._
 
+  /**
+   * Index of the token currently being examined
+   */
   private var pos = 0
 
-  private def currentLocation: PointedRegion = PointedRegion(currentToken.offset, currentToken.region)
-
-  private def currentToken: Token = this(pos)
-
-  private def apply(pos: Int): Token =
+  /**
+   * Return the token at the given position. If it's past the end of the token sequence, then return the last token (EOF).
+   */
+  private def token(pos: Int): Token =
     if (pos < tokens.length)
       tokens(pos)
     else
       tokens.last
 
+  private def currentToken: Token = token(pos)
+
   private def currentTokenType = currentToken.tokenType
 
   private def currentPos = currentToken.offset
 
-  /** @return the token before advancing */
+  private def currentLocation = PointedRegion(currentToken.offset, currentToken.region)
+
+  /**
+   *  Consume the current token, and advance to the next.
+   *  @return the token before advancing
+   */
   private def nextToken(): Token = {
     val token = currentToken
     pos += 1
@@ -63,9 +73,9 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
   }
 
   /**
-   * Fetch the token n positions in the stream ahead. If past the end, this will return EOF.
+   * Return the type of the token n positions in the stream ahead. If past the end, this will return EOF.
    */
-  private def lookahead(n: Int): TokenType = this(pos + n).tokenType
+  private def lookahead(n: Int): TokenType = token(pos + n).tokenType
 
   /**
    * We're testing token types a lot, a bit of shorthand helps.
@@ -75,7 +85,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
   private def errorExpectedToken(expected: String) =
     throw new MashParserException(s"Expected '$expected', but instead found '${currentToken.text}'", currentLocation)
 
-  def command(): Option[Expr] = {
+  def command(): Option[Expr] =
     if (EOF)
       None
     else {
@@ -84,7 +94,6 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
         errorExpectedToken("end of input")
       Some(result)
     }
-  }
 
   def mishExpr(): MishExpr = {
     val command = mishItem()
@@ -245,7 +254,7 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     var previousPos = pos
     while (!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
-      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS 
+      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS
       || DIVIDE_EQUALS || TILDE || DEF || STRING_END || ALIAS || ELLIPSIS)) {
       args += arg()
       assert(pos > previousPos, "Infinite loop detected parsing invocationExpr at position " + pos + ", current token is " + currentToken)

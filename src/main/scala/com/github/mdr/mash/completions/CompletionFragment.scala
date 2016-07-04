@@ -57,4 +57,3 @@ case class CompletionFragment(prefix: String, beforeReversed: String, after: Str
   def text = before + after
 
 }
-

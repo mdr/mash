@@ -11,7 +11,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
 
   "Abstract representation of a string literal" should "not include the quotes" in {
     val s = "\"foo\""
-    val Some(concreteExpr) = MashParser.parseExpr(s)
+    val concreteExpr = MashParser.parseExpr(s)
     val provenance = Provenance(s, source = "test")
     
     val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
@@ -21,7 +21,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
 
   "String literals that lack quotes" should "still work" in {
     val s = "\"foo"
-    val Some(concreteExpr) = MashParser.parseExpr(s)
+    val concreteExpr = MashParser.parseExpr(s)
     val provenance = Provenance(s, source = "test")
     
     val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
@@ -31,7 +31,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
 
   "A function invocation" should "have its positional arguments collected" in {
     val s = "ls pwd"
-    val Some(concreteExpr) = MashParser.parseExpr(s)
+    val concreteExpr = MashParser.parseExpr(s)
     val Concrete.InvocationExpr(function, Seq(arg: Concrete.Expr)) = concreteExpr
     val provenance = Provenance(s, source = "test")
 
@@ -47,7 +47,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
 
   "A function invocation" should "have its flag arguments collected" in {
     val s = "foo --bar=baz"
-    val Some(concreteExpr) = MashParser.parseExpr(s)
+    val concreteExpr = MashParser.parseExpr(s)
     val Concrete.InvocationExpr(function, Seq(longArg)) = concreteExpr
     val Concrete.LongArg(flagName, Some((equals, arg))) = longArg
     val provenance = Provenance(s, source = "test")
