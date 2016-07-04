@@ -34,7 +34,7 @@ class InvocationFinderTest extends FlatSpec with Matchers {
   }
 
   private def invocationPos(s: String): Int = {
-    val expr = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings, CompilationSettings(forgiving = true))
+    val expr = Compiler.compileForgiving(CompilationUnit(s), StandardEnvironment.create.bindings)
     val Some(literalToken) = expr.sourceInfoOpt.get.expr.tokens.find(_.isString)
     val Some(InvocationInfo(_, pos)) = InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
     pos

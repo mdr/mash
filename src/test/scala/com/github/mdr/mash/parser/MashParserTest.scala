@@ -170,23 +170,23 @@ class MashParserTest extends FlatSpec with Matchers {
         rsquare))
   }
 
-  it should "throw a parse exception on a keyword in an interpolation" in {
-    a[MashParserException] should be thrownBy { MashParser.parse(""" "$if" """) }
+  it should "fail to parse a keyword within an interpolation" in {
+    MashParser.parse(""" "$if" """) should be('left)
   }
 
   "Forgiving parser" should "not enter an infinite loop" in {
     val s = """["foo", 2}."""
-    MashParser.parse(s, forgiving = true)
+    MashParser.parseForgiving(s)
   }
 
   it should "not enter an infinite loop here either" in {
     val s = """{"rss": _.r"""
-    MashParser.parse(s, forgiving = true)
+    MashParser.parseForgiving(s)
   }
 
   it should "not enter an infinite loop here either (2)" in {
     val s = "ls | where (_.owner = mat"
-    MashParser.parse(s, forgiving = true)
+    MashParser.parseForgiving(s)
   }
 
   "Parsing interpolated strings" should "parse simple variables" in {

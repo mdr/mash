@@ -1,23 +1,25 @@
 package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-import scala.collection.immutable.ListMap
+
 import org.fusesource.jansi.Ansi
+
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.compiler.CompilationSettings
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.lexer.MashLexerException
+import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.parser.AbstractSyntax
 import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.printer.PrintResult
 import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.compiler.CompilationSettings
 
 class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject) {
 
@@ -77,18 +79,15 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
         MashUnit
     }
 
-  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] =
-    try {
-      val settings = CompilationSettings(forgiving = false, inferTypes = false, bareWords = bareWords)
-      val expr = Compiler.compile(unit, globals.immutableFields, settings)
-      Some(expr)
-    } catch {
-      case MashParserException(msg, location) ⇒
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] = {
+    val settings = CompilationSettings(inferTypes = false, bareWords = bareWords)
+    Compiler.compile(unit, globals.immutableFields, settings) match {
+      case Left(ParseError(msg, location)) ⇒
         errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None
-      case MashLexerException(msg, location) ⇒
-        errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
-        None
+      case Right(expr) ⇒
+        Some(expr)
     }
+  }
 
 }

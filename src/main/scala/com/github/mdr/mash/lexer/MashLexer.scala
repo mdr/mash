@@ -4,8 +4,13 @@ import scala.annotation._
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.parser.ParseError
 
-case class MashLexerException(message: String, location: PointedRegion) extends RuntimeException(message)
+case class MashLexerException(message: String, location: PointedRegion) extends RuntimeException(message) {
+
+  def parseError = ParseError(message, location)
+
+}
 
 object MashLexer {
 

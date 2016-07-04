@@ -4,18 +4,34 @@ import scala.PartialFunction.cond
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
-
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.parser.ConcreteSyntax.Expr
 import com.github.mdr.mash.utils.PointedRegion
-
 import ConcreteSyntax._
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+import scala.util.control.Exception._
+import com.github.mdr.mash.lexer.MashLexerException
+
+case class ParseError(message: String, location: PointedRegion)
 
 object MashParser {
 
-  def parse(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
+  def parse(s: String, mish: Boolean = false): Either[ParseError, Expr] =
+    try
+      Right(parse_(s, forgiving = false, mish = mish))
+    catch {
+      case e: MashParserException ⇒ Left(e.parseError)
+      case e: MashLexerException  ⇒ Left(e.parseError)
+    }
+
+  def parseForgiving(s: String, mish: Boolean = false): Expr =
+    parse_(s, forgiving = true, mish = mish)
+
+  private def parse_(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
     val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
     val parse = new MashParse(tokens, forgiving = forgiving)
     if (mish)

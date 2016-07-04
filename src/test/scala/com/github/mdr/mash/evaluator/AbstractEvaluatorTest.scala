@@ -1,15 +1,15 @@
 package com.github.mdr.mash.evaluator
 
-import org.junit.runner.RunWith
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import com.github.mdr.mash.compiler.Compiler
-import org.scalatest.junit.JUnitRunner
-import com.github.mdr.mash.parser.MashParserException
 import scala.language.postfixOps
-import com.github.mdr.mash.compiler.CompilationUnit
+
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+
 import com.github.mdr.mash.compiler.CompilationSettings
+import com.github.mdr.mash.compiler.CompilationUnit
+import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
+import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.runtime.MashValue
 
 abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
@@ -19,8 +19,11 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
   protected implicit class RichString(s: String)(implicit config: Config = Config()) {
 
     private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
-      val settings = CompilationSettings(forgiving = false, bareWords = config.bareWords)
-      Compiler.compile(CompilationUnit(s), bindings = bindings, settings)
+      val settings = CompilationSettings(bareWords = config.bareWords)
+      Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {
+        case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed")
+        case Right(expr)                  ⇒ expr
+      }
     }
 
     def shouldThrowAnException =

@@ -224,7 +224,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
     def shouldBeInferredAsHavingType(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
         val settings = CompilationSettings(inferTypes = true)
-        val Some(actualType) = Compiler.compile(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, settings).typeOpt
+        val Some(actualType) = Compiler.compileForgiving(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, settings).typeOpt
         actualType should equal(expectedType)
       }
     }

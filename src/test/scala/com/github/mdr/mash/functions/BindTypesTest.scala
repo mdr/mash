@@ -1,15 +1,15 @@
 package com.github.mdr.mash.functions
 
-import org.scalatest._
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+
+import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.inference.SimpleTypedArguments
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
-import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.compiler.CompilationUnit
 
 class BindTypesTest extends FlatSpec with Matchers {
 
@@ -88,7 +88,7 @@ class BindTypesTest extends FlatSpec with Matchers {
       parameters.bindTypes(getArguments(s))
 
     private def getArguments(s: String): TypedArguments = {
-      val expr = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings)
+      val expr = Compiler.compileForgiving(CompilationUnit(s), StandardEnvironment.create.bindings)
       val Some(invocationExpr) = expr.find {
         case iexpr: InvocationExpr ⇒ iexpr
       }
