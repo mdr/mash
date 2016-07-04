@@ -15,6 +15,7 @@ import com.github.mdr.mash.utils.StringUtils
 import java.io.PrintStream
 import scala.collection.mutable
 import scala.collection.immutable.ListMap
+import com.github.mdr.mash.utils.LineInfo
 
 case class CommandResult(
   value: Option[MashValue] = None,
@@ -63,29 +64,32 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
         if (mishCmd == "")
           CommandResult(toggleMish = true)
         else {
-          val unit = CompilationUnit(mishCmd, unitName)
-          runCommand(unit, mish = true, bareWords = bareWords)
+          val unit = CompilationUnit(mishCmd, unitName, interactive = true)
+          runCommandAndPrint(unit, mish = true, bareWords = bareWords)
         }
       case SuffixMishCommand(mishCmd, suffix) ⇒
-        val unit = CompilationUnit(mishCmd, unitName)
-        runCommand(unit, mish = true, bareWords = bareWords)
+        val unit = CompilationUnit(mishCmd, unitName, interactive = true)
+        runCommandAndPrint(unit, mish = true, bareWords = bareWords)
       case _ if mish ⇒
-        val unit = CompilationUnit(cmd, unitName)
-        runCommand(unit, mish = true, bareWords = bareWords)
+        val unit = CompilationUnit(cmd, unitName, interactive = true)
+        runCommandAndPrint(unit, mish = true, bareWords = bareWords)
       case _ ⇒ // regular mash
-        val unit = CompilationUnit(cmd, unitName)
-        runCommand(unit, mish = false, bareWords = bareWords)
+        val unit = CompilationUnit(cmd, unitName, interactive = true)
+        runCommandAndPrint(unit, mish = false, bareWords = bareWords)
     }
   }
 
-  private def runCommand(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): CommandResult = {
+  def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[MashValue] =
     safeCompile(unit, bareWords = bareWords, mish = mish).map { expr ⇒
-      val result = runExpr(expr, unit)
+      runExpr(expr, unit)
+    }
+
+  private def runCommandAndPrint(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): CommandResult =
+    runCompilationUnit(unit, bareWords, mish).map { result ⇒
       val printer = new Printer(output, terminalInfo)
       val PrintResult(objectTableModelOpt) = printer.print(result)
       CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
     }.getOrElse(CommandResult())
-  }
 
   private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
     try {
@@ -126,16 +130,23 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globalVaria
     else {
       for (entry ← stack) {
         val SourceLocation(provenance, PointedRegion(point, region @ Region(offset, length))) = entry
-        if (unit.provenance == provenance)
-          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(provenance.source).reset())
+        val lineInfo = new LineInfo(provenance.source)
+        val (lineIndex, column) = lineInfo.lineAndColumn(point)
+        val line = lineInfo.lines(lineIndex)
+        val isImmediateError = unit.provenance == provenance && unit.interactive
+        val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}:"
+        if (isImmediateError)
+          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(line).reset())
         else {
-          output.print(Ansi.ansi().bold.fg(Ansi.Color.RED).a(provenance.name).reset())
-          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(": " + provenance.source).reset())
+          output.print(Ansi.ansi().bold.fg(Ansi.Color.RED).a(prefix).reset())
+          output.println(Ansi.ansi().fg(Ansi.Color.RED).a(line).reset())
         }
         output.print(Ansi.ansi().fg(Ansi.Color.RED))
-        val padding = if (unit.provenance == provenance) "" else " " * (provenance.name.length + ": ".length)
+        val padding = " " * prefix.length
         output.print(padding)
-        for (i ← 0 to region.posAfter)
+        val lineStart = lineInfo.lineStart(lineIndex)
+        val lineEnd = lineInfo.lineEnd(lineIndex)
+        for (i ← lineStart until lineEnd)
           output.print(i match {
             case i if i == point         ⇒ "^"
             case i if region.contains(i) ⇒ "-"

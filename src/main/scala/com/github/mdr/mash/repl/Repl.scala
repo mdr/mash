@@ -3,12 +3,9 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-
 import org.apache.commons.io.FileUtils
-
 import com.github.mdr.mash.CommandRunner
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.Mash
@@ -28,10 +25,12 @@ import com.github.mdr.mash.screen.ReplRenderResult
 import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
+import com.github.mdr.mash.compiler.CompilationUnit
 
 object Repl {
 
-  val InitPath = Mash.MashDir.resolve("init.mash")
+  val InitFile = "init.mash"
+  val InitPath = Mash.MashDir.resolve(InitFile)
 
 }
 
@@ -61,32 +60,31 @@ class Repl(
     inputLoop()
   }
 
-  private def getInitLines: Seq[String] = {
+  private def getInitScript: Option[CompilationUnit] = {
     Mash.ensureMashDirExists()
-    if (Files.exists(InitPath)) {
-      try
-        FileUtils.readLines(InitPath.toFile, StandardCharsets.UTF_8).asScala
-      catch {
+    if (Files.exists(InitPath))
+      try {
+        val s = FileUtils.readFileToString(InitPath.toFile, StandardCharsets.UTF_8)
+        Some(CompilationUnit(s, name = InitFile))
+      } catch {
         case e: Exception ⇒
           output.println("Error reading " + InitPath)
           e.printStackTrace(output)
           DebugLogger.logException(e)
-          Seq()
+          None
       }
-    } else
-      Seq()
+    else
+      None
   }
 
   private def processInitFile() {
-    val lines = getInitLines
-    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
-    for ((line, i) ← lines.zipWithIndex) {
-      val unitName = s"init.mash:$i"
+    for (initScript ← getInitScript) {
+      val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
       try
-        commandRunner.run(line, unitName, state.mish, state.bareWords)
+        commandRunner.runCompilationUnit(initScript, state.mish, state.bareWords)
       catch {
         case e: Exception ⇒
-          output.println(s"Error executing init.mash at line ${i + 1}: $line")
+          output.println(s"Error executing $InitFile")
           e.printStackTrace(output)
           DebugLogger.logException(e)
           return

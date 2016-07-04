@@ -9,7 +9,7 @@ import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.parser.Provenance
 
-case class CompilationUnit(text: String, name: String = "N/A") {
+case class CompilationUnit(text: String, name: String = "N/A", interactive: Boolean = false) {
   
   def provenance = Provenance(name = name, source = text)
   

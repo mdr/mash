@@ -1,5 +1,6 @@
 v0.0.3 (..)
 -----------
+
 * Add provenance information to stack trace entries
 * Separate Object from Any
 * Object addition: { foo: 42 } + { bar: 100 }

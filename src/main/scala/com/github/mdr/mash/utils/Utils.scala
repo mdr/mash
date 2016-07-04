@@ -9,6 +9,8 @@ import com.github.mdr.mash.runtime.MashString
 
 object Utils {
 
+  def adjacentPairs[T](xs: Seq[T]): Seq[(T, T)] = xs.zip(xs.tail)
+
   def time[T](label: String)(p: ⇒ T) = {
     val start = System.nanoTime
     try
