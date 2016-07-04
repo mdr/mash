@@ -7,10 +7,11 @@ import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.runtime.MashValue
 import java.nio.file.Paths
+import java.util.UUID
 
-case class HistoryEntry(sessionId: String, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue, workingDirectory: String) {
+case class HistoryEntry(sessionId: UUID, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue, workingDirectory: String) {
 
-  def sessionIdOpt: Option[String] = Option(sessionId)
+  def sessionIdOpt: Option[UUID] = Option(sessionId)
 
   def resultOpt: Option[MashValue] = Option(result)
 

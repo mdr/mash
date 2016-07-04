@@ -13,6 +13,7 @@ import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.repl.history.FileBackedHistoryStorage
 import scala.language.implicitConversions
+import java.util.UUID
 
 object Main extends App {
 
@@ -26,7 +27,7 @@ object Main extends App {
     TerminalHelper.withTerminal { terminal ⇒
       // TODO: obviously this is horrible, will be fixed when DI gets sorted out
       Singletons.terminalControl = new TerminalControlImpl(terminal)
-      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage)
+      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = UUID.randomUUID)
 
       val repl = new Repl(new JLineTerminalWrapper(terminal), System.out, LinuxFileSystem, LinuxEnvironmentInteractions, history = Singletons.history)
       repl.run()

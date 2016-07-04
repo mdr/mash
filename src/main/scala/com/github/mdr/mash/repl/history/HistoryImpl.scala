@@ -30,7 +30,7 @@ object HistoryImpl {
 class HistoryImpl(
     storage: HistoryStorage,
     clock: Clock = Clock.systemDefaultZone,
-    sessionId: String = UUID.randomUUID().toString()) extends History {
+    sessionId: UUID = UUID.randomUUID) extends History {
 
   import HistoryImpl._
 

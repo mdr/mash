@@ -35,7 +35,7 @@ object HistoryFunction extends MashFunction("os.history") {
     import HistoryClass.Fields._
     MashObject(
       ListMap(
-        Session -> entry.sessionIdOpt.map(MashString(_)).getOrElse(MashNull),
+        Session -> entry.sessionIdOpt.map(id ⇒ MashString(id.toString)).getOrElse(MashNull),
         CommandNumber -> MashNumber(entry.commandNumber),
         Timestamp -> MashWrapped(entry.timestamp),
         Command -> MashString(entry.command),
