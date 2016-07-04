@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.compiler.CompilationUnit
 import org.apache.commons.lang3.SystemUtils
+import com.github.mdr.mash.compiler.CompilationSettings
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {
@@ -222,7 +223,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
-        val Some(actualType) = Compiler.compile(CompilationUnit(s), inferTypes = true, bindings = StandardEnvironment.create.bindings).flatMap(_.typeOpt)
+        val Some(actualType) = Compiler.compile(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, CompilationSettings(inferTypes = true)).flatMap(_.typeOpt)
         actualType should equal(expectedType)
       }
     }

@@ -1,11 +1,8 @@
 package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-
 import scala.collection.immutable.ListMap
-
 import org.fusesource.jansi.Ansi
-
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
@@ -20,15 +17,13 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.compiler.CompilationSettings
 
 class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject) {
 
   val errorPrinter = new ErrorPrinter(output, terminalInfo)
   val debugCommandRunner = new DebugCommandRunner(output, globals)
 
-  /**
-   * @return the (optional) result of the command
-   */
   def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean): CommandResult = {
     cmd match {
       case DebugCommand(keyword, args) ⇒
@@ -38,25 +33,25 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
         if (mishCmd == "")
           CommandResult(toggleMish = true)
         else {
-          val unit = CompilationUnit(mishCmd, unitName, interactive = true)
-          runCommandAndPrint(unit, mish = true, bareWords = bareWords)
+          val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
+          runCommandAndPrint(unit, bareWords = bareWords)
         }
       case SuffixMishCommand(mishCmd, suffix) ⇒
-        val unit = CompilationUnit(mishCmd, unitName, interactive = true)
-        runCommandAndPrint(unit, mish = true, bareWords = bareWords)
+        val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
+        runCommandAndPrint(unit, bareWords = bareWords)
       case _ ⇒
-        val unit = CompilationUnit(cmd, unitName, interactive = true)
-        runCommandAndPrint(unit, mish = mish, bareWords = bareWords)
+        val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
+        runCommandAndPrint(unit, bareWords = bareWords)
     }
   }
 
-  def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords, mish = mish).map { expr ⇒
+  def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
+    safeCompile(unit, bareWords = bareWords).map { expr ⇒
       runExpr(expr, unit)
     }
 
-  private def runCommandAndPrint(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): CommandResult =
-    runCompilationUnit(unit, bareWords, mish).map { result ⇒
+  private def runCommandAndPrint(unit: CompilationUnit, bareWords: Boolean): CommandResult =
+    runCompilationUnit(unit, bareWords).map { result ⇒
       val printer = new Printer(output, terminalInfo)
       val PrintResult(objectTableModelOpt) = printer.print(result)
       CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
@@ -82,9 +77,9 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
         MashUnit
     }
 
-  private def safeCompile(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] =
     try
-      Compiler.compile(unit, globals.immutableFields, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
+      Compiler.compile(unit, globals.immutableFields, CompilationSettings(forgiving = false, inferTypes = false, bareWords = bareWords))
     catch {
       case MashParserException(msg, location) ⇒
         errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))

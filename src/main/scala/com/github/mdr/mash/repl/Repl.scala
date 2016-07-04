@@ -65,7 +65,7 @@ class Repl(
     if (Files.exists(InitPath))
       try {
         val s = FileUtils.readFileToString(InitPath.toFile, StandardCharsets.UTF_8)
-        Some(CompilationUnit(s, name = InitFile))
+        Some(CompilationUnit(s, name = InitFile, mish = false))
       } catch {
         case e: Exception ⇒
           output.println("Error reading " + InitPath)
@@ -81,7 +81,7 @@ class Repl(
     for (initScript ← getInitScript) {
       val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
       try
-        commandRunner.runCompilationUnit(initScript, state.mish, state.bareWords)
+        commandRunner.runCompilationUnit(initScript, state.bareWords)
       catch {
         case e: Exception ⇒
           output.println(s"Error executing $InitFile")
