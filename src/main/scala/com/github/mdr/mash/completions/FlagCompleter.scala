@@ -15,9 +15,9 @@ object FlagCompleter {
   /**
    * Given a long flag token, find completions for which it is a prefix.
    */
-  def completeLongFlag(text: String, flagToken: Token, parser: CompletionParser): Option[CompletionResult] =
+  def completeLongFlag(text: String, flagToken: Token, parser: CompletionParser): Option[CompletionResult] = {
+    val expr = parser.parse(text)
     for {
-      expr ← parser.parse(text)
       sourceInfo ← expr.sourceInfoOpt
       InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
       functionType ← invocationExpr.function.typeOpt
@@ -25,7 +25,7 @@ object FlagCompleter {
       completions = completeLongFlag(flags, flagToken)
       result ← CompletionResult.of(completions, flagToken.region)
     } yield result
-
+  }
   private def completeLongFlag(flags: Seq[Flag], flagToken: Token): Seq[Completion] = {
     val prefix = flagToken.text.drop(LongFlagPrefix.length)
     flags.collect {
@@ -39,8 +39,8 @@ object FlagCompleter {
    */
   def completeAllFlags(text: String, minusToken: Token, parser: CompletionParser): Option[CompletionResult] = {
     val textWithDummyFlag = StringUtils.replace(text, minusToken.region, "--dummyFlag ")
+    val expr = parser.parse(textWithDummyFlag)
     for {
-      expr ← parser.parse(textWithDummyFlag)
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
       flagToken ← tokens.find(t ⇒ t.isFlag && t.region.overlaps(minusToken.region))

@@ -121,11 +121,10 @@ object ReplRenderer {
 
   private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
-    MashParser.parse(s, forgiving = true, mish = mish).map { concreteExpr ⇒
-      val provenance = Provenance("not required", s)
-      val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
-      BareStringify.getBareTokens(abstractExpr, bindings)
-    }.getOrElse(Set())
+    val concreteExpr = MashParser.parse(s, forgiving = true, mish = mish)
+    val provenance = Provenance("not required", s)
+    val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
+    BareStringify.getBareTokens(abstractExpr, bindings)
   }
 
   private def renderLineBufferChars(rawChars: String, prompt: Seq[StyledCharacter], mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {

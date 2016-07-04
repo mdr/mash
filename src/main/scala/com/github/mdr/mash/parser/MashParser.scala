@@ -15,13 +15,13 @@ import ConcreteSyntax._
 
 object MashParser {
 
-  def parse(s: String, forgiving: Boolean = true, mish: Boolean = false): Option[Expr] = {
+  def parse(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
     val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
     val parse = new MashParse(tokens, forgiving = forgiving)
     if (mish)
-      Some(parse.mishExpr())
+      parse.mishExpr()
     else
-      parse.command()
+      parse.program()
   }
 
   def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
@@ -85,15 +85,12 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
   private def errorExpectedToken(expected: String) =
     throw new MashParserException(s"Expected '$expected', but instead found '${currentToken.text}'", currentLocation)
 
-  def command(): Option[Expr] =
-    if (EOF)
-      None
-    else {
-      val result = statementSeq()
-      if (!EOF && !forgiving)
-        errorExpectedToken("end of input")
-      Some(result)
-    }
+  def program(): Expr = {
+    val result = statementSeq()
+    if (!EOF && !forgiving)
+      errorExpectedToken("end of input")
+    result
+  }
 
   def mishExpr(): MishExpr = {
     val command = mishItem()

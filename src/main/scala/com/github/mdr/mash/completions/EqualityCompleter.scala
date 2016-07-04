@@ -8,9 +8,9 @@ import scala.PartialFunction.condOpt
 
 object EqualityCompleter {
 
-  def completeEquality(text: String, stringRegion: Region, parser: CompletionParser): Option[CompletionResult] =
+  def completeEquality(text: String, stringRegion: Region, parser: CompletionParser): Option[CompletionResult] = {
+    val expr = parser.parse(text)
     for {
-      expr ← parser.parse(text)
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
       literalToken ← tokens.find(_.region == stringRegion)
@@ -18,6 +18,7 @@ object EqualityCompleter {
       completions ← getEqualityCompletions(equalityType, literalToken)
       result ← CompletionResult.of(completions, stringRegion)
     } yield result
+  }
 
   private def getEqualityCompletions(equalityType: Type, literalToken: Token): Option[Seq[Completion]] =
     condOpt(equalityType) {

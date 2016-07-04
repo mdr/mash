@@ -15,16 +15,17 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
 
   private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
 
-  def completeArg(text: String, stringRegion: Region, parser: CompletionParser): Option[CompletionResult] =
+  def completeArg(text: String, stringRegion: Region, parser: CompletionParser): Option[CompletionResult] = {
+    val expr = parser.parse(text)
     for {
-      expr ← parser.parse(text)
-      sourceInfo ← expr.sourceInfoOpt
+      sourceInfo ← parser.parse(text).sourceInfoOpt
       tokens = sourceInfo.expr.tokens
       literalToken ← tokens.find(_.region == stringRegion)
       InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
       completionSpecs ← getCompletionSpecs(invocationExpr, argPos)
       result ← completeFromSpecs(completionSpecs, literalToken)
     } yield result
+  }
 
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
     invocationExpr.function.typeOpt.collect {

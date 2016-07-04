@@ -88,7 +88,7 @@ class BindTypesTest extends FlatSpec with Matchers {
       parameters.bindTypes(getArguments(s))
 
     private def getArguments(s: String): TypedArguments = {
-      val Some(expr) = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings)
+      val expr = Compiler.compile(CompilationUnit(s), StandardEnvironment.create.bindings)
       val Some(invocationExpr) = expr.find {
         case iexpr: InvocationExpr ⇒ iexpr
       }

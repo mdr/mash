@@ -13,19 +13,16 @@ import com.github.mdr.mash.runtime.MashObject
 class DebugCommandRunner(output: PrintStream, globals: MashObject) {
 
   def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
-    def compile(s: String): Option[Expr] =
+    def compile(s: String): Expr =
       Compiler.compile(CompilationUnit(s, mish = false), globals.immutableFields,
         CompilationSettings(forgiving = true, inferTypes = true, bareWords = bareWords))
     (keyword, args) match {
       case ("p" | "pretty", actualCmd) ⇒
-        for (expr ← compile(actualCmd))
-          TreePrettyPrinter.printTree(expr)
+        TreePrettyPrinter.printTree(compile(actualCmd))
       case ("e" | "expression", actualCmd) ⇒
-        for (expr ← compile(actualCmd))
-          output.println(PrettyPrinter.pretty(expr))
+        output.println(PrettyPrinter.pretty(compile(actualCmd)))
       case ("t" | "type", actualCmd) ⇒
-        for (expr ← compile(actualCmd))
-          output.println(expr.typeOpt.getOrElse("Could not infer type"))
+        output.println(compile(actualCmd))
       case ("tokens", actualCmd) ⇒
         MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(output.println)
     }

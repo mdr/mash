@@ -78,9 +78,11 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
     }
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] =
-    try
-      Compiler.compile(unit, globals.immutableFields, CompilationSettings(forgiving = false, inferTypes = false, bareWords = bareWords))
-    catch {
+    try {
+      val settings = CompilationSettings(forgiving = false, inferTypes = false, bareWords = bareWords)
+      val expr = Compiler.compile(unit, globals.immutableFields, settings)
+      Some(expr)
+    } catch {
       case MashParserException(msg, location) ⇒
         errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
         None

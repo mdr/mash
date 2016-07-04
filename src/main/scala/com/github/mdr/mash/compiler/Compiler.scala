@@ -33,10 +33,9 @@ object Compiler {
   def compile(
     compilationUnit: CompilationUnit,
     bindings: Map[String, MashValue],
-    settings: CompilationSettings = CompilationSettings()): Option[Expr] = {
-    val concreteExprOpt = MashParser.parse(compilationUnit.text, forgiving = settings.forgiving, mish = compilationUnit.mish)
-    concreteExprOpt.map(expr ⇒
-      compile(expr, compilationUnit, settings, bindings))
+    settings: CompilationSettings = CompilationSettings()): Expr = {
+    val concreteExpr = MashParser.parse(compilationUnit.text, forgiving = settings.forgiving, mish = compilationUnit.mish)
+    compile(concreteExpr, compilationUnit, settings, bindings)
   }
 
   private def compile(concreteExpr: ConcreteSyntax.Expr, compilationUnit: CompilationUnit, settings: CompilationSettings, bindings: Map[String, MashValue]): Expr = {

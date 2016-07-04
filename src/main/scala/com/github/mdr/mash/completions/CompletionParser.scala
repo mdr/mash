@@ -11,14 +11,18 @@ import com.github.mdr.mash.compiler.CompilationSettings
 
 case class CompletionParser(env: Map[String, MashValue], mish: Boolean) {
 
-  def parse(s: String): Option[Expr] =
-    Compiler.compile(CompilationUnit(s, mish = mish), env, CompilationSettings(forgiving = true, inferTypes = true))
+  def parse(s: String): Expr = {
+    val settings = CompilationSettings(forgiving = true, inferTypes = true)
+    Compiler.compile(CompilationUnit(s, mish = mish), env, settings)
+  }
 
   def tokenise(s: String): Seq[Token] =
     MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
 
-  def getBareTokens(s: String): Seq[Token] =
-    Compiler.compile(CompilationUnit(s, mish = mish), env, CompilationSettings(forgiving = true, bareWords = false)).map(expr ⇒
-      BareStringify.getBareTokens(expr, env.keySet).toSeq).getOrElse(Seq())
+  def getBareTokens(s: String): Seq[Token] = {
+    val settings = CompilationSettings(forgiving = true, bareWords = false)
+    val expr = Compiler.compile(CompilationUnit(s, mish = mish), env, settings)
+    BareStringify.getBareTokens(expr, env.keySet).toSeq
+  }
 
 }

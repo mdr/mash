@@ -30,8 +30,8 @@ object MemberCompleter {
   def completeAfterDot(text: String, dot: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
     val replacedText = StringUtils.replace(text, dot.region, s"${dot.text}$Dummy ")
     val dummyIdentifierRegion = Region(dot.region.posAfter, Dummy.length)
+    val expr = parser.parse(replacedText)
     for {
-      expr ← parser.parse(replacedText)
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
       identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region == dummyIdentifierRegion)
@@ -74,13 +74,14 @@ object MemberCompleter {
       }
     }
 
-  private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] =
+  private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] = {
+    val expr = parser.parse(text)
     for {
-      expr ← parser.parse(text)
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.expr.tokens
       memberExpr ← findMemberExpr(expr, identifier)
     } yield memberExpr
+  }
 
   private def findMemberExpr(expr: Expr, token: Token): Option[MemberExpr] = expr.find {
     case mexpr @ MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.MemberExpr(_, _, `token`))))      ⇒ mexpr
