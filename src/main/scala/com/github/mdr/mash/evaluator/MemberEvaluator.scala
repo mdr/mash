@@ -42,13 +42,13 @@ object MemberEvaluator extends EvaluatorHelper {
       MemberExprEvalResult(MashNull, wasVectorised = false)
     else {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
-      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising).map(
+      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising, locationOpt).map(
         x ⇒ MemberExprEvalResult(x, wasVectorised = true))
       scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
     }
   }
 
-  private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean): Option[MashList] =
+  private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean, locationOpt: Option[SourceLocation]): Option[MashList] =
     target match {
       case xs: MashList ⇒
         val options = xs.items.map {
@@ -56,7 +56,9 @@ object MemberEvaluator extends EvaluatorHelper {
           case x ⇒
             val lookupOpt = MemberEvaluator.maybeLookup(x, name)
             if (immediatelyResolveNullaryWhenVectorising)
-              lookupOpt.map(Evaluator.immediatelyResolveNullaryFunctions)
+              InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
+                lookupOpt.map(Evaluator.immediatelyResolveNullaryFunctions)
+              }
             else
               lookupOpt
         }

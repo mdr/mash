@@ -73,11 +73,11 @@ object InvocationEvaluator extends EvaluatorHelper {
               Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
             }
           case Seq(_, second, _*) ⇒
-              throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
+            throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
         }
     }
 
-  def addInvocationToStackOnException[T <: MashValue](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
+  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
     try
       p
     catch {
