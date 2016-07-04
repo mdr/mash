@@ -56,9 +56,7 @@ object MemberEvaluator extends EvaluatorHelper {
           case x ⇒
             val lookupOpt = MemberEvaluator.maybeLookup(x, name)
             if (immediatelyResolveNullaryWhenVectorising)
-              InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
-                lookupOpt.map(Evaluator.immediatelyResolveNullaryFunctions)
-              }
+              lookupOpt.map(lookup ⇒ Evaluator.immediatelyResolveNullaryFunctions(lookup, locationOpt))
             else
               lookupOpt
         }

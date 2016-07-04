@@ -42,7 +42,7 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
       for {
         ColumnSpec(name, _, isNullaryMethod) ← columns
         rawValue = MemberEvaluator.lookup(obj, name)
-        value = if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue) else rawValue
+        value = if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue
         renderedValue = Printer.renderField(value, inCell = true)
       } yield name -> renderedValue
     val data = (pairs :+ (IndexColumnName -> index.toString)).toMap

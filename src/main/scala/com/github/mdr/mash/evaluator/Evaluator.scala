@@ -27,7 +27,7 @@ object Evaluator extends EvaluatorHelper {
       ExecutionContext.checkInterrupted()
       val result = expr match {
         case _: Identifier | _: MemberExpr ⇒
-          InvocationEvaluator.addInvocationToStackOnException(sourceLocation(expr)) { immediatelyResolveNullaryFunctions(v) }
+          immediatelyResolveNullaryFunctions(v, sourceLocation(expr))
         case _ ⇒ v
       }
       result
@@ -47,11 +47,13 @@ object Evaluator extends EvaluatorHelper {
    * If the given value is a function or bound method that allows nullary invocation, invoke it immediately and
    * return the result.
    */
-  def immediatelyResolveNullaryFunctions(v: MashValue): MashValue =
-    v match {
-      case f: MashFunction if f.allowsNullary ⇒ f(Arguments(Seq()))
-      case BoundMethod(target, method, _) if method.allowsNullary ⇒ method(target, Arguments(Seq()))
-      case _ ⇒ v
+  def immediatelyResolveNullaryFunctions(v: MashValue, locationOpt: Option[SourceLocation]): MashValue =
+    InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
+      v match {
+        case f: MashFunction if f.allowsNullary ⇒ f(Arguments(Seq()))
+        case BoundMethod(target, method, _) if method.allowsNullary ⇒ method(target, Arguments(Seq()))
+        case _ ⇒ v
+      }
     }
 
   /**

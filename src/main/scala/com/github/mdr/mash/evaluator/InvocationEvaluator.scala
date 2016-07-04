@@ -63,15 +63,11 @@ object InvocationEvaluator extends EvaluatorHelper {
           case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
             xs.map { target ⇒
               val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-              addInvocationToStackOnException(invocationLocationOpt) {
-                Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
-              }
+              Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
             }
           case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
             val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-            addInvocationToStackOnException(invocationLocationOpt) {
-              Evaluator.immediatelyResolveNullaryFunctions(intermediateResult)
-            }
+            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
           case Seq(_, second, _*) ⇒
             throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
         }

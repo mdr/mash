@@ -29,7 +29,7 @@ object ToStringifier {
 
   def stringify(x: MashValue): String = {
     val toStringMethod = MemberEvaluator.lookup(x, AnyClass.ToStringMethod.name)
-    "" + Evaluator.immediatelyResolveNullaryFunctions(toStringMethod)
+    "" + Evaluator.immediatelyResolveNullaryFunctions(toStringMethod, locationOpt = None)
   }
 
 }

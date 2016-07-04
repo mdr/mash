@@ -21,7 +21,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     val (success, _) = opRights.foldLeft((true, leftResult)) {
       case ((leftSuccess, leftResult), (op, right)) ⇒
         lazy val rightResult = Evaluator.evaluate(right)
-        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, sourceLocation(chainedOp)).asInstanceOf[MashBoolean].value
+        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, sourceLocation(chainedOp)).isTruthy
         (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */ )
     }
     MashBoolean(success)
@@ -61,7 +61,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
       case _ ⇒
-        throw new EvaluatorException(s"Could not $name, incompatible operands", locationOpt)
+        throw new EvaluatorException(s"Could not $name, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
 
   private def multiply(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]) = (left, right) match {
@@ -70,7 +70,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (left: MashList, right: MashNumber) if right.isInt ⇒ left * right.asInt.get
     case (left: MashNumber, right: MashList) if left.isInt ⇒ right * left.asInt.get
     case (left: MashNumber, right: MashNumber) ⇒ left * right
-    case _ ⇒ throw new EvaluatorException("Could not multiply, incompatible operands", locationOpt)
+    case _ ⇒ throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   private implicit class RichInstant(instant: Instant) {
@@ -89,7 +89,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case _ ⇒
-      throw new EvaluatorException("Could not add, incompatible operands", locationOpt)
+      throw new EvaluatorException(s"Could not add, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue =
@@ -105,7 +105,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case (left: MashObject, right: MashString) ⇒
         left - right.s
       case _ ⇒
-        throw new EvaluatorException("Could not subtract, incompatible operands", locationOpt)
+        throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
 
 }
