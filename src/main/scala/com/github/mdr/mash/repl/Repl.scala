@@ -6,10 +6,10 @@ import java.nio.file.Files
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import org.apache.commons.io.FileUtils
-import com.github.mdr.mash.CommandRunner
+import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.Mash
-import com.github.mdr.mash.MishCommand
+import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.completions.Completer
 import com.github.mdr.mash.completions.CompletionResult

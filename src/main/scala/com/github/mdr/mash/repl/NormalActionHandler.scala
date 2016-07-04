@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.CommandResult
-import com.github.mdr.mash.CommandRunner
+import com.github.mdr.mash.commands.CommandResult
+import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.completions.Completion
 import com.github.mdr.mash.completions.CompletionResult

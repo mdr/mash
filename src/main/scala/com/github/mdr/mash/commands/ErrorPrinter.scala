@@ -1,9 +1,7 @@
-package com.github.mdr.mash
+package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-
 import org.fusesource.jansi.Ansi
-
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.SourceLocation
 import com.github.mdr.mash.terminal.TerminalInfo

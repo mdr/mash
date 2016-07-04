@@ -1,0 +1,97 @@
+package com.github.mdr.mash.commands
+
+import java.io.PrintStream
+
+import scala.collection.immutable.ListMap
+
+import org.fusesource.jansi.Ansi
+
+import com.github.mdr.mash.DebugLogger
+import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.compiler.CompilationUnit
+import com.github.mdr.mash.compiler.Compiler
+import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.lexer.MashLexerException
+import com.github.mdr.mash.parser.AbstractSyntax
+import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.printer.PrintResult
+import com.github.mdr.mash.printer.Printer
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.terminal.TerminalInfo
+
+class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject) {
+
+  val errorPrinter = new ErrorPrinter(output, terminalInfo)
+  val debugCommandRunner = new DebugCommandRunner(output, globals)
+
+  /**
+   * @return the (optional) result of the command
+   */
+  def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean): CommandResult = {
+    cmd match {
+      case DebugCommand(keyword, args) ⇒
+        debugCommandRunner.runDebugCommand(keyword, args, bareWords)
+        CommandResult()
+      case MishCommand(prefix, mishCmd) ⇒
+        if (mishCmd == "")
+          CommandResult(toggleMish = true)
+        else {
+          val unit = CompilationUnit(mishCmd, unitName, interactive = true)
+          runCommandAndPrint(unit, mish = true, bareWords = bareWords)
+        }
+      case SuffixMishCommand(mishCmd, suffix) ⇒
+        val unit = CompilationUnit(mishCmd, unitName, interactive = true)
+        runCommandAndPrint(unit, mish = true, bareWords = bareWords)
+      case _ ⇒
+        val unit = CompilationUnit(cmd, unitName, interactive = true)
+        runCommandAndPrint(unit, mish = mish, bareWords = bareWords)
+    }
+  }
+
+  def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[MashValue] =
+    safeCompile(unit, bareWords = bareWords, mish = mish).map { expr ⇒
+      runExpr(expr, unit)
+    }
+
+  private def runCommandAndPrint(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): CommandResult =
+    runCompilationUnit(unit, bareWords, mish).map { result ⇒
+      val printer = new Printer(output, terminalInfo)
+      val PrintResult(objectTableModelOpt) = printer.print(result)
+      CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
+    }.getOrElse(CommandResult())
+
+  private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
+    try {
+      val context = new ExecutionContext(Thread.currentThread)
+      Singletons.environment = globals.get(StandardEnvironment.Env) match {
+        case Some(obj: MashObject) ⇒ obj
+        case _                     ⇒ MashObject(ListMap[String, MashValue](), classOpt = None)
+      }
+      Singletons.setExecutionContext(context)
+      ExecutionContext.set(context)
+      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals.fields)))
+    } catch {
+      case e @ EvaluatorException(msg, stack, cause) ⇒
+        errorPrinter.printError("Error", msg, unit, stack.reverse)
+        DebugLogger.logException(e)
+        MashUnit
+      case _: EvaluationInterruptedException ⇒
+        output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
+        MashUnit
+    }
+
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean, mish: Boolean): Option[AbstractSyntax.Expr] =
+    try
+      Compiler.compile(unit, globals.immutableFields, forgiving = false, inferTypes = false, mish = mish, bareWords = bareWords)
+    catch {
+      case MashParserException(msg, location) ⇒
+        errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
+        None
+      case MashLexerException(msg, location) ⇒
+        errorPrinter.printError("Syntax error", msg, unit, Seq(SourceLocation(unit.provenance, location)))
+        None
+    }
+
+}

@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import com.github.mdr.mash.MishCommand
+import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.evaluator.TildeExpander
@@ -18,7 +18,7 @@ import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.SuffixMishCommand
+import com.github.mdr.mash.commands.SuffixMishCommand
 import com.github.mdr.mash.repl.ObjectBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.parser.Provenance
