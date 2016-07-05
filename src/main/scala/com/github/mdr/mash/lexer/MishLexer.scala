@@ -3,6 +3,7 @@ package com.github.mdr.mash.lexer
 import scala.annotation._
 import com.github.mdr.mash.lexer.TokenType._
 import scala.PartialFunction.cond
+import com.github.mdr.mash.parser.MashParserException
 
 object MishLexer {
 
@@ -43,7 +44,7 @@ trait MishLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashLexerException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
+        throw new MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
   }
 
   protected def getMishWordRest(): Token = {

@@ -2,6 +2,7 @@ package com.github.mdr.mash.lexer
 
 import scala.annotation._
 import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.parser.MashParserException
 
 trait StringInterpolationLexer { self: MashLexer ⇒
 
@@ -18,7 +19,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
       } else if (forgiving)
         readStringInterpolationToken()
       else
-        throw new MashLexerException("Invalid string interpolation sequence", currentPointedRegion)
+        throw new MashParserException("Invalid string interpolation sequence", currentPointedRegion)
     case _ ⇒
       getInterpolatedStringPart()
   }
@@ -42,12 +43,12 @@ trait StringInterpolationLexer { self: MashLexer ⇒
           nextChar()
           endString()
         } else
-          throw new MashLexerException("Unterminated string literal", currentPointedRegion)
+          throw new MashParserException("Unterminated string literal", currentPointedRegion)
       case _ if afterEof ⇒
         if (forgiving) {
           endString()
         } else
-          throw new MashLexerException("Unterminated string literal", currentPointedRegion)
+          throw new MashParserException("Unterminated string literal", currentPointedRegion)
       case _ ⇒
         nextChar()
         getInterpolatedStringPart()
@@ -63,7 +64,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
         nextChar()
         token(DOT)
       } else
-        throw new MashLexerException("Invalid string interpolation sequence", currentPointedRegion) // This actually shouldn't happen
+        throw new MashParserException("Invalid string interpolation sequence", currentPointedRegion) // This actually shouldn't happen
     if (!isIdentifierStart(ch) && ch != '.')
       modeStack = modeStack.init
     tok

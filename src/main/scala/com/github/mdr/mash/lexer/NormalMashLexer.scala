@@ -4,6 +4,7 @@ import scala.annotation._
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.parser.MashParserException
 
 object NormalMashLexer {
 
@@ -42,14 +43,14 @@ trait NormalMashLexer { self: MashLexer ⇒
             nextChar()
             getStringLiteralRest(delimiter)
           } else
-            throw new MashLexerException("Invalid string escape \\" + c, currentPointedRegion)
+            throw new MashParserException("Invalid string escape \\" + c, currentPointedRegion)
       }
     case '\n' | '\r' ⇒
       if (forgiving) {
         nextChar()
         token(STRING_LITERAL)
       } else
-        throw new MashLexerException("Unterminated string literal", currentPointedRegion)
+        throw new MashParserException("Unterminated string literal", currentPointedRegion)
     case `delimiter` ⇒
       nextChar()
       token(STRING_LITERAL)
@@ -57,7 +58,7 @@ trait NormalMashLexer { self: MashLexer ⇒
       if (forgiving)
         token(STRING_LITERAL)
       else
-        throw new MashLexerException("Unterminated string literal", currentPointedRegion)
+        throw new MashParserException("Unterminated string literal", currentPointedRegion)
     case '$' if delimiter == '"' ⇒
       // We don't consume the dollar, but this signals that the string is interpolated, so we switch into that mode
       modeStack = modeStack :+ StringInterpolationMode
@@ -103,7 +104,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         if (forgiving)
           getNumberLiteralRest()
         else
-          throw new MashLexerException("Invalid number literal", currentPointedRegion)
+          throw new MashParserException("Invalid number literal", currentPointedRegion)
       } else
         token(NUMBER_LITERAL)
     } else {
@@ -209,7 +210,7 @@ trait NormalMashLexer { self: MashLexer ⇒
           nextChar()
           token(ERROR)
         } else
-          throw new MashLexerException(s"Unexpected character $ch after '!!'", currentPointedRegion)
+          throw new MashParserException(s"Unexpected character $ch after '!!'", currentPointedRegion)
       } else if (ch == '{') {
         nextChar()
         modeStack = modeStack :+ MishMode
@@ -221,7 +222,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashLexerException(s"Unexpected character $ch after '!'", currentPointedRegion)
+        throw new MashParserException(s"Unexpected character $ch after '!'", currentPointedRegion)
     case '-' ⇒
       nextChar()
       if (ch == '-') {
@@ -315,7 +316,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashLexerException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
+        throw new MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
   }
 
   protected def getIdentRest(tokenTypeOpt: Option[TokenType] = None): Token = (ch: @switch) match {

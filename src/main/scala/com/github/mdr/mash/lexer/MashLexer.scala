@@ -5,17 +5,16 @@ import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ParseError
-
-case class MashLexerException(message: String, location: PointedRegion) extends RuntimeException(message) {
-
-  def parseError = ParseError(message, location)
-
-}
+import com.github.mdr.mash.parser.MashParserException
 
 object MashLexer {
 
   private final val EOF_CHAR = '\u001A' // Dummy character used after EOF (in lookaheads etc)
 
+  /**
+   * @param forgiving -- if true, will not throw any exceptions on encountering errors tokenising
+   */
+  @throws[MashParserException]
   def tokenise(s: String, includeCommentsAndWhitespace: Boolean = false, forgiving: Boolean = true, mish: Boolean = false): Seq[Token] = {
     val initialMode = if (mish) MishMode else NormalMode()
     val lexer = new MashLexer(s, forgiving, initialMode)

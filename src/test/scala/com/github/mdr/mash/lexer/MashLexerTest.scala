@@ -5,6 +5,7 @@ import com.github.mdr.mash.lexer.TokenType._
 import org.scalatest.Matchers
 import scala.collection.mutable.ArrayBuilder
 import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.parser.MashParserException
 
 class MashLexerTest extends FlatSpec with Matchers {
 
@@ -151,7 +152,7 @@ class MashLexerTest extends FlatSpec with Matchers {
     "03" shouldThrowAnExceptionAtPos (1)
     "$" shouldThrowAnExceptionAtPos (0)
   }
-  
+
   // Multilines
   """foo
      bar""" shouldProduce Seq(IDENTIFIER, IDENTIFIER)
@@ -160,13 +161,15 @@ class MashLexerTest extends FlatSpec with Matchers {
      baz""" shouldProduce Seq(IDENTIFIER, IDENTIFIER)
 
   implicit class RichString(s: String) {
+
     def shouldThrowAnExceptionAtPos(pos: Int)(implicit mode: Mode = Mode()) {
       s"Tokenising $s" should ("throw a MashLexerException at position " + pos) in {
-        a[MashLexerException] should be thrownBy {
+        a[MashParserException] should be thrownBy {
           MashLexer.tokenise(s, forgiving = mode.forgiving, includeCommentsAndWhitespace = mode.includeCommentsAndWhitespace)
         }
       }
     }
+
     def shouldProduce(tokens: Seq[TokenType])(implicit mode: Mode = Mode()) = {
       s"Tokenising $s" should (" tokenise to " + tokens.mkString(", ") + " " + mode) in {
         val actualTokens = MashLexer.tokenise(s, forgiving = mode.forgiving,
@@ -178,6 +181,7 @@ class MashLexerTest extends FlatSpec with Matchers {
           actualTokens.flatMap(_.text).mkString should equal(s)
       }
     }
+
   }
 
 }

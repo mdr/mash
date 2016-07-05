@@ -12,13 +12,10 @@ import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.parser.AbstractSyntax
-import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.printer.PrintResult
 import com.github.mdr.mash.printer.Printer
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 
 class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject) {
@@ -36,28 +33,28 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
           CommandResult(toggleMish = true)
         else {
           val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-          runCommandAndPrint(unit, bareWords = bareWords)
+          runCommandAndPrintResult(unit, bareWords = bareWords)
         }
       case SuffixMishCommand(mishCmd, suffix) ⇒
         val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-        runCommandAndPrint(unit, bareWords = bareWords)
+        runCommandAndPrintResult(unit, bareWords = bareWords)
       case _ ⇒
         val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
-        runCommandAndPrint(unit, bareWords = bareWords)
+        runCommandAndPrintResult(unit, bareWords = bareWords)
     }
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords).map { expr ⇒
-      runExpr(expr, unit)
-    }
+    safeCompile(unit, bareWords = bareWords).map { expr ⇒ runExpr(expr, unit) }
 
-  private def runCommandAndPrint(unit: CompilationUnit, bareWords: Boolean): CommandResult =
-    runCompilationUnit(unit, bareWords).map { result ⇒
-      val printer = new Printer(output, terminalInfo)
-      val PrintResult(objectTableModelOpt) = printer.print(result)
-      CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
-    }.getOrElse(CommandResult())
+  private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean): CommandResult =
+    runCompilationUnit(unit, bareWords).map(printResult).getOrElse(CommandResult())
+
+  private def printResult(result: MashValue): CommandResult = {
+    val printer = new Printer(output, terminalInfo)
+    val PrintResult(objectTableModelOpt) = printer.print(result)
+    CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
+  }
 
   private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
     try {
