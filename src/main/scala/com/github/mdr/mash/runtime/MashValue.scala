@@ -18,7 +18,7 @@ trait MashValue {
   def asObject: Option[MashObject] = condOpt(this) {
     case obj: MashObject ⇒ obj
   }
-  
+
   def typeName: String = primaryClass.name
 
   def primaryClass: MashClass = this match {
@@ -43,6 +43,11 @@ trait MashValue {
     case MashObject(fields, None) ⇒ fields.isEmpty
   }
 
+  def isA(klass: MashClass): Boolean =
+    (primaryClass isSubClassOf klass) || cond(this) {
+      case taggable: TaggableMashValue ⇒ taggable.tagClassOpt.exists(_ isSubClassOf klass)
+    }
+
 }
 
 object MashValueOrdering extends Ordering[MashValue] {
@@ -60,5 +65,11 @@ object MashValueOrdering extends Ordering[MashValue] {
       case (MashWrapped(d1: LocalDate), MashWrapped(d2: LocalDate)) ⇒ d1 compareTo d2
       case (MashWrapped(t1: Instant), MashWrapped(t2: Instant))     ⇒ t1 compareTo t2
     }
+
+}
+
+trait TaggableMashValue extends MashValue {
+
+  def tagClassOpt: Option[MashClass]
 
 }

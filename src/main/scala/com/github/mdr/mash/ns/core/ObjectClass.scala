@@ -36,6 +36,7 @@ object ObjectClass extends MashClass("core.Object") {
     override def summary = "Return the fields of this object"
   }
 
+
   object HasFieldMethod extends MashMethod("hasField") {
 
     object Params {

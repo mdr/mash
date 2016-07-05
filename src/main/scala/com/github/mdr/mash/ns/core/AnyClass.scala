@@ -13,15 +13,38 @@ object AnyClass extends MashClass("core.Any") {
 
   override val methods = Seq(
     ClassMethod,
+    IsAMethod,
     ToStringMethod,
     InMethod)
+
+  object IsAMethod extends MashMethod("isA") {
+
+    object Params {
+      val Class = Parameter(
+        name = "class",
+        summary = "Class")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Class))
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      val boundParams = params.validate(arguments)
+      val klass = boundParams.validateClass(Class)
+      MashBoolean(target isA klass)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "Return true if this object is an instance of the given class"
+  }
 
   object ClassMethod extends MashMethod("class") {
 
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashClass = target.primaryClass
-    
+
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
     override def summary = "The class of this object"

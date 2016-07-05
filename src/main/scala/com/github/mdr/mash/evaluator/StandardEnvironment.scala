@@ -20,6 +20,7 @@ object StandardEnvironment {
   def createGlobalVariables(): MashObject = {
     val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ f.name -> f)
+    val nameClassPairs = MashRoot.StandardClasses.map(c => c.name -> c)
     val aliasPairs = MashRoot.Aliases.toSeq
     def rootField(s: String) = ns.get(s).get
     val rootNsPairs = ns.fields.toSeq
@@ -29,7 +30,7 @@ object StandardEnvironment {
         Config -> com.github.mdr.mash.Config.defaultConfig,
         ReplState.It -> MashNull,
         Ns -> ns)
-    val allPairs = nameFunctionPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
+    val allPairs = nameFunctionPairs ++ nameClassPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
     val global = MashObject.of(allPairs)
     global.set(Global, global)
     global

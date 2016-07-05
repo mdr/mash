@@ -518,8 +518,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   }
 
-  // .hasField
+  // Object.hasField
   "{ foo: 42 }.hasField 'foo'" shouldEvaluateTo "true"
   "{ foo: 42 }.hasField 'bar'" shouldEvaluateTo "false"
 
+  // Any.isA
+  "42.isA Number" shouldEvaluateTo "true"
+  "42.isA String" shouldEvaluateTo "false"
+  "3.days.isA 3.days.tag" shouldEvaluateTo "true"
+  
 }

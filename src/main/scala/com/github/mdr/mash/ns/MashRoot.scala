@@ -22,6 +22,19 @@ object MashRoot {
    */
   lazy val StandardFunctions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
 
+  lazy val StandardClasses = Seq(
+    ListClass,
+    BooleanClass,
+    BoundMethodClass,
+    ClassClass,
+    FunctionClass,
+    NullClass,
+    NumberClass,
+    ObjectClass,
+    AnyClass,
+    StringClass,
+    UnitClass)
+
   lazy private val OtherFunctions =
     GitNamespace.GitFunctions ++
       Seq(BrowserFunction, RawFunction) ++

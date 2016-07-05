@@ -64,7 +64,9 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
   def summary: String
 
   def descriptionOpt: Option[String] = None
-
+  
+  def isSubClassOf(otherClass: MashClass): Boolean = this == otherClass || this.parentOpt.exists(_ isSubClassOf otherClass)
+  
 }
 
 case class Field(

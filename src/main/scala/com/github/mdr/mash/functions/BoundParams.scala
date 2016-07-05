@@ -63,6 +63,15 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
         throw new ArgumentException(message, locationOpt(param))
     }
 
+  def validateClass(param: Parameter): MashClass =
+    this(param) match {
+      case klass: MashClass ⇒
+        klass
+      case x ⇒
+        val message = s"Invalid argument '${param.name}'. Must be a class, but was a ${x.typeName}"
+        throw new ArgumentException(message, locationOpt(param))
+    }
+
   def validatePath(param: Parameter): Path = {
     val x = this(param)
     FunctionHelpers.safeInterpretAsPath(x) match {

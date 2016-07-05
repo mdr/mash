@@ -10,7 +10,7 @@ object MashString {
 
 }
 
-case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends MashValue with Comparable[MashString] {
+case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends TaggableMashValue with Comparable[MashString] {
 
   def lookup(i: Int) = {
     val index = if (i < 0) i + s.size else i

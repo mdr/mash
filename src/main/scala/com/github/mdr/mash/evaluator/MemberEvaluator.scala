@@ -44,7 +44,7 @@ object MemberEvaluator extends EvaluatorHelper {
       lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
       lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising, locationOpt).map(
         x ⇒ MemberExprEvalResult(x, wasVectorised = true))
-      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name'", locationOpt))
+      scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
     }
   }
 

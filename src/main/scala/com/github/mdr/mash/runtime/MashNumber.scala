@@ -24,7 +24,7 @@ object MashNumber {
 
 }
 
-case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends MashValue with Comparable[MashNumber] {
+case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends TaggableMashValue with Comparable[MashNumber] {
 
   def compareTo(that: MashNumber) = n.compareTo(that.n)
 
