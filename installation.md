@@ -6,11 +6,16 @@ permalink: /installation/
 
 # Installation
 
+## Os X
+
+    brew install mdr/mash/mash
+
+## Other
+
 Prerequisites: Java 8
 
-Download: [mash-assembly.jar](https://github.com/mdr/mash/releases/download/v0.0.2/mash-assembly-0.0.2.jar)
+Download: [mash.jar](https://github.com/mdr/mash/releases/download/v0.0.3/mash-0.0.3.jar)
 
 Run:
 
-    java -jar mash-assembly-<VERSION>.jar
-
+    java -jar mash-0.0.3.jar
