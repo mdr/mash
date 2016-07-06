@@ -17,9 +17,10 @@ permalink: /quick-reference-guide/
 * Objects: `{ foo: 42, bar: 42 }`
 * Strings: `'basic string'`, `"rich string"`
 
-Double-quoted rich strings are recommended for most interactive uses, and provide the following features:
+The double-quoted rich strings are recommended for most interactive uses,
+and provide the following additional features over single-quoted strings:
 
-* Simple interpolation: `"My name is $user.name"`
+* Variable interpolation: `"My name is $user.name"`
 * Full expression interpolation: `"My name is ${user.name | reverse}"`
 * An initial tilde (~) is replaced with the current user's home directory
 * Tagged as `os.Path`, which provides methods for path manipulation: `"foo.txt".lastModified`
@@ -163,7 +164,7 @@ set configuration options.
 
 ### Configuration options
 
-   config.language.bareWords = true # Treat unbound identifiers as string literals
+   config.language.bareWords = false # Treat unbound identifiers as string literals
    config.cli.showStartupTips = true # Show tip on startup
 
 ## Standard library
@@ -207,3 +208,4 @@ set configuration options.
 * `now`
 * `2.days.ago`
 * `3.hours.fromNow`
+* `now + 3.weeks`
