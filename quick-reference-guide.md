@@ -107,7 +107,8 @@ sequence, then a member access is automatically vectorised:
 
 ### Mish
 
-Mish is a sublanguage within Mash, for launching processes.
+Mish is a sublanguage within Mash for launching processes, with a similar syntax to
+ a traditional shell.
 
 * `!ps` - run a command
 * `!{which java}` - run a command with arguments; the process output is captured
