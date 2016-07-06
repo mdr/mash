@@ -4,7 +4,7 @@ name := "mash"
 
 organization := "com.github.mdr"
 
-version := "0.0.3-SNAPSHOT"
+version := "0.0.3"
 
 scalaVersion := "2.11.8"
 
@@ -46,6 +46,8 @@ EclipseKeys.eclipseOutput := Some("bin")
 mainClass in (Compile, run) := Some("com.github.mdr.mash.Main")
 
 mainClass in assembly := (mainClass in (Compile, run)).value
+
+assemblyJarName in assembly := s"mash-${version.value}.jar"
 
 // javaOptions ++= Seq("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
 

@@ -1,5 +1,5 @@
-v0.0.3 (..)
------------
+v0.0.3 (6/July)
+---------------
 
 * Add provenance information to stack trace entries
 * Separate Object from Any
