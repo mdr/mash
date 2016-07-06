@@ -14,7 +14,7 @@ permalink: /installation/
 
 Prerequisites: Java 8
 
-Download: [mash.jar](https://github.com/mdr/mash/releases/download/v0.0.3/mash-0.0.3.jar)
+Download: [mash-0.0.3.jar](https://github.com/mdr/mash/releases/download/v0.0.3/mash-0.0.3.jar)
 
 Run:
 
