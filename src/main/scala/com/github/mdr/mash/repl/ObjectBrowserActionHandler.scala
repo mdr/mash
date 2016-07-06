@@ -73,7 +73,7 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
 
   private def getInsertExpression(browserState: ObjectBrowserState): String = {
     val commandNumber = state.commandNumber - 1
-    val command = s"${ReplState.Res}[$commandNumber]"
+    val command = s"${ReplState.Res}$commandNumber"
     if (browserState.selectedRows.isEmpty)
       s"$command[${browserState.currentRow}]"
     else {

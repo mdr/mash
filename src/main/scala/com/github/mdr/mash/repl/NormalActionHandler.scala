@@ -175,6 +175,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def saveResult(number: Int)(result: MashValue) {
     state.globalVariables.set(ReplState.It, result)
+    state.globalVariables.set(ReplState.Res + number, result)
     val oldResults = state.globalVariables.get(ReplState.Res) match {
       case Some(MashList(oldResults @ _*)) ⇒ oldResults
       case _                               ⇒ Seq()
