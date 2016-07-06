@@ -19,6 +19,10 @@ import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.ns.time.MillisecondsClass
+import java.time.Instant
+import java.time.Duration
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
@@ -36,6 +40,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
   def summary = "The result of running a process"
 
   override val methods = Seq(
+    DurationMethod,
     LineMethod,
     LinesMethod,
     ToNumberMethod,
@@ -56,7 +61,9 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
   case class Wrapper(x: MashValue) {
     val obj = x.asInstanceOf[MashObject]
     def stdout = obj(Stdout).asInstanceOf[MashString].s
-    def line: String = Wrapper(x).stdout.split("\n").headOption.getOrElse("")
+    def line: String = stdout.split("\n").headOption.getOrElse("")
+    def started = obj(Started).asInstanceOf[MashWrapped].x.asInstanceOf[Instant]
+    def finished = obj(Finished).asInstanceOf[MashWrapped].x.asInstanceOf[Instant]
   }
 
   object LinesMethod extends MashMethod("lines") {
@@ -131,6 +138,24 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
 
     override def summary = AnyClass.ToStringMethod.summary
+
+  }
+
+  object DurationMethod extends MashMethod("duration") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashNumber = {
+      params.validate(arguments)
+      val wrapper = Wrapper(target)
+      val duration = Duration.between(wrapper.started, wrapper.finished)
+      val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
+      MashNumber(millis, MillisecondsClass)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass taggedWith MillisecondsClass)
+
+    override def summary = "How long the process ran for, in milliseconds"
 
   }
 

@@ -107,5 +107,5 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case _ ⇒
         throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
-
+  
 }
