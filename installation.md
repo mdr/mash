@@ -6,11 +6,11 @@ permalink: /installation/
 
 # Installation
 
-## Os X
+## OS X
 
     brew install mdr/mash/mash
 
-## Other
+## Linux
 
 Prerequisites: Java 8
 

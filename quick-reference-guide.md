@@ -22,11 +22,11 @@ and provide the following additional features over single-quoted strings:
 
 * Variable interpolation: `"My name is $user.name"`
 * Full expression interpolation: `"My name is ${user.name | reverse}"`
-* An initial tilde (~) is replaced with the current user's home directory
-* Tagged as `os.Path`, which provides methods for path manipulation: `"foo.txt".lastModified`
+* An initial tilde (`~`) is replaced with the current user's home directory
+* Tagged as `os.Path`, which provides methods for path manipulation: e.g. `"foo.txt".lastModified`
 
-If the *bare words* are enabled (configuration property `language.bareWords`), then any
-identifier that is not bound is automatically promoted to a rich string.
+If *bare words* are enabled (using configuration property `language.bareWords`), then any
+unbound identifier is automatically promoted to a string tagged with `os.Path`.
 
 ### Conditionals, truthiness, and/or
 * Conditional expression: `if` .. `then` .. `else` ..
@@ -80,7 +80,7 @@ Holes can be repeated:
 
     _ * _ # equivalent to x => x * x
 
-There is a further syntax sugar for member expressions:
+There is a further abbreviation for member expressions:
 
     .size # equivalent to _.size, or x => x.size
 
@@ -116,7 +116,7 @@ Mish is a sublanguage within Mash, for launching processes.
 * `!{gnome-open ${file}}` - or entire Mash fragments inside a `${}` region
 * `ls | first | !nano` - run a process as a function
 
-By default, Mash is in "Mash" mode. If a command line is prefixed with `!`, the entire line
+By default, Mash is in "Mash" mode. If a command line starts or ends with `!`, the entire line
 is interpreted as a Mish command. If `!` is issued by itself as a command, then Mash toggles
 into Mish by default.
 
@@ -199,9 +199,9 @@ set configuration options.
 
 ### Processes, users and groups
 
-* `user`, `users`, `groups`
-* `groups | first | _.users`
 * `ps`
+* `user`, `users`, `groups` # Linux only
+* `groups | first | _.users` # Linux only
 
 ### Dates and times
 
@@ -209,3 +209,11 @@ set configuration options.
 * `2.days.ago`
 * `3.hours.fromNow`
 * `now + 3.weeks`
+
+### Git support
+
+* `git`: git namespace object, lists available functions
+* `git.log`: return list of commit objects for the current repository
+* `git.stage`: stage arguments for commit
+* `git.unstage`: unstage arguments for commit
+* `git.branches`: list local branches
