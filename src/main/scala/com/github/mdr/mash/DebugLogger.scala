@@ -1,16 +1,18 @@
 package com.github.mdr.mash
 
-import org.apache.commons.lang3.exception.ExceptionUtils
-import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.util.UUID
+
+import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.exception.ExceptionUtils
 
 /**
  * A debug logger for debugging internal exceptions
  */
-object DebugLogger {
+class DebugLogger(sessionId: UUID) {
 
-  private val logFile = new File("/tmp/mash-debug.log")
+  private val logFile = new File(s"/tmp/mash-debug-${sessionId}.log")
 
   def logException(e: Throwable) {
     val stackTrace = ExceptionUtils.getStackTrace(e)

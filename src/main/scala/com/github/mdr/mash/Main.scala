@@ -24,12 +24,13 @@ object Main extends App {
 
   private def launchRepl() = {
     handleSignals()
+    val sessionId = UUID.randomUUID
     TerminalHelper.withTerminal { terminal ⇒
       // TODO: obviously this is horrible, will be fixed when DI gets sorted out
       Singletons.terminalControl = new TerminalControlImpl(terminal)
-      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = UUID.randomUUID)
+      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
 
-      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out, LinuxFileSystem, LinuxEnvironmentInteractions, history = Singletons.history)
+      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out, LinuxFileSystem, LinuxEnvironmentInteractions, history = Singletons.history, sessionId = sessionId)
       repl.run()
     }
   }

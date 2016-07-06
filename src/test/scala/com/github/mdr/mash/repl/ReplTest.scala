@@ -16,6 +16,7 @@ import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
+import java.util.UUID
 
 class ReplTest extends FlatSpec with Matchers {
 
@@ -62,18 +63,18 @@ class ReplTest extends FlatSpec with Matchers {
     repl.previousHistory().text should equal("2")
     repl.previousHistory().text should equal("1")
   }
-  
+
   "History" should "reset if an old line is edited" in {
     val repl = newRepl
     repl.input("command1").acceptLine()
     repl.input("command2").acceptLine()
     repl.input("partial")
     repl.previousHistory().text should equal("command2")
-    repl.nextHistory().text shouldEqual("partial")
-    repl.previousHistory().backspace().text shouldEqual("command")
-    
+    repl.nextHistory().text shouldEqual ("partial")
+    repl.previousHistory().backspace().text shouldEqual ("command")
+
     repl.nextHistory()
-    
+
     repl.text should equal("command")
   }
 
@@ -132,7 +133,8 @@ object ReplTest {
 
   def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
     val history = new HistoryImpl(new InMemoryHistoryStorage())
-    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history)
+    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
+      sessionId = UUID.randomUUID)
   }
 
   implicit class RichRepl(repl: Repl) {

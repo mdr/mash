@@ -1,9 +1,7 @@
 package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-
 import org.fusesource.jansi.Ansi
-
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationSettings
@@ -17,11 +15,13 @@ import com.github.mdr.mash.printer.PrintResult
 import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
+import java.util.UUID
 
-class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject) {
+class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject, sessionId: UUID) {
 
-  val errorPrinter = new ErrorPrinter(output, terminalInfo)
-  val debugCommandRunner = new DebugCommandRunner(output, globals)
+  private val errorPrinter = new ErrorPrinter(output, terminalInfo)
+  private val debugCommandRunner = new DebugCommandRunner(output, globals)
+  private val debugLogger = new DebugLogger(sessionId)
 
   def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean): CommandResult = {
     cmd match {
@@ -69,7 +69,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
         errorPrinter.printError("Error", msg, unit, stack.reverse)
-        DebugLogger.logException(e)
+        debugLogger.logException(e)
         MashUnit
       case _: EvaluationInterruptedException ⇒
         output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())

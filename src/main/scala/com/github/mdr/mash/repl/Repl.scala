@@ -26,6 +26,7 @@ import com.github.mdr.mash.screen.ReplRenderer
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.compiler.CompilationUnit
+import java.util.UUID
 
 object Repl {
 
@@ -39,7 +40,8 @@ class Repl(
   protected val output: PrintStream,
   fileSystem: FileSystem,
   envInteractions: EnvironmentInteractions,
-  protected val history: History)
+  protected val history: History,
+  protected val sessionId: UUID)
     extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
@@ -48,6 +50,7 @@ class Repl(
 
   import Repl._
 
+  protected val debugLogger = new DebugLogger(sessionId)
   protected val completer = new Completer(fileSystem, envInteractions)
 
   val state = new ReplState
@@ -70,7 +73,7 @@ class Repl(
         case e: Exception ⇒
           output.println("Error reading " + InitPath)
           e.printStackTrace(output)
-          DebugLogger.logException(e)
+          debugLogger.logException(e)
           None
       }
     else
@@ -79,14 +82,14 @@ class Repl(
 
   private def processInitFile() {
     for (initScript ← getInitScript) {
-      val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
+      val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
       try
         commandRunner.runCompilationUnit(initScript, state.bareWords)
       catch {
         case e: Exception ⇒
           output.println(s"Error executing $InitFile")
           e.printStackTrace(output)
-          DebugLogger.logException(e)
+          debugLogger.logException(e)
           return
       }
     }
@@ -108,7 +111,7 @@ class Repl(
       draw()
     catch {
       case e: Exception ⇒
-        DebugLogger.logException(e)
+        debugLogger.logException(e)
         state.reset()
         draw()
     }
@@ -118,7 +121,7 @@ class Repl(
     } catch {
       case e: Throwable ⇒
         e.printStackTrace(output)
-        DebugLogger.logException(e)
+        debugLogger.logException(e)
     }
     if (state.continue)
       inputLoop()

@@ -140,7 +140,7 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def runCommand(cmd: String) {
     val workingDirectory = fileSystem.pwd
-    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables)
+    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
     val unitName = s"command-${state.commandNumber}"
     val commandResult =
       try
@@ -148,7 +148,7 @@ trait NormalActionHandler { self: Repl ⇒
       catch {
         case e: Exception ⇒
           e.printStackTrace()
-          DebugLogger.logException(e)
+          debugLogger.logException(e)
           return
       }
     processCommandResult(cmd, commandResult, workingDirectory)
