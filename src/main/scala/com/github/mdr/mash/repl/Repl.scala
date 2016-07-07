@@ -162,7 +162,7 @@ class Repl(
 
   protected def updateInvocationAssistance() {
     val text = state.lineBuffer.text
-    val pos = state.lineBuffer.cursorPos
+    val pos = state.lineBuffer.cursorOffset
     val newAssistanceStateOpt =
       text match {
         case MishCommand(prefix, mishCmd) ⇒
@@ -182,7 +182,7 @@ class Repl(
    */
   protected def complete: Option[CompletionResult] = {
     val text = state.lineBuffer.text
-    val pos = state.lineBuffer.cursorPos
+    val pos = state.lineBuffer.cursorOffset
 
     text match {
       case MishCommand(prefix, mishCmd) ⇒

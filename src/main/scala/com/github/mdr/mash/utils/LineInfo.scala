@@ -9,6 +9,12 @@ class LineInfo(s: String) {
 
   val lines: Seq[String] = s.split("""\r?\n""")
 
+  def line(lineIndex: Int): String = lines(lineIndex)
+  
+  def lineCount: Int = lines.size
+  
+  def lineLength(line: Int): Int = lineRegion(line).length
+  
   @tailrec
   private def findLineStarts(pos: Int, lineStarts: Seq[Int]): Seq[Int] =
     if (pos >= s.length)
@@ -26,6 +32,9 @@ class LineInfo(s: String) {
     Region(offset, offsetAfter - offset)
   }
 
+  def replaceLine(lineIndex: Int, newLine: String): String =
+    (lines.take(lineIndex) ++ Seq(newLine) ++ lines.drop(lineIndex + 1)).mkString("\n")
+  
   /**
    * @return number of the line (0-indexed) containing the given pos in the original string
    */
@@ -35,4 +44,7 @@ class LineInfo(s: String) {
     (line, column)
   }
 
+  def offset(lineIndex: Int, column: Int): Int =
+    lines.take(lineIndex).map(_.length + 1).sum + column
+  
 }

@@ -1,27 +1,13 @@
 package com.github.mdr.mash.screen
 
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.compiler.BareStringify
-import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
-import com.github.mdr.mash.lexer.MashLexer
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.parser.Abstractifier
-import com.github.mdr.mash.parser.MashParser
+import com.github.mdr.mash.repl.ObjectBrowserState
 import com.github.mdr.mash.repl.ReplState
+import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.commands.SuffixMishCommand
-import com.github.mdr.mash.repl.ObjectBrowserState
-import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.parser.Provenance
 
 case class ReplRenderResult(screen: Screen, completionColumns: Int = 0)
 
@@ -33,7 +19,6 @@ case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
  */
 object ReplRenderer {
 
-  private val envInteractions = LinuxEnvironmentInteractions
   private val fileSystem = LinuxFileSystem
 
   def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateOpt match {
@@ -42,7 +27,7 @@ object ReplRenderer {
   }
 
   private def renderRegularRepl(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = {
-    val bufferScreen = renderLineBuffer(state, terminalInfo)
+    val bufferScreen = LineBufferRenderer.renderLineBuffer(state, terminalInfo)
     val bufferLines = bufferScreen.lines
     val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
     val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
@@ -73,110 +58,19 @@ object ReplRenderer {
   }
 
   private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalInfo: TerminalInfo): Seq[Line] =
-    assistanceStateOpt.map { assistanceState ⇒
-      val title = assistanceState.title
-      val lines = assistanceState.lines
-      val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
-      val innerWidth = boxWidth - 4
-      val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
-      val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
-      val topLine = Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style)
-      val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
-      val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").style))
-      topLine +: contentLines :+ bottomLine
-    }.getOrElse(Seq())
+    assistanceStateOpt.map(state ⇒ renderAssistanceState(state, terminalInfo)).getOrElse(Seq())
 
-  private def getPrompt(commandNumber: Int, mishByDefault: Boolean): Seq[StyledCharacter] = {
-    val num = s"[$commandNumber] "
-    val numStyle = Style(foregroundColour = Colour.Yellow)
-    val numStyled = num.style(numStyle)
-
-    val pwd = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
-    val pwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
-    val pwdStyled = pwd.style(pwdStyle)
-
-    val promptChar = if (mishByDefault) "!" else "$"
-    val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
-    val promptCharStyled = s" $promptChar ".style(promptCharStyle)
-
-    numStyled ++ pwdStyled ++ promptCharStyled
-  }
-
-  private def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
-    val prompt = getPrompt(state.commandNumber, state.mish)
-    val lineBuffer = state.lineBuffer
-    val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables.fields, state.bareWords)
-    val cursorPos = prompt.length + lineBuffer.cursorPos
-
-    val groups = styledChars.grouped(terminalInfo.columns).toSeq
-    val lines: Seq[Line] =
-      for {
-        (group, index) ← groups.zipWithIndex
-        endsInNewline = index == groups.size - 1
-      } yield Line(group, endsInNewline)
-    val row = cursorPos / terminalInfo.columns
-    val column = cursorPos % terminalInfo.columns
-    LinesAndCursorPos(lines, Point(row, column))
-  }
-
-  private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
-    val bindings = globalVariables.keySet.toSet
-    val concreteExpr = MashParser.parseForgiving(s, mish = mish)
-    val provenance = Provenance("not required", s)
-    val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
-    BareStringify.getBareTokens(abstractExpr, bindings)
-  }
-
-  private def renderLineBufferChars(rawChars: String, prompt: Seq[StyledCharacter], mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {
-    val styledChars = new ArrayBuffer[StyledCharacter]
-    styledChars ++= prompt
-
-    val (tokens, bareTokens) =
-      rawChars match {
-        case SuffixMishCommand(mishCmd, suffix) ⇒
-          val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(mishCmd, includeCommentsAndWhitespace = true, forgiving = true, mish = true), bareTokens)
-        case MishCommand(prefix, mishCmd) ⇒
-          styledChars ++= prefix.map(StyledCharacter(_, Style(bold = true)))
-          val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(mishCmd, includeCommentsAndWhitespace = true, forgiving = true, mish = true), bareTokens)
-        case _ ⇒
-          val bareTokens = if (bareWords) getBareTokens(rawChars, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(rawChars, includeCommentsAndWhitespace = true, forgiving = true, mish = mishByDefault), bareTokens)
-      }
-    for (token ← tokens) {
-      val style =
-        if (bareTokens contains token)
-          getTokenStyle(TokenType.STRING_LITERAL)
-        else
-          getTokenStyle(token)
-
-      if (!token.isEof)
-        styledChars ++= token.text.style(style)
-    }
-    rawChars match {
-      case SuffixMishCommand(mishCmd, suffix) ⇒
-        styledChars ++= suffix.style(Style(bold = true))
-      case _ ⇒
-    }
-    styledChars
-  }
-
-  private def getTokenStyle(token: Token): Style = getTokenStyle(token.tokenType)
-
-  private def getTokenStyle(tokenType: TokenType): Style = {
-    import TokenType._
-    tokenType match {
-      case COMMENT                ⇒ Style(foregroundColour = Colour.Cyan)
-      case NUMBER_LITERAL         ⇒ Style(foregroundColour = Colour.Yellow)
-      case IDENTIFIER | MISH_WORD ⇒ Style(foregroundColour = Colour.Yellow)
-      case ERROR                  ⇒ Style(foregroundColour = Colour.Red, bold = true)
-      case t if t.isFlag          ⇒ Style(foregroundColour = Colour.Blue, bold = true)
-      case t if t.isKeyword       ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒
-        Style(foregroundColour = Colour.Green)
-      case _ ⇒ Style()
-    }
+  private def renderAssistanceState(assistanceState: AssistanceState, terminalInfo: TerminalInfo): Seq[Line] = {
+    val title = assistanceState.title
+    val lines = assistanceState.lines
+    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
+    val innerWidth = boxWidth - 4
+    val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
+    val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
+    val topLine = Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style)
+    val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
+    val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").style))
+    topLine +: contentLines :+ bottomLine
   }
 
 }

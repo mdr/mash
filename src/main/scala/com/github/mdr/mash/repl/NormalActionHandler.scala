@@ -18,6 +18,7 @@ import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import java.nio.file.Path
+import com.github.mdr.mash.utils.LineInfo
 
 trait NormalActionHandler { self: Repl ⇒
   private val fileSystem = LinuxFileSystem
@@ -95,21 +96,21 @@ trait NormalActionHandler { self: Repl ⇒
   private def handleToggleMish(): Unit = resetHistoryIfTextChanges {
     state.lineBuffer =
       if (state.lineBuffer.text startsWith "!")
-        state.lineBuffer.delete(0)
+        state.lineBuffer.delete(CursorPos(0, 0))
       else
-        state.lineBuffer.insertCharacters("!", 0)
+        state.lineBuffer.insertCharacters("!", CursorPos(0, 0))
   }
 
   private def handleYankLastArg(): Unit = resetHistoryIfTextChanges {
     val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
       case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
-      case None                              ⇒ (0, Region(state.lineBuffer.cursorPos, 0))
+      case None                              ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))
     }
     history.getLastArg(argIndex) match {
       case Some(newArg) ⇒
-        val newS = oldRegion.replace(state.lineBuffer.text, newArg)
+        val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
-        state.lineBuffer = LineBuffer(newS, newRegion.posAfter)
+        state.lineBuffer = LineBuffer(newText, newRegion.posAfter)
         state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
       case None ⇒
     }
@@ -204,7 +205,9 @@ trait NormalActionHandler { self: Repl ⇒
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
-    val newCursorPos = result.replacementLocation.offset + completion.replacement.length
+    val newOffset = result.replacementLocation.offset + completion.replacement.length
+    val lineInfo = new LineInfo(newText)
+    val newCursorPos = CursorPos(lineInfo.lineAndColumn(newOffset))
     state.lineBuffer = LineBuffer(newText, newCursorPos)
   }
 

@@ -6,6 +6,8 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.utils.LineInfo
+import com.github.mdr.mash.repl.CursorPos
 
 object QuoteToggler {
 
@@ -13,17 +15,17 @@ object QuoteToggler {
 
   def toggleQuotes(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
     val text = lineBuffer.text
-    val cursorPos = lineBuffer.cursorPos
+    val cursorOffset = lineBuffer.cursorOffset
 
-    val cursorToken = findCursorToken(text, mish, cursorPos).getOrElse(return lineBuffer)
+    val cursorToken = findCursorToken(text, mish, cursorOffset).getOrElse(return lineBuffer)
     val cursorRegion = cursorToken.region
     val targetRegion = ContiguousRegionFinder.getContiguousRegion(text, cursorRegion, mish = mish, liberal = true)
     val targetText = targetRegion.of(text)
     val isAlreadyQuoted = isQuoted(targetText, DoubleQuote) || isQuoted(targetText, "'")
     if (isAlreadyQuoted)
-      unquote(targetText, cursorPos, text, targetRegion)
+      unquote(targetText, cursorOffset, text, targetRegion)
     else
-      quote(targetText, cursorPos, text, targetRegion)
+      quote(targetText, cursorOffset, text, targetRegion)
   }
 
   private def isQuoted(s: String, delimiter: String): Boolean =
@@ -32,40 +34,42 @@ object QuoteToggler {
   /**
    * Find a non-whitespace token that is either under the cursor or immediately to the left of it.
    */
-  private def findCursorToken(text: String, mish: Boolean, cursorPos: Int): Option[Token] = {
+  private def findCursorToken(text: String, mish: Boolean, cursorOffset: Int): Option[Token] = {
     val tokens = MashLexer.tokenise(text, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
-    tokens.find(_.region contains cursorPos).filterNot(t ⇒ t.isWhitespace || t.isEof)
-      .orElse(tokens.find(_.region.posAfter == cursorPos).filterNot(t ⇒ t.isWhitespace || t.isEof))
+    tokens.find(_.region contains cursorOffset).filterNot(t ⇒ t.isWhitespace || t.isEof)
+      .orElse(tokens.find(_.region.posAfter == cursorOffset).filterNot(t ⇒ t.isWhitespace || t.isEof))
   }
 
-  private def unquote(targetText: String, cursorPos: Int, text: String, region: Region): LineBuffer = {
+  private def unquote(targetText: String, cursorOffset: Int, text: String, region: Region): LineBuffer = {
     val inner = targetText.tail.init
     val unescaped = StringEscapes.unescape(inner)
     val unescapesOccurred = unescaped.length < inner.length
     val newText = region.replace(text, unescaped)
-    val newCursorPos = calculateCursorPosAfterUnquoting(unescapesOccurred, region, unescaped, cursorPos)
+    val newCursorOffset = calculateCursorOffsetAfterUnquoting(unescapesOccurred, region, unescaped, cursorOffset)
+    val newCursorPos = CursorPos(new LineInfo(newText).lineAndColumn(newCursorOffset))
     LineBuffer(newText, newCursorPos)
   }
 
-  private def calculateCursorPosAfterUnquoting(unescapesOccurred: Boolean, region: Region, unescaped: String, cursorPos: Int) =
+  private def calculateCursorOffsetAfterUnquoting(unescapesOccurred: Boolean, region: Region, unescaped: String, cursorOffset: Int) =
     if (unescapesOccurred)
       region.offset + unescaped.length
-    else if (cursorPos == region.offset)
-      cursorPos
-    else if (region contains cursorPos)
-      cursorPos - 1
+    else if (cursorOffset == region.offset)
+      cursorOffset
+    else if (region contains cursorOffset)
+      cursorOffset - 1
     else
-      cursorPos - 2
+      cursorOffset - 2
 
-  private def quote(targetText: String, cursorPos: Int, text: String, targetRegion: Region): LineBuffer = {
+  private def quote(targetText: String, cursorOffset: Int, text: String, targetRegion: Region): LineBuffer = {
     val stripResult = stripQuotes(targetText)
     val inner = stripResult.stripped
     val escaped = StringEscapes.escapeChars(inner)
     val escapesOccurred = escaped.length > inner.length
     val quoted = DoubleQuote + escaped + DoubleQuote
     val newText = targetRegion.replace(text, quoted)
-    val newCursorPos =
-      calculateCursorPosAfterQuoting(escapesOccurred, cursorPos, targetRegion, stripResult, quoted)
+    val newCursorOffset =
+      calculateCursorOffsetAfterQuoting(escapesOccurred, cursorOffset, targetRegion, stripResult, quoted)
+    val newCursorPos = CursorPos(new LineInfo(newText).lineAndColumn(newCursorOffset))
     LineBuffer(newText, newCursorPos)
   }
 
@@ -86,16 +90,16 @@ object QuoteToggler {
     StripResult(inner, initialQuoteRemoved, finalQuoteRemoved)
   }
 
-  private def calculateCursorPosAfterQuoting(escapesOccurred: Boolean, cursorPos: Int, replacementRegion: Region, stripResult: StripResult, quoted: String) =
+  private def calculateCursorOffsetAfterQuoting(escapesOccurred: Boolean, cursorOffset: Int, replacementRegion: Region, stripResult: StripResult, quoted: String) =
     if (escapesOccurred) // Keeping track of the cursor if there has been escapes is more complex; for now we move the cursor to the end of the string
       replacementRegion.offset + quoted.length
     else {
       val shift =
-        if (cursorPos <= replacementRegion.lastPos) {
+        if (cursorOffset <= replacementRegion.lastPos) {
           if (stripResult.initialQuoteRemoved) 0 else 1
         } else {
           if (stripResult.initialQuoteRemoved || stripResult.finalQuoteRemoved) 1 else 2
         }
-      cursorPos + shift
+      cursorOffset + shift
     }
 }
