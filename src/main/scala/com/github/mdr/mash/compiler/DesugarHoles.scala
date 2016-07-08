@@ -50,6 +50,8 @@ object DesugarHoles {
       Result(LambdaExpr(parameter, addLambdaIfNeeded(body), sourceInfoOpt))
     case ParenExpr(expr, sourceInfoOpt) ⇒
       Result(ParenExpr(addLambdaIfNeeded(expr), sourceInfoOpt))
+    case BlockExpr(expr, sourceInfoOpt) ⇒
+      Result(BlockExpr(addLambdaIfNeeded(expr), sourceInfoOpt))
     case StatementSeq(statements, sourceInfoOpt) ⇒
       for (newStatements ← sequence(statements.map(desugarHoles_)))
         yield StatementSeq(newStatements, sourceInfoOpt)

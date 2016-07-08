@@ -48,6 +48,8 @@ class BareStringificationContext {
       InterpolatedString(start, newParts, end, sourceInfoOpt)
     case ParenExpr(expr, sourceInfoOpt) ⇒
       ParenExpr(bareStringify(expr, bindings), sourceInfoOpt)
+    case BlockExpr(expr, sourceInfoOpt) ⇒
+      BlockExpr(bareStringify(expr, bindings), sourceInfoOpt)
     case StatementSeq(statements, sourceInfoOpt) ⇒
       var res = ArrayBuffer[Expr]()
       var newBindings = bindings
@@ -78,7 +80,7 @@ class BareStringificationContext {
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
       val extraGlobals = left.findAll {
         case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
-        case FunctionDeclaration(name, _, _, _)                  ⇒ name
+        case FunctionDeclaration(name, _, _, _)                     ⇒ name
       }
       val newBindings = bindings ++ extraGlobals
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)

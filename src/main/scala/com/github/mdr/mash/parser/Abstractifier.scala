@@ -25,7 +25,7 @@ class Abstractifier(provenance: Provenance) {
     case mexpr @ Concrete.HeadlessMemberExpr(_, name)       ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, sourceInfo(expr))
     case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), sourceInfo(expr))
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), sourceInfo(expr))
-    case Concrete.BlockExpr(_, statements, _)               ⇒ abstractify(statements)
+    case Concrete.BlockExpr(_, statements, _)               ⇒ Abstract.BlockExpr(abstractify(statements), sourceInfo(expr))
     case Concrete.StatementSeq(statements)                  ⇒ Abstract.StatementSeq(statements.flatMap(_.statementOpt).map(abstractify), sourceInfo(expr))
     case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), sourceInfo(expr))
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))

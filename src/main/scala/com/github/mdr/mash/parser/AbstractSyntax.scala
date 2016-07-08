@@ -43,6 +43,8 @@ object AbstractSyntax {
             AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), alias, sourceInfoOpt)
           case ParenExpr(expr, sourceInfoOpt) ⇒
             ParenExpr(expr.transform(f), sourceInfoOpt)
+          case BlockExpr(expr, sourceInfoOpt) ⇒
+            BlockExpr(expr.transform(f), sourceInfoOpt)
           case StatementSeq(statements, sourceInfoOpt) ⇒
             StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
           case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
@@ -193,6 +195,11 @@ object AbstractSyntax {
   }
 
   case class ParenExpr(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq(expr)
+  }
+
+  case class BlockExpr(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(expr)
   }

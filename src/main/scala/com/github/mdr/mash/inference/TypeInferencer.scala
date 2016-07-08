@@ -55,6 +55,7 @@ class TypeInferencer {
       case memberExpr: HeadlessMemberExpr               ⇒ None // should not be present in AST at this point
       case MishFunction(command, _)                     ⇒ Some(Type.DefinedFunction(SystemCommandFunction(command)))
       case ParenExpr(body, _)                           ⇒ inferType(body, bindings)
+      case BlockExpr(body, _)                           ⇒ inferType(body, bindings)
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
       case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(StringClass taggedWith PathClass)
       case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(Type.Instance(StringClass))

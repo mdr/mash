@@ -68,6 +68,9 @@ object TreePrettyPrinter {
       case ParenExpr(body, _) ⇒
         println("ParenExpr" + typeDescription)
         printTree(body, depth + 1)
+      case BlockExpr(body, _) ⇒
+        println("BlockExpr" + typeDescription)
+        printTree(body, depth + 1)
       case LambdaExpr(v, body, _) ⇒
         println("LambdaExpr" + typeDescription)
         println("  " * (depth + 1) + v)

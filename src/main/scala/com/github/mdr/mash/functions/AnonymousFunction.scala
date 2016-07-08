@@ -10,8 +10,8 @@ case class AnonymousFunction(parameter: String, body: Expr, context: EvaluationC
 
   def apply(arguments: Arguments): MashValue = {
     val arg = arguments.positionArgs(0).value
-    val newCtx = context.copy(scopeStack = context.scopeStack.withLambdaScope(parameter, arg))
-    Evaluator.evaluate(body)(newCtx)
+    val newContext = context.copy(scopeStack = context.scopeStack.withLambdaScope(parameter, arg))
+    Evaluator.evaluate(body)(newContext)
   }
 
   val params = ParameterModel(Seq(Parameter(parameter, "Argument")))

@@ -65,6 +65,7 @@ object Evaluator extends EvaluatorHelper {
         throw EvaluatorException("Unexpected AST node: " + expr, stack = sourceLocation(expr).toList)
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
+      case blockExpr: BlockExpr                   ⇒ evaluateBlockExpr(blockExpr)
       case Literal(v, _)                          ⇒ v
       case memberExpr: MemberExpr                 ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
       case lookupExpr: LookupExpr                 ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
@@ -88,6 +89,11 @@ object Evaluator extends EvaluatorHelper {
         val fields = for ((label, value) ← entries) yield label -> evaluate(value)
         MashObject.of(fields)
     }
+
+  def evaluateBlockExpr(blockExpr: BlockExpr)(implicit context: EvaluationContext): MashValue = {
+    val newContext = context.copy(scopeStack = context.scopeStack.withEmptyScope)
+    Evaluator.evaluate(blockExpr.expr)(newContext)
+  }
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue = {
     val Identifier(name, _) = identifier

@@ -44,6 +44,11 @@ case class ScopeStack(scopes: List[Scope]) {
         throw new AssertionError("Missing global scope")
     }
 
+  def withEmptyScope = {
+    val scope = FullScope(mutable.Map[String, MashValue]())
+    ScopeStack(scope :: scopes)
+  }
+  
   def withLambdaScope(name: String, value: MashValue) = {
     val scope = LambdaScope(mutable.Map[String, MashValue](name -> value))
     ScopeStack(scope :: scopes)
