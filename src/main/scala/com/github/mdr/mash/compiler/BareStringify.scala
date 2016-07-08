@@ -55,6 +55,7 @@ class BareStringificationContext {
       var newBindings = bindings
       for (s ← statements) {
         res += bareStringify(s, newBindings)
+        // Flawed -- these assignments might occur within nested local scopes, and therefore not matter:
         val extraGlobals = s.findAll {
           case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
           case FunctionDeclaration(name, _, _, _)                     ⇒ name

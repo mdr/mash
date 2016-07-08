@@ -14,7 +14,8 @@ object InvocationEvaluator extends EvaluatorHelper {
     val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
     functionExpr match {
       case memberExpr: MemberExpr ⇒
-        val MemberExprEvalResult(result, wasVectorised) = MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = false)
+        val MemberExprEvalResult(result, wasVectorised) = MemberEvaluator.evaluateMemberExpr(memberExpr,
+          immediatelyResolveNullaryWhenVectorising = false)
         if (wasVectorised) {
           val functions = result.asInstanceOf[MashList]
           functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
@@ -27,15 +28,21 @@ object InvocationEvaluator extends EvaluatorHelper {
   }
 
   private def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ EvaluatedArgument.PositionArg(Evaluator.evaluate(expr), Some(arg))
-    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒ EvaluatedArgument.ShortFlag(flags, Some(arg))
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ Evaluator.evaluate(v)), Some(arg))
+    case Argument.PositionArg(expr, sourceInfoOpt) ⇒
+      EvaluatedArgument.PositionArg(Evaluator.evaluate(expr), Some(arg))
+    case Argument.ShortFlag(flags, sourceInfoOpt) ⇒
+      EvaluatedArgument.ShortFlag(flags, Some(arg))
+    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
+      EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ Evaluator.evaluate(v)), Some(arg))
   }
 
   private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr)(implicit context: EvaluationContext): MashValue =
     callFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
 
-  def callFunction(function: MashValue, arguments: Arguments, functionLocationOpt: Option[SourceLocation] = None, invocationLocationOpt: Option[SourceLocation] = None): MashValue =
+  def callFunction(function: MashValue,
+                   arguments: Arguments,
+                   functionLocationOpt: Option[SourceLocation] = None,
+                   invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
       case MashString(memberName, _) ⇒
         callStringAsFunction(memberName, arguments, functionLocationOpt, invocationLocationOpt)
@@ -51,7 +58,10 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(s"Not callable", functionLocationOpt)
     }
 
-  private def callStringAsFunction(s: String, arguments: Arguments, functionLocationOpt: Option[SourceLocation], invocationLocationOpt: Option[SourceLocation]): MashValue =
+  private def callStringAsFunction(s: String,
+                                   arguments: Arguments,
+                                   functionLocationOpt: Option[SourceLocation],
+                                   invocationLocationOpt: Option[SourceLocation]): MashValue =
     (arguments.evaluatedArguments.collectFirst {
       case EvaluatedArgument.LongFlag(_, _, argumentNodeOpt) ⇒ argumentNodeOpt.flatMap(_.locationOpt)
       case EvaluatedArgument.ShortFlag(_, argumentNodeOpt)   ⇒ argumentNodeOpt.flatMap(_.locationOpt)
