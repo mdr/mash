@@ -44,17 +44,17 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
 
   def isEmpty = text.isEmpty
 
-  def deleteForwardWord: LineBuffer = {
-    val line = lineInfo.line(cursorPos.row)
-    val newLine = line.substring(0, cursorPos.column) + text.substring(forwardWord.cursorPos.column)
-    copy(text = lineInfo.replaceLine(cursorPos.row, newLine))
-  }
+  def onLastLine = cursorPos.row == lineInfo.lineCount - 1
 
-  def deleteBackwardWord: LineBuffer = {
-    val line = lineInfo.line(cursorPos.row)
-    val newLine = line.substring(0, backwardWord.cursorPos.column) + text.substring(cursorPos.column)
-    copy(text = lineInfo.replaceLine(cursorPos.row, newLine), cursorPos = backwardWord.cursorPos)
-  }
+  def cursorAtEnd = cursorOffset == text.length
+  
+  def isMultiline = lineInfo.lineCount > 1
+  
+  def deleteForwardWord: LineBuffer =
+    copy(text = text.substring(0, cursorOffset) + text.substring(forwardWord.cursorOffset))
+
+  def deleteBackwardWord: LineBuffer =
+    LineBuffer(text.substring(0, backwardWord.cursorOffset) + text.substring(cursorOffset), backwardWord.cursorOffset)
 
   def forwardWord: LineBuffer = {
     var offset = cursorOffset
@@ -63,7 +63,7 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
     while (offset < text.length && !text(offset).isLetterOrDigit)
       offset += 1
     if (offset >= text.length)
-      return withCursorColumn(text.length)
+      return withCursorOffset(text.length)
     while (offset < text.length && text(offset).isLetterOrDigit)
       offset += 1
     withCursorOffset(offset)
@@ -86,28 +86,20 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
       offset -= 1
     offset += 1
     offset = math.min(offset, text.length)
-    withCursorColumn(offset)
+    withCursorOffset(offset)
   }
 
-  def backspace: LineBuffer = {
-    val line = lineInfo.line(cursorPos.row)
-    val column = cursorPos.column
-    if (column == 0)
-      this
-    else {
-      val newLine = line.substring(0, column - 1) + line.substring(column)
-      copy(text = lineInfo.replaceLine(cursorPos.row, newLine), cursorPos = cursorPos.copy(column = column - 1))
-    }
-  }
-
-  def delete: LineBuffer = {
-    val line = lineInfo.line(cursorPos.row)
-    val column = cursorPos.column
-    if (column >= line.length)
+  def backspace: LineBuffer =
+    if (cursorOffset <= 0)
       this
     else
-      delete(cursorPos)
-  }
+      LineBuffer(text.substring(0, cursorOffset - 1) + text.substring(cursorOffset), cursorOffset - 1)
+
+  def delete: LineBuffer =
+    if (cursorOffset >= text.length)
+      this
+    else
+      delete(cursorOffset)
 
   def moveCursorToStart: LineBuffer = withCursorColumn(0)
 
@@ -116,6 +108,34 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
     withCursorColumn(line.size)
   }
 
+  def up: LineBuffer =
+    cursorPos.row match {
+      case 0 ⇒ this
+      case row ⇒
+        val newRow = row - 1
+        val line = lineInfo.line(newRow)
+        val newColumn =
+          if (cursorPos.column > line.length)
+            line.length
+          else
+            cursorPos.column
+        copy(cursorPos = CursorPos(newRow, newColumn))
+    }
+
+  def down: LineBuffer =
+    if (onLastLine)
+      this
+    else {
+      val newRow = cursorPos.row + 1
+      val line = lineInfo.line(newRow)
+      val newColumn =
+        if (cursorPos.column > line.length)
+          line.length
+        else
+          cursorPos.column
+      copy(cursorPos = CursorPos(newRow, newColumn))
+    }
+
   def deleteToEndOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
     val newLine = line.substring(0, cursorPos.column)
@@ -123,32 +143,29 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
   }
 
   def addCharacterAtCursor(c: Char): LineBuffer =
-    insertCharacters(c.toString, cursorPos)
+    insertCharacters(c.toString, cursorOffset)
 
   def addCharactersAtCursor(chars: String): LineBuffer =
-    insertCharacters(chars, cursorPos)
+    insertCharacters(chars, cursorOffset)
 
-  def insertCharacters(chars: String, insertPos: CursorPos): LineBuffer = {
-    val line = lineInfo.line(insertPos.row)
-    val newLine = line.substring(0, insertPos.column) + chars + line.substring(insertPos.column)
-    val newCursorPos =
-      if (insertPos.row != cursorPos.row || cursorPos.column < insertPos.column)
-        cursorPos
+  def insertCharacters(chars: String, insertPos: Int): LineBuffer = {
+    val newText = text.substring(0, insertPos) + chars + text.substring(insertPos)
+    val newCursorOffset =
+      if (cursorOffset < insertPos)
+        cursorOffset
       else
-        cursorPos.copy(column = insertPos.column + chars.length)
-    LineBuffer(lineInfo.replaceLine(cursorPos.row, newLine), newCursorPos)
+        cursorOffset + chars.length
+    LineBuffer(newText, newCursorOffset)
   }
 
-  def delete(deletePos: CursorPos): LineBuffer = {
-    val line = lineInfo.line(deletePos.row)
-    val newLine = line.substring(0, deletePos.column) + line.substring(deletePos.column + 1)
-
-    val newCursorPos =
-      if (deletePos.row != cursorPos.row || cursorPos.column <= deletePos.column)
-        cursorPos
+  def delete(deletePos: Int): LineBuffer = {
+    val newText = text.substring(0, deletePos) + text.substring(deletePos + 1)
+    val newCursorOffset =
+      if (cursorOffset <= deletePos)
+        cursorOffset
       else
-        cursorPos.copy(column = cursorPos.column - 1)
-    LineBuffer(lineInfo.replaceLine(cursorPos.row, newLine), newCursorPos)
+        cursorOffset - 1
+    LineBuffer(newText, newCursorOffset)
   }
 
   def cursorLeft: LineBuffer =

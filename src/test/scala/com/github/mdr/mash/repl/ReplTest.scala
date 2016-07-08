@@ -23,27 +23,27 @@ class ReplTest extends FlatSpec with Matchers {
   import ReplTest._
 
   "Repl" should "work" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("1")
     repl.acceptLine()
     repl.state.globalVariables.get(ReplState.It) should equal(Some(MashNumber(1)))
   }
 
   "Single tab" should "complete a unique completion" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("whereNo").complete()
     repl.text should equal("whereNot")
     repl.lineBuffer should equal(parseLineBuffer("whereNot▶"))
   }
 
   "Two tabs" should "enter completions browsing mode" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().complete()
     val Some(completionState: BrowserCompletionState) = repl.state.completionStateOpt
   }
 
   "Completion bug after a hyphen" should "not happen" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("ls -42 # foo").left(8)
     repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
 
@@ -53,7 +53,7 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("1").acceptLine()
     repl.input("2").acceptLine()
     repl.text should equal("")
@@ -65,7 +65,7 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "History" should "reset if an old line is edited" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("command1").acceptLine()
     repl.input("command2").acceptLine()
     repl.input("partial")
@@ -79,14 +79,14 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("foo")
     repl.toggleQuote().text should equal(""""foo"""")
     repl.toggleQuote().text should equal("foo")
   }
 
   "Delete" should "work at the first character" in {
-    val repl = newRepl
+    val repl = makeRepl()
 
     repl.input("123").left(3).delete()
 
@@ -94,7 +94,7 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "Repl" should "respect bare words setting" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
     repl.input("foo").acceptLine()
     repl.it should equal(MashString("foo"))
@@ -105,13 +105,13 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "Type inference loop bug" should "not happen" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("a => a").acceptLine()
     repl.complete() // previously blew up here
   }
 
   "Local variables" should "not collide with global" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("a = 0").acceptLine()
     repl.input("def setA n = { a = n }").acceptLine()
     repl.input("setA 42").acceptLine()
@@ -125,7 +125,14 @@ class ReplTest extends FlatSpec with Matchers {
     repl.text should equal(""""/.dotfiles/."""") // bug was it was "."
   }
 
-  private def newRepl = makeRepl()
+  "Multiline editing" should "be supported" in {
+    val repl = makeRepl()
+    repl
+      .input("{").acceptLine
+      .input("  42").acceptLine
+      .input("}").acceptLine
+    repl.it should equal(MashNumber(42))  
+  }
 
 }
 

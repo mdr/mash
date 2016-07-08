@@ -14,11 +14,13 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.LineInfo
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import java.nio.file.Path
-import com.github.mdr.mash.utils.LineInfo
+import com.github.mdr.mash.lexer.MashLexer
+import com.github.mdr.mash.lexer.TokenType
 
 trait NormalActionHandler { self: Repl ⇒
   private val fileSystem = LinuxFileSystem
@@ -42,7 +44,7 @@ trait NormalActionHandler { self: Repl ⇒
       case KillLine                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteToEndOfLine) }
       case KillWord                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteForwardWord) }
       case BackwardKillWord         ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteBackwardWord) }
-      case SelfInsert(s)            ⇒ resetHistoryIfTextChanges { for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c)) }
+      case SelfInsert(s)            ⇒ handleSelfInsert(s)
       case AssistInvocation         ⇒ handleAssistInvocation()
       case YankLastArg              ⇒ handleYankLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
@@ -53,6 +55,9 @@ trait NormalActionHandler { self: Repl ⇒
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
   }
+
+  private def handleSelfInsert(s: String) =
+    resetHistoryIfTextChanges { for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c)) }
 
   private def handleIncrementalHistorySearch() {
     state.incrementalSearchStateOpt = Some(IncrementalSearchState())
@@ -69,13 +74,21 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handlePreviousHistory() {
-    for (cmd ← history.goBackwards(state.lineBuffer.text))
-      state.lineBuffer = LineBuffer(cmd)
+    state.lineBuffer.cursorPos.row match {
+      case 0 ⇒
+        for (cmd ← history.goBackwards(state.lineBuffer.text))
+          state.lineBuffer = LineBuffer(cmd)
+      case _ ⇒
+        state.updateLineBuffer(_.up)
+    }
   }
 
   private def handleNextHistory() {
-    for (cmd ← history.goForwards())
-      state.lineBuffer = LineBuffer(cmd)
+    if (state.lineBuffer.onLastLine)
+      for (cmd ← history.goForwards())
+        state.lineBuffer = LineBuffer(cmd)
+    else
+      state.updateLineBuffer(_.down)
   }
 
   private def handleToggleQuote(): Unit = resetHistoryIfTextChanges {
@@ -96,9 +109,9 @@ trait NormalActionHandler { self: Repl ⇒
   private def handleToggleMish(): Unit = resetHistoryIfTextChanges {
     state.lineBuffer =
       if (state.lineBuffer.text startsWith "!")
-        state.lineBuffer.delete(CursorPos(0, 0))
+        state.lineBuffer.delete(0)
       else
-        state.lineBuffer.insertCharacters("!", CursorPos(0, 0))
+        state.lineBuffer.insertCharacters("!", 0)
   }
 
   private def handleYankLastArg(): Unit = resetHistoryIfTextChanges {
@@ -117,15 +130,23 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleAcceptLine() {
-    updateScreenAfterAccept()
-    previousReplRenderResultOpt = None
+    val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish)
+    // TODO: We'll want to be smarter than this:
+    val mismatchedBrackets = tokens.count(_.tokenType == TokenType.LBRACE) != tokens.count(_.tokenType == TokenType.RBRACE)
 
-    history.resetHistoryPosition()
+    if (state.lineBuffer.isMultiline && !state.lineBuffer.cursorAtEnd || mismatchedBrackets)
+      handleSelfInsert("\n")
+    else {
+      updateScreenAfterAccept()
+      previousReplRenderResultOpt = None
 
-    val cmd = state.lineBuffer.text
-    state.lineBuffer = LineBuffer.Empty
-    if (cmd.trim.nonEmpty)
-      runCommand(cmd)
+      history.resetHistoryPosition()
+
+      val cmd = state.lineBuffer.text
+      state.lineBuffer = LineBuffer.Empty
+      if (cmd.trim.nonEmpty)
+        runCommand(cmd)
+    }
   }
 
   private def updateScreenAfterAccept() {

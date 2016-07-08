@@ -2,6 +2,7 @@ v0.0.4 (..)
 -----------
 
 * Add ProcessResult.duration method
+* Support multi-line commands
 
 v0.0.3 (6/July)
 ---------------

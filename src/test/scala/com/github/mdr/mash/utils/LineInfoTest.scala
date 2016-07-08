@@ -26,4 +26,14 @@ class LineInfoTest extends FlatSpec with Matchers {
 
     info.lines shouldEqual (Seq("line1", "line2", "line3"))
   }
+  
+  it should "work with an empty last line" in  {
+    val s = """|abc
+               |""".stripMargin
+    val info = new LineInfo(s)
+    info.lineAndColumn(4) shouldEqual(1, 0)
+    info.lines shouldEqual(Seq("abc", ""))
+    info.lineRegions shouldEqual(Seq(Region(0, 3), Region(4, 0)))
+  }
+  
 }

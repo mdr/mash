@@ -2,7 +2,6 @@ package com.github.mdr.mash.screen
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.commands.SuffixMishCommand
 import com.github.mdr.mash.compiler.BareStringify
@@ -19,6 +18,7 @@ import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.LineInfo
 
 object LineBufferRenderer {
 
@@ -28,18 +28,22 @@ object LineBufferRenderer {
   def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
-    val styledChars = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables.fields, state.bareWords)
-    val cursorPos = prompt.length + lineBuffer.cursorOffset
+    val unwrappedLines = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables.fields,
+      state.bareWords)
+    val cursorPos = lineBuffer.cursorPos
 
-    val groups = styledChars.grouped(terminalInfo.columns).toSeq
-    val lines: Seq[Line] =
+    def wrap(line: Line): Seq[Line] = {
+      val groups = line.chars.grouped(terminalInfo.columns).toSeq
       for {
         (group, index) ← groups.zipWithIndex
         endsInNewline = index == groups.size - 1
       } yield Line(group, endsInNewline)
-    val row = cursorPos / terminalInfo.columns
-    val column = cursorPos % terminalInfo.columns
-    LinesAndCursorPos(lines, Point(row, column))
+    }
+
+    val wrappedLines = unwrappedLines.flatMap(wrap)
+    val row = unwrappedLines.take(cursorPos.row).flatMap(wrap).length + (prompt.length + cursorPos.column) / terminalInfo.columns
+    val column = (prompt.length + cursorPos.column) % terminalInfo.columns
+    LinesAndCursorPos(wrappedLines, Point(row, column))
   }
 
   private def getPrompt(commandNumber: Int, mishByDefault: Boolean): Seq[StyledCharacter] = {
@@ -66,22 +70,28 @@ object LineBufferRenderer {
     BareStringify.getBareTokens(abstractExpr, bindings)
   }
 
-  private def renderLineBufferChars(rawChars: String, prompt: Seq[StyledCharacter], mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {
+  private def renderLineBufferChars(rawChars: String,
+                                    prompt: Seq[StyledCharacter],
+                                    mishByDefault: Boolean,
+                                    globalVariables: mutable.Map[String, MashValue],
+                                    bareWords: Boolean): Seq[Line] = {
     val styledChars = new ArrayBuffer[StyledCharacter]
-    styledChars ++= prompt
 
+    def getTokens(s: String, mish: Boolean) = {
+      val bareTokens = if (bareWords) getBareTokens(s, mishByDefault, globalVariables) else Set[Token]()
+      val tokens = MashLexer.tokenise(s, includeCommentsAndWhitespace = true, forgiving = true, mish = mish)
+      (tokens, bareTokens)
+    }
+    
     val (tokens, bareTokens) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
-          val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(mishCmd, includeCommentsAndWhitespace = true, forgiving = true, mish = true), bareTokens)
+          getTokens(mishCmd, mish = true)
         case MishCommand(prefix, mishCmd) ⇒
           styledChars ++= prefix.map(StyledCharacter(_, Style(bold = true)))
-          val bareTokens = if (bareWords) getBareTokens(mishCmd, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(mishCmd, includeCommentsAndWhitespace = true, forgiving = true, mish = true), bareTokens)
+          getTokens(mishCmd, mish = true)
         case _ ⇒
-          val bareTokens = if (bareWords) getBareTokens(rawChars, mishByDefault, globalVariables) else Set[Token]()
-          (MashLexer.tokenise(rawChars, includeCommentsAndWhitespace = true, forgiving = true, mish = mishByDefault), bareTokens)
+          getTokens(rawChars, mish = mishByDefault)
       }
     for (token ← tokens) {
       val style =
@@ -93,12 +103,18 @@ object LineBufferRenderer {
       if (!token.isEof)
         styledChars ++= token.text.style(style)
     }
+    
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
         styledChars ++= suffix.style(Style(bold = true))
       case _ ⇒
     }
-    styledChars
+    val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
+    val lineRegions = new LineInfo(rawChars).lineRegions
+    lineRegions.zipWithIndex.map {
+      case (region, 0) ⇒ Line(prompt ++ region.of(styledChars))
+      case (region, _) ⇒ Line(continuationPrefix.style ++ region.of(styledChars))
+    }
   }
 
   private def getTokenStyle(token: Token): Style = getTokenStyle(token.tokenType)
@@ -107,7 +123,7 @@ object LineBufferRenderer {
     import TokenType._
     tokenType match {
       case COMMENT                ⇒ Style(foregroundColour = Colour.Cyan)
-      case NUMBER_LITERAL         ⇒ Style(foregroundColour = Colour.Yellow)
+      case NUMBER_LITERAL         ⇒ Style(foregroundColour = Colour.Blue)
       case IDENTIFIER | MISH_WORD ⇒ Style(foregroundColour = Colour.Yellow)
       case ERROR                  ⇒ Style(foregroundColour = Colour.Red, bold = true)
       case t if t.isFlag          ⇒ Style(foregroundColour = Colour.Blue, bold = true)

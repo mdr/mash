@@ -18,6 +18,8 @@ case class Region(offset: Int, length: Int) {
 
   def of(s: String): String = s.substring(offset, offset + length)
 
+  def of[T](xs: Seq[T]): Seq[T] = xs.drop(offset).take(length)
+  
   def translate(n: Int) = copy(offset = offset + n)
 
   def replace(s: String, replacement: String) = StringUtils.replace(s, this, replacement)
