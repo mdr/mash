@@ -103,18 +103,9 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   }
 
-  object ToStringMethod extends MashMethod("toString") {
+  object ToStringMethod extends AbstractToStringMethod {
 
-    val params = AnyClass.ToStringMethod.params
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      Wrapper(target).fullName
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
-
-    override def summary = AnyClass.ToStringMethod.summary
+    override def toString(target: MashValue) = Wrapper(target).fullName.s
 
   }
 

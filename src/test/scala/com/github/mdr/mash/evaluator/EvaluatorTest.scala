@@ -88,7 +88,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "now > 1.day.ago" shouldEvaluateTo "true"
 
   // null
-  "null.toString" shouldEvaluateTo " 'null' "
   "null.in [1, 2, 3]" shouldEvaluateTo "false"
   "null.in [null]" shouldEvaluateTo "true"
 
@@ -342,11 +341,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "2.in [1, 2, 3]" shouldEvaluateTo "true"
 
   // toString
+  "null.toString" shouldEvaluateTo " 'null' "
   "2.toString" shouldEvaluateTo " '2' "
-  " 'foo'.toString " shouldEvaluateTo " 'foo' "
+  "(a = 0).toString" shouldEvaluateTo "''"
   "true.toString" shouldEvaluateTo " 'true' "
   "[1, 2, 3].toString" shouldEvaluateTo "'[1, 2, 3]'"
-
+  """ "foo".toString.tag """ shouldEvaluateTo """ "foo".tag """
+  "{ foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
+  
   // split
   "'foo bar baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo  bar     baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"

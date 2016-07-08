@@ -65,7 +65,9 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
     MashObject(newFields, classOpt = None)
   }
 
-  override def toString = ToStringifier.visit(this, "{…}") {
+  override def toString = asString
+
+  def asString = ToStringifier.visit(this, "{…}") {
     val fieldString = fields.map { case (k, v) ⇒ s"$k: $v" }.mkString(", ")
     val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
     s"{ $classString$fieldString }"

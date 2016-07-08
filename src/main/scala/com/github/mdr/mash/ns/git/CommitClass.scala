@@ -31,6 +31,7 @@ import com.github.mdr.mash.ns.git.branch.CreateFunction
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.evaluator.AbstractToStringMethod
 
 object CommitClass extends MashClass("git.Commit") {
 
@@ -72,18 +73,9 @@ object CommitClass extends MashClass("git.Commit") {
 
   }
 
-  object ToStringMethod extends MashMethod("toString") {
+  object ToStringMethod extends AbstractToStringMethod {
 
-    val params = AnyClass.ToStringMethod.params
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      Wrapper(target).hash
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
-
-    override def summary = AnyClass.ToStringMethod.summary
+    override def toString(target: MashValue) = Wrapper(target).hash.s
 
   }
 

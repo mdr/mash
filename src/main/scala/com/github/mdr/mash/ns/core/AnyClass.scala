@@ -8,6 +8,11 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.NumberUtils
+import java.time.Instant
+import java.time.LocalDate
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.evaluator.BoundMethod
 
 object AnyClass extends MashClass("core.Any") {
 
@@ -55,14 +60,24 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments) = MashString(stringify(target))
+    def apply(target: MashValue, arguments: Arguments): MashString = target match {
+      case s: MashString ⇒ s
+      case _             ⇒ MashString(stringify(target))
+    }
 
-    def stringify(x: MashValue): String = x match {
-      case MashString(s, _) ⇒ s
-      case klass: MashClass ⇒ klass.fullyQualifiedName.toString
-      case xs: MashList     ⇒ xs.items.map(ToStringifier.stringify).mkString("[", ", ", "]")
-      case MashUnit         ⇒ ""
-      case _                ⇒ x.toString
+    private def stringify(x: MashValue): String = x match {
+      case MashNull                  ⇒ "null"
+      case MashUnit                  ⇒ ""
+      case obj: MashObject           ⇒ obj.asString
+      case n: MashNumber             ⇒ NumberUtils.prettyString(n.n)
+      case b: MashBoolean            ⇒ b.value.toString
+      case MashWrapped(i: Instant)   ⇒ i.toString
+      case MashWrapped(d: LocalDate) ⇒ d.toString
+      case f: MashFunction           ⇒ f.fullyQualifiedName.toString
+      case bm: BoundMethod           ⇒ bm.fullyQualifiedName
+      case klass: MashClass          ⇒ klass.fullyQualifiedName.toString
+      case xs: MashList              ⇒ xs.asString
+      case _                         ⇒ "???"
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)

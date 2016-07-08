@@ -7,6 +7,25 @@ import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.MashValue
 import java.util.function.Supplier
 import java.util.IdentityHashMap
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.functions.MashMethod
+
+abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod.name) {
+
+  val params = AnyClass.ToStringMethod.params
+
+  def apply(target: MashValue, arguments: Arguments): MashString = {
+    params.validate(arguments)
+    MashString(toString(target))
+  }
+
+  protected def toString(mashValue: MashValue): String
+
+  override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
+
+  override def summary = AnyClass.ToStringMethod.summary
+
+}
 
 object ToStringifier {
 
@@ -29,7 +48,11 @@ object ToStringifier {
 
   def stringify(x: MashValue): String = {
     val toStringMethod = MemberEvaluator.lookup(x, AnyClass.ToStringMethod.name)
-    "" + Evaluator.immediatelyResolveNullaryFunctions(toStringMethod, locationOpt = None)
+    val stringified = Evaluator.immediatelyResolveNullaryFunctions(toStringMethod, locationOpt = None)
+    stringified match {
+      case MashString(s, _) ⇒ s
+      case _                ⇒ throw new EvaluatorException("Invalid toString value of type " + stringified.typeName)
+    }
   }
 
 }

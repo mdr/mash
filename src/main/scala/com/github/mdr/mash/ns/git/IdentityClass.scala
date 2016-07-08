@@ -10,6 +10,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.AbstractToStringMethod
 
 object IdentityClass extends MashClass("git.Identity") {
 
@@ -31,19 +32,12 @@ object IdentityClass extends MashClass("git.Identity") {
     def email: MashString = target.asInstanceOf[MashObject](Email).asInstanceOf[MashString]
   }
 
-  object ToStringMethod extends MashMethod("toString") {
+  object ToStringMethod extends AbstractToStringMethod {
 
-    val params = AnyClass.ToStringMethod.params
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+    override def toString(target: MashValue) = {
       val identity = Wrapper(target)
-      MashString(s"${identity.name} <${identity.email}>")
+      s"${identity.name} <${identity.email}>"
     }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
-
-    override def summary = AnyClass.ToStringMethod.summary
 
   }
 

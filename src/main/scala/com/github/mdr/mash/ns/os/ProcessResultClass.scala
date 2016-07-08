@@ -23,6 +23,7 @@ import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.time.MillisecondsClass
 import java.time.Instant
 import java.time.Duration
+import com.github.mdr.mash.evaluator.AbstractToStringMethod
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
@@ -126,18 +127,9 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   }
 
-  object ToStringMethod extends MashMethod("toString") {
+  object ToStringMethod extends AbstractToStringMethod {
 
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      MashString(Wrapper(target).stdout)
-    }
-
-    override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
-
-    override def summary = AnyClass.ToStringMethod.summary
+    override def toString(target: MashValue) = Wrapper(target).stdout
 
   }
 
