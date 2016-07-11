@@ -4,6 +4,7 @@ v0.0.4 (..)
 * Add ProcessResult.duration method
 * Support multi-line commands
 * Scope local variables within { } blocks
+* Support 0- and n-argument lambdas: => 42, x y => x + y
 
 v0.0.3 (6/July)
 ---------------

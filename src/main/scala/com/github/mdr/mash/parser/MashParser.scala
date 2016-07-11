@@ -167,16 +167,12 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
     } else
       previousExpr
 
-  case class LambdaStart(param: Token, arrow: Token)
+  case class LambdaStart(params: Seq[Token], arrow: Token)
 
   private def lambdaStart(): LambdaStart = {
-    val param =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER)
-      else
-        errorExpectedToken("identifier")
+    val params: ArrayBuffer[Token] = ArrayBuffer()
+    while (IDENTIFIER)
+      params += nextToken()
     val arrow =
       if (RIGHT_ARROW)
         nextToken()
@@ -184,13 +180,13 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
         syntheticToken(RIGHT_ARROW)
       else
         errorExpectedToken("=>")
-    LambdaStart(param, arrow)
+    LambdaStart(params, arrow)
   }
 
   private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
-    case Some(LambdaStart(param, arrow)) ⇒
+    case Some(LambdaStart(params, arrow)) ⇒
       val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(FunctionParamList(Seq(SimpleParam(param))), arrow, body)
+      LambdaExpr(FunctionParamList(params.map(SimpleParam)), arrow, body)
     case None ⇒
       assignmentExpr()
   }

@@ -531,5 +531,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "42.isA Number" shouldEvaluateTo "true"
   "42.isA String" shouldEvaluateTo "false"
   "3.days.isA 3.days.tag" shouldEvaluateTo "true"
+ 
+  // Lambdas with multiple parameters
+  "(x y => x * y) 2 3" shouldEvaluateTo "6"
+  "f = => 42; f" shouldEvaluateTo "42"
   
 }

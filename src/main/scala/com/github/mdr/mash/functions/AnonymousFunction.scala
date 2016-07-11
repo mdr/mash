@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 case class AnonymousFunction(parameterList: FunctionParamList, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
 
   def apply(arguments: Arguments): MashValue = {
+    params.validate(arguments)
     val nameValues = parameterList.params.map(_.name).zip(arguments.positionArgs.map(_.value))
     val newContext = context.copy(scopeStack = context.scopeStack.withLambdaScope(nameValues))
     Evaluator.evaluate(body)(newContext)
