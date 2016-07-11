@@ -21,6 +21,8 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import java.nio.file.Path
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.TokenType
+import com.github.mdr.mash.lexer.TokenType.MISH_INTERPOLATION_START
+import com.github.mdr.mash.lexer.TokenType.MISH_INTERPOLATION_START_NO_CAPTURE
 
 trait NormalActionHandler { self: Repl ⇒
   private val fileSystem = LinuxFileSystem
@@ -132,7 +134,10 @@ trait NormalActionHandler { self: Repl ⇒
   private def handleAcceptLine() {
     val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish)
     // TODO: We'll want to be smarter than this:
-    val mismatchedBrackets = tokens.count(_.tokenType == TokenType.LBRACE) != tokens.count(_.tokenType == TokenType.RBRACE)
+    import TokenType._
+    val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE, STRING_INTERPOLATION_START_COMPLEX)
+    val openBraceCount = tokens.count(token => OpenBraceTypes.contains(token.tokenType))
+    val mismatchedBrackets = openBraceCount != tokens.count(_.tokenType == TokenType.RBRACE)
 
     if (state.lineBuffer.isMultiline && !state.lineBuffer.cursorAtEnd || mismatchedBrackets)
       handleSelfInsert("\n")
