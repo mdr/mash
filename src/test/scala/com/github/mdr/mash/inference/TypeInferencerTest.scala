@@ -219,7 +219,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[{foo: 42}].map(_.foo)" shouldBeInferredAsHavingType Seq(NumberClass)
 
-  "(x y => x * y) 42" shouldBeInferredAsHavingType NumberClass
+  "(x y => x * y) 42 24" shouldBeInferredAsHavingType NumberClass
   
   private implicit class RichString(s: String) {
 
