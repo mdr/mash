@@ -45,19 +45,21 @@ case class ScopeStack(scopes: List[Scope]) {
     }
 
   def withEmptyScope = {
-    val scope = FullScope(mutable.Map[String, MashValue]())
+    val scope = FullScope(makeVariables())
     ScopeStack(scope :: scopes)
   }
-  
+
   def withLambdaScope(name: String, value: MashValue) = {
-    val scope = LambdaScope(mutable.Map[String, MashValue](name -> value))
+    val scope = LambdaScope(makeVariables(name -> value))
     ScopeStack(scope :: scopes)
   }
 
   def withFunctionCallScope(bindings: Map[String, MashValue]) = {
-    val scope = FullScope(mutable.Map[String, MashValue](bindings.toSeq: _*))
+    val scope = FullScope(makeVariables(bindings.toSeq: _*))
     ScopeStack(scope :: scopes)
   }
+
+  private def makeVariables(pairs: (String, MashValue)*) = mutable.Map[String, MashValue](pairs: _*)
 
   def bindings: Map[String, MashValue] = bindings(scopes)
 
