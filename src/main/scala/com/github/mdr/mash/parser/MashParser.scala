@@ -27,7 +27,7 @@ object MashParser {
 
   private def doParse(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
     val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish, includeCommentsAndWhitespace = false).toArray
-    val parse = new MashParse(tokens, forgiving = forgiving)
+    val parse = new MashParse(tokens, initialForgiving = forgiving)
     if (mish)
       parse.mishExpr()
     else
@@ -36,7 +36,7 @@ object MashParser {
 
   def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
     val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
-    val parse = new MashParse(tokens, forgiving = forgiving)
+    val parse = new MashParse(tokens, initialForgiving = forgiving)
     if (mish)
       parse.mishExpr()
     else
@@ -45,7 +45,7 @@ object MashParser {
 
 }
 
-class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
+class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
 
   import ConcreteSyntax._
   import TokenType._
@@ -54,6 +54,8 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
    * Index of the token currently being examined
    */
   private var pos = 0
+
+  private var forgiving: Boolean = initialForgiving
 
   /**
    * Return the token at the given position. If it's past the end of the token sequence, then return the last token (EOF).
@@ -94,6 +96,24 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
 
   private def errorExpectedToken(expected: String) =
     throw new MashParserException(s"Expected '$expected', but instead found '${currentToken.text}'", currentLocation)
+
+  /**
+   * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
+   * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
+   */
+  private def speculate[T](p: ⇒ T): Option[T] = {
+    val oldPos = pos
+    val oldForgiving = forgiving
+    forgiving = false
+    try
+      Some(p)
+    catch {
+      case _: MashParserException ⇒
+        pos = oldPos
+        None
+    } finally
+      forgiving = oldForgiving
+  }
 
   def program(): Expr = {
     val result = statementSeq()
@@ -147,14 +167,33 @@ class MashParse(tokens: Array[Token], forgiving: Boolean = true) {
     } else
       previousExpr
 
-  private def lambdaExpr(mayContainPipe: Boolean = false): Expr =
-    if (IDENTIFIER && lookahead(1) == RIGHT_ARROW) {
-      val param = nextToken()
-      val arrow = nextToken()
+  case class LambdaStart(param: Token, arrow: Token)
+
+  private def lambdaStart(): LambdaStart = {
+    val param =
+      if (IDENTIFIER)
+        nextToken()
+      else if (forgiving)
+        syntheticToken(IDENTIFIER)
+      else
+        errorExpectedToken("identifier")
+    val arrow =
+      if (RIGHT_ARROW)
+        nextToken()
+      else if (forgiving)
+        syntheticToken(RIGHT_ARROW)
+      else
+        errorExpectedToken("=>")
+    LambdaStart(param, arrow)
+  }
+
+  private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
+    case Some(LambdaStart(param, arrow)) ⇒
       val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
       LambdaExpr(param, arrow, body)
-    } else
+    case None ⇒
       assignmentExpr()
+  }
 
   private def assignmentExpr(): Expr = {
     val left = ifExpr()
