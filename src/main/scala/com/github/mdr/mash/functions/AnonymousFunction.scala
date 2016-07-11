@@ -6,15 +6,18 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.parser.AbstractSyntax._
 
-case class AnonymousFunction(parameter: FunctionParam, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
+case class AnonymousFunction(parameterList: FunctionParamList, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
 
   def apply(arguments: Arguments): MashValue = {
-    val arg = arguments.positionArgs(0).value
-    val newContext = context.copy(scopeStack = context.scopeStack.withLambdaScope(parameter.name, arg))
+    val nameValues = parameterList.params.map(_.name).zip(arguments.positionArgs.map(_.value))
+    val newContext = context.copy(scopeStack = context.scopeStack.withLambdaScope(nameValues))
     Evaluator.evaluate(body)(newContext)
   }
 
-  val params = ParameterModel(Seq(Parameter(parameter.name, "Argument")))
+  val params = {
+    val parameters = parameterList.params.map(p ⇒ Parameter(p.name, "Argument"))
+    ParameterModel(parameters)
+  }
 
   override def summary = "anonymous function"
 

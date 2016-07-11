@@ -25,8 +25,8 @@ case class InferencerImpl(typeInferencer: TypeInferencer, bindings: Map[String, 
       val strategy = method.typeInferenceStrategy
       val args = Seq(TypedArgument.PositionArg(AnnotatedExpr(None, Some(elementType))))
       strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
-    case Type.Lambda(parameter, expr, lambdaBindings) ⇒
-      typeInferencer.inferType(expr, lambdaBindings ++ bindings + (parameter -> elementType))
+    case Type.Lambda(parameters, expr, lambdaBindings) ⇒
+      typeInferencer.inferType(expr, lambdaBindings ++ bindings + (parameters.head -> elementType))
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
       functionExprOpt match {
         case Some(StringLiteral(s, _, _, _)) ⇒

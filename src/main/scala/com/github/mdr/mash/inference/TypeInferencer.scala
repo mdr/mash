@@ -79,9 +79,9 @@ class TypeInferencer {
         inferType(left, bindings)
         inferType(right, bindings)
         Some(Unit)
-      case LambdaExpr(v, body, _) ⇒
-        inferType(body, bindings + (v.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
-        Some(Type.Lambda(v.name, body, bindings))
+      case LambdaExpr(params, body, _) ⇒
+        inferType(body, bindings ++ params.params.map(p ⇒ p.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
+        Some(Type.Lambda(params.params.map(_.name), body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
@@ -275,12 +275,13 @@ class TypeInferencer {
       case Type.DefinedFunction(f) ⇒
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(InferencerImpl(this, bindings), typedArgs)
-      case Type.Lambda(parameter, expr, lambdaBindings) ⇒
-        for {
-          AnnotatedExpr(_, typeOpt) ← typedArgs.positionArgs.headOption
-          argType ← typeOpt
-          typ ← inferType(expr, lambdaBindings ++ bindings + (parameter -> argType))
-        } yield typ
+      case Type.Lambda(parameters, expr, lambdaBindings) ⇒
+        val argBindings =
+          for {
+            (parameter, typeOpt) ← parameters.zip(typedArgs.positionArgs.map(_.typeOpt))
+            argType ← typeOpt
+          } yield parameter -> argType
+        inferType(expr, lambdaBindings ++ bindings ++ argBindings.toMap)
       case _ ⇒
         None
     }

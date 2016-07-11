@@ -37,7 +37,7 @@ object PrettyPrinter {
     case ParenExpr(body, _)                        ⇒ "(" + pretty(body) + ")"
     case BlockExpr(body, _)                        ⇒ "{" + pretty(body) + "}"
     case StatementSeq(statements, _)               ⇒ statements.map(pretty).mkString("{ ", "; ", " }")
-    case LambdaExpr(v, body, _)                    ⇒ v.name + " => " + pretty(body)
+    case LambdaExpr(v, body, _)                    ⇒ v.params.map(_.name).mkString(" ") + " => " + pretty(body)
     case BinOpExpr(left, op, right, _)             ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
     case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
     case ObjectExpr(entries, _)                    ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")

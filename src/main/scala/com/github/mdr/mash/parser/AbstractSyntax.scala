@@ -50,8 +50,8 @@ object AbstractSyntax {
         BlockExpr(expr.transform(f), sourceInfoOpt)
       case StatementSeq(statements, sourceInfoOpt) ⇒
         StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
-      case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
-        LambdaExpr(parameter.transform(f).asInstanceOf[FunctionParam], body.transform(f), sourceInfoOpt)
+      case LambdaExpr(params, body, sourceInfoOpt) ⇒
+        LambdaExpr(params.transform(f).asInstanceOf[FunctionParamList], body.transform(f), sourceInfoOpt)
       case PipeExpr(left, right, sourceInfoOpt) ⇒
         PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
       case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
@@ -83,7 +83,7 @@ object AbstractSyntax {
       case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
         MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
       case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-        FunctionDeclaration(name, params, body.transform(f), sourceInfoOpt)
+        FunctionDeclaration(name, params.transform(f).asInstanceOf[FunctionParamList], body.transform(f), sourceInfoOpt)
       case HelpExpr(expr, sourceInfoOpt) ⇒
         HelpExpr(expr.transform(f), sourceInfoOpt)
       case ExprPart(expr) ⇒
@@ -212,7 +212,7 @@ object AbstractSyntax {
     def children = statements
   }
 
-  case class LambdaExpr(parameter: FunctionParam, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class LambdaExpr(params: FunctionParamList, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(body)
   }

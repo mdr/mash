@@ -70,7 +70,7 @@ object Evaluator extends EvaluatorHelper {
       case memberExpr: MemberExpr                 ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
       case lookupExpr: LookupExpr                 ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
-      case LambdaExpr(parameter, body, _)         ⇒ makeAnonymousFunction(parameter, body)
+      case LambdaExpr(params, body, _)            ⇒ makeAnonymousFunction(params, body)
       case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
       case chainedOpExpr: ChainedOpExpr           ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
       case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
@@ -149,8 +149,8 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(parameter: FunctionParam, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
-    AnonymousFunction(parameter, body, context)
+  private def makeAnonymousFunction(params: FunctionParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+    AnonymousFunction(params, body, context)
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr

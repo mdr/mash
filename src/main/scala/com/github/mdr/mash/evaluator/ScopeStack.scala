@@ -49,8 +49,8 @@ case class ScopeStack(scopes: List[Scope]) {
     ScopeStack(scope :: scopes)
   }
 
-  def withLambdaScope(name: String, value: MashValue) = {
-    val scope = LambdaScope(makeVariables(name -> value))
+  def withLambdaScope(nameValues: Seq[(String, MashValue)]) = {
+    val scope = LambdaScope(makeVariables(nameValues: _*))
     ScopeStack(scope :: scopes)
   }
 

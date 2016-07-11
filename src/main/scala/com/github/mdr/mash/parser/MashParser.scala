@@ -190,7 +190,7 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
   private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
     case Some(LambdaStart(param, arrow)) ⇒
       val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(SimpleParam(param), arrow, body)
+      LambdaExpr(FunctionParamList(Seq(SimpleParam(param))), arrow, body)
     case None ⇒
       assignmentExpr()
   }

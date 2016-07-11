@@ -36,8 +36,10 @@ class DesugarHolesTest extends FlatSpec with Matchers {
   private def removeSourceInfo(e: Expr): Expr = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 
   private def renameHoleVariable(e: Expr): Expr = e.transform {
-    case Identifier(DesugarHoles.VariableName, _)                       ⇒ Identifier("x", None)
-    case LambdaExpr(SimpleParam(DesugarHoles.VariableName, _), body, _) ⇒ LambdaExpr(SimpleParam("x", None), body, None)
+    case Identifier(DesugarHoles.VariableName, _) ⇒
+      Identifier("x", None)
+    case LambdaExpr(FunctionParamList(Seq(SimpleParam(DesugarHoles.VariableName, _))), body, _) ⇒
+      LambdaExpr(FunctionParamList(Seq(SimpleParam("x", None))), body, None)
   }
 
 }
