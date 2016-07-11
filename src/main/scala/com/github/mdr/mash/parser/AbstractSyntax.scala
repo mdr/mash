@@ -30,76 +30,78 @@ object AbstractSyntax {
       children.flatMap(_.find(f)) ++ f.lift(this)
 
     def transform(f: PartialFunction[AstNode, AstNode]): AstNode = {
-      val withTransformedDescendents =
-        this match {
-          case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
-            this
-          case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
-            InterpolatedString(start, parts.map {
-              case StringPart(s) ⇒ StringPart(s)
-              case ExprPart(e)   ⇒ ExprPart(e.transform(f))
-            }, end, sourceInfoOpt)
-          case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
-            AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), alias, sourceInfoOpt)
-          case ParenExpr(expr, sourceInfoOpt) ⇒
-            ParenExpr(expr.transform(f), sourceInfoOpt)
-          case BlockExpr(expr, sourceInfoOpt) ⇒
-            BlockExpr(expr.transform(f), sourceInfoOpt)
-          case StatementSeq(statements, sourceInfoOpt) ⇒
-            StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
-          case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
-            LambdaExpr(parameter, body.transform(f), sourceInfoOpt)
-          case PipeExpr(left, right, sourceInfoOpt) ⇒
-            PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
-          case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
-            MemberExpr(expr.transform(f), name, isNullSafe, sourceInfoOpt)
-          case LookupExpr(expr, index, sourceInfoOpt) ⇒
-            LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
-          case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt) ⇒
-            val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
-            InvocationExpr(function.transform(f), newArguments, isParenInvocation, sourceInfoOpt)
-          case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
-            BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
-          case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
-            ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
-          case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
-            IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
-          case ListExpr(items, sourceInfoOpt) ⇒
-            ListExpr(items.map(_.transform(f)), sourceInfoOpt)
-          case ObjectExpr(entries, sourceInfoOpt) ⇒
-            val newEntries = for ((label, value) ← entries) yield (label, value.transform(f))
-            ObjectExpr(newEntries, sourceInfoOpt)
-          case MinusExpr(expr, sourceInfoOpt) ⇒
-            MinusExpr(expr.transform(f), sourceInfoOpt)
-          case MishInterpolation(part, sourceInfoOpt) ⇒
-            val newPart = part match {
-              case StringPart(s) ⇒ StringPart(s)
-              case ExprPart(e)   ⇒ ExprPart(e.transform(f))
-            }
-            MishInterpolation(newPart, sourceInfoOpt)
-          case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
-            MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
-          case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-            FunctionDeclaration(name, params, body.transform(f), sourceInfoOpt)
-          case HelpExpr(expr, sourceInfoOpt) ⇒
-            HelpExpr(expr.transform(f), sourceInfoOpt)
-          case ExprPart(expr) ⇒
-            ExprPart(expr.transform(f))
-          case StringPart(_) ⇒
-            this
-          case SimpleParam(_, _) | VariadicParam(_, _) ⇒
-            this
-          case Argument.PositionArg(expr, sourceInfoOpt) ⇒
-            Argument.PositionArg(expr.transform(f), sourceInfoOpt)
-          case Argument.ShortFlag(_, _) ⇒
-            this
-          case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
-            Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
-          case FunctionParamList(params) =>
-            FunctionParamList(params)
-        }
+      val withTransformedDescendents = transformDescendents(f)
       f.lift.apply(withTransformedDescendents).getOrElse(withTransformedDescendents)
     }
+
+    private def transformDescendents(f: PartialFunction[AstNode, AstNode]) = this match {
+      case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
+        this
+      case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
+        InterpolatedString(start, parts.map {
+          case StringPart(s) ⇒ StringPart(s)
+          case ExprPart(e)   ⇒ ExprPart(e.transform(f))
+        }, end, sourceInfoOpt)
+      case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
+        AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), alias, sourceInfoOpt)
+      case ParenExpr(expr, sourceInfoOpt) ⇒
+        ParenExpr(expr.transform(f), sourceInfoOpt)
+      case BlockExpr(expr, sourceInfoOpt) ⇒
+        BlockExpr(expr.transform(f), sourceInfoOpt)
+      case StatementSeq(statements, sourceInfoOpt) ⇒
+        StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
+      case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
+        LambdaExpr(parameter.transform(f).asInstanceOf[FunctionParam], body.transform(f), sourceInfoOpt)
+      case PipeExpr(left, right, sourceInfoOpt) ⇒
+        PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
+      case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
+        MemberExpr(expr.transform(f), name, isNullSafe, sourceInfoOpt)
+      case LookupExpr(expr, index, sourceInfoOpt) ⇒
+        LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
+      case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt) ⇒
+        val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
+        InvocationExpr(function.transform(f), newArguments, isParenInvocation, sourceInfoOpt)
+      case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
+        BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
+      case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+        ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
+      case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
+        IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
+      case ListExpr(items, sourceInfoOpt) ⇒
+        ListExpr(items.map(_.transform(f)), sourceInfoOpt)
+      case ObjectExpr(entries, sourceInfoOpt) ⇒
+        val newEntries = for ((label, value) ← entries) yield (label, value.transform(f))
+        ObjectExpr(newEntries, sourceInfoOpt)
+      case MinusExpr(expr, sourceInfoOpt) ⇒
+        MinusExpr(expr.transform(f), sourceInfoOpt)
+      case MishInterpolation(part, sourceInfoOpt) ⇒
+        val newPart = part match {
+          case StringPart(s) ⇒ StringPart(s)
+          case ExprPart(e)   ⇒ ExprPart(e.transform(f))
+        }
+        MishInterpolation(newPart, sourceInfoOpt)
+      case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
+        MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
+      case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
+        FunctionDeclaration(name, params, body.transform(f), sourceInfoOpt)
+      case HelpExpr(expr, sourceInfoOpt) ⇒
+        HelpExpr(expr.transform(f), sourceInfoOpt)
+      case ExprPart(expr) ⇒
+        ExprPart(expr.transform(f))
+      case StringPart(_) ⇒
+        this
+      case SimpleParam(_, _) | VariadicParam(_, _) ⇒
+        this
+      case Argument.PositionArg(expr, sourceInfoOpt) ⇒
+        Argument.PositionArg(expr.transform(f), sourceInfoOpt)
+      case Argument.ShortFlag(_, _) ⇒
+        this
+      case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
+        Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
+      case FunctionParamList(params) ⇒
+        FunctionParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
+    }
+
   }
 
   sealed trait Expr extends AstNode {
@@ -210,7 +212,7 @@ object AbstractSyntax {
     def children = statements
   }
 
-  case class LambdaExpr(parameter: String, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class LambdaExpr(parameter: FunctionParam, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(body)
   }
@@ -314,9 +316,13 @@ object AbstractSyntax {
   }
 
   case class FunctionParamList(params: Seq[FunctionParam]) extends AstNode {
+    
     def children = params
+
     val sourceInfoOpt = None
+
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
+    
   }
 
   case class FunctionDeclaration(name: String, params: FunctionParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

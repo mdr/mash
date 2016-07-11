@@ -115,8 +115,8 @@ object ConcreteSyntax {
     lazy val tokens = (function.tokens :+ lparen) ++ argsOpt.toSeq.flatMap(_.tokens) :+ rparen
   }
 
-  case class LambdaExpr(parameter: Token, arrow: Token, body: Expr) extends Expr {
-    lazy val tokens = parameter +: arrow +: body.tokens
+  case class LambdaExpr(parameter: FunctionParam, arrow: Token, body: Expr) extends Expr {
+    lazy val tokens = (parameter.tokens :+ arrow) ++ body.tokens
   }
 
   case class PipeExpr(left: Expr, pipe: Token, right: Expr) extends Expr {

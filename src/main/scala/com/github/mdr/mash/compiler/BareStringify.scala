@@ -64,7 +64,7 @@ class BareStringificationContext {
       }
       StatementSeq(res, sourceInfoOpt)
     case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
-      LambdaExpr(parameter, bareStringify(body, bindings + parameter), sourceInfoOpt)
+      LambdaExpr(parameter, bareStringify(body, bindings + parameter.name), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt) ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
     case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒

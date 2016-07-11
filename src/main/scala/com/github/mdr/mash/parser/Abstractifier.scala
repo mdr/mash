@@ -27,7 +27,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), sourceInfo(expr))
     case Concrete.BlockExpr(_, statements, _)               ⇒ Abstract.BlockExpr(abstractify(statements), sourceInfo(expr))
     case Concrete.StatementSeq(statements)                  ⇒ Abstract.StatementSeq(statements.flatMap(_.statementOpt).map(abstractify), sourceInfo(expr))
-    case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(param.text, abstractify(body), sourceInfo(expr))
+    case Concrete.LambdaExpr(param, _, body)                ⇒ Abstract.LambdaExpr(abstractifyParam(param), abstractify(body), sourceInfo(expr))
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))
     case assignmentExpr: Concrete.AssignmentExpr            ⇒ abstractifyAssignmentExpr(assignmentExpr)
     case chainedExpr @ Concrete.ChainedOpExpr(_, _)         ⇒ abstractifyChainedComparision(chainedExpr)
@@ -81,11 +81,13 @@ class Abstractifier(provenance: Provenance) {
     Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
+  private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
+    case Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text, sourceInfo(param))
+    case Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
+  }
+
   private def abstractifyFunctionParamList(params: Concrete.FunctionParamList): Abstract.FunctionParamList = {
-    val abstractParams = params.params.map {
-      case param @ Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text, sourceInfo(param))
-      case param @ Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
-    }
+    val abstractParams = params.params.map(abstractifyParam)
     Abstract.FunctionParamList(abstractParams)
   }
 

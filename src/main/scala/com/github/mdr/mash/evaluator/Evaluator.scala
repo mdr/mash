@@ -149,7 +149,7 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(parameter: String, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+  private def makeAnonymousFunction(parameter: FunctionParam, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
     AnonymousFunction(parameter, body, context)
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {

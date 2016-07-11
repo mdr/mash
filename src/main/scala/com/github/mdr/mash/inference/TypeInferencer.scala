@@ -80,8 +80,8 @@ class TypeInferencer {
         inferType(right, bindings)
         Some(Unit)
       case LambdaExpr(v, body, _) ⇒
-        inferType(body, bindings + (v -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
-        Some(Type.Lambda(v, body, bindings))
+        inferType(body, bindings + (v.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
+        Some(Type.Lambda(v.name, body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)

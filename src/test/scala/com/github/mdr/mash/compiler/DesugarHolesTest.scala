@@ -19,23 +19,25 @@ class DesugarHolesTest extends FlatSpec with Matchers {
   "foo --bar=_" desugarsTo "x => foo --bar=x"
   "_.foo (_.bar)" desugarsTo "x => x.foo (x => x.bar)"
 
-  private implicit class RichString(s: String) {
-    def desugarsTo(s2: String) {
-      "DesugarHoles" should s"desugar holes in '$s'" in {
-        val actualExpr = renameHoleVariable(removeSourceInfo(DesugarHoles.desugarHoles(parse(s))))
-        val expectedExpr = removeSourceInfo(parse(s2))
+  private implicit class RichString(source: String) {
+
+    def desugarsTo(actualString: String) {
+      "DesugarHoles" should s"desugar holes in '$source'" in {
+        val actualExpr = renameHoleVariable(removeSourceInfo(DesugarHoles.desugarHoles(parse(source))))
+        val expectedExpr = removeSourceInfo(parse(actualString))
         actualExpr should equal(expectedExpr)
       }
     }
+
   }
 
   private def parse(s: String): Expr = new Abstractifier(Provenance(s, "test")).abstractify(MashParser.parseExpr(s))
 
   private def removeSourceInfo(e: Expr): Expr = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
 
-  private def renameHoleVariable(e: Expr) = e.transform {
-    case Identifier(DesugarHoles.VariableName, _)       ⇒ Identifier("x", None)
-    case LambdaExpr(DesugarHoles.VariableName, body, _) ⇒ LambdaExpr("x", body, None)
+  private def renameHoleVariable(e: Expr): Expr = e.transform {
+    case Identifier(DesugarHoles.VariableName, _)                       ⇒ Identifier("x", None)
+    case LambdaExpr(SimpleParam(DesugarHoles.VariableName, _), body, _) ⇒ LambdaExpr(SimpleParam("x", None), body, None)
   }
 
 }
