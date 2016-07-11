@@ -331,7 +331,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " 'foo'.matches 'o' " shouldEvaluateTo "true"
   " 'foo'.matches 'x' " shouldEvaluateTo "false"
   " 'foo'.matches '^fo?.$' " shouldEvaluateTo "true"
-
+  " 'foo 666 bar'.matches 666 " shouldEvaluateTo "true"
+  " 'bar'.matches 666 " shouldEvaluateTo "false"
+  
   // startsWith
   " 'foo'.startsWith 'f' " shouldEvaluateTo "true"
   " 'foo'.startsWith 'o' " shouldEvaluateTo "false"

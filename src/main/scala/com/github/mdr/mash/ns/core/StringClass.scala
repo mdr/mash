@@ -172,7 +172,7 @@ object StringClass extends MashClass("core.String") {
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString].s
-      val pattern = boundParams(_Pattern).asInstanceOf[MashString].s
+      val pattern = ToStringifier.stringify(boundParams(_Pattern))
       val ignoreCase = boundParams(IgnoreCase).isTruthy
       val flags = if (ignoreCase) Pattern.CASE_INSENSITIVE else 0
       MashBoolean(Pattern.compile(pattern, flags).matcher(s).find)
