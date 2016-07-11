@@ -95,7 +95,8 @@ object AbstractSyntax {
             this
           case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
             Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
-
+          case FunctionParamList(params) =>
+            FunctionParamList(params)
         }
       f.lift.apply(withTransformedDescendents).getOrElse(withTransformedDescendents)
     }
@@ -312,9 +313,15 @@ object AbstractSyntax {
     def isVariadic = true
   }
 
-  case class FunctionDeclaration(name: String, params: Seq[FunctionParam], body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class FunctionParamList(params: Seq[FunctionParam]) extends AstNode {
+    def children = params
+    val sourceInfoOpt = None
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
+  }
+
+  case class FunctionDeclaration(name: String, params: FunctionParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(body) ++ params
+    def children = Seq(body, params)
   }
 
   case class MishFunction(command: String, sourceInfoOpt: Option[SourceInfo]) extends Expr {

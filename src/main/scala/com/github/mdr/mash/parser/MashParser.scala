@@ -684,7 +684,7 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
       else
         errorExpectedToken("=")
     val body = pipeExpr()
-    FunctionDeclaration(defToken, name, params, equals, body)
+    FunctionDeclaration(defToken, name, FunctionParamList(params), equals, body)
   }
 
   private def syntheticToken(tokenType: TokenType): Token =

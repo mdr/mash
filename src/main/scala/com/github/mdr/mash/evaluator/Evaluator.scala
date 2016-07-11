@@ -123,12 +123,12 @@ object Evaluator extends EvaluatorHelper {
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val FunctionDeclaration(functionName, params, body, sourceInfoOpt) = decl
-    val parameters: Seq[Parameter] = params.map(param ⇒
+    val parameters: Seq[Parameter] = params.params.map(param ⇒
       Parameter(param.name, s"Parameter '${param.name}'", isVariadic = param.isVariadic))
     if (parameters.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")
     val variadicIndex = parameters.indexWhere(_.isVariadic)
-    if (variadicIndex >= 0 && variadicIndex < params.size - 1)
+    if (variadicIndex >= 0 && variadicIndex < params.params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
     val fn = new UserDefinedFunction(functionName, ParameterModel(parameters), body, context)
     context.scopeStack.set(functionName, fn)

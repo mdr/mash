@@ -77,11 +77,16 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(_, name, params, _, body) = decl
-    val abstractParams = params.map {
+    val abstractParams = abstractifyFunctionParamList(params)
+    Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
+  }
+
+  private def abstractifyFunctionParamList(params: Concrete.FunctionParamList): Abstract.FunctionParamList = {
+    val abstractParams = params.params.map {
       case param @ Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text, sourceInfo(param))
       case param @ Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
     }
-    Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
+    Abstract.FunctionParamList(abstractParams)
   }
 
   private def abstractifyInterpolatedString(interpolatedString: Concrete.InterpolatedString) = {

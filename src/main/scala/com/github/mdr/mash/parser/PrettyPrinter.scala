@@ -72,7 +72,7 @@ object PrettyPrinter {
         case StringPart(s)  ⇒ s
         case ExprPart(expr) ⇒ pretty(expr)
       }
-    case FunctionDeclaration(name, params, body, _) ⇒ "def " + name + params.mkString(" ") + " = " + pretty(body)
+    case FunctionDeclaration(name, params, body, _) ⇒ "def " + name + params.params.mkString(" ") + " = " + pretty(body)
     case HelpExpr(subExpr, _)                       ⇒ pretty(subExpr) + "?"
   }
 

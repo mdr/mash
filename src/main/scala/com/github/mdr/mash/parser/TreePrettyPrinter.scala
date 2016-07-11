@@ -116,7 +116,7 @@ object TreePrettyPrinter {
       case FunctionDeclaration(name, params, body, _) ⇒
         println("FunctionDeclaration" + typeDescription)
         println("  " * (depth + 1) + name)
-        for (param ← params)
+        for (param ← params.params)
           println("  " * (depth + 1) + param)
         printTree(body, depth + 1)
       case HelpExpr(subExpr, _) ⇒
