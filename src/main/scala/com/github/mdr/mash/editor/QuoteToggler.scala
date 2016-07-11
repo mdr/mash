@@ -46,8 +46,7 @@ object QuoteToggler {
     val unescapesOccurred = unescaped.length < inner.length
     val newText = region.replace(text, unescaped)
     val newCursorOffset = calculateCursorOffsetAfterUnquoting(unescapesOccurred, region, unescaped, cursorOffset)
-    val newCursorPos = CursorPos(new LineInfo(newText).lineAndColumn(newCursorOffset))
-    LineBuffer(newText, newCursorPos)
+    LineBuffer(newText, newCursorOffset)
   }
 
   private def calculateCursorOffsetAfterUnquoting(unescapesOccurred: Boolean, region: Region, unescaped: String, cursorOffset: Int) =
@@ -69,8 +68,7 @@ object QuoteToggler {
     val newText = targetRegion.replace(text, quoted)
     val newCursorOffset =
       calculateCursorOffsetAfterQuoting(escapesOccurred, cursorOffset, targetRegion, stripResult, quoted)
-    val newCursorPos = CursorPos(new LineInfo(newText).lineAndColumn(newCursorOffset))
-    LineBuffer(newText, newCursorPos)
+    LineBuffer(newText, newCursorOffset)
   }
 
   private case class StripResult(stripped: String, initialQuoteRemoved: Boolean, finalQuoteRemoved: Boolean)

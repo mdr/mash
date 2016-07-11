@@ -227,9 +227,7 @@ trait NormalActionHandler { self: Repl ⇒
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
     val newOffset = result.replacementLocation.offset + completion.replacement.length
-    val lineInfo = new LineInfo(newText)
-    val newCursorPos = CursorPos(lineInfo.lineAndColumn(newOffset))
-    state.lineBuffer = LineBuffer(newText, newCursorPos)
+    state.lineBuffer = LineBuffer(newText, newOffset)
   }
 
 }

@@ -12,12 +12,9 @@ case class CursorPos(row: Int = 0, column: Int = 0)
 
 object LineBuffer {
 
-  val Empty = LineBuffer("", cursorPos = CursorPos())
+  val Empty = LineBuffer("")
 
   def apply(s: String): LineBuffer = LineBuffer(s, s.size)
-
-  def apply(text: String, offset: Int): LineBuffer =
-    LineBuffer(text, CursorPos(new LineInfo(text).lineAndColumn(offset)))
 
 }
 
@@ -25,31 +22,25 @@ object LineBuffer {
  * The text entered by a user while editing a command
  *
  * @param text -- the contents of the buffer
- * @param cursorPos -- position of the cursor, either within the text, or one position past the end.
+ * @param cursorOffset -- position of the cursor, either within the text, or one position past the end.
  */
-case class LineBuffer(text: String, cursorPos: CursorPos) {
+case class LineBuffer(text: String, cursorOffset: Int) {
 
   private val lineInfo = new LineInfo(text)
 
-  { // Sanity checks
-    val CursorPos(row, column) = cursorPos
-    require(row >= 0 && row < lineInfo.lineCount,
-      s"Cursor row out of range: cursor row = $row, total rows = ${lineInfo.lineCount}")
-    val cursorLineLength = lineInfo.lineLength(row)
-    require(column >= 0 && cursorPos.column <= cursorLineLength,
-      s"Cursor column out of range: cursor column = $column, total columns = $cursorLineLength")
-  }
+  val cursorPos = CursorPos(lineInfo.lineAndColumn(cursorOffset))
 
-  val cursorOffset = lineInfo.offset(cursorPos.row, cursorPos.column)
+  require(cursorOffset >= 0 && cursorOffset <= text.length,
+    s"Cursor row out of range: offset = cursorOffset, text length = ${text.length}")
 
   def isEmpty = text.isEmpty
 
   def onLastLine = cursorPos.row == lineInfo.lineCount - 1
 
   def cursorAtEnd = cursorOffset == text.length
-  
+
   def isMultiline = lineInfo.lineCount > 1
-  
+
   def deleteForwardWord: LineBuffer =
     copy(text = text.substring(0, cursorOffset) + text.substring(forwardWord.cursorOffset))
 
@@ -69,9 +60,11 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
     withCursorOffset(offset)
   }
 
-  private def withCursorOffset(offset: Int) = copy(cursorPos = CursorPos(lineInfo.lineAndColumn(offset)))
+  private def withCursorOffset(offset: Int) = copy(cursorOffset = offset)
 
-  private def withCursorColumn(column: Int) = copy(cursorPos = cursorPos.copy(column = column))
+  private def withCursorPos(pos: CursorPos) = withCursorOffset(lineInfo.offset(pos.row, pos.column))
+
+  private def withCursorColumn(column: Int) = withCursorOffset(lineInfo.offset(cursorPos.row, column))
 
   def backwardWord: LineBuffer = {
     var offset = cursorOffset
@@ -119,7 +112,7 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
             line.length
           else
             cursorPos.column
-        copy(cursorPos = CursorPos(newRow, newColumn))
+        withCursorPos(CursorPos(newRow, newColumn))
     }
 
   def down: LineBuffer =
@@ -133,7 +126,7 @@ case class LineBuffer(text: String, cursorPos: CursorPos) {
           line.length
         else
           cursorPos.column
-      copy(cursorPos = CursorPos(newRow, newColumn))
+      withCursorPos(CursorPos(newRow, newColumn))
     }
 
   def deleteToEndOfLine: LineBuffer = {
