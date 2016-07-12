@@ -223,6 +223,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
+  // Object.withField
+  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType (Object(Map("foo" -> NumberType, "bar" -> NumberType)))
+  "ls.first.withField 'bar' 256" shouldBeInferredAsHavingType (PathSummaryClass)
+  
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

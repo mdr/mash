@@ -6,6 +6,7 @@ v0.0.4 (..)
 * Scope local variables within { } blocks
 * Support 0- and n-argument lambdas: => 42, x y => x + y
 * Add collections.reduce function
+* Add Object.withField method
 
 v0.0.3 (6/July)
 ---------------

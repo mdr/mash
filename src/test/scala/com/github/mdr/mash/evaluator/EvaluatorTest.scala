@@ -542,5 +542,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1] | reduce (x y => x * y)" shouldEvaluateTo ("1")
   "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo ("1200")
   "[] | reduce (x y => x * y) 10" shouldEvaluateTo ("10")
+ 
+  // Object.withField
+  "{}.withField 'foo' 42" shouldEvaluateTo ("{ foo: 42 }")
+  "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo ("{ foo: 42, bar: 256 }")
+  "{ foo: 42 }.withField 'foo' 256" shouldEvaluateTo ("{ foo: 256 }")
   
 }

@@ -26,6 +26,9 @@ object ViewableAsFields {
 
 object MashObject {
 
+  def of[T <% ViewableAsFields](fields: T, classOpt: Option[MashClass]): MashObject =
+    MashObject(fields.fields, classOpt)
+
   def of[T <% ViewableAsFields](fields: T, klass: MashClass): MashObject =
     MashObject(fields.fields, Some(klass))
 
@@ -45,6 +48,9 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
       throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString(",")}, but was ${providedFields.mkString(",")}")
   }
 
+  def withField(fieldName: String, value: MashValue): MashObject =
+    MashObject.of(fields.toSeq :+ (fieldName -> value), classOpt)
+
   def set(fieldName: String, value: MashValue) { fields(fieldName) = value }
 
   def apply(fieldName: String): MashValue = fields(fieldName)
@@ -55,15 +61,11 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
 
   def get(field: Field): Option[MashValue] = fields.get(field.name)
 
-  def -(fieldName: String): MashObject = {
-    val newFields = LinkedHashMap(fields.filterKeys(_ != fieldName).toSeq: _*)
-    MashObject(newFields)
-  }
+  def -(fieldName: String): MashObject =
+    MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
 
-  def +(that: MashObject): MashObject = {
-    val newFields = LinkedHashMap((this.fields ++ that.fields).toSeq: _*)
-    MashObject(newFields, classOpt = None)
-  }
+  def +(that: MashObject): MashObject =
+    MashObject.of((this.fields ++ that.fields).toSeq, this.classOpt)
 
   override def toString = asString
 
