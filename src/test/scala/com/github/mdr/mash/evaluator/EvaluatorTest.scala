@@ -535,5 +535,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Lambdas with multiple parameters
   "(x y => x * y) 2 3" shouldEvaluateTo "6"
   "f = => 42; f" shouldEvaluateTo "42"
+ 
+  // reduce
+  "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo ("120")
+  "[1] | reduce (x y => x * y)" shouldEvaluateTo ("1")
+  "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo ("1200")
+  "[] | reduce (x y => x * y) 10" shouldEvaluateTo ("10")
   
 }

@@ -98,6 +98,7 @@ object MashRoot {
     MinByFunction,
     MinFunction,
     NonEmptyFunction,
+    ReduceFunction,
     ReverseFunction,
     SelectFunction,
     SkipFunction,

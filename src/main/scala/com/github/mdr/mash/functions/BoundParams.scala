@@ -15,10 +15,6 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
 
   def apply(param: Parameter): MashValue = params(param.name)
 
-  def get(param: Parameter): Option[MashValue] = params.get(param.name)
-
-  def get(param: String): Option[MashValue] = params.get(param)
-
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
     val fullMessage = s"Invalid argument '${param.name}'. $message"

@@ -34,6 +34,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(MinByFunction),
     methodise(MinFunction),
     methodise(NonEmptyFunction),
+    methodise(ReduceFunction),
     methodise(ReverseFunction),
     methodise(SelectFunction),
     methodise(SkipFunction),

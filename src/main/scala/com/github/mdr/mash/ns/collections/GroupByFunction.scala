@@ -60,9 +60,9 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val includeNulls = boundParams(IncludeNull).isTruthy
     val includeTotalGroup = boundParams(Total).isTruthy
 
-    val nullKey = boundParams.get(IncludeNull) match {
-      case Some(MashBoolean.True) | None ⇒ MashNull
-      case Some(x)                       ⇒ x
+    val nullKey = boundParams(IncludeNull) match {
+      case MashBoolean.True ⇒ MashNull
+      case v                ⇒ v
     }
     def translateKey(k: MashValue) = k match {
       case MashNull ⇒ nullKey

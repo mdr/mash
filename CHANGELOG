@@ -5,6 +5,7 @@ v0.0.4 (..)
 * Support multi-line commands
 * Scope local variables within { } blocks
 * Support 0- and n-argument lambdas: => 42, x y => x + y
+* Add collections.reduce function
 
 v0.0.3 (6/July)
 ---------------

@@ -163,11 +163,12 @@ class TypeInferencer {
 
   private def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(elementType)), Some(Type.Seq(_))) ⇒ leftTypeOpt
-      case (Some(StringLike(_)), _)                         ⇒ leftTypeOpt
-      case (_, Some(StringLike(_)))                         ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _)                         ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_)))                         ⇒ rightTypeOpt
+      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
+        if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
+      case (Some(StringLike(_)), _) ⇒ leftTypeOpt
+      case (_, Some(StringLike(_))) ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _) ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_))) ⇒ rightTypeOpt
       case _ ⇒
         val objectAdditionTypeOpt =
           for {
