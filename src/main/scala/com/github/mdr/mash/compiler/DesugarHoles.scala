@@ -12,7 +12,7 @@ object DesugarHoles {
   private def addLambdaIfNeeded(expr: Expr): Expr = {
     val Result(newExpr, hasHole) = desugarHoles_(expr)
     if (hasHole) {
-      val params = FunctionParamList(Seq(SimpleParam(VariableName, None)))
+      val params = ParamList(Seq(SimpleParam(VariableName, None)))
       LambdaExpr(params, newExpr, None)
     } else
       newExpr
@@ -21,7 +21,7 @@ object DesugarHoles {
   private def addLambdaIfNeeded(argument: Argument.PositionArg): Argument.PositionArg = {
     val Result(newArgument, hasHole) = desugarHoles_(argument)
     if (hasHole) {
-      val params = FunctionParamList(Seq(SimpleParam(VariableName, None)))
+      val params = ParamList(Seq(SimpleParam(VariableName, None)))
       Argument.PositionArg(LambdaExpr(params, newArgument.expr, None), newArgument.sourceInfoOpt)
     } else
       newArgument

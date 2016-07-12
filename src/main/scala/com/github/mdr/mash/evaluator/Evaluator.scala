@@ -131,7 +131,7 @@ object Evaluator extends EvaluatorHelper {
     MashUnit
   }
 
-  private def verifyParameters(paramList: FunctionParamList)(implicit context: EvaluationContext) {
+  private def verifyParameters(paramList: ParamList)(implicit context: EvaluationContext) {
     val params = paramList.params
     if (params.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")
@@ -156,7 +156,7 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(params: FunctionParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction = {
+  private def makeAnonymousFunction(params: ParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction = {
     verifyParameters(params)
     AnonymousFunction(params, body, context)
   }

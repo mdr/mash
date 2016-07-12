@@ -115,7 +115,7 @@ object ConcreteSyntax {
     lazy val tokens = (function.tokens :+ lparen) ++ argsOpt.toSeq.flatMap(_.tokens) :+ rparen
   }
 
-  case class LambdaExpr(params: FunctionParamList, arrow: Token, body: Expr) extends Expr {
+  case class LambdaExpr(params: ParamList, arrow: Token, body: Expr) extends Expr {
     lazy val tokens = (params.tokens :+ arrow) ++ body.tokens
   }
 
@@ -223,11 +223,11 @@ object ConcreteSyntax {
     lazy val tokens = Seq(name, ellipsis)
   }
 
-  case class FunctionParamList(params: Seq[FunctionParam]) extends AstNode {
+  case class ParamList(params: Seq[FunctionParam]) extends AstNode {
     lazy val tokens = params.flatMap(_.tokens)
   }
   
-  case class FunctionDeclaration(defToken: Token, name: Token, params: FunctionParamList, equals: Token, body: Expr) extends Expr {
+  case class FunctionDeclaration(defToken: Token, name: Token, params: ParamList, equals: Token, body: Expr) extends Expr {
     lazy val tokens = Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
   }
 

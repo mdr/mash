@@ -6,7 +6,7 @@ import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.parser.AbstractSyntax._
 
-case class AnonymousFunction(parameterList: FunctionParamList, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
+case class AnonymousFunction(parameterList: ParamList, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
 
   def apply(arguments: Arguments): MashValue = {
     params.validate(arguments)

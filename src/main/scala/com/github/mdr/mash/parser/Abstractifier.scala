@@ -27,7 +27,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), sourceInfo(expr))
     case Concrete.BlockExpr(_, statements, _)               ⇒ Abstract.BlockExpr(abstractify(statements), sourceInfo(expr))
     case Concrete.StatementSeq(statements)                  ⇒ Abstract.StatementSeq(statements.flatMap(_.statementOpt).map(abstractify), sourceInfo(expr))
-    case Concrete.LambdaExpr(params, _, body)               ⇒ Abstract.LambdaExpr(abstractifyFunctionParamList(params), abstractify(body), sourceInfo(expr))
+    case Concrete.LambdaExpr(params, _, body)               ⇒ Abstract.LambdaExpr(abstractifyParamList(params), abstractify(body), sourceInfo(expr))
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))
     case assignmentExpr: Concrete.AssignmentExpr            ⇒ abstractifyAssignmentExpr(assignmentExpr)
     case chainedExpr @ Concrete.ChainedOpExpr(_, _)         ⇒ abstractifyChainedComparision(chainedExpr)
@@ -77,7 +77,7 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(_, name, params, _, body) = decl
-    val abstractParams = abstractifyFunctionParamList(params)
+    val abstractParams = abstractifyParamList(params)
     Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
@@ -86,9 +86,9 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
   }
 
-  private def abstractifyFunctionParamList(params: Concrete.FunctionParamList): Abstract.FunctionParamList = {
+  private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {
     val abstractParams = params.params.map(abstractifyParam)
-    Abstract.FunctionParamList(abstractParams)
+    Abstract.ParamList(abstractParams)
   }
 
   private def abstractifyInterpolatedString(interpolatedString: Concrete.InterpolatedString) = {

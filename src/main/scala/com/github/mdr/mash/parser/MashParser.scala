@@ -186,7 +186,7 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
   private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
     case Some(LambdaStart(params, arrow)) ⇒
       val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(FunctionParamList(params.map(SimpleParam)), arrow, body)
+      LambdaExpr(ParamList(params.map(SimpleParam)), arrow, body)
     case None ⇒
       assignmentExpr()
   }
@@ -680,7 +680,7 @@ class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
       else
         errorExpectedToken("=")
     val body = pipeExpr()
-    FunctionDeclaration(defToken, name, FunctionParamList(params), equals, body)
+    FunctionDeclaration(defToken, name, ParamList(params), equals, body)
   }
 
   private def syntheticToken(tokenType: TokenType): Token =

@@ -51,7 +51,7 @@ object AbstractSyntax {
       case StatementSeq(statements, sourceInfoOpt) ⇒
         StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
       case LambdaExpr(params, body, sourceInfoOpt) ⇒
-        LambdaExpr(params.transform(f).asInstanceOf[FunctionParamList], body.transform(f), sourceInfoOpt)
+        LambdaExpr(params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
       case PipeExpr(left, right, sourceInfoOpt) ⇒
         PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
       case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
@@ -83,7 +83,7 @@ object AbstractSyntax {
       case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
         MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
       case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-        FunctionDeclaration(name, params.transform(f).asInstanceOf[FunctionParamList], body.transform(f), sourceInfoOpt)
+        FunctionDeclaration(name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
       case HelpExpr(expr, sourceInfoOpt) ⇒
         HelpExpr(expr.transform(f), sourceInfoOpt)
       case ExprPart(expr) ⇒
@@ -98,8 +98,8 @@ object AbstractSyntax {
         this
       case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
-      case FunctionParamList(params) ⇒
-        FunctionParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
+      case ParamList(params) ⇒
+        ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
     }
 
   }
@@ -212,7 +212,7 @@ object AbstractSyntax {
     def children = statements
   }
 
-  case class LambdaExpr(params: FunctionParamList, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class LambdaExpr(params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(body)
   }
@@ -315,7 +315,7 @@ object AbstractSyntax {
     def isVariadic = true
   }
 
-  case class FunctionParamList(params: Seq[FunctionParam]) extends AstNode {
+  case class ParamList(params: Seq[FunctionParam]) extends AstNode {
     
     def children = params
 
@@ -325,7 +325,7 @@ object AbstractSyntax {
     
   }
 
-  case class FunctionDeclaration(name: String, params: FunctionParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class FunctionDeclaration(name: String, params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(body, params)
   }
