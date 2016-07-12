@@ -190,13 +190,13 @@ object StringClass extends MashClass("core.String") {
       val Regex = Parameter(
         name = "regex",
         shortFlagOpt = Some('r'),
-        summary = "Interpret separator as a regular expression",
+        summary = "Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)",
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isFlag = true,
         isBooleanFlag = true)
       val Separator = Parameter(
         name = "separator",
-        summary = "Separator to split string on",
+        summary = "Separator to split string on; if not provided, the default is to split on whitespace",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
     import Params._
@@ -209,15 +209,15 @@ object StringClass extends MashClass("core.String") {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
-      val pieces = boundParams(Separator) match {
+      val separator = boundParams(Separator) match {
         case MashNull ⇒
-          targetString.s.split("\\s+")
+          "\\s+"
         case MashString(separator, _) ⇒
-          val delimiterPattern = if (regex) separator else Pattern.quote(separator)
-          targetString.s.split(delimiterPattern)
+          if (regex) separator else Pattern.quote(separator)
         case _ ⇒
           throw new EvaluatorException("Invalid separator")
       }
+      val pieces = targetString.s.split(separator, -1)
       MashList(pieces.map(piece ⇒ MashString(piece, targetString.tagClassOpt)))
     }
 
