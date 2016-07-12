@@ -125,14 +125,21 @@ object Evaluator extends EvaluatorHelper {
     val FunctionDeclaration(functionName, params, body, sourceInfoOpt) = decl
     val parameters: Seq[Parameter] = params.params.map(param ⇒
       Parameter(param.name, s"Parameter '${param.name}'", isVariadic = param.isVariadic))
-    if (parameters.count(_.isVariadic) > 1)
-      throw new EvaluatorException("Multiple variadic parameters are not allowed")
-    val variadicIndex = parameters.indexWhere(_.isVariadic)
-    if (variadicIndex >= 0 && variadicIndex < params.params.size - 1)
-      throw new EvaluatorException("A variadic parameter must be the last positional parameter")
+    verifyParameters(decl.params)
     val fn = new UserDefinedFunction(functionName, ParameterModel(parameters), body, context)
     context.scopeStack.set(functionName, fn)
     MashUnit
+  }
+
+  private def verifyParameters(paramList: FunctionParamList)(implicit context: EvaluationContext) {
+    val params = paramList.params
+    if (params.count(_.isVariadic) > 1)
+      throw new EvaluatorException("Multiple variadic parameters are not allowed")
+    val variadicIndex = params.indexWhere(_.isVariadic)
+    if (variadicIndex >= 0 && variadicIndex < params.size - 1)
+      throw new EvaluatorException("A variadic parameter must be the last positional parameter")
+    for ((name, params) ← params.groupBy(_.name).filter(_._2.length > 1).headOption)
+      throw new EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
   }
 
   private def evaluateInterpolatedString(interpolatedString: InterpolatedString)(implicit context: EvaluationContext): MashString = {
@@ -149,8 +156,10 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(params: FunctionParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+  private def makeAnonymousFunction(params: FunctionParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction = {
+    verifyParameters(params)
     AnonymousFunction(params, body, context)
+  }
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
