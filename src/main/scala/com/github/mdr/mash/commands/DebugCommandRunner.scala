@@ -23,7 +23,7 @@ class DebugCommandRunner(output: PrintStream, globals: MashObject) {
       case ("t" | "type", actualCmd) ⇒
         output.println(compile(actualCmd))
       case ("tokens", actualCmd) ⇒
-        MashLexer.tokenise(actualCmd, forgiving = true, includeCommentsAndWhitespace = true).foreach(output.println)
+        MashLexer.tokenise(actualCmd, forgiving = true).rawTokens.foreach(output.println)
     }
   }
 

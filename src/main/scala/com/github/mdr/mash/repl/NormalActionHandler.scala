@@ -132,7 +132,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleAcceptLine() {
-    val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish)
+    val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish).tokens
     // TODO: We'll want to be smarter than this:
     import TokenType._
     val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE, STRING_INTERPOLATION_START_COMPLEX)

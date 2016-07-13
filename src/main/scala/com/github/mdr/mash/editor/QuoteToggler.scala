@@ -35,7 +35,7 @@ object QuoteToggler {
    * Find a non-whitespace token that is either under the cursor or immediately to the left of it.
    */
   private def findCursorToken(text: String, mish: Boolean, cursorOffset: Int): Option[Token] = {
-    val tokens = MashLexer.tokenise(text, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+    val tokens = MashLexer.tokenise(text, forgiving = true, mish = mish).rawTokens
     tokens.find(_.region contains cursorOffset).filterNot(t ⇒ t.isWhitespace || t.isEof)
       .orElse(tokens.find(_.region.posAfter == cursorOffset).filterNot(t ⇒ t.isWhitespace || t.isEof))
   }

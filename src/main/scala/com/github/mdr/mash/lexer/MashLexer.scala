@@ -7,6 +7,8 @@ import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.parser.MashParserException
 
+case class LexerResult(tokens: Seq[Token], rawTokens: Seq[Token], inferredSemicolonCandidates: Set[Token])
+
 object MashLexer {
 
   private final val EOF_CHAR = '\u001A' // Dummy character used after EOF (in lookaheads etc)
@@ -15,17 +17,34 @@ object MashLexer {
    * @param forgiving -- if true, will not throw any exceptions on encountering errors tokenising
    */
   @throws[MashParserException]
-  def tokenise(s: String, includeCommentsAndWhitespace: Boolean = false, forgiving: Boolean = true, mish: Boolean = false): Seq[Token] = {
+  def tokenise(s: String, forgiving: Boolean = true, mish: Boolean = false): LexerResult = {
     val initialMode = if (mish) MishMode else NormalMode()
     val lexer = new MashLexer(s, forgiving, initialMode)
     val rawTokens = lexer.toSeq
-    if (includeCommentsAndWhitespace)
-      rawTokens
-    else
-      rawTokens.filterNot(t ⇒ t.isWhitespace || t.isComment)
+    val pruneResult = pruneCommentsAndWhitespace(rawTokens)
+    val inferredSemicolonCandidates = SemicolonInferencer.getInferredSemicolonCandidates(pruneResult)
+    LexerResult(pruneResult.tokens, rawTokens, inferredSemicolonCandidates)
+  }
+
+  private def pruneCommentsAndWhitespace(rawTokens: Seq[Token]) = {
+    var intertokenMap: Map[Token, Seq[Token]] = Map()
+    var currentIntertokens: Seq[Token] = Seq()
+    var tokens: Seq[Token] = Seq()
+    for (token ← rawTokens) {
+      if (token.isComment || token.isWhitespace)
+        currentIntertokens = currentIntertokens :+ token
+      else {
+        intertokenMap += token -> currentIntertokens
+        currentIntertokens = Seq()
+        tokens = tokens :+ token
+      }
+    }
+    PruneResult(tokens, intertokenMap)
   }
 
 }
+
+private[lexer] case class PruneResult(tokens: Seq[Token], intertokenMap: Map[Token, Seq[Token]])
 
 class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode: LexerMode = NormalMode())
     extends NormalMashLexer with StringInterpolationLexer with MishLexer with Iterator[Token] {

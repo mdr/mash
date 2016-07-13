@@ -17,7 +17,7 @@ case class CompletionParser(env: Map[String, MashValue], mish: Boolean) {
   }
 
   def tokenise(s: String): Seq[Token] =
-    MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+    MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
 
   def getBareTokens(s: String): Seq[Token] = {
     val settings = CompilationSettings(bareWords = false)

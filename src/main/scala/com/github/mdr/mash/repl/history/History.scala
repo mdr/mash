@@ -40,7 +40,7 @@ trait History {
     getHistory.map(_.command).flatMap(getLastArg(_)).drop(lastArgIndex).headOption
 
   private def getLastArg(s: String): Option[String] = {
-    val tokens = MashLexer.tokenise(s, includeCommentsAndWhitespace = false, forgiving = true, mish = false)
+    val tokens = MashLexer.tokenise(s, forgiving = true, mish = false).tokens
     tokens.filter { t ⇒
       val tokenType = t.tokenType
       tokenType.isIdentifier || tokenType.isKeyword || tokenType.isLiteral || tokenType == TokenType.MISH_WORD

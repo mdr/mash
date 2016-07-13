@@ -17,7 +17,7 @@ object ContiguousRegionFinder {
    * Expand a region by adding tokens either side of it, as long as they aren't whitespace.
    */
   def getContiguousRegion(s: String, initialRegion: Region, mish: Boolean, liberal: Boolean): Region = {
-    val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+    val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
 
     val startToken = scanTokensLeft(tokens, initialRegion, liberal).getOrElse(return initialRegion)
     val endToken = scanTokensRight(tokens, initialRegion, liberal).getOrElse(return initialRegion)

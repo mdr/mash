@@ -79,7 +79,7 @@ object LineBufferRenderer {
 
     def getTokens(s: String, mish: Boolean) = {
       val bareTokens = if (bareWords) getBareTokens(s, mishByDefault, globalVariables) else Set[Token]()
-      val tokens = MashLexer.tokenise(s, includeCommentsAndWhitespace = true, forgiving = true, mish = mish)
+      val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
       (tokens, bareTokens)
     }
     

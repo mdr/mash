@@ -165,16 +165,16 @@ class MashLexerTest extends FlatSpec with Matchers {
     def shouldThrowAnExceptionAtPos(pos: Int)(implicit mode: Mode = Mode()) {
       s"Tokenising $s" should ("throw a MashLexerException at position " + pos) in {
         a[MashParserException] should be thrownBy {
-          MashLexer.tokenise(s, forgiving = mode.forgiving, includeCommentsAndWhitespace = mode.includeCommentsAndWhitespace)
+          MashLexer.tokenise(s, forgiving = mode.forgiving)
         }
       }
     }
 
     def shouldProduce(tokens: Seq[TokenType])(implicit mode: Mode = Mode()) = {
       s"Tokenising $s" should (" tokenise to " + tokens.mkString(", ") + " " + mode) in {
-        val actualTokens = MashLexer.tokenise(s, forgiving = mode.forgiving,
-          includeCommentsAndWhitespace = mode.includeCommentsAndWhitespace, mish = mode.mish)
-        assert(actualTokens.last.isEof)
+        val result = MashLexer.tokenise(s, forgiving = mode.forgiving, mish = mode.mish)
+        val actualTokens = if (mode.includeCommentsAndWhitespace) result.rawTokens else result.tokens
+        actualTokens.last.tokenType should equal(TokenType.EOF)
 
         actualTokens.init.map(_.tokenType) should equal(tokens)
         if (mode.includeCommentsAndWhitespace)

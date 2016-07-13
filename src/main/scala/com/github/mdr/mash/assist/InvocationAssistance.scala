@@ -26,7 +26,7 @@ object InvocationAssistance {
   private def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
 
   def getCallingSyntaxOfCurrentInvocation(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[AssistanceState] = {
-    val tokens = MashLexer.tokenise(s, forgiving = true, includeCommentsAndWhitespace = true, mish = mish)
+    val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
     val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, CompilationSettings(inferTypes = true))
     for {
       sourceInfo ← expr.sourceInfoOpt

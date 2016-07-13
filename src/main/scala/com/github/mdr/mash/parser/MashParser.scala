@@ -4,12 +4,12 @@ import scala.PartialFunction.cond
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
-
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.utils.PointedRegion
+import com.github.mdr.mash.lexer.LexerResult
 
 case class ParseError(message: String, location: PointedRegion)
 
@@ -17,17 +17,17 @@ object MashParser {
 
   def parse(s: String, mish: Boolean = false): Either[ParseError, Expr] =
     try
-      Right(doParse(s, forgiving = false, mish = mish))
+      Right(parseProgram(s, forgiving = false, mish = mish))
     catch {
       case e: MashParserException ⇒ Left(e.parseError)
     }
 
   def parseForgiving(s: String, mish: Boolean = false): Expr =
-    doParse(s, forgiving = true, mish = mish)
+    parseProgram(s, forgiving = true, mish = mish)
 
-  private def doParse(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
-    val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish, includeCommentsAndWhitespace = false).toArray
-    val parse = new MashParse(tokens, initialForgiving = forgiving)
+  private def parseProgram(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
+    val lexerResult = MashLexer.tokenise(s, forgiving = forgiving, mish = mish)
+    val parse = new MashParse(lexerResult, initialForgiving = forgiving)
     if (mish)
       parse.mishExpr()
     else
@@ -35,8 +35,8 @@ object MashParser {
   }
 
   def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
-    val tokens = MashLexer.tokenise(s, forgiving = forgiving, mish = mish).toArray
-    val parse = new MashParse(tokens, initialForgiving = forgiving)
+    val lexerResult = MashLexer.tokenise(s, forgiving = forgiving, mish = mish)
+    val parse = new MashParse(lexerResult, initialForgiving = forgiving)
     if (mish)
       parse.mishExpr()
     else
@@ -45,10 +45,12 @@ object MashParser {
 
 }
 
-class MashParse(tokens: Array[Token], initialForgiving: Boolean) {
+class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   import ConcreteSyntax._
   import TokenType._
+
+  private val tokens = lexerResult.tokens.toArray
 
   /**
    * Index of the token currently being examined
