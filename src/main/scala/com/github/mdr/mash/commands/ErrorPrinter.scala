@@ -6,13 +6,14 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.SourceLocation
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
+import com.github.mdr.mash.evaluator.StackTraceItem
 
 /**
  * Print errors with stack traces
  */
 class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
-  def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[SourceLocation]) = {
+  def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[StackTraceItem]) = {
     output.println(formatStrong(msgType + ":") + formatRegular(" " + msg))
     if (stack.isEmpty)
       output.println(formatRegular(unit.text))
@@ -21,13 +22,14 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
         printStackEntry(entry, unit)
   }
 
-  private def printStackEntry(location: SourceLocation, unit: CompilationUnit) {
-    val SourceLocation(provenance, PointedRegion(point, region)) = location
+  private def printStackEntry(item: StackTraceItem, unit: CompilationUnit) {
+    val StackTraceItem(SourceLocation(provenance, PointedRegion(point, region)), functionOpt) = item
     val lineInfo = new LineInfo(provenance.source)
     val (lineIndex, _) = lineInfo.lineAndColumn(point)
     val line = lineInfo.lines(lineIndex)
     val isImmediateError = unit.provenance == provenance && unit.interactive
-    val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}: "
+    val functionName = functionOpt.map(f => ":" + f.name).getOrElse("")
+    val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}$functionName: "
     val padding = " " * prefix.length
     val lineRegion = lineInfo.lineRegion(lineIndex)
     val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)

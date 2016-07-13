@@ -47,11 +47,11 @@ object InvocationEvaluator extends EvaluatorHelper {
       case MashString(memberName, _) ⇒
         callStringAsFunction(memberName, arguments, functionLocationOpt, invocationLocationOpt)
       case f: MashFunction ⇒
-        addInvocationToStackOnException(invocationLocationOpt) {
+        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
       case BoundMethod(target, method, _) ⇒
-        addInvocationToStackOnException(invocationLocationOpt) {
+        addInvocationToStackOnException(invocationLocationOpt, None) {
           method(target, arguments)
         }
       case x ⇒
@@ -83,14 +83,14 @@ object InvocationEvaluator extends EvaluatorHelper {
         }
     }
 
-  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
+  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation], functionOpt: Option[MashFunction])(p: ⇒ T): T =
     try
       p
     catch {
       case e: ArgumentException ⇒
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
-        throw invocationLocationOpt.map(e.push).getOrElse(e)
+        throw invocationLocationOpt.map(e.lastWasFunction(functionOpt).push).getOrElse(e)
     }
 
 }

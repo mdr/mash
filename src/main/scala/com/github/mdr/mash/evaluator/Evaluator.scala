@@ -38,7 +38,7 @@ object Evaluator extends EvaluatorHelper {
         throw e
       case t: Exception ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          stack = sourceLocation(expr).toList,
+          stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(loc)),
           cause = t)
     }
   }
@@ -48,12 +48,16 @@ object Evaluator extends EvaluatorHelper {
    * return the result.
    */
   def immediatelyResolveNullaryFunctions(v: MashValue, locationOpt: Option[SourceLocation]): MashValue =
-    InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
-      v match {
-        case f: MashFunction if f.allowsNullary ⇒ f(Arguments(Seq()))
-        case BoundMethod(target, method, _) if method.allowsNullary ⇒ method(target, Arguments(Seq()))
-        case _ ⇒ v
-      }
+    v match {
+      case f: MashFunction if f.allowsNullary ⇒
+        InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
+          f(Arguments(Seq()))
+        }
+      case BoundMethod(target, method, _) if method.allowsNullary ⇒
+        InvocationEvaluator.addInvocationToStackOnException(locationOpt, None) {
+          method(target, Arguments(Seq()))
+        }
+      case _ ⇒ v
     }
 
   /**
@@ -62,7 +66,7 @@ object Evaluator extends EvaluatorHelper {
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw EvaluatorException("Unexpected AST node: " + expr, stack = sourceLocation(expr).toList)
+        throw new EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
       case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                     ⇒ evaluate(body)
       case blockExpr: BlockExpr                   ⇒ evaluateBlockExpr(blockExpr)

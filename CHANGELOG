@@ -7,6 +7,7 @@ v0.0.4 (..)
 * Support 0- and n-argument lambdas: => 42, x y => x + y
 * Add collections.reduce function
 * Add Object.withField method
+* Add function names to stack trace items
 
 v0.0.3 (6/July)
 ---------------

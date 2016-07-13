@@ -10,7 +10,7 @@ case class ArgumentException(message: String, locationOpt: Option[SourceLocation
 
 abstract class MashFunction(
     val nameOpt: Option[String],
-    val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName {
+    val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName with MashCallable {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
