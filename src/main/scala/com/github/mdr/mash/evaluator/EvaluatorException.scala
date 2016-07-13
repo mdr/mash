@@ -11,10 +11,12 @@ case class EvaluatorException(
   stack: List[SourceLocation] = Nil,
   cause: Throwable = null)
     extends RuntimeException(message, cause) {
-  
-  def this(message: String, locationOpt: Option[SourceLocation]) = 
+
+  def this(message: String, locationOpt: Option[SourceLocation]) =
     this(message, locationOpt.toList, null)
-  
+
   def causeOpt: Option[Throwable] = Option(cause)
+
+  def push(location: SourceLocation): EvaluatorException = copy(stack = location :: stack)
 
 }

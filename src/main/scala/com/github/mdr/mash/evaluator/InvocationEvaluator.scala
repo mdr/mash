@@ -54,8 +54,8 @@ object InvocationEvaluator extends EvaluatorHelper {
         addInvocationToStackOnException(invocationLocationOpt) {
           method(target, arguments)
         }
-      case _ ⇒
-        throw new EvaluatorException(s"Not callable", functionLocationOpt)
+      case x ⇒
+        throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
     }
 
   private def callStringAsFunction(s: String,
@@ -90,7 +90,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       case e: ArgumentException ⇒
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
-        throw invocationLocationOpt.map(loc ⇒ e.copy(stack = loc :: e.stack)).getOrElse(e)
+        throw invocationLocationOpt.map(e.push).getOrElse(e)
     }
 
 }
