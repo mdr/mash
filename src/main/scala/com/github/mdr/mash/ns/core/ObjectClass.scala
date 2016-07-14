@@ -4,22 +4,18 @@ import scala.collection.immutable.ListMap
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.FieldAndValueClass.Fields
-import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.inference.MethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.inference._
+import com.github.mdr.mash.parser.AbstractSyntax.StringLiteral
+import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.completions.CompletionSpec
 
 object ObjectClass extends MashClass("core.Object") {
 
   override val methods = Seq(
     FieldsMethod,
+    GetMethod,
     HasFieldMethod,
     WithFieldMethod)
 
@@ -64,6 +60,69 @@ object ObjectClass extends MashClass("core.Object") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Return true if this object contains the given field"
+  }
+
+  object GetMethod extends MashMethod("get") {
+
+    object Params {
+      val Name = Parameter(
+        name = "name",
+        summary = "Field name")
+      val Default = Parameter(
+        name = "default",
+        summary = "Default to use if no field with that name present in object (default null)",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Name, Default))
+
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
+      val obj = target.asInstanceOf[MashObject]
+      val boundParams = params.validate(arguments)
+      val field = boundParams.validateString(Name).s
+      val default = boundParams(Default)
+      obj.fields.get(field).getOrElse(default)
+    }
+
+    object GetMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        val argBindings = params.bindTypes(arguments)
+        val fieldTypeOpt =
+          for {
+            AnnotatedExpr(nameExprOpt, _) ← argBindings.get(Name)
+            StringLiteral(fieldName, _, _, _) ← nameExprOpt
+            targetType ← targetTypeOpt
+            fieldType ← targetType match {
+              case Type.Object(fields)  ⇒ fields.get(fieldName)
+              case Type.Instance(klass) ⇒ klass.fieldsMap.get(fieldName).map(_.fieldType)
+              case _                    ⇒ None
+            }
+          } yield fieldType
+        fieldTypeOpt orElse argBindings.get(Default).flatMap(_.typeOpt)
+      }
+    }
+
+    override def typeInferenceStrategy = GetMethodTypeInferenceStrategy
+
+    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) = {
+      val completionSpecOpt =
+        for {
+          param ← params.bindTypes(arguments).paramAt(argPos)
+          if param == Name
+          targetType ← targetTypeOpt
+        } yield CompletionSpec.Items(getFields(targetType))
+      completionSpecOpt.toSeq
+    }
+
+    private def getFields(typ_ : Type): Seq[String] = typ_ match {
+      case Type.Object(fields)  ⇒ fields.keys.toSeq
+      case Type.Instance(klass) ⇒ klass.fields.map(_.name)
+      case _                    ⇒ Seq()
+    }
+
+    override def summary = "Get the value of the given field, else use a default (null by default)"
   }
 
   object WithFieldMethod extends MashMethod("withField") {

@@ -210,12 +210,12 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), ListClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
 
-  "{ foo: 42 } | .foo" shouldBeInferredAsHavingType (NumberClass)
+  "{ foo: 42 } | .foo" shouldBeInferredAsHavingType NumberClass
 
-  "now" shouldBeInferredAsHavingType (DateTimeClass)
-  "now.date" shouldBeInferredAsHavingType (LocalDateClass)
+  "now" shouldBeInferredAsHavingType DateTimeClass
+  "now.date" shouldBeInferredAsHavingType LocalDateClass
 
-  "()" shouldBeInferredAsHavingType (UnitClass)
+  "()" shouldBeInferredAsHavingType UnitClass
 
   "[{foo: 42}].map(_.foo)" shouldBeInferredAsHavingType Seq(NumberClass)
 
@@ -224,15 +224,19 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // Object.withField
-  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType (Object(Map("foo" -> NumberType, "bar" -> NumberType)))
-  "ls.first.withField 'bar' 256" shouldBeInferredAsHavingType (PathSummaryClass)
-  
+  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType, "bar" -> NumberType))
+  "ls.first.withField 'bar' 256" shouldBeInferredAsHavingType PathSummaryClass
+
+  // Object.get
+  "{ foo: 42 }.get 'foo'" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
         val settings = CompilationSettings(inferTypes = true)
-        val Some(actualType) = Compiler.compileForgiving(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, settings).typeOpt
+        val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, settings)
+        val Some(actualType) = expr.typeOpt
         actualType should equal(expectedType)
       }
     }

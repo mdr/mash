@@ -538,16 +538,21 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "f = => 42; f" shouldEvaluateTo "42"
  
   // reduce
-  "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo ("120")
-  "[1] | reduce (x y => x * y)" shouldEvaluateTo ("1")
-  "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo ("1200")
-  "[] | reduce (x y => x * y) 10" shouldEvaluateTo ("10")
+  "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo "120"
+  "[1] | reduce (x y => x * y)" shouldEvaluateTo "1"
+  "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo "1200"
+  "[] | reduce (x y => x * y) 10" shouldEvaluateTo "10"
  
   // Object.withField
-  "{}.withField 'foo' 42" shouldEvaluateTo ("{ foo: 42 }")
-  "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo ("{ foo: 42, bar: 256 }")
-  "{ foo: 42 }.withField 'foo' 256" shouldEvaluateTo ("{ foo: 256 }")
- 
+  "{}.withField 'foo' 42" shouldEvaluateTo "{ foo: 42 }"
+  "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo "{ foo: 42, bar: 256 }"
+  "{ foo: 42 }.withField 'foo' 256" shouldEvaluateTo "{ foo: 256 }"
+
+  // Object.get
+  "{ foo: 42 }.get 'foo'" shouldEvaluateTo "42"
+  "{}.get 'nope'" shouldEvaluateTo "null"
+  "{}.get 'nope' --default=42" shouldEvaluateTo "42"
+  
   // Semicolon inference
   """|a = 1
      |b = a + 1
