@@ -28,6 +28,6 @@ object IdentityFunction extends MashFunction("core.identity") {
   override def summary = "Return the argument unchanged"
 
   override def descriptionOpt = Some("""Examples:
-  id 42 # 42""")
+  identity 42 # 42""")
 
 }
