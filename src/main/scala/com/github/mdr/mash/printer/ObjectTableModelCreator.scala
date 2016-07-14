@@ -41,9 +41,9 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
     val pairs =
       for {
         ColumnSpec(name, _, isNullaryMethod) ← columns
-        rawValue = MemberEvaluator.lookup(obj, name)
-        value = if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue
-        renderedValue = Printer.renderField(value, inCell = true)
+        rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
+        valueOpt = rawValueOpt.map(rawValue ⇒ if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue)
+        renderedValue = valueOpt.map(value => Printer.renderField(value, inCell = true)).getOrElse("")
       } yield name -> renderedValue
     val data = (pairs :+ (IndexColumnName -> index.toString)).toMap
     ObjectTableRow(data)
