@@ -547,5 +547,15 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{}.withField 'foo' 42" shouldEvaluateTo ("{ foo: 42 }")
   "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo ("{ foo: 42, bar: 256 }")
   "{ foo: 42 }.withField 'foo' 256" shouldEvaluateTo ("{ foo: 256 }")
-  
+ 
+  // Semicolon inference
+  """|a = 1
+     |b = a + 1
+     |a + b""" shouldEvaluateTo ("3")
+
+  """|a = 1
+     |b = a +
+     |  1
+     |a + b""" shouldEvaluateTo ("3")
+
 }

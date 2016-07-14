@@ -16,8 +16,10 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 
   case class Config(bareWords: Boolean = false)
 
-  protected implicit class RichString(s: String)(implicit config: Config = Config()) {
+  protected implicit class RichString(rawS: String)(implicit config: Config = Config()) {
 
+    private val s = rawS.stripMargin
+    
     private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
       val settings = CompilationSettings(bareWords = config.bareWords)
       Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {

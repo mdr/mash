@@ -8,6 +8,7 @@ v0.0.4 (..)
 * Add collections.reduce function
 * Add Object.withField method
 * Add function names to stack trace items
+* Infer semicolons
 
 v0.0.3 (6/July)
 ---------------

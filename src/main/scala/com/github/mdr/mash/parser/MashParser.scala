@@ -57,18 +57,34 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
    */
   private var pos = 0
 
+  /**
+   * Whether we are currently forgiving; we might temporarily stop being forgiving to do speculative parsing.
+   */
   private var forgiving: Boolean = initialForgiving
 
   /**
-   * Return the token at the given position. If it's past the end of the token sequence, then return the last token (EOF).
+   * Indicate that a synthetic inferred semi was just inferred
    */
-  private def token(pos: Int): Token =
+  private var inferredSemi: Boolean = false
+
+  /**
+   * Return the current token. If it's past the end of the token sequence, then return the last token (EOF).
+   */
+  private def currentToken: Token = {
+    val token = currentSequenceToken
+    if (shouldInferSemicolon(token))
+      syntheticToken(SEMI, token)
+    else
+      token
+  }
+
+  private def currentSequenceToken =
     if (pos < tokens.length)
       tokens(pos)
     else
       tokens.last
 
-  private def currentToken: Token = token(pos)
+  private def shouldInferSemicolon(token: Token) = lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
 
   private def currentTokenType = currentToken.tokenType
 
@@ -81,15 +97,16 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
    *  @return the token before advancing
    */
   private def nextToken(): Token = {
-    val token = currentToken
-    pos += 1
-    token
+    val token = currentSequenceToken
+    if (shouldInferSemicolon(token)) {
+      inferredSemi = true
+      syntheticToken(SEMI)
+    } else {
+      inferredSemi = false
+      pos += 1
+      token
+    }
   }
-
-  /**
-   * Return the type of the token n positions in the stream ahead. If past the end, this will return EOF.
-   */
-  private def lookahead(n: Int): TokenType = token(pos + n).tokenType
 
   /**
    * We're testing token types a lot, a bit of shorthand helps.
@@ -105,6 +122,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
    */
   private def speculate[T](p: ⇒ T): Option[T] = {
     val oldPos = pos
+    val oldInferredSemi = inferredSemi
     val oldForgiving = forgiving
     forgiving = false
     try
@@ -112,6 +130,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
     catch {
       case _: MashParserException ⇒
         pos = oldPos
+        inferredSemi = oldInferredSemi
         None
     } finally
       forgiving = oldForgiving
@@ -127,8 +146,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
   def mishExpr(): MishExpr = {
     val command = mishItem()
     val args = ArrayBuffer[MishItem]()
-    while (MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX)
+    safeWhile(MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX) {
       args += mishItem()
+    }
     MishExpr(command, args)
   }
 
@@ -173,8 +193,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   private def lambdaStart(): LambdaStart = {
     val params: ArrayBuffer[Token] = ArrayBuffer()
-    while (IDENTIFIER)
+    safeWhile(IDENTIFIER) {
       params += nextToken()
+    }
     val arrow =
       if (RIGHT_ARROW)
         nextToken()
@@ -260,7 +281,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
       val right = additiveExpr()
       if (continueChaining(op)) {
         val opExprs = ArrayBuffer(op -> right)
-        while (continueChaining(op)) {
+        safeWhile(continueChaining(op)) {
           val op2 = nextToken()
           val right2 = additiveExpr()
           opExprs += (op2 -> right2)
@@ -274,7 +295,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   private def additiveExpr(): Expr = {
     var expr = multiplicativeExpr()
-    while (PLUS | MINUS) {
+    safeWhile(PLUS | MINUS) {
       val op = nextToken()
       val right = multiplicativeExpr()
       expr = BinOpExpr(expr, op, right)
@@ -284,7 +305,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   private def multiplicativeExpr(): Expr = {
     var expr = invocationExpr()
-    while (TIMES | DIVIDE) {
+    safeWhile(TIMES | DIVIDE) {
       val op = nextToken()
       val right = invocationExpr()
       expr = BinOpExpr(expr, op, right)
@@ -292,11 +313,28 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
     expr
   }
 
+  /**
+   * While loop that errors if it's not making progress
+   */
+  private def safeWhile(cond: ⇒ Boolean)(body: ⇒ Any) {
+    var oldPos = pos
+    var noAdvanceCount = 0
+    while (cond) {
+      body
+      if (oldPos == pos)
+        noAdvanceCount += 1
+      else
+        noAdvanceCount = 0
+      assert(noAdvanceCount < 10, "Infinite loop detected parsing at position " + pos + ", current token is " + currentToken)
+      oldPos = pos
+    }
+  }
+
   private def invocationExpr(): Expr = {
     val expr = prefixExpr()
     val args = ListBuffer[AstNode]()
     var previousPos = pos
-    while (!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
+    safeWhile(!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
       RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS
       || DIVIDE_EQUALS || TILDE || DEF || STRING_END || ALIAS || ELLIPSIS)) {
@@ -407,7 +445,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
     } else {
       val firstArg = pipeExpr()
       val args = ArrayBuffer[(Token, Expr)]()
-      while (COMMA) {
+      safeWhile(COMMA) {
         val comma = nextToken()
         val arg = pipeExpr()
         args += (comma -> arg)
@@ -447,7 +485,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
         Identifier(nextToken())
       else
         errorExpectedToken("identifier or _") // shouldn't happen
-    while (DOT) {
+    safeWhile(DOT) {
       val dot = nextToken()
       val ident =
         if (IDENTIFIER)
@@ -472,8 +510,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private def interpolatedString(): InterpolatedString = {
     val stringStart = nextToken()
     val parts = ArrayBuffer[InterpolationPart]()
-    while (STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE)
+    safeWhile(STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE) {
       parts += interpolationPart()
+    }
     val end =
       if (STRING_END)
         nextToken()
@@ -499,12 +538,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
       parenExpr()
     else if (LSQUARE)
       listExpr()
-    else if (LBRACE) {
-      if (lookahead(1).isIdentifier && lookahead(2) == COLON || lookahead(1) == RBRACE)
-        objectExpr()
-      else
-        blockExpr()
-    } else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
+    else if (LBRACE)
+      speculate(objectExpr()) getOrElse blockExpr()
+    else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
       mishInterpolation()
     else if (forgiving)
       Literal(syntheticToken(STRING_LITERAL))
@@ -520,7 +556,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private def statementSeq(): Expr = {
     var statements = ArrayBuffer[Statement]()
     var continue = true
-    while (continue) {
+    safeWhile(continue) {
       if (RBRACE || RPAREN || EOF)
         continue = false
       else if (SEMI) {
@@ -590,7 +626,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
     } else {
       val firstItem = pipeExpr()
       val items = ArrayBuffer[(Token, Expr)]()
-      while (COMMA) {
+      safeWhile(COMMA) {
         val comma = nextToken()
         val item = pipeExpr()
         items += (comma -> item)
@@ -636,7 +672,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
       val firstEntry = objectEntry()
       val entries = ArrayBuffer[(Token, ObjectEntry)]()
       var continue = true
-      while (COMMA) {
+      safeWhile(COMMA) {
         val comma = nextToken()
         val entry = objectEntry()
         entries += (comma -> entry)
@@ -664,7 +700,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) {
       else
         errorExpectedToken("identifier")
     val params = ArrayBuffer[FunctionParam]()
-    while (IDENTIFIER) {
+    safeWhile(IDENTIFIER) {
       val ident = nextToken()
       val param =
         if (ELLIPSIS) {
