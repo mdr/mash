@@ -4,7 +4,7 @@ v0.0.4 (..)
 * Add ProcessResult.duration method
 * Support multi-line commands
 * Scope local variables within { } blocks
-* Support 0- and n-argument lambdas: => 42, x y => x + y
+* Support 0- and n-argument lambdas: "=> 42", "x y => x + y"
 * Add collections.reduce function
 * Add Object.withField and .get method
 * Add function names to stack trace items

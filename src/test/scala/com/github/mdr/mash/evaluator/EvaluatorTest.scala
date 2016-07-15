@@ -429,15 +429,16 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "git.log? .name" shouldEvaluateTo "'log'"
   "help 42.class | _.name" shouldEvaluateTo "'Number'"
-  "42.class.name" shouldEvaluateTo "'Number'"
 
   "def square n = n * n; square 8" shouldEvaluateTo "64"
   "def square n = n * n; square --n=8" shouldEvaluateTo "64"
   "def add a b = a + b; add 1 2" shouldEvaluateTo "3"
+  "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" shouldEvaluateTo "'OOF'"
+  
+  // varargs
   "def mkList n... = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
-  "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" shouldEvaluateTo "'OOF'"
 
   "a = alias ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
 
@@ -537,6 +538,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(x y => x * y) 2 3" shouldEvaluateTo "6"
   "f = => 42; f" shouldEvaluateTo "42"
  
+  // lambdas with varargs
+  "(x... => x.sum) 1 2 3" shouldEvaluateTo "6"
+  
   // reduce
   "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo "120"
   "[1] | reduce (x y => x * y)" shouldEvaluateTo "1"
