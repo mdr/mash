@@ -69,13 +69,10 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
     } else
       previousExpr
 
-  case class LambdaStart(params: Seq[Token], arrow: Token)
+  case class LambdaStart(paramList: ParamList, arrow: Token)
 
   private def lambdaStart(): LambdaStart = {
-    val params: ArrayBuffer[Token] = ArrayBuffer()
-    safeWhile(IDENTIFIER) {
-      params += nextToken()
-    }
+    val params = paramList()
     val arrow =
       if (RIGHT_ARROW)
         nextToken()
@@ -89,7 +86,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
   private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
     case Some(LambdaStart(params, arrow)) ⇒
       val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(ParamList(params.map(SimpleParam)), arrow, body)
+      LambdaExpr(params, arrow, body)
     case None ⇒
       assignmentExpr()
   }
@@ -553,6 +550,19 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
         syntheticToken(IDENTIFIER, defToken)
       else
         errorExpectedToken("identifier")
+    val params = paramList()
+    val equals =
+      if (SHORT_EQUALS)
+        nextToken()
+      else if (forgiving)
+        syntheticToken(SHORT_EQUALS, params.params.lastOption.map(_.tokens.last).getOrElse(name))
+      else
+        errorExpectedToken("=")
+    val body = pipeExpr()
+    FunctionDeclaration(defToken, name, params, equals, body)
+  }
+
+  private def paramList(): ParamList = {
     val params = ArrayBuffer[FunctionParam]()
     safeWhile(IDENTIFIER) {
       val ident = nextToken()
@@ -564,14 +574,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
           SimpleParam(ident)
       params += param
     }
-    val equals =
-      if (SHORT_EQUALS)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(SHORT_EQUALS, params.lastOption.map(_.tokens.last).getOrElse(name))
-      else
-        errorExpectedToken("=")
-    val body = pipeExpr()
-    FunctionDeclaration(defToken, name, ParamList(params), equals, body)
+    ParamList(params)
   }
+
 }

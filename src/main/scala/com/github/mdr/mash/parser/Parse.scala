@@ -48,7 +48,8 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     else
       tokens.last
 
-  private def shouldInferSemicolon(token: Token) = lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
+  private def shouldInferSemicolon(token: Token): Boolean =
+    lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
 
   private def currentTokenType = currentToken.tokenType
 
@@ -100,14 +101,23 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       forgiving = oldForgiving
   }
 
+  /**
+   * Create a synthetic token of the given type
+   */
   protected def syntheticToken(tokenType: TokenType): Token =
     syntheticToken(tokenType, afterTokenOpt = None)
 
+  /**
+   * Create a synthetic token of the given type, based on the position of the given token
+   */
   protected def syntheticToken(tokenType: TokenType, afterToken: Token): Token =
     syntheticToken(tokenType, Some(afterToken))
 
-  protected def syntheticToken(tokenType: TokenType, afterTokenOpt: Option[Token]): Token =
-    Token(tokenType, afterTokenOpt.map(_.region.posAfter).getOrElse(0), 0, afterTokenOpt.map(_.source).getOrElse(""))
+  private def syntheticToken(tokenType: TokenType, afterTokenOpt: Option[Token]): Token = {
+    val offset = afterTokenOpt.map(_.region.posAfter) getOrElse 0
+    val source = afterTokenOpt.map(_.source) getOrElse ""
+    Token(tokenType, offset, length = 0, source)
+  }
 
   /**
    * While loop that errors if it's not making progress

@@ -126,13 +126,18 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
-    val FunctionDeclaration(functionName, params, body, sourceInfoOpt) = decl
-    val parameters: Seq[Parameter] = params.params.map(param ⇒
-      Parameter(param.name, s"Parameter '${param.name}'", isVariadic = param.isVariadic))
-    verifyParameters(decl.params)
-    val fn = new UserDefinedFunction(functionName, ParameterModel(parameters), body, context)
-    context.scopeStack.set(functionName, fn)
+    val FunctionDeclaration(functionName, paramList, body, sourceInfoOpt) = decl
+    val params = parameterModel(paramList)
+    val function = new UserDefinedFunction(functionName, params, body, context)
+    context.scopeStack.set(functionName, function)
     MashUnit
+  }
+
+  private def parameterModel(paramList: ParamList)(implicit context: EvaluationContext): ParameterModel = {
+    val parameters: Seq[Parameter] = paramList.params.map(param ⇒
+      Parameter(param.name, s"Parameter '${param.name}'", isVariadic = param.isVariadic))
+    verifyParameters(paramList)
+    ParameterModel(parameters)
   }
 
   private def verifyParameters(paramList: ParamList)(implicit context: EvaluationContext) {
@@ -160,10 +165,8 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(params: ParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction = {
-    verifyParameters(params)
-    AnonymousFunction(params, body, context)
-  }
+  private def makeAnonymousFunction(paramList: ParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+    AnonymousFunction(parameterModel(paramList), body, context)
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
