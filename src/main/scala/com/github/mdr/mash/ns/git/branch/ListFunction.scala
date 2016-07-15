@@ -9,7 +9,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.git.CommitHashClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.StatusFunction
-import com.github.mdr.mash.ns.git.branch.LocalBranchClass.Fields
+import com.github.mdr.mash.ns.git.branch.BranchClass.Fields
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
@@ -35,7 +35,7 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
     val (upstreamBranch, aheadCount, behindCount) =
       StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
     val name = ref.getName.replaceAll("^refs/heads/", "")
-    import LocalBranchClass.Fields._
+    import BranchClass.Fields._
     MashObject.of(
       ListMap(
         Name -> MashString(name, LocalBranchNameClass),
@@ -43,10 +43,10 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
         UpstreamBranch -> upstreamBranch,
         AheadCount -> aheadCount,
         BehindCount -> behindCount),
-      LocalBranchClass)
+      BranchClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(LocalBranchClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(BranchClass))
 
   override def summary = "List branches in the repository"
 

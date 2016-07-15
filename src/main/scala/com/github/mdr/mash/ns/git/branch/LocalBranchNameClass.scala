@@ -24,14 +24,15 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
   val lifter = new MemberLifter(getBranchInfo)
 
   override lazy val methods = Seq(
-    lifter.liftField(LocalBranchClass.Fields.Commit),
-    lifter.liftField(LocalBranchClass.Fields.UpstreamBranch),
-    lifter.liftMethod(LocalBranchClass.DeleteMethod),
-    lifter.liftMethod(LocalBranchClass.IsAncestorOfMethod),
-    lifter.liftMethod(LocalBranchClass.LogMethod),
-    lifter.liftMethod(LocalBranchClass.SetCommitMethod),
-    lifter.liftMethod(LocalBranchClass.SwitchMethod),
-    lifter.liftMethod(LocalBranchClass.PushMethod),
+    lifter.liftField(BranchClass.Fields.Commit),
+    lifter.liftField(BranchClass.Fields.UpstreamBranch),
+    lifter.liftMethod(BranchClass.DeleteMethod),
+    lifter.liftMethod(BranchClass.IsAncestorOfMethod),
+    MashClass.alias("isMergedInto", lifter.liftMethod(BranchClass.IsAncestorOfMethod)),
+    lifter.liftMethod(BranchClass.LogMethod),
+    lifter.liftMethod(BranchClass.SetCommitMethod),
+    lifter.liftMethod(BranchClass.SwitchMethod),
+    lifter.liftMethod(BranchClass.PushMethod),
     InfoMethod)
 
   object InfoMethod extends MashMethod("info") {
@@ -44,7 +45,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
       getBranchInfo(branchName)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(LocalBranchClass)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
     override def summary = "Get information about the local branch with this name"
 
@@ -57,7 +58,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
         throw new EvaluatorException("No branch with name " + branchName))
       ListFunction.asMashObject(repo)(ref)
     }
-  
+
   override def parentOpt = Some(AnyClass)
 
 }

@@ -8,7 +8,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.git.branch.LocalBranchClass.Fields
+import com.github.mdr.mash.ns.git.branch.BranchClass.Fields
 import com.github.mdr.mash.ns.git.CommitHashClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.ns.git.StatusFunction

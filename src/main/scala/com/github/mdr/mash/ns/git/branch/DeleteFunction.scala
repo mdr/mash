@@ -27,7 +27,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   def validateBranch(boundParams: BoundParams, param: Parameter, branch: MashValue): String = {
     val branchName = branch match {
       case MashString(s, _) ⇒ s
-      case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ LocalBranchClass.Wrapper(obj).name.s
+      case obj @ MashObject(_, Some(BranchClass)) ⇒ BranchClass.Wrapper(obj).name.s
       case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a local branch")
     }
     if (!SwitchFunction.getLocalBranches.contains(branchName))

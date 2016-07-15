@@ -1,35 +1,25 @@
 package com.github.mdr.mash.ns.git.branch
 
 import scala.collection.JavaConverters._
+
 import org.eclipse.jgit.api.Git
-import com.github.mdr.mash.evaluator._
+
+import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.AbstractToStringMethod
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.ns.git.CommitClass
-import com.github.mdr.mash.ns.git.CommitHashClass
-import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.ns.git.LogFunction
-import com.github.mdr.mash.ns.git.PushFunction
-import com.github.mdr.mash.ns.git.MergeFunction
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.ns.core.BooleanClass
-import org.eclipse.jgit.revwalk.RevWalk
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.git.AbstractIsAncestorOfMethod
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.git._
+import com.github.mdr.mash.runtime._
 
-object LocalBranchClass extends MashClass("git.branch.Branch") {
+object BranchClass extends MashClass("git.branch.Branch") {
 
   object Fields {
     val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))
@@ -49,6 +39,7 @@ object LocalBranchClass extends MashClass("git.branch.Branch") {
     DeleteMethod,
     LogMethod,
     IsAncestorOfMethod,
+    MashClass.alias("isMergedInto", IsAncestorOfMethod),
     PushMethod,
     SetCommitMethod,
     SwitchMethod,

@@ -43,6 +43,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     DeleteMethod,
     FullNameMethod,
     IsAncestorOfMethod,
+    MashClass.alias("isMergedInto", IsAncestorOfMethod),
     LogMethod,
     ToStringMethod)
 

@@ -13,7 +13,7 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.branch.CreateFunction
-import com.github.mdr.mash.ns.git.branch.LocalBranchClass
+import com.github.mdr.mash.ns.git.branch.BranchClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
 import com.github.mdr.mash.ns.git.branch.SwitchFunction
 import com.github.mdr.mash.runtime.MashBoolean
@@ -42,7 +42,7 @@ object MergeFunction extends MashFunction("git.merge") {
   def validateCommit(boundParams: BoundParams, param: Parameter): ObjectId = {
     val commit = boundParams(param) match {
       case MashString(s, _) ⇒ s
-      case obj @ MashObject(_, Some(LocalBranchClass)) ⇒ LocalBranchClass.Wrapper(obj).name.s
+      case obj @ MashObject(_, Some(BranchClass)) ⇒ BranchClass.Wrapper(obj).name.s
       case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
       case obj @ MashObject(_, Some(CommitClass)) ⇒ CommitClass.Wrapper(obj).hash.s
       case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a name of a commit")

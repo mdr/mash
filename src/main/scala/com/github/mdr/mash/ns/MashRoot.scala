@@ -155,7 +155,7 @@ object MashRoot {
     CommitHashClass,
     IdentityClass,
     FetchBranchUpdateClass,
-    LocalBranchClass,
+    BranchClass,
     LocalBranchNameClass,
     RemoteBranchClass,
     RemoteBranchNameClass,

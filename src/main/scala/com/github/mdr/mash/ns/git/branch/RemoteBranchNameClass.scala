@@ -1,21 +1,22 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.ns.git.MemberLifter
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.git.GitHelper
+import scala.collection.JavaConverters.asScalaBufferConverter
+
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
-import scala.collection.JavaConverters._
+
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.ns.git.MemberLifter
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashValue
 
 object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 
@@ -26,6 +27,7 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
     lifter.liftField(RemoteBranchClass.Fields.Name),
     lifter.liftField(RemoteBranchClass.Fields.Commit),
     lifter.liftMethod(RemoteBranchClass.IsAncestorOfMethod),
+    MashClass.alias("isMergedInto", lifter.liftMethod(RemoteBranchClass.IsAncestorOfMethod)),
     lifter.liftMethod(RemoteBranchClass.LogMethod),
     InfoMethod)
 
@@ -48,7 +50,7 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
       getBranchInfo(branchName)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(LocalBranchClass)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
     override def summary = "Get information about the local branch with this name"
 
