@@ -76,5 +76,5 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
   }
 
   def immutableFields: ListMap[String, MashValue] = ListMap(fields.toSeq: _*)
-
+  
 }

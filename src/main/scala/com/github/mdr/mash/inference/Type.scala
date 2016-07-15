@@ -28,6 +28,7 @@ object Type {
   case class Object(knownFields: Map[String, Type]) extends Type
   case class DefinedFunction(f: MashFunction) extends Type
   case class BoundMethod(receiver: Type, method: MashMethod) extends Type
+
   case class Lambda(parameters: collection.Seq[String], body: Expr, bindings: Map[String, Type]) extends Type {
     override def toString = s"Lambda(${parameters.mkString(", ")}, $body)"
   }
