@@ -567,4 +567,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
      |  1
      |a + b""" shouldEvaluateTo ("3")
 
+  // Default arguments
+  "def foo (x = 42) = x + 1; foo" shouldEvaluateTo "43"
+  "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo "101"
+     
 }

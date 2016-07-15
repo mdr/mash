@@ -133,9 +133,16 @@ object Evaluator extends EvaluatorHelper {
     MashUnit
   }
 
+  private def makeParameter(param: FunctionParam)(implicit context: EvaluationContext): Parameter = {
+    val defaultValueGeneratorOpt = condOpt(param) {
+      case ParenParam(DefaultParam(name, defaultExpr, _), _) ⇒ () ⇒ evaluate(defaultExpr)
+    }
+    Parameter(param.name, s"Parameter '${param.name}'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
+      isVariadic = param.isVariadic)
+  }
+
   private def parameterModel(paramList: ParamList)(implicit context: EvaluationContext): ParameterModel = {
-    val parameters: Seq[Parameter] = paramList.params.map(param ⇒
-      Parameter(param.name, s"Parameter '${param.name}'", isVariadic = param.isVariadic))
+    val parameters: Seq[Parameter] = paramList.params.map(makeParameter)
     verifyParameters(paramList)
     ParameterModel(parameters)
   }

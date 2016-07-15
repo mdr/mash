@@ -218,7 +218,7 @@ object ConcreteSyntax {
   case class ParenParam(lparen: Token, param: FunctionParam, rparen: Token) extends FunctionParam {
     lazy val tokens = (lparen +: param.tokens) :+ rparen
   }
-  
+
   case class SimpleParam(name: Token) extends FunctionParam {
     lazy val tokens = Seq(name)
   }
@@ -227,10 +227,14 @@ object ConcreteSyntax {
     lazy val tokens = Seq(name, ellipsis)
   }
 
+  case class DefaultParam(name: Token, equals: Token, defaultExpr: Expr) extends FunctionParam {
+    lazy val tokens = Seq(name, equals) ++ defaultExpr.tokens
+  }
+
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {
     lazy val tokens = params.flatMap(_.tokens)
   }
-  
+
   case class FunctionDeclaration(defToken: Token, name: Token, params: ParamList, equals: Token, body: Expr) extends Expr {
     lazy val tokens = Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
   }

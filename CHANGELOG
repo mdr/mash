@@ -9,6 +9,7 @@ v0.0.4 (..)
 * Add Object.withField and .get method
 * Add function names to stack trace items
 * Infer semicolons
+* Function parameters can have defaults: "def f n (m = 100) = ..."
 
 v0.0.3 (6/July)
 ---------------

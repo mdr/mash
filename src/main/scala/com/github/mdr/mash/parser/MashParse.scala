@@ -581,6 +581,18 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
     } else if (LPAREN) {
       val lparen = nextToken()
       val param = parameter()
+      val actualParam =
+        param match {
+          case SimpleParam(name) ⇒
+            if (SHORT_EQUALS && param.isInstanceOf[SimpleParam]) {
+              val equals = nextToken()
+              val defaultExpr = expr()
+              DefaultParam(name, equals, defaultExpr)
+            } else
+              param
+          case _ ⇒
+            param
+        }
       val rparen =
         if (RPAREN)
           nextToken()
@@ -588,7 +600,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
           syntheticToken(RPAREN)
         else
           errorExpectedToken(")")
-      ParenParam(lparen, param, rparen)
+      ParenParam(lparen, actualParam, rparen)
     } else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else
