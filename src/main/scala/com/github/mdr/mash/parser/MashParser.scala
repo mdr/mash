@@ -29,13 +29,4 @@ object MashParser {
       parse.program()
   }
 
-  def parseExpr(s: String, forgiving: Boolean = true, mish: Boolean = false): Expr = {
-    val lexerResult = MashLexer.tokenise(s, forgiving = forgiving, mish = mish)
-    val parse = new MashParse(lexerResult, initialForgiving = forgiving)
-    if (mish)
-      parse.mishExpr()
-    else
-      parse.expr()
-  }
-
 }
