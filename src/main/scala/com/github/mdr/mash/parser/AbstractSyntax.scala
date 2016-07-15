@@ -92,6 +92,8 @@ object AbstractSyntax {
         this
       case SimpleParam(_, _) | VariadicParam(_, _) ⇒
         this
+      case ParenParam(param, sourceInfoOpt) =>
+        ParenParam(param.transform(f).asInstanceOf[FunctionParam], sourceInfoOpt)
       case Argument.PositionArg(expr, sourceInfoOpt) ⇒
         Argument.PositionArg(expr.transform(f), sourceInfoOpt)
       case Argument.ShortFlag(_, _) ⇒
@@ -303,6 +305,13 @@ object AbstractSyntax {
     def isVariadic: Boolean
   }
 
+  case class ParenParam(param: FunctionParam, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq(param)
+    val name = param.name
+    def isVariadic = param.isVariadic
+  }
+
   case class SimpleParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
@@ -316,13 +325,13 @@ object AbstractSyntax {
   }
 
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {
-    
+
     def children = params
 
     val sourceInfoOpt = None
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
-    
+
   }
 
   case class FunctionDeclaration(name: String, params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

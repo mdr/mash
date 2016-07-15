@@ -82,8 +82,9 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
-    case Concrete.SimpleParam(name)      ⇒ Abstract.SimpleParam(name.text, sourceInfo(param))
-    case Concrete.VariadicParam(name, _) ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
+    case Concrete.SimpleParam(name)            ⇒ Abstract.SimpleParam(name.text, sourceInfo(param))
+    case Concrete.VariadicParam(name, _)       ⇒ Abstract.VariadicParam(name.text, sourceInfo(param))
+    case Concrete.ParenParam(_, childParam, _) ⇒ Abstract.ParenParam(abstractifyParam(childParam), sourceInfo(param))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {

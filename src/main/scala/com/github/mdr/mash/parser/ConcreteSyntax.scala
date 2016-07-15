@@ -215,6 +215,10 @@ object ConcreteSyntax {
 
   sealed trait FunctionParam extends AstNode
 
+  case class ParenParam(lparen: Token, param: FunctionParam, rparen: Token) extends FunctionParam {
+    lazy val tokens = (lparen +: param.tokens) :+ rparen
+  }
+  
   case class SimpleParam(name: Token) extends FunctionParam {
     lazy val tokens = Seq(name)
   }

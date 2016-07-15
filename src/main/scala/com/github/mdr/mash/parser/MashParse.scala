@@ -509,7 +509,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
       else if (forgiving)
         syntheticToken(COLON)
       else
-        throw errorExpectedToken(":")
+        errorExpectedToken(":")
     val expr = pipeExpr()
     ObjectEntry(label, colon, expr)
   }
@@ -564,17 +564,34 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
 
   private def paramList(): ParamList = {
     val params = ArrayBuffer[FunctionParam]()
-    safeWhile(IDENTIFIER) {
-      val ident = nextToken()
-      val param =
-        if (ELLIPSIS) {
-          val ellipsis = nextToken()
-          VariadicParam(ident, ellipsis)
-        } else
-          SimpleParam(ident)
-      params += param
+    safeWhile(IDENTIFIER || LPAREN) {
+      params += parameter()
     }
     ParamList(params)
   }
+
+  private def parameter(): FunctionParam =
+    if (IDENTIFIER) {
+      val ident = nextToken()
+      if (ELLIPSIS) {
+        val ellipsis = nextToken()
+        VariadicParam(ident, ellipsis)
+      } else
+        SimpleParam(ident)
+    } else if (LPAREN) {
+      val lparen = nextToken()
+      val param = parameter()
+      val rparen =
+        if (RPAREN)
+          nextToken()
+        else if (forgiving)
+          syntheticToken(RPAREN)
+        else
+          errorExpectedToken(")")
+      ParenParam(lparen, param, rparen)
+    } else if (forgiving)
+      SimpleParam(syntheticToken(IDENTIFIER))
+    else
+      errorExpectedToken("identifier")
 
 }
