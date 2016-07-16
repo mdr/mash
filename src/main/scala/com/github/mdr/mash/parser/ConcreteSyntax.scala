@@ -207,7 +207,7 @@ object ConcreteSyntax {
   }
 
   /**
-   * Mish expression inside of the form !{ ... }
+   * Mish expression inside Mash, of the form !{ ... }
    */
   case class MishInterpolationExpr(start: Token, expr: MishExpr, rbrace: Token) extends Expr {
     lazy val tokens = (start +: expr.tokens) :+ rbrace

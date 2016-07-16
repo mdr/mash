@@ -11,7 +11,10 @@ import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.lexer.LexerResult
 
-class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Parse(lexerResult, initialForgiving) {
+class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
+    extends Parse(lexerResult, initialForgiving)
+    with InterpolatedStringParse 
+    with ObjectParse {
 
   import ConcreteSyntax._
   import TokenType._
@@ -55,7 +58,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
     else
       pipeExpr()
 
-  private def pipeExpr(): Expr = {
+  protected def pipeExpr(): Expr = {
     val expr = lambdaExpr(mayContainPipe = true)
     pipeExpr_(expr)
   }
@@ -146,7 +149,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
       expr
   }
 
-  private def continueChaining(op: Token) = cond(op.tokenType) {
+  private def continueChaining(op: Token): Boolean = cond(op.tokenType) {
     case LESS_THAN | LESS_THAN_EQUALS       ⇒ LESS_THAN || LESS_THAN_EQUALS
     case GREATER_THAN | GREATER_THAN_EQUALS ⇒ GREATER_THAN || GREATER_THAN_EQUALS
   }
@@ -242,25 +245,24 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
           syntheticToken(IDENTIFIER, dotToken)
         else
           errorExpectedToken("identifier")
-      val expr: Expr = HeadlessMemberExpr(dotToken, identifier)
-      suffixExpr_(expr)
+      continueSuffixExpr(HeadlessMemberExpr(dotToken, identifier))
     } else
       suffixExpr()
 
   private def suffixExpr(): Expr = {
     val expr = primaryExpr()
-    suffixExpr_(expr)
+    continueSuffixExpr(expr)
   }
 
-  private def suffixExpr_(previousExpr: Expr): Expr =
+  private def continueSuffixExpr(previousExpr: Expr): Expr =
     if (DOT || DOT_NULL_SAFE)
-      suffixExpr_(memberExpr(previousExpr))
+      continueSuffixExpr(memberExpr(previousExpr))
     else if (LSQUARE_LOOKUP)
-      suffixExpr_(lookupExpr(previousExpr))
+      continueSuffixExpr(lookupExpr(previousExpr))
     else if (LPAREN_INVOKE)
-      suffixExpr_(parenInvocationExpr(previousExpr))
+      continueSuffixExpr(parenInvocationExpr(previousExpr))
     else if (QUESTION)
-      suffixExpr_(helpExpr(previousExpr))
+      continueSuffixExpr(helpExpr(previousExpr))
     else
       previousExpr
 
@@ -318,66 +320,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
           errorExpectedToken(")")
       ParenInvocationExpr(previousExpr, lparen, Some(ParenInvocationArgs(firstArg, args)), rparen)
     }
-  }
-
-  private def complexInterpolation(): ComplexInterpolation = {
-    val interpolationStart = nextToken()
-    val interpolatedExpr = pipeExpr()
-    val rbrace =
-      if (RBRACE)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RBRACE, expr.tokens.last)
-      else
-        errorExpectedToken("}")
-    ComplexInterpolation(interpolationStart, interpolatedExpr, rbrace)
-  }
-
-  private def simpleInterpolation(): SimpleInterpolation = {
-    val start = nextToken()
-    var expr: Expr =
-      if (HOLE)
-        Hole(nextToken())
-      else if (IDENTIFIER)
-        Identifier(nextToken())
-      else
-        errorExpectedToken("identifier or _") // shouldn't happen
-    safeWhile(DOT) {
-      val dot = nextToken()
-      val ident =
-        if (IDENTIFIER)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(IDENTIFIER, dot)
-        else
-          errorExpectedToken("identifier")
-      expr = MemberExpr(expr, dot, ident)
-    }
-    SimpleInterpolation(start, expr)
-  }
-
-  private def interpolationPart(): InterpolationPart =
-    if (STRING_MIDDLE)
-      StringPart(nextToken())
-    else if (STRING_INTERPOLATION_START_COMPLEX)
-      complexInterpolation()
-    else
-      simpleInterpolation()
-
-  private def interpolatedString(): InterpolatedString = {
-    val stringStart = nextToken()
-    val parts = ArrayBuffer[InterpolationPart]()
-    safeWhile(STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE) {
-      parts += interpolationPart()
-    }
-    val end =
-      if (STRING_END)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(STRING_END)
-      else
-        errorExpectedToken("end of string")
-    InterpolatedString(stringStart, parts, end)
   }
 
   private def primaryExpr(): Expr =
@@ -463,7 +405,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
       if (RPAREN)
         nextToken()
       else if (forgiving)
-        syntheticToken(RPAREN, expr.tokens.lastOption.getOrElse(lparen))
+        syntheticToken(RPAREN, expr.tokens.lastOption getOrElse lparen)
       else
         errorExpectedToken(")")
     ParenExpr(lparen, expr, rparen)
@@ -492,52 +434,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean) extends Par
         } else
           errorExpectedToken("]")
       ListExpr(lsquare, Some(ListExprContents(firstItem, items)), rsquare)
-    }
-  }
-
-  private def objectEntry(): ObjectEntry = {
-    val label =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER)
-      else
-        errorExpectedToken("identifier")
-    val colon =
-      if (COLON)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(COLON)
-      else
-        errorExpectedToken(":")
-    val expr = pipeExpr()
-    ObjectEntry(label, colon, expr)
-  }
-
-  private def objectExpr(): Expr = {
-    val lbrace = nextToken()
-    if (RBRACE) {
-      val rbrace = nextToken()
-      ObjectExpr(lbrace, None, rbrace)
-    } else {
-      val firstEntry = objectEntry()
-      val entries = ArrayBuffer[(Token, ObjectEntry)]()
-      var continue = true
-      safeWhile(COMMA) {
-        val comma = nextToken()
-        val entry = objectEntry()
-        entries += (comma -> entry)
-      }
-      val rbrace =
-        if (RBRACE)
-          nextToken()
-        else if (forgiving) {
-          val lastExpr = (firstEntry +: entries.map(_._2)).last
-          val lastToken = lastExpr.tokens.last
-          syntheticToken(RBRACE, lastToken)
-        } else
-          errorExpectedToken("}")
-      ObjectExpr(lbrace, Some(ObjectExprContents(firstEntry, entries)), rbrace)
     }
   }
 
