@@ -4,50 +4,24 @@ import scala.PartialFunction.cond
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
-import com.github.mdr.mash.lexer.MashLexer
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.parser.ConcreteSyntax._
-import com.github.mdr.mash.utils.PointedRegion
+
 import com.github.mdr.mash.lexer.LexerResult
+import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.parser.ConcreteSyntax._
 
 class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     extends Parse(lexerResult, initialForgiving)
     with InterpolatedStringParse 
-    with ObjectParse {
-
-  import ConcreteSyntax._
-  import TokenType._
+    with ObjectParse 
+    with MishParse 
+    with FunctionParse {
 
   def program(): Expr = {
     val result = statementSeq()
     if (!EOF && !forgiving)
       errorExpectedToken("end of input")
     result
-  }
-
-  def mishExpr(): MishExpr = {
-    val command = mishItem()
-    val args = ArrayBuffer[MishItem]()
-    safeWhile(MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX) {
-      args += mishItem()
-    }
-    MishExpr(command, args)
-  }
-
-  private def mishItem(): MishItem = {
-    if (MISH_WORD)
-      MishWord(nextToken())
-    else if (STRING_LITERAL)
-      MishString(Literal(nextToken()))
-    else if (STRING_START)
-      MishString(interpolatedString())
-    else if (STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX)
-      MishInterpolation(interpolationPart())
-    else if (forgiving)
-      MishWord(syntheticToken(MISH_WORD))
-    else
-      unexpectedToken()
   }
 
   def expr(): Expr = statementExpr()
@@ -72,29 +46,8 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     } else
       previousExpr
 
-  case class LambdaStart(paramList: ParamList, arrow: Token)
 
-  private def lambdaStart(): LambdaStart = {
-    val params = paramList()
-    val arrow =
-      if (RIGHT_ARROW)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RIGHT_ARROW)
-      else
-        errorExpectedToken("=>")
-    LambdaStart(params, arrow)
-  }
-
-  private def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
-    case Some(LambdaStart(params, arrow)) ⇒
-      val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(params, arrow, body)
-    case None ⇒
-      assignmentExpr()
-  }
-
-  private def assignmentExpr(): Expr = {
+  protected def assignmentExpr(): Expr = {
     val left = ifExpr()
     if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
       val equals = nextToken()
@@ -385,19 +338,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     BlockExpr(lbrace, statements, rbrace)
   }
 
-  private def mishInterpolation(): MishInterpolationExpr = {
-    val start = nextToken()
-    val expr = mishExpr()
-    val rbrace =
-      if (RBRACE)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RBRACE, expr.tokens.last)
-      else
-        errorExpectedToken("}")
-    MishInterpolationExpr(start, expr, rbrace)
-  }
-
   private def parenExpr(): Expr = {
     val lparen = nextToken()
     val expr = statementSeq()
@@ -436,70 +376,5 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       ListExpr(lsquare, Some(ListExprContents(firstItem, items)), rsquare)
     }
   }
-
-  private def functionDeclaration(): FunctionDeclaration = {
-    val defToken = nextToken()
-    val name =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER, defToken)
-      else
-        errorExpectedToken("identifier")
-    val params = paramList()
-    val equals =
-      if (SHORT_EQUALS)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(SHORT_EQUALS, params.params.lastOption.map(_.tokens.last).getOrElse(name))
-      else
-        errorExpectedToken("=")
-    val body = pipeExpr()
-    FunctionDeclaration(defToken, name, params, equals, body)
-  }
-
-  private def paramList(): ParamList = {
-    val params = ArrayBuffer[FunctionParam]()
-    safeWhile(IDENTIFIER || LPAREN) {
-      params += parameter()
-    }
-    ParamList(params)
-  }
-
-  private def parameter(): FunctionParam =
-    if (IDENTIFIER) {
-      val ident = nextToken()
-      if (ELLIPSIS) {
-        val ellipsis = nextToken()
-        VariadicParam(ident, ellipsis)
-      } else
-        SimpleParam(ident)
-    } else if (LPAREN) {
-      val lparen = nextToken()
-      val param = parameter()
-      val actualParam =
-        param match {
-          case SimpleParam(name) ⇒
-            if (SHORT_EQUALS && param.isInstanceOf[SimpleParam]) {
-              val equals = nextToken()
-              val defaultExpr = expr()
-              DefaultParam(name, equals, defaultExpr)
-            } else
-              param
-          case _ ⇒
-            param
-        }
-      val rparen =
-        if (RPAREN)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(RPAREN)
-        else
-          errorExpectedToken(")")
-      ParenParam(lparen, actualParam, rparen)
-    } else if (forgiving)
-      SimpleParam(syntheticToken(IDENTIFIER))
-    else
-      errorExpectedToken("identifier")
 
 }
