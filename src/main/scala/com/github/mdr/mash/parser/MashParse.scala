@@ -15,7 +15,8 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     with InterpolatedStringParse 
     with ObjectParse 
     with MishParse 
-    with FunctionParse {
+    with FunctionParse
+    with InvocationParse {
 
   def program(): Expr = {
     val result = statementSeq()
@@ -145,46 +146,8 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     }
     expr
   }
-
-  private def invocationExpr(): Expr = {
-    val expr = prefixExpr()
-    val args = ListBuffer[AstNode]()
-    safeWhile(!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
-      LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
-      RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS
-      || DIVIDE_EQUALS || TILDE || DEF || STRING_END || ALIAS || ELLIPSIS)) {
-      args += arg()
-    }
-    if (args.isEmpty)
-      expr
-    else
-      InvocationExpr(expr, args)
-  }
-
-  private def longArg(): AstNode = {
-    val flagToken = nextToken()
-    if (SHORT_EQUALS) {
-      val equalsToken = nextToken()
-      val flagValue = prefixExpr()
-      LongArg(flagToken, Some(equalsToken, flagValue))
-    } else
-      LongArg(flagToken)
-  }
-
-  private def shortArg(): AstNode = {
-    val flagToken = nextToken()
-    ShortArg(flagToken)
-  }
-
-  private def arg(): AstNode =
-    if (SHORT_FLAG)
-      shortArg()
-    else if (LONG_FLAG)
-      longArg()
-    else
-      prefixExpr()
-
-  private def prefixExpr(): Expr =
+  
+  protected def prefixExpr(): Expr =
     if (MINUS) {
       val minus = nextToken()
       val expr = prefixExpr()
@@ -247,32 +210,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       else
         errorExpectedToken("]")
     LookupExpr(previousExpr, lsquare, indexExpr, rsquare)
-  }
-
-  private def parenInvocationExpr(previousExpr: Expr): ParenInvocationExpr = {
-    val lparen = nextToken()
-    if (RPAREN) {
-      val rparen = nextToken()
-      ParenInvocationExpr(previousExpr, lparen, None, rparen)
-    } else {
-      val firstArg = pipeExpr()
-      val args = ArrayBuffer[(Token, Expr)]()
-      safeWhile(COMMA) {
-        val comma = nextToken()
-        val arg = pipeExpr()
-        args += (comma -> arg)
-      }
-      val rparen =
-        if (RPAREN)
-          nextToken()
-        else if (forgiving) {
-          val lastExpr = (firstArg +: args.map(_._2)).last
-          val lastToken = lastExpr.tokens.last
-          syntheticToken(RPAREN, lastToken)
-        } else
-          errorExpectedToken(")")
-      ParenInvocationExpr(previousExpr, lparen, Some(ParenInvocationArgs(firstArg, args)), rparen)
-    }
   }
 
   private def primaryExpr(): Expr =
