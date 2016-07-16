@@ -52,7 +52,7 @@ trait FunctionParse { self: MashParse ⇒
           case SimpleParam(name) ⇒
             if (SHORT_EQUALS && param.isInstanceOf[SimpleParam]) {
               val equals = nextToken()
-              val defaultExpr = expr()
+              val defaultExpr = pipeExpr()
               DefaultParam(name, equals, defaultExpr)
             } else
               param

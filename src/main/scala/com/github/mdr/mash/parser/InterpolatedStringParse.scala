@@ -61,7 +61,7 @@ trait InterpolatedStringParse { self: MashParse ⇒
       if (RBRACE)
         nextToken()
       else if (forgiving)
-        syntheticToken(RBRACE, expr.tokens.last)
+        syntheticToken(RBRACE, interpolatedExpr.tokens.last)
       else
         errorExpectedToken("}")
     ComplexInterpolation(interpolationStart, interpolatedExpr, rbrace)

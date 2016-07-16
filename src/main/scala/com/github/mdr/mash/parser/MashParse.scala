@@ -25,8 +25,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     result
   }
 
-  def expr(): Expr = statementExpr()
-
   private def statementExpr(): Expr =
     if (DEF)
       functionDeclaration()
@@ -46,7 +44,6 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       pipeExpr_(pipeExpr)
     } else
       previousExpr
-
 
   protected def assignmentExpr(): Expr = {
     val left = ifExpr()
