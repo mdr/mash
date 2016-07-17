@@ -574,5 +574,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // holes
   "def baz = 128 + _; (baz) 72" shouldEvaluateTo "200"
   "def foo (x = _) = 42; foo" shouldEvaluateTo "42"
-
+  "((x = _) => 42) | x => x" shouldEvaluateTo "42"
 }

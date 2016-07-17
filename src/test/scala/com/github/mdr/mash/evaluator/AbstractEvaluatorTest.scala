@@ -23,7 +23,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
     private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
       val settings = CompilationSettings(bareWords = config.bareWords)
       Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {
-        case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed")
+        case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed: " + message)
         case Right(expr)                  ⇒ expr
       }
     }
