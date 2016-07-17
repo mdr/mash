@@ -570,5 +570,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo "43"
   "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo "101"
-     
+    
+  // holes
+  "def baz = 128 + _; (baz) 72" shouldEvaluateTo "200"
+  
 }
