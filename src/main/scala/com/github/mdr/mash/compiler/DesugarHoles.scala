@@ -125,11 +125,19 @@ object DesugarHoles {
       }
       for (newPart ← newPartResult)
         yield MishInterpolation(newPart, sourceInfoOpt)
-    case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-      Result(FunctionDeclaration(name, params, addLambdaIfNeeded(body), sourceInfoOpt))
+    case FunctionDeclaration(name, ParamList(params), body, sourceInfoOpt) ⇒
+      val newParams = params.map(desugarHoles)
+      val newBody = addLambdaIfNeeded(body)
+      Result(FunctionDeclaration(name, ParamList(newParams), newBody, sourceInfoOpt))
     case HelpExpr(expr, sourceInfoOpt) ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)
+  }
+
+  private def desugarHoles(param: FunctionParam): FunctionParam = param match {
+    case DefaultParam(name, defaultExpr, sourceInfoOpt) ⇒ DefaultParam(name, addLambdaIfNeeded(defaultExpr), sourceInfoOpt)
+    case ParenParam(childParam, sourceInfoOpt) ⇒ ParenParam(desugarHoles(childParam), sourceInfoOpt)
+    case param ⇒ param
   }
 
   /**

@@ -333,7 +333,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " 'foo'.matches '^fo?.$' " shouldEvaluateTo "true"
   " 'foo 666 bar'.matches 666 " shouldEvaluateTo "true"
   " 'bar'.matches 666 " shouldEvaluateTo "false"
-  
+
   // startsWith
   " 'foo'.startsWith 'f' " shouldEvaluateTo "true"
   " 'foo'.startsWith 'o' " shouldEvaluateTo "false"
@@ -350,13 +350,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3].toString" shouldEvaluateTo "'[1, 2, 3]'"
   """ "foo".toString.tag """ shouldEvaluateTo """ "foo".tag """
   "{ foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
-  
+
   // split
   "'foo bar baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo  bar     baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:baz'.split ':'" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:'.split ':'" shouldEvaluateTo "['foo', 'bar', '']"
-  
+
   // String concat
   " 'foo' + 42 " shouldEvaluateTo " 'foo42' "
   " 42 + 'foo' " shouldEvaluateTo " '42foo' "
@@ -434,7 +434,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def square n = n * n; square --n=8" shouldEvaluateTo "64"
   "def add a b = a + b; add 1 2" shouldEvaluateTo "3"
   "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" shouldEvaluateTo "'OOF'"
-  
+
   // varargs
   "def mkList n... = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
@@ -486,7 +486,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Block expressions
   "{ a = 0; a = a + 1; a }" shouldEvaluateTo "1"
   "{ a = 42 }; a" shouldThrowAnException
-  
+
   // Holes in paren invocation args
   "[{foo: 42}].map(_.foo)" shouldEvaluateTo "[42]"
 
@@ -533,20 +533,20 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "42.isA Number" shouldEvaluateTo "true"
   "42.isA String" shouldEvaluateTo "false"
   "3.days.isA 3.days.tag" shouldEvaluateTo "true"
- 
+
   // Lambdas with multiple parameters
   "(x y => x * y) 2 3" shouldEvaluateTo "6"
   "f = => 42; f" shouldEvaluateTo "42"
- 
+
   // lambdas with varargs
   "(x... => x.sum) 1 2 3" shouldEvaluateTo "6"
-  
+
   // reduce
   "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo "120"
   "[1] | reduce (x y => x * y)" shouldEvaluateTo "1"
   "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo "1200"
   "[] | reduce (x y => x * y) 10" shouldEvaluateTo "10"
- 
+
   // Object.withField
   "{}.withField 'foo' 42" shouldEvaluateTo "{ foo: 42 }"
   "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo "{ foo: 42, bar: 256 }"
@@ -556,7 +556,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42 }.get 'foo'" shouldEvaluateTo "42"
   "{}.get 'nope'" shouldEvaluateTo "null"
   "{}.get 'nope' --default=42" shouldEvaluateTo "42"
-  
+
   // Semicolon inference
   """|a = 1
      |b = a + 1
@@ -570,8 +570,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo "43"
   "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo "101"
-    
+
   // holes
   "def baz = 128 + _; (baz) 72" shouldEvaluateTo "200"
-  
+  "def foo (x = _) = 42; foo" shouldEvaluateTo "42"
+
 }
