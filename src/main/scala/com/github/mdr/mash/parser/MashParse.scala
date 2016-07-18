@@ -33,15 +33,15 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
 
   protected def pipeExpr(): Expr = {
     val expr = lambdaExpr(mayContainPipe = true)
-    pipeExpr_(expr)
+    continuePipeExpr(expr)
   }
 
-  private def pipeExpr_(previousExpr: Expr): Expr =
+  private def continuePipeExpr(previousExpr: Expr): Expr =
     if (PIPE) {
       val pipeToken = nextToken()
       val right = lambdaExpr(mayContainPipe = false)
       val pipeExpr = PipeExpr(previousExpr, pipeToken, right)
-      pipeExpr_(pipeExpr)
+      continuePipeExpr(pipeExpr)
     } else
       previousExpr
 
