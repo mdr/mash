@@ -60,11 +60,16 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
   }
 
   case class Wrapper(x: MashValue) {
-    val obj = x.asInstanceOf[MashObject]
-    def stdout = obj(Stdout).asInstanceOf[MashString].s
+
+    private val obj = x.asInstanceOf[MashObject]
+
+    def stdout: String = obj.fieldAs[MashString](Stdout).s
+
+    def started: Instant = obj.fieldAs[MashWrapped](Started).x.asInstanceOf[Instant]
+
+    def finished: Instant = obj.fieldAs[MashWrapped](Finished).asInstanceOf[Instant]
+
     def line: String = stdout.split("\n").headOption.getOrElse("")
-    def started = obj(Started).asInstanceOf[MashWrapped].x.asInstanceOf[Instant]
-    def finished = obj(Finished).asInstanceOf[MashWrapped].x.asInstanceOf[Instant]
   }
 
   object LinesMethod extends MashMethod("lines") {

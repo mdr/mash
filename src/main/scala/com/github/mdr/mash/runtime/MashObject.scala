@@ -8,6 +8,7 @@ import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
+import scala.reflect.ClassTag
 
 trait ViewableAsFields {
   def fields: LinkedHashMap[String, MashValue]
@@ -76,5 +77,13 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
   }
 
   def immutableFields: ListMap[String, MashValue] = ListMap(fields.toSeq: _*)
-  
+
+  def fieldAs[T: ClassTag](field: Field): T = {
+    val klass = implicitly[ClassTag[T]].runtimeClass
+    val value = this(field)
+    if (klass isInstance value)
+      value.asInstanceOf[T]
+    else
+      throw new EvaluatorException("Field has unexpected type " + value.typeName)
+  }
 }
