@@ -72,9 +72,9 @@ trait FunctionParse { self: MashParse ⇒
     else
       errorExpectedToken("identifier")
 
-  private case class LambdaStart(paramList: ParamList, arrow: Token)
+  protected case class LambdaStart(paramList: ParamList, arrow: Token)
 
-  private def lambdaStart(): LambdaStart = {
+  protected def lambdaStart(): LambdaStart = {
     val params = paramList()
     val arrow =
       if (RIGHT_ARROW)
@@ -86,11 +86,19 @@ trait FunctionParse { self: MashParse ⇒
     LambdaStart(params, arrow)
   }
 
-  protected def lambdaExpr(mayContainPipe: Boolean = false): Expr = speculate(lambdaStart()) match {
-    case Some(LambdaStart(params, arrow)) ⇒
-      val body = if (mayContainPipe) pipeExpr() else lambdaExpr(mayContainPipe = false)
-      LambdaExpr(params, arrow, body)
-    case None ⇒
-      assignmentExpr()
+  protected def completeLambdaExpr(lambdaStart: LambdaStart, mayContainPipe: Boolean = false, mayContainStatementSeq: Boolean = false): Expr = {
+    val body =
+      if (mayContainStatementSeq) statementSeq()
+      else if (mayContainPipe) pipeExpr()
+      else lambdaExpr(mayContainStatementSeq = false, mayContainPipe = false)
+    LambdaExpr(lambdaStart.paramList, lambdaStart.arrow, body)
   }
+
+  protected def lambdaExpr(mayContainPipe: Boolean = false, mayContainStatementSeq: Boolean = false): Expr =
+    speculate(lambdaStart()) match {
+      case Some(lambdaStart) ⇒
+        completeLambdaExpr(lambdaStart, mayContainPipe = mayContainPipe, mayContainStatementSeq = mayContainStatementSeq)
+      case None ⇒
+        assignmentExpr()
+    }
 }

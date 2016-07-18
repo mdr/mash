@@ -578,5 +578,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   
   // Number.to
   "1.to 5" shouldEvaluateTo "[1, 2, 3, 4, 5]"
+ 
+  // Lambdas inside parens and blocks
+  "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo ("42")   
+  "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo ("42")   
   
 }

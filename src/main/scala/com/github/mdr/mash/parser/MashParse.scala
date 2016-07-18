@@ -12,9 +12,9 @@ import com.github.mdr.mash.parser.ConcreteSyntax._
 
 class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     extends Parse(lexerResult, initialForgiving)
-    with InterpolatedStringParse 
-    with ObjectParse 
-    with MishParse 
+    with InterpolatedStringParse
+    with ObjectParse
+    with MishParse
     with FunctionParse
     with InvocationParse {
 
@@ -143,7 +143,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     }
     expr
   }
-  
+
   protected def prefixExpr(): Expr =
     if (MINUS) {
       val minus = nextToken()
@@ -233,30 +233,33 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     else
       unexpectedToken()
 
-  private def statementSeq(): Expr = {
-    var statements = ArrayBuffer[Statement]()
-    var continue = true
-    safeWhile(continue) {
-      if (RBRACE || RPAREN || EOF)
-        continue = false
-      else if (SEMI) {
-        val semi = nextToken()
-        statements += Statement(statementOpt = None, Some(semi))
-      } else {
-        val statement = statementExpr()
-        if (SEMI) {
-          val semi = nextToken()
-          statements += Statement(Some(statement), Some(semi))
-        } else {
-          statements += Statement(Some(statement), semiOpt = None)
+  protected def statementSeq(): Expr = speculate(lambdaStart()) match {
+    case Some(start) ⇒ 
+      completeLambdaExpr(start, mayContainStatementSeq = true)
+    case None ⇒
+      var statements = ArrayBuffer[Statement]()
+      var continue = true
+      safeWhile(continue) {
+        if (RBRACE || RPAREN || EOF)
           continue = false
+        else if (SEMI) {
+          val semi = nextToken()
+          statements += Statement(statementOpt = None, Some(semi))
+        } else {
+          val statement = statementExpr()
+          if (SEMI) {
+            val semi = nextToken()
+            statements += Statement(Some(statement), Some(semi))
+          } else {
+            statements += Statement(Some(statement), semiOpt = None)
+            continue = false
+          }
         }
       }
-    }
-    statements match {
-      case Seq(Statement(Some(statement), None)) ⇒ statement
-      case _                                     ⇒ StatementSeq(statements)
-    }
+      statements match {
+        case Seq(Statement(Some(statement), None)) ⇒ statement
+        case _                                     ⇒ StatementSeq(statements)
+      }
   }
 
   private def blockExpr(): BlockExpr = {
