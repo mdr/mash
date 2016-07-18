@@ -90,12 +90,8 @@ object AbstractSyntax {
         ExprPart(expr.transform(f))
       case StringPart(_) ⇒
         this
-      case SimpleParam(_, _) | VariadicParam(_, _) ⇒
-        this
-      case DefaultParam(name, default, sourceInfoOpt) =>
-        DefaultParam(name, default.transform(f), sourceInfoOpt)
-      case ParenParam(param, sourceInfoOpt) ⇒
-        ParenParam(param.transform(f).asInstanceOf[FunctionParam], sourceInfoOpt)
+      case FunctionParam(name, isVariadic, defaultOpt, sourceInfoOpt) ⇒
+        FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), sourceInfoOpt)
       case Argument.PositionArg(expr, sourceInfoOpt) ⇒
         Argument.PositionArg(expr.transform(f), sourceInfoOpt)
       case Argument.ShortFlag(_, _) ⇒
@@ -302,36 +298,11 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  sealed trait FunctionParam extends AstNode {
-    val name: String
-    def isVariadic: Boolean
+  case class FunctionParam(name: String, isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = defaultExprOpt.toSeq
   }
 
-  case class ParenParam(param: FunctionParam, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(param)
-    val name = param.name
-    def isVariadic = param.isVariadic
-  }
-
-  case class SimpleParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq()
-    def isVariadic = false
-  }
-
-  case class VariadicParam(name: String, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq()
-    def isVariadic = true
-  }
-
-  case class DefaultParam(name: String, defaultExpr: Expr, sourceInfoOpt: Option[SourceInfo]) extends FunctionParam {
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(defaultExpr)
-    def isVariadic = false
-  }
-  
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {
 
     def children = params

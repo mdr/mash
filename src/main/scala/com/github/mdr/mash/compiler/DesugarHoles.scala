@@ -12,7 +12,7 @@ object DesugarHoles {
   private def addLambdaIfNeeded(expr: Expr): Expr = {
     val Result(newExpr, hasHole) = desugarHoles_(expr)
     if (hasHole) {
-      val params = ParamList(Seq(SimpleParam(VariableName, None)))
+      val params = ParamList(Seq(FunctionParam(VariableName)))
       LambdaExpr(params, newExpr, None)
     } else
       newExpr
@@ -21,7 +21,7 @@ object DesugarHoles {
   private def addLambdaIfNeeded(argument: Argument.PositionArg): Argument.PositionArg = {
     val Result(newArgument, hasHole) = desugarHoles_(argument)
     if (hasHole) {
-      val params = ParamList(Seq(SimpleParam(VariableName, None)))
+      val params = ParamList(Seq(FunctionParam(VariableName)))
       Argument.PositionArg(LambdaExpr(params, newArgument.expr, None), newArgument.sourceInfoOpt)
     } else
       newArgument
@@ -135,10 +135,9 @@ object DesugarHoles {
         yield HelpExpr(newExpr, sourceInfoOpt)
   }
 
-  private def desugarHoles(param: FunctionParam): FunctionParam = param match {
-    case DefaultParam(name, defaultExpr, sourceInfoOpt) ⇒ DefaultParam(name, addLambdaIfNeeded(defaultExpr), sourceInfoOpt)
-    case ParenParam(childParam, sourceInfoOpt) ⇒ ParenParam(desugarHoles(childParam), sourceInfoOpt)
-    case param ⇒ param
+  private def desugarHoles(param: FunctionParam): FunctionParam = {
+    val FunctionParam(name, isVariadic, defaultExprOpt, sourceInfoOpt) = param
+    FunctionParam(name, isVariadic, defaultExprOpt.map(addLambdaIfNeeded), sourceInfoOpt)
   }
 
   /**
