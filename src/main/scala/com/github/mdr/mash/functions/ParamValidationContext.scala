@@ -39,6 +39,16 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     val regularPosParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
     val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
 
+    handleExcessArguments(positionArgs, regularPosParams)
+
+    for ((param, arg) ← regularPosParams zip positionArgs) {
+      boundParams += param.name -> arg.value
+      for (argNode ← arg.argumentNodeOpt)
+        addArgumentNode(param.name, argNode)
+    }
+  }
+
+  private def handleExcessArguments(positionArgs: Seq[EvaluatedArgument.PositionArg], regularPosParams: Seq[Parameter]) =
     if (positionArgs.size > regularPosParams.size)
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
@@ -57,13 +67,6 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
             throw new ArgumentException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
           }
       }
-
-    for ((param, arg) ← regularPosParams zip positionArgs) {
-      boundParams += param.name -> arg.value
-      for (argNode ← arg.argumentNodeOpt)
-        addArgumentNode(param.name, argNode)
-    }
-  }
 
   private def handleFlagArgs() {
     for (argument ← arguments.evaluatedArguments)
