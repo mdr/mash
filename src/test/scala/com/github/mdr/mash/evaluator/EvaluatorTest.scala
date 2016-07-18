@@ -575,4 +575,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def baz = 128 + _; (baz) 72" shouldEvaluateTo "200"
   "def foo (x = _) = 42; foo" shouldEvaluateTo "42"
   "((x = _) => 42) | x => x" shouldEvaluateTo "42"
+  
+  // Number.to
+  "1.to 5" shouldEvaluateTo "[1, 2, 3, 4, 5]"
+  
 }

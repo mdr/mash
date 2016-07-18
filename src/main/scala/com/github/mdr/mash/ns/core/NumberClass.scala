@@ -8,6 +8,8 @@ import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.runtime.MashList
 
 object NumberClass extends MashClass("core.Number") {
 
@@ -27,6 +29,7 @@ object NumberClass extends MashClass("core.Number") {
     SecondsMethod,
     TagMethod,
     ToIntMethod,
+    ToMethod,
     UntaggedMethod,
     WeeksMethod,
     alias("day", DaysMethod),
@@ -36,6 +39,31 @@ object NumberClass extends MashClass("core.Number") {
     alias("month", MonthsMethod),
     alias("second", SecondsMethod),
     alias("week", WeeksMethod))
+
+  object ToMethod extends MashMethod("to") {
+
+    object Params {
+      val End = Parameter(
+        name = "end",
+        summary = "Final number in sequence")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(End))
+
+    def apply(target: MashValue, arguments: Arguments): MashList = {
+      val boundParams = params.validate(arguments)
+      val end = boundParams.validateInteger(End)
+      val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
+          throw new EvaluatorException("Can only call this method on an integer"))
+      MashList((start to end).map(MashNumber(_)))
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
+
+    override def summary = "Return a list of values from this number to the given end value (inclusive)"
+
+  }
 
   object ToIntMethod extends MashMethod("toInt") {
 

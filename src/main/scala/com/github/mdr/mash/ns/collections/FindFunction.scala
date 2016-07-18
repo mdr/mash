@@ -30,6 +30,9 @@ object FindFunction extends MashFunction("collections.find") {
     sequence.find(x ⇒ predicate(x).isTruthy).getOrElse(MashNull)
   }
 
+  override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
+    MapFunction.getCompletionSpecs(argPos, arguments)
+
   override def typeInferenceStrategy = FindTypeInferenceStrategy
 
   override def summary = "Find an element in the sequence for which a predicate holds"

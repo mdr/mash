@@ -294,6 +294,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
     """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
   }
+  
+  " [{ foo: true }] | find fo▶" shouldGiveCompletions ("foo")
+  
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,

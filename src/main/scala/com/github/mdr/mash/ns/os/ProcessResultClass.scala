@@ -24,6 +24,8 @@ import com.github.mdr.mash.ns.time.MillisecondsClass
 import java.time.Instant
 import java.time.Duration
 import com.github.mdr.mash.evaluator.AbstractToStringMethod
+import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.ns.core.BooleanClass
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
@@ -42,8 +44,10 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   override val methods = Seq(
     DurationMethod,
+    FailedMethod,
     LineMethod,
     LinesMethod,
+    SucceededMethod,
     ToNumberMethod,
     ToPathMethod,
     ToStringMethod)
@@ -67,11 +71,45 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     def started: Instant = obj.fieldAs[MashWrapped](Started).x.asInstanceOf[Instant]
 
-    def finished: Instant = obj.fieldAs[MashWrapped](Finished).asInstanceOf[Instant]
+    def finished: Instant = obj.fieldAs[MashWrapped](Finished).x.asInstanceOf[Instant]
 
     def line: String = stdout.split("\n").headOption.getOrElse("")
+    
+    def exitStatus: Int = obj.fieldAs[MashNumber](ExitStatus).asInt.get
   }
 
+  object SucceededMethod extends MashMethod("succeeded") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      params.validate(arguments)
+      MashBoolean(Wrapper(target).exitStatus == 0)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "True if the status had a zero exit code"
+
+  }
+  
+  
+  object FailedMethod extends MashMethod("failed") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      params.validate(arguments)
+      MashBoolean(Wrapper(target).exitStatus != 0)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "True if the status had a non-zero exit code"
+
+  }
+  
+  
   object LinesMethod extends MashMethod("lines") {
 
     val params = ParameterModel()
