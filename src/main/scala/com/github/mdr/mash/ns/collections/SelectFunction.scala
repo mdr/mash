@@ -14,6 +14,7 @@ import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.functions.ArgumentException
 
 /**
  * Select members of an object
@@ -43,16 +44,18 @@ object SelectFunction extends MashFunction("collections.select") {
     val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
-      case EvaluatedArgument.PositionArg(value, _) ⇒
+      case EvaluatedArgument.PositionArg(value, argumentNodeOpt) ⇒
         value match {
-          case MashString(s, _) ⇒ Some(s -> FunctionHelpers.interpretAsFunction(value))
-          case _                ⇒ throw new EvaluatorException("Positional arguments must be strings")
+          case MashString(s, _) ⇒
+            Some(s -> FunctionHelpers.interpretAsFunction(value))
+          case _ ⇒
+            throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
         }
-      case EvaluatedArgument.ShortFlag(flags, _) ⇒
+      case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt) ⇒
         if (flags == Seq(AddShortFlag.toString))
           None
         else
-          throw new EvaluatorException("Short flags not supported by select")
+          throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
       case EvaluatedArgument.LongFlag(flag, None, _) ⇒
         if (flag == Add.name)
           None
@@ -111,7 +114,7 @@ The arguments are interpreted as follows:
   2) A flag with no argument -- the input member with the same name as the flag is copied to an output field with
    the same name. 
   3) A flag with an argument -- the flag argument is applied as a function to the input object, and the result 
-  is copied to an output field with the flag name.
+    is copied to an output field with the flag name.
 
 The order of fields in the argument list is retained in the new output objects.
 
