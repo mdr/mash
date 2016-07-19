@@ -30,30 +30,36 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       if !arguments.isProvidedAsNamedArg(paramName)
     } {
       lastParameterConsumed = true
-      boundParams += paramName -> lastArg.value.resolve
+      boundParams += paramName -> resolve(lastParam, lastArg.value)
       for (argNode ← lastArg.argumentNodeOpt)
         addArgumentNode(paramName, argNode)
     }
 
   private def handlePositionalArgs() {
-    val regularPosParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
+    val regularParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
     val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
 
-    handleExcessArguments(positionArgs, regularPosParams)
+    handleExcessArguments(positionArgs, regularParams)
 
-    for ((param, arg) ← regularPosParams zip positionArgs) {
-      boundParams += param.name -> arg.value.resolve
+    for ((param, arg) ← regularParams zip positionArgs) {
+      boundParams += param.name -> resolve(param, arg.value)
       for (argNode ← arg.argumentNodeOpt)
         addArgumentNode(param.name, argNode)
     }
   }
 
-  private def handleExcessArguments(positionArgs: Seq[EvaluatedArgument.PositionArg], regularPosParams: Seq[Parameter]) =
-    if (positionArgs.size > regularPosParams.size)
+  private def resolve(param: Parameter, suspendedValue: SuspendedMashValue): MashValue =
+    if (param.isLazy)
+      SuspendedValueFunction(suspendedValue)
+    else
+      suspendedValue.resolve()
+
+  private def handleExcessArguments(positionArgs: Seq[EvaluatedArgument.PositionArg], regularParams: Seq[Parameter]) =
+    if (positionArgs.size > regularParams.size)
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
-          val varargs = positionArgs.drop(regularPosParams.size)
-          boundParams += variadicParam.name -> MashList(varargs.map(_.value.resolve))
+          val varargs = positionArgs.drop(regularParams.size)
+          boundParams += variadicParam.name -> MashList(varargs.map(_.value.resolve()))
           for {
             firstVararg ← varargs
             argNode ← firstVararg.argumentNodeOpt
@@ -77,7 +83,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case EvaluatedArgument.LongFlag(flag, None, argNodeOpt) ⇒
           bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
-          bindFlagParam(flag, argNodeOpt, value.resolve)
+          bindFlagParam(flag, argNodeOpt, value.resolve())
         case posArg: EvaluatedArgument.PositionArg ⇒
         // handled elsewhere
       }
@@ -114,5 +120,18 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           else
             throw new ArgumentException(s"Missing mandatory argument '${param.name}'")
       }
+
+}
+
+case class SuspendedValueFunction(suspendedValue: SuspendedMashValue) extends MashFunction(nameOpt = None) {
+
+  val params = ParameterModel()
+
+  def apply(arguments: Arguments): MashValue = {
+    params.validate(arguments)
+    suspendedValue.resolve()
+  }
+
+  override def summary = s"Lazily computed argument"
 
 }
