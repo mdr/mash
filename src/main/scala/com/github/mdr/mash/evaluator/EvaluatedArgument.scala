@@ -11,13 +11,17 @@ sealed trait EvaluatedArgument {
 
 }
 
+case class SuspendedMashValue(thunk: () => MashValue) {
+  def resolve(): MashValue = thunk()
+}
+
 object EvaluatedArgument {
 
-  case class PositionArg(value: MashValue, argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+  case class PositionArg(value: SuspendedMashValue, argumentNodeOpt: Option[Argument] = None) extends EvaluatedArgument {
     def isPositionArg = true
   }
 
-  case class LongFlag(flag: String, valueOpt: Option[MashValue], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+  case class LongFlag(flag: String, valueOpt: Option[SuspendedMashValue], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
     def isPositionArg = false
   }
 

@@ -12,7 +12,7 @@ case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
     case EvaluatedArgument.LongFlag(flag, None, _) ⇒ Seq(flag)
   }.flatten.toSet
 
-  def argValues: Map[String, MashValue] = evaluatedArguments.collect {
+  def argValues: Map[String, SuspendedMashValue] = evaluatedArguments.collect {
     case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒ flag -> value
   }.toMap
 

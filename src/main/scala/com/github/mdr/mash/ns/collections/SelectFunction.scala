@@ -44,10 +44,10 @@ object SelectFunction extends MashFunction("collections.select") {
     val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
-      case EvaluatedArgument.PositionArg(value, argumentNodeOpt) ⇒
-        value match {
-          case MashString(s, _) ⇒
-            Some(s -> FunctionHelpers.interpretAsFunction(value))
+      case EvaluatedArgument.PositionArg(suspendedValue, argumentNodeOpt) ⇒
+        suspendedValue.resolve() match {
+          case s: MashString ⇒
+            Some(s.s -> FunctionHelpers.interpretAsFunction(s))
           case _ ⇒
             throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
         }
@@ -62,7 +62,7 @@ object SelectFunction extends MashFunction("collections.select") {
         else
           Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
       case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒
-        Some(flag -> FunctionHelpers.interpretAsFunction(value))
+        Some(flag -> FunctionHelpers.interpretAsFunction(value.resolve()))
     }
     target match {
       case xs: MashList ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))

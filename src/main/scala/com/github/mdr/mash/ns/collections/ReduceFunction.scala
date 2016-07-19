@@ -16,6 +16,7 @@ import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.evaluator.SuspendedMashValue
 
 object ReduceFunction extends MashFunction("collections.reduce") {
 
@@ -47,7 +48,9 @@ object ReduceFunction extends MashFunction("collections.reduce") {
     val f = boundParams(Accumulator) match {
       case f: MashFunction ⇒
         (acc: MashValue, item: MashValue) ⇒ {
-          val args = Arguments(Seq(EvaluatedArgument.PositionArg(acc, None), EvaluatedArgument.PositionArg(item, None)))
+          val accArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ acc))
+          val itemArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ item))
+          val args = Arguments(Seq(accArg, itemArg))
           InvocationEvaluator.callFunction(f, args)
         }
         case x ⇒

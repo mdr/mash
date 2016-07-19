@@ -53,7 +53,11 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
   def validateFunction(param: Parameter): MashValue ⇒ MashValue =
     this(param) match {
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
-        (o ⇒ InvocationEvaluator.callFunction(f, Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))))
+        def runFunction(value: MashValue) = {
+          val arg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ value), None)
+          InvocationEvaluator.callFunction(f, Arguments(Seq(arg)))
+        }
+        runFunction
       case x ⇒
         val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
         throw new ArgumentException(message, locationOpt(param))

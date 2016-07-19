@@ -34,9 +34,12 @@ object FunctionHelpers {
 
   def asPathString(f: File) = MashString(f.toString, PathClass)
 
-  def interpretAsFunction(f: MashValue): (MashValue ⇒ MashValue) = o ⇒ {
-    val args = Arguments(Seq(EvaluatedArgument.PositionArg(o, None)))
-    InvocationEvaluator.callFunction(f, args)
+  def interpretAsFunction(f: MashValue): (MashValue ⇒ MashValue) = { // TODO: share code with BoundParams
+    def runFunction(value: MashValue) = {
+      val arg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ value), None)
+      InvocationEvaluator.callFunction(f, Arguments(Seq(arg)))
+    }
+    runFunction
   }
 
   def interpretAsSequence(x: MashValue): Seq[MashValue] = x match {

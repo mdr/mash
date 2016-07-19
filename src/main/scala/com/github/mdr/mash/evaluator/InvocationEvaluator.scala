@@ -29,11 +29,15 @@ object InvocationEvaluator extends EvaluatorHelper {
 
   private def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
     case Argument.PositionArg(expr, sourceInfoOpt) ⇒
-      EvaluatedArgument.PositionArg(Evaluator.evaluate(expr), Some(arg))
+      val suspendedValue = SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
+      EvaluatedArgument.PositionArg(suspendedValue, Some(arg))
     case Argument.ShortFlag(flags, sourceInfoOpt) ⇒
       EvaluatedArgument.ShortFlag(flags, Some(arg))
     case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
-      EvaluatedArgument.LongFlag(flag, valueOpt.map(v ⇒ Evaluator.evaluate(v)), Some(arg))
+      val suspendedValueOpt = valueOpt.map { expr ⇒
+        SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
+      }
+      EvaluatedArgument.LongFlag(flag, suspendedValueOpt, Some(arg))
   }
 
   private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr)(implicit context: EvaluationContext): MashValue =
@@ -70,14 +74,17 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(s"Cannot call a String with flag arguments", locationOpt)
       case None ⇒
         arguments.positionArgs match {
-          case Seq(EvaluatedArgument.PositionArg(xs: MashList, _)) ⇒
-            xs.map { target ⇒
-              val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-              Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
-            }
           case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
-            val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
+            target.resolve() match {
+              case xs: MashList ⇒
+                xs.map { target ⇒
+                  val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+                  Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
+                }
+              case v ⇒
+                val intermediateResult = MemberEvaluator.lookup(v, s, functionLocationOpt)
+                Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
+            }
           case Seq(_, second, _*) ⇒
             throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
         }

@@ -30,7 +30,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       if !arguments.isProvidedAsNamedArg(paramName)
     } {
       lastParameterConsumed = true
-      boundParams += paramName -> lastArg.value
+      boundParams += paramName -> lastArg.value.resolve
       for (argNode ← lastArg.argumentNodeOpt)
         addArgumentNode(paramName, argNode)
     }
@@ -42,7 +42,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     handleExcessArguments(positionArgs, regularPosParams)
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
-      boundParams += param.name -> arg.value
+      boundParams += param.name -> arg.value.resolve
       for (argNode ← arg.argumentNodeOpt)
         addArgumentNode(param.name, argNode)
     }
@@ -53,7 +53,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
           val varargs = positionArgs.drop(regularPosParams.size)
-          boundParams += variadicParam.name -> MashList(varargs.map(_.value))
+          boundParams += variadicParam.name -> MashList(varargs.map(_.value.resolve))
           for {
             firstVararg ← varargs
             argNode ← firstVararg.argumentNodeOpt
@@ -77,7 +77,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case EvaluatedArgument.LongFlag(flag, None, argNodeOpt) ⇒
           bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
-          bindFlagParam(flag, argNodeOpt, value)
+          bindFlagParam(flag, argNodeOpt, value.resolve)
         case posArg: EvaluatedArgument.PositionArg ⇒
         // handled elsewhere
       }
