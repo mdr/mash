@@ -214,11 +214,12 @@ object StringClass extends MashClass("core.String") {
           "\\s+"
         case MashString(separator, _) ⇒
           if (regex) separator else Pattern.quote(separator)
-        case _ ⇒
-          throw new EvaluatorException("Invalid separator")
+        case x ⇒
+          boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
       }
       val pieces = targetString.s.split(separator, -1)
-      MashList(pieces.map(piece ⇒ MashString(piece, targetString.tagClassOpt)))
+      def makePiece(s: String) = MashString(s, targetString.tagClassOpt)
+      MashList(pieces.map(makePiece))
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
@@ -249,8 +250,8 @@ object StringClass extends MashClass("core.String") {
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString]
-      val targetString = boundParams(Target).asInstanceOf[MashString].s
-      val replacement = boundParams(Replacement).asInstanceOf[MashString].s
+      val targetString = boundParams.validateString(Target).s
+      val replacement = boundParams.validateString(Replacement).s
       s.modify(_.replace(targetString, replacement))
     }
 
