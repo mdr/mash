@@ -13,6 +13,8 @@ v0.0.4 (..)
 * Add Number.in to specify ranges
 * Add ProcessResult.succeeded/.failed
 * Allow multi-statement lambdas immediately inside parens and blocks
+* Add lazy parameters, not evaluated until used within function body
+* Add Number.times to repeat a block
 
 v0.0.3 (6/July)
 ---------------

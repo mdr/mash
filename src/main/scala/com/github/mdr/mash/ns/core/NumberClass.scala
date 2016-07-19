@@ -5,11 +5,9 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.functions.MashFunction
 
 object NumberClass extends MashClass("core.Number") {
 
@@ -28,6 +26,7 @@ object NumberClass extends MashClass("core.Number") {
     NegateMethod,
     SecondsMethod,
     TagMethod,
+    TimesMethod,
     ToIntMethod,
     ToMethod,
     UntaggedMethod,
@@ -45,7 +44,7 @@ object NumberClass extends MashClass("core.Number") {
     object Params {
       val End = Parameter(
         name = "end",
-        summary = "Final number in sequence")
+        summary = "Final number in sequence (inclusive)")
     }
     import Params._
 
@@ -55,7 +54,7 @@ object NumberClass extends MashClass("core.Number") {
       val boundParams = params.validate(arguments)
       val end = boundParams.validateInteger(End)
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
-          throw new EvaluatorException("Can only call this method on an integer"))
+        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       MashList((start to end).map(MashNumber(_)))
     }
 
@@ -65,13 +64,41 @@ object NumberClass extends MashClass("core.Number") {
 
   }
 
+  object TimesMethod extends MashMethod("times") {
+
+    object Params {
+      val Block = Parameter(
+        name = "block",
+        summary = "Code to execute",
+        isLazy = true)
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Block))
+
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
+      val boundParams = params.validate(arguments)
+      val f = boundParams(Block).asInstanceOf[MashFunction]
+      val iterations = target.asInstanceOf[MashNumber].asInt.getOrElse(
+        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
+      for (n ← 1 to iterations)
+        f.apply(Arguments(Seq()))
+      MashUnit
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+
+    override def summary = "Run the given argument this amount of times"
+
+  }
+
   object ToIntMethod extends MashMethod("toInt") {
 
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
-      target.asInstanceOf[MashNumber].modify(n ⇒ n.toInt)
+      target.asInstanceOf[MashNumber].modify(_.toInt)
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {

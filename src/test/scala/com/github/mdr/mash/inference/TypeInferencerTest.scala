@@ -230,6 +230,12 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // Object.get
   "{ foo: 42 }.get 'foo'" shouldBeInferredAsHavingType NumberClass
 
+  // lazy parameters
+  "((lazy block) => block) 42" shouldBeInferredAsHavingType NumberClass 
+  
+  // Number.times
+  "5.times { print 'Hi' }" shouldBeInferredAsHavingType Unit
+  
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

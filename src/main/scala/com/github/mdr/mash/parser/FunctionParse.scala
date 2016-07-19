@@ -46,6 +46,7 @@ trait FunctionParse { self: MashParse ⇒
         SimpleParam(ident)
     } else if (LPAREN) {
       val lparen = nextToken()
+      val lazyOpt = if (LAZY) Some(nextToken()) else None
       val param = parameter()
       val actualParam =
         param match {
@@ -66,7 +67,7 @@ trait FunctionParse { self: MashParse ⇒
           syntheticToken(RPAREN)
         else
           errorExpectedToken(")")
-      ParenParam(lparen, actualParam, rparen)
+      ParenParam(lparen, lazyOpt, actualParam, rparen)
     } else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else

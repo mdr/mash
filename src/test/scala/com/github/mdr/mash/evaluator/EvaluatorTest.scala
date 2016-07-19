@@ -582,5 +582,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Lambdas inside parens and blocks
   "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo ("42")   
   "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo ("42")   
+ 
+  // Number.times
+  "a = [0]; 5.times { a[0] += 1 }; a[0]" shouldEvaluateTo "5"
   
+  // Lazy arguments
+  "a = [0]; def twice (lazy block) = { block; block }; twice { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
+  "a = [0]; ((lazy block) => { block; block }) { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
 }

@@ -19,6 +19,7 @@ object NormalMashLexer {
     "else" -> ELSE,
     "false" -> FALSE,
     "if" -> IF,
+    "lazy" -> LAZY,
     "null" -> NULL,
     "or" -> OR,
     "then" -> THEN,

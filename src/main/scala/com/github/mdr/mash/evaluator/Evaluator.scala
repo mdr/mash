@@ -134,10 +134,10 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def makeParameter(param: FunctionParam)(implicit context: EvaluationContext): Parameter = {
-    val FunctionParam(name, isVariadic, defaultExprOpt, sourceInfoOpt) = param
+    val FunctionParam(name, isVariadic, defaultExprOpt, isLazy, sourceInfoOpt) = param
     val defaultValueGeneratorOpt = defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr))
     Parameter(name, s"Parameter '${param.name}'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic)
+      isVariadic = isVariadic, isLazy = isLazy)
   }
 
   private def parameterModel(paramList: ParamList)(implicit context: EvaluationContext): ParameterModel = {

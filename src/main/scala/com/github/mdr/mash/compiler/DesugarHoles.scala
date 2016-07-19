@@ -135,10 +135,8 @@ object DesugarHoles {
         yield HelpExpr(newExpr, sourceInfoOpt)
   }
 
-  private def desugarHoles(param: FunctionParam): FunctionParam = {
-    val FunctionParam(name, isVariadic, defaultExprOpt, sourceInfoOpt) = param
-    FunctionParam(name, isVariadic, defaultExprOpt.map(addLambdaIfNeeded), sourceInfoOpt)
-  }
+  private def desugarHoles(param: FunctionParam): FunctionParam =
+    param.copy(defaultExprOpt = param.defaultExprOpt.map(addLambdaIfNeeded))
 
   /**
    * A Result monad so we can ferry the information about the presence or absence of a hole with less plumbing.

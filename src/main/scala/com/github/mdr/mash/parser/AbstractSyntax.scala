@@ -90,8 +90,8 @@ object AbstractSyntax {
         ExprPart(expr.transform(f))
       case StringPart(_) ⇒
         this
-      case FunctionParam(name, isVariadic, defaultOpt, sourceInfoOpt) ⇒
-        FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), sourceInfoOpt)
+      case FunctionParam(name, isVariadic, defaultOpt, isLazy, sourceInfoOpt) ⇒
+        FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, sourceInfoOpt)
       case Argument.PositionArg(expr, sourceInfoOpt) ⇒
         Argument.PositionArg(expr.transform(f), sourceInfoOpt)
       case Argument.ShortFlag(_, _) ⇒
@@ -298,7 +298,7 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  case class FunctionParam(name: String, isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+  case class FunctionParam(name: String, isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, isLazy: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = defaultExprOpt.toSeq
   }
