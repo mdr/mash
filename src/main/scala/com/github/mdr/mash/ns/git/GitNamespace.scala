@@ -13,6 +13,7 @@ object GitNamespace {
     CommitFunction,
     FetchFunction,
     InitFunction,
+    IsRepoFunction,
     LogFunction,
     MergeFunction,
     PullFunction,

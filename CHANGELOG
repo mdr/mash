@@ -16,6 +16,7 @@ v0.0.4 (..)
 * Add lazy parameters, not evaluated until used within function body
 * Add Number.times to repeat a block
 * Make Boolean values callable
+* Add git.isRepo
 
 v0.0.3 (6/July)
 ---------------

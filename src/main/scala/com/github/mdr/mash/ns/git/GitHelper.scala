@@ -5,6 +5,7 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.evaluator.EvaluatorException
+import java.nio.file.Path
 
 object GitHelper {
 
@@ -18,6 +19,14 @@ object GitHelper {
       p(repo)
     finally
       repo.close()
+  }
+
+  def isRepository(path: Path): Boolean = {
+    val builder = new FileRepositoryBuilder
+    builder.readEnvironment()
+    builder.findGitDir(path.toFile)
+    builder.setMustExist(true)
+    builder.getGitDir != null
   }
 
   private def getRepository() = {
