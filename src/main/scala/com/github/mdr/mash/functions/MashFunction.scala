@@ -9,7 +9,7 @@ import com.github.mdr.mash.evaluator.SourceLocation
 case class ArgumentException(message: String, locationOpt: Option[SourceLocation] = None) extends RuntimeException(message)
 
 abstract class MashFunction(
-    val nameOpt: Option[String],
+    val nameOpt: Option[String] = None,
     val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName with MashCallable {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))

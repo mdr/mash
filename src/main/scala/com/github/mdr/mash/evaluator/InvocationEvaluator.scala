@@ -6,6 +6,8 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 import com.github.mdr.mash.functions.ArgumentException
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
 
 object InvocationEvaluator extends EvaluatorHelper {
 
@@ -49,7 +51,15 @@ object InvocationEvaluator extends EvaluatorHelper {
                    invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
       case MashString(memberName, _) ⇒
-        callStringAsFunction(memberName, arguments, functionLocationOpt, invocationLocationOpt)
+        val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
+        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
+          f(arguments)
+        }
+      case b: MashBoolean ⇒
+        val f = new BooleanFunction(b.value)
+        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
+          f(arguments)
+        }
       case f: MashFunction ⇒
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
@@ -62,33 +72,54 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
     }
 
-  private def callStringAsFunction(s: String,
-                                   arguments: Arguments,
-                                   functionLocationOpt: Option[SourceLocation],
-                                   invocationLocationOpt: Option[SourceLocation]): MashValue =
-    (arguments.evaluatedArguments.collectFirst {
-      case EvaluatedArgument.LongFlag(_, _, argumentNodeOpt) ⇒ argumentNodeOpt.flatMap(_.locationOpt)
-      case EvaluatedArgument.ShortFlag(_, argumentNodeOpt)   ⇒ argumentNodeOpt.flatMap(_.locationOpt)
-    }) match {
-      case Some(locationOpt) ⇒
-        throw new EvaluatorException(s"Cannot call a String with flag arguments", locationOpt)
-      case None ⇒
-        arguments.positionArgs match {
-          case Seq(EvaluatedArgument.PositionArg(target, _)) ⇒
-            target.resolve() match {
-              case xs: MashList ⇒
-                xs.map { target ⇒
-                  val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-                  Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
-                }
-              case v ⇒
-                val intermediateResult = MemberEvaluator.lookup(v, s, functionLocationOpt)
-                Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
-            }
-          case Seq(_, second, _*) ⇒
-            throw new EvaluatorException(s"Cannot call a String on multiple arguments", second.argumentNodeOpt.flatMap(_.locationOpt))
-        }
+  private class BooleanFunction(b: Boolean) extends MashFunction() {
+
+    object Params {
+      val Then = Parameter("then", "The result if this is true", isLazy = true)
+      val Else = Parameter("else", "The result if this is false", isLazy = true)
     }
+    import Params._
+
+    val params = ParameterModel(Seq(Then, Else))
+
+    def apply(arguments: Arguments): MashValue = {
+      val boundParams = params.validate(arguments)
+      val thunk = if (b) boundParams(Then).asInstanceOf[MashFunction] else boundParams(Else).asInstanceOf[MashFunction]
+      thunk.apply(Arguments(Seq()))
+    }
+
+    override def summary = "Boolean as a function"
+
+  }
+
+  private class StringFunction(s: String,
+                               functionLocationOpt: Option[SourceLocation],
+                               invocationLocationOpt: Option[SourceLocation]) extends MashFunction() {
+
+    object Params {
+      val Target = Parameter("target", "Member to look-up in the target object")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Target))
+
+    def apply(arguments: Arguments): MashValue = {
+      val boundParams = params.validate(arguments)
+      boundParams(Target) match {
+        case xs: MashList ⇒
+          xs.map { target ⇒
+            val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
+          }
+        case v ⇒
+          val intermediateResult = MemberEvaluator.lookup(v, s, functionLocationOpt)
+          Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
+      }
+    }
+
+    override def summary = "String as a function"
+
+  }
 
   def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation], functionOpt: Option[MashFunction])(p: ⇒ T): T =
     try
