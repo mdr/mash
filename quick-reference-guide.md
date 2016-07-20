@@ -18,12 +18,15 @@ permalink: /quick-reference-guide/
 * Strings: `'basic string'`, `"rich string"`
 
 The double-quoted rich strings are recommended for most interactive uses,
-and provide the following additional features over single-quoted strings:
+and provide the following additional features over single-quoted basic strings:
 
-* Variable interpolation: `"My name is $user.name"`
-* Full expression interpolation: `"My name is ${user.name | reverse}"`
+* Variable interpolation: `"The current directory is $pwd, and the parent directory is $pwd.parent"`
+* Full expression interpolation: `"The current directory backwards is: ${pwd | reverse}"`
 * An initial tilde (`~`) is replaced with the current user's home directory
 * Tagged as `os.Path`, which provides methods for path manipulation: e.g. `"foo.txt".lastModified`
+
+Both single- and double-quoted strings can span multiple lines; any newline characters they are retained
+literally in the string value.
 
 If *bare words* are enabled (using configuration property `language.bareWords`), then any
 unbound identifier is automatically promoted to a string tagged with `os.Path`.
@@ -31,7 +34,7 @@ unbound identifier is automatically promoted to a string tagged with `os.Path`.
 ### Conditionals, truthiness, and/or
 * Conditional expression: `if` .. `then` .. `else` ..
 
-Mash considers the following values *falsey*: `false`, `0`,`[]`, `{}`, `""`. All other
+Mash considers the following values *falsey*: `false`, `null`, `0`,`[]`, `{}`, `""`. All other
 values are *truthy*.
 
 The `and` and `or` operators work as follows:
@@ -58,31 +61,38 @@ The pipe operator `|` is syntax sugar for function application:
 * `a | f` is equivalent to `f a`
 * `a | f b` is equivalent to `f b a`
 
-### Lambdas and holes
+### Function declarations
 
-Anonymous functions:
+Functions are declared using `def` syntax:
 
-    x => x + 1
-    x => x.size
+    def square n = n * n
 
-As syntax sugar, anonymous functions can be written using the *hole* (`_`) operator. Same
-examples as above:
+Multiple parameters are supported:
 
-    _ + 1
-    _.size
+    def add x y = x + y
 
-The scope of the hole is:
+Zero parameters:
 
-* Nearest enclosing parentheses: `(_ + 1)`
-* A non-leftmost pipe segment: `42 | _ + 1`
+    def greet = print "Hello"
 
-Holes can be repeated:
+Variadic parameters:
 
-    _ * _ # equivalent to x => x * x
+    def printAll words... = words | each print
 
-There is a further abbreviation for member expressions:
+Default arguments:
 
-    .size # equivalent to _.size, or x => x.size
+    def someFunc (n = 42) = ....
+
+Lazy arguments:
+
+    def someFunc (lazy block) = ...
+
+Functions can be nested:
+
+    def outer = {
+      def inner n = n + 1
+      inner 42
+    }
 
 ### Function calls:
 
@@ -98,6 +108,52 @@ Alternative parenthesis-based function call syntax:
 
     f(arg1, arg2, arg3)
 
+### Nullary functions
+
+Some functions can be called with no arguments. For example, `ls` or `now`. If such a nullary function is referenced either using an identifier, or by a member expression (e.g. `git.status`), then it is immediately invoked.
+
+If you need to obtain a reference to a nullary function or method itself, you can use a lookup expression.
+
+    git["status"]
+    time["now"]
+
+### Anonymous functions and holes
+
+Anonymous functions with a single argument:
+
+    x => x + 1
+    x => x.size
+
+As syntax sugar, anonymous functions with a single argument can be written using the *hole* (`_`) operator. Same
+examples as above:
+
+    _ + 1
+    _.size
+
+The scope of the hole is the smallest enclosing:
+
+* Pair of parentheses: `(_ + 1)`
+* Block: `{ _ + 1 }`
+* Non-leftmost pipe segment: `42 | _ + 1`
+* Function or lambda body: `def adder n = _ + n`
+* Program
+
+Holes can be repeated:
+
+    _ * _ # equivalent to x => x * x
+
+There is a further abbreviation for member expressions:
+
+    .size # equivalent to _.size, or x => x.size
+
+Multiple parameter functions are supported:
+
+    x y => x * y
+
+As are empty parameter lists.
+
+    => now + 1.hour
+
 ### Member vectorisation
 
 If a member does not exist on a sequence object, but it does on the elements of the
@@ -105,33 +161,38 @@ sequence, then a member access is automatically vectorised:
 
     ls.permissions # returns a list of Permissions objects
 
-### Mish
+### Mish and subprocesses
 
 Mish is a sublanguage within Mash for launching processes, with a similar syntax to
  a traditional shell.
 
-* `!ps` - run a command
-* `!{which java}` - run a command with arguments; the process output is captured
-* `!!{nano file}` - run a command, and connect stdin/stdout to terminal; no output is captured
-* `!{gnome-open $file}` - can embed Mash variables Mish
-* `!{gnome-open ${file}}` - or entire Mash fragments inside a `${}` region
-* `ls | first | !nano` - run a process as a function
+By default, Mash is in "regular Mash" mode. If a command line starts or ends with `!`, the entire line
+ is interpreted as a Mish command. If `!` is issued by itself as a command, then Mash toggles
+ into Mish by default, and the prompt changes from a `$` to a `!`.
 
-By default, Mash is in "Mash" mode. If a command line starts or ends with `!`, the entire line
-is interpreted as a Mish command. If `!` is issued by itself as a command, then Mash toggles
-into Mish by default.
+Within Mash, you can embed Mish fragments. A `!{..}` expression runs a subprocess, captures the output, and returns a `ProcessResult` object. For example:
+* !{which java}.toPath
+* !{locate python}.lines
+* !{sleep 3}.duration
+
+However, standard input is not connected to the subprocess when using `!{..}`. If you want to interact with a process interactively, then you can use a `!!{..}` expression:
+* !!{nano file}
+
+Conversely, you can embed Mash fragments within Mish:
+
+* `gnome-open $file`
+* `gnome-open ${file}`
 
 ### Other features
 * Arithmetic operators: `+`, `-`, `*`, `/`
 * Comparisons: `a < b`, `a <= b`, `a > b`, `a >= b`
 * Chained comparisions: `0 <= n < 10`
-* Assignment to global variables: `a = 42`
-* Define a global function: `def square n = n * n`
+* Assignment: `a = 42`, `foo.bar = 100`, `a += 1`
 * Lookup expressions: `list[2]` (third element), `list[-1]` (last element),
   `obj["toString"]` (toString member)
 * Null-safe dereference: `file?.extension?.toUpper`
 * Help operator: `function?`, `obj.method?`
-* Strings can be called as functions which lookup an object member with that name:
+* Strings can be invoked as functions. The effect is to lookup a member with that name:
   `"permissions" pwd`
 
 ## Command line
@@ -158,15 +219,15 @@ Hit tab once to complete methods, functions, files, arguments, etc. The list of 
 completions is displayed. If you hit tab again immediately, you enter completion browsing
 mode, which will display additional information about the options.
 
-### `init.mash`
+### Startup file: `init.mash`
 
 Mash executes commands from `~/.mash/init.mash` on startup and can be used to add aliases and
 set configuration options.
 
 ### Configuration options
 
-   config.language.bareWords = false # Treat unbound identifiers as string literals
-   config.cli.showStartupTips = true # Show tip on startup
+    config.language.bareWords = false # Treat unbound identifiers as string literals
+    config.cli.showStartupTips = true # Show tip on startup
 
 ## Standard library
 
@@ -180,6 +241,7 @@ set configuration options.
 * `home`
 * `oldDirs` (list of previous directories)
 * `oldDirs.last.cd` (change to most recent previous directory)
+* `within "~/project" git.pull` (temporarily change directory, run `git.pull`, then restore the working directory)
 
 ### Working with files
 
