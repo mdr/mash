@@ -16,7 +16,8 @@ class MashLexerTest extends FlatSpec with Matchers {
   "\"foo\"" shouldProduce Seq(STRING_LITERAL)
   "\"\"" shouldProduce Seq(STRING_LITERAL)
   "'foo'" shouldProduce Seq(STRING_LITERAL)
-
+  "\"foo\nbar\"" shouldProduce Seq(STRING_LITERAL)
+  
   "1" shouldProduce Seq(NUMBER_LITERAL)
   "1.0" shouldProduce Seq(NUMBER_LITERAL)
   "0.0" shouldProduce Seq(NUMBER_LITERAL)

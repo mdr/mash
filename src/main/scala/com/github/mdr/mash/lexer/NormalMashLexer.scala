@@ -46,12 +46,6 @@ trait NormalMashLexer { self: MashLexer ⇒
           } else
             throw new MashParserException("Invalid string escape \\" + c, currentPointedRegion)
       }
-    case '\n' | '\r' ⇒
-      if (forgiving) {
-        nextChar()
-        token(STRING_LITERAL)
-      } else
-        throw new MashParserException("Unterminated string literal", currentPointedRegion)
     case `delimiter` ⇒
       nextChar()
       token(STRING_LITERAL)

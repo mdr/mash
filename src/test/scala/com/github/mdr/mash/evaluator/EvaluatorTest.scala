@@ -389,6 +389,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   """ "\"" """ shouldEvaluateTo """ '"' """
   """ '\'' """ shouldEvaluateTo """ "'" """
 
+  // String literals
+  "\"foo\nbar\".length" shouldEvaluateTo "7"
+  
   "true and true and true" shouldEvaluateTo "true"
   "true or true or true" shouldEvaluateTo "true"
   "1; 2; 3" shouldEvaluateTo "3"
@@ -590,4 +593,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = [0]; def twice (lazy block) = { block; block }; twice { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
   "a = [0]; def twice (lazy block) = { block; block }; twice --block={ a[0] += 1 }; a[0]" shouldEvaluateTo "2"
   "a = [0]; ((lazy block) => { block; block }) { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
+  
 }
