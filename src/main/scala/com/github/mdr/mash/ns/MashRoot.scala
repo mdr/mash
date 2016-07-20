@@ -12,6 +12,7 @@ import com.github.mdr.mash.ns.json.FromFileFunction
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
 import com.github.mdr.mash.ns.view._
 import org.apache.commons.lang3.SystemUtils
+import com.github.mdr.mash.ns.os.WithinFunction
 
 object MashRoot {
 
@@ -68,6 +69,7 @@ object MashRoot {
     ReadLinesFunction,
     DeleteFunction,
     UpFunction,
+    WithinFunction,
     WriteFunction,
     ProcessesFunction) ++ (
       if (SystemUtils.IS_OS_MAC_OSX)

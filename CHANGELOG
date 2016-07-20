@@ -17,6 +17,7 @@ v0.0.4 (..)
 * Add Number.times to repeat a block
 * Make Boolean values callable
 * Add git.isRepo
+* Add os.within
 
 v0.0.3 (6/July)
 ---------------
