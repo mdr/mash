@@ -75,8 +75,15 @@ object InvocationEvaluator extends EvaluatorHelper {
   private class BooleanFunction(b: Boolean) extends MashFunction() {
 
     object Params {
-      val Then = Parameter("then", "The result if this is true", isLazy = true)
-      val Else = Parameter("else", "The result if this is false", isLazy = true)
+      val Then = Parameter(
+        name = "then",
+        summary = "The result if this is true",
+        isLazy = true)
+      val Else = Parameter(
+        name = "else",
+        summary = "The result if this is false",
+        defaultValueGeneratorOpt = Some(() ⇒ MashUnit),
+        isLazy = true)
     }
     import Params._
 
@@ -84,8 +91,13 @@ object InvocationEvaluator extends EvaluatorHelper {
 
     def apply(arguments: Arguments): MashValue = {
       val boundParams = params.validate(arguments)
-      val thunk = if (b) boundParams(Then).asInstanceOf[MashFunction] else boundParams(Else).asInstanceOf[MashFunction]
-      thunk.apply(Arguments(Seq()))
+      if (b)
+        boundParams(Then).asInstanceOf[MashFunction].apply(Arguments(Seq()))
+      else
+        boundParams(Else) match {
+          case MashUnit        ⇒ MashUnit
+          case f: MashFunction ⇒ f.apply(Arguments(Seq()))
+        }
     }
 
     override def summary = "Boolean as a function"

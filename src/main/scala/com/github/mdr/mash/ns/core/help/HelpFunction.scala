@@ -98,6 +98,7 @@ object HelpFunction extends MashFunction("core.help.help") {
         IsFlagParameter -> MashBoolean(param.isFlag),
         IsOptional -> MashBoolean(param.isOptional),
         IsLast -> MashBoolean(param.isLast),
+        IsLazy -> MashBoolean(param.isLazy),
         IsVariadic -> MashBoolean(param.isVariadic)),
       ParameterHelpClass)
   }

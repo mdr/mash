@@ -79,24 +79,24 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       argument match {
         case EvaluatedArgument.ShortFlag(flags, argNodeOpt) ⇒
           for (flag ← flags)
-            bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
+            bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
         case EvaluatedArgument.LongFlag(flag, None, argNodeOpt) ⇒
-          bindFlagParam(flag, argNodeOpt, value = MashBoolean.True)
+          bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
-          bindFlagParam(flag, argNodeOpt, value.resolve())
+          bindFlagParam(flag, argNodeOpt, value)
         case posArg: EvaluatedArgument.PositionArg ⇒
         // handled elsewhere
       }
   }
 
-  private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: MashValue) = {
+  private def bindFlagParam(paramName: String, argNodeOpt: Option[Argument], value: SuspendedMashValue) = {
     lazy val errorLocationOpt = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param.name)
           throw new ArgumentException(s"Argument '${param.name}' is provided multiple times", errorLocationOpt)
         else {
-          boundParams += param.name -> value
+          boundParams += param.name -> resolve(param, value)
           for (argNode ← argNodeOpt)
             addArgumentNode(param.name, argNode)
         }

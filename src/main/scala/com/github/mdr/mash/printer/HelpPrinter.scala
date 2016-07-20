@@ -80,6 +80,8 @@ class HelpPrinter(output: PrintStream) {
     val isFlag = boolParam(IsFlagParameter)
     if (boolParam(IsLast))
       qualifiers +:= "last"
+    if (boolParam(IsLazy))
+      qualifiers +:= "lazy"
     if (boolParam(IsOptional))
       qualifiers +:= "optional"
     if (boolParam(IsVariadic))
