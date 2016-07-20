@@ -6,7 +6,7 @@ import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.unitToType
-import com.github.mdr.mash.ns.os.CdFunction
+import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
 
@@ -17,7 +17,7 @@ object PathClassCdMethod extends MashMethod("cd") {
   def apply(target: MashValue, arguments: Arguments): MashUnit = {
     params.validate(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
-    CdFunction.changeDirectory(path)
+    ChangeDirectoryFunction.changeDirectory(path)
     MashUnit
   }
 

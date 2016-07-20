@@ -414,7 +414,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // help
 
-  "ls? .name" shouldEvaluateTo "'ls'"
+  "listFiles? .name" shouldEvaluateTo "'listFiles'"
   "help groupBy" shouldEvaluateTo "groupBy?"
   "man groupBy" shouldEvaluateTo "groupBy?"
   "groupBy.help" shouldEvaluateTo "groupBy?"

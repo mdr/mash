@@ -16,7 +16,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
 
-object CdFunction extends MashFunction("os.cd") {
+object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   private val fileSystem = LinuxFileSystem
   private val environmentInteractions = LinuxEnvironmentInteractions

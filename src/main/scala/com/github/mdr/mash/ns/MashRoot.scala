@@ -55,17 +55,17 @@ object MashRoot {
     RunFunction)
 
   private val OsFunctions = Seq(
-    CdFunction,
+    ChangeDirectoryFunction,
     ChildrenFunction,
     CopyFunction,
     CreateDirectoryFunction,
     HomeFunction,
     GlobFunction,
     KillFunction,
-    LsFunction,
+    ListFilesFunction,
     MoveFunction,
     OldDirsFunction,
-    PwdFunction,
+    CurrentDirectoryFunction,
     ReadLinesFunction,
     DeleteFunction,
     UpFunction,
@@ -118,11 +118,13 @@ object MashRoot {
   val Aliases = Map(
     "mv" -> MoveFunction,
     "ps" -> ProcessesFunction,
+    "cd" -> ChangeDirectoryFunction,
     "cp" -> CopyFunction,
     "drop" -> SkipFunction,
     "dropWhile" -> SkipWhileFunction,
     "count" -> LengthFunction,
     "keepIf" -> WhereFunction,
+    "ls" -> ListFilesFunction,
     "filter" -> WhereFunction,
     "filterNot" -> WhereNotFunction,
     "discardIf" -> WhereNotFunction,
@@ -130,7 +132,8 @@ object MashRoot {
     "cat" -> ReadLinesFunction,
     "rm" -> DeleteFunction,
     "man" -> HelpFunction,
-    "mkdir" -> CreateDirectoryFunction)
+    "mkdir" -> CreateDirectoryFunction,
+    "pwd" -> CurrentDirectoryFunction)
 
   val AllClasses: Seq[MashClass] = Seq(
     GroupClass,
