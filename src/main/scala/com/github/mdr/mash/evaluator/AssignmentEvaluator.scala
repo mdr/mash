@@ -5,7 +5,7 @@ import com.github.mdr.mash.parser.BinaryOperator
 
 object AssignmentEvaluator extends EvaluatorHelper {
 
-  def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashUnit = {
+  def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashValue = {
     val AssignmentExpr(left, operatorOpt, right, alias, _) = expr
     val rightValue = if (alias) Evaluator.simpleEvaluate(right) else Evaluator.evaluate(right)
 
@@ -19,6 +19,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
             rightValue
         }
         context.scopeStack.set(name, actualRightValue)
+        actualRightValue
       case memberExpr @ MemberExpr(_, _, /* isNullSafe */ false, _) ⇒
         evaluateAssignmentToMemberExpr(memberExpr, expr, operatorOpt, rightValue)
       case lookupExpr: LookupExpr ⇒
@@ -27,10 +28,9 @@ object AssignmentEvaluator extends EvaluatorHelper {
         // TODO: this is purely syntactic, and therefore should be handled by the parser/compiler, not evaluator
         throw new EvaluatorException("Expression is not assignable", sourceLocation(left))
     }
-    MashUnit
   }
 
-  private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): Unit = {
+  private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val LookupExpr(target, index, _) = lookupExpr
     val targetValue = Evaluator.evaluate(target)
     val indexValue = Evaluator.evaluate(index)
@@ -44,7 +44,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def evaluateAssignmentToListIndex(lookupExpr: LookupExpr, xs: MashList, index: Expr, indexValue: MashValue, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): Unit =
+  private def evaluateAssignmentToListIndex(lookupExpr: LookupExpr, xs: MashList, index: Expr, indexValue: MashValue, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue =
     indexValue match {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(
@@ -59,11 +59,17 @@ object AssignmentEvaluator extends EvaluatorHelper {
             rightValue
         }
         xs.items(i) = actualRightValue
+        actualRightValue
       case x ⇒
         throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
     }
 
-  private def evaluateAssignmentToObject(lookupExpr: LookupExpr, assignmentExpr: AssignmentExpr, obj: MashObject, index: Expr, indexValue: MashValue, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): Unit = {
+  private def evaluateAssignmentToObject(lookupExpr: LookupExpr,
+                                         assignmentExpr: AssignmentExpr,
+                                         obj: MashObject,
+                                         index: Expr,
+                                         indexValue: MashValue,
+                                         operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val fields = obj.fields
     indexValue match {
       case MashString(fieldName, _) ⇒
@@ -73,7 +79,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr, assignmentExpr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): Unit = {
+  private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr, assignmentExpr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val MemberExpr(target, fieldName, _, _) = memberExpr
     Evaluator.evaluate(target) match {
       case obj: MashObject ⇒
@@ -83,7 +89,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def assignToField(obj: MashObject, fieldName: String, operatorOpt: Option[BinaryOperator], rightValue: MashValue, objectExpr: Expr, assignmentExpr: AssignmentExpr)(implicit context: EvaluationContext): Unit = {
+  private def assignToField(obj: MashObject, fieldName: String, operatorOpt: Option[BinaryOperator], rightValue: MashValue, objectExpr: Expr, assignmentExpr: AssignmentExpr)(implicit context: EvaluationContext): MashValue = {
     val fields = obj.fields
     if (operatorOpt.isDefined && !fields.contains(fieldName))
       throw new EvaluatorException(s"No field '$fieldName' to update", sourceLocation(objectExpr))
@@ -95,6 +101,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         rightValue
     }
     fields += fieldName -> actualRightValue
+    actualRightValue
   }
 
 }

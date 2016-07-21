@@ -125,17 +125,18 @@ class Abstractifier(provenance: Provenance) {
       Abstract.StringLiteral(token.text, QuotationType.Double)
   }
 
-  private def abstractifyEntry(entry: Concrete.ObjectEntry): (String, Abstract.Expr) =
-    entry.fieldLabel.text -> abstractify(entry.value)
+  private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectField =
+    Abstract.ObjectField(abstractify(entry.field), abstractify(entry.value))
 
   private def abstractifyObject(objectExpr: Concrete.ObjectExpr): Abstract.ObjectExpr = {
     val Concrete.ObjectExpr(lbrace, contentsOpt, rbrace) = objectExpr
-    val fieldToExprs =
+    val fields =
       contentsOpt match {
-        case Some(Concrete.ObjectExprContents(firstEntry, otherEntries)) ⇒ abstractifyEntry(firstEntry) +: otherEntries.map(_._2).map(abstractifyEntry)
+        case Some(Concrete.ObjectExprContents(firstEntry, otherEntries)) ⇒
+          abstractifyEntry(firstEntry) +: otherEntries.map(_._2).map(abstractifyEntry)
         case None ⇒ Seq()
       }
-    Abstract.ObjectExpr(ListMap(fieldToExprs: _*), sourceInfo(objectExpr))
+    Abstract.ObjectExpr(fields, sourceInfo(objectExpr))
   }
 
   private def abstractifyList(listExpr: Concrete.ListExpr): Abstract.ListExpr = {

@@ -70,7 +70,9 @@ object AbstractSyntax {
       case ListExpr(items, sourceInfoOpt) ⇒
         ListExpr(items.map(_.transform(f)), sourceInfoOpt)
       case ObjectExpr(entries, sourceInfoOpt) ⇒
-        val newEntries = for ((label, value) ← entries) yield (label, value.transform(f))
+        val newEntries =
+          for (ObjectField(label, value) ← entries)
+            yield ObjectField(label.transform(f), value.transform(f))
         ObjectExpr(newEntries, sourceInfoOpt)
       case MinusExpr(expr, sourceInfoOpt) ⇒
         MinusExpr(expr.transform(f), sourceInfoOpt)
@@ -237,9 +239,11 @@ object AbstractSyntax {
     def children = items
   }
 
-  case class ObjectExpr(fields: ListMap[String, Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class ObjectField(label: Expr, value: Expr)
+
+  case class ObjectExpr(fields: Seq[ObjectField], sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = fields.values.toSeq
+    def children = fields.flatMap { case ObjectField(field, value) ⇒ Seq(field, value) }
   }
 
   case class MinusExpr(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {

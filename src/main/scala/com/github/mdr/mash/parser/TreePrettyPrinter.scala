@@ -98,7 +98,7 @@ object TreePrettyPrinter {
           printTree(statement, depth + 1)
       case ObjectExpr(entries, _) ⇒
         println("ObjectExpr" + typeDescription)
-        for ((label, body) ← entries) {
+        for (ObjectField(label, body) ← entries) {
           println("  " * (depth + 1) + label)
           printTree(body, depth + 2)
         }

@@ -150,8 +150,8 @@ object ConcreteSyntax {
     lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
   }
 
-  case class ObjectEntry(fieldLabel: Token, colon: Token, value: Expr) extends AstNode {
-    lazy val tokens = fieldLabel +: colon +: value.tokens
+  case class ObjectEntry(field: Expr, colon: Token, value: Expr) extends AstNode {
+    lazy val tokens = field.tokens ++ (colon +: value.tokens)
   }
 
   case class ObjectExpr(lbrace: Token, contentsOpt: Option[ObjectExprContents], rbrace: Token) extends Expr {

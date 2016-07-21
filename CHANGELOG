@@ -19,6 +19,8 @@ v0.0.4 (..)
 * Add git.isRepo
 * Add os.within
 * Add --basicAuth option to http.get
+* Allow expressions in object label position
+* Assignment returns a value
 
 v0.0.3 (6/July)
 ---------------

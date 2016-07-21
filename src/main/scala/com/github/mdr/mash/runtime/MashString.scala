@@ -11,7 +11,8 @@ object MashString {
 }
 
 case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends TaggableMashValue with Comparable[MashString] {
-
+  assert(s != null)
+  
   def lookup(i: Int) = {
     val index = if (i < 0) i + s.size else i
     copy(s(index).toString)

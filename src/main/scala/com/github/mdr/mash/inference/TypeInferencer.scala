@@ -76,9 +76,9 @@ class TypeInferencer {
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
       case AssignmentExpr(left, operatorOpt, right, _, _) ⇒
+        // TODO: hande the case of a binary operator
         inferType(left, bindings)
         inferType(right, bindings)
-        Some(Unit)
       case LambdaExpr(params, body, _) ⇒
         inferType(body, bindings ++ params.params.map(p ⇒ p.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
         Some(Type.Lambda(params.params.map(_.name), body, bindings))
@@ -133,10 +133,17 @@ class TypeInferencer {
     val ObjectExpr(entries, _) = objectExpr
     val fieldTypes =
       for {
-        (label, value) ← entries
-        typ_ ← inferType(value, bindings)
+        ObjectField(labelExpr, valueExpr) ← entries
+        _ = inferType(labelExpr, bindings)
+        label ← getFieldName(labelExpr)
+        typ_ ← inferType(valueExpr, bindings)
       } yield label -> typ_
-    Some(Type.Object(fieldTypes))
+    Some(Type.Object(fieldTypes.toMap))
+  }
+
+  private def getFieldName(label: Expr): Option[String] = condOpt(label) {
+    case Identifier(name, _) ⇒ name
+    case s: StringLiteral    ⇒ s.s
   }
 
   private def inferType(memberExpr: MemberExpr, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {

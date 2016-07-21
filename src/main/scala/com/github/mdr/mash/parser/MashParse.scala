@@ -162,7 +162,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     } else
       suffixExpr()
 
-  private def suffixExpr(): Expr = {
+  protected def suffixExpr(): Expr = {
     val expr = primaryExpr()
     continueSuffixExpr(expr)
   }

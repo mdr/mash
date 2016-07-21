@@ -35,13 +35,7 @@ trait ObjectParse { self: MashParse ⇒
   }
 
   private def objectEntry(): ObjectEntry = {
-    val label =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER)
-      else
-        errorExpectedToken("identifier")
+    val field = suffixExpr()
     val colon =
       if (COLON)
         nextToken()
@@ -50,7 +44,7 @@ trait ObjectParse { self: MashParse ⇒
       else
         errorExpectedToken(":")
     val expr = pipeExpr()
-    ObjectEntry(label, colon, expr)
+    ObjectEntry(field, colon, expr)
   }
 
 }

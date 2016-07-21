@@ -89,10 +89,25 @@ object Evaluator extends EvaluatorHelper {
       case lit: StringLiteral                     ⇒ evaluateStringLiteral(lit)
       case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
       case identifier: Identifier                 ⇒ evaluateIdentifier(identifier)
-      case ObjectExpr(entries, _) ⇒
-        val fields = for ((label, value) ← entries) yield label -> evaluate(value)
-        MashObject.of(fields)
+      case objectExpr: ObjectExpr                 ⇒ evaluateObjectExpr(objectExpr)
     }
+
+  def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
+    def getLabel(label: Expr): String =
+      label match {
+        case Identifier(name, _) ⇒
+          name
+        case _ ⇒
+          evaluate(label) match {
+            case MashString(s, _) ⇒ s
+            case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(objectExpr))
+          }
+      }
+    val fields =
+      for (ObjectField(label, value) ← objectExpr.fields)
+        yield getLabel(label) -> evaluate(value)
+    MashObject.of(fields)
+  }
 
   def evaluateBlockExpr(blockExpr: BlockExpr)(implicit context: EvaluationContext): MashValue = {
     val newContext = context.copy(scopeStack = context.scopeStack.withEmptyScope)

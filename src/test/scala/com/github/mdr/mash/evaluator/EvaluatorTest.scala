@@ -345,7 +345,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // toString
   "null.toString" shouldEvaluateTo " 'null' "
   "2.toString" shouldEvaluateTo " '2' "
-  "(a = 0).toString" shouldEvaluateTo "''"
+  "().toString" shouldEvaluateTo "''"
   "true.toString" shouldEvaluateTo " 'true' "
   "[1, 2, 3].toString" shouldEvaluateTo "'[1, 2, 3]'"
   """ "foo".toString.tag """ shouldEvaluateTo """ "foo".tag """
@@ -391,7 +391,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // String literals
   "\"foo\nbar\".length" shouldEvaluateTo "7"
-  
+
   "true and true and true" shouldEvaluateTo "true"
   "true or true or true" shouldEvaluateTo "true"
   "1; 2; 3" shouldEvaluateTo "3"
@@ -518,6 +518,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = { foo: 0 }; a.foo += 42; a" shouldEvaluateTo "{ foo: 42 }"
   "a = [1, 0, 3]; a[1] += 42; a" shouldEvaluateTo "[1, 42, 3]"
 
+  "a = 42" shouldEvaluateTo "42"
+  "a = 5; a += 10" shouldEvaluateTo "15"
+  
   { // bare words
     implicit val config = Config(bareWords = true)
 
@@ -560,6 +563,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{}.get 'nope'" shouldEvaluateTo "null"
   "{}.get 'nope' --default=42" shouldEvaluateTo "42"
 
+  // Object literals
+  "{ 'foo': 42 }.foo" shouldEvaluateTo "42"
+  
   // Semicolon inference
   """|a = 1
      |b = a + 1
@@ -578,20 +584,20 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def baz = 128 + _; (baz) 72" shouldEvaluateTo "200"
   "def foo (x = _) = 42; foo" shouldEvaluateTo "42"
   "((x = _) => 42) | x => x" shouldEvaluateTo "42"
-  
+
   // Number.to
   "1.to 5" shouldEvaluateTo "[1, 2, 3, 4, 5]"
- 
+
   // Lambdas inside parens and blocks
-  "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo ("42")   
-  "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo ("42")   
- 
+  "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo ("42")
+  "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo ("42")
+
   // Number.times
   "a = [0]; 5.times { a[0] += 1 }; a[0]" shouldEvaluateTo "5"
-  
+
   // Lazy arguments
   "a = [0]; def twice (lazy block) = { block; block }; twice { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
   "a = [0]; def twice (lazy block) = { block; block }; twice --block={ a[0] += 1 }; a[0]" shouldEvaluateTo "2"
   "a = [0]; ((lazy block) => { block; block }) { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
-  
+
 }

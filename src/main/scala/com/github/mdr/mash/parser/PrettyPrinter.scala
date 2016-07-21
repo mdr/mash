@@ -40,7 +40,7 @@ object PrettyPrinter {
     case LambdaExpr(v, body, _)                    ⇒ v.params.map(_.name).mkString(" ") + " => " + pretty(body)
     case BinOpExpr(left, op, right, _)             ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
     case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
-    case ObjectExpr(entries, _)                    ⇒ entries.map { case (label, value) ⇒ s"$label: ${pretty(value)}" }.mkString("{ ", ", ", " }")
+    case ObjectExpr(entries, _)                    ⇒ entries.map { case ObjectField(label, value) ⇒ s"${pretty(label)}: ${pretty(value)}" }.mkString("{ ", ", ", " }")
     case MishExpr(command, args, _, _)             ⇒ pretty(command) + " " + args.map(pretty)
     case AssignmentExpr(left, operatorOpt, right, alias, _) ⇒
       val operatorSymbol = operatorOpt match {

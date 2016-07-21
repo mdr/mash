@@ -89,8 +89,10 @@ object DesugarHoles {
       for (newItems ← sequence(items.map(desugarHoles_)))
         yield ListExpr(newItems, sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
-      val desugaredEntries = for ((k, v) ← entries) yield k -> desugarHoles_(v)
-      for (newEntries ← sequence(desugaredEntries))
+      val desugaredEntries =
+        for (ObjectField(label, value) ← entries)
+          yield desugarHoles_(label) -> desugarHoles_(value)
+      for (newEntries ← sequencePairs2(desugaredEntries).map(_.map { case (label, value) ⇒ ObjectField(label, value) }))
         yield ObjectExpr(newEntries, sourceInfoOpt)
     case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
       for {
@@ -181,5 +183,12 @@ object DesugarHoles {
     Result(
       for ((k, result) ← results)
         yield k -> result.value, hasHole = results.exists(_._2.hasHole))
+
+  private def sequencePairs2[U, T](results: Seq[(Result[U], Result[T])]): Result[Seq[(U, T)]] = {
+    val hasHole = results.exists { case (result1, result2) ⇒ result1.hasHole || result2.hasHole }
+    val newPairs = for ((result1, result2) ← results)
+      yield result1.value -> result2.value
+    Result(newPairs, hasHole = hasHole)
+  }
 
 }

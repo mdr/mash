@@ -297,6 +297,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   
   " [{ foo: true }] | find fo▶" shouldGiveCompletions ("foo")
   
+  " { ls.fir▶ : 42 }" shouldGiveCompletions ("first")
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
