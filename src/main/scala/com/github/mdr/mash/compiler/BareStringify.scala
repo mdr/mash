@@ -95,8 +95,8 @@ class BareStringificationContext {
       ListExpr(items.map(bareStringify(_, bindings)), sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
       val newEntries =
-        for (ObjectField(label, value) ← entries)
-          yield ObjectField(bareStringify(label, bindings), bareStringify(value, bindings))
+        for (ObjectEntry(label, value, sourceInfoOpt) ← entries)
+          yield ObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt) ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)

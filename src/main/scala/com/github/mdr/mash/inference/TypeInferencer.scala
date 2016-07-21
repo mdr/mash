@@ -133,9 +133,9 @@ class TypeInferencer {
     val ObjectExpr(entries, _) = objectExpr
     val fieldTypes =
       for {
-        ObjectField(labelExpr, valueExpr) ← entries
-        _ = inferType(labelExpr, bindings)
-        label ← getFieldName(labelExpr)
+        ObjectEntry(fieldExpr, valueExpr, _) ← entries
+        _ = inferType(fieldExpr, bindings)
+        label ← getFieldName(fieldExpr)
         typ_ ← inferType(valueExpr, bindings)
       } yield label -> typ_
     Some(Type.Object(fieldTypes.toMap))

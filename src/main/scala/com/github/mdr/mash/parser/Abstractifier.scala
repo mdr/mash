@@ -125,8 +125,8 @@ class Abstractifier(provenance: Provenance) {
       Abstract.StringLiteral(token.text, QuotationType.Double)
   }
 
-  private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectField =
-    Abstract.ObjectField(abstractify(entry.field), abstractify(entry.value))
+  private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectEntry =
+    Abstract.ObjectEntry(abstractify(entry.field), abstractify(entry.value), sourceInfo(entry))
 
   private def abstractifyObject(objectExpr: Concrete.ObjectExpr): Abstract.ObjectExpr = {
     val Concrete.ObjectExpr(lbrace, contentsOpt, rbrace) = objectExpr

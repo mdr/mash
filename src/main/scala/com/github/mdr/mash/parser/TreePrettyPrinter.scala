@@ -98,8 +98,8 @@ object TreePrettyPrinter {
           printTree(statement, depth + 1)
       case ObjectExpr(entries, _) ⇒
         println("ObjectExpr" + typeDescription)
-        for (ObjectField(label, body) ← entries) {
-          println("  " * (depth + 1) + label)
+        for (ObjectEntry(field, body, _) ← entries) {
+          println("  " * (depth + 1) + field)
           printTree(body, depth + 2)
         }
       case MishInterpolation(part, _) ⇒
