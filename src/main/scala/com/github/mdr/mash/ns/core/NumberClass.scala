@@ -30,6 +30,7 @@ object NumberClass extends MashClass("core.Number") {
     ToIntMethod,
     ToMethod,
     UntaggedMethod,
+    UntilMethod,
     WeeksMethod,
     alias("day", DaysMethod),
     alias("hour", HoursMethod),
@@ -45,22 +46,57 @@ object NumberClass extends MashClass("core.Number") {
       val End = Parameter(
         name = "end",
         summary = "Final number in sequence (inclusive)")
+      val Step = Parameter(
+        name = "step",
+        summary = "The number to increase by for each step of the sequence (default 1)",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
     }
     import Params._
 
-    val params = ParameterModel(Seq(End))
+    val params = ParameterModel(Seq(End, Step))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
-      val end = boundParams.validateInteger(End)
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
-      MashList((start to end).map(MashNumber(_)))
+      val end = boundParams.validateInteger(End)
+      val step = boundParams.validateInteger(Step)
+      MashList((start.to(end, step)).map(MashNumber(_)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
 
     override def summary = "Return a list of values from this number to the given end value (inclusive)"
+
+  }
+
+  object UntilMethod extends MashMethod("until") {
+
+    object Params {
+      val End = Parameter(
+        name = "end",
+        summary = "Final number in sequence (exclusive)")
+      val Step = Parameter(
+        name = "step",
+        summary = "The number to increase by for each step of the sequence (default 1)",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(End, Step))
+
+    def apply(target: MashValue, arguments: Arguments): MashList = {
+      val boundParams = params.validate(arguments)
+      val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
+        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
+      val end = boundParams.validateInteger(End)
+      val step = boundParams.validateInteger(Step)
+      MashList((start.until(end, step)).map(MashNumber(_)))
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
+
+    override def summary = "Return a list of values from this number to the given end value (exclusive)"
 
   }
 

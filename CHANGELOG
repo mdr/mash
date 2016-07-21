@@ -10,7 +10,7 @@ v0.0.4 (..)
 * Add function names to stack trace items
 * Infer semicolons
 * Function parameters can have defaults: "def f n (m = 100) = ..."
-* Add Number.in to specify ranges
+* Add Number.to, Number.until to specify ranges
 * Add ProcessResult.succeeded/.failed
 * Allow multi-statement lambdas immediately inside parens and blocks
 * Add lazy parameters, not evaluated until used within function body
