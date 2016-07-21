@@ -73,12 +73,9 @@ class TypeInferencer {
       case invocationExpr: InvocationExpr               ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
       case interpolation: MishInterpolation             ⇒ inferType(interpolation, bindings)
       case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
+      case assignmentExpr: AssignmentExpr               ⇒ inferType(assignmentExpr, bindings)
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
-      case AssignmentExpr(left, operatorOpt, right, _, _) ⇒
-        // TODO: hande the case of a binary operator
-        inferType(left, bindings)
-        inferType(right, bindings)
       case LambdaExpr(params, body, _) ⇒
         inferType(body, bindings ++ params.params.map(p ⇒ p.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
         Some(Type.Lambda(params.params.map(_.name), body, bindings))
@@ -87,6 +84,13 @@ class TypeInferencer {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
         }
     }
+
+  private def inferType(assignmentExpr: AssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
+    val AssignmentExpr(left, operatorOpt, right, _, _) = assignmentExpr
+    val leftTypeOpt = inferType(left, bindings)
+    val rightTypeOpt = inferType(right, bindings)
+    operatorOpt.flatMap(op ⇒ inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt, right)) orElse rightTypeOpt
+  }
 
   private def inferType(listExpr: ListExpr, bindings: Map[String, Type]): Option[Type] = {
     val elementTypes = listExpr.items.flatMap(inferType(_, bindings))
