@@ -9,6 +9,7 @@ import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.runtime.MashUnit
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.EvaluatorException
 
 object PathClassCdMethod extends MashMethod("cd") {
 
@@ -17,7 +18,13 @@ object PathClassCdMethod extends MashMethod("cd") {
   def apply(target: MashValue, arguments: Arguments): MashUnit = {
     params.validate(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
-    ChangeDirectoryFunction.changeDirectory(path)
+    import ChangeDirectoryFunction._
+    changeDirectory(path) match {
+      case Success ⇒
+        MashUnit
+      case NotADirectory ⇒
+        throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
+    }
     MashUnit
   }
 

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.file.Path
-
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
@@ -15,8 +14,13 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.evaluator.SourceLocation
 
 object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
+
+  sealed trait Result
+  case object Success extends Result
+  case object NotADirectory extends Result
 
   private val fileSystem = LinuxFileSystem
   private val environmentInteractions = LinuxEnvironmentInteractions
@@ -35,18 +39,24 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(Directory)
-    changeDirectory(path)
+    changeDirectory(path) match {
+      case Success ⇒
+        MashUnit
+      case NotADirectory ⇒
+        boundParams.throwInvalidArgument(Directory, s"Could not change directory to '$path', not a directory")
+    }
     MashUnit
   }
 
   private def home = MashString(environmentInteractions.home.toString, Some(PathClass))
 
-  def changeDirectory(path: Path) {
+  def changeDirectory(path: Path): Result = {
     workingDirectoryStack.push(fileSystem.pwd)
-    if (fileSystem.isDirectory(path))
+    if (fileSystem.isDirectory(path)) {
       fileSystem.chdir(path)
-    else
-      throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
+      Success
+    } else
+      NotADirectory
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

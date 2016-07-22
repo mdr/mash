@@ -21,6 +21,7 @@ v0.0.4 (..)
 * Add --basicAuth option to http.get
 * Allow expressions in object label position
 * Assignment returns a value
+* Add 'cd' builtin for mish
 
 v0.0.3 (6/July)
 ---------------
