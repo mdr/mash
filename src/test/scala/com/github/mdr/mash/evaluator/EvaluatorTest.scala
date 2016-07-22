@@ -26,12 +26,15 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "1 >= 1" shouldEvaluateTo "true"
   "1 >= 0" shouldEvaluateTo "true"
 
+  "[] < [1]" shouldEvaluateTo "true"
+  "[1] < [1, 2]" shouldEvaluateTo "true"
+  
   "1 == 1" shouldEvaluateTo "true"
   "1 == 2" shouldEvaluateTo "false"
 
   "1 != 1" shouldEvaluateTo "false"
   "1 != 2" shouldEvaluateTo "true"
-
+  
   // Chained comparisons
   "1 < 2 < 3" shouldEvaluateTo "true"
   "1 <= 2 < 3" shouldEvaluateTo "true"
@@ -608,5 +611,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = [0]; ((lazy block) => { block; block }) { a[0] += 1 }; a[0]" shouldEvaluateTo "2"
 
   "def foo n = n += _; f = foo 1; f 2; f 3" shouldEvaluateTo "6"
+ 
+  // Object.hoist
+  "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar'" shouldEvaluateTo "{ foo: 42, baz1: 100, baz2: 200 }"
   
 }

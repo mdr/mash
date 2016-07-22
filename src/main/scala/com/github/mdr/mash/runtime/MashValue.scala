@@ -64,7 +64,20 @@ object MashValueOrdering extends Ordering[MashValue] {
       case (s1: MashString, s2: MashString)                         ⇒ s1 compareTo s2
       case (MashWrapped(d1: LocalDate), MashWrapped(d2: LocalDate)) ⇒ d1 compareTo d2
       case (MashWrapped(t1: Instant), MashWrapped(t2: Instant))     ⇒ t1 compareTo t2
+      case (list1: MashList, list2: MashList)                       ⇒ list1 compareTo list2
     }
+
+  def compare(xs: List[MashValue], ys: List[MashValue]): Int = (xs, ys) match {
+    case (Nil, Nil) ⇒ 0
+    case (_, Nil)   ⇒ 1
+    case (Nil, _)   ⇒ -1
+    case (x :: tailX, y :: tailY) ⇒
+      val c = compare(x, y)
+      if (c == 0)
+        compare(tailX, tailY)
+      else
+        c
+  }
 
 }
 

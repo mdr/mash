@@ -38,7 +38,14 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
   def validateString(param: Parameter): MashString = this(param) match {
     case s: MashString ⇒ s
     case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a string, but was a ${x.typeName}"
+      val message = s"Invalid argument '${param.name}'. Must be a String, but was a ${x.typeName}"
+      throw new ArgumentException(message, locationOpt(param))
+  }
+
+  def validateObject(param: Parameter): MashObject = this(param) match {
+    case obj: MashObject ⇒ obj
+    case x ⇒
+      val message = s"Invalid argument '${param.name}'. Must be an Object, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 

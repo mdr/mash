@@ -17,7 +17,54 @@ object ObjectClass extends MashClass("core.Object") {
     FieldsMethod,
     GetMethod,
     HasFieldMethod,
+    HoistMethod,
     WithFieldMethod)
+
+  object HoistMethod extends MashMethod("hoist") {
+
+    object Params {
+      val FieldName = Parameter(
+        name = "fieldName",
+        summary = "Field name to hoist")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(FieldName))
+
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      val boundParams = params.validate(arguments)
+      val field = boundParams.validateString(FieldName).s
+      val subObject = obj.get(field).getOrElse(boundParams.throwInvalidArgument(FieldName, "No field named " + field)) match {
+        case o: MashObject ⇒ o
+        case x             ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
+      }
+      val subFields = subObject.fields.toSeq
+      val originalFields = obj.fields.toSeq
+      val index = originalFields.indexWhere(_._1 == field)
+      val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)
+      MashObject.of(newFields)
+    }
+
+    override def summary = "Hoist the fields of a subobject up into this object"
+
+    override def descriptionOpt = Some("""Examples:
+  { 
+    foo: 42, 
+    bar: {
+      baz1: 100,
+      baz2: 200
+    } 
+  }.hoist 'bar'
+  # becomes:
+  { 
+    foo: 42,
+    baz1: 100,
+    baz2: 200 
+  }
+""")
+
+  }
 
   object FieldsMethod extends MashMethod("fields") {
 

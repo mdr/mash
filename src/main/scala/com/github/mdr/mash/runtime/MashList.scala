@@ -15,7 +15,7 @@ object MashList {
 
 }
 
-class MashList(val items: ArrayBuffer[MashValue]) extends MashValue {
+class MashList(val items: ArrayBuffer[MashValue]) extends MashValue with Comparable[MashList] {
 
   def nonEmpty: Boolean = items.nonEmpty
 
@@ -55,4 +55,7 @@ class MashList(val items: ArrayBuffer[MashValue]) extends MashValue {
   }
 
   override def hashCode = this.items.hashCode
+
+  override def compareTo(that: MashList) = MashValueOrdering.compare(this.items.toList, that.items.toList)
+
 }
