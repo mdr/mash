@@ -82,16 +82,8 @@ class Repl(
 
   private def processInitFile() {
     for (initScript ← getInitScript) {
-      val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
-      try
-        commandRunner.runCompilationUnit(initScript, state.bareWords)
-      catch {
-        case e: Exception ⇒
-          output.println(s"Error executing $InitFile")
-          e.printStackTrace(output)
-          debugLogger.logException(e)
-          return
-      }
+      val scriptExecutor = new ScriptExecutor(output, terminal, sessionId, state.globalVariables)
+      scriptExecutor.runUnit(initScript)
     }
   }
 

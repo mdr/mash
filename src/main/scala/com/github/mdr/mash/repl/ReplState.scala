@@ -1,7 +1,6 @@
 package com.github.mdr.mash.repl
 
 import scala.collection.mutable
-
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ConfigOption
 import com.github.mdr.mash.assist.AssistanceState
@@ -10,6 +9,7 @@ import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.ConfigWrapper
 
 case class YankLastArgState(count: Int, region: Region)
 
@@ -64,15 +64,10 @@ class ReplState(
         case None                                        ⇒ ReplMode.Normal
       }
 
-  private def getConfigObject: Option[MashObject] = globalVariables.get(StandardEnvironment.Config).flatMap(_.asObject)
+  private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
 
-  private def getBooleanConfig(configOption: ConfigOption): Boolean = {
-    val rawValue = Config.getConfig(getConfigObject, configOption)
-    rawValue.isTruthy
-  }
+  def bareWords: Boolean = config.bareWords
 
-  def bareWords: Boolean = getBooleanConfig(Config.Language.BareWords)
-
-  def showStartupTips: Boolean = getBooleanConfig(Config.Cli.ShowStartupTips)
+  def showStartupTips: Boolean = config.showStartupTips
 
 }

@@ -4,6 +4,7 @@ import com.github.mdr.mash.runtime.MashObject
 import scala.collection.mutable.LinkedHashMap
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.evaluator.StandardEnvironment
 
 case class ConfigOption(name: String, defaultValue: MashValue) {
 
@@ -13,23 +14,28 @@ case class ConfigOption(name: String, defaultValue: MashValue) {
 
 }
 
-object Config {
+object ConfigWrapper {
 
-  object Language {
-    val BareWords = ConfigOption("language.bareWords", defaultValue = MashBoolean.False)
-  }
+  def fromGlobals(globalVariables: MashObject): ConfigWrapper =
+    ConfigWrapper(globalVariables.get(StandardEnvironment.Config).flatMap(_.asObject))
 
-  object Cli {
-    val ShowStartupTips = ConfigOption("cli.showStartupTips", defaultValue = MashBoolean.True)
-  }
+}
 
-  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips)
+case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
 
-  def getConfig(configOpt: Option[MashObject], configOption: ConfigOption): MashValue = {
-    val valueOpt = for {
-      config ← configOpt
-      value ← getConfig(config, configOption.path)
-    } yield value
+  def bareWords: Boolean = getBooleanConfig(Config.Language.BareWords)
+
+  def showStartupTips: Boolean = getBooleanConfig(Config.Cli.ShowStartupTips)
+
+  private def getBooleanConfig(configOption: ConfigOption): Boolean =
+    getConfig(configOption).isTruthy
+
+  def getConfig(configOption: ConfigOption): MashValue = {
+    val valueOpt =
+      for {
+        configObject ← configObjectOpt
+        value ← getConfig(configObject, configOption.path)
+      } yield value
     valueOpt.getOrElse(configOption.defaultValue)
   }
 
@@ -49,6 +55,20 @@ object Config {
       }
     } yield restValue
   }
+
+}
+
+object Config {
+
+  object Language {
+    val BareWords = ConfigOption("language.bareWords", defaultValue = MashBoolean.False)
+  }
+
+  object Cli {
+    val ShowStartupTips = ConfigOption("cli.showStartupTips", defaultValue = MashBoolean.True)
+  }
+
+  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips)
 
   def defaultConfig = {
     val config = MashObject.empty()
