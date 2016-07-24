@@ -30,14 +30,17 @@ trait FunctionParse { self: MashParse ⇒
 
   private def paramList(): ParamList = {
     val params = ArrayBuffer[FunctionParam]()
-    safeWhile(IDENTIFIER || LPAREN) {
+    safeWhile(IDENTIFIER || LPAREN || HOLE) {
       params += parameter()
     }
     ParamList(params)
   }
 
   private def parameter(): FunctionParam =
-    if (IDENTIFIER) {
+    if (HOLE) {
+      val hole = nextToken()
+      AnonymousParam(hole)
+    } else if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {
         val ellipsis = nextToken()

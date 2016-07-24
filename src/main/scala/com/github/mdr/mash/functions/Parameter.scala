@@ -15,7 +15,8 @@ case class Parameter(
     isFlagValueMandatory: Boolean = false, // If true, flag must have a value
     flagValueNameOpt: Option[String] = None, // Name of flag value (used in generating calling summary)
     isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list 
-    isLazy: Boolean = false) { // if true, don't evaluate argument 
+    isLazy: Boolean = false, // if true, don't evaluate argument
+    bindsName: Boolean = true) { // if true, bind name inside method body when called 
 
   def isOptional = defaultValueGeneratorOpt.isDefined
 

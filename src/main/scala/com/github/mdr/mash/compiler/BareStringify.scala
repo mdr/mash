@@ -64,7 +64,7 @@ class BareStringificationContext {
       }
       StatementSeq(res, sourceInfoOpt)
     case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
-      LambdaExpr(parameter, bareStringify(body, bindings ++ parameter.params.map(_.name)), sourceInfoOpt)
+      LambdaExpr(parameter, bareStringify(body, bindings ++ parameter.params.flatMap(_.nameOpt)), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt) ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
     case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
@@ -113,7 +113,7 @@ class BareStringificationContext {
       }
       MishInterpolation(newPart, sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.params.map(_.name) + name), sourceInfoOpt)
+      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.params.flatMap(_.nameOpt) + name), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt) ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }

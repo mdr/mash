@@ -82,10 +82,16 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
-    case Concrete.SimpleParam(name)                     ⇒ Abstract.FunctionParam(name.text, sourceInfoOpt = sourceInfo(param))
-    case Concrete.VariadicParam(name, _)                ⇒ Abstract.FunctionParam(name.text, isVariadic = true, sourceInfoOpt = sourceInfo(param))
-    case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒ abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
-    case Concrete.DefaultParam(name, _, defaultExpr)    ⇒ Abstract.FunctionParam(name.text, defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
+    case Concrete.AnonymousParam(_) ⇒
+      Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(param))
+    case Concrete.SimpleParam(name) ⇒
+      Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
+    case Concrete.VariadicParam(name, _) ⇒
+      Abstract.FunctionParam(Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
+    case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
+      abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
+    case Concrete.DefaultParam(name, _, defaultExpr) ⇒
+      Abstract.FunctionParam(Some(name.text), defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {

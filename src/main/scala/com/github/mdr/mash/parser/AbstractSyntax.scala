@@ -304,7 +304,7 @@ object AbstractSyntax {
     def children = command +: args
   }
 
-  case class FunctionParam(name: String, isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, isLazy: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+  case class FunctionParam(nameOpt: Option[String], isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, isLazy: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = defaultExprOpt.toSeq
   }

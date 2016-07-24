@@ -148,15 +148,16 @@ object Evaluator extends EvaluatorHelper {
     MashUnit
   }
 
-  private def makeParameter(param: FunctionParam)(implicit context: EvaluationContext): Parameter = {
-    val FunctionParam(name, isVariadic, defaultExprOpt, isLazy, sourceInfoOpt) = param
+  private def makeParameter(param: FunctionParam, argIndex: Int)(implicit context: EvaluationContext): Parameter = {
+    val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, sourceInfoOpt) = param
     val defaultValueGeneratorOpt = defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr))
-    Parameter(name, s"Parameter '${param.name}'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isLazy = isLazy)
+    val name = nameOpt.getOrElse("arg" + (argIndex + 1))
+    Parameter(name, s"Parameter '${name}'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
+      isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined)
   }
 
   private def parameterModel(paramList: ParamList)(implicit context: EvaluationContext): ParameterModel = {
-    val parameters: Seq[Parameter] = paramList.params.map(makeParameter)
+    val parameters: Seq[Parameter] = paramList.params.zipWithIndex.map { case (p, i) ⇒ makeParameter(p, i) }
     verifyParameters(paramList)
     ParameterModel(parameters)
   }
@@ -168,7 +169,7 @@ object Evaluator extends EvaluatorHelper {
     val variadicIndex = params.indexWhere(_.isVariadic)
     if (variadicIndex >= 0 && variadicIndex < params.size - 1)
       throw new EvaluatorException("A variadic parameter must be the last positional parameter")
-    for ((name, params) ← params.groupBy(_.name).filter(_._2.length > 1).headOption)
+    for ((name, params) ← params.groupBy(_.nameOpt).collect { case (Some(name), ps) if ps.length > 1 ⇒ name -> ps }.headOption)
       throw new EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
   }
 

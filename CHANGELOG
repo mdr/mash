@@ -23,7 +23,8 @@ v0.0.4 (..)
 * Assignment returns a value
 * Add 'cd' builtin for mish
 * Add Object.hoist
-* Make List's comparable
+* Make Lists comparable
+* Allow _ in param position
 
 v0.0.3 (6/July)
 ---------------

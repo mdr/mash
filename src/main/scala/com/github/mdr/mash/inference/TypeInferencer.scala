@@ -77,8 +77,8 @@ class TypeInferencer {
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
       case LambdaExpr(params, body, _) ⇒
-        inferType(body, bindings ++ params.params.map(p ⇒ p.name -> Type.Any)) // Preliminary -- might be updated to be more precise in an outer context
-        Some(Type.Lambda(params.params.map(_.name), body, bindings))
+        inferType(body, bindings ++ params.params.collect { case FunctionParam(Some(name), _, _, _, _) ⇒ name -> Type.Any }) // Preliminary -- might be updated to be more precise in an outer context
+        Some(Type.Lambda(params.params.flatMap(_.nameOpt), body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
