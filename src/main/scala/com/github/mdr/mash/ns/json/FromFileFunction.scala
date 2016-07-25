@@ -24,6 +24,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.runtime.MashNull
 import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.evaluator.ToStringifier
 
 object FromFileFunction extends MashFunction("json.fromFile") {
 

@@ -8,7 +8,6 @@ import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
-import com.github.mdr.mash.ns.json.FromFileFunction
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
 import com.github.mdr.mash.ns.view._
 import org.apache.commons.lang3.SystemUtils
@@ -39,7 +38,7 @@ object MashRoot {
   lazy private val OtherFunctions =
     GitNamespace.GitFunctions ++
       Seq(BrowserFunction, RawFunction) ++
-      Seq(FromFileFunction) ++
+      Seq(json.FromFileFunction, json.AsJsonFunction) ++
       Seq(http.GetFunction)
 
   private val CoreFunctions = Seq(
