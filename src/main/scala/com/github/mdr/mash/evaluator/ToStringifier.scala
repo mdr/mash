@@ -9,6 +9,7 @@ import java.util.function.Supplier
 import java.util.IdentityHashMap
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashMethod
+import scala.util.Try
 
 abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod.name) {
 
@@ -54,5 +55,7 @@ object ToStringifier {
       case _                ⇒ throw new EvaluatorException("Invalid toString value of type " + stringified.typeName)
     }
   }
+
+  def safeStringify(x: MashValue): String = Try(stringify(x)).getOrElse("error calling .toString")
 
 }

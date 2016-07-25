@@ -21,7 +21,7 @@ object BindingCompleter {
   private def getBindingTypeAndDescription(value: MashValue): (CompletionType, String) = value match {
     case mf: MashFunction ⇒ (CompletionType.Function, mf.summary)
     case bf: BoundMethod  ⇒ (CompletionType.Method, bf.method.summary)
-    case x                ⇒ (CompletionType.Binding, ToStringifier.stringify(x))
+    case x                ⇒ (CompletionType.Binding, ToStringifier.safeStringify(x))
   }
 
 }
