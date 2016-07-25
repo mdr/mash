@@ -23,7 +23,6 @@ object ProcessRunner {
                  captureProcess: Boolean = false,
                  stdinRedirectOpt: Option[Path] = None,
                  stdoutRedirectOpt: Option[Path] = None): ProcessResult = {
-    terminalControl.setEchoEnabled(true)
     val stringArgs = args.map(ToStringifier.stringify)
     val outputRedirect = stdoutRedirectOpt match {
       case Some(path)          ⇒ ProcessBuilder.Redirect.to(path.toFile)
