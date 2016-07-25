@@ -105,8 +105,9 @@ class TypeInferencer {
     }
 
   private def inferType(mishExpr: MishExpr, bindings: Map[String, Type]): Option[Type] = {
-    val MishExpr(command, args, captureProcessOutput, _) = mishExpr
+    val MishExpr(command, args, redirects, captureProcessOutput, _) = mishExpr
     inferType(command, bindings)
+    redirects.foreach(redirect => inferType(redirect.arg, bindings))
     args.foreach(inferType(_, bindings))
     val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
     Some(Type.Instance(resultClass))

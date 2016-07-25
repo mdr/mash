@@ -120,11 +120,15 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield AssignmentExpr(newLeft, operatorOpt, newRight, alias, sourceInfoOpt)
-    case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
+    case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt) ⇒
+      def desugarHoles(redirect: MishRedirect): Result[MishRedirect] =
+        for (newArg ← desugarHoles_(redirect.arg))
+          yield redirect.copy(arg = newArg)
       for {
         newCommand ← desugarHoles_(command)
         newArgs ← sequence(args.map(desugarHoles_))
-      } yield MishExpr(newCommand, newArgs, captureProcessOutput, sourceInfoOpt)
+        newRedirects ← sequence(redirects.map(desugarHoles))
+      } yield MishExpr(newCommand, newArgs, newRedirects, captureProcessOutput, sourceInfoOpt)
     case MishInterpolation(part, sourceInfoOpt) ⇒
       val newPartResult = part match {
         case StringPart(s)  ⇒ Result(StringPart(s))

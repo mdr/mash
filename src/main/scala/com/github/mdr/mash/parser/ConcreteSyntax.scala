@@ -198,6 +198,10 @@ object ConcreteSyntax {
   case class MishInterpolation(part: InterpolationPart) extends MishItem {
     lazy val tokens = part.tokens
   }
+  
+  case class MishRedirect(redirectToken: Token, item: MishItem) extends MishItem {
+    lazy val tokens = redirectToken +: item.tokens
+  }
 
   /**
    * Raw mish command of the form: cmd arg1 arg2 arg3

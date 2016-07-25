@@ -24,7 +24,8 @@ v0.0.4 (..)
 * Add 'cd' builtin for mish
 * Add Object.hoist
 * Make Lists comparable
-* Allow _ in param position
+* Allow _ in param position, signifying anonymous parameter
+* Support input/output redirection in mish, using < and >
 
 v0.0.3 (6/July)
 ---------------

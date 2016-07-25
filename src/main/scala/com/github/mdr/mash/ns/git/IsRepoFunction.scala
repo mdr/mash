@@ -19,8 +19,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
   object Params {
     val Dir = Parameter(
       name = "dir",
-      summary = "Directory to test (default current directory)",
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      summary = "Directory to test")
   }
   import Params._
 
@@ -28,7 +27,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
 
   def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
-    val path = FunctionHelpers.safeInterpretAsPath(boundParams(Dir)).getOrElse(fileSystem.pwd)
+    val path = boundParams.validatePath(Dir)
     MashBoolean(GitHelper.isRepository(path))
   }
 

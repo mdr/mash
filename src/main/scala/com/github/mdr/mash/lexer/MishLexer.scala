@@ -7,7 +7,7 @@ import com.github.mdr.mash.parser.MashParserException
 
 object MishLexer {
 
-  private val ReservedPunctuation = """$"'#}"""
+  private val ReservedPunctuation = """$"'#}<>"""
 
 }
 
@@ -26,6 +26,12 @@ trait MishLexer { self: MashLexer ⇒
       readStringInterpolationToken()
     case '#' ⇒
       getComment()
+    case '>' =>
+      nextChar()
+      token(GREATER_THAN)
+    case '<' =>
+      nextChar()
+      token(LESS_THAN)
     case '}' ⇒
       nextChar()
       if (modeStack.size > 1)

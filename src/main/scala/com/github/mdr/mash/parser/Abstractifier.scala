@@ -119,10 +119,20 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyMish(expr: Concrete.MishExpr, captureProcessOutput: Boolean): Abstract.MishExpr = {
     val Concrete.MishExpr(command, args) = expr
-    Abstract.MishExpr(abstractifyMishItem(command), args.map(abstractifyMishItem), captureProcessOutput, sourceInfo(expr))
+    val abstractArgs = args.flatMap(abstractifyMishItem)
+    val redirects = args.collect {
+      case Concrete.MishRedirect(token, arg) ⇒
+        val operator =
+          if (token.tokenType == GREATER_THAN)
+            RedirectOperator.StandardOutput
+          else
+            RedirectOperator.StandardInput
+        Abstract.MishRedirect(operator, abstractifyMishItem(arg).get)
+    }
+    Abstract.MishExpr(abstractifyMishItem(command).get, args.flatMap(abstractifyMishItem), redirects, captureProcessOutput, sourceInfo(expr))
   }
 
-  private def abstractifyMishItem(item: Concrete.MishItem): Abstract.Expr = item match {
+  private def abstractifyMishItem(item: Concrete.MishItem): Option[Abstract.Expr] = condOpt(item) {
     case Concrete.MishInterpolation(part) ⇒
       Abstract.MishInterpolation(abstractifyInterpolationPart(part))
     case Concrete.MishString(expr) ⇒

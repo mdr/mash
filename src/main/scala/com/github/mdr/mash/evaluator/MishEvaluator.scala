@@ -10,6 +10,8 @@ import java.nio.file.Paths
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
+import com.github.mdr.mash.parser.RedirectOperator
+import java.nio.file.Path
 
 object MishEvaluator extends EvaluatorHelper {
 
@@ -22,9 +24,13 @@ object MishEvaluator extends EvaluatorHelper {
     }
 
   def evaluateMishExpr(expr: MishExpr)(implicit context: EvaluationContext): MashValue = {
-    val MishExpr(command, args, captureProcessOutput, _) = expr
+    val MishExpr(command, args, redirects, captureProcessOutput, _) = expr
     val evaluatedCommand = Evaluator.evaluate(command)
     val evaluatedArgs = args.map(Evaluator.evaluate(_))
+    def getRedirect(operator: RedirectOperator): Option[Path] =
+      redirects.find(_.operator == operator).map(redirect ⇒ Paths.get(ToStringifier.stringify(Evaluator.evaluate(redirect.arg))))
+    val stdinRedirectOpt = getRedirect(RedirectOperator.StandardInput)
+    val stdoutRedirectOpt = getRedirect(RedirectOperator.StandardOutput)
     evaluatedCommand match {
       case MashString("cd", _) ⇒
         evaluateCd(evaluatedArgs, args)
@@ -35,10 +41,10 @@ object MishEvaluator extends EvaluatorHelper {
         }
         val allArgs = evaluatedCommand +: flattenedArgs
         if (captureProcessOutput) {
-          val processResult = ProcessRunner.runProcess(allArgs, expandTilde = true, captureProcess = captureProcessOutput)
+          val processResult = ProcessRunner.runProcess(allArgs, captureProcess = captureProcessOutput, stdinRedirectOpt = stdinRedirectOpt, stdoutRedirectOpt = stdoutRedirectOpt)
           ProcessResultClass.fromResult(processResult)
         } else {
-          ProcessRunner.runProcess(allArgs, expandTilde = true)
+          ProcessRunner.runProcess(allArgs, stdinRedirectOpt = stdinRedirectOpt, stdoutRedirectOpt = stdoutRedirectOpt)
           MashUnit
         }
     }

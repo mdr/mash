@@ -76,8 +76,8 @@ object PushFunction extends MashFunction("git.push") {
     val config = git.getRepository.getConfig
     for (ref ← refs) {
       val remoteName = remoteOpt.getOrElse(Constants.DEFAULT_REMOTE_NAME)
-      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, "remote", remoteName)
-      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, "merge", "refs/heads/" + ref)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, ConfigConstants.CONFIG_KEY_REMOTE, remoteName)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, ConfigConstants.CONFIG_KEY_MERGE, "refs/heads/" + ref)
     }
     config.save()
   }

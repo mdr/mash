@@ -3,16 +3,15 @@ package com.github.mdr.mash.subprocesses
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.time.Instant
-
 import org.apache.commons.io.IOUtils
 import org.fusesource.jansi.Ansi
-
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.runtime.MashValue
+import java.nio.file.Path
 
 object ProcessRunner {
 
@@ -20,18 +19,24 @@ object ProcessRunner {
   private val envInteractions: EnvironmentInteractions = LinuxEnvironmentInteractions
   private val output: PrintStream = System.out
 
-  def runProcess(args: Seq[MashValue], expandTilde: Boolean = false, captureProcess: Boolean = false): ProcessResult = {
+  def runProcess(args: Seq[MashValue],
+                 captureProcess: Boolean = false,
+                 stdinRedirectOpt: Option[Path] = None,
+                 stdoutRedirectOpt: Option[Path] = None): ProcessResult = {
     terminalControl.setEchoEnabled(true)
-    var stringArgs = args.map(ToStringifier.stringify)
-    if (expandTilde) {
-      val tildeExpander = new TildeExpander(envInteractions)
-      stringArgs = stringArgs.map(tildeExpander.expand)
+    val stringArgs = args.map(ToStringifier.stringify)
+    val outputRedirect = stdoutRedirectOpt match {
+      case Some(path)          ⇒ ProcessBuilder.Redirect.to(path.toFile)
+      case _ if captureProcess ⇒ ProcessBuilder.Redirect.PIPE
+      case _                   ⇒ ProcessBuilder.Redirect.INHERIT
     }
-
-    val outputRedirect = if (captureProcess) ProcessBuilder.Redirect.PIPE else ProcessBuilder.Redirect.INHERIT
+    val inputRedirect = stdinRedirectOpt match {
+      case Some(path) ⇒ ProcessBuilder.Redirect.from(path.toFile)
+      case _          ⇒ ProcessBuilder.Redirect.INHERIT
+    }
     terminalControl.externalProcess {
       val builder = new ProcessBuilder(stringArgs: _*)
-      builder.redirectInput(ProcessBuilder.Redirect.INHERIT)
+      builder.redirectInput(inputRedirect)
       builder.redirectOutput(outputRedirect)
       builder.redirectError(ProcessBuilder.Redirect.INHERIT)
       setEnvironment(builder.environment())

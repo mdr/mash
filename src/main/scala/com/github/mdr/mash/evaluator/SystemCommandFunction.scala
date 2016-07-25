@@ -28,7 +28,7 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
       case xs: MashList           ⇒ xs.items
       case x                      ⇒ Seq(x)
     }
-    ProcessRunner.runProcess(MashString(command) +: args, expandTilde = true)
+    ProcessRunner.runProcess(MashString(command) +: args)
     MashUnit
   }
 

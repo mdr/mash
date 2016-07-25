@@ -81,8 +81,10 @@ object AbstractSyntax {
           case ExprPart(e)   ⇒ ExprPart(e.transform(f))
         }
         MishInterpolation(newPart, sourceInfoOpt)
-      case MishExpr(command, args, captureProcessOutput, sourceInfoOpt) ⇒
-        MishExpr(command.transform(f), args.map(_.transform(f)), captureProcessOutput, sourceInfoOpt)
+      case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt) ⇒
+        MishExpr(command.transform(f), args.map(_.transform(f)), redirects.map(_.transform(f).asInstanceOf[MishRedirect]), captureProcessOutput, sourceInfoOpt)
+      case MishRedirect(op, arg, sourceInfoOpt) ⇒
+        MishRedirect(op, arg.transform(f), sourceInfoOpt)
       case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
         FunctionDeclaration(name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
       case HelpExpr(expr, sourceInfoOpt) ⇒
@@ -299,9 +301,14 @@ object AbstractSyntax {
   /**
    * !{which ls} or !!{nano}
    */
-  case class MishExpr(command: Expr, args: Seq[Expr], captureProcessOutput: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class MishExpr(command: Expr, args: Seq[Expr], redirects: Seq[MishRedirect], captureProcessOutput: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = command +: args
+  }
+
+  case class MishRedirect(operator: RedirectOperator, arg: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq(arg)
   }
 
   case class FunctionParam(nameOpt: Option[String], isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, isLazy: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
