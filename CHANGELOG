@@ -1,5 +1,5 @@
-v0.0.4 (..)
------------
+v0.0.4 (26/July/2016)
+---------------------
 
 * Add ProcessResult.duration method
 * Support multi-line commands
@@ -28,8 +28,8 @@ v0.0.4 (..)
 * Support input/output redirection in mish, using < and >
 * Add json.asJson/json.fromString function
 
-v0.0.3 (6/July)
----------------
+v0.0.3 (6/July/2016)
+--------------------
 
 * Add provenance information to stack trace entries
 * Separate Object from Any
