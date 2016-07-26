@@ -551,10 +551,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(x... => x.sum) 1 2 3" shouldEvaluateTo "6"
 
   // reduce
-  "[1, 2, 3, 4, 5] | reduce (x y => x * y)" shouldEvaluateTo "120"
-  "[1] | reduce (x y => x * y)" shouldEvaluateTo "1"
-  "[1, 2, 3, 4, 5] | reduce (x y => x * y) 10" shouldEvaluateTo "1200"
-  "[] | reduce (x y => x * y) 10" shouldEvaluateTo "10"
+  "[1, 2, 3, 4, 5] | reduce (x y => x + y)" shouldEvaluateTo "15"
+  "[1] | reduce (x y => x + y)" shouldEvaluateTo "1"
+  "[1, 2, 3, 4, 5] | reduce (x y => x + y) 10" shouldEvaluateTo "25"
+  "[] | reduce (x y => x + y) 10" shouldEvaluateTo "10"
 
   // Object.withField
   "{}.withField 'foo' 42" shouldEvaluateTo "{ foo: 42 }"

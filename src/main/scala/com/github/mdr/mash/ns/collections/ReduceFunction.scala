@@ -1,24 +1,13 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatedArgument
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.InvocationEvaluator
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.evaluator.SuspendedMashValue
+import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.functions._
+import com.github.mdr.mash.inference._
+import com.github.mdr.mash.runtime._
 
 object ReduceFunction extends MashFunction("collections.reduce") {
+
+  private type AccumulatorFunction = (MashValue, MashValue) ⇒ MashValue
 
   object Params {
     val Accumulator = Parameter(
@@ -39,25 +28,36 @@ object ReduceFunction extends MashFunction("collections.reduce") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
+    val (initial, sequence) = getInitialAndSequence(boundParams)
+    val accumulator = getAccumulator(boundParams)
+    sequence.fold(initial)(accumulator)
+  }
+
+  private def getInitialAndSequence(boundParams: BoundParams): (MashValue, Seq[MashValue]) = {
     val sequence = boundParams.validateSequence(Sequence)
-    val initial = boundParams(Initial) match {
-      case MashNull ⇒ sequence.headOption.getOrElse(
-        boundParams.throwInvalidArgument(Sequence, "Empty sequence and no initial value provided"))
-      case v ⇒ v
+    boundParams(Initial) match {
+      case MashNull ⇒
+        val initial = sequence.headOption.getOrElse(
+          boundParams.throwInvalidArgument(Sequence, "Empty sequence and no initial value provided"))
+        (initial, sequence.tail)
+      case initial ⇒
+        (initial, sequence)
     }
-    val f = boundParams(Accumulator) match {
+  }
+
+  private def getAccumulator(boundParams: BoundParams): AccumulatorFunction =
+    boundParams(Accumulator) match {
       case f: MashFunction ⇒
-        (acc: MashValue, item: MashValue) ⇒ {
+        def accumulate(acc: MashValue, item: MashValue) = {
           val accArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ acc))
           val itemArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ item))
           val args = Arguments(Seq(accArg, itemArg))
           InvocationEvaluator.callFunction(f, args)
         }
-        case x ⇒
+        accumulate
+      case x ⇒
         boundParams.throwInvalidArgument(Accumulator, "Invalid accumulator function of type " + x.typeName)
     }
-    sequence.fold(initial)(f)
-  }
 
   override def typeInferenceStrategy = ReduceTypeInferenceStrategy
 
