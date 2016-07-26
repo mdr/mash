@@ -28,12 +28,11 @@ object LastFunction extends MashFunction("collections.last") {
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams(Sequence)
-    val countOpt = boundParams.validateIntegerOrNull(N)
-    countOpt match {
-      case Some(n) ⇒
+    boundParams.validateIntegerOpt(N) match {
+      case Some(count) ⇒
         sequence match {
-          case s: MashString ⇒ s.modify(_.takeRight(n))
-          case xs: MashList  ⇒ MashList(xs.items.takeRight(n))
+          case s: MashString ⇒ s.modify(_ takeRight count)
+          case xs: MashList  ⇒ MashList(xs.items takeRight count)
         }
       case None ⇒
         sequence match {

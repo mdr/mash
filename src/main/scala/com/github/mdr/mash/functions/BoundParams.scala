@@ -9,7 +9,8 @@ import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.PointedRegion
 
-case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String, Seq[Argument]]) {
+case class BoundParams(params: Map[String, MashValue],
+                       argumentNodes: Map[String, Seq[Argument]]) {
 
   def apply(param: String): MashValue = params(param)
 
@@ -104,30 +105,23 @@ case class BoundParams(params: Map[String, MashValue], argumentNodes: Map[String
 
   }
 
-  def validateInteger(param: Parameter): Int =
+  def validateInteger(param: Parameter): Int = validateInteger(param, this(param))
+
+  def validateIntegerOpt(param: Parameter): Option[Int] =
     this(param) match {
-      case MashInteger(n) ⇒
-        n
-      case n: MashNumber ⇒
-        val message = s"Invalid argument '${param.name}'. Must be an integer, but was '$n'"
-        throw new ArgumentException(message, locationOpt(param))
-      case x ⇒
-        val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${x.typeName}"
-        throw new ArgumentException(message, locationOpt(param))
+      case MashNull ⇒ None
+      case value    ⇒ Some(validateInteger(param, value))
     }
 
-  def validateIntegerOrNull(param: Parameter): Option[Int] =
-    this(param) match {
-      case MashInteger(n) ⇒
-        Some(n)
-      case MashNull ⇒
-        None
-      case n: MashNumber ⇒
-        val message = s"Invalid argument '${param.name}'. Must be an integer, but was '$n'"
-        throw new ArgumentException(message, locationOpt(param))
-      case x ⇒
-        val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${x.typeName}"
-        throw new ArgumentException(message, locationOpt(param))
-    }
+  private def validateInteger(param: Parameter, v: MashValue): Int = v match {
+    case MashInteger(n) ⇒
+      n
+    case n: MashNumber ⇒
+      val message = s"Invalid argument '${param.name}'. Must be an integer, but was '$n'"
+      throw new ArgumentException(message, locationOpt(param))
+    case x ⇒
+      val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${x.typeName}"
+      throw new ArgumentException(message, locationOpt(param))
+  }
 
 }

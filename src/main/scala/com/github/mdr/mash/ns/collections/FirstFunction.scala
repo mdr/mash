@@ -35,12 +35,11 @@ object FirstFunction extends MashFunction("collections.first") {
     val boundParams = params.validate(arguments)
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
-    val countOpt = boundParams.validateIntegerOrNull(N)
-    countOpt match {
-      case Some(n) ⇒
+    boundParams.validateIntegerOpt(N) match {
+      case Some(count) ⇒
         sequence match {
-          case s: MashString ⇒ s.modify(_.take(n))
-          case xs: MashList  ⇒ xs.take(n)
+          case s: MashString ⇒ s.modify(_.take(count))
+          case xs: MashList  ⇒ xs.take(count)
         }
       case None ⇒
         sequence match {

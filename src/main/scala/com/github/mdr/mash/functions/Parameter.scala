@@ -20,7 +20,7 @@ case class Parameter(
 
   def isOptional = defaultValueGeneratorOpt.isDefined
 
-  def isMandatory = defaultValueGeneratorOpt.isEmpty
+  def isMandatory = !isOptional
 
   override def toString = name
 
