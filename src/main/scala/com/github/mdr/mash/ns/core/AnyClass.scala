@@ -18,16 +18,16 @@ object AnyClass extends MashClass("core.Any") {
 
   override val methods = Seq(
     ClassMethod,
+    InMethod,
     IsAMethod,
-    ToStringMethod,
-    InMethod)
+    ToStringMethod)
 
   object IsAMethod extends MashMethod("isA") {
 
     object Params {
       val Class = Parameter(
         name = "class",
-        summary = "Class")
+        summary = "Class to check")
     }
     import Params._
 
@@ -41,7 +41,14 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "Return true if this object is an instance of the given class"
+    override def summary = "Return true if and only if this value is an instance of the given class"
+
+    override def descriptionOpt = Some("""Examples:
+  42.isA Number  # true
+  42.isA Boolean # false
+  42.isA Any     # true
+""")
+
   }
 
   object ClassMethod extends MashMethod("class") {
@@ -84,6 +91,11 @@ object AnyClass extends MashClass("core.Any") {
 
     override def summary = "Represent this object as a string"
 
+    override def descriptionOpt = Some("""Examples:
+  42.toString   # "42"
+  null.toString # "null"
+""")
+
   }
 
   object InMethod extends MashMethod("in") {
@@ -106,6 +118,13 @@ object AnyClass extends MashClass("core.Any") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check whether this element is contained in a sequence"
+
+    override def descriptionOpt = Some("""Examples:
+  2.in [1, 2, 3] # true
+  4.in [1, 2, 3] # false
+  "i".in "team"  # false
+""")
+
   }
 
   override def parentOpt: Option[MashClass] = None

@@ -35,7 +35,8 @@ case class InferencerImpl(typeInferencer: TypeInferencer, bindings: Map[String, 
       functionExprOpt match {
         case Some(StringLiteral(s, _, _, _)) ⇒
           typeInferencer.memberLookup(elementType, s, immediateExec = true)
-        case _ ⇒ None
+        case _ ⇒
+          None
       }
     case _ ⇒
       None
