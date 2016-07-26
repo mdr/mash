@@ -1,24 +1,17 @@
 package com.github.mdr.mash.ns.core
 
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.inference._
-import com.github.mdr.mash.os._
+import scala.collection.immutable.ListMap
+
+import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.ns.core.HistoryClass.Fields
 import com.github.mdr.mash.repl.history.History
-import scala.collection.immutable.ListMap
 import com.github.mdr.mash.repl.history.HistoryEntry
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashWrapped
-import com.github.mdr.mash.functions.FunctionHelpers
+import com.github.mdr.mash.runtime._
 
 object HistoryFunction extends MashFunction("os.history") {
 

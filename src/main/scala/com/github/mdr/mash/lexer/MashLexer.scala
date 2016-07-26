@@ -44,6 +44,10 @@ object MashLexer {
 
 }
 
+/**
+ * @param tokens -- tokens after filtering out whitespace and comment tokens
+ * @param intertokenMap -- for each token, any whitespace and comment tokens present immediately before it 
+ */
 private[lexer] case class PruneResult(tokens: Seq[Token], intertokenMap: Map[Token, Seq[Token]])
 
 class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode: LexerMode = NormalMode())
@@ -121,9 +125,9 @@ class MashLexer(s: String, protected val forgiving: Boolean = true, initialMode:
 
   protected def currentPointedRegion = PointedRegion(pos, currentTokenRegion)
 
-  def hasNext = !complete
+  override def hasNext = !complete
 
-  def next(): Token = {
+  override def next(): Token = {
     if (complete)
       throw new IllegalStateException("All tokens have been read")
     val token = readToken()

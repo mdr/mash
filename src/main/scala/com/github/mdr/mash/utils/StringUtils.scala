@@ -57,5 +57,8 @@ object StringUtils {
   def commonPrefix(s1: String, s2: String): String =
     s1.zip(s2).takeWhile { case (x, y) ⇒ x == y }.map(_._1).mkString
 
+  /**
+   * Remove initial whitespace
+   */
   def ltrim(s: String) = s.replaceAll("^\\s+", "")
 }
