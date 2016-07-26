@@ -29,7 +29,7 @@ import com.github.mdr.mash.utils.StringUtils
 object Printer {
 
   private val prettyTime = new PrettyTime
-  
+
   def replaceProblematicChars(s: String): String = s.map {
     case '\t' | '\n' | '\r' | '\b' ⇒ ' '
     case c                         ⇒ c
@@ -91,7 +91,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case MashUnit ⇒ // Don't print out Unit 
       case _ ⇒
-        val f = StringUtils.ellipsisise(Printer.renderField(x), maxLength = terminalInfo.columns)
+        val f = ToStringifier.safeStringify(x)
+        //        val f = StringUtils.ellipsisise(Printer.renderField(x), maxLength = terminalInfo.columns)
         output.println(f)
     }
     PrintResult()
