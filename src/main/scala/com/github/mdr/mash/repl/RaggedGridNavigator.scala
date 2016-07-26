@@ -11,7 +11,7 @@ package com.github.mdr.mash.repl
  *
  * @param total - total number of elements in the grid
  * @param columns - number of columns in the grid
- * @pos - item number in the grid (elements are numbered left to right, wrapping to the next line when necessary)
+ * @param pos - item number in the grid (elements are numbered left to right, wrapping to the next line when necessary)
  *
  */
 case class RaggedGridNavigator(total: Int, columns: Int, pos: Int) {

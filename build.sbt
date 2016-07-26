@@ -1,10 +1,16 @@
-enablePlugins(DockerPlugin)
+enablePlugins(JavaAppPackaging)
 
 name := "mash"
 
 organization := "com.github.mdr"
 
 version := "0.0.4-SNAPSHOT"
+
+maintainer := "Matt Russell <MattRussellUK@gmail.com>"
+
+packageSummary := "Mash Object Shell"
+
+packageDescription := "An object shell for Unix"
 
 scalaVersion := "2.11.8"
 
@@ -68,19 +74,3 @@ testFrameworks := Seq(TestFrameworks.ScalaTest)
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT", "-h", "target/report") // T => show reminder of failed tests with short stack trace 
 
 initialCommands in (Test, console) := "ammonite.repl.Main().run()"
-
-// == Docker =================================================================================
-
-docker <<= (docker dependsOn assembly)
-
-imageNames in docker := Seq(ImageName("mattrusselluk/mash:latest"))
-
-dockerfile in docker := {
-  val artifact = (outputPath in assembly).value
-  val artifactTargetPath = s"/app/${artifact.name}"
-  new Dockerfile {
-    from("java")
-    add(artifact, artifactTargetPath)
-    entryPoint("java", "-jar", artifactTargetPath)
-  }
-}
