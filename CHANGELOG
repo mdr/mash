@@ -26,7 +26,7 @@ v0.0.4 (..)
 * Make Lists comparable
 * Allow _ in param position, signifying anonymous parameter
 * Support input/output redirection in mish, using < and >
-* Add json.asJson function
+* Add json.asJson/json.fromString function
 
 v0.0.3 (6/July)
 ---------------
