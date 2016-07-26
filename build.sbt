@@ -2,7 +2,7 @@ name := "mash"
 
 organization := "com.github.mdr"
 
-version := "0.0.4"
+version := "0.0.5-SNAPSHOT"
 
 maintainer := "Matt Russell <MattRussellUK@gmail.com>"
 
@@ -19,6 +19,7 @@ scalacOptions += "-feature"
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
   "junit" % "junit" % "4.12" % Test,
+  
   "org.pegdown" % "pegdown" % "1.6.0" % Test, // Needed for test reports
   "com.lihaoyi" % "ammonite-repl" % "0.6.2" % Test cross CrossVersion.full)
 
