@@ -61,11 +61,7 @@ case class BoundParams(params: Map[String, MashValue],
   def validateFunction(param: Parameter): MashValue ⇒ MashValue =
     this(param) match {
       case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
-        def runFunction(value: MashValue) = {
-          val arg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ value), None)
-          InvocationEvaluator.callFunction(f, Arguments(Seq(arg)))
-        }
-        runFunction
+        FunctionHelpers.interpretAsFunction(f)
       case x ⇒
         val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
         throw new ArgumentException(message, locationOpt(param))
@@ -81,19 +77,19 @@ case class BoundParams(params: Map[String, MashValue],
     }
 
   def validatePath(param: Parameter): Path = {
-    val x = this(param)
-    FunctionHelpers.safeInterpretAsPath(x) match {
+    val arg = this(param)
+    FunctionHelpers.safeInterpretAsPath(arg) match {
       case Some(path) ⇒ path
       case None ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a path, but was a ${x.typeName}"
+        val message = s"Invalid argument '${param.name}'. Must be a path, but was a ${arg.typeName}"
         throw new ArgumentException(message, locationOpt(param))
     }
   }
 
   def validatePaths(param: Parameter): Seq[Path] = {
-    val x = this(param)
-    catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(x) getOrElse (
-      throw new ArgumentException(s"Invalid argument '${param.name}', could not interpret as path.", locationOpt(param)))
+    val arg = this(param)
+    catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(arg) getOrElse (
+      throw new ArgumentException(s"Invalid argument '${param.name}', could not interpret value of type ${arg.typeName} as path.", locationOpt(param)))
   }
 
   object MashInteger {
