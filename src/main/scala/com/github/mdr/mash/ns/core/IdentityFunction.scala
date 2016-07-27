@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
@@ -23,11 +23,20 @@ object IdentityFunction extends MashFunction("core.identity") {
     boundParams(Item)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
+  override def typeInferenceStrategy = IdentityTypeInferenceStrategy
 
   override def summary = "Return the argument unchanged"
 
   override def descriptionOpt = Some("""Examples:
   identity 42 # 42""")
+
+}
+
+object IdentityTypeInferenceStrategy extends TypeInferenceStrategy {
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+    val argBindings = IdentityFunction.params.bindTypes(arguments)
+    argBindings.get(IdentityFunction.Params.Item).flatMap(_.typeOpt)
+  }
 
 }

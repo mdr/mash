@@ -52,6 +52,7 @@ object MashRoot {
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
+    StatsFunction,
     TimeTakenFunction)
 
   private val OsFunctions = Seq(
@@ -155,6 +156,8 @@ object MashRoot {
     RegexClass,
     StringClass,
     UnitClass,
+    StatsClass,
+    TimedResultClass,
     // git
     CommitClass,
     CommitHashClass,

@@ -112,17 +112,25 @@ object NumberClass extends MashClass("core.Number") {
 
     val params = ParameterModel(Seq(Block))
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val f = boundParams(Block).asInstanceOf[MashFunction]
       val iterations = target.asInstanceOf[MashNumber].asInt.getOrElse(
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
-      for (n ← 1 to iterations)
-        f.apply(Arguments(Seq()))
-      MashUnit
+      val results =
+        for (n ← 1 to iterations)
+          yield f.apply(Arguments(Seq()))
+      MashList(results)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer,  targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        val argBindings = params.bindTypes(arguments)
+        argBindings.get(Params.Block).flatMap(_.typeOpt).map(Type.Seq)
+      }
+
+    }
 
     override def summary = "Run the given argument this amount of times"
 

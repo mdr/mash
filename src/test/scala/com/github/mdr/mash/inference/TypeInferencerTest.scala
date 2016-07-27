@@ -234,7 +234,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "((lazy block) => block) 42" shouldBeInferredAsHavingType NumberClass 
   
   // Number.times
-  "5.times { print 'Hi' }" shouldBeInferredAsHavingType Unit
+  "5.times { print 'Hi' }" shouldBeInferredAsHavingType Seq(Unit)
   
   private implicit class RichString(s: String) {
 

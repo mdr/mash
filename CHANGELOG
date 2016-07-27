@@ -2,6 +2,7 @@ v0.0.5 (..)
 -----------
 
 * Add core.timeTaken method to time how long code execution takes
+* Add maths.stats to compute summary statistics on collections of numbers
 
 v0.0.4 (26/July/2016)
 ---------------------
