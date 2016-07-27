@@ -35,17 +35,19 @@ object Printer {
     case c                         ⇒ c
   }
 
-  def renderField(x: MashValue, inCell: Boolean = false): String = x match {
-    case obj @ MashObject(_, Some(PermissionsClass)) ⇒ PermissionsPrinter.permissionsString(obj)
+  def renderField(value: MashValue, inCell: Boolean = false): String = value match {
+    case obj @ MashObject(_, Some(PermissionsClass))        ⇒ PermissionsPrinter.permissionsString(obj)
     case obj @ MashObject(_, Some(PermissionsSectionClass)) ⇒ PermissionsPrinter.permissionsSectionString(obj)
-    case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
-    case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
-    case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
-    case MashNumber(n, _) ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant) ⇒ prettyTime.format(Date.from(i))
-    case xs: MashList if inCell ⇒ xs.items.map(renderField(_)).mkString(", ")
-    case xs: MashList ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
-    case _ ⇒ Printer.replaceProblematicChars(ToStringifier.stringify(x))
+    case MashNumber(n, Some(BytesClass))                    ⇒ BytesPrinter.humanReadable(n)
+    case MashNumber(n, Some(MillisecondsClass))             ⇒ NumberUtils.prettyString(n) + "ms"
+    case MashNumber(n, Some(SecondsClass))                  ⇒ NumberUtils.prettyString(n) + "s"
+    case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
+    case MashWrapped(i: Instant)                            ⇒ prettyTime.format(Date.from(i))
+    case xs: MashList if inCell                             ⇒ xs.items.map(renderField(_)).mkString(", ")
+    case xs: MashList                                       ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
+    case _ ⇒
+      val s = ToStringifier.safeStringify(value)
+      if (inCell) Printer.replaceProblematicChars(s) else s
   }
 
 }
@@ -56,8 +58,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def print(x: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
-    x match {
+  def print(value: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
+    value match {
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
@@ -90,7 +92,8 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       case klass: MashClass if !disableCustomViews ⇒
         print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case MashUnit ⇒ // Don't print out Unit 
-      case _        ⇒ output.println(ToStringifier.safeStringify(x))
+      case _ ⇒
+        output.println(Printer.renderField(value, inCell = false))
     }
     PrintResult()
   }
