@@ -11,8 +11,8 @@ import org.fusesource.jansi.Ansi.Color
  */
 class GitStatusPrinter(output: PrintStream) {
 
-  def print(mo: MashObject) {
-    val status = StatusClass.Wrapper(mo)
+  def print(obj: MashObject) {
+    val status = StatusClass.Wrapper(obj)
     def red(s: String) = Ansi.ansi().fg(Color.RED).a(s).reset
     def green(s: String) = Ansi.ansi().fg(Color.GREEN).a(s).reset
     val indent = " " * 8

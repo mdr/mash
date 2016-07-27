@@ -7,9 +7,7 @@ import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.Terminal
 
 class ScriptExecutor(output: PrintStream, terminal: Terminal, sessionId: UUID, globalVariables: MashObject) {

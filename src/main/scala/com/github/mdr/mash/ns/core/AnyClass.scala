@@ -72,16 +72,16 @@ object AnyClass extends MashClass("core.Any") {
       case _             ⇒ MashString(stringify(target))
     }
 
-    private def stringify(x: MashValue): String = x match {
+    private def stringify(value: MashValue): String = value match {
       case MashNull                  ⇒ "null"
       case MashUnit                  ⇒ ""
       case obj: MashObject           ⇒ obj.asString
-      case n: MashNumber             ⇒ NumberUtils.prettyString(n.n)
-      case b: MashBoolean            ⇒ b.value.toString
+      case MashNumber(n, _)          ⇒ NumberUtils.prettyString(n)
+      case MashBoolean(b)            ⇒ b.toString
       case MashWrapped(i: Instant)   ⇒ i.toString
       case MashWrapped(d: LocalDate) ⇒ d.toString
       case f: MashFunction           ⇒ f.fullyQualifiedName.toString
-      case bm: BoundMethod           ⇒ bm.fullyQualifiedName
+      case method: BoundMethod       ⇒ method.fullyQualifiedName
       case klass: MashClass          ⇒ klass.fullyQualifiedName.toString
       case xs: MashList              ⇒ xs.asString
       case _                         ⇒ "???"

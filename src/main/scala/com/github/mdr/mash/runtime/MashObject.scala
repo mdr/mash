@@ -46,7 +46,7 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
     val klassFields = klass.fields.map(_.name)
     val providedFields = fields.keys.toSeq
     if (klassFields != providedFields)
-      throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString(",")}, but was ${providedFields.mkString(",")}")
+      throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString("[", ", ", "]")}, but was ${providedFields.mkString("[", ", ", "]")}")
   }
 
   def withField(fieldName: String, value: MashValue): MashObject =
@@ -71,7 +71,7 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
   override def toString = asString
 
   def asString = ToStringifier.visit(this, "{…}") {
-    val fieldString = fields.map { case (k, v) ⇒ s"$k: $v" }.mkString(", ")
+    val fieldString = fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
     val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
     s"{ $classString$fieldString }"
   }

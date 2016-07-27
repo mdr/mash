@@ -11,22 +11,23 @@ import java.io.File
 
 object FunctionHelpers {
 
-  def interpretAsPaths(x: MashValue): Seq[Path] =
-    x match {
+  def interpretAsPaths(value: MashValue): Seq[Path] =
+    value match {
       case xs: MashList ⇒ xs.items.flatMap(interpretAsPaths)
-      case _            ⇒ Seq(interpretAsPath(x))
+      case _            ⇒ Seq(interpretAsPath(value))
     }
 
   def safeInterpretAsPath(x: MashValue): Option[Path] =
     condOpt(x) {
       case MashString(s, _) ⇒
         Paths.get(s)
-      case mo: MashObject if mo.classOpt == Some(PathSummaryClass) ⇒
-        Paths.get(MemberEvaluator.lookup(mo, PathSummaryClass.Fields.Path.name).asInstanceOf[MashString].s)
+      case obj: MashObject if obj.classOpt == Some(PathSummaryClass) ⇒
+        Paths.get(obj(PathSummaryClass.Fields.Path).asInstanceOf[MashString].s)
     }
 
-  def interpretAsPath(x: MashValue): Path =
-    safeInterpretAsPath(x).getOrElse(throw new EvaluatorException("Could not interpret as path: " + x))
+  def interpretAsPath(value: MashValue): Path =
+    safeInterpretAsPath(value).getOrElse(
+      throw new EvaluatorException(s"Could not an object of type ${value.typeName} as a Path"))
 
   def asPathString(p: Path) = MashString(p.toString, PathClass)
 
@@ -42,10 +43,10 @@ object FunctionHelpers {
     runFunction
   }
 
-  def interpretAsSequence(x: MashValue): Seq[MashValue] = x match {
+  def interpretAsSequence(value: MashValue): Seq[MashValue] = value match {
     case xs: MashList          ⇒ xs.items
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case _                     ⇒ throw new EvaluatorException("Could not interpret as sequence: " + x)
+    case _                     ⇒ throw new EvaluatorException(s"Could not interpret value of type ${value.typeName} as a sequence")
   }
 
 }

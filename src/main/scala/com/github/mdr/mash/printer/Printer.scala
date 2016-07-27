@@ -36,8 +36,8 @@ object Printer {
   }
 
   def renderField(x: MashValue, inCell: Boolean = false): String = x match {
-    case mo: MashObject if mo.classOpt == Some(PermissionsClass) ⇒ PermissionsPrinter.permissionsString(mo)
-    case mo: MashObject if mo.classOpt == Some(PermissionsSectionClass) ⇒ PermissionsPrinter.permissionsSectionString(mo)
+    case obj @ MashObject(_, Some(PermissionsClass)) ⇒ PermissionsPrinter.permissionsString(obj)
+    case obj @ MashObject(_, Some(PermissionsSectionClass)) ⇒ PermissionsPrinter.permissionsSectionString(obj)
     case MashNumber(n, Some(BytesClass)) ⇒ BytesPrinter.humanReadable(n)
     case MashNumber(n, Some(MillisecondsClass)) ⇒ NumberUtils.prettyString(n) + "ms"
     case MashNumber(n, Some(SecondsClass)) ⇒ NumberUtils.prettyString(n) + "s"
@@ -68,32 +68,29 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
           new ObjectTablePrinter(output, terminalInfo).printTable(objects)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
-      case mo: MashObject if mo.classOpt == Some(ViewClass) ⇒
-        val data = mo(ViewClass.Fields.Data)
-        val disableCustomViews = mo(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
-        val alwaysUseBrowser = mo(ViewClass.Fields.UseBrowser) == MashBoolean.True
+      case obj: MashObject if obj.classOpt == Some(ViewClass) ⇒
+        val data = obj(ViewClass.Fields.Data)
+        val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
+        val alwaysUseBrowser = obj(ViewClass.Fields.UseBrowser) == MashBoolean.True
         return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-      case mo: MashObject if mo.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
-        helpPrinter.printFunctionHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒
-        helpPrinter.printFieldHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(ClassHelpClass) && !disableCustomViews ⇒
-        helpPrinter.printClassHelp(mo)
-      case mo: MashObject if mo.classOpt == Some(StatusClass) && !disableCustomViews ⇒
-        new GitStatusPrinter(output).print(mo)
-      case mo: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(mo)
+      case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
+        helpPrinter.printFunctionHelp(obj)
+      case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒
+        helpPrinter.printFieldHelp(obj)
+      case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !disableCustomViews ⇒
+        helpPrinter.printClassHelp(obj)
+      case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews ⇒
+        new GitStatusPrinter(output).print(obj)
+      case obj: MashObject ⇒ new ObjectPrinter(output, terminalInfo).printObject(obj)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒
         print(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-      case bm: BoundMethod if !disableCustomViews ⇒
-        print(HelpFunction.getHelp(bm), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+      case method: BoundMethod if !disableCustomViews ⇒
+        print(HelpFunction.getHelp(method), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case klass: MashClass if !disableCustomViews ⇒
         print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case MashUnit ⇒ // Don't print out Unit 
-      case _ ⇒
-        val f = ToStringifier.safeStringify(x)
-        //        val f = StringUtils.ellipsisise(Printer.renderField(x), maxLength = terminalInfo.columns)
-        output.println(f)
+      case _        ⇒ output.println(ToStringifier.safeStringify(x))
     }
     PrintResult()
   }

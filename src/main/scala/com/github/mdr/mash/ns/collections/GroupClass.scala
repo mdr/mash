@@ -24,9 +24,9 @@ object GroupClass extends MashClass("collections.Group") {
 
   private case class Wrapper(target: MashValue) {
 
-    val mo = target.asInstanceOf[MashObject]
+    private val obj = target.asInstanceOf[MashObject]
 
-    def values = mo(Values).asInstanceOf[MashList]
+    def values = obj(Values).asInstanceOf[MashList]
 
   }
 

@@ -1,5 +1,7 @@
 package com.github.mdr.mash.runtime
 
+import scala.PartialFunction.condOpt
+
 sealed trait MashBoolean extends MashValue {
   import MashBoolean._
 
@@ -18,10 +20,14 @@ sealed trait MashBoolean extends MashValue {
 }
 
 object MashBoolean {
-  
+
   case object True extends MashBoolean
   case object False extends MashBoolean
 
   def apply(x: Boolean): MashBoolean = if (x) True else False
 
+  def unapply(x: MashValue): Option[MashBoolean] = condOpt(x) {
+    case True  ⇒ True
+    case False ⇒ False
+  }
 }

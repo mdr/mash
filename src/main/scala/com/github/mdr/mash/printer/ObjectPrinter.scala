@@ -9,13 +9,13 @@ class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private def printer = new Printer(output, terminalInfo)
 
-  def printObject(mo: MashObject) = {
-    if (mo.fields.isEmpty)
+  def printObject(obj: MashObject) = {
+    if (obj.fields.isEmpty)
       output.println("{}")
     else {
-      val keys = mo.fields.keySet
-      val requestedKeyWidth = mo.fields.keySet.map(_.size).max
-      val requestedValueWidth = mo.fields.values.map(Printer.renderField(_, inCell = true)).map(_.size).max
+      val keys = obj.fields.keySet
+      val requestedKeyWidth = obj.fields.keySet.map(_.size).max
+      val requestedValueWidth = obj.fields.values.map(Printer.renderField(_, inCell = true)).map(_.size).max
       val keyColumn = ColumnSpec("keys", 10)
       val valuesColumn = ColumnSpec("values", 1)
       val requestedWidths = Map(keyColumn -> requestedKeyWidth, valuesColumn -> requestedValueWidth)
@@ -31,7 +31,7 @@ class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
       output.print("═" * valuesWidth)
       output.println("╗")
 
-      for ((k, v) ← mo.fields) {
+      for ((k, v) ← obj.fields) {
         output.print("║")
         output.print(StringUtils.fitToWidth(k + "", keyWidth))
         output.print("│")

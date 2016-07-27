@@ -26,12 +26,12 @@ class HelpPrinter(output: PrintStream) {
 
   def bold(s: Any) = Ansi.ansi().bold().a("" + s).boldOff().toString
 
-  def printFunctionHelp(mo: MashObject) {
+  def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
     output.println(bold("NAME"))
-    output.println(indentSpace + bold(mo(FullyQualifiedName)) + " - " + mo(Summary))
+    output.println(indentSpace + bold(obj(FullyQualifiedName)) + " - " + obj(Summary))
     output.println()
-    val classOpt = MashNull.option(mo(Class)).map(_.asInstanceOf[MashString].s)
+    val classOpt = MashNull.option(obj(Class)).map(_.asInstanceOf[MashString].s)
     for (klass ← classOpt) {
       output.println(bold("CLASS"))
       output.println(indentSpace + klass)
@@ -39,16 +39,16 @@ class HelpPrinter(output: PrintStream) {
     }
     output.println(bold("CALLING SYNTAX"))
     val maybeTarget = if (classOpt.isDefined) "target." else ""
-    output.println(indentSpace + maybeTarget + mo(CallingSyntax))
+    output.println(indentSpace + maybeTarget + obj(CallingSyntax))
     output.println()
-    val parameters = mo(Parameters).asInstanceOf[MashList].items
+    val parameters = obj(Parameters).asInstanceOf[MashList].items
     if (parameters.nonEmpty) {
       import ParameterHelpClass.Fields._
       output.println(bold("PARAMETERS"))
       for (param ← parameters)
         printParameterHelp(param.asInstanceOf[MashObject])
     }
-    for (description ← MashNull.option(mo(Description)).map(_.asInstanceOf[MashString])) {
+    for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description.s, indent))
       output.println()
@@ -98,23 +98,23 @@ class HelpPrinter(output: PrintStream) {
     output.println()
   }
 
-  def printClassHelp(mo: MashObject) {
+  def printClassHelp(obj: MashObject) {
     def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     import ClassHelpClass.Fields._
     output.println(bold("NAME"))
-    output.println(indentSpace + bold(mo(FullyQualifiedName)) + " - " + mo(Summary))
+    output.println(indentSpace + bold(obj(FullyQualifiedName)) + " - " + obj(Summary))
     output.println()
-    for (description ← MashNull.option(mo(Description)).map(_.asInstanceOf[MashString])) {
+    for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description.s, indent))
       output.println()
     }
-    for (parent ← MashNull.option(mo(Parent)).map(_.asInstanceOf[MashString])) {
+    for (parent ← MashNull.option(obj(Parent)).map(_.asInstanceOf[MashString])) {
       output.println(bold("PARENT"))
-      output.println(indentSpace + mo(Parent))
+      output.println(indentSpace + obj(Parent))
       output.println()
     }
-    val fields = mo(Fields).asInstanceOf[MashList]
+    val fields = obj(Fields).asInstanceOf[MashList]
     if (fields.nonEmpty) {
       output.println(bold("FIELDS"))
       for (field ← fields) {
@@ -126,7 +126,7 @@ class HelpPrinter(output: PrintStream) {
         output.println()
       }
     }
-    val methods = mo(Methods).asInstanceOf[MashList].items
+    val methods = obj(Methods).asInstanceOf[MashList].items
     if (methods.nonEmpty) {
       output.println(bold("METHODS"))
       for (method ← methods) {
