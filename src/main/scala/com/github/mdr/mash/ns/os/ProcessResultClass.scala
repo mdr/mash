@@ -74,7 +74,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     def finished: Instant = obj.fieldAs[MashWrapped](Finished).x.asInstanceOf[Instant]
 
     def line: String = stdout.split("\n").headOption.getOrElse("")
-    
+
     def exitStatus: Int = obj.fieldAs[MashNumber](ExitStatus).asInt.get
   }
 
@@ -92,8 +92,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     override def summary = "True if the status had a zero exit code"
 
   }
-  
-  
+
   object FailedMethod extends MashMethod("failed") {
 
     val params = ParameterModel()
@@ -108,8 +107,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     override def summary = "True if the status had a non-zero exit code"
 
   }
-  
-  
+
   object LinesMethod extends MashMethod("lines") {
 
     val params = ParameterModel()
@@ -183,7 +181,11 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
       val wrapper = Wrapper(target)
-      val duration = Duration.between(wrapper.started, wrapper.finished)
+      durationBetween(wrapper.started, wrapper.finished)
+    }
+
+    def durationBetween(started: Instant, finished: Instant): MashNumber = {
+      val duration = Duration.between(started, finished)
       val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
       MashNumber(millis, MillisecondsClass)
     }

@@ -1,6 +1,8 @@
 v0.0.5 (..)
 -----------
 
+* Add core.timeTaken method to time how long code execution takes
+
 v0.0.4 (26/July/2016)
 ---------------------
 

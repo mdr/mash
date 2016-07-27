@@ -51,7 +51,8 @@ object MashRoot {
     NowFunction,
     ParseNumberFunction,
     PrintFunction,
-    RunFunction)
+    RunFunction,
+    TimeTakenFunction)
 
   private val OsFunctions = Seq(
     ChangeDirectoryFunction,
