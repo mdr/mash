@@ -621,4 +621,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
  
   // maths.stats
   "[1, 2, 3] | maths.stats | .mean" shouldEvaluateTo "2"
+  
+  // maths.log
+  "maths.log 1000 --base=10" shouldEvaluateTo "3"
 }
