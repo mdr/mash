@@ -102,8 +102,7 @@ object MemberCompleter {
   private def getMembers(t: Type, canVectorise: Boolean = true): Seq[MemberInfo] = t match {
     case Type.Instance(klass)             ⇒ getMembers(klass)
     case Type.Tagged(baseClass, tagClass) ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
-    case Type.Group(_, _)                 ⇒ getMembers(GroupClass)
-    case Type.TimedResult(_)              ⇒ getMembers(TimedResultClass)
+    case Type.Generic(klass, _*)          ⇒ getMembers(klass)
     case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
     case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
     case Type.Object(fields) ⇒

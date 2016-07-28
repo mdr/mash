@@ -1,22 +1,21 @@
 package com.github.mdr.mash.inference
 
+import org.apache.commons.lang3.SystemUtils
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.compiler.Compiler
 import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.collections.ListClass
+import com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.compiler.CompilationUnit
-import org.apache.commons.lang3.SystemUtils
-import com.github.mdr.mash.compiler.CompilationSettings
+import com.github.mdr.mash.compiler._
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {
@@ -177,11 +176,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "['foo:bar', 'baz'].split ':'" shouldBeInferredAsHavingType Seq(Seq(StringType))
 
   // groupBy and Group
-  " [ {foo: 42} ] | groupBy 'foo' " shouldBeInferredAsHavingType Seq(Group(NumberType, Object(ListMap("foo" -> NumberType))))
+  " [ {foo: 42} ] | groupBy 'foo' " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, NumberType, Object(ListMap("foo" -> NumberType))))
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.key) " shouldBeInferredAsHavingType NumberType
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.values) " shouldBeInferredAsHavingType Seq(Object(ListMap("foo" -> NumberType)))
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " shouldBeInferredAsHavingType NumberType
-  " 'foo' | groupBy (_) " shouldBeInferredAsHavingType Seq(Group(StringType, StringType))
+  " 'foo' | groupBy (_) " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, StringType, StringType))
 
   // Strings as functions
   " 'foo' { foo: 42 } " shouldBeInferredAsHavingType NumberType
@@ -231,15 +230,15 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{ foo: 42 }.get 'foo'" shouldBeInferredAsHavingType NumberClass
 
   // lazy parameters
-  "((lazy block) => block) 42" shouldBeInferredAsHavingType NumberClass 
-  
+  "((lazy block) => block) 42" shouldBeInferredAsHavingType NumberClass
+
   // Number.times
   "5.times { print 'Hi' }" shouldBeInferredAsHavingType Seq(Unit)
- 
+
   // timeTaken
-  "timeTaken ls" shouldBeInferredAsHavingType TimedResult(Seq(PathSummaryClass))
+  "timeTaken ls" shouldBeInferredAsHavingType Generic(TimedResultClass, Seq(PathSummaryClass))
   "timeTaken ls | .result" shouldBeInferredAsHavingType Seq(PathSummaryClass)
-  
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

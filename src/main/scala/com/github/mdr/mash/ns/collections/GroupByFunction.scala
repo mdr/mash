@@ -133,7 +133,7 @@ object GroupByTypeInferenceStrategy extends TypeInferenceStrategy {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
       }
-    } yield Type.Seq(Type.Group(keyType, valuesType))
+    } yield Type.Seq(Type.Generic(GroupClass, keyType, valuesType))
   }
 
 }

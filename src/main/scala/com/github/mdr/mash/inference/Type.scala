@@ -21,9 +21,9 @@ trait TypeFunction {
 object Type {
 
   val Any = Instance(AnyClass)
+
+  case class Generic(klass: MashClass, types: Type*) extends Type
   case class Seq(t: Type) extends Type
-  case class Group(keyType: Type, valuesType: Type) extends Type
-  case class TimedResult(resultType: Type) extends Type
   case class Tagged(baseClass: MashClass, tagClass: MashClass) extends Type
   case class Instance(klass: MashClass) extends Type { override def toString = klass.toString }
   case class Object(knownFields: Map[String, Type]) extends Type

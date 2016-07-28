@@ -71,7 +71,7 @@ class ValueTypeDetector {
       (for {
         key ← obj.get(TimedResultClass.Fields.Result)
         keyType = getType(key)
-      } yield Type.TimedResult(keyType)) getOrElse Type.TimedResult(Type.Any)
+      } yield Type.Generic(TimedResultClass, keyType)) getOrElse Type.Generic(TimedResultClass, Type.Any)
     case MashObject(_, Some(klass)) ⇒ Type.Instance(klass)
     case _                          ⇒ Type.Any
   }
@@ -84,10 +84,10 @@ class ValueTypeDetector {
         values ← obj.get(GroupClass.Fields.Values)
         valuesType = getType(values)
       } yield valuesType match {
-        case Type.Seq(valueType) ⇒ Type.Group(keyType, valueType)
-        case _                   ⇒ Type.Group(keyType, Type.Any)
+        case Type.Seq(valueType) ⇒ Type.Generic(GroupClass, keyType, valueType)
+        case _                   ⇒ Type.Generic(GroupClass, keyType, Type.Any)
       }
-    groupTypeOpt.getOrElse(Type.Group(Type.Any, Type.Any))
+    groupTypeOpt.getOrElse(Type.Generic(GroupClass, Type.Any, Type.Any))
   }
 
 }

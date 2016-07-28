@@ -195,10 +195,9 @@ class TypeInferencer {
   }
 
   private def fields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
-    case Type.Instance(klass) ⇒ fields(klass)
-    case Type.Object(fields)  ⇒ fields
-    case Type.Group(_, _)     ⇒ fields(GroupClass)
-    case Type.TimedResult(_)  ⇒ fields(TimedResultClass)
+    case Type.Instance(klass)    ⇒ fields(klass)
+    case Type.Object(fields)     ⇒ fields
+    case Type.Generic(klass, _*) ⇒ fields(klass)
   }
 
   private def fields(klass: MashClass): Map[String, Type] =
@@ -325,14 +324,14 @@ class TypeInferencer {
       case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
       case Type.DefinedFunction(_)          ⇒ memberLookup(typ, FunctionClass, name)
       case Type.BoundMethod(_, _)           ⇒ memberLookup(typ, BoundMethodClass, name)
-      case Type.Group(keyType, elementType) ⇒
+      case Type.Generic(GroupClass, keyType, elementType) ⇒
         if (name == GroupClass.Fields.Key.name)
           Some(keyType)
         else if (name == GroupClass.Fields.Values.name)
           Some(Type.Seq(elementType))
         else
           memberLookup(typ, GroupClass, name)
-      case Type.TimedResult(resultType) ⇒
+      case Type.Generic(TimedResultClass, resultType) ⇒
         if (name == TimedResultClass.Fields.Result.name)
           Some(resultType)
         else
