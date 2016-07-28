@@ -20,7 +20,7 @@ trait TypeFunction {
 
 object Type {
 
-  case object Any extends Type
+  val Any = Instance(AnyClass)
   case class Seq(t: Type) extends Type
   case class Group(keyType: Type, valuesType: Type) extends Type
   case class TimedResult(resultType: Type) extends Type
