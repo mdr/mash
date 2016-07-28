@@ -1,7 +1,8 @@
-package com.github.mdr.mash.ns.core
+package com.github.mdr.mash.ns.maths
 
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.ns.core.NumberClass
 
 object StatsClass extends MashClass("maths.Stats") {
 

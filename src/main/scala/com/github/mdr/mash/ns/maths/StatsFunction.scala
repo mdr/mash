@@ -1,16 +1,13 @@
-package com.github.mdr.mash.ns.core
+package com.github.mdr.mash.ns.maths
 
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashObject
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import scala.collection.immutable.ListMap
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions._
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.runtime._
 
 object StatsFunction extends MashFunction("maths.stats") {
 
@@ -34,8 +31,11 @@ object StatsFunction extends MashFunction("maths.stats") {
         case value ⇒ boundParams.throwInvalidArgument(Sequence, "Invalid sequence of type " + value.typeName)
       }
     val stats = new DescriptiveStatistics
-    for (n ← numbers)
-      stats.addValue(n)
+    numbers.foreach(stats.addValue)
+    asMashObject(stats)
+  }
+
+  private def asMashObject(stats: DescriptiveStatistics): MashObject = {
     import StatsClass.Fields._
     MashObject.of(
       ListMap(
