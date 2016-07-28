@@ -3,7 +3,6 @@ package com.github.mdr.mash.inference
 import java.time.Instant
 import java.time.LocalDate
 import java.util.IdentityHashMap
-
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.AnonymousFunction
@@ -18,6 +17,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.ns.time.LocalDateClass
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.ns.core.TimedResultClass
 
 object ValueTypeDetector {
 
@@ -67,8 +67,13 @@ class ValueTypeDetector {
     case xs: MashList                            ⇒ xs.items.headOption.map(item ⇒ Type.Seq(getType(item))).getOrElse(Type.Seq(Type.Any))
     case obj @ MashObject(_, None)               ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case obj @ MashObject(_, Some(GroupClass))   ⇒ getTypeOfGroup(obj)
-    case MashObject(_, Some(klass))              ⇒ Type.Instance(klass)
-    case _                                       ⇒ Type.Any
+    case obj @ MashObject(_, Some(TimedResultClass)) ⇒
+      (for {
+        key ← obj.get(TimedResultClass.Fields.Result)
+        keyType = getType(key)
+      } yield Type.TimedResult(keyType)) getOrElse Type.TimedResult(Type.Any)
+    case MashObject(_, Some(klass)) ⇒ Type.Instance(klass)
+    case _                          ⇒ Type.Any
   }
 
   private def getTypeOfGroup(obj: MashObject) = {

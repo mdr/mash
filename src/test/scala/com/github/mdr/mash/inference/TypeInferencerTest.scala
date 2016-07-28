@@ -235,6 +235,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   
   // Number.times
   "5.times { print 'Hi' }" shouldBeInferredAsHavingType Seq(Unit)
+ 
+  // timeTaken
+  "timeTaken ls" shouldBeInferredAsHavingType TimedResult(Seq(PathSummaryClass))
+  "timeTaken ls | .result" shouldBeInferredAsHavingType Seq(PathSummaryClass)
   
   private implicit class RichString(s: String) {
 

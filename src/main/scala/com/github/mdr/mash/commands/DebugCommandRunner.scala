@@ -21,7 +21,7 @@ class DebugCommandRunner(output: PrintStream, globals: MashObject) {
       case ("e" | "expression", actualCmd) ⇒
         output.println(PrettyPrinter.pretty(compile(actualCmd)))
       case ("t" | "type", actualCmd) ⇒
-        output.println(compile(actualCmd))
+        output.println(compile(actualCmd).typeOpt)
       case ("tokens", actualCmd) ⇒
         MashLexer.tokenise(actualCmd, forgiving = true).rawTokens.foreach(output.println)
     }

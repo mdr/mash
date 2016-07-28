@@ -107,7 +107,7 @@ class TypeInferencer {
   private def inferType(mishExpr: MishExpr, bindings: Map[String, Type]): Option[Type] = {
     val MishExpr(command, args, redirects, captureProcessOutput, _) = mishExpr
     inferType(command, bindings)
-    redirects.foreach(redirect => inferType(redirect.arg, bindings))
+    redirects.foreach(redirect ⇒ inferType(redirect.arg, bindings))
     args.foreach(inferType(_, bindings))
     val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
     Some(Type.Instance(resultClass))
@@ -195,10 +195,14 @@ class TypeInferencer {
   }
 
   private def fields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
-    case Type.Instance(klass) ⇒ klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
+    case Type.Instance(klass) ⇒ fields(klass)
     case Type.Object(fields)  ⇒ fields
-    case Type.Group(_, _)     ⇒ GroupClass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
+    case Type.Group(_, _)     ⇒ fields(GroupClass)
+    case Type.TimedResult(_)  ⇒ fields(TimedResultClass)
   }
+
+  private def fields(klass: MashClass): Map[String, Type] =
+    klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
 
   private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
@@ -326,6 +330,11 @@ class TypeInferencer {
           Some(keyType)
         else if (name == GroupClass.Fields.Values.name)
           Some(Type.Seq(elementType))
+        else
+          memberLookup(typ, GroupClass, name)
+      case Type.TimedResult(resultType) ⇒
+        if (name == TimedResultClass.Fields.Result.name)
+          Some(resultType)
         else
           memberLookup(typ, GroupClass, name)
       case _ ⇒ None

@@ -39,6 +39,7 @@ object PushFunction extends MashFunction("git.push") {
     val Remote = Parameter(
       name = "remote",
       isFlag = true,
+      isFlagValueMandatory = true,
       summary = "Remote to push to",
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Branches = Parameter(

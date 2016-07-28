@@ -17,6 +17,7 @@ import com.github.mdr.mash.utils.Utils
 import scala.PartialFunction.cond
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.TimedResultClass
 
 case class MemberCompletionResult(
   prioritiseMembers: Boolean,
@@ -101,7 +102,8 @@ object MemberCompleter {
   private def getMembers(t: Type, canVectorise: Boolean = true): Seq[MemberInfo] = t match {
     case Type.Instance(klass)             ⇒ getMembers(klass)
     case Type.Tagged(baseClass, tagClass) ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
-    case Type.Group(keyType, elementType) ⇒ getMembers(GroupClass)
+    case Type.Group(_, _)                 ⇒ getMembers(GroupClass)
+    case Type.TimedResult(_)              ⇒ getMembers(TimedResultClass)
     case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
     case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
     case Type.Object(fields) ⇒
