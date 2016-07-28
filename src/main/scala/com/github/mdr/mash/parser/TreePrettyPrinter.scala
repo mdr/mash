@@ -6,19 +6,23 @@ import java.text.DecimalFormat
 import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.runtime.MashString
+import scala.PartialFunction.condOpt
 
 object TreePrettyPrinter {
 
   /**
    * Print an expression as an indented tree
    */
-  def printTree(expr: Expr, depth: Int = 0) {
+  def printTree(node: AstNode, depth: Int = 0) {
     val indent = "  " * depth
     print(indent)
-    val typeDescription = expr.typeOpt.map(" [" + _ + "]").getOrElse("")
-    expr match {
+    val typeOpt = condOpt(node) {
+      case expr: Expr ⇒ expr.typeOpt
+    }
+    val typeDescription = typeOpt.map(" [" + _ + "]").getOrElse("")
+    node match {
       case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | Hole(_) | MishFunction(_, _) ⇒
-        println(PrettyPrinter.pretty(expr) + typeDescription)
+        println(PrettyPrinter.pretty(node) + typeDescription)
       case InterpolatedString(start, parts, end, _) ⇒
         println("InterpolatedString" + typeDescription)
         println("  " * (depth + 1) + start)
@@ -117,12 +121,21 @@ object TreePrettyPrinter {
         println("FunctionDeclaration" + typeDescription)
         println("  " * (depth + 1) + name)
         for (param ← params.params)
-          println("  " * (depth + 1) + param)
+          printTree(param, depth + 1)
         printTree(body, depth + 1)
+      case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _) ⇒
+        var descr = nameOpt.getOrElse("_")
+        if (isVariadic)
+          descr += "..."
+        if (isLazy)
+          descr = "lazy " + descr 
+        println("  " * depth + descr)
+        for (defaultExpr ← defaultExprOpt)
+          printTree(defaultExpr, depth + 2)
       case HelpExpr(subExpr, _) ⇒
         println("HelpExpr" + typeDescription)
         printTree(subExpr, depth + 1)
-
+      case _ ⇒
     }
 
   }

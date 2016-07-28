@@ -15,7 +15,7 @@ object PrettyPrinter {
   /**
    * Pretty-print the expression
    */
-  def pretty(expr: Expr): String = expr match {
+  def pretty(node: AstNode): String = node match {
     case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒ "if " + pretty(cond) + " then " + pretty(body) + elseOpt.map(elseBody ⇒ " " + pretty(elseBody)).getOrElse("")
     case StringLiteral(s, _, _, _)                  ⇒ '"' + s + '"' // TOOD: more faithful representation
     case Literal(n: MashNumber, _)                  ⇒ NumberUtils.prettyString(n.n)
@@ -73,8 +73,22 @@ object PrettyPrinter {
         case StringPart(s)  ⇒ s
         case ExprPart(expr) ⇒ pretty(expr)
       }
-    case FunctionDeclaration(name, params, body, _) ⇒ "def " + name + params.params.mkString(" ") + " = " + pretty(body)
-    case HelpExpr(subExpr, _)                       ⇒ pretty(subExpr) + "?"
+    case FunctionDeclaration(name, params, body, _) ⇒
+      val preparams = if (params.params.isEmpty) "" else " "
+      "def " + name + preparams + params.params.map(pretty).mkString(" ") + " = " + pretty(body)
+    case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _) ⇒
+      var descr = nameOpt.getOrElse("_")
+      if (isVariadic)
+        descr += "..."
+      if (isLazy)
+        descr = "lazy " + descr
+      for (defaultExpr ← defaultExprOpt)
+        descr += " = " + pretty(defaultExpr)
+      if (isLazy || defaultExprOpt.isDefined)
+        descr = s"($descr)"
+      descr
+    case HelpExpr(subExpr, _) ⇒ pretty(subExpr) + "?"
+    case _                    ⇒ ""
   }
 
   private def pretty(op: BinaryOperator): String = op match {
