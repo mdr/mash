@@ -39,6 +39,7 @@ object MashRoot {
 
   lazy private val OtherFunctions =
     GitNamespace.GitFunctions ++
+      MathsFunctions ++
       Seq(BrowserFunction, RawFunction) ++
       Seq(json.FromFileFunction, json.FromStringFunction, json.AsJsonFunction) ++
       Seq(http.GetFunction)
@@ -54,8 +55,11 @@ object MashRoot {
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
-    StatsFunction,
     TimeTakenFunction)
+
+  private val MathsFunctions = Seq(
+    maths.LogFunction,
+    maths.StatsFunction)
 
   private val OsFunctions = Seq(
     ChangeDirectoryFunction,

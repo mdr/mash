@@ -36,7 +36,7 @@ object NamespaceCreator {
             case Seq(thing) if thing.isLeaf ⇒
               thing.value
             case _ ⇒
-              require(!things.exists(_.isLeaf))
+              require(!things.exists(_.isLeaf), "No leaf exists in " + things)
               createNamespace(things.map(_.rest))
           }
           name -> value

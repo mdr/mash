@@ -120,4 +120,12 @@ case class BoundParams(params: Map[String, MashValue],
       throw new ArgumentException(message, locationOpt(param))
   }
 
+  def validateNumber(param: Parameter): Double = this(param) match {
+    case MashNumber(n, _) ⇒
+      n
+    case value ⇒
+      val message = s"Invalid argument '${param.name}'. Must be an integer, but was a ${value.typeName}"
+      throw new ArgumentException(message, locationOpt(param))
+  }
+
 }
