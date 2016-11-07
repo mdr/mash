@@ -1,27 +1,29 @@
 package com.github.mdr.mash.ns.http
 
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.inference.Type
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.client.methods.HttpGet
 import java.net.URI
-import org.apache.commons.io.IOUtils
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNull
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.impl.client.BasicCredentialsProvider
+import org.apache.commons.io.IOUtils
+import org.apache.commons.codec.binary.Base64
+import org.apache.http.HttpHeaders
 import org.apache.http.auth.AuthScope
+import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.HttpClientBuilder
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.inference.Type.classToType
+import com.github.mdr.mash.ns.http.ResponseClass.Fields
+import com.github.mdr.mash.runtime.MashNull
+import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashValue
+
+import java.nio.charset.Charset
 
 case class BasicCredentials(username: String, password: String)
 
@@ -54,15 +56,14 @@ object GetFunction extends MashFunction("http.get") {
     val url = boundParams.validateString(Url)
 
     val basicCredentialsOpt = getBasicCredentials(boundParams(BasicAuth))
-    val credentialsProvider = new BasicCredentialsProvider
     val clientBuilder = HttpClientBuilder.create()
-    for (BasicCredentials(username, password) ← basicCredentialsOpt) {
-      credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password))
-      clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-    }
+    val request = new HttpGet(new URI(url.s))
+    for (BasicCredentials(username, password) ← basicCredentialsOpt)
+      addCredentials(request, clientBuilder, username, password)
     val client = clientBuilder.build()
-    val httpGet = new HttpGet(new URI(url.s))
-    val response = client.execute(httpGet)
+    
+    val response = client.execute(request)
+    
     val code = response.getStatusLine.getStatusCode
     val content = response.getEntity.getContent
     val body = IOUtils.toString(content, "UTF-8")
@@ -70,7 +71,16 @@ object GetFunction extends MashFunction("http.get") {
     MashObject.of(ListMap(
       Status -> MashNumber(code),
       Body -> MashString(body)), ResponseClass)
-
+  }
+  
+  private def addCredentials(request: HttpGet, clientBuilder: HttpClientBuilder, username: String, password: String) {
+    val credentialsProvider = new BasicCredentialsProvider
+      credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password))
+      clientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+      val auth = username + ":" + password
+      val encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
+       val authHeader = "Basic " + new String(encodedAuth)
+      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
