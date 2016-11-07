@@ -56,6 +56,7 @@ object MashRoot {
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
+    TapFunction,
     TimeTakenFunction)
 
   private val MathsFunctions = Seq(

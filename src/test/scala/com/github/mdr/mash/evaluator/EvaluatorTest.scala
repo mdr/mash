@@ -624,4 +624,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   
   // maths.log
   "maths.log 1000 --base=10" shouldEvaluateTo "3"
+  
+  // tap
+  "x = 0; 42 | tap (x = _) | [x, _]" shouldEvaluateTo "[42, 42]"
 }
