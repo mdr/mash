@@ -6,7 +6,7 @@ import com.github.mdr.mash.utils.Utils
 
 case class MashWrapped(x: Any) extends MashValue {
 
-  require(x.isInstanceOf[Instant] || x.isInstanceOf[LocalDate], "Unexpected wrapped value	: " + x)
+  require(x.isInstanceOf[Instant] || x.isInstanceOf[LocalDate], "Unexpected wrapped value: " + (if (x == null) "null" else x.getClass))
 
   override def toString = x.toString
 }

@@ -19,6 +19,8 @@ import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.ns.core.BooleanClass
 
 object ResponseClass extends MashClass("http.Response") {
 
@@ -32,7 +34,8 @@ object ResponseClass extends MashClass("http.Response") {
   override val fields = Seq(Status, Body)
 
   override val methods = Seq(
-    JsonMethod)
+    JsonMethod,
+    SucceededMethod)
 
   object JsonMethod extends MashMethod("json") {
 
@@ -49,6 +52,23 @@ object ResponseClass extends MashClass("http.Response") {
     override def summary = "Parse response body as JSON"
 
   }
+  
+  object SucceededMethod extends MashMethod("succeeded") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      params.validate(arguments)
+      val code = target.asInstanceOf[MashObject].apply(Status).asInstanceOf[MashNumber].n
+      MashBoolean(200 <= code && code <= 299)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "True if the HTTP request succeeded (status code 2xx)"
+
+  }
+  
   override def summary = "An HTTP response"
 
 }

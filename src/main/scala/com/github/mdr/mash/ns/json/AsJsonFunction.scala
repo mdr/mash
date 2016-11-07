@@ -30,16 +30,19 @@ object AsJsonFunction extends MashFunction("json.asJson") {
   def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
     val value = boundParams(Value)
-    val json = asJson(value)
-    val stringWriter = new StringWriter
-    val  jsonWriter = new JsonWriter(stringWriter)
-    jsonWriter.setLenient(true)
-    jsonWriter.setIndent("  ")
-    Streams.write(json, jsonWriter);
-    stringWriter.toString
-    MashString(stringWriter.toString)
+    MashString(asJsonString(value))
   }
 
+  def asJsonString(value: MashValue): String = { 
+    val json = asJson(value)
+    val stringWriter = new StringWriter
+    val jsonWriter = new JsonWriter(stringWriter)
+    jsonWriter.setLenient(true)
+    jsonWriter.setIndent("  ")
+    Streams.write(json, jsonWriter)
+    stringWriter.toString
+  }
+  
   def asJson(value: MashValue): JsonElement = value match {
     case MashBoolean.True  ⇒ new JsonPrimitive(true)
     case MashBoolean.False ⇒ new JsonPrimitive(false)

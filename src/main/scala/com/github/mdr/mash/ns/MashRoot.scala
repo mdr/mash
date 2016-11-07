@@ -42,7 +42,7 @@ object MashRoot {
       MathsFunctions ++
       Seq(BrowserFunction, RawFunction) ++
       Seq(json.FromFileFunction, json.FromStringFunction, json.AsJsonFunction) ++
-      Seq(http.GetFunction)
+      Seq(http.GetFunction, http.PostFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
@@ -52,6 +52,7 @@ object MashRoot {
     HistoryFunction,
     NotFunction,
     NowFunction,
+    ParseIso8601Function,
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
