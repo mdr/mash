@@ -1,15 +1,11 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.file.Path
-import scala.collection.JavaConverters._
-import org.apache.commons.io.FileUtils
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashList

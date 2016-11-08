@@ -1,8 +1,6 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils
 
 sealed trait CompletionContext {
 

@@ -2,15 +2,11 @@ package com.github.mdr.mash.ns.os
 
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import scala.collection.JavaConverters._
 import org.apache.commons.io.FileUtils
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.os._
 import java.nio.file.Path
 import com.github.mdr.mash.runtime.MashUnit
 

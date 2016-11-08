@@ -7,9 +7,6 @@ import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.parser.SourceInfo
-import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.inference.Type
 
 /**
  * @param argPos -- index into the invocationExpr's argument list

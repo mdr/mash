@@ -10,7 +10,6 @@ import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.os.MockEnvironmentInteractions
 import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
-import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.TerminalInfo

@@ -1,6 +1,5 @@
 package com.github.mdr.mash.completions
 
-import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 import scala.PartialFunction.condOpt
@@ -12,7 +11,6 @@ import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.parser.StringEscapeResult
 import com.github.mdr.mash.evaluator.RetildeResult
 

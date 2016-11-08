@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.evaluator.Field
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 

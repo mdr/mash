@@ -3,8 +3,6 @@ package com.github.mdr.mash.parser
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.ConcreteSyntax._
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.lexer.MashLexer
 
 import org.junit.runner.RunWith

@@ -1,13 +1,9 @@
 package com.github.mdr.mash.completions
 
-import scala.PartialFunction.condOpt
 
-import com.github.mdr.mash.inference._
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.EnvironmentInteractions
 import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils
 

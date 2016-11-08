@@ -2,12 +2,6 @@ package com.github.mdr.mash.printer
 
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete }
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.utils.Utils.commonPrefix
-import scala.collection.immutable.ListMap
 
 class ColumnAllocatorTest extends FlatSpec with Matchers {
 

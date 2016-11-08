@@ -9,9 +9,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.os._
 import java.nio.file.StandardCopyOption
-import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashUnit
 
 object CopyFunction extends MashFunction("os.copy") {

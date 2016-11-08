@@ -12,7 +12,6 @@ import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
 import com.github.mdr.mash.ns.view._
 import org.apache.commons.lang3.SystemUtils
 import com.github.mdr.mash.ns.os.WithinFunction
-import com.github.mdr.mash.ns.maths.StatsFunction
 import com.github.mdr.mash.ns.maths.StatsClass
 
 object MashRoot {

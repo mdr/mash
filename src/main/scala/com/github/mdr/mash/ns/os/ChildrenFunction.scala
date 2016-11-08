@@ -1,12 +1,9 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.file.Path
-import scala.collection.immutable.ListMap
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.functions.MashFunction

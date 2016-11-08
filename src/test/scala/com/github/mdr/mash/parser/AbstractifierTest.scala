@@ -3,9 +3,7 @@ package com.github.mdr.mash.parser
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete }
-import com.github.mdr.mash.runtime.MashString
 
 class AbstractifierTest extends FlatSpec with Matchers {
 

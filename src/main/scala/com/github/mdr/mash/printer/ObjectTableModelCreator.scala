@@ -6,7 +6,6 @@ import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
 
 object ObjectTableModelCreator {
 

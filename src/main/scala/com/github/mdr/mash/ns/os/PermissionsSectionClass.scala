@@ -5,7 +5,6 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.PermissionsSection
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashBoolean
 

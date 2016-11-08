@@ -1,11 +1,9 @@
 package com.github.mdr.mash.ns.os
 
-import scala.collection.JavaConverters._
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.subprocesses.ProcessRunner
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString

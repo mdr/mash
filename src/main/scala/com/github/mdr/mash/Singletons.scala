@@ -1,7 +1,6 @@
 package com.github.mdr.mash
 
 import com.github.mdr.mash.terminal.TerminalControl
-import java.nio.file.Path
 import com.github.mdr.mash.evaluator.ExecutionContext
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashObject

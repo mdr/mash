@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.os
 import java.nio.file.Files
 import java.nio.file.Path
 
-import scala.collection.JavaConverters._
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
@@ -13,7 +12,6 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashBoolean

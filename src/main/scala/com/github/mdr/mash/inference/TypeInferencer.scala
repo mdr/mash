@@ -1,7 +1,5 @@
 package com.github.mdr.mash.inference
 
-import java.nio.file.Path
-import java.time.Instant
 import java.util.IdentityHashMap
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.evaluator._
@@ -15,9 +13,6 @@ import com.github.mdr.mash.evaluator.SystemCommandFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.ns.os.ProcessResultClass
-import com.github.mdr.mash.runtime.MashValue
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashString
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 
