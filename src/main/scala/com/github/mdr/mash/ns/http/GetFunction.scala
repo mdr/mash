@@ -21,13 +21,8 @@ import org.apache.http.HttpResponse
 object GetFunction extends MashFunction("http.get") {
 
   object Params {
-    val Url = Parameter(
-      name = "url",
-      summary = "URL to fetch")
-    val BasicAuth = Parameter(
-      name = "basicAuth",
-      summary = "Basic authentication",
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+    val Url = PostFunction.Params.Url
+    val BasicAuth = PostFunction.Params.BasicAuth
   }
   import Params._
 
