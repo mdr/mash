@@ -118,7 +118,7 @@ object CommitClass extends MashClass("git.Commit") {
       val childTreeIter = new CanonicalTreeParser
       childTreeIter.reset(reader, childId)
       val git = new Git(repo)
-      git.diff().setNewTree(childTreeIter).setOldTree(parentTreeIter).call().asScala.toSeq
+      git.diff().setNewTree(childTreeIter).setOldTree(parentTreeIter).call().asScala
     }
 
     private def getTreeId(repo: Repository, commitSha: String): ObjectId = {

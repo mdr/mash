@@ -118,7 +118,7 @@ object ProcessClass extends MashClass("os.Process") {
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val pid = Wrapper(target).pid
-      val children = processInteractions.getProcesses.filter(_.parentPidOpt == Some(pid))
+      val children = processInteractions.getProcesses.filter(_.parentPidOpt contains pid)
       MashList(children.map(makeProcess))
     }
 

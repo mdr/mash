@@ -4,7 +4,7 @@ object ExecutionContext {
 
   private val contextThreadLocal = new ThreadLocal[ExecutionContext]
 
-  def isInterrupted = Option(contextThreadLocal.get).map(_.interrupted).getOrElse(false)
+  def isInterrupted = Option(contextThreadLocal.get).exists(_.interrupted)
 
   def set(ctx: ExecutionContext) = contextThreadLocal.set(ctx)
 

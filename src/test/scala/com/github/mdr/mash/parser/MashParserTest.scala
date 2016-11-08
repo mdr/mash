@@ -192,39 +192,39 @@ class MashParserTest extends FlatSpec with Matchers {
   "Parsing interpolated strings" should "parse simple variables" in {
     val s = """ "Hello $name!" """
     val Seq(start, dollar, name, end, _) = MashLexer.tokenise(s).tokens
-    parse(s) shouldEqual (
-      InterpolatedString(start, Seq(SimpleInterpolation(dollar, Identifier(name))), end))
+    parse(s) shouldEqual
+      InterpolatedString(start, Seq(SimpleInterpolation(dollar, Identifier(name))), end)
   }
 
   it should "parse dot sequences" in {
     val s = """ "Hello $user.name!" """
     val Seq(start, dollar, user, dot, name, end, _) = MashLexer.tokenise(s).tokens
-    parse(s) shouldEqual (
-      InterpolatedString(start, Seq(SimpleInterpolation(dollar, MemberExpr(Identifier(user), dot, name))), end))
+    parse(s) shouldEqual
+      InterpolatedString(start, Seq(SimpleInterpolation(dollar, MemberExpr(Identifier(user), dot, name))), end)
   }
 
   it should "parse brace sequences" in {
     val s = """ "Hello ${name}!" """
     val Seq(start, interpStart, name, rbrace, end, _) = MashLexer.tokenise(s).tokens
-    parse(s) shouldEqual (
-      InterpolatedString(start, Seq(ComplexInterpolation(interpStart, Identifier(name), rbrace)), end))
+    parse(s) shouldEqual
+      InterpolatedString(start, Seq(ComplexInterpolation(interpStart, Identifier(name), rbrace)), end)
   }
 
   it should "parse multiple sections" in {
     val s = """ "Hello $name! You are in $pwd!" """
     val Seq(start, dollar, name, middle, dollar2, pwd, end, _) = MashLexer.tokenise(s).tokens
-    parse(s) shouldEqual (
+    parse(s) shouldEqual
       InterpolatedString(start, Seq(
         SimpleInterpolation(dollar, Identifier(name)),
         StringPart(middle),
-        SimpleInterpolation(dollar2, Identifier(pwd))), end))
+        SimpleInterpolation(dollar2, Identifier(pwd))), end)
   }
 
   "Parsing assignment" should "work" in {
     val s = "a = 42"
     val Seq(a, equals, fortyTwo, _) = MashLexer.tokenise(s).tokens
-    parse(s) shouldEqual (
-      AssignmentExpr(Identifier(a), equals, None /* alias */ , Literal(fortyTwo)))
+    parse(s) shouldEqual
+      AssignmentExpr(Identifier(a), equals, None /* alias */ , Literal(fortyTwo))
   }
 
   "Parsing 1 / def" should "not crash" in {

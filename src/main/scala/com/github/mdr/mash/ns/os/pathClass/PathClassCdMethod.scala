@@ -25,7 +25,6 @@ object PathClassCdMethod extends MashMethod("cd") {
       case NotADirectory ⇒
         throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
     }
-    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)

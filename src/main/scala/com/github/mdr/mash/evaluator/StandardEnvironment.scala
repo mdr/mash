@@ -1,9 +1,6 @@
 package com.github.mdr.mash.evaluator
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.ListMap
-import scala.collection.mutable
-import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.MashRoot
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.repl.ReplState

@@ -9,10 +9,10 @@ import com.github.mdr.mash.parser.Provenance
 
 class DesugarHolesTest extends FlatSpec with Matchers {
 
-  "_" desugarsTo ("x => x")
-  "foo _" desugarsTo ("x => foo x")
-  "_ 42" desugarsTo ("x => x 42")
-  "a | map (_.b)" desugarsTo ("a | map (x => x.b)")
+  "_" desugarsTo "x => x"
+  "foo _" desugarsTo "x => foo x"
+  "_ 42" desugarsTo "x => x 42"
+  "a | map (_.b)" desugarsTo "a | map (x => x.b)"
   "ls | keepIf (_.isFile and _.size < 1000)" desugarsTo "ls | keepIf (x => x.isFile and x.size < 1000)"
   "y => _.size" desugarsTo "y => x => x.size"
   "_.foo | _.bar" desugarsTo "x => x.foo | x => x.bar"

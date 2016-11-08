@@ -27,29 +27,29 @@ class CompletionsTest extends FlatSpec with Matchers {
     "▶" shouldContainCompletion "foo"
   }
 
-  "{ foo: 42 }.fo▶" shouldGiveCompletions ("foo")
+  "{ foo: 42 }.fo▶" shouldGiveCompletions "foo"
 
   "{ bar: 1, baz: 2, buzz: 3 }.ba▶" shouldGiveCompletions ("bar", "baz")
 
-  "{ foo: 1 } | _.▶" shouldContainCompletion ("foo")
+  "{ foo: 1 } | _.▶" shouldContainCompletion "foo"
 
-  "[ { foo: 1 } ] | map (_.▶)" shouldContainCompletion ("foo")
+  "[ { foo: 1 } ] | map (_.▶)" shouldContainCompletion "foo"
 
   "[ { revert: 1 } ].rever▶" shouldGiveCompletions ("reverse", "revert")
 
-  """ "a string".startsW▶ """ shouldGiveCompletions ("startsWith")
+  """ "a string".startsW▶ """ shouldGiveCompletions "startsWith"
 
   "Completions in member position" should "not include binding completions" in {
-    " ''.groupB▶ ".completions should not contain ("groupBy")
+    " ''.groupB▶ ".completions should not contain "groupBy"
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/home/alice/file.txt")
 
-    "cd /hom▶" shouldGiveCompletions ("/home/")
-    "cd /home/al▶" shouldGiveCompletions ("/home/alice/")
-    """cd "/home"/al▶""" shouldGiveCompletions ("/home/alice/")
-    "cd(/hom▶" shouldGiveCompletions ("/home/")
+    "cd /hom▶" shouldGiveCompletions "/home/"
+    "cd /home/al▶" shouldGiveCompletions "/home/alice/"
+    """cd "/home"/al▶""" shouldGiveCompletions "/home/alice/"
+    "cd(/hom▶" shouldGiveCompletions "/home/"
   }
 
   {
@@ -57,22 +57,22 @@ class CompletionsTest extends FlatSpec with Matchers {
       "dir" -> Directory(),
       "document.txt" -> File()))
 
-    "cd ▶" shouldGiveCompletions ("dir/")
-    "cd d▶" shouldGiveCompletions ("dir/")
-    "cd pw▶" shouldGiveCompletions ("pwd")
+    "cd ▶" shouldGiveCompletions "dir/"
+    "cd d▶" shouldGiveCompletions "dir/"
+    "cd pw▶" shouldGiveCompletions "pwd"
 
-    "cd(▶" shouldGiveCompletions ("dir/")
-    "cd(d▶" shouldGiveCompletions ("dir/")
-    "cd(pw▶" shouldGiveCompletions ("pwd")
+    "cd(▶" shouldGiveCompletions "dir/"
+    "cd(d▶" shouldGiveCompletions "dir/"
+    "cd(pw▶" shouldGiveCompletions "pwd"
 
-    "d▶ | cd" shouldGiveCompletions ("dir/")
-    """cd --directory="d"▶""" shouldGiveCompletions ("dir/")
+    "d▶ | cd" shouldGiveCompletions "dir/"
+    """cd --directory="d"▶""" shouldGiveCompletions "dir/"
     //    """cd --directory=d▶""" shouldGiveCompletions ("dir/")
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/spaces in name")
-    "readLines spaces▶" shouldGiveCompletions ("spaces in name")
+    "readLines spaces▶" shouldGiveCompletions "spaces in name"
   }
 
   " ''.groupB▶ " shouldNotContainCompletion "groupBy"
@@ -93,60 +93,60 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 
     "read▶" shouldGiveCompletions ("readLines", "readme.txt")
-    "readme.t▶" shouldGiveCompletions ("readme.txt")
-    """ "readme.t▶" """ shouldGiveCompletions ("readme.txt")
-    """ "readme".t▶ """ shouldGiveCompletions ("readme.txt")
-    "readme.▶" shouldGiveCompletions ("readme.txt")
+    "readme.t▶" shouldGiveCompletions "readme.txt"
+    """ "readme.t▶" """ shouldGiveCompletions "readme.txt"
+    """ "readme".t▶ """ shouldGiveCompletions "readme.txt"
+    "readme.▶" shouldGiveCompletions "readme.txt"
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
     implicit val environment = Environment(MashObject.of(Seq("readme" -> MashString("readme"))))
 
-    "readme.▶ # with binding" shouldGiveCompletions ("readme.txt")
-    "readme.t▶ # with binding" shouldGiveCompletions ("readme.txt")
+    "readme.▶ # with binding" shouldGiveCompletions "readme.txt"
+    "readme.t▶ # with binding" shouldGiveCompletions "readme.txt"
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/file.txt")
 
-    "readLines ▶" shouldGiveCompletions ("file.txt") // no bindings
+    "readLines ▶" shouldGiveCompletions "file.txt" // no bindings
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/foo.txt")
 
-    "[{ foo: 42 }] | map fo▶" shouldGiveCompletions ("foo")
-    "[{ bar: 42 }] | map fo▶" shouldGiveCompletions ("foo.txt")
+    "[{ foo: 42 }] | map fo▶" shouldGiveCompletions "foo"
+    "[{ bar: 42 }] | map fo▶" shouldGiveCompletions "foo.txt"
   }
 
-  "{ foo: 42 } | select fo▶" shouldGiveCompletions ("foo")
-  "[{ foo: 42 }] | select fo▶" shouldGiveCompletions ("foo")
+  "{ foo: 42 } | select fo▶" shouldGiveCompletions "foo"
+  "[{ foo: 42 }] | select fo▶" shouldGiveCompletions "foo"
 
   // Flags
-  "pwd.children --recur▶" shouldGiveCompletions ("--recursive")
-  "select --add▶" shouldGiveCompletions ("--add")
+  "pwd.children --recur▶" shouldGiveCompletions "--recursive"
+  "select --add▶" shouldGiveCompletions "--add"
   "select --▶" shouldGiveCompletions ("--add", "--target")
-  "cd -▶" shouldGiveCompletions ("--directory")
+  "cd -▶" shouldGiveCompletions "--directory"
   "ls -▶" shouldContainCompletion "-a"
   "'dir' | ls -▶" shouldContainCompletion "-a"
 
   {
     implicit val filesystem = MockFileSystem.of("/-")
 
-    "-▶" shouldGiveCompletions ("-")
+    "-▶" shouldGiveCompletions "-"
     "ls -▶" shouldContainCompletion "-"
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/--")
 
-    "--▶" shouldGiveCompletions ("--")
+    "--▶" shouldGiveCompletions "--"
     "ls --▶" shouldContainCompletion "--"
   }
 
-  "[{ foo: 42 }].map fo▶" shouldGiveCompletions ("foo")
-  "map permiss▶ --sequence=ls" shouldGiveCompletions ("permissions")
+  "[{ foo: 42 }].map fo▶" shouldGiveCompletions "foo"
+  "map permiss▶ --sequence=ls" shouldGiveCompletions "permissions"
 
   "{ foo: 42 }?.fo▶" shouldGiveCompletions "foo"
   "{ foo: 42 }?.▶" shouldContainCompletion "foo"
@@ -164,7 +164,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   // To get this to work, we need to be able to identify the name corresponding to the nth argument (by syntactical position)
-  "map --sequence=ls permiss▶" shouldGiveCompletions ("permissions")
+  "map --sequence=ls permiss▶" shouldGiveCompletions "permissions"
 
   {
     implicit val filesystem = MockFileSystem.of("/dollar$ign")
@@ -234,7 +234,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "Seq completions" should "not be marked as vectorised" in {
     val Some(completion) = "pwd.children.isEmpt▶".fullCompletions.find(_.displayText == "isEmpty")
     val Some(description) = completion.descriptionOpt
-    description should not include ("vectorised")
+    description should not include "vectorised"
   }
 
   // Substring completions 
@@ -253,26 +253,26 @@ class CompletionsTest extends FlatSpec with Matchers {
       "foo---" -> File(),
       "---foo" -> File()))
 
-    "foo▶" shouldGiveCompletions ("foo---")
+    "foo▶" shouldGiveCompletions "foo---"
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/foo-bar")
 
-    "cd foo-▶" shouldGiveCompletions ("foo-bar")
+    "cd foo-▶" shouldGiveCompletions "foo-bar"
   }
 
-  "{ foobar: 42 }.foo▶ = 42" shouldGiveCompletions ("foobar")
-  "a = { foobar: 42}.foo▶" shouldGiveCompletions ("foobar")
+  "{ foobar: 42 }.foo▶ = 42" shouldGiveCompletions "foobar"
+  "a = { foobar: 42}.foo▶" shouldGiveCompletions "foobar"
 
-  "kill --signal=H▶" shouldGiveCompletions ("HUP")
+  "kill --signal=H▶" shouldGiveCompletions "HUP"
 
   {
     implicit val filesystem = MockFileSystem.of("/.git")
 
-    "[{ gitty: 42 }].gi▶" shouldGiveCompletions ("gitty")
-    "[{ gitty: 42 }].▶" shouldContainCompletion ("gitty")
-    "[{ gitty: 42 }] .gi▶" shouldGiveCompletions (".git")
+    "[{ gitty: 42 }].gi▶" shouldGiveCompletions "gitty"
+    "[{ gitty: 42 }].▶" shouldContainCompletion "gitty"
+    "[{ gitty: 42 }] .gi▶" shouldGiveCompletions ".git"
   }
 
   {
@@ -281,7 +281,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     "ls -r▶" shouldGiveCompletions ()
   }
 
-  "{ foobar: 42 } | .foo▶" shouldGiveCompletions ("foobar")
+  "{ foobar: 42 } | .foo▶" shouldGiveCompletions "foobar"
 
   {
     implicit val fileSystem = MockFileSystem.of("/.dotfiles/.bashrc")
@@ -295,9 +295,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
   }
   
-  " [{ foo: true }] | find fo▶" shouldGiveCompletions ("foo")
+  " [{ foo: true }] | find fo▶" shouldGiveCompletions "foo"
   
-  " { ls.fir▶ : 42 }" shouldGiveCompletions ("first")
+  " { ls.fir▶ : 42 }" shouldGiveCompletions "first"
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
@@ -319,7 +319,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     def shouldNotContainCompletion(expectedCompletion: String) {
       "Completer" should s"offer completions for '$s' without: $expectedCompletion" in {
-        completions should not contain (expectedCompletion)
+        completions should not contain expectedCompletion
       }
     }
 

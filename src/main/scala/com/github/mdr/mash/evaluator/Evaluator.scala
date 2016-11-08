@@ -152,7 +152,7 @@ object Evaluator extends EvaluatorHelper {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, sourceInfoOpt) = param
     val defaultValueGeneratorOpt = defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr))
     val name = nameOpt.getOrElse("arg" + (argIndex + 1))
-    Parameter(name, s"Parameter '${name}'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
+    Parameter(name, s"Parameter '$name'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined)
   }
 

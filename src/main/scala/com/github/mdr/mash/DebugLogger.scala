@@ -12,7 +12,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  */
 class DebugLogger(sessionId: UUID) {
 
-  private val logFile = new File(s"/tmp/mash-debug-${sessionId}.log")
+  private val logFile = new File(s"/tmp/mash-debug-$sessionId.log")
 
   def logException(e: Throwable) {
     val stackTrace = ExceptionUtils.getStackTrace(e)

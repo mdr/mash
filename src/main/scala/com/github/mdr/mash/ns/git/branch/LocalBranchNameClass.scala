@@ -62,4 +62,3 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
   override def parentOpt = Some(AnyClass)
 
 }
-

@@ -70,7 +70,7 @@ class GitStatusPrinter(output: PrintStream) {
       output.println()
       for (path ← status.untracked)
         output.println(red(indent + path))
-      output.println
+      output.println()
     }
     if (!status.hasChangesToBeCommitted && !status.hasUnstagedChanges && status.untracked.isEmpty)
       output.println("nothing to commit, working directory clean")

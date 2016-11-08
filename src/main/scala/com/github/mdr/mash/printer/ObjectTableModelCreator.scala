@@ -24,7 +24,7 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
       objects.zipWithIndex.map { case (obj, i) ⇒ createRow(obj, i, columns) }
 
     def desiredColumnWidth(member: String): Int = (renderedObjects.map(_.data(member)) :+ member).map(_.size).max
-    val requestedColumnWidths: Map[ColumnSpec, Int] = (for (c ← columns) yield (c -> desiredColumnWidth(c.name))).toMap
+    val requestedColumnWidths: Map[ColumnSpec, Int] = (for (c ← columns) yield c -> desiredColumnWidth(c.name)).toMap
 
     val columnNames = IndexColumnName +: columns.map(_.name)
     val indexColumnWidth = objects.size.toString.length

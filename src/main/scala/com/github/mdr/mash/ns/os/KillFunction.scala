@@ -66,7 +66,7 @@ The default signal is TERM."""))
   def getSignal(boundParams: BoundParams, param: Parameter): Int =
     boundParams(param) match {
       case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(param, "invalid signal: " + n))
-      case s: MashString ⇒ Signals.get(s.s).getOrElse(boundParams.throwInvalidArgument(param, "invalid signal: " + s))
+      case s: MashString ⇒ Signals.getOrElse(s.s, boundParams.throwInvalidArgument(param, "invalid signal: " + s))
       case x             ⇒ boundParams.throwInvalidArgument(param, s"invalid signal '$x'")
     }
 

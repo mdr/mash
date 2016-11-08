@@ -53,8 +53,6 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
   object DeleteMethod extends MashMethod("delete") {
 
-    import PushFunction.Params._
-
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {

@@ -2,9 +2,6 @@ package com.github.mdr.mash.assist
 
 import scala.PartialFunction._
 import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.completions.ContiguousRegionFinder
-import com.github.mdr.mash.completions.InvocationFinder
-import com.github.mdr.mash.completions.InvocationInfo
 import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.MashMethod
@@ -13,17 +10,13 @@ import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
-import com.github.mdr.mash.parser.SourceInfo
 import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.compiler.CompilationSettings
 
 object InvocationAssistance {
-
-  private def isNearby(pos: Int, token: Token) = token.region.contains(pos) || pos == token.region.posAfter
 
   def getCallingSyntaxOfCurrentInvocation(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[AssistanceState] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens

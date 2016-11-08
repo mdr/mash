@@ -1,8 +1,6 @@
 package com.github.mdr.mash.compiler
 
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.parser.QuotationType

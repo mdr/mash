@@ -59,15 +59,14 @@ object PrettyPrinter {
             " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
         }.mkString
     case InvocationExpr(function, args, _, _) ⇒
-      parens(pretty(function), simpleOmitParens(function)) + " " + args.map(arg ⇒
-        arg match {
-          case Argument.PositionArg(e, _) ⇒
-            parens(pretty(e), simpleOmitParens(e))
-          case Argument.ShortFlag(flags, _) ⇒
-            "-" + flags
-          case Argument.LongFlag(flag, valueOpt, _) ⇒
-            "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
-        }).mkString(" ")
+      parens(pretty(function), simpleOmitParens(function)) + " " + args.map {
+        case Argument.PositionArg(e, _) ⇒
+          parens(pretty(e), simpleOmitParens(e))
+        case Argument.ShortFlag(flags, _) ⇒
+          "-" + flags
+        case Argument.LongFlag(flag, valueOpt, _) ⇒
+          "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
+      }.mkString(" ")
     case MishInterpolation(part, _) ⇒
       part match {
         case StringPart(s)  ⇒ s

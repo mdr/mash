@@ -19,21 +19,21 @@ import com.github.mdr.mash.runtime._
 class ValueTypeDetectorTest extends FlatSpec with Matchers {
 
   "ValueTypeDetector" should "detect simple types" in {
-    ValueTypeDetector.getType(MashBoolean.True) shouldEqual (Type.Instance(BooleanClass))
-    ValueTypeDetector.getType(MashBoolean.False) shouldEqual (Type.Instance(BooleanClass))
-    ValueTypeDetector.getType(MashUnit) shouldEqual (Type.Instance(UnitClass))
-    ValueTypeDetector.getType(MashNull) shouldEqual (Type.Instance(NullClass))
-    ValueTypeDetector.getType(MashWrapped(Instant.now)) shouldEqual (Type.Instance(DateTimeClass))
-    ValueTypeDetector.getType(MashWrapped(LocalDate.now)) shouldEqual (Type.Instance(LocalDateClass))
-    ValueTypeDetector.getType(MashString("foo")) shouldEqual (Type.Instance(StringClass))
+    ValueTypeDetector.getType(MashBoolean.True) shouldEqual Type.Instance(BooleanClass)
+    ValueTypeDetector.getType(MashBoolean.False) shouldEqual Type.Instance(BooleanClass)
+    ValueTypeDetector.getType(MashUnit) shouldEqual Type.Instance(UnitClass)
+    ValueTypeDetector.getType(MashNull) shouldEqual Type.Instance(NullClass)
+    ValueTypeDetector.getType(MashWrapped(Instant.now)) shouldEqual Type.Instance(DateTimeClass)
+    ValueTypeDetector.getType(MashWrapped(LocalDate.now)) shouldEqual Type.Instance(LocalDateClass)
+    ValueTypeDetector.getType(MashString("foo")) shouldEqual Type.Instance(StringClass)
     ValueTypeDetector.getType(MashString("foo", Some(PathClass))) shouldEqual (StringClass taggedWith PathClass)
-    ValueTypeDetector.getType(MashNumber(1)) shouldEqual (Type.Instance(NumberClass))
+    ValueTypeDetector.getType(MashNumber(1)) shouldEqual Type.Instance(NumberClass)
     ValueTypeDetector.getType(MashNumber(1, Some(DaysClass))) shouldEqual (NumberClass taggedWith DaysClass)
   }
 
   "ValueTypeDetector" should "detect object types in a classless object" in {
-    ValueTypeDetector.getType(MashObject.of(Seq("foo" -> MashBoolean.True))) shouldEqual (
-      Type.Object(ListMap("foo" -> BooleanClass)))
+    ValueTypeDetector.getType(MashObject.of(Seq("foo" -> MashBoolean.True))) shouldEqual
+      Type.Object(ListMap("foo" -> BooleanClass))
   }
 
   "ValueTypeDetector" should "detect object types in an object with a class" in {
@@ -44,6 +44,6 @@ class ValueTypeDetectorTest extends FlatSpec with Matchers {
         CanWrite -> MashBoolean.True,
         CanExecute -> MashBoolean.True),
       PermissionsSectionClass)
-    ValueTypeDetector.getType(obj) shouldEqual (Type.Instance(PermissionsSectionClass))
+    ValueTypeDetector.getType(obj) shouldEqual Type.Instance(PermissionsSectionClass)
   }
 }

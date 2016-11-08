@@ -61,7 +61,7 @@ object NumberClass extends MashClass("core.Number") {
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
       val step = boundParams.validateInteger(Step)
-      MashList((start.to(end, step)).map(MashNumber(_)))
+      MashList(start.to(end, step).map(MashNumber(_)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
@@ -91,7 +91,7 @@ object NumberClass extends MashClass("core.Number") {
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
       val step = boundParams.validateInteger(Step)
-      MashList((start.until(end, step)).map(MashNumber(_)))
+      MashList(start.until(end, step).map(MashNumber(_)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))

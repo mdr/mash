@@ -1,11 +1,7 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.functions.MashFunction
-import java.time.LocalDate
-import java.time.Instant
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.MashValue
-import java.util.function.Supplier
 import java.util.IdentityHashMap
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.functions.MashMethod

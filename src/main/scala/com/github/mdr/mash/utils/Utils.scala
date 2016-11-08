@@ -33,11 +33,10 @@ object Utils {
 
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {
     val result = ArrayBuffer[T]()
-    xs.foreach(
-      _ match {
-        case Some(x) ⇒ result += x
-        case None    ⇒ return None
-      })
+    xs.foreach {
+      case Some(x) ⇒ result += x
+      case None    ⇒ return None
+    }
     Some(result)
   }
 
@@ -65,7 +64,7 @@ object Utils {
   }
 
   def distinctBy[T, U](items: Seq[T], f: T ⇒ U): Seq[T] = {
-    case class Wrapper(val item: T) {
+    case class Wrapper(item: T) {
       val key: U = f(item)
       override def hashCode = key.hashCode
       override def equals(other: Any) = cond(other) {

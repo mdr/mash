@@ -3,10 +3,8 @@ package com.github.mdr.mash.ns.os
 import java.nio.file.Files
 import java.nio.file.Path
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-
+import scala.collection.JavaConverters._
 import org.apache.commons.io.FileUtils
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.evaluator.EvaluatorException
@@ -18,25 +16,13 @@ import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.Type.classToType
-import com.github.mdr.mash.inference.Type.seqToType
-import com.github.mdr.mash.inference.Type.unitToType
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.os.pathClass.PathClassBaseNameMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassCdMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassChildrenMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassCopyMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassCreateDirectoryMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassExistsMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassExtensionMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassFollowLinkMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassRenameByMethod
-import com.github.mdr.mash.ns.os.pathClass.PathClassRenameToMethod
+import com.github.mdr.mash.ns.os.pathClass._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashBoolean

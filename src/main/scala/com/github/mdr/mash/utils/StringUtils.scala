@@ -8,7 +8,7 @@ object StringUtils {
    *
    * ellipsisiseMiddle("1234567890", maxLength = 9) should equal ("123...890")
    *
-   * @param Maximum length of the string
+   * @param maxLength of the string
    */
   def ellipsisiseMiddle(s: String, maxLength: Int) = {
     if (s.size > maxLength)

@@ -50,7 +50,7 @@ object LinuxFileSystem extends FileSystem {
         Files.walkFileTree(parentDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, Visitor)
         foundPaths
       } else
-        Files.list(parentDir).collect(Collectors.toList()).asScala.toSeq.sortBy(_.getFileName)
+        Files.list(parentDir).collect(Collectors.toList()).asScala.sortBy(_.getFileName)
     if (ignoreDotFiles)
       files = files.filterNot(_.getFileName.toString startsWith ".")
     files.map(getPathSummary)
@@ -65,10 +65,10 @@ object LinuxFileSystem extends FileSystem {
     val lastAccessed = attrs.lastAccessTime.toInstant
     val perms = attrs.permissions()
     val fileType =
-      if (attrs.isSymbolicLink()) FileTypeClass.Values.Link
-      else if (attrs.isRegularFile()) FileTypeClass.Values.File
-      else if (attrs.isDirectory()) FileTypeClass.Values.Dir
-      else if (attrs.isOther()) FileTypeClass.Values.Other
+      if (attrs.isSymbolicLink) FileTypeClass.Values.Link
+      else if (attrs.isRegularFile) FileTypeClass.Values.File
+      else if (attrs.isDirectory) FileTypeClass.Values.Dir
+      else if (attrs.isOther) FileTypeClass.Values.Other
       else null
 
     PathSummary(
@@ -105,7 +105,7 @@ object LinuxFileSystem extends FileSystem {
   override def glob(pattern: String): Seq[PathSummary] = {
     val startDir = GlobHelper.globStart(pattern)
     val recurse = pattern.contains("**")
-    val matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern)
+    val matcher = FileSystems.getDefault.getPathMatcher("glob:" + pattern)
     val foundPaths = ArrayBuffer[Path]()
     val visitor = new SimpleFileVisitor[Path]() {
 
@@ -136,7 +136,7 @@ object LinuxFileSystem extends FileSystem {
     System.setProperty("user.dir", pwd.toString)
   }
 
-  override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile, StandardCharsets.UTF_8).asScala.toSeq
+  override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile, StandardCharsets.UTF_8).asScala
 
   override def exists(path: Path): Boolean = Files.exists(path)
 

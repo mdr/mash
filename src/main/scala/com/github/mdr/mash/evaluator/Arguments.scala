@@ -1,7 +1,5 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime.MashValue
-
 case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
 
   def positionArgs: Seq[EvaluatedArgument.PositionArg] =

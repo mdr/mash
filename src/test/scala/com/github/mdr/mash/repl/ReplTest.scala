@@ -69,9 +69,9 @@ class ReplTest extends FlatSpec with Matchers {
     repl.input("command1").acceptLine()
     repl.input("command2").acceptLine()
     repl.input("partial")
-    repl.previousHistory().text should equal("command2")
-    repl.nextHistory().text shouldEqual ("partial")
-    repl.previousHistory().backspace().text shouldEqual ("command")
+    repl.previousHistory().text shouldEqual "command2"
+    repl.nextHistory().text shouldEqual "partial"
+    repl.previousHistory().backspace().text shouldEqual "command"
 
     repl.nextHistory()
 
@@ -81,8 +81,8 @@ class ReplTest extends FlatSpec with Matchers {
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
     val repl = makeRepl()
     repl.input("foo")
-    repl.toggleQuote().text should equal(""""foo"""")
-    repl.toggleQuote().text should equal("foo")
+    repl.toggleQuote().text shouldEqual """"foo""""
+    repl.toggleQuote().text shouldEqual "foo"
   }
 
   "Delete" should "work at the first character" in {

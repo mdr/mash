@@ -572,12 +572,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Semicolon inference
   """|a = 1
      |b = a + 1
-     |a + b""" shouldEvaluateTo ("3")
+     |a + b""" shouldEvaluateTo "3"
 
   """|a = 1
      |b = a +
      |  1
-     |a + b""" shouldEvaluateTo ("3")
+     |a + b""" shouldEvaluateTo "3"
 
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo "43"
@@ -599,8 +599,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "5.until 1 --step=-1" shouldEvaluateTo "[5, 4, 3, 2]"
   
   // Lambdas inside parens and blocks
-  "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo ("42")
-  "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo ("42")
+  "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo "42"
+  "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo "42"
 
   // Number.times
   "a = 0; 5.times (a += 1); a" shouldEvaluateTo "5"

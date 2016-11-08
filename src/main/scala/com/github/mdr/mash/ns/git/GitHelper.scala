@@ -29,7 +29,7 @@ object GitHelper {
     builder.getGitDir != null
   }
 
-  private def getRepository() = {
+  private def getRepository = {
     val builder = new FileRepositoryBuilder
     builder.readEnvironment()
     builder.findGitDir(filesystem.pwd.toFile)

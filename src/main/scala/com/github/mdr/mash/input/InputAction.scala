@@ -15,7 +15,7 @@ object InputAction {
     if (inputSequence == InputSequence.ControlD && isLineEmpty)
       EndOfFile
     else
-      keyMap.map.get(inputSequence).getOrElse(inputSequence match {
+      keyMap.map.getOrElse(inputSequence, inputSequence match {
         case InputSequence.OtherSequence(s) ⇒ SelfInsert(s)
         case _                              ⇒ Noop
       })

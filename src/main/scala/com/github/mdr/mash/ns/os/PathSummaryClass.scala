@@ -11,6 +11,7 @@ import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.ns.os.pathClass.PathClassInfoMethod
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashNumber

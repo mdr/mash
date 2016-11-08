@@ -23,6 +23,6 @@ case class Token(tokenType: TokenType, offset: Int, length: Int, source: String)
 
   override def toString = {
     val abbreviatedText = StringUtils.ellipsisise(text, 20)
-    s"""$tokenType($offset, >>${abbreviatedText}<<)"""
+    s"""$tokenType($offset, >>$abbreviatedText<<)"""
   }
 }

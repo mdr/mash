@@ -33,7 +33,7 @@ class MockFileSystem(
     var current: MockFileObject = root
     for (segment ← segments.map(_.toString)) {
       current = current match {
-        case d: MockFileObject.Directory ⇒ d.children.get(segment).getOrElse(
+        case d: MockFileObject.Directory ⇒ d.children.getOrElse(segment,
           throw new NoSuchElementException(s"Could not find file '$segment' at '$sb'"))
         case f: MockFileObject.File ⇒ throw new NoSuchElementException(s"Could not find directory '$segment' at '$sb'")
       }

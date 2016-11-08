@@ -18,9 +18,6 @@ object Compiler {
 
   /**
    * Compile the given program into an expression.
-   *
-   * @param inferTypes - if true, the resultant expression will be annotated with types, if it was possible to infer them.
-   * @param bareWords - if true, unbound identifiers are promoted to string literals
    */
   def compileForgiving(compilationUnit: CompilationUnit,
                        bindings: Map[String, MashValue],

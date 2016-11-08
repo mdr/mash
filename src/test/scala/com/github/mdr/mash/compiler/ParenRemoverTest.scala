@@ -24,7 +24,7 @@ class ParenRemoverTest extends FlatSpec with Matchers {
     ParenRemover.removeParens(expr) should equal(subExpr)
   }
 
-  "foo --bar=(baz)" afterParensRemovedShouldBe ("foo --bar=baz")
+  "foo --bar=(baz)" afterParensRemovedShouldBe "foo --bar=baz"
 
   private implicit class RichString(s: String) {
     def afterParensRemovedShouldBe(s2: String) {

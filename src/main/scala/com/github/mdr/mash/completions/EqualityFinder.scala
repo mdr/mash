@@ -11,7 +11,7 @@ import com.github.mdr.mash.parser._
 object EqualityFinder {
 
   def findEqualityExprWithLiteralArg(expr: Expr, literalToken: Token): Option[Type] =
-    (expr.find {
+    expr.find {
       case BinOpExpr(Literal(_, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
         right.typeOpt
       case BinOpExpr(StringLiteral(_, _, _, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), BinaryOperator.Equals | BinaryOperator.NotEquals, right, _) ⇒
@@ -20,6 +20,6 @@ object EqualityFinder {
         left.typeOpt
       case BinOpExpr(left, BinaryOperator.Equals | BinaryOperator.NotEquals, StringLiteral(_, _, _, Some(SourceInfo(_, ConcreteSyntax.Literal(`literalToken`)))), _) ⇒
         left.typeOpt
-    }).flatten
+    }.flatten
 
 }

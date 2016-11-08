@@ -6,8 +6,6 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.utils.LineInfo
-import com.github.mdr.mash.repl.CursorPos
 
 object QuoteToggler {
 

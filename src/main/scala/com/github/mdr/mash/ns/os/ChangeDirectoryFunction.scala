@@ -45,7 +45,6 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
       case NotADirectory ⇒
         boundParams.throwInvalidArgument(Directory, s"Could not change directory to '$path', not a directory")
     }
-    MashUnit
   }
 
   private def home = MashString(environmentInteractions.home.toString, Some(PathClass))

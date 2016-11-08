@@ -1,9 +1,5 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.inference._
-import com.github.mdr.mash.evaluator.Arguments
-
 case class Namespace(segments: Seq[String]) {
 
   override def toString = segments.mkString(".")

@@ -3,7 +3,6 @@ package com.github.mdr.mash.evaluator
 import com.github.mdr.mash.runtime.MashValue
 import java.time.Instant
 import com.github.mdr.mash.ns.time.MillisecondsClass
-import com.github.mdr.mash.utils.PointedRegion
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.ns.time.ChronoUnitClass
 import java.time.temporal.TemporalAmount
@@ -11,7 +10,6 @@ import java.time.Duration
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.parser.AbstractSyntax._
-import scala.collection.mutable.LinkedHashMap
 
 object BinaryOperatorEvaluator extends EvaluatorHelper {
 

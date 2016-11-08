@@ -41,7 +41,7 @@ If the destination is not a directory, only a single source path may be provided
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(SourcePaths))
     val destination = boundParams.validatePath(Destination)
 
-    if (sourcePaths.size == 0)
+    if (sourcePaths.isEmpty)
       throw new EvaluatorException("Must have at least one source path")
 
     val destinationIsDir = Files.isDirectory(destination)

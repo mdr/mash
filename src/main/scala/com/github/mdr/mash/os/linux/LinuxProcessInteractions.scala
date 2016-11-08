@@ -14,7 +14,7 @@ object LinuxProcessInteractions extends ProcessInteractions {
   private def makeProcessInfo(info: JavaSysmonProcessInfo): ProcessInfo = {
     ProcessInfo(
       pid = info.getPid,
-      parentPidOpt = (if (info.getParentPid == 0) None else Some(info.getParentPid)),
+      parentPidOpt = if (info.getParentPid == 0) None else Some(info.getParentPid),
       name = info.getName,
       command = info.getCommand,
       owner = info.getOwner,

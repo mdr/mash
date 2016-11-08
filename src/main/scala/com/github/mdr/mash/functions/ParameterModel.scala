@@ -69,8 +69,6 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
           case Some(shortFlag) ⇒ s"$longForm | -$shortFlag"
           case None            ⇒ longForm
         }
-        if (param.isOptional)
-          s"[$main]"
         if (param.shortFlagOpt.isDefined)
           s"($main)"
         else

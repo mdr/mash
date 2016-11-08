@@ -106,7 +106,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
     val topLine = "┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐"
     val bottomLine = "└─" + "─" * innerWidth + "─┘"
     val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
-    for (line ← (topLine +: contentLines :+ bottomLine))
+    for (line ← topLine +: contentLines :+ bottomLine)
       output.println(line)
   }
 

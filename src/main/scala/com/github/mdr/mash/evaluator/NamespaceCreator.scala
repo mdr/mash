@@ -1,15 +1,9 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.functions.MashFunction
-import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.MashRoot
 import com.github.mdr.mash.functions.HasName
-import com.github.mdr.mash.ns.git.GitNamespace
-import com.github.mdr.mash.ns.view._
-import com.github.mdr.mash.ns.json._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.ns.git.branch.GetFunction
 
 object NamespaceCreator {
 

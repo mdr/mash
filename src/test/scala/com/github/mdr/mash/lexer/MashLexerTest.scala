@@ -3,7 +3,6 @@ package com.github.mdr.mash.lexer
 import org.scalatest.FlatSpec
 import com.github.mdr.mash.lexer.TokenType._
 import org.scalatest.Matchers
-import scala.collection.mutable.ArrayBuilder
 import scala.collection.mutable.ArrayBuffer
 import com.github.mdr.mash.parser.MashParserException
 
@@ -24,8 +23,8 @@ class MashLexerTest extends FlatSpec with Matchers {
   "0" shouldProduce Seq(NUMBER_LITERAL)
   "10" shouldProduce Seq(NUMBER_LITERAL)
   "1234567890" shouldProduce Seq(NUMBER_LITERAL)
-  "1.day" shouldProduce (Seq(NUMBER_LITERAL, DOT, IDENTIFIER))
-  "1." shouldProduce (Seq(NUMBER_LITERAL, DOT))
+  "1.day" shouldProduce Seq(NUMBER_LITERAL, DOT, IDENTIFIER)
+  "1." shouldProduce Seq(NUMBER_LITERAL, DOT)
 
   "true false" shouldProduce Seq(TRUE, FALSE)
 
@@ -149,9 +148,9 @@ class MashLexerTest extends FlatSpec with Matchers {
 
   { // Strict mode
     implicit val mode = Mode(forgiving = false)
-    "\"unterminated string" shouldThrowAnExceptionAtPos (18)
-    "03" shouldThrowAnExceptionAtPos (1)
-    "$" shouldThrowAnExceptionAtPos (0)
+    "\"unterminated string" shouldThrowAnExceptionAtPos 18
+    "03" shouldThrowAnExceptionAtPos 1
+    "$" shouldThrowAnExceptionAtPos 0
   }
 
   // Multilines

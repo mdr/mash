@@ -129,7 +129,7 @@ object ObjectClass extends MashClass("core.Object") {
       val boundParams = params.validate(arguments)
       val field = boundParams.validateString(Name).s
       val default = boundParams(Default)
-      obj.fields.get(field).getOrElse(default)
+      obj.fields.getOrElse(field, default)
     }
 
     object GetMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {

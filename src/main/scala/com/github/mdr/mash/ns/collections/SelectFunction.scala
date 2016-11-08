@@ -82,7 +82,7 @@ object SelectFunction extends MashFunction("collections.select") {
     val mapPairs =
       for ((field, f) ← fieldsAndFunctions)
         yield field -> f(target)
-    val newFields = ListMap((mapPairs): _*)
+    val newFields = ListMap(mapPairs: _*)
     MashObject.of(baseFields ++ newFields)
   }
 

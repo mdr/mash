@@ -5,10 +5,8 @@ import com.github.mdr.mash.ns.os.ProcessResultClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import java.nio.file.Paths
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.parser.RedirectOperator
 import java.nio.file.Path
@@ -26,7 +24,7 @@ object MishEvaluator extends EvaluatorHelper {
   def evaluateMishExpr(expr: MishExpr)(implicit context: EvaluationContext): MashValue = {
     val MishExpr(command, args, redirects, captureProcessOutput, _) = expr
     val evaluatedCommand = Evaluator.evaluate(command)
-    val evaluatedArgs = args.map(Evaluator.evaluate(_))
+    val evaluatedArgs = args.map(Evaluator.evaluate)
     def getRedirect(operator: RedirectOperator): Option[Path] =
       redirects.find(_.operator == operator).map(redirect ⇒ Paths.get(ToStringifier.stringify(Evaluator.evaluate(redirect.arg))))
     val stdinRedirectOpt = getRedirect(RedirectOperator.StandardInput)
@@ -68,7 +66,6 @@ object MishEvaluator extends EvaluatorHelper {
       case _ ⇒
         throw new EvaluatorException("Too many arguments to 'cd'", sourceLocation(argExprs(1)))
     }
-    MashUnit
   }
 
 }
