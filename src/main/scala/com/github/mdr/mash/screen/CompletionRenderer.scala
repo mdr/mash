@@ -67,7 +67,7 @@ object CompletionRenderer {
       val commonPrefixStyled = commonPrefix.style(commonFragmentStyle)
 
       val beforeAfterStyle = Style(foregroundColour = colour, inverse = active)
-      val before = truncatedText.slice(completionFragment.prefix.length, location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
+      val before = truncatedText.drop(completionFragment.prefix.length).take(location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
       val beforeStyled = before.style(beforeAfterStyle)
       val after = truncatedText.drop(location.displayPos + completionFragment.after.length)
       val afterStyled = after.style(beforeAfterStyle)
@@ -89,7 +89,7 @@ object CompletionRenderer {
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)
     val activeRow = activeIndex / numberOfCompletionColumns
     val firstRow = math.max(0, activeRow - terminalInfo.rows + 1)
-    val truncatedLines = allLines.slice(firstRow, terminalInfo.rows)
+    val truncatedLines = allLines.drop(firstRow).take(terminalInfo.rows)
     (truncatedLines, numberOfCompletionColumns)
   }
 

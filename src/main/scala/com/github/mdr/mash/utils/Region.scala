@@ -18,7 +18,7 @@ case class Region(offset: Int, length: Int) {
 
   def of(s: String): String = s.substring(offset, offset + length)
 
-  def of[T](xs: Seq[T]): Seq[T] = xs.slice(offset, length)
+  def of[T](xs: Seq[T]): Seq[T] = xs.slice(offset, offset + length)
   
   def translate(n: Int) = copy(offset = offset + n)
 
@@ -27,8 +27,8 @@ case class Region(offset: Int, length: Int) {
   def grow(n: Int) = Region(offset, length + 1)
   
   def overlaps(that: Region): Boolean =
-    if (this.length == 0) that.contains(this.offset)
-    else if (that.length == 0) this.contains(that.offset)
+    if (this.length == 0) that contains this.offset
+    else if (that.length == 0) this contains that.offset
     else !(this.lastPos < that.offset || that.lastPos < this.offset)
 
   def merge(that: Region): Region = {
@@ -53,4 +53,5 @@ case class PointedRegion(point: Int, region: Region) {
   def posAfter = region.posAfter
 
   def merge(that: PointedRegion): PointedRegion = copy(region = this.region merge that.region)
+
 }

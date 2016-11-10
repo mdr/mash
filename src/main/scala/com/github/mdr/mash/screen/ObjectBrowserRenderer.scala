@@ -36,7 +36,7 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
       objectTableStringifier.renderBelowHeaderRow(model)).map(s ⇒ Line(s.style))
 
   private def renderDataLines: Seq[Line] = {
-    val objects = model.objects.slice(state.firstRow, windowSize)
+    val objects = model.objects.drop(state.firstRow).take(windowSize)
     for {
       (obj, i) ← objects.zipWithIndex
       actualIndex = i + state.firstRow
