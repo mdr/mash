@@ -1,22 +1,13 @@
 package com.github.mdr.mash.ns.core
 
 import java.util.regex.Pattern
+
 import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.os.PathSummaryClass
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.runtime._
 
 object StringClass extends MashClass("core.String") {
 

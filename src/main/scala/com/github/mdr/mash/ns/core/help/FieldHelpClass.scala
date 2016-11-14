@@ -1,13 +1,9 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.{ Field, MashClass }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 

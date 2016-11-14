@@ -1,18 +1,12 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import java.time.{ Instant, LocalDate }
+
+import com.github.mdr.mash.evaluator.{ Arguments, BoundMethod, MashClass }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
-import java.time.Instant
-import java.time.LocalDate
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.evaluator.BoundMethod
 
 object AnyClass extends MashClass("core.Any") {
 

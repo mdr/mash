@@ -1,20 +1,13 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.ns.core.ClassClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
+
 import scala.PartialFunction.condOpt
+import scala.collection.immutable.ListMap
 object HelpFunction extends MashFunction("core.help.help") {
 
   object Params {

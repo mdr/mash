@@ -1,23 +1,14 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.ns.os.WithinFunction
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.completions.CompletionSpec
 import java.time.Clock
-import com.github.mdr.mash.runtime.MashObject
+
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.os.{ ProcessResultClass, WithinFunction }
+import com.github.mdr.mash.runtime.{ MashObject, MashWrapped }
+
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashWrapped
-import java.time.Duration
-import com.github.mdr.mash.ns.os.ProcessResultClass
 
 object TimeTakenFunction extends MashFunction("core.timeTaken") {
 
