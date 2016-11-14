@@ -1,7 +1,6 @@
 package com.github.mdr.mash.os
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{ Path, Paths }
 
 object MockEnvironmentInteractions {
 

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.printer
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
+import org.scalatest.{ FlatSpec, Matchers }
 
 class ColumnAllocatorTest extends FlatSpec with Matchers {
 

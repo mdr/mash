@@ -1,7 +1,7 @@
 package com.github.mdr.mash.completions
 
-import org.scalatest._
 import com.github.mdr.mash.utils.Region
+import org.scalatest._
 
 class ContiguousRegionFinderTest extends FlatSpec with Matchers {
 

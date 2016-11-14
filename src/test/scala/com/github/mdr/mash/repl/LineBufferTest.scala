@@ -1,7 +1,6 @@
 package com.github.mdr.mash.repl
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
+import org.scalatest.{ FlatSpec, Matchers }
 
 class LineBufferTest extends FlatSpec with Matchers {
 

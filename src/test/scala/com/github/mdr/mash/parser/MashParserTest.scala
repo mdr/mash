@@ -1,11 +1,9 @@
 package com.github.mdr.mash.parser
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.lexer.MashLexer
-
+import com.github.mdr.mash.parser.ConcreteSyntax._
 import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

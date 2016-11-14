@@ -1,14 +1,8 @@
 package com.github.mdr.mash.completions
 
-import java.nio.file.Paths
-import org.scalatest.Finders
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.MockFileObject
+import com.github.mdr.mash.os.{ MockEnvironmentInteractions, MockFileObject, MockFileSystem }
 import com.github.mdr.mash.os.MockFileObject._
-import com.github.mdr.mash.os.MockFileSystem
-import com.github.mdr.mash.os.MockEnvironmentInteractions
+import org.scalatest.{ FlatSpec, Matchers }
 
 class PathCompleterTest extends FlatSpec with Matchers {
 

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.utils
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
 import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

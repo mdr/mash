@@ -1,8 +1,7 @@
 package com.github.mdr.mash.utils
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
 import com.github.mdr.mash.utils.Utils._
+import org.scalatest.{ FlatSpec, Matchers }
 
 class UtilsTest extends FlatSpec with Matchers {
 

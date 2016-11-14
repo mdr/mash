@@ -1,9 +1,9 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class EvaluatorTest extends AbstractEvaluatorTest {

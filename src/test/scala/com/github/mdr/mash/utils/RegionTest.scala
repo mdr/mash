@@ -1,7 +1,6 @@
 package com.github.mdr.mash.utils
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import org.scalatest.{ FlatSpec, Matchers }
 
 class RegionTest extends FlatSpec with Matchers {
 

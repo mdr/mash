@@ -1,13 +1,11 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
+import com.github.mdr.mash.os.MockEnvironmentInteractions
 import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
 
-import com.github.mdr.mash.os.MockEnvironmentInteractions
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class TildeExpanderTest extends FlatSpec with Matchers {

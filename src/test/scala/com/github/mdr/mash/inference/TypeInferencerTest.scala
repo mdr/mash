@@ -1,21 +1,20 @@
 package com.github.mdr.mash.inference
 
-import org.apache.commons.lang3.SystemUtils
-import org.junit.runner.RunWith
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.compiler._
 import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.ns.os._
+import com.github.mdr.mash.ns.collections
+import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git._
-import com.github.mdr.mash.ns.collections.ListClass
-import com.github.mdr.mash.ns.collections
+import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.compiler._
+import org.apache.commons.lang3.SystemUtils
+import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
+import scala.collection.immutable.ListMap
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {

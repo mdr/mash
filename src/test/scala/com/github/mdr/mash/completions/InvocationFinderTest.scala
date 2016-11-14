@@ -1,13 +1,8 @@
 package com.github.mdr.mash.completions
 
-import org.scalatest.Finders
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator.Environment
+import com.github.mdr.mash.compiler.{ CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.compiler.CompilationSettings
+import org.scalatest.{ FlatSpec, Matchers }
 
 class InvocationFinderTest extends FlatSpec with Matchers {
 

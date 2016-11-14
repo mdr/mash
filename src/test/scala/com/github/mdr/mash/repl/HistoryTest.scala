@@ -2,10 +2,8 @@ package com.github.mdr.mash.repl
 
 import java.nio.file.Paths
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-
 import com.github.mdr.mash.repl.history._
+import org.scalatest.{ FlatSpec, Matchers }
 
 class HistoryTest extends FlatSpec with Matchers {
 

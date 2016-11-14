@@ -1,20 +1,14 @@
 package com.github.mdr.mash.inference
 
-import java.time.Instant
-import java.time.LocalDate
-
-import scala.collection.immutable.ListMap
-
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.os.PermissionsSectionClass
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.ns.time.DaysClass
-import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.ns.os.{ PathClass, PermissionsSectionClass }
+import com.github.mdr.mash.ns.time.{ DateTimeClass, DaysClass, LocalDateClass }
 import com.github.mdr.mash.runtime._
+import org.scalatest.{ FlatSpec, Matchers }
+
+import scala.collection.immutable.ListMap
 
 class ValueTypeDetectorTest extends FlatSpec with Matchers {
 

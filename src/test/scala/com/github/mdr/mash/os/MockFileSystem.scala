@@ -1,12 +1,13 @@
 package com.github.mdr.mash.os
 
-import java.nio.file.Path
-import scala.collection.JavaConverters._
+import java.nio.file.{ Path, Paths }
 import java.time.Instant
-import com.github.mdr.mash.ns.os.FileTypeClass
-import scala.collection.immutable.ListMap
-import java.nio.file.Paths
 import java.util.NoSuchElementException
+
+import com.github.mdr.mash.ns.os.FileTypeClass
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object MockFileSystem {
 

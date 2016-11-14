@@ -1,10 +1,10 @@
 package com.github.mdr.mash.lexer
 
-import org.scalatest.FlatSpec
 import com.github.mdr.mash.lexer.TokenType._
-import org.scalatest.Matchers
-import scala.collection.mutable.ArrayBuffer
 import com.github.mdr.mash.parser.MashParserException
+import org.scalatest.{ FlatSpec, Matchers }
+
+import scala.collection.mutable.ArrayBuffer
 
 class MashLexerTest extends FlatSpec with Matchers {
 

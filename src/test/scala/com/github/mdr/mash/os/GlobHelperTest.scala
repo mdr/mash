@@ -2,12 +2,10 @@ package com.github.mdr.mash.os
 
 import java.nio.file.Paths
 
-import org.junit.runner.RunWith
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import org.scalatest.junit.JUnitRunner
-
 import com.github.mdr.mash.os.linux.GlobHelper
+import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class GlobHelperTest extends FlatSpec with Matchers {

@@ -1,15 +1,11 @@
 package com.github.mdr.mash.functions
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-
-import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.compiler.Compiler
+import com.github.mdr.mash.compiler.{ CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.inference.SimpleTypedArguments
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.inference.{ SimpleTypedArguments, TypedArguments }
 import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
 import com.github.mdr.mash.runtime.MashBoolean
+import org.scalatest.{ FlatSpec, Matchers }
 
 class BindTypesTest extends FlatSpec with Matchers {
 

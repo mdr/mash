@@ -1,7 +1,6 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.repl.history.HistoryStorage
-import com.github.mdr.mash.repl.history.HistoryEntry
+import com.github.mdr.mash.repl.history.{ HistoryEntry, HistoryStorage }
 
 class InMemoryHistoryStorage(initialEntries: Seq[HistoryEntry] = Seq()) extends HistoryStorage {
 

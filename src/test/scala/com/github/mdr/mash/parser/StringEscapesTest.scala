@@ -1,7 +1,6 @@
 package com.github.mdr.mash.parser
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import org.scalatest.{ FlatSpec, Matchers }
 
 class StringEscapesTest extends FlatSpec with Matchers {
 

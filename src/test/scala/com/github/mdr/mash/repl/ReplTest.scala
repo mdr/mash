@@ -1,21 +1,15 @@
 package com.github.mdr.mash.repl
 
-import java.io.OutputStream
-import java.io.PrintStream
-import org.scalatest._
+import java.io.{ OutputStream, PrintStream }
+import java.util.UUID
+
 import com.github.mdr.mash.Config
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.MockEnvironmentInteractions
-import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.history.HistoryImpl
-import com.github.mdr.mash.terminal.Terminal
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
-import java.util.UUID
+import com.github.mdr.mash.runtime.{ MashNumber, MashString, MashUnit, MashValue }
+import com.github.mdr.mash.terminal.{ Terminal, TerminalInfo }
+import org.scalatest._
 
 class ReplTest extends FlatSpec with Matchers {
 

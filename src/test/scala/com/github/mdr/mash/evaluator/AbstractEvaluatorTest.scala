@@ -1,16 +1,12 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-
-import com.github.mdr.mash.compiler.CompilationSettings
-import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.compiler.Compiler
+import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.runtime.MashValue
+import org.scalatest.{ FlatSpec, Matchers }
+
+import scala.language.postfixOps
 
 abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 

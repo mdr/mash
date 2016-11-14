@@ -1,20 +1,14 @@
 package com.github.mdr.mash.completions
 
-import org.scalatest._
-import com.github.mdr.mash.repl.LineBufferTestHelper
-import com.github.mdr.mash.evaluator.Environment
-import com.github.mdr.mash.os.EnvironmentInteractions
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.MockEnvironmentInteractions
-import com.github.mdr.mash.os.MockFileObject._
-import com.github.mdr.mash.os.MockFileSystem
 import java.nio.file.Paths
-import com.github.mdr.mash.runtime.MashString
-import scala.collection.mutable
-import com.github.mdr.mash.evaluator.StandardEnvironment
+
+import com.github.mdr.mash.evaluator.{ Environment, StandardEnvironment }
+import com.github.mdr.mash.os.MockFileObject._
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem, MockEnvironmentInteractions, MockFileSystem }
+import com.github.mdr.mash.repl.LineBufferTestHelper
+import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import org.apache.commons.lang3.SystemUtils
-import com.github.mdr.mash.runtime.MashObject
-import scala.collection.immutable.ListMap
+import org.scalatest._
 
 class CompletionsTest extends FlatSpec with Matchers {
 

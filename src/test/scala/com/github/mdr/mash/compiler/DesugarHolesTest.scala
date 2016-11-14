@@ -1,11 +1,8 @@
 package com.github.mdr.mash.compiler
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.MashParser
-import com.github.mdr.mash.parser.Abstractifier
-import com.github.mdr.mash.parser.Provenance
+import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
+import org.scalatest.{ FlatSpec, Matchers }
 
 class DesugarHolesTest extends FlatSpec with Matchers {
 

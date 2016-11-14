@@ -1,9 +1,8 @@
 package com.github.mdr.mash.parser
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete }
+import com.github.mdr.mash.parser.{ ConcreteSyntax => Concrete }
+import org.scalatest.{ FlatSpec, Matchers }
 
 class AbstractifierTest extends FlatSpec with Matchers {
 
