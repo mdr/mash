@@ -1,7 +1,7 @@
 package com.github.mdr.mash.evaluator
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.parser.BinaryOperator
+import com.github.mdr.mash.runtime._
 
 object AssignmentEvaluator extends EvaluatorHelper {
 

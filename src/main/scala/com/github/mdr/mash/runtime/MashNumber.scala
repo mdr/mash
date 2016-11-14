@@ -1,8 +1,9 @@
 package com.github.mdr.mash.runtime
 
-import scala.PartialFunction.cond
-import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.utils.NumberUtils
+
+import scala.PartialFunction.cond
 
 object MashNumber {
 

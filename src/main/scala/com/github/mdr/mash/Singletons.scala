@@ -1,9 +1,9 @@
 package com.github.mdr.mash
 
-import com.github.mdr.mash.terminal.TerminalControl
 import com.github.mdr.mash.evaluator.ExecutionContext
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.terminal.TerminalControl
 
 /**
  * Horrible global singletons, until we get the DI story sorted.

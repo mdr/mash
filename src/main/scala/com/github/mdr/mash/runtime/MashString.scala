@@ -1,8 +1,8 @@
 package com.github.mdr.mash.runtime
 
+import com.github.mdr.mash.evaluator.{ MashClass, ToStringifier }
+
 import scala.PartialFunction.cond
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.ToStringifier
 
 object MashString {
 

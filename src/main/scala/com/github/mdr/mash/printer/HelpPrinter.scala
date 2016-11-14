@@ -1,19 +1,13 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.ns.core.help.ParameterHelpClass
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.runtime.MashObject
+import java.io.PrintStream
+import java.util.regex.Pattern
+
+import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
+import com.github.mdr.mash.runtime._
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
-import java.util.regex.Pattern
-import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.ns.core.help.ClassHelpClass
-import java.io.PrintStream
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
 
 /**
  * Render function/method/field help objects in a similar style to man pages
@@ -43,7 +37,6 @@ class HelpPrinter(output: PrintStream) {
     output.println()
     val parameters = obj(Parameters).asInstanceOf[MashList].items
     if (parameters.nonEmpty) {
-      import ParameterHelpClass.Fields._
       output.println(bold("PARAMETERS"))
       for (param ← parameters)
         printParameterHelp(param.asInstanceOf[MashObject])
@@ -56,7 +49,6 @@ class HelpPrinter(output: PrintStream) {
   }
 
   def printFieldHelp(obj: MashObject) {
-    import FieldHelpClass.Fields._
     val fieldHelp = FieldHelpClass.Wrapper(obj)
     output.println(bold("FIELD"))
     output.println(indentSpace + bold(fieldHelp.name) + " - " + fieldHelp.summary)
@@ -119,7 +111,6 @@ class HelpPrinter(output: PrintStream) {
       output.println(bold("FIELDS"))
       for (field ← fields) {
         val fieldObject = field.asInstanceOf[MashObject]
-        import FieldHelpClass.Fields._
         output.print(indentSpace)
         output.print(fieldMethodStyle(fieldObject(FieldHelpClass.Fields.Name)))
         output.print(" - " + fieldObject(FieldHelpClass.Fields.Summary))
@@ -131,7 +122,6 @@ class HelpPrinter(output: PrintStream) {
       output.println(bold("METHODS"))
       for (method ← methods) {
         val methodObject = method.asInstanceOf[MashObject]
-        import FieldHelpClass.Fields._
         output.print(indentSpace)
         output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name)))
         output.print(" - " + methodObject(FieldHelpClass.Fields.Summary))

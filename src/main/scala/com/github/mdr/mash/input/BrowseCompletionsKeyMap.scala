@@ -1,6 +1,6 @@
 package com.github.mdr.mash.input
 
-import InputSequence._
+import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
 import com.github.mdr.mash.repl.BrowseCompletionActions._
 

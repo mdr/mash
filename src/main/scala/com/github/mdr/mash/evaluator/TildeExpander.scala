@@ -1,7 +1,8 @@
 package com.github.mdr.mash.evaluator
 
-import scala.util.matching.Regex
 import com.github.mdr.mash.os.EnvironmentInteractions
+
+import scala.util.matching.Regex
 
 object TildeExpander {
 

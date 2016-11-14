@@ -1,15 +1,12 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime.MashValue
-import java.time.Instant
-import com.github.mdr.mash.ns.time.MillisecondsClass
-import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.ns.time.ChronoUnitClass
+import java.time.{ Duration, Instant }
 import java.time.temporal.TemporalAmount
-import java.time.Duration
-import com.github.mdr.mash.parser.BinaryOperator
-import com.github.mdr.mash.runtime.MashBoolean
+
+import com.github.mdr.mash.ns.time.{ ChronoUnitClass, MillisecondsClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.parser.BinaryOperator
+import com.github.mdr.mash.runtime.{ MashBoolean, MashValue, _ }
 
 object BinaryOperatorEvaluator extends EvaluatorHelper {
 

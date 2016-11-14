@@ -1,19 +1,13 @@
 package com.github.mdr.mash.screen
 
-import scala.PartialFunction._
-import org.fusesource.jansi.Ansi._
-import org.fusesource.jansi.Ansi.Color._
-import com.github.mdr.mash.repl.BrowserCompletionState
-import com.github.mdr.mash.repl.CompletionState
-import com.github.mdr.mash.repl.IncrementalCompletionState
-import com.github.mdr.mash.completions.Completion
-import com.github.mdr.mash.completions.CompletionType
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.completions.{ Completion, CompletionFragment, CompletionType }
 import com.github.mdr.mash.printer.Printer
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.completions.CompletionFragment
+import com.github.mdr.mash.repl.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.{ StringUtils, Utils }
+
+import scala.PartialFunction._
 
 case class CompletionRenderResult(lines: Seq[Line], numberOfCompletionColumns: Int)
 

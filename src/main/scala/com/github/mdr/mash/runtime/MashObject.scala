@@ -1,13 +1,10 @@
 package com.github.mdr.mash.runtime
 
-import scala.language.implicitConversions
+import com.github.mdr.mash.evaluator.{ EvaluatorException, Field, MashClass, ToStringifier }
+
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.ToStringifier
+import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 trait ViewableAsFields {

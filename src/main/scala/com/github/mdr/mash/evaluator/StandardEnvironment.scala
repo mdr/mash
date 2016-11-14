@@ -1,9 +1,10 @@
 package com.github.mdr.mash.evaluator
 
-import scala.collection.JavaConverters._
 import com.github.mdr.mash.ns.MashRoot
-import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.repl.ReplState
+import com.github.mdr.mash.runtime._
+
+import scala.collection.JavaConverters._
 
 object StandardEnvironment {
 

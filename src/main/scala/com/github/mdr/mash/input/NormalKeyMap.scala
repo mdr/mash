@@ -1,9 +1,9 @@
 package com.github.mdr.mash.input
 
-import InputSequence._
+import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.NormalActions
+import com.github.mdr.mash.repl.NormalActions._
 
 object NormalKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('l'), control = true) -> ClearScreen,

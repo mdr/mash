@@ -1,8 +1,7 @@
 package com.github.mdr.mash.lexer
 
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.parser.MashParserException
+import com.github.mdr.mash.utils.{ PointedRegion, Region }
 
 case class LexerResult(tokens: Seq[Token], rawTokens: Seq[Token], inferredSemicolonCandidates: Set[Token])
 

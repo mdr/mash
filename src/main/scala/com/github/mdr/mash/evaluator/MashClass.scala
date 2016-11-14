@@ -1,17 +1,11 @@
 package com.github.mdr.mash.evaluator
 
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.parser.AbstractSyntax
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.functions.Namespace
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.HasName
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.functions.{ HasName, MashMethod, Namespace }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.runtime.MashValue
+
+import scala.collection.immutable.ListMap
 
 object MashClass {
 

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.input
 
-import com.github.mdr.mash.utils.PrefixTree
 import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.utils.PrefixTree
 
 object InputSequenceReader {
 

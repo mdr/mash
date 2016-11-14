@@ -1,11 +1,7 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.completions.Completion
+import com.github.mdr.mash.completions.{ Completion, CompletionContext, CompletionFragment }
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.completions.CompletionResult
-import com.github.mdr.mash.completions.CompletionFragment
-import com.github.mdr.mash.completions.CompletionContext
 
 sealed trait CompletionState {
 

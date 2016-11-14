@@ -1,7 +1,8 @@
 package com.github.mdr.mash.runtime
 
-import scala.collection.mutable.ArrayBuffer
 import com.github.mdr.mash.evaluator.ToStringifier
+
+import scala.collection.mutable.ArrayBuffer
 
 object MashList {
 

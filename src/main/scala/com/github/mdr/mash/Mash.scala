@@ -1,8 +1,7 @@
 package com.github.mdr.mash
 
-import java.nio.file.Path
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{ Files, Path }
 
 object Mash {
 

@@ -1,17 +1,16 @@
 package com.github.mdr.mash.evaluator
 
-import java.time.Instant
-import java.time.LocalDate
+import java.time.{ Instant, LocalDate }
+
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.ns.time.{ DateTimeClass, LocalDateClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.ns.time.LocalDateClass
-import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.parser.ConcreteSyntax
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.{ PointedRegion, Utils }
+
 import scala.PartialFunction.condOpt
 
 object MemberEvaluator extends EvaluatorHelper {

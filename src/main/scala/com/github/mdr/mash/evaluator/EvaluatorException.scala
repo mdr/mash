@@ -1,8 +1,8 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.parser.Provenance
 import com.github.mdr.mash.functions.MashCallable
+import com.github.mdr.mash.parser.Provenance
+import com.github.mdr.mash.utils.PointedRegion
 
 case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion)
 

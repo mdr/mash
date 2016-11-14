@@ -1,8 +1,9 @@
 package com.github.mdr.mash.lexer
 
-import scala.annotation._
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.MashParserException
+
+import scala.annotation._
 
 trait StringInterpolationLexer { self: MashLexer ⇒
 

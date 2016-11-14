@@ -1,15 +1,11 @@
 package com.github.mdr.mash.repl
 
-import scala.collection.mutable
-import com.github.mdr.mash.Config
-import com.github.mdr.mash.ConfigOption
+import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.ConfigWrapper
 
 case class YankLastArgState(count: Int, region: Region)
 
@@ -38,8 +34,6 @@ class ReplState(
     var mish: Boolean = false,
     var yankLastArgStateOpt: Option[YankLastArgState] = None,
     var objectBrowserStateOpt: Option[ObjectBrowserState] = None) {
-
-  import ReplState._
 
   def reset() {
     lineBuffer = LineBuffer.Empty

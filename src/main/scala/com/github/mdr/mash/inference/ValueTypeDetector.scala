@@ -1,23 +1,14 @@
 package com.github.mdr.mash.inference
 
-import java.time.Instant
-import java.time.LocalDate
+import java.time.{ Instant, LocalDate }
 import java.util.IdentityHashMap
-import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.AnonymousFunction
-import com.github.mdr.mash.functions.MashFunction
+
+import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass }
+import com.github.mdr.mash.functions.{ AnonymousFunction, MashFunction }
 import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.ns.core.ClassClass
-import com.github.mdr.mash.ns.core.NullClass
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.ns.time.LocalDateClass
+import com.github.mdr.mash.ns.core._
+import com.github.mdr.mash.ns.time.{ DateTimeClass, LocalDateClass }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.ns.core.TimedResultClass
 
 object ValueTypeDetector {
 

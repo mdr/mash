@@ -1,10 +1,11 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.runtime.MashValue
 import java.util.IdentityHashMap
-import com.github.mdr.mash.runtime.MashString
+
 import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
+
 import scala.util.Try
 
 abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod.name) {

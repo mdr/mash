@@ -4,27 +4,18 @@ import java.io.PrintStream
 import java.time.Instant
 import java.util.Date
 
-import org.ocpsoft.prettytime.PrettyTime
-
-import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass, ToStringifier }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.BytesClass
-import com.github.mdr.mash.ns.core.help.ClassHelpClass
-import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.ns.core.help.HelpFunction
+import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, HelpFunction }
 import com.github.mdr.mash.ns.git.StatusClass
-import com.github.mdr.mash.ns.os.PermissionsClass
-import com.github.mdr.mash.ns.os.PermissionsSectionClass
-import com.github.mdr.mash.ns.time.MillisecondsClass
-import com.github.mdr.mash.ns.time.SecondsClass
+import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
+import com.github.mdr.mash.ns.time.{ MillisecondsClass, SecondsClass }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.NumberUtils
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }
+import org.ocpsoft.prettytime.PrettyTime
 
 object Printer {
 

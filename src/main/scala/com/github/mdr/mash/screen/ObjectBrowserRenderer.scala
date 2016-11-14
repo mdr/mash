@@ -1,14 +1,11 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.ObjectTableRow
-import com.github.mdr.mash.printer.ObjectTableStringifier
-import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
+import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.ObjectBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
 class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem

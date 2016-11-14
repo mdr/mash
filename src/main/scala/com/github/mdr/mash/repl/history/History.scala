@@ -1,13 +1,11 @@
 package com.github.mdr.mash.repl.history
 
-import java.io.File
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 import java.time.Instant
-import com.github.mdr.mash.lexer.MashLexer
-import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.runtime.MashValue
-import java.nio.file.Paths
 import java.util.UUID
+
+import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
+import com.github.mdr.mash.runtime.MashValue
 
 case class HistoryEntry(sessionId: UUID, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue, workingDirectory: String) {
 

@@ -1,7 +1,8 @@
 package com.github.mdr.mash.evaluator
 
-import scala.collection.mutable
 import com.github.mdr.mash.runtime.MashValue
+
+import scala.collection.mutable
 
 sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
   def get(name: String): Option[MashValue] = variables.get(name)

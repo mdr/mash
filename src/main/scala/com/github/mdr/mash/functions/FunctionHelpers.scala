@@ -1,13 +1,13 @@
 package com.github.mdr.mash.functions
 
-import java.nio.file.Path
-import java.nio.file.Paths
-import scala.PartialFunction._
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.os.PathSummaryClass
-import com.github.mdr.mash.runtime._
 import java.io.File
+import java.nio.file.{ Path, Paths }
+
+import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
+import com.github.mdr.mash.runtime._
+
+import scala.PartialFunction._
 
 object FunctionHelpers {
 

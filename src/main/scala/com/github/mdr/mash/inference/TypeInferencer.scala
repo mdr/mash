@@ -1,18 +1,16 @@
 package com.github.mdr.mash.inference
 
 import java.util.IdentityHashMap
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.ns.collections.ListClass
+
+import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
+import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.BinaryOperator
-import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.evaluator.SystemCommandFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.parser.QuotationType
-import com.github.mdr.mash.ns.os.ProcessResultClass
+import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
+import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
+
+import scala.PartialFunction.condOpt
 
 case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 

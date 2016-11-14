@@ -1,8 +1,6 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluationContext
-import com.github.mdr.mash.evaluator.Evaluator
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, Evaluator }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.runtime.MashValue
 

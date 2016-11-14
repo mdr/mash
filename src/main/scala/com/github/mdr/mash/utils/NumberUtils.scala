@@ -1,6 +1,7 @@
 package com.github.mdr.mash.utils
 
 import java.text.DecimalFormat
+
 import scala.util.Try
 
 object NumberUtils {

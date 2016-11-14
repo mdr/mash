@@ -1,10 +1,8 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluationContext
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, Evaluator }
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.runtime.MashValue
 
 case class AnonymousFunction(params: ParameterModel, body: Expr, context: EvaluationContext) extends MashFunction(nameOpt = None) {
 

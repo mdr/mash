@@ -1,7 +1,6 @@
 package com.github.mdr.mash.lexer
 
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ Region, StringUtils }
 
 /**
  * @param source -- entire source string from which the token was taken.

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.evaluator.MemberEvaluator
+import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.runtime.MashObject

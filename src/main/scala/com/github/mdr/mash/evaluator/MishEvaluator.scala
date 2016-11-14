@@ -1,15 +1,13 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.ns.os.ProcessResultClass
+import java.nio.file.{ Path, Paths }
+
+import com.github.mdr.mash.ns.os.{ ChangeDirectoryFunction, PathClass, ProcessResultClass }
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.parser.RedirectOperator
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
-import java.nio.file.Paths
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.parser.RedirectOperator
-import java.nio.file.Path
 
 object MishEvaluator extends EvaluatorHelper {
 

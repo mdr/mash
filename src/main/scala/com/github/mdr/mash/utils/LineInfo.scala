@@ -1,6 +1,5 @@
 package com.github.mdr.mash.utils
 
-import scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
 
 class LineInfo(s: String) {

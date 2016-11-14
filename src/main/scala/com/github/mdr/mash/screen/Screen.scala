@@ -1,9 +1,9 @@
 package com.github.mdr.mash.screen
 
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi._
-import org.fusesource.jansi.Ansi.Color._
 import com.github.mdr.mash.utils.Utils
+import org.fusesource.jansi.Ansi
+import org.fusesource.jansi.Ansi.Color._
+import org.fusesource.jansi.Ansi._
 
 case class Point(row: Int, column: Int) {
 

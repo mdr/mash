@@ -1,18 +1,13 @@
 package com.github.mdr.mash.evaluator
 
-import scala.PartialFunction.condOpt
-
-import com.github.mdr.mash.functions.AnonymousFunction
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.UserDefinedFunction
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.utils.PointedRegion
+
+import scala.PartialFunction.condOpt
 
 case class EvaluationContext(scopeStack: ScopeStack)
 

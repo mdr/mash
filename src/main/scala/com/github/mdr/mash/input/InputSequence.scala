@@ -1,7 +1,5 @@
 package com.github.mdr.mash.input
 
-import com.github.mdr.mash.utils.PrefixTree
-
 sealed trait InputSequence
 
 object InputSequence {

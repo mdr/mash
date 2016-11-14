@@ -1,10 +1,7 @@
 package com.github.mdr.mash
 
-import com.github.mdr.mash.runtime.MashObject
-import scala.collection.mutable.LinkedHashMap
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashBoolean
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashValue }
 
 case class ConfigOption(name: String, defaultValue: MashValue) {
 

@@ -1,10 +1,9 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.{ Arguments, SourceLocation }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.SourceLocation
 
 case class ArgumentException(message: String, locationOpt: Option[SourceLocation] = None) extends RuntimeException(message)
 

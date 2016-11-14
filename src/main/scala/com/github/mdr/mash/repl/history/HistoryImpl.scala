@@ -1,17 +1,10 @@
 package com.github.mdr.mash.repl.history
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Clock
-import scala.collection.JavaConverters._
-import org.apache.commons.io.FileUtils
-import com.fatboyindustrial.gsonjavatime.Converters
-import com.google.gson.GsonBuilder
-import scala.util.Try
 import java.util.UUID
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
+
+import com.github.mdr.mash.runtime.{ MashNull, MashValue }
 
 trait HistoryStorage {
 

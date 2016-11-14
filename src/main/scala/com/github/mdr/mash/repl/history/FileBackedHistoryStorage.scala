@@ -2,13 +2,14 @@ package com.github.mdr.mash.repl.history
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import scala.collection.JavaConverters._
-import scala.util.Try
-import org.apache.commons.io.FileUtils
+
 import com.fatboyindustrial.gsonjavatime.Converters
 import com.github.mdr.mash.Mash
 import com.google.gson.GsonBuilder
-import com.github.mdr.mash.utils.Utils
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
+import scala.util.Try
 
 object FileBackedHistoryStorage {
 

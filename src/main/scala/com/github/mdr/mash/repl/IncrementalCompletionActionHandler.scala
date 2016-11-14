@@ -2,8 +2,8 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.completions.CompletionResult
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.repl.NormalActions._
+import com.github.mdr.mash.utils.Region
 
 trait IncrementalCompletionActionHandler { self: Repl ⇒
 

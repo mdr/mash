@@ -1,12 +1,9 @@
 package com.github.mdr.mash.functions
 
-import scala.PartialFunction.cond
-
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArgument
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.inference.{ AnnotatedExpr, Type, TypedArgument, TypedArguments }
 import com.github.mdr.mash.ns.core.BooleanClass
+
+import scala.PartialFunction.cond
 
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 

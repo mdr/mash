@@ -1,12 +1,9 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
-import com.github.mdr.mash.functions.ArgumentException
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ ArgumentException, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.runtime._
 
 object InvocationEvaluator extends EvaluatorHelper {
 

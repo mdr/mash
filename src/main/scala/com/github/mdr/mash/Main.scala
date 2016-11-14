@@ -1,19 +1,15 @@
 package com.github.mdr.mash
 
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.Repl
-import com.github.mdr.mash.terminal.JLineTerminalWrapper
-import com.github.mdr.mash.terminal.TerminalControlImpl
-import com.github.mdr.mash.terminal.TerminalHelper
-import sun.misc.Signal
-import sun.misc.SignalHandler
-import com.github.mdr.mash.repl.history.History
-import com.github.mdr.mash.repl.history.HistoryImpl
-import com.github.mdr.mash.repl.history.FileBackedHistoryStorage
-import scala.language.implicitConversions
 import java.util.UUID
+
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.repl.Repl
+import com.github.mdr.mash.repl.history.{ FileBackedHistoryStorage, HistoryImpl }
+import com.github.mdr.mash.terminal.{ JLineTerminalWrapper, TerminalControlImpl, TerminalHelper }
+import sun.misc.{ Signal, SignalHandler }
+
+import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 object Main extends App {
 

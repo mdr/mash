@@ -3,8 +3,7 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.ConfigWrapper
-import com.github.mdr.mash.DebugLogger
+import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.runtime._

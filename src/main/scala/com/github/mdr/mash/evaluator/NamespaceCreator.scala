@@ -1,9 +1,8 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.ns.MashRoot
 import com.github.mdr.mash.functions.HasName
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.ns.MashRoot
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 object NamespaceCreator {
 

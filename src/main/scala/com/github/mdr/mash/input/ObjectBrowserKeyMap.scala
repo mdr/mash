@@ -1,7 +1,7 @@
 package com.github.mdr.mash.input
-import com.github.mdr.mash.repl.ObjectBrowserActions._
-import InputSequence._
+import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
+import com.github.mdr.mash.repl.ObjectBrowserActions._
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(Down) -> NextItem,

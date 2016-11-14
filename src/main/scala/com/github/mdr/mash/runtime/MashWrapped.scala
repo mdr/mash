@@ -1,8 +1,6 @@
 package com.github.mdr.mash.runtime
 
-import java.time.LocalDate
-import java.time.Instant
-import com.github.mdr.mash.utils.Utils
+import java.time.{ Instant, LocalDate }
 
 case class MashWrapped(x: Any) extends MashValue {
 
