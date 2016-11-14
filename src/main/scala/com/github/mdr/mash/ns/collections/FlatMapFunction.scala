@@ -11,10 +11,7 @@ import com.github.mdr.mash.inference.Inferencer
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.collections.FlatMapFunction.Params
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.evaluator.EvaluatorException
 

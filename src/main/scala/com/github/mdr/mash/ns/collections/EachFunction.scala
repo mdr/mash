@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Evaluator
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass

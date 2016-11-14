@@ -1,8 +1,6 @@
 package com.github.mdr.mash.lexer
 
 import scala.annotation._
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.MashParserException
 

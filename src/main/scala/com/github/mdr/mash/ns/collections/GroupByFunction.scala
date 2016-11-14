@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.collections
 
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._

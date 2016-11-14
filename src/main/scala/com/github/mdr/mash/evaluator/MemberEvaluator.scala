@@ -1,26 +1,18 @@
 package com.github.mdr.mash.evaluator
 
 import java.time.Instant
+import java.time.LocalDate
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.utils.PointedRegion
-import java.time.LocalDate
 import com.github.mdr.mash.ns.time.LocalDateClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashWrapped
-import com.github.mdr.mash.runtime.MashValue
-import scala.PartialFunction.condOpt
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.utils.Utils
+import scala.PartialFunction.condOpt
 
 object MemberEvaluator extends EvaluatorHelper {
 

@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.functions._

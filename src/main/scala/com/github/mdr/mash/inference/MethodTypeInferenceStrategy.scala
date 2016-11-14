@@ -1,12 +1,5 @@
 package com.github.mdr.mash.inference
 
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.ns.collections._
-
 trait MethodTypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type]

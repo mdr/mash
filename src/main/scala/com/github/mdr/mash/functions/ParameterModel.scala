@@ -1,14 +1,7 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArgument
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.evaluator.EvaluatedArgument
 
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
 

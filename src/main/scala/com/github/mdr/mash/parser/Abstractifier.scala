@@ -1,6 +1,5 @@
 package com.github.mdr.mash.parser
 
-import scala.collection.immutable.ListMap
 import scala.PartialFunction.condOpt
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType

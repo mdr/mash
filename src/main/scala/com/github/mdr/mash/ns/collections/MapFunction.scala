@@ -8,7 +8,6 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.collections.MapFunction.Params
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashList
 import com.github.mdr.mash.runtime.MashString

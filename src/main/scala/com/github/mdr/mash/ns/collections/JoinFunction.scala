@@ -5,9 +5,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.functions.ParameterModel
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.functions.FunctionHelpers
 import com.github.mdr.mash.runtime.MashString
 
 object JoinFunction extends MashFunction("collections.join") {

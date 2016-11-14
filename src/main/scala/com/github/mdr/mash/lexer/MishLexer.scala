@@ -1,8 +1,6 @@
 package com.github.mdr.mash.lexer
 
-import scala.annotation._
 import com.github.mdr.mash.lexer.TokenType._
-import scala.PartialFunction.cond
 import com.github.mdr.mash.parser.MashParserException
 
 object MishLexer {

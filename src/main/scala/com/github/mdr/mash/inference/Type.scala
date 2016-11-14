@@ -2,12 +2,10 @@ package com.github.mdr.mash.inference
 
 import scala.language.implicitConversions
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.parser.AbstractSyntax._
-import scala.collection.immutable.ListMap
 import com.github.mdr.mash.ns.os.PathClass
 
 sealed trait Type
