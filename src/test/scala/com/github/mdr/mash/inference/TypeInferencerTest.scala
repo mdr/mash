@@ -182,6 +182,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " shouldBeInferredAsHavingType NumberType
   " 'foo' | groupBy (_) " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, StringType, StringType))
 
+  // sliding
+  "[1, 2, 3] | sliding 2" shouldBeInferredAsHavingType Seq(Seq(NumberType))
+
   // Strings as functions
   " 'foo' { foo: 42 } " shouldBeInferredAsHavingType NumberType
   " 'toString' 42 " shouldBeInferredAsHavingType StringType

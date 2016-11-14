@@ -10,9 +10,9 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
 import com.github.mdr.mash.ns.view._
-import org.apache.commons.lang3.SystemUtils
 import com.github.mdr.mash.ns.os.WithinFunction
 import com.github.mdr.mash.ns.maths.StatsClass
+import org.apache.commons.lang3.SystemUtils
 
 object MashRoot {
 
@@ -114,6 +114,7 @@ object MashRoot {
     SkipFunction,
     SkipUntilFunction,
     SkipWhileFunction,
+    SlidingFunction,
     SortByFunction,
     SortFunction,
     SumByFunction,

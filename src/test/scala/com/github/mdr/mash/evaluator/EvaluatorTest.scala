@@ -296,6 +296,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 4, 5, 1] | skipUntil (_ > 3)" shouldEvaluateTo "[4, 5, 1]"
   "'abcdef' | skipUntil (_ > 'd')" shouldEvaluateTo "'ef'"
 
+  // sliding
+  "[1, 2, 3] | sliding 2" shouldEvaluateTo "[[1, 2], [2, 3]]"
+  "'abc' | sliding 2" shouldEvaluateTo "['ab', 'bc']"
+
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "
   "'eaebcd' | sort" shouldEvaluateTo "'abcdee'"

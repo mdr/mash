@@ -40,6 +40,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(SkipFunction),
     methodise(SkipUntilFunction),
     methodise(SkipWhileFunction),
+    methodise(SlidingFunction),
     methodise(SortByFunction),
     methodise(SortFunction),
     methodise(SumByFunction),
