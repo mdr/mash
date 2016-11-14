@@ -1,18 +1,15 @@
 package com.github.mdr.mash.completions
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{ Path, Paths }
+
+import com.github.mdr.mash.evaluator.{ RetildeResult, TildeExpander }
+import com.github.mdr.mash.ns.os.FileTypeClass
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem, PathSummary }
+import com.github.mdr.mash.parser.{ StringEscapeResult, StringEscapes }
+import com.github.mdr.mash.utils.Region
+
 import scala.PartialFunction.condOpt
 import scala.util.Try
-import com.github.mdr.mash.ns.os.FileTypeClass
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.PathSummary
-import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.os.EnvironmentInteractions
-import com.github.mdr.mash.parser.StringEscapes
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.parser.StringEscapeResult
-import com.github.mdr.mash.evaluator.RetildeResult
 
 /**
  * @param pos -- position within path that corresponds to the completion search string

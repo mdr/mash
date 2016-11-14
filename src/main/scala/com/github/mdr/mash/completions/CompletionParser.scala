@@ -1,13 +1,9 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.compiler.BareStringify
-import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.lexer.MashLexer
+import com.github.mdr.mash.compiler.{ BareStringify, CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
-import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.compiler.CompilationSettings
+import com.github.mdr.mash.runtime.MashValue
 
 case class CompletionParser(env: Map[String, MashValue], mish: Boolean) {
 

@@ -1,6 +1,7 @@
 package com.github.mdr.mash.compiler
 
 import com.github.mdr.mash.parser.AbstractSyntax._
+
 import scala.collection.immutable.ListMap
 
 object DesugarHoles {

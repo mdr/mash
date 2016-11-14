@@ -4,16 +4,12 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.ns.collections.ListClass
-import com.github.mdr.mash.ns.core.BoundMethodClass
-import com.github.mdr.mash.ns.core.FunctionClass
+import com.github.mdr.mash.ns.core.{ BoundMethodClass, FunctionClass, ObjectClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.ConcreteSyntax
-import com.github.mdr.mash.parser.SourceInfo
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.parser.{ ConcreteSyntax, SourceInfo }
+import com.github.mdr.mash.utils.{ Region, StringUtils, Utils }
+
 import scala.PartialFunction.cond
-import com.github.mdr.mash.ns.core.ObjectClass
 
 case class MemberCompletionResult(
   prioritiseMembers: Boolean,

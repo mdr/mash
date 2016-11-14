@@ -1,9 +1,9 @@
 package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.lexer._
-import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.{ Region, Utils }
+
 import scala.annotation.tailrec
-import com.github.mdr.mash.utils.Utils
 
 object ContiguousRegionFinder {
 
@@ -51,7 +51,6 @@ object ContiguousRegionFinder {
   }
 
   private def keep(token: Token, liberal: Boolean) = {
-    import TokenType._
     !token.isWhitespace && !token.isEof && (liberal || !IlliberalStopTokens.contains(token.tokenType))
   }
 

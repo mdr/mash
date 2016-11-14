@@ -1,11 +1,11 @@
 package com.github.mdr.mash.completions
 
-import scala.PartialFunction.condOpt
-
 import com.github.mdr.mash.functions.Flag
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.utils.StringUtils
+
+import scala.PartialFunction.condOpt
 
 object FlagCompleter {
 

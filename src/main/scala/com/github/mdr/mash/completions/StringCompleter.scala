@@ -2,10 +2,8 @@ package com.github.mdr.mash.completions
 
 
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.os.EnvironmentInteractions
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.utils.{ Region, StringUtils }
 
 case class StringCompletionResult(isPathCompletion: Boolean, completionResultOpt: Option[CompletionResult]) {
 

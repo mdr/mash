@@ -5,8 +5,7 @@ import java.io.PrintStream
 import com.github.mdr.mash.compiler._
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
-import com.github.mdr.mash.parser.PrettyPrinter
-import com.github.mdr.mash.parser.TreePrettyPrinter
+import com.github.mdr.mash.parser.{ PrettyPrinter, TreePrettyPrinter }
 import com.github.mdr.mash.runtime.MashObject
 
 class DebugCommandRunner(output: PrintStream, globals: MashObject) {

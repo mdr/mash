@@ -1,12 +1,10 @@
 package com.github.mdr.mash.completions
 
-import scala.PartialFunction.cond
-import scala.PartialFunction.condOpt
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.parser.AbstractSyntax.Expr
-import com.github.mdr.mash.parser.AbstractSyntax.InvocationExpr
-import com.github.mdr.mash.parser.ConcreteSyntax
-import com.github.mdr.mash.parser.SourceInfo
+import com.github.mdr.mash.parser.AbstractSyntax.{ Expr, InvocationExpr }
+import com.github.mdr.mash.parser.{ ConcreteSyntax, SourceInfo }
+
+import scala.PartialFunction.{ cond, condOpt }
 
 /**
  * @param argPos -- index into the invocationExpr's argument list

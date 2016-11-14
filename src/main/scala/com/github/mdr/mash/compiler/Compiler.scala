@@ -1,7 +1,6 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.inference.TypeInferencer
-import com.github.mdr.mash.inference.ValueTypeDetector
+import com.github.mdr.mash.inference.{ TypeInferencer, ValueTypeDetector }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.runtime.MashValue

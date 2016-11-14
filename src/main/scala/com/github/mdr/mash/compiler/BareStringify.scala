@@ -1,9 +1,9 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
+
 import scala.collection.mutable.ArrayBuffer
 
 object BareStringify {

@@ -1,21 +1,16 @@
 package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-import org.fusesource.jansi.Ansi
-import com.github.mdr.mash.DebugLogger
-import com.github.mdr.mash.Singletons
-import com.github.mdr.mash.compiler.CompilationSettings
-import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.compiler.Compiler
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.parser.AbstractSyntax
-import com.github.mdr.mash.parser.ParseError
-import com.github.mdr.mash.printer.PrintResult
-import com.github.mdr.mash.printer.Printer
+import java.util.UUID
+
+import com.github.mdr.mash.{ DebugLogger, Singletons }
+import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
+import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
+import com.github.mdr.mash.printer.{ PrintResult, Printer }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
-import java.util.UUID
+import org.fusesource.jansi.Ansi
 
 class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject, sessionId: UUID) {
 

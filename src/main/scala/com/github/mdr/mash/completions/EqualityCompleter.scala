@@ -1,9 +1,10 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.utils.Region
+
 import scala.PartialFunction.condOpt
 
 object EqualityCompleter {

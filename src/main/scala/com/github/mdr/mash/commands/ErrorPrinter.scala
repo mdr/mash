@@ -1,12 +1,12 @@
 package com.github.mdr.mash.commands
 
 import java.io.PrintStream
-import org.fusesource.jansi.Ansi
+
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.evaluator.SourceLocation
+import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
-import com.github.mdr.mash.evaluator.StackTraceItem
+import org.fusesource.jansi.Ansi
 
 /**
  * Print errors with stack traces

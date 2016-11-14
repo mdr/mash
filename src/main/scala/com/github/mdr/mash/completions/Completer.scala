@@ -1,12 +1,9 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.os.EnvironmentInteractions
-import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.lexer.{ Token, TokenType }
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.utils.Region
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.utils.{ Region, Utils }
 
 object Completer {
 
