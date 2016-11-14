@@ -225,7 +225,9 @@ trait NormalMashLexer { self: MashLexer ⇒
       } else if (ch == '=') {
         nextChar()
         token(MINUS_EQUALS)
-      } else if (ch.isUnicodeIdentifierStart)
+      } else if (isDigit(ch))
+        getNumberLiteral()
+      else if (ch.isUnicodeIdentifierStart)
         getIdentRest(Some(SHORT_FLAG))
       else
         token(MINUS)

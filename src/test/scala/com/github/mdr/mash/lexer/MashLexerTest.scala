@@ -25,6 +25,8 @@ class MashLexerTest extends FlatSpec with Matchers {
   "1234567890" shouldProduce Seq(NUMBER_LITERAL)
   "1.day" shouldProduce Seq(NUMBER_LITERAL, DOT, IDENTIFIER)
   "1." shouldProduce Seq(NUMBER_LITERAL, DOT)
+  "-1" shouldProduce Seq(NUMBER_LITERAL)
+  "-1.23" shouldProduce Seq(NUMBER_LITERAL)
 
   "true false" shouldProduce Seq(TRUE, FALSE)
 
@@ -170,7 +172,7 @@ class MashLexerTest extends FlatSpec with Matchers {
       }
     }
 
-    def shouldProduce(tokens: Seq[TokenType])(implicit mode: Mode = Mode()) = {
+    def shouldProduce(tokens: Seq[TokenType])(implicit mode: Mode = Mode()): Unit = {
       s"Tokenising $s" should (" tokenise to " + tokens.mkString(", ") + " " + mode) in {
         val result = MashLexer.tokenise(s, forgiving = mode.forgiving, mish = mode.mish)
         val actualTokens = if (mode.includeCommentsAndWhitespace) result.rawTokens else result.tokens

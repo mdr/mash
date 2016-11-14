@@ -631,4 +631,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   
   // tap
   "x = 0; 42 | tap (x = _) | [x, _]" shouldEvaluateTo "[42, 42]"
+
+  "def foo (n = 0) = n * 2; foo -2" shouldEvaluateTo "-4" // <-- negative number literal confusion bug
 }
