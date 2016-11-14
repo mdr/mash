@@ -2,11 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.Flag
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.inference._
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.functions.{ Flag, MashFunction, MashMethod }
+import com.github.mdr.mash.inference.{ TypedArguments, _ }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.runtime.MashValue
 

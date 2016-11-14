@@ -3,9 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashValueOrdering
+import com.github.mdr.mash.runtime.{ MashBoolean, MashValue, MashValueOrdering }
 
 object SortByFunction extends MashFunction("collections.sortBy") {
 

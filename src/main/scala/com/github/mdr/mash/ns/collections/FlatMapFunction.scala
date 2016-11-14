@@ -1,19 +1,12 @@
 package com.github.mdr.mash.ns.collections
 
-import scala.PartialFunction.condOpt
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference._
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
+
+import scala.PartialFunction.condOpt
 
 object FlatMapFunction extends MashFunction("collections.flatMap") {
 

@@ -1,21 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.inference.TypeInferenceStrategy
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.inference.Inferencer
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.AnnotatedExpr
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.BinaryOperatorEvaluator
+import com.github.mdr.mash.evaluator.{ Arguments, BinaryOperatorEvaluator }
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
+import com.github.mdr.mash.runtime.{ MashNumber, MashValue }
 
 object SumFunction extends MashFunction("collections.sum") {
 

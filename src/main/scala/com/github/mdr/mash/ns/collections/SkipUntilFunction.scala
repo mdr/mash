@@ -1,10 +1,8 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.runtime.MashValue
 
 object SkipUntilFunction extends MashFunction("collections.skipUntil") {

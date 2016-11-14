@@ -1,10 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashNumber
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.runtime.MashNumber
 
 object CountMatchesFunction extends MashFunction("collections.countMatches") {
 

@@ -1,14 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashObject, MashValue }
 
 object GroupClass extends MashClass("collections.Group") {
 

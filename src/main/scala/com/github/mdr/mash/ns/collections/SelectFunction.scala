@@ -1,20 +1,12 @@
 package com.github.mdr.mash.ns.collections
 
-import scala.collection.immutable.ListMap
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.functions.ArgumentException
+import com.github.mdr.mash.runtime._
+
+import scala.collection.immutable.ListMap
 
 /**
  * Select members of an object

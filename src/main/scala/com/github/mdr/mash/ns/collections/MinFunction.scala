@@ -1,14 +1,8 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashValueOrdering
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.runtime.{ MashValue, MashValueOrdering }
 
 object MinFunction extends MashFunction("collections.min") {
 

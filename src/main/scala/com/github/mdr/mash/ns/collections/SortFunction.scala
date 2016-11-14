@@ -1,15 +1,9 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
-import com.github.mdr.mash.utils.Utils
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashValueOrdering
+import com.github.mdr.mash.runtime.{ MashBoolean, MashValue, MashValueOrdering }
 
 object SortFunction extends MashFunction("collections.sort") {
 

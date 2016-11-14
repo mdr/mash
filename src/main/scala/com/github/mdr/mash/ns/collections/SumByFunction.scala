@@ -1,14 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.evaluator.{ Arguments, BinaryOperatorEvaluator }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.evaluator.Evaluator
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.BinaryOperatorEvaluator
+import com.github.mdr.mash.runtime.{ MashNumber, MashValue }
 
 object SumByFunction extends MashFunction("collections.sumBy") {
 

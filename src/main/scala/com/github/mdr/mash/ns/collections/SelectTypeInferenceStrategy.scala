@@ -1,19 +1,12 @@
 package com.github.mdr.mash.ns.collections
 
-import scala.PartialFunction.condOpt
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.parser.AbstractSyntax
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.utils.Utils
+
+import scala.PartialFunction.condOpt
 
 object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
 

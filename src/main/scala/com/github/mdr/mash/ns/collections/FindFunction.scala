@@ -4,9 +4,9 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.runtime.{ MashNull, MashValue }
+
 import scala.PartialFunction.condOpt
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
 
 object FindFunction extends MashFunction("collections.find") {
 
