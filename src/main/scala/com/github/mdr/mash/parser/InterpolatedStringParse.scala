@@ -1,9 +1,9 @@
 package com.github.mdr.mash.parser
 
-import scala.collection.mutable.ArrayBuffer
-
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
+
+import scala.collection.mutable.ArrayBuffer
 
 trait InterpolatedStringParse { self: MashParse ⇒
 

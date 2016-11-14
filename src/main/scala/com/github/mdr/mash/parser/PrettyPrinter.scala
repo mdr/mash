@@ -1,11 +1,10 @@
 package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.parser.AbstractSyntax._
-import scala.PartialFunction._
-import java.text.DecimalFormat
-import com.github.mdr.mash.utils.NumberUtils
 import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashString
+import com.github.mdr.mash.utils.NumberUtils
+
+import scala.PartialFunction._
 
 /**
  * Routines to print out syntax trees for debugging purposes.

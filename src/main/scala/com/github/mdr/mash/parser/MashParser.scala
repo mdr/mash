@@ -1,10 +1,10 @@
 package com.github.mdr.mash.parser
 
-import scala.language.implicitConversions
-
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.parser.ConcreteSyntax.Expr
 import com.github.mdr.mash.utils.PointedRegion
+
+import scala.language.implicitConversions
 
 case class ParseError(message: String, location: PointedRegion)
 

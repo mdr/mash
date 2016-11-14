@@ -1,14 +1,12 @@
 package com.github.mdr.mash.parser
 
-import scala.PartialFunction.cond
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
-import scala.language.implicitConversions
-
-import com.github.mdr.mash.lexer.LexerResult
-import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.lexer.{ LexerResult, Token }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
+
+import scala.PartialFunction.cond
+import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 
 class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     extends Parse(lexerResult, initialForgiving)

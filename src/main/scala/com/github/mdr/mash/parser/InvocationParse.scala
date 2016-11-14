@@ -1,11 +1,10 @@
 package com.github.mdr.mash.parser
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
-
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
+
+import scala.collection.mutable.{ ArrayBuffer, ListBuffer }
 
 trait InvocationParse { self: MashParse ⇒
 

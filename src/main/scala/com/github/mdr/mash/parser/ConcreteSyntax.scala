@@ -1,11 +1,9 @@
 package com.github.mdr.mash.parser
 
-import scala.language.implicitConversions
+import com.github.mdr.mash.lexer.{ Token, TokenType }
+import com.github.mdr.mash.utils.{ PointedRegion, Region }
 
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType
-import com.github.mdr.mash.utils.PointedRegion
-import com.github.mdr.mash.utils.Region
+import scala.language.implicitConversions
 
 /**
  * Trees representing the concrete syntax of mash (retaining all the semantically uninteresting tokens)

@@ -1,19 +1,17 @@
 package com.github.mdr.mash.parser
 
-import scala.PartialFunction.condOpt
-import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.lexer.TokenType
+import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashNumber
+import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
+
+import scala.PartialFunction.condOpt
 
 /**
  * Convert from concrete to abstract syntax trees.
  */
 class Abstractifier(provenance: Provenance) {
-  import com.github.mdr.mash.parser.{ ConcreteSyntax ⇒ Concrete, AbstractSyntax ⇒ Abstract }
+  import com.github.mdr.mash.parser.{ AbstractSyntax => Abstract, ConcreteSyntax => Concrete }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
