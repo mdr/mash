@@ -34,22 +34,29 @@ trait StringInterpolationLexer { self: MashLexer ⇒
       token(STRING_END)
     }
     ch match {
-      case '$' ⇒
-        token(STRING_MIDDLE)
+      case '\\' ⇒
+        nextChar()
+        ch match {
+          case '\\' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
+            nextChar()
+            getInterpolatedStringPart()
+          case c ⇒
+            if (forgiving) {
+              nextChar()
+              getInterpolatedStringPart()
+            } else
+              throw new MashParserException("Invalid string escape \\" + c, currentPointedRegion)
+        }
       case '"' ⇒
         nextChar()
         endString()
-      case '\n' | '\r' ⇒
-        if (forgiving) {
-          nextChar()
-          endString()
-        } else
-          throw new MashParserException("Unterminated string literal", currentPointedRegion)
       case _ if afterEof ⇒
         if (forgiving) {
           endString()
         } else
           throw new MashParserException("Unterminated string literal", currentPointedRegion)
+      case '$' ⇒
+        token(STRING_MIDDLE)
       case _ ⇒
         nextChar()
         getInterpolatedStringPart()

@@ -48,9 +48,9 @@ class Abstractifier(provenance: Provenance) {
     Abstract.AssignmentExpr(abstractify(left), op, abstractify(right), aliasOpt.isDefined, sourceInfo(assignmentExpr))
   }
 
-  private def getStringText(s: String, maybeTilde: Boolean): (String, Boolean) = {
-    def dropInitialQuote(s: String) = if (s.startsWith("\"") || s.startsWith("'")) s.tail else s
-    def dropFinalQuote(s: String) = if (s.endsWith("\"") || s.endsWith("'")) s.init else s
+  private def getStringText(s: String, maybeTilde: Boolean, pruneInitial: Boolean, pruneFinal: Boolean): (String, Boolean) = {
+    def dropInitialQuote(s: String) = if (pruneInitial && (s.startsWith("\"") || s.startsWith("'"))) s.tail else s
+    def dropFinalQuote(s: String) = if (pruneFinal && (s.endsWith("\"") || s.endsWith("'"))) s.init else s
     val withoutQuotes = dropInitialQuote(dropFinalQuote(s))
     val hasTildePrefix = maybeTilde && withoutQuotes.startsWith("~")
     val withoutTilde = if (hasTildePrefix) withoutQuotes.tail else withoutQuotes
@@ -66,7 +66,7 @@ class Abstractifier(provenance: Provenance) {
       case TokenType.STRING_LITERAL ⇒
         val s = token.text
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
-        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double)
+        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double, pruneInitial = true, pruneFinal = true)
         Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
       case _ ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
@@ -99,8 +99,8 @@ class Abstractifier(provenance: Provenance) {
   private def abstractifyInterpolatedString(interpolatedString: Concrete.InterpolatedString) = {
     val Concrete.InterpolatedString(start, parts, end) = interpolatedString
     val newParts = parts.map(abstractifyInterpolationPart)
-    val (startText, _) = getStringText(start.text, maybeTilde = true)
-    val (endText, _) = getStringText(end.text, maybeTilde = false)
+    val (startText, _) = getStringText(start.text, maybeTilde = true, pruneInitial = true, pruneFinal = false)
+    val (endText, _) = getStringText(end.text, maybeTilde = false, pruneInitial = false, pruneFinal = true)
     Abstract.InterpolatedString(startText, newParts, endText, sourceInfo(interpolatedString))
   }
 
@@ -110,7 +110,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.ComplexInterpolation(_, subExpr, _) ⇒
       Abstract.ExprPart(abstractify(subExpr))
     case Concrete.StringPart(stringMiddle) ⇒
-      val (literalText, _) = getStringText(stringMiddle.text, maybeTilde = false)
+      val (literalText, _) = getStringText(stringMiddle.text, maybeTilde = false, pruneInitial = false, pruneFinal = false)
       Abstract.StringPart(literalText)
   }
 

@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Fix string escapes in interpolated strings
 * Add collections.sliding
 * Add core.tap
 * Add time.parseIso8601, http.post functions
