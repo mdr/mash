@@ -1,23 +1,12 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.os.linux.LinuxProcessInteractions
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
-import jnr.constants.platform.linux.Signal
-import com.github.mdr.mash.functions.BoundParams
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.os.linux.LinuxProcessInteractions
+import com.github.mdr.mash.runtime._
+import jnr.constants.platform.linux.Signal
 
 object KillFunction extends MashFunction("os.kill") {
 

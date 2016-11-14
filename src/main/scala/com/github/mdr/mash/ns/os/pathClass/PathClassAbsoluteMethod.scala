@@ -1,17 +1,13 @@
 package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions._
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object PathClassAbsoluteMethod extends MashMethod("absolute") {
 

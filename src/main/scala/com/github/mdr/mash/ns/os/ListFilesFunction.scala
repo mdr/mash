@@ -1,20 +1,15 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashBoolean
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashObject }
 
 object ListFilesFunction extends MashFunction("os.listFiles") {
 

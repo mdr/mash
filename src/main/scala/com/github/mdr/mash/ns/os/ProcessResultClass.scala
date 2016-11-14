@@ -1,31 +1,16 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.AnyClass
+import java.time.{ Duration, Instant }
+
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
+import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessResult
+
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.ns.time.DateTimeClass
-import com.github.mdr.mash.runtime.MashWrapped
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.time.MillisecondsClass
-import java.time.Instant
-import java.time.Duration
-import com.github.mdr.mash.evaluator.AbstractToStringMethod
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.ns.core.BooleanClass
 
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 

@@ -1,12 +1,13 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.file.Files
-import org.apache.commons.io.FileUtils
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashUnit
+import org.apache.commons.io.FileUtils
 
 object DeleteFunction extends MashFunction("os.delete") {
 

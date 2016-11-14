@@ -2,15 +2,11 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import java.nio.file.Files
 
-import org.apache.commons.io.FileUtils
-
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions._
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ ParameterModel, _ }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
+import org.apache.commons.io.FileUtils
 
 object PathClassCopyMethod extends MashMethod("copy") {
 

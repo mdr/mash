@@ -1,28 +1,15 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Files
-import java.nio.file.Path
-import scala.collection.JavaConverters._
-import scala.collection.immutable.ListMap
-import org.apache.commons.io.FileUtils
-import com.github.mdr.mash.Posix
+import java.nio.charset.StandardCharsets
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers._
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.BytesClass
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.os._
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.core.UnitClass
-import java.nio.charset.StandardCharsets
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashUnit }
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
 
 object WriteFunction extends MashFunction("os.write") {
 

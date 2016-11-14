@@ -1,16 +1,12 @@
 package com.github.mdr.mash.ns.os
 
-import scala.collection.immutable.ListMap
-
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.{ Field, MashClass }
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.os.GroupEntry
-import com.github.mdr.mash.os.PasswdEntry
-import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
+import com.github.mdr.mash.os.{ GroupEntry, PasswdEntry, UserInteractions }
 import com.github.mdr.mash.runtime._
+
+import scala.collection.immutable.ListMap
 
 object GroupInfoClass extends MashClass("os.GroupInfo") {
 

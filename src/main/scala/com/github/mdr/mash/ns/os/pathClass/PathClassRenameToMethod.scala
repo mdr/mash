@@ -1,18 +1,16 @@
 package com.github.mdr.mash.ns.os.pathClass
 
-import java.nio.file.Files
-import java.nio.file.Path
-
-import scala.collection.JavaConverters._
+import java.nio.file.{ Files, Path }
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions._
 import com.github.mdr.mash.functions.FunctionHelpers._
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
+
+import scala.collection.JavaConverters._
 
 object PathClassRenameToMethod extends MashMethod("renameTo") {
 

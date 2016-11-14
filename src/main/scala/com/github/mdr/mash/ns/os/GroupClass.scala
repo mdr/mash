@@ -1,17 +1,11 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.os.GroupEntry
-import com.github.mdr.mash.os.UserInteractions
+import com.github.mdr.mash.evaluator.{ Arguments, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.ns.core.{ AnyClass, NumberClass, StringClass }
+import com.github.mdr.mash.os.{ GroupEntry, UserInteractions }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.ns.core.AnyClass
 
 object GroupClass extends MashClass("os.Group") {
 

@@ -1,40 +1,21 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 
-import scala.collection.JavaConverters._
-import org.apache.commons.io.FileUtils
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.FunctionHelpers.asPathString
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.ns.core.BytesClass
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException, MashClass }
+import com.github.mdr.mash.functions.FunctionHelpers._
+import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.pathClass._
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
 
 object PathClass extends MashClass("os.Path") {
 
@@ -76,7 +57,7 @@ object PathClass extends MashClass("os.Path") {
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
+      val path = interpretAsPath(target)
       ReadLinesFunction.readLines(path)
     }
 
@@ -126,7 +107,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
+      val path = interpretAsPath(target)
       asPathString(fileSystem.pwd.resolve(path).toRealPath())
     }
 
@@ -142,7 +123,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      val parent = FunctionHelpers.interpretAsPath(target).getParent
+      val parent = interpretAsPath(target).getParent
       if (parent == null)
         MashNull
       else
@@ -167,7 +148,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
-      val source = FunctionHelpers.interpretAsPath(target)
+      val source = interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
         throw new EvaluatorException(s"Cannot copy into $destination, not a directory")
@@ -200,7 +181,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
-      val source = FunctionHelpers.interpretAsPath(target)
+      val source = interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
         throw new EvaluatorException(s"Cannot copy into $destination, not a directory")
@@ -227,7 +208,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
+      val path = interpretAsPath(target)
       if (Files.isDirectory(path))
         FileUtils.deleteDirectory(path.toFile)
       else
@@ -247,7 +228,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      asPathString(FunctionHelpers.interpretAsPath(target).getFileName)
+      asPathString(interpretAsPath(target).getFileName)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
@@ -262,7 +243,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      MashBoolean(Files.isDirectory(FunctionHelpers.interpretAsPath(target)))
+      MashBoolean(Files.isDirectory(interpretAsPath(target)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -279,7 +260,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      val path = FunctionHelpers.interpretAsPath(target)
+      val path = interpretAsPath(target)
       MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
     }
 
@@ -295,7 +276,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      MashBoolean(Files.isRegularFile(FunctionHelpers.interpretAsPath(target)))
+      MashBoolean(Files.isRegularFile(interpretAsPath(target)))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
@@ -312,7 +293,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
-      MashWrapped(fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target)).lastModified)
+      MashWrapped(fileSystem.getPathSummary(interpretAsPath(target)).lastModified)
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
@@ -329,7 +310,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
+      val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.owner, Some(UsernameClass))
     }
 
@@ -347,7 +328,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
+      val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.group, Some(GroupClass))
     }
 
@@ -365,7 +346,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
-      val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
+      val summary = fileSystem.getPathSummary(interpretAsPath(target))
       val permissions = summary.permissions
       PermissionsClass.asMashObject(permissions)
     }
@@ -384,7 +365,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
-      val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
+      val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashNumber(summary.size, Some(BytesClass))
     }
 
@@ -402,7 +383,7 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val summary = fileSystem.getPathSummary(FunctionHelpers.interpretAsPath(target))
+      val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.fileType, Some(FileTypeClass))
     }
 
@@ -418,8 +399,8 @@ The default character encoding and line separator are used.""")
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val segments: Seq[Path] = FunctionHelpers.interpretAsPath(target).asScala.toSeq
-      MashList(segments.map(FunctionHelpers.asPathString))
+      val segments: Seq[Path] = interpretAsPath(target).asScala.toSeq
+      MashList(segments.map(asPathString))
     }
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(StringClass))

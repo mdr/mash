@@ -1,20 +1,14 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.file.Path
+
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.evaluator.SourceLocation
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.runtime.{ MashString, MashUnit }
 
 object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 

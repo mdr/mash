@@ -2,16 +2,11 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashValue }
 
 object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
@@ -37,7 +32,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
+    val paths = interpretAsPaths(boundParams(Paths))
     val createIntermediates = boundParams(CreateIntermediates).isTruthy
     val resultPaths =
       for (path ← paths)

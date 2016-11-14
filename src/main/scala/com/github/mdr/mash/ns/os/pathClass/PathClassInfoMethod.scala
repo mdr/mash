@@ -1,15 +1,12 @@
 package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ FunctionHelpers, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 object PathClassInfoMethod extends MashMethod("info") {
 

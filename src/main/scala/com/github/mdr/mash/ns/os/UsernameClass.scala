@@ -1,19 +1,12 @@
 package com.github.mdr.mash.ns.os
 
-import org.apache.commons.lang3.SystemUtils
-
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.Type.classToType
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime._
+import org.apache.commons.lang3.SystemUtils
 
 object UsernameClass extends MashClass("os.Username") {
   private val userInteractions = UserInteractions.default

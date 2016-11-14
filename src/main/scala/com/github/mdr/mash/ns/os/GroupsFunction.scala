@@ -1,10 +1,8 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type }
 import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.MashList
 

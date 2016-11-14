@@ -1,16 +1,13 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Files
-import org.apache.commons.io.FileUtils
+import java.nio.file.{ Files, StandardCopyOption }
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import java.nio.file.StandardCopyOption
 import com.github.mdr.mash.runtime.MashUnit
+import org.apache.commons.io.FileUtils
 
 object CopyFunction extends MashFunction("os.copy") {
 

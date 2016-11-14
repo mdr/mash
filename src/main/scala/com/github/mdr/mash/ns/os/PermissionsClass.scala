@@ -2,12 +2,10 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.os.PathSummary
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.os.Permissions
 import com.github.mdr.mash.runtime.MashObject
+
+import scala.collection.immutable.ListMap
 
 object PermissionsClass extends MashClass("os.Permissions") {
 

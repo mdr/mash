@@ -1,8 +1,8 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator.MashClass
-import jnr.constants.platform.linux.Signal
 import com.github.mdr.mash.ns.core.AnyClass
+import jnr.constants.platform.linux.Signal
 
 object SignalClass extends MashClass("os.Signal") {
 

@@ -1,14 +1,13 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import org.apache.commons.io.FileUtils
+import java.nio.file.{ Files, Path, StandardCopyOption }
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import java.nio.file.Path
 import com.github.mdr.mash.runtime.MashUnit
+import org.apache.commons.io.FileUtils
 
 object MoveFunction extends MashFunction("os.move") {
 

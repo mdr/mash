@@ -4,9 +4,9 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.PermissionsSection
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
+
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashBoolean
 
 object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
 
