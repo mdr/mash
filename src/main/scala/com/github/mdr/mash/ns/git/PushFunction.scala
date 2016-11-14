@@ -1,23 +1,15 @@
 package com.github.mdr.mash.ns.git
 
-import scala.collection.JavaConverters._
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ConfigConstants
-import org.eclipse.jgit.lib.Constants
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.git.branch.SwitchFunction
-import com.github.mdr.mash.ns.git.branch.DeleteFunction
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashUnit }
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.{ ConfigConstants, Constants }
+
+import scala.collection.JavaConverters._
 
 object PushFunction extends MashFunction("git.push") {
 

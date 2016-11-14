@@ -3,14 +3,12 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.ns.git.GitHelper
+import com.github.mdr.mash.runtime.{ MashNull, MashValue }
 import org.eclipse.jgit.api.Git
+
 import scala.collection.JavaConverters._
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
 
 object GetFunction extends MashFunction("git.branch.get") {
 

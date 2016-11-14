@@ -1,19 +1,15 @@
 package com.github.mdr.mash.ns.git.branch
 
-import scala.collection.JavaConverters._
-import scala.collection.immutable.ListMap
-import org.eclipse.jgit.api._
-import org.eclipse.jgit.lib._
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.git.CommitHashClass
-import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.ns.git.StatusFunction
-import com.github.mdr.mash.ns.git.branch.BranchClass.Fields
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper, StatusFunction }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
+import org.eclipse.jgit.api._
+import org.eclipse.jgit.lib._
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object ListFunction extends MashFunction("git.branch.localBranches") {
 

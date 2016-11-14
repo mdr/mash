@@ -1,16 +1,8 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.evaluator.AbstractToStringMethod
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Field, MashClass }
+import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 object IdentityClass extends MashClass("git.Identity") {
 

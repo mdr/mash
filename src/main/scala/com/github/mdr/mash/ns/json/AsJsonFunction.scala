@@ -1,20 +1,15 @@
 package com.github.mdr.mash.ns.json
 
-import scala.collection.JavaConverters._
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+import java.io.StringWriter
+
+import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 import com.google.gson._
-import java.io.StringWriter
-import com.google.gson.stream.JsonWriter
 import com.google.gson.internal.Streams
+import com.google.gson.stream.JsonWriter
 
 object AsJsonFunction extends MashFunction("json.asJson") {
 

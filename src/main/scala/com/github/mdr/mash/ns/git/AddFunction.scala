@@ -2,13 +2,8 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.FunctionHelpers
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type.unitToType
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.runtime.MashUnit
 
 object AddFunction extends MashFunction("git.add") {

@@ -1,13 +1,9 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.evaluator.{ Arguments, Field }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 

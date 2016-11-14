@@ -1,23 +1,15 @@
 package com.github.mdr.mash.ns.git.branch
 
-import scala.collection.JavaConverters._
-
-import org.eclipse.jgit.api.Git
-
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.AbstractToStringMethod
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.runtime._
+import org.eclipse.jgit.api.Git
+
+import scala.collection.JavaConverters._
 
 object BranchClass extends MashClass("git.branch.Branch") {
 

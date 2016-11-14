@@ -1,27 +1,18 @@
 package com.github.mdr.mash.ns.git
 
 import java.time.Instant
-import scala.collection.JavaConverters._
-import scala.collection.immutable.ListMap
+
+import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
+import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type.seqToType
-import com.github.mdr.mash.ns.git.CommitClass.Fields
-import com.github.mdr.mash.ns.git.IdentityClass.Fields
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.git.branch.SwitchFunction
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.ns.git.branch.CreateFunction
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashWrapped
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object LogFunction extends MashFunction("git.log") {
 

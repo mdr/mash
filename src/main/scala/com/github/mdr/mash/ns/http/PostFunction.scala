@@ -1,23 +1,16 @@
 package com.github.mdr.mash.ns.http
 
 import java.net.URI
-import scala.collection.immutable.ListMap
-import org.apache.commons.io.IOUtils
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.HttpClientBuilder
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
+
+import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.ns.http.ResponseClass.Fields
 import com.github.mdr.mash.ns.json.AsJsonFunction
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.evaluator.ToStringifier
-import org.apache.http.HttpRequest
 import org.apache.http.HttpEntityEnclosingRequest
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.{ ContentType, StringEntity }
+import org.apache.http.impl.client.HttpClientBuilder
 
 object PostFunction extends MashFunction("http.post") {
 

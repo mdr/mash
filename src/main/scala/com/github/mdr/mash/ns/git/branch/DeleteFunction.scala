@@ -3,13 +3,9 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashUnit
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashUnit, MashValue }
 
 object DeleteFunction extends MashFunction("git.branch.delete") {
 

@@ -1,8 +1,5 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.ns.git.stash._
-import com.github.mdr.mash.ns.git.branch._
-
 object GitNamespace {
 
   val name = "git"

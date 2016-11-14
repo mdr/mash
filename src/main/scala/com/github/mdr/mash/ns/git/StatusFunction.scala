@@ -1,31 +1,18 @@
 package com.github.mdr.mash.ns.git
 
+import java.{ util => ju }
+
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.FunctionHelpers._
+import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.ns.git.branch.{ LocalBranchNameClass, RemoteBranchNameClass }
+import com.github.mdr.mash.runtime._
+import org.eclipse.jgit.api.{ Git, Status }
+import org.eclipse.jgit.lib.BranchTrackingStatus
+
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import java.time.Instant
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import org.eclipse.jgit.lib.Repository
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.functions.FunctionHelpers._
-import org.eclipse.jgit.api.Status
-import java.{ util ⇒ ju }
-import org.eclipse.jgit.lib.BranchTrackingStatus
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
-import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
-import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
-import com.github.mdr.mash.runtime.MashNull
 
 object StatusFunction extends MashFunction("git.status") {
 

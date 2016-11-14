@@ -1,13 +1,12 @@
 package com.github.mdr.mash.ns.time
 
 import java.time._
+
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.runtime._
 
 object DateTimeClass extends MashClass("time.DateTime") {
 

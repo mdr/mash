@@ -1,16 +1,11 @@
 package com.github.mdr.mash.ns.git
 
-import org.eclipse.jgit.revwalk.RevWalk
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.evaluator.{ Arguments, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import org.eclipse.jgit.revwalk.RevWalk
 
 object CommitHashClass extends MashClass("git.CommitHash") {
 

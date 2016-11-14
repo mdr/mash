@@ -1,16 +1,12 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.ns.git.MergeFunction
-import org.eclipse.jgit.lib.ObjectId
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.git.{ GitHelper, MergeFunction }
 import com.github.mdr.mash.runtime.MashUnit
+import org.eclipse.jgit.lib.ObjectId
 
 object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 

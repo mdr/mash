@@ -1,25 +1,12 @@
 package com.github.mdr.mash.ns.git
 
-import org.eclipse.jgit.lib.ObjectId
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions.BoundParams
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type.unitToType
-import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.git.branch.CreateFunction
-import com.github.mdr.mash.ns.git.branch.BranchClass
-import com.github.mdr.mash.ns.git.branch.RemoteBranchClass
-import com.github.mdr.mash.ns.git.branch.SwitchFunction
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.git.branch.{ BranchClass, CreateFunction, RemoteBranchClass, SwitchFunction }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString, MashUnit }
+import org.eclipse.jgit.lib.ObjectId
 
 object MergeFunction extends MashFunction("git.merge") {
 

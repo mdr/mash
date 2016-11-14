@@ -1,15 +1,11 @@
 package com.github.mdr.mash.ns.view
 
-import java.time._
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.ParameterModel
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.functions.Parameter
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
+
 import scala.collection.immutable.ListMap
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashBoolean
 
 object BrowserFunction extends MashFunction("view.browser") {
 

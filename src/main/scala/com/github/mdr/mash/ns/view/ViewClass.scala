@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.view
 
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.{ Field, MashClass }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.BooleanClass
 

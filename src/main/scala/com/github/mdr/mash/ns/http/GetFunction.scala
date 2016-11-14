@@ -1,22 +1,17 @@
 package com.github.mdr.mash.ns.http
 
 import java.net.URI
-import scala.collection.immutable.ListMap
+
+import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
+import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashString }
 import org.apache.commons.io.IOUtils
+import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.ns.http.ResponseClass.Fields
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
-import org.apache.http.HttpResponse
+
+import scala.collection.immutable.ListMap
 
 object GetFunction extends MashFunction("http.get") {
 

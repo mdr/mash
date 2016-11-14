@@ -1,11 +1,12 @@
 package com.github.mdr.mash.ns.git
 
+import java.nio.file.Path
+
+import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.evaluator.EvaluatorException
-import java.nio.file.Path
 
 object GitHelper {
 

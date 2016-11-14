@@ -1,22 +1,15 @@
 package com.github.mdr.mash.ns.git.branch
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.ns.git.{ GitHelper, MemberLifter }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.ns.git.MemberLifter
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashValue
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 

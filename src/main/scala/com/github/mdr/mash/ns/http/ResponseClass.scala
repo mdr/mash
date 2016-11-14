@@ -1,26 +1,12 @@
 package com.github.mdr.mash.ns.http
 
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.inference.Type.classToType
-import com.github.mdr.mash.ns.core.NumberClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.runtime.MashNumber
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.ns.collections.GroupClass
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.json.FromFileFunction
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.runtime._
 
 object ResponseClass extends MashClass("http.Response") {
 

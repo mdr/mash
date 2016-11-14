@@ -1,37 +1,22 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.evaluator.Field
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.runtime.MashList
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.runtime.MashString
-import com.github.mdr.mash.functions.MashMethod
-import com.github.mdr.mash.functions.ParameterModel
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.ns.time.DateTimeClass
-import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import org.eclipse.jgit.api.Git
-import scala.collection.JavaConverters._
-import org.eclipse.jgit.revwalk.RevWalk
-import scala.collection.immutable.ListMap
-import com.github.mdr.mash.ns.os.PathClass
-import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.Repository
-import org.eclipse.jgit.lib.ObjectId
-import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.ns.git.branch.SwitchFunction
-import com.github.mdr.mash.ns.git.branch.CreateFunction
-import com.github.mdr.mash.runtime.MashNull
-import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.runtime.MashBoolean
-import com.github.mdr.mash.evaluator.AbstractToStringMethod
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
+import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
+import com.github.mdr.mash.ns.os.PathClass
+import com.github.mdr.mash.ns.time.DateTimeClass
+import com.github.mdr.mash.runtime._
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.{ ObjectId, Repository }
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object CommitClass extends MashClass("git.Commit") {
 
