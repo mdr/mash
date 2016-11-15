@@ -5,7 +5,7 @@ import java.net.URI
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashString }
+import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
@@ -18,18 +18,24 @@ object GetFunction extends MashFunction("http.get") {
   object Params {
     val Url = PostFunction.Params.Url
     val BasicAuth = PostFunction.Params.BasicAuth
+    val Headers = PostFunction.Params.Headers
   }
+
   import Params._
 
-  val params = ParameterModel(Seq(Url, BasicAuth))
+  val params = ParameterModel(Seq(Url, BasicAuth, Headers))
 
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
-    
+    val headers = Header.getHeaders(boundParams, Headers)
+
     val url = new URI(boundParams.validateString(Url).s)
     val request = new HttpGet(url)
+    for (header <- headers)
+      request.setHeader(header.name, header.value)
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
-    val client = HttpClientBuilder.create().build()
+
+    val client = HttpClientBuilder.create.build
 
     val response = client.execute(request)
 
@@ -43,9 +49,9 @@ object GetFunction extends MashFunction("http.get") {
     import ResponseClass.Fields._
     MashObject.of(ListMap(
       Status -> MashNumber(code),
-      Body -> MashString(responseBody)), ResponseClass)    
+      Body -> MashString(responseBody)), ResponseClass)
   }
-  
+
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
 
   override def summary = "Make an HTTP GET request"
