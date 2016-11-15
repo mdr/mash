@@ -39,7 +39,11 @@ object MashRoot {
       MathsFunctions ++
       Seq(BrowserFunction, RawFunction) ++
       Seq(json.FromFileFunction, json.FromStringFunction, json.AsJsonFunction) ++
-      Seq(http.GetFunction, http.PostFunction)
+      Seq(
+        http.GetFunction,
+        http.PostFunction,
+        http.PutFunction) ++
+      Seq(random.UuidFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
