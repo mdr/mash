@@ -233,17 +233,29 @@ object StringClass extends MashClass("core.String") {
       val Replacement = Parameter(
         "replacement",
         "Replacement string")
+      val Regex = Parameter(
+        name = "regex",
+        shortFlagOpt = Some('r'),
+        summary = "Interpret target as a regular expression",
+        defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+        isFlag = true,
+        isBooleanFlag = true)
+
     }
     import Params._
 
-    val params = ParameterModel(Seq(Target, Replacement))
+    val params = ParameterModel(Seq(Target, Replacement, Regex))
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
       val s = target.asInstanceOf[MashString]
+      val regex = boundParams(Regex).isTruthy
       val targetString = boundParams.validateString(Target).s
       val replacement = boundParams.validateString(Replacement).s
-      s.modify(_.replace(targetString, replacement))
+      if (regex)
+        s.modify(_.replaceAll(targetString, replacement))
+      else
+        s.modify(_.replace(targetString, replacement))
     }
 
     override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy

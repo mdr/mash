@@ -27,6 +27,8 @@ object Printer {
   }
 
   def renderField(value: MashValue, inCell: Boolean = false): String = value match {
+    case MashBoolean.True if inCell                         ⇒ "✓"
+    case MashBoolean.False if inCell                        ⇒ "✗"
     case obj @ MashObject(_, Some(PermissionsClass))        ⇒ PermissionsPrinter.permissionsString(obj)
     case obj @ MashObject(_, Some(PermissionsSectionClass)) ⇒ PermissionsPrinter.permissionsSectionString(obj)
     case MashNumber(n, Some(BytesClass))                    ⇒ BytesPrinter.humanReadable(n)

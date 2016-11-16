@@ -1,6 +1,8 @@
 v0.0.5 (..)
 -----------
 
+* Render boolean fields as tick/crosses on object table browser
+* Add --regex flat to String.replace
 * Add flatten
 * Add inBackground, parallelMap, sleep
 * Add http.put, random.uuid
