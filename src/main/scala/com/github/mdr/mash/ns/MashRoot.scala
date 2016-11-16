@@ -103,6 +103,7 @@ object MashRoot {
     FindFunction,
     FlatMapFunction,
     FirstFunction,
+    FlattenFunction,
     GroupByFunction,
     IsEmptyFunction,
     JoinFunction,
