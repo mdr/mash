@@ -1,5 +1,7 @@
 package com.github.mdr.mash.runtime
 
+import com.github.mdr.mash.GlobalInterpreterLock
+import com.github.mdr.mash.GlobalInterpreterLock.withLock
 import com.github.mdr.mash.evaluator.ToStringifier
 
 import scala.collection.mutable.ArrayBuffer
@@ -18,45 +20,49 @@ object MashList {
 
 class MashList(val items: ArrayBuffer[MashValue]) extends MashValue with Comparable[MashList] {
 
-  def nonEmpty: Boolean = items.nonEmpty
+  def nonEmpty: Boolean = withLock { items.nonEmpty }
 
-  def isEmpty = items.isEmpty
+  def isEmpty = withLock { items.isEmpty }
 
-  def head = items.head
+  def head = withLock { items.head }
 
-  def last = items.last
+  def last = withLock { items.last }
 
-  def forall(p: MashValue ⇒ Boolean): Boolean = items.forall(p)
+  def forall(p: MashValue ⇒ Boolean): Boolean = withLock { items.forall(p) }
 
-  def foreach(f: MashValue ⇒ Unit): Unit = items.foreach(f)
+  def foreach(f: MashValue ⇒ Unit): Unit = withLock { items.foreach(f) }
 
-  def size = items.size
+  def size = withLock { items.size }
 
-  def length = size
+  def length = withLock { size }
 
-  def apply(i: Int): MashValue = items(i)
+  def apply(i: Int): MashValue = withLock { items(i) }
 
-  def ++(that: MashList): MashList = new MashList(this.items ++ that.items)
+  def ++(that: MashList): MashList = withLock { new MashList(this.items ++ that.items) }
 
-  def map(f: MashValue ⇒ MashValue): MashList = new MashList(this.items.map(f))
+  def map(f: MashValue ⇒ MashValue): MashList = withLock { new MashList(this.items.map(f)) }
 
-  def take(n: Int) = new MashList(this.items.take(n))
+  def take(n: Int) = withLock { new MashList(this.items.take(n)) }
 
-  def *(n: Int) = new MashList(ArrayBuffer((1 to n).flatMap(_ ⇒ items): _*))
+  def *(n: Int) = withLock { new MashList(ArrayBuffer((1 to n).flatMap(_ ⇒ items): _*)) }
 
-  override def equals(x: Any) = x match {
-    case that: MashList ⇒ this.items == that.items
-    case _              ⇒ false
+  override def equals(x: Any) = withLock {
+    x match {
+      case that: MashList ⇒ this.items == that.items
+      case _              ⇒ false
+    }
   }
+
+  override def hashCode = withLock { this.items.hashCode }
 
   override def toString = asString
 
-  def asString = ToStringifier.visit(this, "[…]") {
-    items.mkString("[", ", ", "]")
+  def asString = withLock {
+    ToStringifier.visit(this, "[…]") {
+      items.mkString("[", ", ", "]")
+    }
   }
 
-  override def hashCode = this.items.hashCode
-
-  override def compareTo(that: MashList) = MashValueOrdering.compare(this.items.toList, that.items.toList)
+  override def compareTo(that: MashList) = withLock { MashValueOrdering.compare(this.items.toList, that.items.toList) }
 
 }

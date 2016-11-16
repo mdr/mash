@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.runtime.{ MashNumber, MashValue, MashWrapped }
+import com.github.mdr.mash.runtime.{ MashNumber, MashUnit, MashValue, MashWrapped }
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
 
@@ -15,7 +15,29 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
   override val methods = Seq(
     AgoMethod,
-    FromNowMethod)
+    FromNowMethod,
+    SleepMethod)
+
+  object SleepMethod extends MashMethod("sleep") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
+      params.validate(arguments)
+      val nowInstant = clock.instant
+      val now = LocalDateTime.ofInstant(nowInstant, clock.getZone)
+      val amount = temporalAmount(target.asInstanceOf[MashNumber].n.toInt)
+      val future = now.plus(amount).atZone(clock.getZone).toInstant
+      val millis = future.toEpochMilli - nowInstant.toEpochMilli
+      Thread.sleep(millis)
+      MashUnit
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+
+    override def summary = "Sleep for this many " + unit.name.toLowerCase
+
+  }
 
   object AgoMethod extends MashMethod("ago") {
 

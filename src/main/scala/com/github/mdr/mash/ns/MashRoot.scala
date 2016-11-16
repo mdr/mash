@@ -4,6 +4,7 @@ import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._
+import com.github.mdr.mash.ns.core.thread.{ InBackgroundFunction, ParallelMapFunction }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction => _, _ }
 import com.github.mdr.mash.ns.maths.StatsClass
@@ -57,8 +58,11 @@ object MashRoot {
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
+    SleepFunction,
     TapFunction,
-    TimeTakenFunction)
+    TimeTakenFunction,
+    InBackgroundFunction,
+    ParallelMapFunction)
 
   private val MathsFunctions = Seq(
     maths.LogFunction,

@@ -1,5 +1,6 @@
 package com.github.mdr.mash.runtime
 
+import com.github.mdr.mash.GlobalInterpreterLock.withLock
 import com.github.mdr.mash.evaluator.{ EvaluatorException, Field, MashClass, ToStringifier }
 
 import scala.collection.immutable.ListMap
@@ -25,19 +26,19 @@ object ViewableAsFields {
 object MashObject {
 
   def of[T <% ViewableAsFields](fields: T, classOpt: Option[MashClass]): MashObject =
-    MashObject(fields.fields, classOpt)
+    new MashObject(fields.fields, classOpt)
 
   def of[T <% ViewableAsFields](fields: T, klass: MashClass): MashObject =
-    MashObject(fields.fields, Some(klass))
+    new MashObject(fields.fields, Some(klass))
 
   def of[T <% ViewableAsFields](fields: T): MashObject =
-    MashObject(fields.fields, None)
+    new MashObject(fields.fields, None)
 
   def empty() = of(Seq())
 
 }
 
-case class MashObject private (fields: LinkedHashMap[String, MashValue], classOpt: Option[MashClass] = None) extends MashValue {
+case class MashObject private (val fields: LinkedHashMap[String, MashValue], val classOpt: Option[MashClass] = None) extends MashValue {
 
   for (klass ← classOpt) {
     val klassFields = klass.fields.map(_.name)
@@ -49,33 +50,37 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
   def withField(fieldName: String, value: MashValue): MashObject =
     MashObject.of(fields.toSeq :+ (fieldName -> value), classOpt)
 
-  def set(fieldName: String, value: MashValue) { fields(fieldName) = value }
+  def set(fieldName: String, value: MashValue) = withLock { fields(fieldName) = value }
 
-  def apply(fieldName: String): MashValue = fields(fieldName)
+  def apply(fieldName: String): MashValue = withLock { fields(fieldName) }
 
-  def apply(field: Field): MashValue = fields(field.name)
+  def apply(field: Field): MashValue = withLock { fields(field.name) }
 
-  def get(fieldName: String): Option[MashValue] = fields.get(fieldName)
+  def get(fieldName: String): Option[MashValue] = withLock { fields.get(fieldName) }
 
-  def get(field: Field): Option[MashValue] = fields.get(field.name)
+  def get(field: Field): Option[MashValue] = withLock { fields.get(field.name) }
 
-  def -(fieldName: String): MashObject =
+  def -(fieldName: String): MashObject = withLock {
     MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
+  }
 
-  def +(that: MashObject): MashObject =
+  def +(that: MashObject): MashObject = withLock {
     MashObject.of((this.fields ++ that.fields).toSeq, this.classOpt)
+  }
 
   override def toString = asString
 
-  def asString = ToStringifier.visit(this, "{…}") {
-    val fieldString = fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
-    val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
-    s"{ $classString$fieldString }"
+  def asString = withLock {
+    ToStringifier.visit(this, "{…}") {
+      val fieldString = fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
+      val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
+      s"{ $classString$fieldString }"
+    }
   }
 
-  def immutableFields: ListMap[String, MashValue] = ListMap(fields.toSeq: _*)
+  def immutableFields: ListMap[String, MashValue] = withLock { ListMap(fields.toSeq: _*) }
 
-  def fieldAs[T: ClassTag](field: Field): T = {
+  def fieldAs[T: ClassTag](field: Field): T = withLock {
     val klass = implicitly[ClassTag[T]].runtimeClass
     val value = this(field)
     if (klass isInstance value)
@@ -83,4 +88,15 @@ case class MashObject private (fields: LinkedHashMap[String, MashValue], classOp
     else
       throw new EvaluatorException("Field has unexpected type " + value.typeName)
   }
+
+
+  override def equals(x: Any) = withLock {
+    x match {
+      case that: MashObject ⇒ this.fields == that.fields
+      case _                ⇒ false
+    }
+  }
+
+  override def hashCode = withLock { this.fields.hashCode }
+
 }

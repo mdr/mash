@@ -26,3 +26,11 @@ object Singletons {
 
   var terminalWindowChanged = false
 }
+
+object GlobalInterpreterLock {
+
+  def withLock[T](f: => T): T = synchronized {
+    f
+  }
+
+}
