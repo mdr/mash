@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Add git.RemoteBranch.createLocal method
 * Render boolean fields as tick/crosses on object table browser
 * Add --regex flat to String.replace
 * Add flatten

@@ -1,11 +1,12 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.runtime._
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.RefSpec
 
@@ -26,6 +27,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
   def summary = "A remote git branch"
 
   override lazy val methods = Seq(
+    CreateLocalMethod,
     DeleteMethod,
     FullNameMethod,
     IsAncestorOfMethod,
@@ -41,6 +43,45 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     def fullName: MashString = MashString(s"$remote/$name", RemoteBranchNameClass)
 
+  }
+
+  object CreateLocalMethod extends MashMethod("createLocal") {
+
+    object Params {
+      lazy val Switch = Parameter(
+        name = "switch",
+        summary = "Switch to the new branch after creating it (default false)",
+        shortFlagOpt = Some('s'),
+        isFlag = true,
+        defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+        isBooleanFlag = true)
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Switch))
+
+    def apply(target: MashValue, arguments: Arguments): MashUnit = {
+      val boundParams = params.validate(arguments)
+      val switch = boundParams(Switch).isTruthy
+      GitHelper.withGit { git ⇒
+        val wrapper = Wrapper(target)
+        val localName = wrapper.name.s
+        val cmd = git.branchCreate.setName(localName)
+        cmd.setStartPoint(wrapper.fullName.s)
+        cmd.setUpstreamMode(SetupUpstreamMode.TRACK)
+        val branchRef = cmd.call()
+        val branch = ListFunction.asMashObject(git.getRepository)(branchRef)
+        if (switch)
+          git.checkout().setName(localName).call()
+        branch
+      }
+      MashUnit
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+
+    override def summary = "Create a local branch tracking this remote branch"
   }
 
   object DeleteMethod extends MashMethod("delete") {
