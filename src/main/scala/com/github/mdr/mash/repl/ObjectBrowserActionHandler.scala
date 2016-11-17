@@ -1,6 +1,8 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.lexer.MashLexer
+import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.ObjectTableModelCreator
 
 trait ObjectBrowserActionHandler { self: Repl ⇒
@@ -27,16 +29,31 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
   }
 
   protected def handleObjectBrowserAction(action: InputAction, browserState: ObjectBrowserState) {
-    val ObjectBrowserState(model, currentRow, firstRow, selectedRows) = browserState
+    val ObjectBrowserState(model, currentRow, _, _, _) = browserState
     action match {
-      case NextItem ⇒
+      case NextColumn     ⇒
+        val newState = adjustWindowToFit(browserState.adjustCurrentColumn(1))
+        updateState(newState)
+      case PreviousColumn ⇒
+        val newState = adjustWindowToFit(browserState.adjustCurrentColumn(-1))
+        updateState(newState)
+      case UnfocusColumn  ⇒
+        val newState = adjustWindowToFit(browserState.unfocusColumn)
+        updateState(newState)
+      case FirstColumn    =>
+        val newState = adjustWindowToFit(browserState.rightmostColumn)
+        updateState(newState)
+      case LastColumn     =>
+        val newState = adjustWindowToFit(browserState.leftmostColumn)
+        updateState(newState)
+      case NextItem      ⇒
         val newState = adjustWindowToFit(browserState.adjustCurrentRow(1))
         updateState(newState)
-      case NextPage ⇒
+      case NextPage      ⇒
         val newRow = math.min(model.objects.size - 1, currentRow + windowSize - 1)
         val newState = adjustWindowToFit(browserState.copy(currentRow = newRow))
         updateState(newState)
-      case PreviousItem ⇒
+      case PreviousItem  ⇒
         val newState = adjustWindowToFit(browserState.adjustCurrentRow(-1))
         updateState(newState)
       case PreviousPage ⇒
@@ -65,7 +82,6 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
   }
 
   private def handleInsertItem(browserState: ObjectBrowserState) {
-    val commandNumber = state.commandNumber - 1
     val toInsert = getInsertExpression(browserState)
     state.lineBuffer = LineBuffer(toInsert)
     state.objectBrowserStateOpt = None
@@ -75,7 +91,16 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
     val commandNumber = state.commandNumber - 1
     val command = s"${ReplState.Res}$commandNumber"
     if (browserState.selectedRows.isEmpty)
-      s"$command[${browserState.currentRow}]"
+      browserState.currentColumnOpt match {
+        case Some(column) if column > 0 =>
+          val property = browserState.model.columnNames(column)
+          if (isLegalIdentifier(property))
+            s"$command[${browserState.currentRow}].$property"
+          else
+            s"$command[${browserState.currentRow}]['$property']"
+        case _ =>
+          s"$command[${browserState.currentRow}]"
+      }
     else {
       val rows = browserState.selectedRows.toSeq.sorted
       val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")

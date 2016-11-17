@@ -8,10 +8,16 @@ object ObjectBrowserActions {
   case object PreviousPage extends InputAction
   case object NextItem extends InputAction
   case object PreviousItem extends InputAction
+  case object PreviousColumn extends InputAction
+  case object NextColumn extends InputAction
+  case object UnfocusColumn extends InputAction
+  case object FirstColumn extends InputAction
+  case object LastColumn extends InputAction
   case object FirstItem extends InputAction
   case object LastItem extends InputAction
   case object ExitBrowser extends InputAction
   case object InsertItem extends InputAction
   case object ToggleSelected extends InputAction
   case object Rerender extends InputAction
+
 }

@@ -37,19 +37,22 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
     for {
       (obj, i) ← objects.zipWithIndex
       actualIndex = i + state.firstRow
-    } yield renderObject(obj, actualIndex == state.currentRow, state.selectedRows contains actualIndex)
+    } yield renderObject(obj, actualIndex == state.currentRow, state.currentColumnOpt, state.selectedRows contains actualIndex)
   }
 
-  private def renderObject(obj: ObjectTableRow, isCursorRow: Boolean, isSelected: Boolean): Line = {
+  private def renderObject(obj: ObjectTableRow, isCursorRow: Boolean, currentColumnOpt: Option[Int], isSelected: Boolean): Line = {
     val side = boxCharacterSupplier.doubleVertical.style
     val selectedChar = if (isSelected) "◈" else " "
-    val selected = (selectedChar + boxCharacterSupplier.singleVertical).style(Style(inverse = isCursorRow))
-    val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = isCursorRow))
-    def renderCell(name: String) = {
+    val highlightRow = isCursorRow && currentColumnOpt.isEmpty
+    val selected = (selectedChar + boxCharacterSupplier.singleVertical).style(Style(inverse = highlightRow))
+    val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
+    def renderCell(name: String, column: Int) = {
+      val highlightCell = isCursorRow && currentColumnOpt.forall(_ == column)
       val cellContents = StringUtils.fitToWidth(obj.data(name), model.columnWidth(name))
-      cellContents.style(Style(inverse = isCursorRow))
+      cellContents.style(Style(inverse = highlightCell))
     }
-    val innerChars = Utils.intercalate(model.columnNames.map(renderCell), internalVertical)
+    val renderedCells = model.columnNames.zipWithIndex.map((renderCell _).tupled)
+    val innerChars = Utils.intercalate(renderedCells, internalVertical)
     Line(side ++ selected ++ innerChars ++ side)
   }
 
@@ -60,16 +63,20 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
     val keyChars =
       " (".style ++
         "q".style(Style(inverse = true)) ++
-        " to exit, ".style ++
+        " exit, ".style ++
         "s".style(Style(inverse = true)) ++
-        " to select, ".style ++
+        " mark, ".style ++
         "i".style(Style(inverse = true)) ++
-        " to insert)".style
+        " insert".style ++ (if (state.currentColumnOpt.isDefined) ", ".style ++ "r".style(Style(inverse = true)) ++
+        " select row".style else Seq()) ++
+        ")".style
     Line(countChars ++ keyChars)
   }
 
   private def model = state.model
+
   private def currentRow = state.currentRow
+
   private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
 
 }

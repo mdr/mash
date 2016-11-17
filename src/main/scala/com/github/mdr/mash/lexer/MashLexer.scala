@@ -7,6 +7,8 @@ case class LexerResult(tokens: Seq[Token], rawTokens: Seq[Token], inferredSemico
 
 object MashLexer {
 
+  def isLegalIdentifier(s: String) = s matches "^[A-Za-z_][A-Za-z0-9]+$"
+
   private final val EOF_CHAR = '\u001A' // Dummy character used after EOF (in lookaheads etc)
 
   /**
