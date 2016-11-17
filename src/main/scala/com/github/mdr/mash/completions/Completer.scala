@@ -18,7 +18,6 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
 
   import Completer._
 
-  private val pathCompleter = new PathCompleter(fileSystem, envInteractions)
   private val stringCompleter = new StringCompleter(fileSystem, envInteractions)
 
   def complete(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[CompletionResult] = {

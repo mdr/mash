@@ -6,15 +6,16 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
-import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
 
 object StringClass extends MashClass("core.String") {
 
   private val fileSystem = LinuxFileSystem
-  private val envInteractions = LinuxEnvironmentInteractions
 
   override val methods = Seq(
+    ContainsMethod,
+    EndsWithMethod,
     FirstMethod,
     GlobMethod,
     IsEmptyMethod,
@@ -35,6 +36,31 @@ object StringClass extends MashClass("core.String") {
     TrimMethod,
     UntaggedMethod,
     MashClass.alias("g", GlobMethod))
+
+  object ContainsMethod extends MashMethod("contains") {
+
+    object Params {
+      val Substring = Parameter(
+        name = "substring",
+        summary = "Substring to match")
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Substring))
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      val boundParams = params.validate(arguments)
+      val s = target.asInstanceOf[MashString].s
+      val pattern = ToStringifier.stringify(boundParams(Substring))
+      MashBoolean(s contains pattern)
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "Test whether this string contains the given substring"
+
+  }
 
   object GlobMethod extends MashMethod("glob") {
 
@@ -156,6 +182,7 @@ object StringClass extends MashClass("core.String") {
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isBooleanFlag = true)
     }
+
     import Params._
 
     val params = ParameterModel(Seq(_Pattern, IgnoreCase))
@@ -190,6 +217,7 @@ object StringClass extends MashClass("core.String") {
         summary = "Separator to split string on; if not provided, the default is to split on whitespace",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(
@@ -201,11 +229,11 @@ object StringClass extends MashClass("core.String") {
       val targetString = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
       val separator = boundParams(Separator) match {
-        case MashNull ⇒
+        case MashNull                 ⇒
           "\\s+"
         case MashString(separator, _) ⇒
           if (regex) separator else Pattern.quote(separator)
-        case x ⇒
+        case x                        ⇒
           boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
       }
       val pieces = targetString.s.split(separator, -1)
@@ -229,10 +257,10 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val Target = Parameter(
         name = "target",
-        "String to replace")
+        summary = "String to replace")
       val Replacement = Parameter(
-        "replacement",
-        "Replacement string")
+        name = "replacement",
+        summary = "Replacement string")
       val Regex = Parameter(
         name = "regex",
         shortFlagOpt = Some('r'),
@@ -242,6 +270,7 @@ object StringClass extends MashClass("core.String") {
         isBooleanFlag = true)
 
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Target, Replacement, Regex))
@@ -341,12 +370,15 @@ object StringClass extends MashClass("core.String") {
 
   object LastMethod extends MashMethod("last") {
 
-    private val N = "n"
+    object Params {
+      val N = Parameter(
+        name = "n",
+        summary = "Number of characters",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(Parameter(
-      name = N,
-      summary = "Number of elements",
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))))
+    val params = ParameterModel(Seq(N))
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
@@ -366,12 +398,15 @@ object StringClass extends MashClass("core.String") {
 
   object FirstMethod extends MashMethod("first") {
 
-    private val N = "n"
+    object Params {
+      val N = Parameter(
+        name = "n",
+        summary = "Number of characters",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(Parameter(
-      name = N,
-      summary = "Number of elements",
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))))
+    val params = ParameterModel(Seq(N))
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       val boundParams = params.validate(arguments)
@@ -406,12 +441,14 @@ object StringClass extends MashClass("core.String") {
 
   object StartsWithMethod extends MashMethod("startsWith") {
 
-    private val Prefix = "prefix"
+    object Params {
+      val Prefix = Parameter(
+        name = "prefix",
+        summary = "Prefix to test")
+    }
+    import Params._
 
-    val params = ParameterModel(Seq(
-      Parameter(
-        Prefix,
-        "Prefix to test")))
+    val params = ParameterModel(Seq(Prefix))
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       val boundParams = params.validate(arguments)
@@ -423,6 +460,30 @@ object StringClass extends MashClass("core.String") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
     override def summary = "Check if this string starts with another"
+
+  }
+
+  object EndsWithMethod extends MashMethod("endsWith") {
+
+    object Params {
+      val Suffix = Parameter(
+        name = "suffix",
+        summary = "Suffix to test")
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Suffix))
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      val boundParams = params.validate(arguments)
+      val s = target.asInstanceOf[MashString]
+      val pattern = boundParams(Suffix).asInstanceOf[MashString]
+      MashBoolean(s.reverse.startsWith(pattern.reverse))
+    }
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+
+    override def summary = "Check if this string ends with another"
 
   }
 

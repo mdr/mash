@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.UUID
 
-import com.github.mdr.mash.{ DebugLogger, Mash }
+import com.github.mdr.mash.{ DebugLogger, Mash, Singletons }
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.compiler.CompilationUnit
@@ -47,6 +47,7 @@ class Repl(
   protected val completer = new Completer(fileSystem, envInteractions)
 
   val state = new ReplState
+  Singletons.scriptExecutor = new ScriptExecutor(output, terminal, sessionId, state.globalVariables)
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
   def run() {

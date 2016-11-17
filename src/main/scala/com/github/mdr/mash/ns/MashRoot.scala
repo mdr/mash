@@ -44,7 +44,8 @@ object MashRoot {
         http.GetFunction,
         http.PostFunction,
         http.PutFunction) ++
-      Seq(random.UuidFunction)
+      Seq(random.UuidFunction) ++
+      Seq(mash.SourceFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
