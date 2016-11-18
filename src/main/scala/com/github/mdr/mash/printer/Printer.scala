@@ -45,7 +45,7 @@ object Printer {
 
 }
 
-case class PrintResult(objectTableModelOpt: Option[ObjectTableModel] = None)
+case class PrintResult(printModelOpt: Option[PrintModel] = None)
 
 class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 

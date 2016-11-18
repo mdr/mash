@@ -8,7 +8,7 @@ case class ObjectTableModel(
     columnNames: Seq[String],
     columnWidths: Map[String, Int],
     objects: Seq[ObjectTableRow],
-    rawObjects: Seq[MashObject]) {
+    rawObjects: Seq[MashObject]) extends PrintModel {
 
   def width = columnWidths.values.sum + numberOfColumns + 1
 

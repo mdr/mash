@@ -1,9 +1,8 @@
 package com.github.mdr.mash.commands
 
-import com.github.mdr.mash.printer.ObjectTableModel
+import com.github.mdr.mash.printer.PrintModel
 import com.github.mdr.mash.runtime.MashValue
 
-case class CommandResult(
-  value: Option[MashValue] = None,
-  toggleMish: Boolean = false,
-  objectTableModelOpt: Option[ObjectTableModel] = None)
+case class CommandResult(value: Option[MashValue] = None,
+                         toggleMish: Boolean = false,
+                         printModelOpt: Option[PrintModel] = None)

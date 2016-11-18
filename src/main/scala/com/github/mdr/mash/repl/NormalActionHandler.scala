@@ -10,6 +10,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.printer.ObjectTableModel
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
@@ -173,7 +174,7 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
-    val CommandResult(resultOpt, toggleMish, objectTableModelOpt) = commandResult
+    val CommandResult(resultOpt, toggleMish, printModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
       case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
       case result                               ⇒ result
@@ -187,8 +188,12 @@ trait NormalActionHandler { self: Repl ⇒
     }
     actualResultOpt.foreach(saveResult(commandNumber))
 
-    for (objectTableModel ← objectTableModelOpt)
-      state.objectBrowserStateOpt = Some(ObjectTableBrowserState(objectTableModel))
+    for (printModel ← printModelOpt)
+      printModel match {
+        case objectTableModel: ObjectTableModel =>
+          state.objectBrowserStateOpt = Some(ObjectTableBrowserState(objectTableModel))
+        case _ =>
+      }
   }
 
   private def saveResult(number: Int)(result: MashValue) {

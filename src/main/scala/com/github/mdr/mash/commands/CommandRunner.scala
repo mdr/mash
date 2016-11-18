@@ -47,8 +47,8 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
 
   private def printResult(result: MashValue): CommandResult = {
     val printer = new Printer(output, terminalInfo)
-    val PrintResult(objectTableModelOpt) = printer.print(result)
-    CommandResult(Some(result), objectTableModelOpt = objectTableModelOpt)
+    val PrintResult(printModelOpt) = printer.print(result)
+    CommandResult(Some(result), printModelOpt = printModelOpt)
   }
 
   private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
