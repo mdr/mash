@@ -6,7 +6,8 @@ case class ObjectTableBrowserState(model: ObjectTableModel,
                                    currentRow: Int = 0,
                                    firstRow: Int = 0,
                                    currentColumnOpt: Option[Int] = None,
-                                   markedRows: Set[Int] = Set()) {
+                                   markedRows: Set[Int] = Set(),
+                                   val path: String) extends BrowserState {
 
   private val size = model.objects.size
   private val numberOfColumns = model.numberOfColumns

@@ -1,8 +1,8 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-case class ObjectTableRow(data: Map[String, String])
+case class ObjectTableRow(data: Map[String, String], rawObjects: Map[String, MashValue])
 
 case class ObjectTableModel(
     columnNames: Seq[String],

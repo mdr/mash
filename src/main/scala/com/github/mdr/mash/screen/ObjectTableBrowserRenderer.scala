@@ -7,7 +7,7 @@ import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
-class ObjectBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: TerminalInfo) {
+class ObjectTableBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
   private val objectTableStringifier = new ObjectTableStringifier(terminalInfo, showSelections = true)
@@ -58,19 +58,11 @@ class ObjectBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: Termin
 
   private def renderFooterLine = Line(objectTableStringifier.renderBottomRow(model).style)
 
-  private def renderStatusLine: Line = {
+  private def renderStatusLine = {
+    import KeyHint._
+    val hints = Seq(Exit, Mark, Focus, Back, Insert) ++ state.currentColumnOpt.toSeq.map(_ => Row)
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
-    val keyChars =
-      " (".style ++
-        "q".style(Style(inverse = true)) ++
-        " exit, ".style ++
-        "s".style(Style(inverse = true)) ++
-        " mark, ".style ++
-        "i".style(Style(inverse = true)) ++
-        " insert".style ++ (if (state.currentColumnOpt.isDefined) ", ".style ++ "r".style(Style(inverse = true)) ++
-        " select row".style else Seq()) ++
-        ")".style
-    Line(countChars ++ keyChars)
+    Line(countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
   private def model = state.model

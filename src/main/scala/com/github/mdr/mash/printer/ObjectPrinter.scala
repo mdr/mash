@@ -7,34 +7,20 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
 class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
+  private val stringifier = new ObjectStringifier(terminalInfo)
 
   def printObject(obj: MashObject) = {
     val model = new ObjectModelCreator(terminalInfo).create(obj)
     if (model.fields.isEmpty)
       output.println("{}")
     else {
-      val ObjectModel(fields, keyWidth, valuesWidth, _) = model
-      // Top row
-      output.print("╔")
-      output.print("═" * keyWidth)
-      output.print("╤")
-      output.print("═" * valuesWidth)
-      output.println("╗")
-
-      for ((k, v) ← fields) {
-        output.print("║")
-        output.print(StringUtils.fitToWidth(k + "", keyWidth))
-        output.print("│")
-        output.print(StringUtils.fitToWidth(v, valuesWidth))
-        output.println("║")
+      output.println(stringifier.renderTopRow(model))
+      for ((k, v) ← model.fields) {
+        val fittedField = StringUtils.fitToWidth(k, model.fieldColumnWidth)
+        val fittedValue = StringUtils.fitToWidth(v, model.valueColumnWidth)
+        output.println(stringifier.renderFieldRow(fittedField, fittedValue))
       }
-
-      // Bottom row
-      output.print("╚")
-      output.print("═" * keyWidth)
-      output.print("╧")
-      output.print("═" * valuesWidth)
-      output.println("╝")
+      output.println(stringifier.renderBottomRow(model))
     }
   }
 

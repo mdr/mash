@@ -77,7 +77,11 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
       case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews ⇒
         new GitStatusPrinter(output).print(obj)
       case obj: MashObject ⇒
-        new ObjectPrinter(output, terminalInfo).printObject(obj)
+        if (alwaysUseBrowser) {
+          val model = new ObjectModelCreator(terminalInfo).create(obj)
+          return PrintResult(Some(model))
+        } else
+          new ObjectPrinter(output, terminalInfo).printObject(obj)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒
         print(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)

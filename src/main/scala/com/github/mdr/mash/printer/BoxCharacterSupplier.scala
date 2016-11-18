@@ -4,7 +4,7 @@ trait BoxCharacterSupplier {
 
   val doubleTopLeft: String
 
-  val doubletopRight: String
+  val doubleTopRight: String
 
   val doubleBottomRight: String
 
@@ -34,7 +34,7 @@ object UnicodeBoxCharacterSupplier extends BoxCharacterSupplier {
 
   override val doubleTopLeft = "╔"
 
-  override val doubletopRight = "╗"
+  override val doubleTopRight = "╗"
 
   override val doubleBottomRight = "╝"
 
@@ -64,7 +64,7 @@ object AsciiBoxCharacterSupplier extends BoxCharacterSupplier {
 
   override val doubleTopLeft = "+"
 
-  override val doubletopRight = "+"
+  override val doubleTopRight = "+"
 
   override val doubleBottomRight = "+"
 

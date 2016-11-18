@@ -14,7 +14,7 @@ class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean
     if (showSelections)
       sb.append(doubleHorizontal + doubleHorizontalSingleDown)
     sb.append(model.columnNames.map(name ⇒ doubleHorizontal * model.columnWidth(name)).mkString(doubleHorizontalSingleDown))
-    sb.append(doubletopRight)
+    sb.append(doubleTopRight)
     sb.toString
   }
 

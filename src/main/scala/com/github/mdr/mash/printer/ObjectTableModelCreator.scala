@@ -40,11 +40,13 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
       for {
         ColumnSpec(name, _, isNullaryMethod) ← columns
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
-        valueOpt = rawValueOpt.map(rawValue ⇒ if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue)
+        valueOpt = rawValueOpt.map(rawValue ⇒
+          if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value => Printer.renderField(value, inCell = true)).getOrElse("")
-      } yield name -> renderedValue
-    val data = (pairs :+ (IndexColumnName -> index.toString)).toMap
-    ObjectTableRow(data)
+      } yield name -> (valueOpt, renderedValue)
+    val data = ((for { (k, (_, v)) <- pairs } yield k -> v) :+ (IndexColumnName -> index.toString)).toMap
+    val rawObjects = (for { (k, (rawOpt, _)) <- pairs; raw <- rawOpt } yield k -> raw).toMap
+    ObjectTableRow(data, rawObjects)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {

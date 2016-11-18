@@ -13,6 +13,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('e'), control = true) -> FirstColumn,
   KeyPress(BasicKey('a'), control = true) -> LastColumn,
   OtherSequence("r") -> UnfocusColumn,
+  OtherSequence("f") -> Focus,
+  OtherSequence("b") -> Back,
   KeyPress(BasicKey('n'), control = true) -> NextItem,
   KeyPress(Up) -> PreviousItem,
   KeyPress(BasicKey('p'), control = true) -> PreviousItem,
@@ -22,6 +24,6 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("q") -> ExitBrowser,
   OtherSequence("g") -> FirstItem,
   OtherSequence("G") -> LastItem,
-  OtherSequence("s") -> ToggleSelected,
+  OtherSequence("m") -> ToggleMarked,
   OtherSequence("i") -> InsertItem,
   TerminalWindowChanged -> Rerender))

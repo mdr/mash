@@ -33,7 +33,7 @@ class ReplState(
     var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
     var mish: Boolean = false,
     var yankLastArgStateOpt: Option[YankLastArgState] = None,
-    var objectBrowserStateOpt: Option[ObjectTableBrowserState] = None) {
+    var objectBrowserStateOpt: Option[ObjectBrowserState] = None) {
 
   def reset() {
     lineBuffer = LineBuffer.Empty

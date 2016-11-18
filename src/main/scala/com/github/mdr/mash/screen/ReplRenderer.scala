@@ -3,7 +3,7 @@ package com.github.mdr.mash.screen
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.{ ObjectTableBrowserState, ReplState }
+import com.github.mdr.mash.repl.{ ObjectBrowserState, ObjectTableBrowserState, ReplState, SingleObjectBrowserState }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
@@ -42,10 +42,22 @@ object ReplRenderer {
     ReplRenderResult(screen, numberOfCompletionColumns)
   }
 
-  private def renderObjectBrowser(state: ObjectTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
-    val screen = new ObjectBrowserRenderer(state, terminalInfo).renderObjectBrowser
+  private def renderObjectTableBrowser(state: ObjectTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new ObjectTableBrowserRenderer(state, terminalInfo).renderObjectBrowser
     ReplRenderResult(screen)
   }
+
+  private def renderSingleObjectBrowser(state: SingleObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new SingleObjectBrowserRenderer(state, terminalInfo).renderObjectBrowser
+    ReplRenderResult(screen)
+  }
+
+  private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult =
+    state.browserState match {
+      case objectTableBrowserState: ObjectTableBrowserState => renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
+      case singleObjectBrowserState: SingleObjectBrowserState => renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
+      case _ => ???
+    }
 
   private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prefixChars: Seq[StyledCharacter] = "Incremental history search: ".style
