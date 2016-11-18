@@ -4,7 +4,7 @@ import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 case class ObjectTableRow(data: Map[String, String], rawObjects: Map[String, MashValue])
 
-case class ObjectTableModel(
+case class ObjectsTableModel(
     columnNames: Seq[String],
     columnWidths: Map[String, Int],
     objects: Seq[ObjectTableRow],

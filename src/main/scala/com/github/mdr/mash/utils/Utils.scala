@@ -77,4 +77,6 @@ object Utils {
       case (Some(value1), Some(value2)) ⇒ Some(f(value1, value2))
     }
 
+  def tupled[A, B, C](f: (A, B) => C): ((A, B)) => C = f.tupled
+
 }

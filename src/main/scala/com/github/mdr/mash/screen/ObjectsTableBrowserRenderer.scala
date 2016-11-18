@@ -1,16 +1,17 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectTableStringifier, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.ObjectTableBrowserState
+import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.repl.ObjectsTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Utils.tupled
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
-class ObjectTableBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: TerminalInfo) {
+class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectTableStringifier = new ObjectTableStringifier(terminalInfo, showSelections = true)
+  private val objectTableStringifier = new ObjectsTableStringifier(terminalInfo, showSelections = true)
 
   def renderObjectBrowser: Screen = {
     val lines = renderLines
@@ -37,7 +38,7 @@ class ObjectTableBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: T
     for {
       (obj, i) ← objects.zipWithIndex
       actualIndex = i + state.firstRow
-    } yield renderObject(obj, actualIndex == state.currentRow, state.currentColumnOpt, state.markedRows contains actualIndex)
+    } yield renderObject(obj, actualIndex == state.selectedRow, state.currentColumnOpt, state.markedRows contains actualIndex)
   }
 
   private def renderObject(obj: ObjectTableRow, isCursorRow: Boolean, currentColumnOpt: Option[Int], isSelected: Boolean): Line = {
@@ -51,7 +52,7 @@ class ObjectTableBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: T
       val cellContents = StringUtils.fitToWidth(obj.data(name), model.columnWidth(name))
       cellContents.style(Style(inverse = highlightCell))
     }
-    val renderedCells = model.columnNames.zipWithIndex.map((renderCell _).tupled)
+    val renderedCells = model.columnNames.zipWithIndex.map(tupled(renderCell))
     val innerChars = Utils.intercalate(renderedCells, internalVertical)
     Line(side ++ selected ++ innerChars ++ side)
   }
@@ -67,7 +68,7 @@ class ObjectTableBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: T
 
   private def model = state.model
 
-  private def currentRow = state.currentRow
+  private def currentRow = state.selectedRow
 
   private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
 

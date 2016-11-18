@@ -6,16 +6,16 @@ import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.TerminalInfo
 
-object ObjectTableModelCreator {
+object ObjectsTableModelCreator {
 
   private val IndexColumnName = "#"
 
 }
 
-class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
-  import ObjectTableModelCreator._
+class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
+  import ObjectsTableModelCreator._
 
-  def create(objects: Seq[MashObject]): ObjectTableModel = {
+  def create(objects: Seq[MashObject]): ObjectsTableModel = {
     val columns = getColumnSpecs(objects)
 
     val renderedObjects: Seq[ObjectTableRow] =
@@ -32,7 +32,7 @@ class ObjectTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolea
       (for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
         yield c.name -> w) + (IndexColumnName -> indexColumnWidth)
 
-    ObjectTableModel(columnNames, columnWidths, renderedObjects, objects)
+    ObjectsTableModel(columnNames, columnWidths, renderedObjects, objects)
   }
 
   private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {

@@ -57,10 +57,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
         if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
-          val model = new ObjectTableModelCreator(terminalInfo, showSelections = true).create(objects)
+          val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true).create(objects)
           return PrintResult(Some(model))
         } else
-          new ObjectTablePrinter(output, terminalInfo).printTable(objects)
+          new ObjectsTablePrinter(output, terminalInfo).printTable(objects)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
       case obj: MashObject if obj.classOpt == Some(ViewClass) ⇒

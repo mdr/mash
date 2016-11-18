@@ -7,6 +7,7 @@ trait BrowserState {
 }
 
 case class ObjectBrowserState(browserStates: List[BrowserState]) {
+  require(browserStates.nonEmpty)
 
   def replaceCurrentState(newState: BrowserState): ObjectBrowserState =
     copy(browserStates = newState :: browserStates.tail)
@@ -17,5 +18,5 @@ case class ObjectBrowserState(browserStates: List[BrowserState]) {
   def pop: ObjectBrowserState =
     copy(browserStates = browserStates.tail)
 
-  def browserState = browserStates.head
+  def browserState: BrowserState = browserStates.head
 }

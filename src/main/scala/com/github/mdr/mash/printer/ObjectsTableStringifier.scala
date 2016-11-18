@@ -3,12 +3,12 @@ package com.github.mdr.mash.printer
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
-class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
+class ObjectsTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   import boxCharacterSupplier._
 
-  def renderTopRow(model: ObjectTableModel): String = {
+  def renderTopRow(model: ObjectsTableModel): String = {
     val sb = new StringBuilder()
     sb.append(doubleTopLeft)
     if (showSelections)
@@ -18,7 +18,7 @@ class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean
     sb.toString
   }
 
-  def renderHeaderRow(model: ObjectTableModel): String = {
+  def renderHeaderRow(model: ObjectsTableModel): String = {
     def renderColumn(name: String) = StringUtils.fitToWidth(name, model.columnWidth(name))
     val sb = new StringBuilder()
     sb.append(doubleVertical)
@@ -29,7 +29,7 @@ class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean
     sb.toString
   }
 
-  def renderBelowHeaderRow(model: ObjectTableModel): String = {
+  def renderBelowHeaderRow(model: ObjectsTableModel): String = {
     val sb = new StringBuilder()
     sb.append(doubleVerticalSingleRight)
     if (showSelections)
@@ -39,7 +39,7 @@ class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean
     sb.toString
   }
 
-  def renderObjectRow(model: ObjectTableModel, renderedObject: ObjectTableRow): String = {
+  def renderObjectRow(model: ObjectsTableModel, renderedObject: ObjectTableRow): String = {
     def renderCell(name: String) = StringUtils.fitToWidth(renderedObject.data(name), model.columnWidth(name))
     new StringBuilder()
       .append(doubleVertical)
@@ -48,7 +48,7 @@ class ObjectTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean
       .toString
   }
 
-  def renderBottomRow(model: ObjectTableModel): String = {
+  def renderBottomRow(model: ObjectsTableModel): String = {
     val sb = new StringBuilder
     sb.append(doubleBottomLeft)
     if (showSelections)

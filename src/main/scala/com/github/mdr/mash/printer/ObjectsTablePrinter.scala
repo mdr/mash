@@ -5,12 +5,12 @@ import java.io.PrintStream
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.TerminalInfo
 
-class ObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
+class ObjectsTablePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
   def printTable(objects: Seq[MashObject]) {
-    val creator = new ObjectTableModelCreator(terminalInfo, showSelections = false)
+    val creator = new ObjectsTableModelCreator(terminalInfo, showSelections = false)
     val model = creator.create(objects)
-    val stringifier = new ObjectTableStringifier(terminalInfo, showSelections = false)
+    val stringifier = new ObjectsTableStringifier(terminalInfo, showSelections = false)
     output.println(stringifier.renderTopRow(model))
     output.println(stringifier.renderHeaderRow(model))
     output.println(stringifier.renderBelowHeaderRow(model))
