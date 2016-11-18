@@ -1,18 +1,17 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.ObjectTableModelCreator
 
 trait ObjectBrowserActionHandler { self: Repl ⇒
   import ObjectBrowserActions._
 
-  private def updateState(newState: ObjectBrowserState) {
+  private def updateState(newState: ObjectTableBrowserState) {
     state.objectBrowserStateOpt = Some(newState)
   }
 
-  private def adjustWindowToFit(browserState: ObjectBrowserState): ObjectBrowserState = {
+  private def adjustWindowToFit(browserState: ObjectTableBrowserState): ObjectTableBrowserState = {
     val currentRow = browserState.currentRow
     val firstRow = browserState.firstRow
     var newState = browserState
@@ -28,8 +27,8 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
     newState
   }
 
-  protected def handleObjectBrowserAction(action: InputAction, browserState: ObjectBrowserState) {
-    val ObjectBrowserState(model, currentRow, _, _, _) = browserState
+  protected def handleObjectBrowserAction(action: InputAction, browserState: ObjectTableBrowserState) {
+    val ObjectTableBrowserState(model, currentRow, _, _, _) = browserState
     action match {
       case NextColumn     ⇒
         val newState = adjustWindowToFit(browserState.adjustCurrentColumn(1))
@@ -41,10 +40,10 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
         val newState = adjustWindowToFit(browserState.unfocusColumn)
         updateState(newState)
       case FirstColumn    =>
-        val newState = adjustWindowToFit(browserState.rightmostColumn)
+        val newState = adjustWindowToFit(browserState.lastColumn)
         updateState(newState)
       case LastColumn     =>
-        val newState = adjustWindowToFit(browserState.leftmostColumn)
+        val newState = adjustWindowToFit(browserState.firstColumn)
         updateState(newState)
       case NextItem      ⇒
         val newState = adjustWindowToFit(browserState.adjustCurrentRow(1))
@@ -72,7 +71,7 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
       case InsertItem ⇒
         handleInsertItem(browserState)
       case ToggleSelected ⇒
-        updateState(browserState.toggleSelectionOfCurrentRow)
+        updateState(browserState.toggleMark)
       case Rerender ⇒
         val model = new ObjectTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects)
         updateState(browserState.copy(model = model))
@@ -81,16 +80,16 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
     }
   }
 
-  private def handleInsertItem(browserState: ObjectBrowserState) {
+  private def handleInsertItem(browserState: ObjectTableBrowserState) {
     val toInsert = getInsertExpression(browserState)
     state.lineBuffer = LineBuffer(toInsert)
     state.objectBrowserStateOpt = None
   }
 
-  private def getInsertExpression(browserState: ObjectBrowserState): String = {
+  private def getInsertExpression(browserState: ObjectTableBrowserState): String = {
     val commandNumber = state.commandNumber - 1
     val command = s"${ReplState.Res}$commandNumber"
-    if (browserState.selectedRows.isEmpty)
+    if (browserState.markedRows.isEmpty)
       browserState.currentColumnOpt match {
         case Some(column) if column > 0 =>
           val property = browserState.model.columnNames(column)
@@ -102,7 +101,7 @@ trait ObjectBrowserActionHandler { self: Repl ⇒
           s"$command[${browserState.currentRow}]"
       }
     else {
-      val rows = browserState.selectedRows.toSeq.sorted
+      val rows = browserState.markedRows.toSeq.sorted
       val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")
       s"[$items]"
     }

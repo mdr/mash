@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Object table browser cell navigation
 * Add mash.source
 * Add String.contains, String.endsWith
 * Add git.RemoteBranch.createLocal method

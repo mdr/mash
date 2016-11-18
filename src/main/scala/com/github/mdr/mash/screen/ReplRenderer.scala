@@ -3,7 +3,7 @@ package com.github.mdr.mash.screen
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.{ ObjectBrowserState, ReplState }
+import com.github.mdr.mash.repl.{ ObjectTableBrowserState, ReplState }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
@@ -42,7 +42,7 @@ object ReplRenderer {
     ReplRenderResult(screen, numberOfCompletionColumns)
   }
 
-  private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+  private def renderObjectBrowser(state: ObjectTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
     val screen = new ObjectBrowserRenderer(state, terminalInfo).renderObjectBrowser
     ReplRenderResult(screen)
   }

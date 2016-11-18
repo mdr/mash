@@ -2,12 +2,12 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectTableStringifier, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.ObjectBrowserState
+import com.github.mdr.mash.repl.ObjectTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
-class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInfo) {
+class ObjectBrowserRenderer(state: ObjectTableBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
   private val objectTableStringifier = new ObjectTableStringifier(terminalInfo, showSelections = true)
@@ -37,7 +37,7 @@ class ObjectBrowserRenderer(state: ObjectBrowserState, terminalInfo: TerminalInf
     for {
       (obj, i) ← objects.zipWithIndex
       actualIndex = i + state.firstRow
-    } yield renderObject(obj, actualIndex == state.currentRow, state.currentColumnOpt, state.selectedRows contains actualIndex)
+    } yield renderObject(obj, actualIndex == state.currentRow, state.currentColumnOpt, state.markedRows contains actualIndex)
   }
 
   private def renderObject(obj: ObjectTableRow, isCursorRow: Boolean, currentColumnOpt: Option[Int], isSelected: Boolean): Line = {

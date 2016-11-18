@@ -188,7 +188,7 @@ trait NormalActionHandler { self: Repl ⇒
     actualResultOpt.foreach(saveResult(commandNumber))
 
     for (objectTableModel ← objectTableModelOpt)
-      state.objectBrowserStateOpt = Some(ObjectBrowserState(objectTableModel))
+      state.objectBrowserStateOpt = Some(ObjectTableBrowserState(objectTableModel))
   }
 
   private def saveResult(number: Int)(result: MashValue) {

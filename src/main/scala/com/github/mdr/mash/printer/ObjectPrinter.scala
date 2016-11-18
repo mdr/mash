@@ -8,8 +8,6 @@ import com.github.mdr.mash.utils.StringUtils
 
 class ObjectPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
-  private def printer = new Printer(output, terminalInfo)
-
   def printObject(obj: MashObject) = {
     if (obj.fields.isEmpty)
       output.println("{}")
