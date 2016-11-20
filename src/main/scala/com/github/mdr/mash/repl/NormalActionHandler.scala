@@ -191,13 +191,12 @@ trait NormalActionHandler { self: Repl ⇒
     for (printModel ← printModelOpt) {
       val commandNumber = state.commandNumber - 1
       val path = s"${ReplState.Res}$commandNumber"
-      printModel match {
-        case objectTableModel: ObjectsTableModel =>
-          state.objectBrowserStateOpt = Some(ObjectBrowserState(List(ObjectsTableBrowserState(objectTableModel, path = path))))
-        case objectModel: ObjectModel            =>
-          state.objectBrowserStateOpt = Some(ObjectBrowserState(List(SingleObjectTableBrowserState(objectModel, path = path))))
-        case _                                   =>
+      val browserState = printModel match {
+        case model: ObjectsTableModel => ObjectsTableBrowserState(model, path = path)
+        case model: ObjectModel       => SingleObjectTableBrowserState(model, path = path)
+        case _                        => throw new RuntimeException("Unknown type of print model: " + printModel)
       }
+      state.objectBrowserStateOpt = Some(ObjectBrowserState(List(browserState)))
     }
   }
 
