@@ -12,4 +12,4 @@ object ObjectTreeNode {
 
 }
 
-case class ObjectTreeModel(root: ObjectTreeNode)
+case class ObjectTreeModel(root: ObjectTreeNode, rawValue: MashValue)

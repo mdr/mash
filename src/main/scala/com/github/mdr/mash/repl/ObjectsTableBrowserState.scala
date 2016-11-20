@@ -1,6 +1,7 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.printer.ObjectsTableModel
+import com.github.mdr.mash.runtime.MashValue
 
 case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     selectedRow: Int = 0,
@@ -8,6 +9,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     currentColumnOpt: Option[Int] = None,
                                     markedRows: Set[Int] = Set(),
                                     path: String) extends BrowserState {
+
+  def rawValue: MashValue = model.rawValue
 
   private val size = model.objects.size
   private val numberOfColumns = model.numberOfColumns

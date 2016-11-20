@@ -5,7 +5,7 @@ import com.github.mdr.mash.runtime._
 class ObjectTreeModelCreator {
 
   def create(value: MashValue): ObjectTreeModel =
-    ObjectTreeModel(createNode(value))
+    ObjectTreeModel(createNode(value), value)
 
   private def createNode(value: MashValue): ObjectTreeNode = value match {
     case xs: MashList    => ObjectTreeNode.List(xs.items.map(createNode), xs)

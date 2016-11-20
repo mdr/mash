@@ -3,7 +3,7 @@ package com.github.mdr.mash.printer
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.{ MashList, MashObject }
 import com.github.mdr.mash.terminal.TerminalInfo
 
 object ObjectsTableModelCreator {
@@ -15,7 +15,7 @@ object ObjectsTableModelCreator {
 class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
   import ObjectsTableModelCreator._
 
-  def create(objects: Seq[MashObject]): ObjectsTableModel = {
+  def create(objects: Seq[MashObject], list: MashList): ObjectsTableModel = {
     val columns = getColumnSpecs(objects)
 
     val renderedObjects: Seq[ObjectTableRow] =
@@ -32,7 +32,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boole
       (for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
         yield c.name -> w) + (IndexColumnName -> indexColumnWidth)
 
-    ObjectsTableModel(columnNames, columnWidths, renderedObjects, objects)
+    ObjectsTableModel(columnNames, columnWidths, renderedObjects, list, objects)
   }
 
   private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {

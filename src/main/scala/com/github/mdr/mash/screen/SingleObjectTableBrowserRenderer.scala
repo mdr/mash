@@ -27,8 +27,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   }
 
   private def renderHeaderLines: Seq[Line] =
-    Seq(
-      objectStringifier.renderTopRow(model)).map(s ⇒ Line(s.style))
+    Seq(objectStringifier.renderTopRow(model)).map(s ⇒ Line(s.style))
 
   private def renderDataLines: Seq[Line] = {
     val objects = model.fields.drop(state.firstRow).take(windowSize)
@@ -42,7 +41,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     val side = boxCharacterSupplier.doubleVertical.style
     val highlightRow = isCursorRow
     val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
-    val fieldChars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth).style(Style(inverse = isCursorRow))
+    val fieldChars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth).style(Style(inverse = isCursorRow, foregroundColour = Colour.Yellow))
     val valueChars = StringUtils.fitToWidth(renderedValue, model.valueColumnWidth).style(Style(inverse = isCursorRow))
     Line(side ++ fieldChars ++ internalVertical ++ valueChars ++ side)
   }
@@ -51,7 +50,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(s"${state.path} (".style ++renderKeyHints(Seq(Exit, Focus, Back, Insert)) ++ ")".style)
+    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Focus, Back, Insert)) ++ ")".style)
   }
 
   private def model = state.model

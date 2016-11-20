@@ -1,12 +1,14 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.printer.ObjectModel
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 case class SingleObjectTableBrowserState(model: ObjectModel,
                                          selectedRow: Int = 0,
                                          firstRow: Int = 0,
                                          path: String) extends BrowserState {
+
+  override def rawValue: MashObject = model.rawValue
 
   private val size = model.fields.size
 
@@ -18,4 +20,5 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
   def selectedField: String = model.fields.toSeq(selectedRow)._1
 
   def selectedRawValue: MashValue = model.rawValues.toSeq(selectedRow)._2
+
 }

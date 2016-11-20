@@ -20,7 +20,7 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
     val sb = new StringBuilder()
     var previousStyleOpt: Option[Style] = None
     for (StyledCharacter(c, style) ← chars) {
-      var ansi = Ansi.ansi()
+      val ansi = Ansi.ansi()
       if (previousStyleOpt != Some(style)) {
         ansi.reset()
         if (style.bold)

@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import org.fusesource.jansi.Ansi
 
 class ObjectsTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
 
@@ -19,7 +20,10 @@ class ObjectsTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolea
   }
 
   def renderHeaderRow(model: ObjectsTableModel): String = {
-    def renderColumn(name: String) = StringUtils.fitToWidth(name, model.columnWidth(name))
+    def renderColumn(name: String) = {
+      val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
+      Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a(fit).reset()
+    }
     val sb = new StringBuilder()
     sb.append(doubleVertical)
     if (showSelections)

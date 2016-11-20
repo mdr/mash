@@ -57,11 +57,11 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
         if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
-          val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true).create(objects)
+          val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true).create(objects, xs)
           return PrintResult(Some(model))
         } else {
           new ObjectsTablePrinter(output, terminalInfo).printTable(objects)
-//          new ObjectTreePrinter(output, terminalInfo).printObject(value)
+          new ObjectTreePrinter(output, terminalInfo).printObject(value)
         }
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
@@ -84,7 +84,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
           return PrintResult(Some(model))
         } else {
           new ObjectPrinter(output, terminalInfo).printObject(obj)
-//          new ObjectTreePrinter(output, terminalInfo).printObject(obj)
+          new ObjectTreePrinter(output, terminalInfo).printObject(obj)
         }
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒

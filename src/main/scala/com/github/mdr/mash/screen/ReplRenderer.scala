@@ -3,7 +3,7 @@ package com.github.mdr.mash.screen
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.{ ObjectBrowserState, ObjectsTableBrowserState, ReplState, SingleObjectTableBrowserState }
+import com.github.mdr.mash.repl._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
@@ -13,9 +13,9 @@ case class ReplRenderResult(screen: Screen, completionColumns: Int = 0)
 case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
 
 /**
- * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
- * characters.
- */
+  * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
+  * characters.
+  */
 object ReplRenderer {
 
   private val fileSystem = LinuxFileSystem
@@ -52,10 +52,16 @@ object ReplRenderer {
     ReplRenderResult(screen)
   }
 
+  private def renderObjectTreeBrowser(state: ObjectTreeBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new ObjectTreeBrowserRenderer(state, terminalInfo).renderObjectBrowser
+    ReplRenderResult(screen)
+  }
+
   private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult =
     state.browserState match {
       case objectTableBrowserState: ObjectsTableBrowserState       => renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
       case singleObjectBrowserState: SingleObjectTableBrowserState => renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
+      case objectTreeBrowserState: ObjectTreeBrowserState          => renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
       case _                                                       => ???
     }
 

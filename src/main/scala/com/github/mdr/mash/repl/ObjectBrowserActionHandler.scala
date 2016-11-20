@@ -2,7 +2,7 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
-import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectsTableModelCreator }
+import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 trait ObjectBrowserActionHandler {
@@ -64,8 +64,17 @@ trait ObjectBrowserActionHandler {
     browserState.browserState match {
       case objectTableBrowserState: ObjectsTableBrowserState       => handleTableObjectBrowserAction(action, objectTableBrowserState)
       case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
+      case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
       case _                                                       =>
     }
+
+  protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
+    case ExitBrowser  ⇒
+      state.objectBrowserStateOpt = None
+    case Back         =>
+      navigateBack()
+    case _ =>
+  }
 
   private def focus(value: MashValue, newPath: String): Unit =
     value match {
@@ -74,10 +83,15 @@ trait ObjectBrowserActionHandler {
         navigateForward(SingleObjectTableBrowserState(model, path = newPath))
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
-        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(objects)
+        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(objects, xs)
         navigateForward(ObjectsTableBrowserState(model, path = newPath))
       case _                                                                    =>
     }
+
+  private def viewAsTree(browserState: BrowserState): Unit = {
+    val model = new ObjectTreeModelCreator().create(browserState.rawValue)
+    navigateForward(ObjectTreeBrowserState(model, ObjectTreePath(Seq()), browserState.path))
+  }
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit = action match {
     case NextItem     ⇒
@@ -104,6 +118,8 @@ trait ObjectBrowserActionHandler {
       navigateBack()
     case InsertItem   ⇒
       handleInsertItem(browserState)
+    case ViewAsTree =>
+      viewAsTree(browserState)
     case _            =>
 
   }
@@ -165,13 +181,15 @@ trait ObjectBrowserActionHandler {
           case None         => (s"${browserState.path}[$index]", rawObject)
         }
         focus(focusedObject, newPath)
-      case ToggleMarked ⇒
+      case ToggleMarked   ⇒
         updateState(browserState.toggleMark)
-      case Rerender     ⇒
-        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects)
+      case Rerender       ⇒
+        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects, browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
-      case _            ⇒
+      case ViewAsTree =>
+        viewAsTree(browserState)
+      case _              ⇒
     }
   }
 

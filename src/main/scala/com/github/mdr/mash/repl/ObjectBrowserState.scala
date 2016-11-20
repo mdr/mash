@@ -1,6 +1,9 @@
 package com.github.mdr.mash.repl
 
+import com.github.mdr.mash.runtime.MashValue
+
 trait BrowserState {
+  def rawValue: MashValue
 
   def path: String
 

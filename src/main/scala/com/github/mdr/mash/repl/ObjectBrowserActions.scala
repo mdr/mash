@@ -21,5 +21,6 @@ object ObjectBrowserActions {
   case object InsertItem extends InputAction
   case object ToggleMarked extends InputAction
   case object Rerender extends InputAction
+  case object ViewAsTree extends InputAction
 
 }

@@ -6,8 +6,8 @@ import com.github.mdr.mash.terminal.TerminalInfo
 class ObjectModelCreator(terminalInfo: TerminalInfo) {
 
   def create(obj: MashObject): ObjectModel = {
-    val requestedKeyWidth = obj.fields.keySet.map(_.size).max
-    val requestedValueWidth = obj.fields.values.map(Printer.renderField(_, inCell = true)).map(_.size).max
+    val requestedKeyWidth = if (obj.fields.isEmpty) 0 else obj.fields.keySet.map(_.size).max
+    val requestedValueWidth = if (obj.fields.isEmpty) 0 else obj.fields.values.map(Printer.renderField(_, inCell = true)).map(_.size).max
     val keyColumn = ColumnSpec("keys", 10)
     val valuesColumn = ColumnSpec("values", 1)
     val requestedWidths = Map(keyColumn -> requestedKeyWidth, valuesColumn -> requestedValueWidth)
@@ -19,7 +19,7 @@ class ObjectModelCreator(terminalInfo: TerminalInfo) {
     val renderedFields =
       for ((k, v) ← fields)
         yield k -> Printer.renderField(v, inCell = true)
-    ObjectModel(renderedFields, keyWidth, valuesWidth, fields)
+    ObjectModel(renderedFields, keyWidth, valuesWidth, obj, fields)
   }
 
 }
