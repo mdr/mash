@@ -25,7 +25,8 @@ object BrowserFunction extends MashFunction("view.browser") {
     MashObject.of(ListMap(
       Data -> data,
       DisableCustomViews -> MashBoolean.False,
-      UseBrowser -> MashBoolean.True), ViewClass)
+      UseBrowser -> MashBoolean.True,
+      UseTree -> MashBoolean.False), ViewClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)

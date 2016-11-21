@@ -10,7 +10,7 @@ import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.client.methods.{ HttpPost, HttpPut }
 import org.apache.http.entity.{ ContentType, StringEntity }
-import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 object PutFunction extends MashFunction("http.put") {
 
@@ -37,12 +37,13 @@ object PutFunction extends MashFunction("http.put") {
     for (header <- headers)
       request.setHeader(header.name, header.value)
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
-    val client = HttpClientBuilder.create.build
+    val cookieStore = new BasicCookieStore
+    val client = HttpClientBuilder.create.setDefaultCookieStore(cookieStore).build
     setBody(request, bodyValue, json)
 
     val response = client.execute(request)
 
-    GetFunction.asMashObject(response)
+    GetFunction.asMashObject(response, cookieStore)
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodyValue: MashValue, json: Boolean) {

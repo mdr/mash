@@ -210,5 +210,7 @@ object MashRoot {
     DateTimeClass,
     LocalDateClass,
     ViewClass,
+    http.CookieClass,
+    http.HeaderClass,
     http.ResponseClass)
 }

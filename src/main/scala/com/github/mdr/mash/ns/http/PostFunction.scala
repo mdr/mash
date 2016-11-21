@@ -9,8 +9,9 @@ import com.github.mdr.mash.ns.json.AsJsonFunction
 import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.params.{ ClientPNames, CookiePolicy }
 import org.apache.http.entity.{ ContentType, StringEntity }
-import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 object PostFunction extends MashFunction("http.post") {
 
@@ -61,12 +62,15 @@ object PostFunction extends MashFunction("http.post") {
     for (header <- headers)
       request.setHeader(header.name, header.value)
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
-    val client = HttpClientBuilder.create.build
+    val cookieStore = new BasicCookieStore
+    val client = HttpClientBuilder.create.setDefaultCookieStore(cookieStore).build
+    //    client.getParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+
     setBody(request, bodyValue, json)
 
     val response = client.execute(request)
 
-    GetFunction.asMashObject(response)
+    GetFunction.asMashObject(response, cookieStore)
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodyValue: MashValue, json: Boolean) {

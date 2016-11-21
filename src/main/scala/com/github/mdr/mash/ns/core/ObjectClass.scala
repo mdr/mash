@@ -29,14 +29,24 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel(Seq(FieldName))
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
       val obj = target.asInstanceOf[MashObject]
       val boundParams = params.validate(arguments)
       val field = boundParams.validateString(FieldName).s
-      val subObject = obj.get(field).getOrElse(boundParams.throwInvalidArgument(FieldName, "No field named " + field)) match {
-        case o: MashObject ⇒ o
+      val fieldValue = obj.get(field).getOrElse(boundParams.throwInvalidArgument(FieldName, "No field named " + field))
+      fieldValue match {
+        case subObject: MashObject ⇒
+          hoist(obj, field, subObject)
+        case xs: MashList =>
+          MashList(xs.items.map {
+            case subObject: MashObject => hoist(obj, field, subObject)
+            case x => boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
+          })
         case x             ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
       }
+    }
+
+    private def hoist(obj: MashObject, field: String, subObject: MashObject): MashObject = {
       val subFields = subObject.fields.toSeq
       val originalFields = obj.fields.toSeq
       val index = originalFields.indexWhere(_._1 == field)

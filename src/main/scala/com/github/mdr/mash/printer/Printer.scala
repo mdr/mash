@@ -61,7 +61,6 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
           return PrintResult(Some(model))
         } else {
           new ObjectsTablePrinter(output, terminalInfo).printTable(objects)
-          new ObjectTreePrinter(output, terminalInfo).printObject(value)
         }
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
@@ -84,7 +83,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
           return PrintResult(Some(model))
         } else {
           new ObjectPrinter(output, terminalInfo).printObject(obj)
-          new ObjectTreePrinter(output, terminalInfo).printObject(obj)
+//          new ObjectTreePrinter(output, terminalInfo).printObject(obj)
         }
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒

@@ -1,6 +1,9 @@
 v0.0.5 (..)
 -----------
 
+* Add headers & cookies to http.Response
+* Object.hoist can hoist sequence-valued fields
+* Object tree printing and browsing
 * Object table browser cell navigation
 * Add mash.source
 * Add String.contains, String.endsWith

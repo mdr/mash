@@ -13,11 +13,13 @@ object ResponseClass extends MashClass("http.Response") {
   object Fields {
     lazy val Status = Field("status", "Status code", NumberClass)
     lazy val Body = Field("body", "Body of the response", StringClass)
+    lazy val Headers = Field("headers", "Response headers", Seq(HeaderClass))
+    lazy val Cookies = Field("cookies", "Response cookies", Seq(CookieClass))
   }
 
   import Fields._
 
-  override val fields = Seq(Status, Body)
+  override val fields = Seq(Status, Body, Headers, Cookies)
 
   override val methods = Seq(
     JsonMethod,

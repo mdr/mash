@@ -73,6 +73,18 @@ trait ObjectBrowserActionHandler {
       state.objectBrowserStateOpt = None
     case Back         =>
       navigateBack()
+    case NextColumn     ⇒
+      val newState = browserState.right
+      updateState(newState)
+    case PreviousColumn     ⇒
+      val newState = browserState.left
+      updateState(newState)
+    case NextItem     ⇒
+      val newState = browserState.down
+      updateState(newState)
+    case PreviousItem ⇒
+      val newState = browserState.up
+      updateState(newState)
     case _ =>
   }
 

@@ -25,7 +25,8 @@ object RawFunction extends MashFunction("view.raw") {
     MashObject.of(ListMap(
       Data -> data,
       DisableCustomViews -> MashBoolean.True,
-      UseBrowser -> MashBoolean.False), ViewClass)
+      UseBrowser -> MashBoolean.False,
+      UseTree -> MashBoolean.False), ViewClass)
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
