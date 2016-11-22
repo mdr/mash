@@ -5,6 +5,8 @@ import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
+import scala.PartialFunction.condOpt
+
 trait ObjectBrowserActionHandler {
   self: Repl ⇒
 
@@ -85,24 +87,27 @@ trait ObjectBrowserActionHandler {
     case PreviousItem ⇒
       val newState = browserState.up
       updateState(newState)
+    case ViewAsTree =>
+      getNonTreeBrowserState(browserState.rawValue, browserState.path).foreach(updateState)
     case _ =>
   }
 
+  private def getNonTreeBrowserState(value: MashValue, path: String): Option[BrowserState] = condOpt(value) {
+    case obj: MashObject                                                      =>
+      val model = new ObjectModelCreator(terminal.info).create(obj)
+      SingleObjectTableBrowserState(model, path = path)
+    case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
+      val objects = xs.items.asInstanceOf[Seq[MashObject]]
+      val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(objects, xs)
+      ObjectsTableBrowserState(model, path = path)
+  }
+
   private def focus(value: MashValue, newPath: String): Unit =
-    value match {
-      case obj: MashObject                                                      =>
-        val model = new ObjectModelCreator(terminal.info).create(obj)
-        navigateForward(SingleObjectTableBrowserState(model, path = newPath))
-      case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
-        val objects = xs.items.asInstanceOf[Seq[MashObject]]
-        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(objects, xs)
-        navigateForward(ObjectsTableBrowserState(model, path = newPath))
-      case _                                                                    =>
-    }
+    getNonTreeBrowserState(value, newPath).foreach(navigateForward)
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator().create(browserState.rawValue)
-    navigateForward(ObjectTreeBrowserState(model, ObjectTreePath(Seq()), browserState.path))
+    updateState(ObjectTreeBrowserState(model, ObjectTreePath(Seq()), browserState.path))
   }
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit = action match {

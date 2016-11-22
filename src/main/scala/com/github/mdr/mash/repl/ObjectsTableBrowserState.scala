@@ -36,4 +36,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       copy(markedRows = markedRows - selectedRow)
     else
       copy(markedRows = markedRows + selectedRow)
+
+  def withPath(newPath: String): ObjectsTableBrowserState = copy(path = newPath)
+
 }

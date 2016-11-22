@@ -21,4 +21,6 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
 
   def selectedRawValue: MashValue = model.rawValues.toSeq(selectedRow)._2
 
+  def withPath(newPath: String): SingleObjectTableBrowserState = copy(path = newPath)
+
 }

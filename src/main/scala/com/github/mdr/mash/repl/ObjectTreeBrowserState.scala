@@ -71,4 +71,6 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel, selectionPath: ObjectT
       copy(selectionPath = ObjectTreePath(selectionPath.choices.init :+ thing))
     }
 
+  def withPath(newPath: String): ObjectTreeBrowserState = copy(path = newPath)
+
 }

@@ -7,6 +7,8 @@ trait BrowserState {
 
   def path: String
 
+  def withPath(newPath: String): BrowserState
+
 }
 
 case class ObjectBrowserState(browserStates: List[BrowserState]) {
@@ -22,4 +24,5 @@ case class ObjectBrowserState(browserStates: List[BrowserState]) {
     copy(browserStates = browserStates.tail)
 
   def browserState: BrowserState = browserStates.head
+
 }
