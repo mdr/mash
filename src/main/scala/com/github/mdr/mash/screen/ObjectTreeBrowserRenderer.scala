@@ -52,7 +52,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   private def renderStatusLine: Line = {
     import KeyHint._
     val hints = Seq(Exit, Back, Table)
-    Line("(".style ++ renderKeyHints(hints) ++ ")".style)
+    Line(s"${state.path} (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
   private def print(printer: Printer, node: ObjectTreeNode, prefix: String, currentPath: ObjectTreePath): Unit = node match {

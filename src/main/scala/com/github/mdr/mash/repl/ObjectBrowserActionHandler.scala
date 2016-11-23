@@ -107,6 +107,8 @@ trait ObjectBrowserActionHandler {
       updateState(newState)
     case ViewAsTree =>
       getNonTreeBrowserState(browserState.rawValue, browserState.path).foreach(updateState)
+    case InsertItem     ⇒
+      handleInsertItem(browserState)
     case _ =>
   }
 
@@ -237,6 +239,11 @@ trait ObjectBrowserActionHandler {
   private def handleInsertItem(browserState: SingleObjectTableBrowserState) {
     val toInsert = getInsertExpression(browserState)
     state.lineBuffer = LineBuffer(toInsert)
+    state.objectBrowserStateOpt = None
+  }
+
+  private def handleInsertItem(browserState: ObjectTreeBrowserState) {
+    state.lineBuffer = LineBuffer(browserState.getNewPath)
     state.objectBrowserStateOpt = None
   }
 
