@@ -2,7 +2,9 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.runtime._
 
-sealed trait ObjectTreeNode
+sealed trait ObjectTreeNode {
+  val rawValue: MashValue
+}
 
 object ObjectTreeNode {
 

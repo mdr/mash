@@ -11,12 +11,11 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.CookieStore
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.params.{ ClientPNames, CookiePolicy }
-import org.apache.http.cookie.{ Cookie, CookieSpec }
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
+import org.apache.http.cookie.Cookie
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClients }
 
-import scala.collection.immutable.ListMap
 import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object GetFunction extends MashFunction("http.get") {
 
@@ -41,10 +40,8 @@ object GetFunction extends MashFunction("http.get") {
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
 
     val cookieStore = new BasicCookieStore
-    val client =
-      HttpClientBuilder.create
-        .setDefaultCookieStore(cookieStore)
-        .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.DEFAULT).build()).build
+    val customBuilder = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
+    val client = customBuilder.setDefaultCookieStore(cookieStore).build
     val response = client.execute(request)
 
     asMashObject(response, cookieStore)

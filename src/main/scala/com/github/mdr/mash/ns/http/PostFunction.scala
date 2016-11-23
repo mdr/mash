@@ -8,10 +8,11 @@ import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.ns.json.AsJsonFunction
 import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
+import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.params.{ ClientPNames, CookiePolicy }
 import org.apache.http.entity.{ ContentType, StringEntity }
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder, HttpClients }
 
 object PostFunction extends MashFunction("http.post") {
 
@@ -21,7 +22,8 @@ object PostFunction extends MashFunction("http.post") {
       summary = "URL to send request to")
     val Body = Parameter(
       name = "body",
-      summary = "Body of request")
+      summary = "Body of request",
+      defaultValueGeneratorOpt = Some(() => MashString("")))
     val BasicAuth = Parameter(
       name = "basicAuth",
       summary = "Basic authentication",
@@ -63,8 +65,10 @@ object PostFunction extends MashFunction("http.post") {
       request.setHeader(header.name, header.value)
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
     val cookieStore = new BasicCookieStore
-    val client = HttpClientBuilder.create.setDefaultCookieStore(cookieStore).build
-    //    client.getParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+    val client = HttpClients.custom()
+      .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
+      .setDefaultCookieStore(cookieStore)
+      .build
 
     setBody(request, bodyValue, json)
 

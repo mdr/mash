@@ -11,6 +11,8 @@ object KeyHint {
   val Insert = KeyHint("i", "insert")
   val Mark = KeyHint("m", "mark")
   val Row = KeyHint("r", "row")
+  val Tree = KeyHint("t", "tree")
+  val Table = KeyHint("t", "table")
 
   def renderKeyHints(hints: Seq[KeyHint]): Seq[StyledCharacter] = {
     def renderHint(hint: KeyHint) = hint.key.style(Style(inverse = true)) ++ " ".style ++ hint.description.style

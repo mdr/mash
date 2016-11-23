@@ -30,6 +30,22 @@ trait ObjectBrowserActionHandler {
     }
   }
 
+  private def adjustWindowToFit(state: ObjectTreeBrowserState): ObjectTreeBrowserState = {
+    val selectedRow = state.selectedRow
+    val firstRow = state.firstRow
+    var newState = state
+
+    val delta = selectedRow - (firstRow + windowSize - 1)
+    if (delta >= 0)
+      newState = newState.adjustFirstRow(delta)
+
+    val delta2 = firstRow - selectedRow
+    if (delta2 >= 0)
+      newState = newState.adjustFirstRow(-delta2)
+
+    newState
+  }
+
   private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState = {
     val selectedRow = state.selectedRow
     val firstRow = state.firstRow
@@ -71,6 +87,8 @@ trait ObjectBrowserActionHandler {
     }
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
+    case Focus          ⇒
+      focus(browserState.getSelectedValue, browserState.getNewPath)
     case ExitBrowser  ⇒
       state.objectBrowserStateOpt = None
     case Back         =>
@@ -82,10 +100,10 @@ trait ObjectBrowserActionHandler {
       val newState = browserState.left
       updateState(newState)
     case NextItem     ⇒
-      val newState = browserState.down
+      val newState = adjustWindowToFit(browserState.down)
       updateState(newState)
     case PreviousItem ⇒
-      val newState = browserState.up
+      val newState = adjustWindowToFit(browserState.up)
       updateState(newState)
     case ViewAsTree =>
       getNonTreeBrowserState(browserState.rawValue, browserState.path).foreach(updateState)
@@ -107,7 +125,7 @@ trait ObjectBrowserActionHandler {
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator().create(browserState.rawValue)
-    updateState(ObjectTreeBrowserState(model, ObjectTreePath(Seq()), browserState.path))
+    updateState(ObjectTreeBrowserState.initial(model, browserState.path))
   }
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit = action match {
