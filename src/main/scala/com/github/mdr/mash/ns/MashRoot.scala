@@ -43,18 +43,21 @@ object MashRoot {
       Seq(
         http.GetFunction,
         http.PostFunction,
-        http.PutFunction) ++
+        http.PutFunction,
+        net.UrlEncodeFunction) ++
       Seq(random.UuidFunction) ++
       Seq(mash.SourceFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,
     IdentityFunction,
+    InBackgroundFunction,
     IsNullFunction,
     HelpFunction,
     HistoryFunction,
     NotFunction,
     NowFunction,
+    ParallelMapFunction,
     ParseIso8601Function,
     ParseNumberFunction,
     PrintFunction,
@@ -62,8 +65,7 @@ object MashRoot {
     SleepFunction,
     TapFunction,
     TimeTakenFunction,
-    InBackgroundFunction,
-    ParallelMapFunction)
+    WhileFunction)
 
   private val MathsFunctions = Seq(
     maths.LogFunction,

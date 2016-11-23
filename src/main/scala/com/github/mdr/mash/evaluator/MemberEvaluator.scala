@@ -32,8 +32,8 @@ object MemberEvaluator extends EvaluatorHelper {
     if (target == MashNull && isNullSafe)
       MemberExprEvalResult(MashNull, wasVectorised = false)
     else {
-      lazy val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
-      lazy val vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising, locationOpt).map(
+      def scalarLookup = MemberEvaluator.maybeLookup(target, name).map(x ⇒ MemberExprEvalResult(x, wasVectorised = false))
+      def vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, immediatelyResolveNullaryWhenVectorising, locationOpt).map(
         x ⇒ MemberExprEvalResult(x, wasVectorised = true))
       scalarLookup orElse vectorisedLookup getOrElse (throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
     }
@@ -61,7 +61,7 @@ object MemberEvaluator extends EvaluatorHelper {
       for {
         method ← klass.getMethod(name)
       } yield BoundMethod(target, method, klass)
-    lazy val parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
+    def parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
     directResultOpt orElse parentResultOpt
   }
 

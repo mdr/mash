@@ -1,6 +1,8 @@
 v0.0.5 (..)
 -----------
 
+* Add net.urlEncode
+* Add core.while
 * Add headers & cookies to http.Response
 * Object.hoist can hoist sequence-valued fields
 * Object tree printing and browsing
