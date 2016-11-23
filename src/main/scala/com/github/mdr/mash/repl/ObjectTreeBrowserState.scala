@@ -152,7 +152,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   private def getNode(node: ObjectTreeNode, path: Seq[ObjectTreeChoice]): ObjectTreeNode = (node, path) match {
     case (_, Seq())                                                           => node
     case (_, Seq(OntoFieldLabel, tail@_*))                                    => getNode(node, tail)
-    case (_, Seq(OntoValue, _))                                               => node
+    case (_, Seq(OntoValue, tail@_*))                                         => node
     case (ObjectTreeNode.List(values, _), Seq(IndexChoice(i), tail@_*))       => getNode(values(i), tail)
     case (ObjectTreeNode.Object(values, _), Seq(FieldChoice(field), tail@_*)) =>
       getNode(values.collectFirst { case (`field`, node) => node }.get, tail)

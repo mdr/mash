@@ -10,7 +10,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.{ ObjectModel, ObjectsTableModel }
+import com.github.mdr.mash.printer.{ ObjectModel, ObjectTreeModel, ObjectsTableModel }
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
@@ -194,6 +194,7 @@ trait NormalActionHandler { self: Repl ⇒
       val browserState = printModel match {
         case model: ObjectsTableModel => ObjectsTableBrowserState(model, path = path)
         case model: ObjectModel       => SingleObjectTableBrowserState(model, path = path)
+        case model: ObjectTreeModel   => ObjectTreeBrowserState.initial(model, path = path)
         case _                        => throw new RuntimeException("Unknown type of print model: " + printModel)
       }
       state.objectBrowserStateOpt = Some(ObjectBrowserState(List(browserState)))

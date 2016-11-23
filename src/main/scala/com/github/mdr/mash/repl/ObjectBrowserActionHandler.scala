@@ -88,28 +88,28 @@ trait ObjectBrowserActionHandler {
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
     case Focus          ⇒
-      focus(browserState.getSelectedValue, browserState.getNewPath)
-    case ExitBrowser  ⇒
+      focus(browserState.getSelectedValue, browserState.getNewPath, tree = true)
+    case ExitBrowser    ⇒
       state.objectBrowserStateOpt = None
-    case Back         =>
+    case Back           =>
       navigateBack()
     case NextColumn     ⇒
       val newState = browserState.right
       updateState(newState)
-    case PreviousColumn     ⇒
+    case PreviousColumn ⇒
       val newState = browserState.left
       updateState(newState)
-    case NextItem     ⇒
+    case NextItem       ⇒
       val newState = adjustWindowToFit(browserState.down)
       updateState(newState)
-    case PreviousItem ⇒
+    case PreviousItem   ⇒
       val newState = adjustWindowToFit(browserState.up)
       updateState(newState)
-    case ViewAsTree =>
+    case ViewAsTree     =>
       getNonTreeBrowserState(browserState.rawValue, browserState.path).foreach(updateState)
     case InsertItem     ⇒
       handleInsertItem(browserState)
-    case _ =>
+    case _              =>
   }
 
   private def getNonTreeBrowserState(value: MashValue, path: String): Option[BrowserState] = condOpt(value) {
@@ -122,8 +122,12 @@ trait ObjectBrowserActionHandler {
       ObjectsTableBrowserState(model, path = path)
   }
 
-  private def focus(value: MashValue, newPath: String): Unit =
-    getNonTreeBrowserState(value, newPath).foreach(navigateForward)
+  private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
+    if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
+      val model = new ObjectTreeModelCreator().create(value)
+      navigateForward(ObjectTreeBrowserState.initial(model, newPath))
+    } else
+      getNonTreeBrowserState(value, newPath).foreach(navigateForward)
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator().create(browserState.rawValue)
@@ -150,12 +154,12 @@ trait ObjectBrowserActionHandler {
       val field = browserState.selectedField
       val value = browserState.selectedRawValue
       val newPath = safeProperty(browserState.path, field)
-      focus(value, newPath)
+      focus(value, newPath, tree = false)
     case Back         =>
       navigateBack()
     case InsertItem   ⇒
       handleInsertItem(browserState)
-    case ViewAsTree =>
+    case ViewAsTree   =>
       viewAsTree(browserState)
     case _            =>
 
@@ -217,14 +221,14 @@ trait ObjectBrowserActionHandler {
             (newPath, obj)
           case None         => (s"${browserState.path}[$index]", rawObject)
         }
-        focus(focusedObject, newPath)
+        focus(focusedObject, newPath, tree = false)
       case ToggleMarked   ⇒
         updateState(browserState.toggleMark)
       case Rerender       ⇒
         val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects, browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
-      case ViewAsTree =>
+      case ViewAsTree     =>
         viewAsTree(browserState)
       case _              ⇒
     }

@@ -51,24 +51,30 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
 
   private val helpPrinter = new HelpPrinter(output)
 
-  def print(value: MashValue, disableCustomViews: Boolean = false, alwaysUseBrowser: Boolean = false): PrintResult = {
+  def print(value: MashValue,
+            disableCustomViews: Boolean = false,
+            alwaysUseBrowser: Boolean = false,
+            alwaysUseTreeBrowser: Boolean = false): PrintResult = {
     value match {
+      case _: MashList | _: MashObject if alwaysUseTreeBrowser =>
+        val model = new ObjectTreeModelCreator().create(value)
+        return PrintResult(Some(model))
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
         if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
           val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true).create(objects, xs)
           return PrintResult(Some(model))
-        } else {
+        } else
           new ObjectsTablePrinter(output, terminalInfo).printTable(objects)
-        }
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
       case obj: MashObject if obj.classOpt == Some(ViewClass) ⇒
         val data = obj(ViewClass.Fields.Data)
         val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
         val alwaysUseBrowser = obj(ViewClass.Fields.UseBrowser) == MashBoolean.True
-        return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        val alwaysUseTreeBrowser = obj(ViewClass.Fields.UseTree) == MashBoolean.True
+        return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser, alwaysUseTreeBrowser = alwaysUseTreeBrowser)
       case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
         helpPrinter.printFunctionHelp(obj)
       case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews ⇒
