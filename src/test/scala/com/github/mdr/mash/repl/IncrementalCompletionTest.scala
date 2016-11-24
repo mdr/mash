@@ -12,7 +12,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
 
   "Incremental completion" should "stay incremental as you type characters" in {
     val repl = newRepl
-    repl.input("wh")
+    repl.input("whe")
     repl.complete().text should equal("where")
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     completionState.replacementLocation should equal(Region(0, "where".length))

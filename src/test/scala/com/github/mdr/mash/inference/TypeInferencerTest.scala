@@ -241,6 +241,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "timeTaken ls" shouldBeInferredAsHavingType Generic(TimedResultClass, Seq(PathSummaryClass))
   "timeTaken ls | .result" shouldBeInferredAsHavingType Seq(PathSummaryClass)
 
+  // .hoist
+  "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" shouldBeInferredAsHavingType
+    Object(Map("foo" -> NumberType, "a" -> NumberType, "b" -> NumberType))
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

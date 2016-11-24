@@ -622,7 +622,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
  
   // Object.hoist
   "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar'" shouldEvaluateTo "{ foo: 42, baz1: 100, baz2: 200 }"
- 
+  "{ foo: 42, bar: [{ baz1: 100, baz2: 200 }, { baz1: 300, baz2: 400 }] }.hoist 'bar'" shouldEvaluateTo
+    "[{ foo: 42, baz1: 100, baz2: 200 }, { foo: 42, baz1: 300, baz2: 400 }]"
+
   // Patterns in parameters
   "(_ => 42) 10" shouldEvaluateTo "42"
  

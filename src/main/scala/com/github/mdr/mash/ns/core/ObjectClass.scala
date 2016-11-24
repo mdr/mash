@@ -7,6 +7,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.parser.AbstractSyntax.StringLiteral
 import com.github.mdr.mash.runtime._
 
+import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
 
 object ObjectClass extends MashClass("core.Object") {
@@ -37,12 +38,14 @@ object ObjectClass extends MashClass("core.Object") {
       fieldValue match {
         case subObject: MashObject ⇒
           hoist(obj, field, subObject)
-        case xs: MashList =>
+        case xs: MashList ⇒
           MashList(xs.items.map {
-            case subObject: MashObject => hoist(obj, field, subObject)
-            case x => boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
+            case subObject: MashObject ⇒
+              hoist(obj, field, subObject)
+            case x                     ⇒
+              boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
           })
-        case x             ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
+        case x ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
       }
     }
 
@@ -60,23 +63,24 @@ object ObjectClass extends MashClass("core.Object") {
 
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
         val argBindings = HoistMethod.params.bindTypes(arguments)
-        targetTypeOpt.flatMap {
-          case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
-            Some(Type.Instance(klass))
-          case Type.Object(fields) ⇒
-            for {
-              AnnotatedExpr(nameExprOpt, _) ← argBindings.get(HoistMethod.Params.FieldName)
-              StringLiteral(fieldName, _, _, _) ← nameExprOpt
-              fieldType <- fields.get(fieldName)
-              (newFields, isList) <- PartialFunction.condOpt(fieldType) {
-                case Type.Object(newFields) => (newFields, false)
-                case Type.Seq(Type.Object(newFields)) => (newFields, true)
-              }
-              newObjectType = Type.Object((fields - fieldName) ++ newFields)
-            } yield if (isList) Type.Seq(newObjectType) else newObjectType
-          case _ ⇒
-            None
-        }
+        for {
+          AnnotatedExpr(nameExprOpt, _) ← argBindings.get(HoistMethod.Params.FieldName)
+          StringLiteral(fieldName, _, _, _) ← nameExprOpt
+          fields <- targetTypeOpt.flatMap(getFields)
+          fieldType <- fields.get(fieldName)
+          (newFieldsOpt, isList) = fieldType match {
+            case Type.Seq(elementType) => (getFields(elementType), true)
+            case _                     => (getFields(fieldType), false)
+          }
+          newFields <- newFieldsOpt
+          newObjectType = Type.Object((fields - fieldName) ++ newFields)
+        } yield if (isList) Type.Seq(newObjectType) else newObjectType
+      }
+
+      private def getFields(typ: Type): Option[Map[String, Type]] = condOpt(typ) {
+        case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
+          klass.fieldsMap.mapValues(_.fieldType)
+        case Type.Object(fields) => fields
       }
 
     }
