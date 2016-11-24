@@ -54,6 +54,33 @@ object ObjectClass extends MashClass("core.Object") {
       MashObject.of(newFields)
     }
 
+    override def typeInferenceStrategy = HoistMethodTypeInferenceStrategy
+
+    object HoistMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        val argBindings = HoistMethod.params.bindTypes(arguments)
+        targetTypeOpt.flatMap {
+          case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
+            Some(Type.Instance(klass))
+          case Type.Object(fields) ⇒
+            for {
+              AnnotatedExpr(nameExprOpt, _) ← argBindings.get(HoistMethod.Params.FieldName)
+              StringLiteral(fieldName, _, _, _) ← nameExprOpt
+              fieldType <- fields.get(fieldName)
+              (newFields, isList) <- PartialFunction.condOpt(fieldType) {
+                case Type.Object(newFields) => (newFields, false)
+                case Type.Seq(Type.Object(newFields)) => (newFields, true)
+              }
+              newObjectType = Type.Object((fields - fieldName) ++ newFields)
+            } yield if (isList) Type.Seq(newObjectType) else newObjectType
+          case _ ⇒
+            None
+        }
+      }
+
+    }
+
     override def summary = "Hoist the fields of a subobject up into this object"
 
     override def descriptionOpt = Some("""Examples:

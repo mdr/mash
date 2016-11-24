@@ -21,11 +21,11 @@ object EvaluatedArgument {
     def isPositionArg = true
   }
 
-  case class LongFlag(flag: String, valueOpt: Option[SuspendedMashValue], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+  case class LongFlag(flag: String, valueOpt: Option[SuspendedMashValue], argumentNodeOpt: Option[Argument] = None) extends EvaluatedArgument {
     def isPositionArg = false
   }
 
-  case class ShortFlag(flags: Seq[String], argumentNodeOpt: Option[Argument]) extends EvaluatedArgument {
+  case class ShortFlag(flags: Seq[String], argumentNodeOpt: Option[Argument] = None) extends EvaluatedArgument {
     def isPositionArg = false
   }
 

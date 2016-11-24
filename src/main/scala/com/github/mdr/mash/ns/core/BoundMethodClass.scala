@@ -1,16 +1,50 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpFunction }
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   override val methods = Seq(
     HelpMethod,
-    TargetMethod)
+    TargetMethod,
+    InvokeMethod)
+
+  object InvokeMethod extends MashMethod("invoke") {
+
+    object Params {
+      val Args = Parameter(
+        name = "args",
+        summary = "Positional arguments for this function",
+        defaultValueGeneratorOpt = Option(() => MashList.empty))
+      val NamedArgs = Parameter(
+        name = "namedArgs",
+        summary = "Named arguments for this function",
+        defaultValueGeneratorOpt = Option(() => MashObject.empty))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Args, NamedArgs))
+
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
+      val boundParams = params.validate(arguments)
+      val args = boundParams.validateSequence(Args)
+      val namedArgs = boundParams.validateObject(NamedArgs)
+      val methodArguments = Arguments(args.map(v => EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
+        namedArgs.fields.toSeq.map { case (field, value) =>
+          EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
+        })
+      val boundMethod = target.asInstanceOf[BoundMethod]
+      boundMethod.method.apply(boundMethod.target, methodArguments)
+    }
+
+    override def summary = "Invoke this method with the given arguments"
+
+  }
 
   object HelpMethod extends MashMethod("help") {
 
@@ -37,12 +71,10 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
-
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
         targetTypeOpt.collect {
           case Type.BoundMethod(receiver, _) ⇒ receiver
         }
-
     }
 
     override def summary = "Target of this bound method"
