@@ -11,7 +11,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.{ ObjectModel, ObjectTreeModel, ObjectsTableModel }
-import com.github.mdr.mash.repl.NormalActions._
+import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
@@ -46,6 +46,8 @@ trait NormalActionHandler { self: Repl ⇒
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case _                        ⇒
     }
+    if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
+      history.commitToEntry()
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
   }
@@ -67,23 +69,23 @@ trait NormalActionHandler { self: Repl ⇒
     result
   }
 
-  private def handlePreviousHistory() {
-    state.lineBuffer.cursorPos.row match {
-      case 0 ⇒
-        for (cmd ← history.goBackwards(state.lineBuffer.text))
-          state.lineBuffer = LineBuffer(cmd)
-      case _ ⇒
-        state.updateLineBuffer(_.up)
-    }
-  }
+  private def handlePreviousHistory() =
+    if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
+      history.goBackwards(state.lineBuffer.text) match {
+        case Some(cmd) => state.lineBuffer = LineBuffer(cmd)
+        case None => state.updateLineBuffer(_.up)
+      }
+    else
+      state.updateLineBuffer(_.up)
 
-  private def handleNextHistory() {
-    if (state.lineBuffer.onLastLine)
-      for (cmd ← history.goForwards())
-        state.lineBuffer = LineBuffer(cmd)
+  private def handleNextHistory() =
+    if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
+      history.goForwards() match {
+        case Some(cmd) => state.lineBuffer = LineBuffer(cmd)
+        case None => state.updateLineBuffer(_.down)
+      }
     else
       state.updateLineBuffer(_.down)
-  }
 
   private def handleToggleQuote(): Unit = resetHistoryIfTextChanges {
     state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
@@ -127,7 +129,8 @@ trait NormalActionHandler { self: Repl ⇒
     val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish).tokens
     // TODO: We'll want to be smarter than this:
     import TokenType._
-    val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE, STRING_INTERPOLATION_START_COMPLEX)
+    val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE,
+      STRING_INTERPOLATION_START_COMPLEX)
     val openBraceCount = tokens.count(token => OpenBraceTypes.contains(token.tokenType))
     val mismatchedBrackets = openBraceCount != tokens.count(_.tokenType == TokenType.RBRACE)
 

@@ -27,9 +27,9 @@ trait History {
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path)
 
-  def resetHistoryPosition()
+  def resetHistoryPosition(): Unit
 
-  def forgetInProgressCommand()
+  def forgetInProgressCommand(): Unit
   
   def goForwards(): Option[String]
 
@@ -50,5 +50,12 @@ trait History {
       tokenType.isIdentifier || tokenType.isKeyword || tokenType.isLiteral || tokenType == TokenType.MISH_WORD
     }.lastOption.map(_.text)
   }
+
+  /**
+    * Commit to editing this line, as opposed to scrolling past it in history
+    */
+  def commitToEntry(): Unit
+
+  def isCommittedToEntry: Boolean
 
 }

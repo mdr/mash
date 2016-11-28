@@ -30,12 +30,16 @@ case class LineBuffer(text: String, cursorOffset: Int) {
 
   val cursorPos = CursorPos(lineInfo.lineAndColumn(cursorOffset))
 
+  def cursorRow = cursorPos.row
+
   require(cursorOffset >= 0 && cursorOffset <= text.length,
     s"Cursor row out of range: offset = cursorOffset, text length = ${text.length}")
 
   def isEmpty = text.isEmpty
 
-  def onLastLine = cursorPos.row == lineInfo.lineCount - 1
+  def onFirstLine = cursorRow == 0
+
+  def onLastLine = cursorRow == lineInfo.lineCount - 1
 
   def cursorAtEnd = cursorOffset == text.length
 

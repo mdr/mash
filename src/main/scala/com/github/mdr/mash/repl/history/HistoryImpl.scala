@@ -30,6 +30,7 @@ class HistoryImpl(
   private var history: Seq[HistoryEntry] = storage.loadHistory()
   private var historyPos = NotInHistory
   private var inProgressCommandOpt: Option[String] = None
+  private var isCommitted: Boolean = true
 
   def resetHistoryPosition() = {
     historyPos = NotInHistory
@@ -42,6 +43,7 @@ class HistoryImpl(
 
   def goForwards(): Option[String] =
     if (historyPos >= 0) {
+      isCommitted = false
       historyPos -= 1
       if (historyPos == NotInHistory) {
         val result = inProgressCommandOpt
@@ -56,6 +58,7 @@ class HistoryImpl(
     if (historyPos == NotInHistory)
       inProgressCommandOpt = Some(inProgressCommand)
     if (historyPos < history.size - 1) {
+      isCommitted = false
       historyPos += 1
       Some(history(historyPos).command)
     } else
@@ -67,8 +70,15 @@ class HistoryImpl(
     val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, result, workingDirectory.toString)
     history = entry +: history
     storage.saveEntry(entry.copy(result = null))
+    isCommitted = true
   }
 
   def getHistory: Seq[HistoryEntry] = history.sortBy(_.timestamp).reverse
+
+  override def commitToEntry() {
+    isCommitted = true
+  }
+
+  override def isCommittedToEntry: Boolean = isCommitted
 
 }
