@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.runtime.{ MashValue, MashValueOrdering }
+import com.github.mdr.mash.runtime.{ MashNull, MashValue, MashValueOrdering }
 
 object MinFunction extends MashFunction("collections.min") {
 
@@ -21,7 +21,7 @@ If multiple arguments are provided, the smallest argument is returned."""),
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = MaxFunction.getSequence(boundParams, Items)
-    sequence.min(MashValueOrdering)
+    sequence.filterNot(_ == MashNull).min(MashValueOrdering)
   }
 
   override def typeInferenceStrategy = MaxTypeInferenceStrategy

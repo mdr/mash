@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue, MashValueOrdering }
+import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
 
@@ -26,7 +26,7 @@ If multiple arguments are provided, the largest argument is returned."""),
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = getSequence(boundParams, Items)
-    sequence.max(MashValueOrdering)
+    sequence.filterNot(_ == MashNull).max(MashValueOrdering)
   }
 
   def getSequence(boundParams: BoundParams, itemsParam: Parameter) =

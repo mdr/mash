@@ -253,18 +253,22 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "max [1, 200, 3]" shouldEvaluateTo "200"
   "max 'abc'" shouldEvaluateTo "'c'"
   "max 1 2 3" shouldEvaluateTo "3"
+  "max [2, null, 1]" shouldEvaluateTo "2"
 
   // maxBy
   "maxBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'bbb' "
   "maxBy (_) 'abcde'" shouldEvaluateTo "'e'"
+  "maxBy 'foo' [{ foo: null }, { foo: 42 }]" shouldEvaluateTo "{ foo: 42 }"
 
   // min
   "min [100, 2, 300]" shouldEvaluateTo "2"
   "min 'abc'" shouldEvaluateTo "'a'"
   "min 1 2 3" shouldEvaluateTo "1"
+  "min [2, null, 1]" shouldEvaluateTo "1"
 
   // minBy
   "minBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'a' "
+  "minBy 'foo' [{ foo: null }, { foo: 42 }]" shouldEvaluateTo "{ foo: 42 }"
 
   // nonEmpty
   "nonEmpty []" shouldEvaluateTo "false"

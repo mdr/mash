@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashValue, MashValueOrdering }
+import com.github.mdr.mash.runtime.{ MashNull, MashValue, MashValueOrdering }
 
 object MinByFunction extends MashFunction("collections.minBy") {
 
@@ -24,7 +24,22 @@ object MinByFunction extends MashFunction("collections.minBy") {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
-    sequence.minBy(attribute)(MashValueOrdering)
+
+    var minValue: MashValue = null
+    var minElem: MashValue = null
+    var first = true
+    for (elem <- sequence) {
+      val value = attribute(elem)
+      if (value != MashNull)
+        if (first || MashValueOrdering.lt(value, minValue)) {
+          minElem = elem
+          minValue = value
+          first = false
+        }
+    }
+    if (first)
+      boundParams.throwInvalidArgument(Sequence, "Cannot find minimum of an empty sequence")
+    minElem
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy
