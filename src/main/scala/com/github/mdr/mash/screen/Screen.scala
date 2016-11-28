@@ -12,7 +12,11 @@ case class Point(row: Int, column: Int) {
   def down(rows: Int = 1): Point = copy(row = row + rows)
 }
 
-case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true)
+case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
+
+  def truncate(n: Int) = copy(chars.take(n))
+
+}
 
 case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
 

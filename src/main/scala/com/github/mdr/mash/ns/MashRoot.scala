@@ -65,6 +65,7 @@ object MashRoot {
     SleepFunction,
     TapFunction,
     TimeTakenFunction,
+    TryFunction,
     WhileFunction)
 
   private val MathsFunctions = Seq(

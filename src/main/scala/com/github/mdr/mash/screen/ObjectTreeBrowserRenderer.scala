@@ -5,6 +5,7 @@ import com.github.mdr.mash.printer.ObjectTreeNode
 import com.github.mdr.mash.repl.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.StringUtils
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -13,14 +14,14 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   private val fileSystem = LinuxFileSystem
 
   def renderObjectBrowser: Screen = {
-    val lines = renderLines
+    val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
     Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
   }
 
   private def renderLines: Seq[Line] = {
     val printer = new Printer
-    print(printer, state.model.root, prefix = "", currentPath = ObjectTreePath(Seq()))
+    print(printer, state.model.root)
     printer.getLines.drop(state.firstRow).take(windowSize) :+ renderStatusLine
   }
 
@@ -47,6 +48,8 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
 
     def getLines = lines :+ Line(line)
 
+    def currentColumn = line.size
+
   }
 
   private def renderStatusLine: Line = {
@@ -55,12 +58,16 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     Line(s"${state.path} (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
-  private def print(printer: Printer, node: ObjectTreeNode, prefix: String, currentPath: ObjectTreePath): Unit = node match {
-    case ObjectTreeNode.List(Seq(), _)    => printer.println("[]")
-    case ObjectTreeNode.List(items, _)    => printList(printer, items, prefix, currentPath, connectUp = true)
-    case ObjectTreeNode.Object(Seq(), _)  => printer.println("{}")
-    case ObjectTreeNode.Object(values, _) => printObject(printer, values, prefix, currentPath, connectUp = true)
-    case ObjectTreeNode.Leaf(value, _)    => printer.println(value)
+  private def print(printer: Printer, node: ObjectTreeNode): Unit = {
+    val prefix = ""
+    val currentPath = ObjectTreePath(Seq())
+    node match {
+      case ObjectTreeNode.List(Seq(), _)    => printer.println("[]")
+      case ObjectTreeNode.List(items, _)    => printList(printer, items, prefix, currentPath, connectUp = true)
+      case ObjectTreeNode.Object(Seq(), _)  => printer.println("{}")
+      case ObjectTreeNode.Object(values, _) => printObject(printer, values, prefix, currentPath, connectUp = true)
+      case ObjectTreeNode.Leaf(value, _)    => printer.println(value)
+    }
   }
 
   private def printList(printer: Printer, nodes: Seq[ObjectTreeNode], prefix: String, currentPath: ObjectTreePath, connectUp: Boolean) {
@@ -74,7 +81,8 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      =>
           printer.print("─ ")
-          printer.print(value, highlighted = itemPath.ontoValue == state.selectionPath)
+          val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          printer.print(truncatedValue, highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      =>
           printer.print("─ ")
@@ -109,7 +117,8 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      =>
           printer.print(" ")
-          printer.print(value, highlighted = fieldPath.ontoValue == state.selectionPath)
+          val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          printer.print(truncatedValue, highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      =>
           printer.print(" ")
@@ -151,6 +160,6 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  private def windowSize = terminalInfo.rows - 1 // a status line
+  private val windowSize = terminalInfo.rows - 1 // a status line
 
 }

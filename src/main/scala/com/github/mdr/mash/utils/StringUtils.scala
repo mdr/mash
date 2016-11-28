@@ -34,7 +34,10 @@ object StringUtils {
   private def halveRoundingDown(n: Int) = n / 2
   private def halveRoundingUp(n: Int) = math.ceil(n / 2.0).toInt
 
-  def ellipsisise(s: String, maxLength: Int) =
+  /**
+    * Ensure the given string is at most maxLength characters long (including 0), by truncating and adding …
+    */
+  def ellipsisise(s: String, maxLength: Int): String =
     if (s.size < 2 && s.size > maxLength)
       "…" * maxLength
     else {

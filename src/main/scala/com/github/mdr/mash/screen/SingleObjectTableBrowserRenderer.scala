@@ -13,7 +13,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   private val objectStringifier = new ObjectStringifier(terminalInfo)
 
   def renderObjectBrowser: Screen = {
-    val lines = renderLines
+    val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
     Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
   }
