@@ -109,6 +109,7 @@ object MashRoot {
     FirstFunction,
     FlattenFunction,
     GroupByFunction,
+    IndexOfFunction,
     IsEmptyFunction,
     JoinFunction,
     LastFunction,

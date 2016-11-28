@@ -1,6 +1,8 @@
 v0.0.5 (..)
 -----------
 
+* sort/sortBy handle nulls
+* Add collection.indexOf
 * Add core.try
 * Add Function/BoundMethod.invoke
 * Add view.tree

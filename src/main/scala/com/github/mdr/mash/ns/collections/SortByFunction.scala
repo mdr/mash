@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashBoolean, MashValue, MashValueOrdering }
+import com.github.mdr.mash.ns.collections.SortFunction.MashValueOrderingWithNullButtom
+import com.github.mdr.mash.runtime._
 
 object SortByFunction extends MashFunction("collections.sortBy") {
 
@@ -33,7 +34,7 @@ object SortByFunction extends MashFunction("collections.sortBy") {
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy
     val attribute = boundParams.validateFunction(Attribute)
-    val sorted = sequence.sortBy(attribute)(MashValueOrdering)
+    val sorted = sequence.sortWith((a, b) => MashValueOrderingWithNullButtom.lteq(attribute(a), attribute(b)))
     val newSequence = if (descending) sorted.reverse else sorted
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }

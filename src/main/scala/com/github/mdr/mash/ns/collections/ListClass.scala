@@ -21,6 +21,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(FindFunction),
     methodise(FirstFunction),
     methodise(GroupByFunction),
+    methodise(IndexOfFunction),
     methodise(IsEmptyFunction),
     methodise(JoinFunction),
     methodise(LastFunction),

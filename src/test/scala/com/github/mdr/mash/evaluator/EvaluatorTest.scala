@@ -303,10 +303,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "
   "'eaebcd' | sort" shouldEvaluateTo "'abcdee'"
+  "[1, null, 2].sort" shouldEvaluateTo "[null, 1, 2]  "
 
   // sortBy
   " ['aa', 'b', 'ccc'] | sortBy length " shouldEvaluateTo " ['b', 'aa', 'ccc'] "
   "'123' | sortBy (-_.toNumber)" shouldEvaluateTo "'321'"
+  "[{ foo: 1 }, { foo: null }, { foo: 2 }].sortBy 'foo'" shouldEvaluateTo "[{ foo: null }, { foo: 1 }, { foo: 2 }]"
 
   // sum
   " [] | sum " shouldEvaluateTo "0"

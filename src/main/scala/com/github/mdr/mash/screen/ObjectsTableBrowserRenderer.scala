@@ -1,12 +1,15 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectsTableModel, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.ObjectsTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
+import org.fusesource.jansi.Ansi
+
+import scala.collection.mutable.ArrayBuffer
 
 class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
@@ -27,11 +30,24 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
 
+  private def renderHeaderRow(model: ObjectsTableModel): Line = {
+    def renderColumn(name: String): Seq[StyledCharacter] = {
+      val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
+      fit.style(Style(bold = true, foregroundColour = Colour.Yellow))
+    }
+    val buffer = ArrayBuffer[StyledCharacter]()
+    buffer ++= boxCharacterSupplier.doubleVertical.style
+    buffer ++= (" " + boxCharacterSupplier.singleVertical).style
+    buffer ++= Utils.intercalate(model.columnNames.map(renderColumn), boxCharacterSupplier.singleVertical.style)
+    buffer ++= boxCharacterSupplier.doubleVertical.style
+    Line(buffer)
+  }
+
   private def renderHeaderLines: Seq[Line] =
     Seq(
-      objectTableStringifier.renderTopRow(model),
-      objectTableStringifier.renderHeaderRow(model),
-      objectTableStringifier.renderBelowHeaderRow(model)).map(s ⇒ Line(s.style))
+      Line(objectTableStringifier.renderTopRow(model).style),
+      renderHeaderRow(model),
+      Line(objectTableStringifier.renderBelowHeaderRow(model).style))
 
   private def renderDataLines: Seq[Line] = {
     val objects = model.objects.drop(state.firstRow).take(windowSize)

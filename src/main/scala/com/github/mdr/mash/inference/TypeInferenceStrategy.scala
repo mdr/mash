@@ -1,6 +1,15 @@
 package com.github.mdr.mash.inference
 
+import scala.language.implicitConversions
 import com.github.mdr.mash.ns.collections.MapFunction
+import com.github.mdr.mash.evaluator.MashClass
+
+object TypeInferenceStrategy {
+
+  implicit def constantTypeInferenceStrategy[T](klass: MashClass): ConstantTypeInferenceStrategy =
+    ConstantTypeInferenceStrategy(Type.Instance(klass))
+
+}
 
 /**
  * Type inference strategy for functions
