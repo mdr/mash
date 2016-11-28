@@ -16,9 +16,11 @@ object SortByFunction extends MashFunction("collections.sortBy") {
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
-    val Attribute = Parameter(
-      name = "attribute",
-      summary = "Function to extract a value to compare elements")
+    val Attributes = Parameter(
+      name = "attributes",
+      summary = "Function(s) to extract a value to compare elements",
+      isVariadic = true,
+      variadicAtLeastOne = true)
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to sort",
@@ -26,15 +28,21 @@ object SortByFunction extends MashFunction("collections.sortBy") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Descending, Attribute, Sequence))
+  val params = ParameterModel(Seq(Descending, Attributes, Sequence))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy
-    val attribute = boundParams.validateFunction(Attribute)
-    val sorted = sequence.sortWith((a, b) => MashValueOrderingWithNullButtom.lteq(attribute(a), attribute(b)))
+    val attributes: Seq[MashValue => MashValue] =
+      boundParams.validateSequence(Attributes, allowStrings = false).map(boundParams.validateFunction(Attributes, _))
+    def asNullFreeList(xs: Seq[MashValue]) = if (xs contains MashNull) MashNull else MashList(xs)
+    val sorted = sequence.sortWith((a, b) => {
+      val as = asNullFreeList(attributes.map(_(a)))
+      val bs = asNullFreeList(attributes.map(_(b)))
+      MashValueOrderingWithNullButtom.lteq(as, bs)
+    })
     val newSequence = if (descending) sorted.reverse else sorted
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }

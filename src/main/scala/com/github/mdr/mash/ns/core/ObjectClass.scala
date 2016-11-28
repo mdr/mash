@@ -85,6 +85,16 @@ object ObjectClass extends MashClass("core.Object") {
 
     }
 
+    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) = {
+      val completionSpecOpt =
+        for {
+          param ← params.bindTypes(arguments).paramAt(argPos)
+          if param == FieldName
+          targetType ← targetTypeOpt
+        } yield CompletionSpec.Items(GetMethod.getFields(targetType))
+      completionSpecOpt.toSeq
+    }
+
     override def summary = "Hoist the fields of a subobject up into this object"
 
     override def descriptionOpt = Some("""Examples:
@@ -202,7 +212,7 @@ object ObjectClass extends MashClass("core.Object") {
       completionSpecOpt.toSeq
     }
 
-    private def getFields(typ_ : Type): Seq[String] = typ_ match {
+    def getFields(typ_ : Type): Seq[String] = typ_ match {
       case Type.Object(fields)  ⇒ fields.keys.toSeq
       case Type.Instance(klass) ⇒ klass.fields.map(_.name)
       case _                    ⇒ Seq()

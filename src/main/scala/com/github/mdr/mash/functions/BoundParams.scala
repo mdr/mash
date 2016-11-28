@@ -27,10 +27,10 @@ case class BoundParams(params: Map[String, MashValue],
   private def locationOpt(param: Parameter): Option[SourceLocation] =
     argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
 
-  def validateSequence(param: Parameter): Seq[MashValue] = this(param) match {
-    case xs: MashList          ⇒ xs.items
-    case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case x ⇒
+  def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
+    case xs: MashList                          ⇒ xs.items
+    case MashString(s, tagOpt) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
+    case x                                     ⇒
       val message = s"Invalid argument '${param.name}'. Must be a sequence, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
@@ -57,14 +57,15 @@ case class BoundParams(params: Map[String, MashValue],
       throw new ArgumentException(message, locationOpt(param))
   }
 
-  def validateFunction(param: Parameter): MashValue ⇒ MashValue =
-    this(param) match {
-      case f @ (_: MashString | _: MashFunction | _: BoundMethod) ⇒
-        FunctionHelpers.interpretAsFunction(f)
-      case x ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
-        throw new ArgumentException(message, locationOpt(param))
-    }
+  def validateFunction(param: Parameter, value: MashValue): MashValue => MashValue = value match {
+    case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
+      FunctionHelpers.interpretAsFunction(f)
+    case x                                                    ⇒
+      val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
+      throw new ArgumentException(message, locationOpt(param))
+  }
+
+  def validateFunction(param: Parameter): MashValue ⇒ MashValue = validateFunction(param, this(param))
 
   def validateClass(param: Parameter): MashClass =
     this(param) match {

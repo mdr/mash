@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* sortBy can pass in multiple attributes as sort keys
 * History navigation skips over multiline entries until "committed" to by some non-history action
 * Comparision operators handle nulls
 * sort/sortBy handle nulls
