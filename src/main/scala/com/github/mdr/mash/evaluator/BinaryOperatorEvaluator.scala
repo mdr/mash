@@ -30,10 +30,13 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
   }
 
   def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[SourceLocation]): MashValue = {
-    def compareWith(comparator: (Int, Int) ⇒ Boolean): MashBoolean = {
-      val comparisionResult = MashValueOrdering.compareWithLocation(leftResult, rightResult, locationOpt)
-      MashBoolean(comparator(comparisionResult, 0))
-    }
+    def compareWith(comparator: (Int, Int) ⇒ Boolean): MashBoolean =
+      if (leftResult == MashNull || rightResult == MashNull)
+        MashBoolean.False
+      else {
+        val comparisonResult = MashValueOrdering.compareWithLocation(leftResult, rightResult, locationOpt)
+        MashBoolean(comparator(comparisonResult, 0))
+      }
     op match {
       case BinaryOperator.And               ⇒ if (leftResult.isTruthy) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (leftResult.isFalsey) rightResult else leftResult

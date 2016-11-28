@@ -2,6 +2,7 @@ v0.0.5 (..)
 -----------
 
 * History navigation skips over multiline entries until "committed" to by some non-history action
+* Comparision operators handle nulls
 * sort/sortBy handle nulls
 * Add collection.indexOf
 * Add core.try

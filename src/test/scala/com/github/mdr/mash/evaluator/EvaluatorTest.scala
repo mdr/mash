@@ -44,6 +44,24 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = 0; -100 < (a = a + 1; a) < 100; a" shouldEvaluateTo "1"
   "a = 0; (a = a + 1; 100) < (a = a + 1; -100) < (a = a + 1; -1000); a" shouldEvaluateTo "2" // short circuits the last
 
+  // date/time comparisons
+  "now > 3.days.ago" shouldEvaluateTo "true"
+  "now < 3.days.ago" shouldEvaluateTo "false"
+  "now.date > 3.days.ago.date" shouldEvaluateTo "true"
+  "now.date < 3.days.ago.date" shouldEvaluateTo "false"
+
+  // comparisons with null
+  "null < 1" shouldEvaluateTo "false"
+  "null <= 1" shouldEvaluateTo "false"
+  "null > 1" shouldEvaluateTo "false"
+  "null >= 1" shouldEvaluateTo "false"
+  "1 < null" shouldEvaluateTo "false"
+  "1 <= null" shouldEvaluateTo "false"
+  "1 > null" shouldEvaluateTo "false"
+  "1 >= null" shouldEvaluateTo "false"
+  "null < null" shouldEvaluateTo "false"
+  "null < null < null" shouldEvaluateTo "false"
+
   "true and true" shouldEvaluateTo "true"
   "true and false" shouldEvaluateTo "false"
   "false and true" shouldEvaluateTo "false"
@@ -489,12 +507,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // regex
   "'(.*)bar'.r.match 'wibblebar' | .groups.first" shouldEvaluateTo "'wibble'"
-
-  // date/time comparisons
-  "now > 3.days.ago" shouldEvaluateTo "true"
-  "now < 3.days.ago" shouldEvaluateTo "false"
-  "now.date > 3.days.ago.date" shouldEvaluateTo "true"
-  "now.date < 3.days.ago.date" shouldEvaluateTo "false"
 
   "a = now; b = 3.days.ago; min a b" shouldEvaluateTo "b"
 
