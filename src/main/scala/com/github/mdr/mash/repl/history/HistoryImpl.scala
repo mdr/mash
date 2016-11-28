@@ -63,7 +63,8 @@ class HistoryImpl(
   }
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path) {
-    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, resultOpt.getOrElse(MashNull), workingDirectory.toString)
+    val result = resultOpt.getOrElse(MashNull)
+    val entry = HistoryEntry(sessionId, commandNumber, clock.instant, cmd, mish, result, workingDirectory.toString)
     history = entry +: history
     storage.saveEntry(entry.copy(result = null))
   }

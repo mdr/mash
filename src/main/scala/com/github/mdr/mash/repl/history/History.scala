@@ -7,7 +7,13 @@ import java.util.UUID
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.runtime.MashValue
 
-case class HistoryEntry(sessionId: UUID, commandNumber: Int, timestamp: Instant, command: String, mish: Boolean, result: MashValue, workingDirectory: String) {
+case class HistoryEntry(sessionId: UUID,
+                        commandNumber: Int,
+                        timestamp: Instant,
+                        command: String,
+                        mish: Boolean,
+                        result: MashValue,
+                        workingDirectory: String) {
 
   def sessionIdOpt: Option[UUID] = Option(sessionId)
 
