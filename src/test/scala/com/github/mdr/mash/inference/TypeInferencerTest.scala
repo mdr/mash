@@ -63,6 +63,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   """ "foo" * 2 """ shouldBeInferredAsHavingType TaggedStringType
   "[1, 2] * 3" shouldBeInferredAsHavingType Seq(NumberType)
   "3 * [1, 2]" shouldBeInferredAsHavingType Seq(NumberType)
+  "5 * 1.seconds" shouldBeInferredAsHavingType (NumberClass taggedWith SecondsClass)
+  "1.seconds * 5" shouldBeInferredAsHavingType (NumberClass taggedWith SecondsClass)
 
   // Map
   "[true].map 'not' " shouldBeInferredAsHavingType Seq(BooleanType)

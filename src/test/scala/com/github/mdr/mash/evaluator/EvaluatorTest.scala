@@ -90,6 +90,20 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "(x => x) | (f => f 42)" shouldEvaluateTo "42"
 
+  // Multiplication
+  "'xy' * 3" shouldEvaluateTo "'xyxyxy'"
+  "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
+  "'x' * 1" shouldEvaluateTo "'x'"
+  "'x' * 0" shouldEvaluateTo "''"
+
+  "[1, 2] * 3" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
+  "3 * [1, 2]" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
+  "[1] * 1" shouldEvaluateTo "[1]"
+  "[1] * 0" shouldEvaluateTo "[]"
+
+  "3 * 1.second | .tag" shouldEvaluateTo "time.Seconds"
+  "1.second * 3 | .tag" shouldEvaluateTo "time.Seconds"
+
   "1 * 2 + 3 * 4" shouldEvaluateTo "14"
   "3 * 100 / 3" shouldEvaluateTo "100"
   "10 / 10 / 10" shouldEvaluateTo "0.1"
@@ -487,16 +501,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1].toString" shouldEvaluateTo "'[1]'"
   "[1, 2].toString" shouldEvaluateTo "'[1, 2]'"
   "[pwd].toString" shouldEvaluateTo "'[' + pwd + ']'"
-
-  "'xy' * 3" shouldEvaluateTo "'xyxyxy'"
-  "3 * 'xy'" shouldEvaluateTo "'xyxyxy'"
-  "'x' * 1" shouldEvaluateTo "'x'"
-  "'x' * 0" shouldEvaluateTo "''"
-
-  "[1, 2] * 3" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
-  "3 * [1, 2]" shouldEvaluateTo "[1, 2, 1, 2, 1, 2]"
-  "[1] * 1" shouldEvaluateTo "[1]"
-  "[1] * 0" shouldEvaluateTo "[]"
 
   "3.14.toInt" shouldEvaluateTo "3"
   "(-3.14).toInt" shouldEvaluateTo "-3"

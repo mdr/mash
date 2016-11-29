@@ -198,7 +198,8 @@ class TypeInferencer {
 
   private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(NumberLike(_)), Some(NumberLike(_))) ⇒ leftTypeOpt
+      case (Some(NumberLike(Some(klass))), Some(NumberLike(_))) ⇒ leftTypeOpt
+      case (Some(NumberLike(None)), Some(NumberLike(klassOpt))) ⇒ rightTypeOpt
       case (Some(NumberLike(_)), Some(StringLike(_) | Type.Seq(_))) ⇒ rightTypeOpt
       case (Some(StringLike(_) | Type.Seq(_)), Some(NumberLike(_))) ⇒ leftTypeOpt
       case _ ⇒ Some(Type.Instance(NumberClass))
@@ -211,8 +212,9 @@ class TypeInferencer {
   }
 
   private object NumberLike {
-    def unapply(typ_ : Type): Option[Type] = condOpt(typ_) {
-      case Type.Tagged(NumberClass, _) | Type.Instance(NumberClass) ⇒ typ_
+    def unapply(typ_ : Type): Option[Option[MashClass]] = condOpt(typ_) {
+      case Type.Tagged(NumberClass, klass) ⇒ Some(klass)
+      case Type.Instance(NumberClass)      ⇒ None
     }
   }
 

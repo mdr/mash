@@ -27,15 +27,15 @@ object MashNumber {
 
 case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends TaggableMashValue with Comparable[MashNumber] {
 
-  def compareTo(that: MashNumber) = n.compareTo(that.n)
+  def compareTo(that: MashNumber) = n compareTo that.n
 
-  def +(that: MashNumber): MashNumber = copy(n = this.n + that.n)
+  def +(that: MashNumber): MashNumber = copy(n = this.n + that.n, tagClassOpt = this.tagClassOpt orElse that.tagClassOpt)
 
-  def -(that: MashNumber): MashNumber = copy(n = this.n - that.n)
+  def -(that: MashNumber): MashNumber = copy(n = this.n - that.n, tagClassOpt = this.tagClassOpt orElse that.tagClassOpt)
 
-  def *(that: MashNumber): MashNumber = copy(n = this.n * that.n)
+  def *(that: MashNumber): MashNumber = copy(n = this.n * that.n, tagClassOpt = this.tagClassOpt orElse that.tagClassOpt)
 
-  def /(that: MashNumber): MashNumber = copy(n = this.n / that.n)
+  def /(that: MashNumber): MashNumber = copy(n = this.n / that.n, tagClassOpt = this.tagClassOpt orElse that.tagClassOpt)
 
   def negate: MashNumber = copy(n = -this.n)
 
