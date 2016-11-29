@@ -6,10 +6,10 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import org.fusesource.jansi.Ansi
 
-class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo) {
+class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
   def printObject(obj: MashValue) {
-    val model = new ObjectTreeModelCreator().create(obj)
+    val model = new ObjectTreeModelCreator(viewConfig).create(obj)
     val root = model.root
     print(root, prefix = "")
   }

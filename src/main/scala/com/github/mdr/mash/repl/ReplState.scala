@@ -4,6 +4,7 @@ import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
+import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region
 
@@ -64,4 +65,5 @@ class ReplState(
 
   def showStartupTips: Boolean = config.showStartupTips
 
+  def viewConfig: ViewConfig = ViewConfig(config.viewHumanTime)
 }

@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 import java.time.Instant
+import java.time.format.{ DateTimeFormatter, FormatStyle }
 import java.util.Date
 
 import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass, ToStringifier }
@@ -17,14 +18,20 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
+case class ViewConfig(humanTime: Boolean)
+
 object Printer {
 
-  private val prettyTime = new PrettyTime
+  val prettyTime = new PrettyTime
 
   def replaceProblematicChars(s: String): String = s.map {
     case '\t' | '\n' | '\r' | '\b' ⇒ ' '
     case c                         ⇒ c
   }
+
+}
+
+class FieldRenderer(viewConfig: ViewConfig) {
 
   def renderField(value: MashValue, inCell: Boolean = false): String = value match {
     case MashBoolean.True if inCell                         ⇒ "✓"
@@ -35,7 +42,11 @@ object Printer {
     case MashNumber(n, Some(MillisecondsClass))             ⇒ NumberUtils.prettyString(n) + "ms"
     case MashNumber(n, Some(SecondsClass))                  ⇒ NumberUtils.prettyString(n) + "s"
     case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant)                            ⇒ prettyTime.format(Date.from(i))
+    case MashWrapped(i: Instant) if viewConfig.humanTime    ⇒ Printer.prettyTime.format(Date.from(i))
+    case MashWrapped(i: Instant)                            ⇒
+//      val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
+//      formatter.format(i)
+      i.toString
     case xs: MashList if inCell                             ⇒ xs.items.map(renderField(_)).mkString(", ")
     case xs: MashList                                       ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
     case _ ⇒
@@ -47,9 +58,10 @@ object Printer {
 
 case class PrintResult(printModelOpt: Option[PrintModel] = None)
 
-class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
+class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig = ViewConfig(humanTime = true)) {
 
   private val helpPrinter = new HelpPrinter(output)
+  private val fieldRenderer = new FieldRenderer(viewConfig)
 
   def print(value: MashValue,
             disableCustomViews: Boolean = false,
@@ -57,16 +69,16 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
             alwaysUseTreeBrowser: Boolean = false): PrintResult = {
     value match {
       case _: MashList | _: MashObject if alwaysUseTreeBrowser =>
-        val model = new ObjectTreeModelCreator().create(value)
+        val model = new ObjectTreeModelCreator(viewConfig).create(value)
         return PrintResult(Some(model))
       case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
         val objects = xs.items.asInstanceOf[Seq[MashObject]]
         val nonDataRows = 4 // 3 header rows + 1 footer
         if (alwaysUseBrowser || objects.size > terminalInfo.rows - nonDataRows) {
-          val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true).create(objects, xs)
+          val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
           return PrintResult(Some(model))
         } else
-          new ObjectsTablePrinter(output, terminalInfo).printTable(objects)
+          new ObjectsTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
       case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
         xs.items.foreach(output.println)
       case obj: MashObject if obj.classOpt == Some(ViewClass) ⇒
@@ -85,12 +97,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         new GitStatusPrinter(output).print(obj)
       case obj: MashObject ⇒
         if (alwaysUseBrowser) {
-          val model = new ObjectModelCreator(terminalInfo).create(obj)
+          val model = new ObjectModelCreator(terminalInfo, viewConfig).create(obj)
           return PrintResult(Some(model))
-        } else {
-          new ObjectPrinter(output, terminalInfo).printObject(obj)
-//          new ObjectTreePrinter(output, terminalInfo).printObject(obj)
-        }
+        } else
+          new ObjectPrinter(output, terminalInfo, viewConfig).printObject(obj)
       case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit)) ⇒ // Don't print out sequence of unit
       case f: MashFunction if !disableCustomViews ⇒
         print(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
@@ -100,7 +110,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo) {
         print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
       case MashUnit ⇒ // Don't print out Unit 
       case _ ⇒
-        output.println(Printer.renderField(value, inCell = false))
+        output.println(fieldRenderer.renderField(value, inCell = false))
     }
     PrintResult()
   }

@@ -7,7 +7,7 @@ import com.github.mdr.mash.{ DebugLogger, Singletons }
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
-import com.github.mdr.mash.printer.{ PrintResult, Printer }
+import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import org.fusesource.jansi.Ansi
@@ -18,7 +18,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
   private val debugCommandRunner = new DebugCommandRunner(output, globals)
   private val debugLogger = new DebugLogger(sessionId)
 
-  def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean): CommandResult = {
+  def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean, viewConfig: ViewConfig): CommandResult = {
     cmd match {
       case DebugCommand(keyword, args) ⇒
         debugCommandRunner.runDebugCommand(keyword, args, bareWords)
@@ -28,25 +28,25 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
           CommandResult(toggleMish = true)
         else {
           val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-          runCommandAndPrintResult(unit, bareWords = bareWords)
+          runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
         }
       case SuffixMishCommand(mishCmd, suffix) ⇒
         val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-        runCommandAndPrintResult(unit, bareWords = bareWords)
+        runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
       case _ ⇒
         val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
-        runCommandAndPrintResult(unit, bareWords = bareWords)
+        runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
     }
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
     safeCompile(unit, bareWords = bareWords).map { expr ⇒ runExpr(expr, unit) }
 
-  private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean): CommandResult =
-    runCompilationUnit(unit, bareWords).map(printResult).getOrElse(CommandResult())
+  private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
+    runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
 
-  private def printResult(result: MashValue): CommandResult = {
-    val printer = new Printer(output, terminalInfo)
+  private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
+    val printer = new Printer(output, terminalInfo, viewConfig)
     val PrintResult(printModelOpt) = printer.print(result)
     CommandResult(Some(result), printModelOpt = printModelOpt)
   }

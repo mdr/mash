@@ -12,8 +12,11 @@ object ObjectsTableModelCreator {
 
 }
 
-class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
+class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false, viewConfig: ViewConfig) {
+
   import ObjectsTableModelCreator._
+
+  private val fieldRenderer = new FieldRenderer(viewConfig)
 
   def create(objects: Seq[MashObject], list: MashList): ObjectsTableModel = {
     val columns = getColumnSpecs(objects)
@@ -42,7 +45,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boole
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue)
-        renderedValue = valueOpt.map(value => Printer.renderField(value, inCell = true)).getOrElse("")
+        renderedValue = valueOpt.map(value => fieldRenderer.renderField(value, inCell = true)).getOrElse("")
       } yield name -> (valueOpt, renderedValue)
     val data = ((for { (k, (_, v)) <- pairs } yield k -> v) :+ (IndexColumnName -> index.toString)).toMap
     val rawObjects = (for { (k, (rawOpt, _)) <- pairs; raw <- rawOpt } yield k -> raw).toMap

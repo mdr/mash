@@ -112,23 +112,23 @@ trait ObjectBrowserActionHandler {
 
   private def getNonTreeBrowserState(value: MashValue, path: String): Option[BrowserState] = condOpt(value) {
     case obj: MashObject                                                      =>
-      val model = new ObjectModelCreator(terminal.info).create(obj)
+      val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
-      val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(objects, xs)
+      val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
   }
 
   private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
     if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
-      val model = new ObjectTreeModelCreator().create(value)
+      val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
       navigateForward(ObjectTreeBrowserState.initial(model, newPath))
     } else
       getNonTreeBrowserState(value, newPath).foreach(navigateForward)
 
   private def viewAsTree(browserState: BrowserState): Unit = {
-    val model = new ObjectTreeModelCreator().create(browserState.rawValue)
+    val model = new ObjectTreeModelCreator(state.viewConfig).create(browserState.rawValue)
     updateState(ObjectTreeBrowserState.initial(model, browserState.path))
   }
 
@@ -223,7 +223,8 @@ trait ObjectBrowserActionHandler {
       case ToggleMarked   ⇒
         updateState(browserState.toggleMark)
       case Rerender       ⇒
-        val model = new ObjectsTableModelCreator(terminal.info, showSelections = true).create(browserState.model.rawObjects, browserState.model.rawValue)
+        val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig)
+        val model = modelCreator.create(browserState.model.rawObjects, browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
       case ViewAsTree     =>

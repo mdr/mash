@@ -166,7 +166,7 @@ trait NormalActionHandler { self: Repl ⇒
     val unitName = s"command-${state.commandNumber}"
     val commandResult =
       try
-        commandRunner.run(cmd, unitName, state.mish, state.bareWords)
+        commandRunner.run(cmd, unitName, state.mish, state.bareWords, state.viewConfig)
       catch {
         case e: Exception ⇒
           e.printStackTrace()

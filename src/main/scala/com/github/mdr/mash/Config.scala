@@ -24,6 +24,8 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
 
   def showStartupTips: Boolean = getBooleanConfig(Config.Cli.ShowStartupTips)
 
+  def viewHumanTime: Boolean = getBooleanConfig(Config.View.HumanTime)
+
   private def getBooleanConfig(configOption: ConfigOption): Boolean =
     getConfig(configOption).isTruthy
 
@@ -65,7 +67,11 @@ object Config {
     val ShowStartupTips = ConfigOption("cli.showStartupTips", defaultValue = MashBoolean.True)
   }
 
-  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips)
+  object View {
+    val HumanTime = ConfigOption("view.humanTime", defaultValue = MashBoolean.True)
+  }
+
+  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips, View.HumanTime)
 
   def defaultConfig = {
     val config = MashObject.empty()
