@@ -66,6 +66,12 @@ assemblyJarName in assembly := s"mash-${version.value}.jar"
 
 // outputStrategy := Some(StdoutOutput)
 
+enablePlugins(BuildInfoPlugin)
+
+buildInfoKeys := Seq[BuildInfoKey](version, "commit" -> { git.gitHeadCommit.value })
+
+buildInfoPackage := "com.github.mdr.mash.build"
+
 // == Test ===================================================================================
 
 fork in test := true
