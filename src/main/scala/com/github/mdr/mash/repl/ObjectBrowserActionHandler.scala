@@ -18,17 +18,15 @@ trait ObjectBrowserActionHandler {
     }
   }
 
-  private def navigateForward(newState: BrowserState) {
+  private def navigateForward(newState: BrowserState) =
     state.objectBrowserStateOpt.foreach { objectBrowserState =>
       state.objectBrowserStateOpt = Some(objectBrowserState.pushNewState(newState))
     }
-  }
 
-  private def navigateBack(): Unit = {
+  private def navigateBack() =
     state.objectBrowserStateOpt.foreach { objectBrowserState =>
       state.objectBrowserStateOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
-  }
 
   private def adjustWindowToFit(state: ObjectTreeBrowserState): ObjectTreeBrowserState = {
     val selectedRow = state.selectedRow
