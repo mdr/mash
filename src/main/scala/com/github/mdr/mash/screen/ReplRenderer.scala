@@ -57,11 +57,17 @@ object ReplRenderer {
     ReplRenderResult(screen)
   }
 
+  private def renderValueBrowser(state: ValueBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new ValueBrowserRenderer(state, terminalInfo).renderObjectBrowser
+    ReplRenderResult(screen)
+  }
+
   private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult =
     state.browserState match {
       case objectTableBrowserState: ObjectsTableBrowserState       => renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
       case singleObjectBrowserState: SingleObjectTableBrowserState => renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
       case objectTreeBrowserState: ObjectTreeBrowserState          => renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
+      case valueBrowserState: ValueBrowserState                    => renderValueBrowser(valueBrowserState, terminalInfo)
       case _                                                       => ???
     }
 

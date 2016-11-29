@@ -2,7 +2,7 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
-import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator }
+import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator, ValueModelCreator }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 import scala.PartialFunction.condOpt
@@ -81,8 +81,17 @@ trait ObjectBrowserActionHandler {
       case objectTableBrowserState: ObjectsTableBrowserState       => handleTableObjectBrowserAction(action, objectTableBrowserState)
       case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
       case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
+      case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
       case _                                                       =>
     }
+
+  protected def handleValueBrowserAction(action: InputAction, browserState: ValueBrowserState): Unit = action match {
+    case ExitBrowser    ⇒
+      state.objectBrowserStateOpt = None
+    case Back           =>
+      navigateBack()
+    case _ =>
+  }
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
     case Focus          ⇒
@@ -118,6 +127,9 @@ trait ObjectBrowserActionHandler {
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
+    case _ =>
+      val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
+      ValueBrowserState(model, path = path)
   }
 
   private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
