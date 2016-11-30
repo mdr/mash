@@ -169,6 +169,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 300, 2, 400].countMatches (_ < 100)" shouldEvaluateTo "3"
   "'foo' | countMatches (_ == 'o')" shouldEvaluateTo "2"
 
+  // deselect
+  "{ foo: 42, bar: 1 } | deselect 'foo'" shouldEvaluateTo "{ bar: 1 }"
+  "[{ foo: 42, bar: 1 }, { foo: 12, bar: 34 }] | deselect 'foo'" shouldEvaluateTo "[{ bar: 1 }, { bar: 34 }]"
+
   // each
   "a = 0; [1, 2, 3] | each (a = a + _); a" shouldEvaluateTo "6"
   "a = ''; 'foo' | each (a = _ + a); a" shouldEvaluateTo "'oof'"
