@@ -25,23 +25,30 @@ object ObjectClass extends MashClass("core.Object") {
       val FieldName = Parameter(
         name = "fieldName",
         summary = "Field name to hoist")
+      val Prefix = Parameter(
+        name = "prefix",
+        summary = "Add this prefix to hoisted field names",
+        defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+        isFlag = true,
+        flagValueNameOpt = Some("prefix"))
     }
     import Params._
 
-    val params = ParameterModel(Seq(FieldName))
+    val params = ParameterModel(Seq(FieldName, Prefix))
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       val obj = target.asInstanceOf[MashObject]
       val boundParams = params.validate(arguments)
       val field = boundParams.validateString(FieldName).s
+      val prefixOpt = boundParams.validateStringOpt(Prefix).map(_.s)
       val fieldValue = obj.get(field).getOrElse(boundParams.throwInvalidArgument(FieldName, "No field named " + field))
       fieldValue match {
         case subObject: MashObject ⇒
-          hoist(obj, field, subObject)
+          hoist(obj, field, subObject, prefixOpt)
         case xs: MashList ⇒
           MashList(xs.items.map {
             case subObject: MashObject ⇒
-              hoist(obj, field, subObject)
+              hoist(obj, field, subObject, prefixOpt)
             case x                     ⇒
               boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
           })
@@ -49,8 +56,8 @@ object ObjectClass extends MashClass("core.Object") {
       }
     }
 
-    private def hoist(obj: MashObject, field: String, subObject: MashObject): MashObject = {
-      val subFields = subObject.fields.toSeq
+    private def hoist(obj: MashObject, field: String, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
+      val subFields = subObject.fields.toSeq.map { case (field, value) => (prefixOpt.getOrElse("") + field)-> value}
       val originalFields = obj.fields.toSeq
       val index = originalFields.indexWhere(_._1 == field)
       val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)
