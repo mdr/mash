@@ -1,7 +1,7 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-import java.time.Instant
+import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.{ DateTimeFormatter, FormatStyle }
 import java.util.Date
 
@@ -33,6 +33,8 @@ object Printer {
 
 class FieldRenderer(viewConfig: ViewConfig) {
 
+  private val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+
   def renderField(value: MashValue, inCell: Boolean = false): String = value match {
     case MashBoolean.True if inCell                         ⇒ "✓"
     case MashBoolean.False if inCell                        ⇒ "✗"
@@ -43,10 +45,7 @@ class FieldRenderer(viewConfig: ViewConfig) {
     case MashNumber(n, Some(SecondsClass))                  ⇒ NumberUtils.prettyString(n) + "s"
     case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
     case MashWrapped(i: Instant) if viewConfig.humanTime    ⇒ Printer.prettyTime.format(Date.from(i))
-    case MashWrapped(i: Instant)                            ⇒
-//      val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
-//      formatter.format(i)
-      i.toString
+    case MashWrapped(i: Instant)                            ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
     case xs: MashList if inCell                             ⇒ xs.items.map(renderField(_)).mkString(", ")
     case xs: MashList                                       ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
     case _ ⇒
