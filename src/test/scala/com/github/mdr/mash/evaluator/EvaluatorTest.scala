@@ -189,6 +189,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "first []" shouldEvaluateTo "null"
   "first ''" shouldEvaluateTo "null"
 
+  // grep
+  "['foo', 'bar', 'baz'].grep 'b'" shouldEvaluateTo "['bar', 'baz']"
+  "['apple', { obj: 'ball' }] | grep 'b'" shouldEvaluateTo "[{ obj: 'ball' }]"
+  "['foo', 'bar', 'BAZ'] | grep -i 'b'" shouldEvaluateTo "['bar', 'BAZ']"
+
   // groupBy 
   "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
     "[ { key: 1, count: 2 }, { key: 2, count: 1 }, { key: 3, count: 1 } ] "

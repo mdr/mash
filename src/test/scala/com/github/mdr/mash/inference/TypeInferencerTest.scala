@@ -94,6 +94,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
     "user.primaryGroup.gid" shouldBeInferredAsHavingType Tagged(NumberClass, GidClass)
   }
 
+  // grep
+  "[1, 2, 3] | grep 2" shouldBeInferredAsHavingType Seq(NumberType)
+
   // last
   "last [1, 2, 3]" shouldBeInferredAsHavingType NumberType
   "last 2 [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)

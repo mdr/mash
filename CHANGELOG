@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Add collections.grep
 * Insert whole
 * mash.version
 * Single value browser

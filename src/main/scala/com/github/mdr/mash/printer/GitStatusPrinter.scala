@@ -31,7 +31,7 @@ class GitStatusPrinter(output: PrintStream) {
       }
     else if (status.behindCount > 0) {
       output.println(s"Your branch is behind '$upstreamBranch' by ${status.behindCount} ${commitWord(status.aheadCount)}, and can be fast-forwarded.")
-      output.println("""  (use "git.push" to publish your local commits)""")
+      output.println("""  (use "git.push" to update your local branch)""")
     }
 
     if (status.hasChangesToBeCommitted) {
