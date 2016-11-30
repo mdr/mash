@@ -44,12 +44,24 @@ trait NormalActionHandler { self: Repl ⇒
       case ToggleQuote              ⇒ handleToggleQuote()
       case ToggleMish               ⇒ handleToggleMish()
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
+      case BrowseLastResult         ⇒ handleBrowseLastResult()
       case _                        ⇒
     }
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
     if (action != YankLastArg && action != ClearScreen)
       state.yankLastArgStateOpt = None
+  }
+
+  private def handleBrowseLastResult() {
+    if (state.commandNumber > 0) {
+      val commandNumber = state.commandNumber - 1
+      val path = s"${ReplState.Res}$commandNumber"
+      for (value <- state.globalVariables.get(path)) {
+        val browserState = getNewBrowserState(value, path)
+        state.objectBrowserStateOpt = Some(ObjectBrowserState(List(browserState)))
+      }
+    }
   }
 
   private def handleSelfInsert(s: String) =

@@ -115,7 +115,7 @@ trait ObjectBrowserActionHandler {
       val newState = adjustWindowToFit(browserState.up)
       updateState(newState)
     case ViewAsTree     =>
-      updateState(getNonTreeBrowserState(browserState.rawValue, browserState.path))
+      updateState(getNewBrowserState(browserState.rawValue, browserState.path))
     case InsertItem     ⇒
       handleInsertItem(browserState)
     case InsertWholeItem     ⇒
@@ -123,7 +123,7 @@ trait ObjectBrowserActionHandler {
     case _              =>
   }
 
-  private def getNonTreeBrowserState(value: MashValue, path: String): BrowserState = value match {
+  protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
     case obj: MashObject                                                      =>
       val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
@@ -142,7 +142,7 @@ trait ObjectBrowserActionHandler {
         val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
         ObjectTreeBrowserState.initial(model, newPath)
       } else
-        getNonTreeBrowserState(value, newPath))
+        getNewBrowserState(value, newPath))
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator(state.viewConfig).create(browserState.rawValue)

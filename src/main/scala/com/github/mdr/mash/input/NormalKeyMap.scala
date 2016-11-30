@@ -36,4 +36,5 @@ object NormalKeyMap extends KeyMap(Map(
   KeyPress(Key.PageDown) -> NormalActions.PageDown,
   KeyPress(BasicKey('.'), alt = true) -> YankLastArg,
   KeyPress(BasicKey(','), alt = true) -> ToggleMish,
-  KeyPress(BasicKey('q'), control = true) -> ToggleQuote))
+  KeyPress(BasicKey('q'), control = true) -> ToggleQuote,
+  KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))

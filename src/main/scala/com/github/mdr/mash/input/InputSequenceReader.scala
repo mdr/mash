@@ -67,6 +67,7 @@ object InputSequenceReader {
         case '\u0010'   ⇒ control('p')
         case '\u0011'   ⇒ control('q')
         case '\u0012'   ⇒ control('r')
+        case '\u0016'   ⇒ control('v')
         case '\t'       ⇒ KeyPress(Key.Tab)
         case '\n'       ⇒ KeyPress(Key.Enter)
         case '\r'       ⇒ KeyPress(Key.Enter)
