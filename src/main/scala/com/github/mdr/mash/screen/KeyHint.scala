@@ -9,6 +9,7 @@ object KeyHint {
   val Focus = KeyHint("f", "focus")
   val Back = KeyHint("b", "back")
   val Insert = KeyHint("i", "insert")
+  val InsertWhole = KeyHint("I", "insert whole")
   val Mark = KeyHint("m", "mark")
   val Row = KeyHint("r", "row")
   val Tree = KeyHint("t", "tree")

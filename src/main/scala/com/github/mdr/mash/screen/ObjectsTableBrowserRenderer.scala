@@ -77,7 +77,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private def renderStatusLine: Line = {
     import KeyHint._
-    val hints = Seq(Exit, Mark, Focus, Back, Insert, Tree) ++ state.currentColumnOpt.toSeq.map(_ => Row)
+    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree) ++ state.currentColumnOpt.toSeq.map(_ => Row)
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
     Line(s"${state.path} ".style ++ countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }

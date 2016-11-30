@@ -30,7 +30,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Back)) ++ ")".style)
+    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Back, InsertWhole)) ++ ")".style)
   }
 
   def renderObjectBrowser: Screen = {

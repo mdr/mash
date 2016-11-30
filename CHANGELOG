@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Insert whole
 * mash.version
 * Single value browser
 * config.view.humanTime -- control whether to display relative friendly datetimes

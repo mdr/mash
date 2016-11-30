@@ -90,6 +90,8 @@ trait ObjectBrowserActionHandler {
       state.objectBrowserStateOpt = None
     case Back           =>
       navigateBack()
+    case InsertWholeItem     ⇒
+      handleInsertWholeItem(browserState)
     case _ =>
   }
 
@@ -113,17 +115,19 @@ trait ObjectBrowserActionHandler {
       val newState = adjustWindowToFit(browserState.up)
       updateState(newState)
     case ViewAsTree     =>
-      getNonTreeBrowserState(browserState.rawValue, browserState.path).foreach(updateState)
+      updateState(getNonTreeBrowserState(browserState.rawValue, browserState.path))
     case InsertItem     ⇒
       handleInsertItem(browserState)
+    case InsertWholeItem     ⇒
+      handleInsertWholeItem(browserState)
     case _              =>
   }
 
-  private def getNonTreeBrowserState(value: MashValue, path: String): Option[BrowserState] = condOpt(value) {
+  private def getNonTreeBrowserState(value: MashValue, path: String): BrowserState = value match {
     case obj: MashObject                                                      =>
       val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
-    case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject]) ⇒
+    case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) ⇒
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
@@ -133,11 +137,12 @@ trait ObjectBrowserActionHandler {
   }
 
   private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
-    if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
-      val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
-      navigateForward(ObjectTreeBrowserState.initial(model, newPath))
-    } else
-      getNonTreeBrowserState(value, newPath).foreach(navigateForward)
+    navigateForward(
+      if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
+        val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
+        ObjectTreeBrowserState.initial(model, newPath)
+      } else
+        getNonTreeBrowserState(value, newPath))
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator(state.viewConfig).create(browserState.rawValue)
@@ -169,6 +174,8 @@ trait ObjectBrowserActionHandler {
       navigateBack()
     case InsertItem   ⇒
       handleInsertItem(browserState)
+    case InsertWholeItem     ⇒
+      handleInsertWholeItem(browserState)
     case ViewAsTree   =>
       viewAsTree(browserState)
     case _            =>
@@ -218,6 +225,8 @@ trait ObjectBrowserActionHandler {
         updateState(newState)
       case InsertItem     ⇒
         handleInsertItem(browserState)
+      case InsertWholeItem     ⇒
+        handleInsertWholeItem(browserState)
       case Back           =>
         navigateBack()
       case Focus          ⇒
@@ -245,22 +254,22 @@ trait ObjectBrowserActionHandler {
     }
   }
 
-  private def handleInsertItem(browserState: ObjectsTableBrowserState) {
-    val toInsert = getInsertExpression(browserState)
-    state.lineBuffer = LineBuffer(toInsert)
+  private def insert(s: String): Unit = {
+    state.lineBuffer = LineBuffer(s)
     state.objectBrowserStateOpt = None
   }
 
-  private def handleInsertItem(browserState: SingleObjectTableBrowserState) {
-    val toInsert = getInsertExpression(browserState)
-    state.lineBuffer = LineBuffer(toInsert)
-    state.objectBrowserStateOpt = None
-  }
+  private def handleInsertWholeItem(browserState: BrowserState) =
+    insert(browserState.path)
 
-  private def handleInsertItem(browserState: ObjectTreeBrowserState) {
-    state.lineBuffer = LineBuffer(browserState.getNewPath)
-    state.objectBrowserStateOpt = None
-  }
+  private def handleInsertItem(browserState: ObjectsTableBrowserState) =
+    insert(getInsertExpression(browserState))
+
+  private def handleInsertItem(browserState: SingleObjectTableBrowserState) =
+    insert(getInsertExpression(browserState))
+
+  private def handleInsertItem(browserState: ObjectTreeBrowserState) =
+    insert(browserState.getNewPath)
 
   private def getInsertExpression(browserState: ObjectsTableBrowserState): String = {
     val command = browserState.path

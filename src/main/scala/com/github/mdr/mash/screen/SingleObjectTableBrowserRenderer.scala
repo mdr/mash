@@ -50,7 +50,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Focus, Back, Insert, Tree)) ++ ")".style)
+    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree)) ++ ")".style)
   }
 
   private def model = state.model
