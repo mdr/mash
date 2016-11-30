@@ -12,7 +12,7 @@ object VersionFunction extends MashFunction("mash.version") {
 
   def apply(arguments: Arguments): MashValue = {
     params.validate(arguments)
-    BuildInfo.commit.map(MashString(_)).getOrElse(MashNull)
+    MashString(BuildInfo.version)
   }
 
   override def typeInferenceStrategy = StringClass
