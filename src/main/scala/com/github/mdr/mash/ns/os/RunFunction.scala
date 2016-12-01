@@ -4,7 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
 
 object RunFunction extends MashFunction("os.run") {
@@ -15,10 +15,16 @@ object RunFunction extends MashFunction("os.run") {
       summary = "Command to execute",
       isVariadic = true,
       variadicAtLeastOne = true)
+    val StandardIn = Parameter(
+      name = "standardIn",
+      summary = "What to send to standard input",
+      defaultValueGeneratorOpt = Some(() => MashNull),
+      isFlag = true,
+      isFlagValueMandatory = true)
   }
   import Params._
 
-  val params = ParameterModel(Seq(Command))
+  val params = ParameterModel(Seq(Command, StandardIn))
 
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
@@ -29,9 +35,10 @@ object RunFunction extends MashFunction("os.run") {
         case xs: MashList               ⇒ xs.items
         case x                          ⇒ Seq(x)
       }
+    val stdinImmediateOpt = MashNull.option(boundParams(StandardIn)).map(ToStringifier.stringify)
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")
-    val result = ProcessRunner.runProcess(args, captureProcess = true)
+    val result = ProcessRunner.runProcess(args, captureProcess = true, stdinImmediateOpt = stdinImmediateOpt)
     ProcessResultClass.fromResult(result)
   }
 

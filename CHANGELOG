@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Add --standardIn flag to os.run
 * Add DateTime.fuzzy
 * Allow hiding columns in objects table browser
 * Add collections.deselect
