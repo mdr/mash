@@ -11,7 +11,7 @@ case class AnonymousFunction(params: ParameterModel, body: Expr, context: Evalua
     val pairs =
       for (param ← params.params if param.bindsName)
         yield param.name -> boundParams(param)
-    val newScopeStack = context.scopeStack.withLambdaScope(pairs)
+    val newScopeStack = context.scopeStack.withBlockScope(pairs)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 

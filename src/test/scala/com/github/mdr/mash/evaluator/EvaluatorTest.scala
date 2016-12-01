@@ -458,11 +458,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(if true then a = 42 else a = 24); a" shouldEvaluateTo "42"
 
   // Parsing checks: assignment versus lambdas versus pipes
-  "100 | (a = _); a" shouldEvaluateTo "100"
+  "a = 0; (100 | (a = _); a)" shouldEvaluateTo "100"
   "(a = true | not); a" shouldEvaluateTo "false"
   "square = x => x * x; square 3" shouldEvaluateTo "9"
-  "(x => a = x) 42; a" shouldEvaluateTo "42"
-  "(100 | a = _); a" shouldEvaluateTo "100"
+  "a = 0; (x => a = x) 42; a" shouldEvaluateTo "42"
+  "a = 0; ((100 | a = _); a)" shouldEvaluateTo "100"
   "(a = x => true | not); a 42" shouldEvaluateTo "false"
   "(a = 42 | x => true); a" shouldEvaluateTo "true"
 
@@ -670,4 +670,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "x = 0; 42 | tap (x = _) | [x, _]" shouldEvaluateTo "[42, 42]"
 
   "def foo (n = 0) = n * 2; foo -2" shouldEvaluateTo "-4" // <-- negative number literal confusion bug
+
+  // scope
+  "a = 0; while (a < 10) { a = a + 1 }; a" shouldEvaluateTo ("10")
 }

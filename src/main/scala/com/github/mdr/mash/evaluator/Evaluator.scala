@@ -105,7 +105,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   def evaluateBlockExpr(blockExpr: BlockExpr)(implicit context: EvaluationContext): MashValue = {
-    val newContext = context.copy(scopeStack = context.scopeStack.withEmptyScope)
+    val newContext = context.copy(scopeStack = context.scopeStack.withBlockScope(Seq()))
     Evaluator.evaluate(blockExpr.expr)(newContext)
   }
 

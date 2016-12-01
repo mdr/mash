@@ -8,7 +8,15 @@ sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
   def get(name: String): Option[MashValue] = variables.get(name)
   def set(name: String, value: MashValue) = variables += name -> value
 }
-case class LambdaScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables)
+
+/**
+  * A block scope lets writes escape out of it, as long as they are already bound
+  */
+case class BlockScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables)
+
+/**
+  * A full scope doesn't let writes escape
+  */
 case class FullScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables)
 
 object ScopeStack {
@@ -34,14 +42,16 @@ case class ScopeStack(scopes: List[Scope]) {
 
   private def set(name: String, value: MashValue, scopes: List[Scope]): Unit =
     scopes match {
-      case (scope: LambdaScope) :: rest ⇒
-        if (scope.get(name).isDefined) // Really should be handled at compilation
-          throw new EvaluatorException("Cannot assign to a parameter")
-        else
-          set(name, value, rest)
-      case (scope: FullScope) :: rest ⇒
+      case (scope: BlockScope) :: rest ⇒
+        lookup(name, rest) match {
+          case Some(_) =>
+            set(name, value, rest)
+          case None =>
+            scope.set(name, value)
+        }
+      case (scope: FullScope) :: rest  ⇒
         scope.set(name, value)
-      case Nil ⇒
+      case Nil                         ⇒
         throw new AssertionError("Missing global scope")
     }
 
@@ -50,8 +60,8 @@ case class ScopeStack(scopes: List[Scope]) {
     ScopeStack(scope :: scopes)
   }
 
-  def withLambdaScope(nameValues: Seq[(String, MashValue)]) = {
-    val scope = LambdaScope(makeVariables(nameValues: _*))
+  def withBlockScope(nameValues: Seq[(String, MashValue)]) = {
+    val scope = BlockScope(makeVariables(nameValues: _*))
     ScopeStack(scope :: scopes)
   }
 
