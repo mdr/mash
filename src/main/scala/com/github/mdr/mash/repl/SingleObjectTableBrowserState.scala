@@ -23,4 +23,10 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
 
   def withPath(newPath: String): SingleObjectTableBrowserState = copy(path = newPath)
 
+  def getInsertExpression: String = {
+    val field = model.rawValues.toSeq(selectedRow)._1
+    val command = path
+    BrowserState.safeProperty(command, field)
+  }
+
 }

@@ -90,6 +90,10 @@ trait ObjectBrowserActionHandler {
       state.objectBrowserStateOpt = None
     case Back           =>
       navigateBack()
+    case InsertItem     ⇒
+      handleInsertItem(browserState)
+    case Open =>
+      handleOpenItem(browserState)
     case InsertWholeItem     ⇒
       handleInsertWholeItem(browserState)
     case _ =>
@@ -118,6 +122,8 @@ trait ObjectBrowserActionHandler {
       updateState(getNewBrowserState(browserState.rawValue, browserState.path))
     case InsertItem     ⇒
       handleInsertItem(browserState)
+    case Open =>
+      handleOpenItem(browserState)
     case InsertWholeItem     ⇒
       handleInsertWholeItem(browserState)
     case _              =>
@@ -168,7 +174,7 @@ trait ObjectBrowserActionHandler {
     case Focus        ⇒
       val field = browserState.selectedField
       val value = browserState.selectedRawValue
-      val newPath = safeProperty(browserState.path, field)
+      val newPath = BrowserState.safeProperty(browserState.path, field)
       focus(value, newPath, tree = false)
     case Back         =>
       navigateBack()
@@ -176,6 +182,8 @@ trait ObjectBrowserActionHandler {
       handleInsertItem(browserState)
     case InsertWholeItem     ⇒
       handleInsertWholeItem(browserState)
+    case Open =>
+      handleOpenItem(browserState)
     case ViewAsTree   =>
       viewAsTree(browserState)
     case _            =>
@@ -228,6 +236,8 @@ trait ObjectBrowserActionHandler {
         handleInsertItem(browserState)
       case InsertWholeItem     ⇒
         handleInsertWholeItem(browserState)
+      case Open =>
+        handleOpenItem(browserState)
       case Back           =>
         navigateBack()
       case Focus          ⇒
@@ -279,43 +289,15 @@ trait ObjectBrowserActionHandler {
   private def handleInsertWholeItem(browserState: BrowserState) =
     insert(browserState.path)
 
-  private def handleInsertItem(browserState: ObjectsTableBrowserState) =
-    insert(getInsertExpression(browserState))
+  private def handleInsertItem(browserState: BrowserState) =
+    insert(browserState.getInsertExpression)
 
-  private def handleInsertItem(browserState: SingleObjectTableBrowserState) =
-    insert(getInsertExpression(browserState))
-
-  private def handleInsertItem(browserState: ObjectTreeBrowserState) =
-    insert(browserState.getNewPath)
-
-  private def getInsertExpression(browserState: ObjectsTableBrowserState): String = {
-    val command = browserState.path
-    if (browserState.markedRows.isEmpty) {
-      val rowPath = s"$command[${browserState.selectedRow}]"
-      browserState.currentColumnOpt match {
-        case Some(column) if column > 0 =>
-          val property = browserState.model.columnNames(column)
-          safeProperty(rowPath, property)
-        case _                          =>
-          s"$rowPath"
-      }
-    } else {
-      val rows = browserState.markedRows.toSeq.sorted
-      val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")
-      s"[$items]"
-    }
-  }
-
-  private def safeProperty(path: String, property: String): String =
-    if (isLegalIdentifier(property))
-      s"$path.$property"
-    else
-      s"$path['$property']"
-
-  private def getInsertExpression(browserState: SingleObjectTableBrowserState): String = {
-    val field = browserState.model.rawValues.toSeq(browserState.selectedRow)._1
-    val command = browserState.path
-    safeProperty(command, field)
+  private def handleOpenItem(browserState: BrowserState) = {
+    state.lineBuffer = LineBuffer.Empty
+    state.objectBrowserStateOpt = None
+    updateScreenAfterAccept()
+    val command = s"${browserState.getInsertExpression} | open"
+    runCommand(command)
   }
 
   private def windowSize = terminal.info.rows - 5 // three header rows, a footer row, a status line

@@ -24,5 +24,6 @@ object ObjectBrowserActions {
   case object Rerender extends InputAction
   case object ViewAsTree extends InputAction
   case object HideColumn extends InputAction
+  case object Open extends InputAction
 
 }

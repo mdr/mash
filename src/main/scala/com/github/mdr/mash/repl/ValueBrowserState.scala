@@ -9,4 +9,5 @@ case class ValueBrowserState(model: ValueModel, path: String) extends BrowserSta
 
   override def withPath(newPath: String): ValueBrowserState = copy(path = newPath)
 
+  override def getInsertExpression: String = path
 }

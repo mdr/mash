@@ -40,4 +40,22 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   def withPath(newPath: String): ObjectsTableBrowserState = copy(path = newPath)
 
+  def getInsertExpression: String = {
+    val command = path
+    if (markedRows.isEmpty) {
+      val rowPath = s"$command[${selectedRow}]"
+      currentColumnOpt match {
+        case Some(column) if column > 0 =>
+          val property = model.columnNames(column)
+          BrowserState.safeProperty(rowPath, property)
+        case _                          =>
+          s"$rowPath"
+      }
+    } else {
+      val rows = markedRows.toSeq.sorted
+      val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")
+      s"[$items]"
+    }
+  }
+
 }

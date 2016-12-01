@@ -209,4 +209,6 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
   def up: ObjectTreeBrowserState = upDown(-1)
 
+  override def getInsertExpression: String = getNewPath
+
 }

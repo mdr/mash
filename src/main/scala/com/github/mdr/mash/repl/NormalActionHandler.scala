@@ -161,7 +161,7 @@ trait NormalActionHandler { self: Repl ⇒
     }
   }
 
-  private def updateScreenAfterAccept() {
+  protected def updateScreenAfterAccept() {
     state.completionStateOpt = None
     state.assistanceStateOpt = None
     draw()
@@ -172,7 +172,7 @@ trait NormalActionHandler { self: Repl ⇒
     }
   }
 
-  private def runCommand(cmd: String) {
+  protected def runCommand(cmd: String) {
     val workingDirectory = fileSystem.pwd
     val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
     val unitName = s"command-${state.commandNumber}"
