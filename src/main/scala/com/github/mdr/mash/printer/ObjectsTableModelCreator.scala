@@ -12,7 +12,10 @@ object ObjectsTableModelCreator {
 
 }
 
-class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boolean = false, viewConfig: ViewConfig) {
+class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
+                               showSelections: Boolean = false,
+                               viewConfig: ViewConfig,
+                               hiddenColumns: Seq[String] = Seq()) {
 
   import ObjectsTableModelCreator._
 
@@ -53,13 +56,13 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boole
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {
-    val testObjects = objects.take(10)
-    if (testObjects.forall(_.classOpt == Some(GroupClass)))
+    val testObjects = objects.take(50)
+    if (testObjects.forall(_.classOpt contains GroupClass))
       Seq(
         ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
         ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
         ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
-    else if (testObjects.forall(_.classOpt == Some(CommitClass)))
+    else if (testObjects.forall(_.classOpt contains CommitClass))
       Seq(
         ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
         ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
@@ -67,5 +70,6 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo, showSelections: Boole
         ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
     else
       testObjects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field))
-  }
+  }.filterNot(hiddenColumns contains _.name)
+
 }

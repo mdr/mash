@@ -8,7 +8,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     firstRow: Int = 0,
                                     currentColumnOpt: Option[Int] = None,
                                     markedRows: Set[Int] = Set(),
-                                    path: String) extends BrowserState {
+                                    path: String,
+                                    hiddenColumns: Seq[String] = Seq()) extends BrowserState {
 
   def rawValue: MashValue = model.rawValue
 

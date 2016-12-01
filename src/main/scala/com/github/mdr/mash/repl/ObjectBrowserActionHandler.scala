@@ -78,7 +78,7 @@ trait ObjectBrowserActionHandler {
 
   protected def handleObjBrowserAction(action: InputAction, browserState: ObjectBrowserState): Unit =
     browserState.browserState match {
-      case objectTableBrowserState: ObjectsTableBrowserState       => handleTableObjectBrowserAction(action, objectTableBrowserState)
+      case objectTableBrowserState: ObjectsTableBrowserState       => handleObjectsTableBrowserAction(action, objectTableBrowserState)
       case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
       case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
       case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
@@ -182,8 +182,9 @@ trait ObjectBrowserActionHandler {
 
   }
 
-  protected def handleTableObjectBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) {
-    val ObjectsTableBrowserState(model, currentRow, _, _, _, _) = browserState
+  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) {
+    val model = browserState.model
+    val currentRow = browserState.selectedRow
     action match {
       case NextColumn     ⇒
         val newState = adjustWindowToFit(browserState.adjustSelectedColumn(1))
@@ -250,7 +251,23 @@ trait ObjectBrowserActionHandler {
         previousReplRenderResultOpt = None
       case ViewAsTree     =>
         viewAsTree(browserState)
+      case HideColumn =>
+        handleHideColumn(browserState)
       case _              ⇒
+    }
+  }
+
+  private def handleHideColumn(browserState: ObjectsTableBrowserState) {
+    for (currentColumn <- browserState.currentColumnOpt if currentColumn > 0) {
+      val columnName = browserState.model.columnNames(currentColumn)
+      val list = browserState.model.rawValue
+      val objects = browserState.model.rawObjects
+      val hiddenColumns = browserState.hiddenColumns :+ columnName
+      val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
+      val model = modelCreator.create(objects, list)
+      val newColumn = if (currentColumn >= model.numberOfColumns) currentColumn - 1 else currentColumn
+      val newState = browserState.copy(model = model, hiddenColumns = hiddenColumns, currentColumnOpt = Some(newColumn))
+      updateState(newState)
     }
   }
 
