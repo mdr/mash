@@ -68,6 +68,8 @@ object PostFunction extends MashFunction("http.post") {
     val client = HttpClients.custom()
       .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
       .setDefaultCookieStore(cookieStore)
+      .setSSLContext(InsecureSsl.makeInsecureSslContext())
+      .setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier)
       .build
 
     setBody(request, bodyValue, json)

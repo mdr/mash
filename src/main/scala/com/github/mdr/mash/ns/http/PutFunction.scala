@@ -38,7 +38,11 @@ object PutFunction extends MashFunction("http.put") {
       request.setHeader(header.name, header.value)
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
     val cookieStore = new BasicCookieStore
-    val client = HttpClientBuilder.create.setDefaultCookieStore(cookieStore).build
+    val client = HttpClientBuilder.create
+      .setDefaultCookieStore(cookieStore)
+      .setSSLContext(InsecureSsl.makeInsecureSslContext())
+      .setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier)
+      .build
     setBody(request, bodyValue, json)
 
     val response = client.execute(request)

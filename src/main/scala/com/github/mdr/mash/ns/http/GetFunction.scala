@@ -41,7 +41,7 @@ object GetFunction extends MashFunction("http.get") {
 
     val cookieStore = new BasicCookieStore
     val customBuilder = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
-    val client = customBuilder.setDefaultCookieStore(cookieStore).build
+    val client = customBuilder.setDefaultCookieStore(cookieStore).setSSLContext(InsecureSsl.makeInsecureSslContext()).setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier).build
     val response = client.execute(request)
 
     asMashObject(response, cookieStore)
