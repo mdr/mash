@@ -4,7 +4,7 @@ import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.{ PathClass, PermissionsSectionClass }
-import com.github.mdr.mash.ns.time.{ DateTimeClass, DaysClass, LocalDateClass }
+import com.github.mdr.mash.ns.time.{ DateTimeClass, DaysClass, DateClass }
 import com.github.mdr.mash.runtime._
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -18,7 +18,7 @@ class ValueTypeDetectorTest extends FlatSpec with Matchers {
     ValueTypeDetector.getType(MashUnit) shouldEqual Type.Instance(UnitClass)
     ValueTypeDetector.getType(MashNull) shouldEqual Type.Instance(NullClass)
     ValueTypeDetector.getType(MashWrapped(Instant.now)) shouldEqual Type.Instance(DateTimeClass)
-    ValueTypeDetector.getType(MashWrapped(LocalDate.now)) shouldEqual Type.Instance(LocalDateClass)
+    ValueTypeDetector.getType(MashWrapped(LocalDate.now)) shouldEqual Type.Instance(DateClass)
     ValueTypeDetector.getType(MashString("foo")) shouldEqual Type.Instance(StringClass)
     ValueTypeDetector.getType(MashString("foo", Some(PathClass))) shouldEqual (StringClass taggedWith PathClass)
     ValueTypeDetector.getType(MashNumber(1)) shouldEqual Type.Instance(NumberClass)

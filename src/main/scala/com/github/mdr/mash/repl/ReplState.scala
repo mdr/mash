@@ -65,5 +65,5 @@ class ReplState(
 
   def showStartupTips: Boolean = config.showStartupTips
 
-  def viewConfig: ViewConfig = ViewConfig(config.viewHumanTime)
+  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime)
 }

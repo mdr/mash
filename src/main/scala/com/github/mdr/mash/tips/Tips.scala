@@ -26,7 +26,7 @@ object Tips {
     "Member accesses on lists can be automatically vectorised: ls.size.sum",
     """Strings can be interpolated: "Hello $user.name"""",
     s"Suppress tips by setting config.${Config.Cli.ShowStartupTips} = false.",
-    s"Set config.${Config.View.HumanTime} to view date/times as '3 hours ago', etc.")
+    s"Set config.${Config.View.FuzzyTime} to view date/times as '3 hours ago', etc.")
 
   private def randomTip = Tips(Random.nextInt(Tips.length))
 

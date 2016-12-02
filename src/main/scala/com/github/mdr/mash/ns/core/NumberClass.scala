@@ -133,6 +133,7 @@ object NumberClass extends MashClass("core.Number") {
 
   }
 
+
   object ToIntMethod extends MashMethod("toInt") {
 
     val params = ParameterModel()

@@ -40,7 +40,8 @@ libraryDependencies ++= Seq(
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
   "org.apache.commons" % "commons-math3" % "3.6.1",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.2")
+  "org.apache.httpcomponents" % "httpclient" % "4.5.2",
+  "com.joestelmach" % "natty" % "0.12")
 
 // == Eclipse integration =====================================================================
 

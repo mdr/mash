@@ -214,7 +214,7 @@ object MashRoot {
     WeeksClass,
     MonthsClass,
     DateTimeClass,
-    LocalDateClass,
+    DateClass,
     ViewClass,
     http.CookieClass,
     http.HeaderClass,

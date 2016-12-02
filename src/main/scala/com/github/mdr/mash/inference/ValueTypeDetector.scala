@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass }
 import com.github.mdr.mash.functions.{ AnonymousFunction, MashFunction }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.{ DateTimeClass, LocalDateClass }
+import com.github.mdr.mash.ns.time.{ DateTimeClass, DateClass }
 import com.github.mdr.mash.runtime._
 
 object ValueTypeDetector {
@@ -52,7 +52,7 @@ class ValueTypeDetector {
     case MashNumber(_, Some(tagClass))           ⇒ NumberClass taggedWith tagClass
     case _: MashBoolean                          ⇒ Type.Instance(BooleanClass)
     case MashWrapped(_: Instant)                 ⇒ Type.Instance(DateTimeClass)
-    case MashWrapped(_: LocalDate)               ⇒ Type.Instance(LocalDateClass)
+    case MashWrapped(_: LocalDate)               ⇒ Type.Instance(DateClass)
     case _: MashClass                            ⇒ Type.Instance(ClassClass)
     case MashUnit                                ⇒ Type.Instance(UnitClass)
     case xs: MashList                            ⇒ xs.items.headOption.map(item ⇒ Type.Seq(getType(item))).getOrElse(Type.Seq(Type.Any))

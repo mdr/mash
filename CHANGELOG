@@ -1,6 +1,8 @@
 v0.0.5 (..)
 -----------
 
+* Date and DateTime can now be compared with >, <, etc
+* Add String.toDate/toDateTime to give natural language date parsing
 * Add --standardIn flag to os.run
 * Add DateTime.fuzzy
 * Allow hiding columns in objects table browser

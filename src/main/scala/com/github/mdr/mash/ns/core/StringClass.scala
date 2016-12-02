@@ -1,13 +1,18 @@
 package com.github.mdr.mash.ns.core
 
+import java.time.Instant
 import java.util.regex.Pattern
 
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
+import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
+import com.joestelmach.natty.Parser
+
+import scala.collection.JavaConverters._
 
 object StringClass extends MashClass("core.String") {
 
@@ -29,6 +34,8 @@ object StringClass extends MashClass("core.String") {
     StartsWithMethod,
     SplitMethod,
     TagMethod,
+    ToDateMethod,
+    ToDateTimeMethod,
     ToLowerMethod,
     ToNumberMethod,
     ToPathMethod,
@@ -350,6 +357,44 @@ object StringClass extends MashClass("core.String") {
     override def summary = "Parse this string as a number"
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
+
+  }
+
+  object ToDateTimeMethod extends MashMethod("toDateTime") {
+
+    val params = ParameterModel()
+
+    private val parser = new Parser
+
+    def parseInstant(s: String): Option[Instant] =
+      parser.parse(s).asScala.headOption.flatMap(_.getDates.asScala.headOption).map(_.toInstant)
+
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
+      params.validate(arguments)
+      parseInstant(target.asInstanceOf[MashString].s).map(MashWrapped).getOrElse(MashNull)
+    }
+
+    override def summary = "Parse this string as a DateTime"
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
+
+  }
+
+  object ToDateMethod extends MashMethod("toDate") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashValue = {
+      params.validate(arguments)
+      ToDateTimeMethod.parseInstant(target.asInstanceOf[MashString].s)
+        .map(DateTimeClass.DateMethod.toLocalDate)
+        .map(MashWrapped)
+        .getOrElse(MashNull)
+    }
+
+    override def summary = "Parse this string as a Date"
+
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateClass)
 
   }
 

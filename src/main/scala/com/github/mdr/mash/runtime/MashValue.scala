@@ -1,12 +1,12 @@
 package com.github.mdr.mash.runtime
 
-import java.time.{ Instant, LocalDate }
+import java.time.{ Instant, LocalDate, ZoneId, ZoneOffset }
 
 import com.github.mdr.mash.evaluator.{ BoundMethod, EvaluatorException, MashClass, SourceLocation }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.{ DateTimeClass, LocalDateClass }
+import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 
 import scala.PartialFunction._
 
@@ -27,7 +27,7 @@ trait MashValue {
     case _: MashBoolean            ⇒ BooleanClass
     case _: MashList               ⇒ ListClass
     case MashWrapped(_: Instant)   ⇒ DateTimeClass
-    case MashWrapped(_: LocalDate) ⇒ LocalDateClass
+    case MashWrapped(_: LocalDate) ⇒ DateClass
     case _: MashFunction           ⇒ FunctionClass
     case _: BoundMethod            ⇒ BoundMethodClass
     case _: MashClass              ⇒ ClassClass
@@ -61,6 +61,8 @@ object MashValueOrdering extends Ordering[MashValue] {
       case (s1: MashString, s2: MashString)                         ⇒ s1 compareTo s2
       case (MashWrapped(d1: LocalDate), MashWrapped(d2: LocalDate)) ⇒ d1 compareTo d2
       case (MashWrapped(t1: Instant), MashWrapped(t2: Instant))     ⇒ t1 compareTo t2
+      case (MashWrapped(d1: LocalDate), MashWrapped(t2: Instant))   ⇒ d1.atStartOfDay(ZoneId.systemDefault).toInstant compareTo t2
+      case (MashWrapped(t1: Instant), MashWrapped(d2: LocalDate))   ⇒ t1 compareTo d2.atStartOfDay(ZoneId.systemDefault).toInstant
       case (list1: MashList, list2: MashList)                       ⇒ list1 compareTo list2
     }
 

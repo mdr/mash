@@ -5,7 +5,7 @@ import java.time.{ Instant, LocalDate }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.{ DateTimeClass, LocalDateClass }
+import com.github.mdr.mash.ns.time.{ DateTimeClass, DateClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.runtime._
@@ -93,7 +93,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case bm: BoundMethod                  ⇒ lookupMethod(bm, BoundMethodClass, name)
       case klass: MashClass                 ⇒ lookupMethod(klass, ClassClass, name)
       case dt @ MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
-      case date @ MashWrapped(_: LocalDate) ⇒ lookupMethod(date, LocalDateClass, name)
+      case date @ MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
       case obj: MashObject                  ⇒ obj.get(name) orElse lookupMethod(obj, name)
       case _                                ⇒ None
     }

@@ -58,12 +58,13 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     def apply(target: MashValue, arguments: Arguments): MashWrapped = {
       params.validate(arguments)
-      val instant = Wrapper(target).instant
-      val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault)
-      MashWrapped(localDateTime.toLocalDate)
+      MashWrapped(toLocalDate(Wrapper(target).instant))
     }
 
-    override def typeInferenceStrategy = LocalDateClass
+    def toLocalDate(instant: Instant): LocalDate =
+      LocalDateTime.ofInstant(instant, ZoneId.systemDefault).toLocalDate
+
+    override def typeInferenceStrategy = DateClass
 
     override def summary = "Date portion of this date and time"
 

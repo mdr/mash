@@ -219,7 +219,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{ foo: 42 } | .foo" shouldBeInferredAsHavingType NumberClass
 
   "now" shouldBeInferredAsHavingType DateTimeClass
-  "now.date" shouldBeInferredAsHavingType LocalDateClass
+  "now.date" shouldBeInferredAsHavingType DateClass
 
   "()" shouldBeInferredAsHavingType UnitClass
 

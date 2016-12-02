@@ -18,7 +18,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
-case class ViewConfig(humanTime: Boolean)
+case class ViewConfig(fuzzyTime: Boolean)
 
 object Printer {
 
@@ -44,11 +44,11 @@ class FieldRenderer(viewConfig: ViewConfig) {
     case MashNumber(n, Some(MillisecondsClass))             ⇒ NumberUtils.prettyString(n) + "ms"
     case MashNumber(n, Some(SecondsClass))                  ⇒ NumberUtils.prettyString(n) + "s"
     case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant) if viewConfig.humanTime    ⇒ Printer.prettyTime.format(Date.from(i))
+    case MashWrapped(i: Instant) if viewConfig.fuzzyTime    ⇒ Printer.prettyTime.format(Date.from(i))
     case MashWrapped(i: Instant)                            ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
     case xs: MashList if inCell                             ⇒ xs.items.map(renderField(_)).mkString(", ")
     case xs: MashList                                       ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
-    case _ ⇒
+    case _                                                  ⇒
       val s = ToStringifier.safeStringify(value)
       if (inCell) Printer.replaceProblematicChars(s) else s
   }
@@ -57,7 +57,7 @@ class FieldRenderer(viewConfig: ViewConfig) {
 
 case class PrintResult(printModelOpt: Option[PrintModel] = None)
 
-class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig = ViewConfig(humanTime = true)) {
+class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
 
   private val helpPrinter = new HelpPrinter(output)
   private val fieldRenderer = new FieldRenderer(viewConfig)
