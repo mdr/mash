@@ -1,7 +1,16 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.printer.ObjectsTableModel
+import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.screen.Point
+import com.github.mdr.mash.utils.Region
+
+case class CellSearchInfo(matches: Seq[Region])
+
+object ObjectsTableBrowserState {
+  case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map())
+}
 
 case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     selectedRow: Int = 0,
@@ -9,7 +18,34 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     currentColumnOpt: Option[Int] = None,
                                     markedRows: Set[Int] = Set(),
                                     path: String,
-                                    hiddenColumns: Seq[String] = Seq()) extends BrowserState {
+                                    hiddenColumns: Seq[String] = Seq(),
+                                    searchStateOpt: Option[SearchState] = None) extends BrowserState {
+
+  def stopSearching: BrowserState = copy(searchStateOpt = None)
+
+  def setSearch(query: String, windowSize: Int): BrowserState = {
+    val tuples: Seq[(Point, CellSearchInfo)] =
+      for {
+        row <- 0 until size
+        column <- 0 until numberOfColumns
+        point = Point(row, column)
+        cellInfo <- getCellSearchInfo(query, row, column)
+      } yield point -> cellInfo
+    val newRow =
+      tuples.collectFirst { case (point, _) if point.row >= selectedRow => point.row }
+        .orElse(tuples.collectFirst { case (point, _) => point.row })
+        .getOrElse(selectedRow)
+    val searchInfo = SearchState(query, tuples.toMap)
+    copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(windowSize)
+  }
+
+  private def getCellSearchInfo(query: String, row: Int, column: Int): Option[CellSearchInfo] = {
+    val obj = model.objects(row)
+    val s = obj.data(model.columnNames(column))
+    val matches = query.r.findAllMatchIn(s).toList
+    val regions = matches.map(m => Region(m.start, m.end - m.start))
+    if (regions.nonEmpty) Some(CellSearchInfo(regions)) else None
+  }
 
   def rawValue: MashValue = model.rawValue
 
@@ -43,7 +79,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   def getInsertExpression: String = {
     val command = path
     if (markedRows.isEmpty) {
-      val rowPath = s"$command[${selectedRow}]"
+      val rowPath = s"$command[$selectedRow]"
       currentColumnOpt match {
         case Some(column) if column > 0 =>
           val property = model.columnNames(column)
@@ -58,4 +94,17 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     }
   }
 
+  def adjustWindowToFit(windowSize: Int): ObjectsTableBrowserState = {
+    var newState = this
+
+    val delta = selectedRow - (firstRow + windowSize - 1)
+    if (delta >= 0)
+      newState = newState.adjustFirstRow(delta)
+
+    val delta2 = firstRow - selectedRow
+    if (delta2 >= 0)
+      newState = newState.adjustFirstRow(-delta2)
+
+    newState
+  }
 }

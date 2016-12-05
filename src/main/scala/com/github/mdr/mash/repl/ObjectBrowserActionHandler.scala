@@ -3,6 +3,8 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator, ValueModelCreator }
+import com.github.mdr.mash.repl.NormalActions.SelfInsert
+import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 import scala.PartialFunction.condOpt
@@ -44,21 +46,8 @@ trait ObjectBrowserActionHandler {
     newState
   }
 
-  private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState = {
-    val selectedRow = state.selectedRow
-    val firstRow = state.firstRow
-    var newState = state
-
-    val delta = selectedRow - (firstRow + windowSize - 1)
-    if (delta >= 0)
-      newState = newState.adjustFirstRow(delta)
-
-    val delta2 = firstRow - selectedRow
-    if (delta2 >= 0)
-      newState = newState.adjustFirstRow(-delta2)
-
-    newState
-  }
+  private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState =
+    state.adjustWindowToFit(windowSize)
 
   private def adjustWindowToFit(state: SingleObjectTableBrowserState): SingleObjectTableBrowserState = {
     val selectedRow = state.selectedRow
@@ -190,7 +179,23 @@ trait ObjectBrowserActionHandler {
 
   }
 
-  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) {
+  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = browserState.searchStateOpt match {
+    case Some(searchState) =>
+      action match {
+        case SelfInsert(c) =>
+          updateState(browserState.setSearch(searchState.query + c, windowSize))
+        case Unsearch =>
+          if (searchState.query.nonEmpty)
+            updateState(browserState.setSearch(searchState.query.init, windowSize))
+        case ExitSearch =>
+          updateState(browserState.stopSearching)
+        case _ =>
+      }
+    case None =>
+      handleDefaultObjectsTableBrowserAction(action, browserState)
+  }
+
+  protected def handleDefaultObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = {
     val model = browserState.model
     val currentRow = browserState.selectedRow
     action match {
@@ -263,6 +268,8 @@ trait ObjectBrowserActionHandler {
         viewAsTree(browserState)
       case HideColumn =>
         handleHideColumn(browserState)
+      case BeginSearch =>
+        updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
       case _              ⇒
     }
   }

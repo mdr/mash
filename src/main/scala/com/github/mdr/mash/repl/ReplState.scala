@@ -49,15 +49,21 @@ class ReplState(
   }
 
   def mode: ReplMode =
-    if (objectBrowserStateOpt.isDefined)
-      ReplMode.ObjectBrowser
-    else
-      completionStateOpt match {
-        case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
-        case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
-        case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
-        case None                                        ⇒ ReplMode.Normal
-      }
+    objectBrowserStateOpt match {
+      case Some(objectBrowserState) =>
+        objectBrowserState.browserState match {
+          case s: ObjectsTableBrowserState if s.searchStateOpt.isDefined => ReplMode.ObjectBrowser.IncrementalSearch
+          case _                                                         => ReplMode.ObjectBrowser
+        }
+
+      case None                     =>
+        completionStateOpt match {
+          case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
+          case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
+          case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
+          case None                                        ⇒ ReplMode.Normal
+        }
+    }
 
   private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
 

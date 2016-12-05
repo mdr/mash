@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Incremental search in objects browser
 * Date and DateTime can now be compared with >, <, etc
 * Add String.toDate/toDateTime to give natural language date parsing
 * Add --standardIn flag to os.run

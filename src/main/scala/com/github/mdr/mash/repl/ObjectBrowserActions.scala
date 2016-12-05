@@ -25,5 +25,7 @@ object ObjectBrowserActions {
   case object ViewAsTree extends InputAction
   case object HideColumn extends InputAction
   case object Open extends InputAction
-
+  case object BeginSearch extends InputAction
+  case object Unsearch extends InputAction
+  case object ExitSearch extends InputAction
 }

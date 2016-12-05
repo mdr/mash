@@ -14,6 +14,7 @@ case class ObjectsTableModel(
   def width = columnWidths.values.sum + numberOfColumns + 1
 
   def numberOfColumns = columnNames.size
+  def numberOfRows = objects.size
 
   def columnWidth(columnName: String): Int = columnWidths(columnName)
 

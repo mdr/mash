@@ -7,5 +7,7 @@ object ReplMode {
   case object BrowseCompletions extends ReplMode
   case object IncrementalCompletions extends ReplMode
   case object IncrementalSearch extends ReplMode
-  case object ObjectBrowser extends ReplMode
+  case object ObjectBrowser extends ReplMode {
+    case object IncrementalSearch extends ReplMode
+  }
 }

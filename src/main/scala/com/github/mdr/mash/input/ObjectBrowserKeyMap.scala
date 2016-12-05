@@ -31,4 +31,11 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("t") -> ViewAsTree,
   OtherSequence("h") -> HideColumn,
   OtherSequence("o") -> Open,
-  TerminalWindowChanged -> Rerender))
+  OtherSequence("/") -> BeginSearch,
+  TerminalWindowChanged -> Rerender)) {
+
+  object IncrementalSearch extends KeyMap(Map(
+    KeyPress(Enter) -> ExitSearch,
+    KeyPress(Backspace) -> Unsearch))
+
+}

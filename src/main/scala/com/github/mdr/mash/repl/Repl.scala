@@ -120,9 +120,10 @@ class Repl(
   private def fetchAction(): InputAction = {
     val isLineEmpty = state.lineBuffer.isEmpty
     val keyMap = state.mode match {
-      case ReplMode.ObjectBrowser     ⇒ ObjectBrowserKeyMap
-      case ReplMode.BrowseCompletions ⇒ BrowseCompletionsKeyMap
-      case _                          ⇒ NormalKeyMap
+      case ReplMode.ObjectBrowser                   ⇒ ObjectBrowserKeyMap
+      case ReplMode.ObjectBrowser.IncrementalSearch ⇒ ObjectBrowserKeyMap.IncrementalSearch
+      case ReplMode.BrowseCompletions               ⇒ BrowseCompletionsKeyMap
+      case _                                        ⇒ NormalKeyMap
     }
     InputAction.fetchAction(isLineEmpty, keyMap)
   }
