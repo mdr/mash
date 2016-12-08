@@ -15,9 +15,16 @@ object KeyHint {
   val Tree = KeyHint("t", "tree")
   val Table = KeyHint("t", "table")
   val HideColumn = KeyHint("h", "hide col")
+  val Search = KeyHint("/", "find")
+
+  val NextHit = KeyHint("^n", "next")
+  val PreviousHit = KeyHint("^p", "prev")
+  val DoneSearch = KeyHint("ret", "done")
+  val CaseSensitive = KeyHint("^t", "case sensitive")
+  val CaseInsensitive = KeyHint("^t", "ignore case")
 
   def renderKeyHints(hints: Seq[KeyHint]): Seq[StyledCharacter] = {
-    def renderHint(hint: KeyHint) = hint.key.style(Style(inverse = true)) ++ " ".style ++ hint.description.style
+    def renderHint(hint: KeyHint) = hint.key.style(Style(inverse = true, foregroundColour = Colour.Cyan)) ++ " ".style ++ hint.description.style
     Utils.intercalate(hints.map(renderHint), ", ".style)
   }
 

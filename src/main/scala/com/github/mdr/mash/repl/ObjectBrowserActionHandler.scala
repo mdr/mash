@@ -181,12 +181,19 @@ trait ObjectBrowserActionHandler {
 
   protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = browserState.searchStateOpt match {
     case Some(searchState) =>
+      import IncrementalSearch._
       action match {
         case SelfInsert(c) =>
           updateState(browserState.setSearch(searchState.query + c, windowSize))
+        case ToggleCase =>
+           updateState(browserState.toggleCase(windowSize))
         case Unsearch =>
           if (searchState.query.nonEmpty)
             updateState(browserState.setSearch(searchState.query.init, windowSize))
+        case NextHit =>
+          updateState(browserState.nextHit(windowSize))
+        case PreviousHit =>
+          updateState(browserState.previousHit(windowSize))
         case ExitSearch =>
           updateState(browserState.stopSearching)
         case _ =>
@@ -268,7 +275,7 @@ trait ObjectBrowserActionHandler {
         viewAsTree(browserState)
       case HideColumn =>
         handleHideColumn(browserState)
-      case BeginSearch =>
+      case IncrementalSearch.BeginSearch =>
         updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
       case _              ⇒
     }

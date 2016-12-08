@@ -3,6 +3,7 @@ package com.github.mdr.mash.input
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
 import com.github.mdr.mash.repl.ObjectBrowserActions._
+import com.github.mdr.mash.repl.ObjectBrowserActions.IncrementalSearch._
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(Right) -> NextColumn,
@@ -36,6 +37,11 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
 
   object IncrementalSearch extends KeyMap(Map(
     KeyPress(Enter) -> ExitSearch,
-    KeyPress(Backspace) -> Unsearch))
+    KeyPress(Backspace) -> Unsearch,
+    KeyPress(BasicKey('t'), control = true) -> ToggleCase,
+    KeyPress(Down) -> NextHit,
+    KeyPress(BasicKey('n'), control = true) -> NextHit,
+    KeyPress(Up) -> PreviousHit,
+    KeyPress(BasicKey('p'), control = true) -> PreviousHit))
 
 }

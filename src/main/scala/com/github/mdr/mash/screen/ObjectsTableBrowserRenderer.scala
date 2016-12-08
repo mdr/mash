@@ -3,6 +3,7 @@ package com.github.mdr.mash.screen
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectsTableModel, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.ObjectsTableBrowserState
+import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled
@@ -85,18 +86,24 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private def renderRegularStatusLine: Line = {
     import KeyHint._
-    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree) ++
+    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search) ++
       state.currentColumnOpt.toSeq.flatMap(_ => Seq(Row, HideColumn))
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
     Line(s"${state.path} ".style ++ countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
-  private def renderIncrementalSearchStatusLine(query: String): Line =
-    Line(s"Search: $query".style)
+  private def renderIncrementalSearchStatusLine(searchState: SearchState): Line = {
+    import KeyHint._
+    val hints = Seq(NextHit, PreviousHit, DoneSearch, if (searchState.ignoreCase) CaseSensitive else CaseInsensitive)
+    val hits = searchState.rows
+    val currentHit = hits.indexOf(currentRow)
+    val countChars = s"${currentHit + 1}/${hits.size}".style(Style(inverse = true))
+    Line(countChars ++ s" Find: ${searchState.query}".style ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
+  }
 
   private def renderStatusLine: Line =
     state.searchStateOpt match {
-      case Some(searchState) => renderIncrementalSearchStatusLine(searchState.query)
+      case Some(searchState) => renderIncrementalSearchStatusLine(searchState)
       case None              => renderRegularStatusLine
     }
 
