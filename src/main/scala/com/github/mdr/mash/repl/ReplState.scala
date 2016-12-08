@@ -53,6 +53,7 @@ class ReplState(
       case Some(objectBrowserState) =>
         objectBrowserState.browserState match {
           case s: ObjectsTableBrowserState if s.searchStateOpt.isDefined => ReplMode.ObjectBrowser.IncrementalSearch
+          case s: ObjectsTableBrowserState if s.expressionOpt.isDefined  => ReplMode.ObjectBrowser.ExpressionInput
           case _                                                         => ReplMode.ObjectBrowser
         }
 

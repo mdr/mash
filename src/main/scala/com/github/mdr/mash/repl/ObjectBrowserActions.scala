@@ -34,4 +34,9 @@ object ObjectBrowserActions {
     case object ExitSearch extends InputAction
     case object ToggleCase extends InputAction
   }
+
+  object ExpressionInput {
+    case object BeginExpression extends InputAction
+    case object Accept extends InputAction
+  }
 }

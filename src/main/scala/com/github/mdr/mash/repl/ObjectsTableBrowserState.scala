@@ -28,7 +28,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     markedRows: Set[Int] = Set(),
                                     path: String,
                                     hiddenColumns: Seq[String] = Seq(),
-                                    searchStateOpt: Option[SearchState] = None) extends BrowserState {
+                                    searchStateOpt: Option[SearchState] = None,
+                                    expressionOpt: Option[String] = None) extends BrowserState {
 
   def toggleCase(windowSize: Int): BrowserState = ifSearching { searchState =>
     runSearch(searchState.query, !searchState.ignoreCase, windowSize)
@@ -73,6 +74,12 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     val searchInfo = SearchState(query, tuples.toMap, ignoreCase)
     copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(windowSize)
   }
+
+  def setExpression(expression: String): BrowserState =
+    copy(expressionOpt = Some(expression))
+
+  def acceptExpression: BrowserState =
+    copy(expressionOpt = None)
 
   def setSearch(query: String, windowSize: Int): BrowserState = {
     val ignoreCase = searchStateOpt.map(_.ignoreCase).getOrElse(true)

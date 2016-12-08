@@ -1,5 +1,7 @@
 package com.github.mdr.mash.repl
 
+import com.github.mdr.mash.commands.CommandRunner
+import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator, ValueModelCreator }
@@ -181,25 +183,52 @@ trait ObjectBrowserActionHandler {
 
   protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = browserState.searchStateOpt match {
     case Some(searchState) =>
-      import IncrementalSearch._
-      action match {
-        case SelfInsert(c) =>
-          updateState(browserState.setSearch(searchState.query + c, windowSize))
-        case ToggleCase =>
-           updateState(browserState.toggleCase(windowSize))
-        case Unsearch =>
-          if (searchState.query.nonEmpty)
-            updateState(browserState.setSearch(searchState.query.init, windowSize))
-        case NextHit =>
-          updateState(browserState.nextHit(windowSize))
-        case PreviousHit =>
-          updateState(browserState.previousHit(windowSize))
-        case ExitSearch =>
-          updateState(browserState.stopSearching)
-        case _ =>
-      }
+      handleIncrementalSearchAction(action, browserState, searchState)
     case None =>
-      handleDefaultObjectsTableBrowserAction(action, browserState)
+      browserState.expressionOpt match {
+        case Some(expression) =>
+          handleExpressionInputAction(action, browserState, expression)
+        case None =>
+          handleDefaultObjectsTableBrowserAction(action, browserState)
+      }
+  }
+
+
+  private def handleExpressionInputAction(action: InputAction, browserState: ObjectsTableBrowserState, expression: String): Unit = {
+    import ExpressionInput._
+    action match {
+      case SelfInsert(c) =>
+        updateState(browserState.setExpression(expression + c))
+      case Accept =>
+        val newPath = browserState.path + expression
+        val fullExpression = "it" + expression
+        val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> browserState.rawValue))
+        val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId)
+        val compilationUnit = CompilationUnit(fullExpression)
+        updateState(browserState.acceptExpression)
+        for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
+          focus(result, newPath, tree = false)
+    }
+  }
+
+  private def handleIncrementalSearchAction(action: InputAction, browserState: ObjectsTableBrowserState, searchState: SearchState): Unit = {
+    import IncrementalSearch._
+    action match {
+      case SelfInsert(c) =>
+        updateState(browserState.setSearch(searchState.query + c, windowSize))
+      case ToggleCase    =>
+        updateState(browserState.toggleCase(windowSize))
+      case Unsearch      =>
+        if (searchState.query.nonEmpty)
+          updateState(browserState.setSearch(searchState.query.init, windowSize))
+      case NextHit       =>
+        updateState(browserState.nextHit(windowSize))
+      case PreviousHit   =>
+        updateState(browserState.previousHit(windowSize))
+      case ExitSearch    =>
+        updateState(browserState.stopSearching)
+      case _             =>
+    }
   }
 
   protected def handleDefaultObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = {
@@ -277,6 +306,8 @@ trait ObjectBrowserActionHandler {
         handleHideColumn(browserState)
       case IncrementalSearch.BeginSearch =>
         updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
+      case ExpressionInput.BeginExpression =>
+        updateState(browserState.setExpression(""))
       case _              ⇒
     }
   }

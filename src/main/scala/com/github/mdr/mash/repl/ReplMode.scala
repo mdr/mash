@@ -9,5 +9,6 @@ object ReplMode {
   case object IncrementalSearch extends ReplMode
   case object ObjectBrowser extends ReplMode {
     case object IncrementalSearch extends ReplMode
+    case object ExpressionInput extends ReplMode
   }
 }

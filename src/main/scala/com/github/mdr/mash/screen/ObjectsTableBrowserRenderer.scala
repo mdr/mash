@@ -92,6 +92,12 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     Line(s"${state.path} ".style ++ countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
+  private def renderExpressionInputStatusLine(expression: String): Line = {
+    import KeyHint._
+    val hints = Seq(DoneSearch)
+    Line(expression.style ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
+  }
+
   private def renderIncrementalSearchStatusLine(searchState: SearchState): Line = {
     import KeyHint._
     val hints = Seq(NextHit, PreviousHit, DoneSearch, if (searchState.ignoreCase) CaseSensitive else CaseInsensitive)
@@ -104,7 +110,11 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   private def renderStatusLine: Line =
     state.searchStateOpt match {
       case Some(searchState) => renderIncrementalSearchStatusLine(searchState)
-      case None              => renderRegularStatusLine
+      case None              =>
+        state.expressionOpt match {
+          case Some(expression) => renderExpressionInputStatusLine(expression)
+          case None => renderRegularStatusLine
+        }
     }
 
   private def model = state.model

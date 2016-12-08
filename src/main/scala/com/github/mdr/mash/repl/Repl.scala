@@ -122,6 +122,7 @@ class Repl(
     val keyMap = state.mode match {
       case ReplMode.ObjectBrowser                   ⇒ ObjectBrowserKeyMap
       case ReplMode.ObjectBrowser.IncrementalSearch ⇒ ObjectBrowserKeyMap.IncrementalSearch
+      case ReplMode.ObjectBrowser.ExpressionInput   ⇒ ObjectBrowserKeyMap.ExpressionInput
       case ReplMode.BrowseCompletions               ⇒ BrowseCompletionsKeyMap
       case _                                        ⇒ NormalKeyMap
     }

@@ -2,6 +2,7 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
+import com.github.mdr.mash.repl.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.ObjectBrowserActions._
 import com.github.mdr.mash.repl.ObjectBrowserActions.IncrementalSearch._
 
@@ -33,7 +34,12 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("h") -> HideColumn,
   OtherSequence("o") -> Open,
   OtherSequence("/") -> BeginSearch,
+  OtherSequence("e") -> BeginExpression,
   TerminalWindowChanged -> Rerender)) {
+
+  object ExpressionInput extends KeyMap(Map(
+    KeyPress(Enter) -> Accept
+  ))
 
   object IncrementalSearch extends KeyMap(Map(
     KeyPress(Enter) -> ExitSearch,
