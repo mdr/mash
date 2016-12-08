@@ -38,7 +38,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   TerminalWindowChanged -> Rerender)) {
 
   object ExpressionInput extends KeyMap(Map(
-    KeyPress(Enter) -> Accept
+    KeyPress(Enter) -> Accept,
+    KeyPress(Backspace) -> BackwardDeleteChar
   ))
 
   object IncrementalSearch extends KeyMap(Map(

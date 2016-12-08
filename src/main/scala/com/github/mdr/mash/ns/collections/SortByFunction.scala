@@ -41,7 +41,7 @@ object SortByFunction extends MashFunction("collections.sortBy") {
     val sorted = sequence.sortWith((a, b) => {
       val as = asNullFreeList(attributes.map(_(a)))
       val bs = asNullFreeList(attributes.map(_(b)))
-      MashValueOrderingWithNullButtom.lteq(as, bs)
+      MashValueOrderingWithNullButtom.lt(as, bs)
     })
     val newSequence = if (descending) sorted.reverse else sorted
     WhereFunction.reassembleSequence(inSequence, newSequence)

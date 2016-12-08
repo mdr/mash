@@ -199,6 +199,9 @@ trait ObjectBrowserActionHandler {
     action match {
       case SelfInsert(c) =>
         updateState(browserState.setExpression(expression + c))
+      case BackwardDeleteChar =>
+        if (expression.nonEmpty)
+          updateState(browserState.setExpression(expression.init))
       case Accept =>
         val newPath = browserState.path + expression
         val fullExpression = "it" + expression

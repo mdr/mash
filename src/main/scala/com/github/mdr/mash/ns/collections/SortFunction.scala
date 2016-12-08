@@ -39,7 +39,7 @@ object SortFunction extends MashFunction("collections.sort") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy
-    val sorted = sequence.sortWith(MashValueOrderingWithNullButtom.lteq)
+    val sorted = sequence.sortWith(MashValueOrderingWithNullButtom.lt)
     val newSequence =
       if (descending)
         sorted.reverse
