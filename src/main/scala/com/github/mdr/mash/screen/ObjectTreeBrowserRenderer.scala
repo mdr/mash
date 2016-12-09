@@ -7,6 +7,7 @@ import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo: TerminalInfo) {
@@ -22,8 +23,11 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   private def renderLines: Seq[Line] = {
     val printer = new Printer
     print(printer, state.model.root)
-    printer.getLines.drop(state.firstRow).take(windowSize) :+ renderStatusLine
+    renderUpperStatusLine +: printer.getLines.drop(state.firstRow).take(windowSize) :+ renderStatusLine
   }
+
+  private def renderUpperStatusLine: Line =
+    Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   private class Printer() {
 
@@ -55,7 +59,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   private def renderStatusLine: Line = {
     import KeyHint._
     val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table)
-    Line(s"${state.path} (".style ++ renderKeyHints(hints) ++ ")".style)
+    Line(renderKeyHints(hints))
   }
 
   private def print(printer: Printer, node: ObjectTreeNode): Unit = {
@@ -160,6 +164,6 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  private val windowSize = terminalInfo.rows - 1 // a status line
+  private val windowSize = terminalInfo.rows - 2 // two status lines
 
 }

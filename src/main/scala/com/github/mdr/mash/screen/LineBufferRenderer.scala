@@ -70,6 +70,16 @@ object LineBufferRenderer {
                                     mishByDefault: Boolean,
                                     globalVariables: mutable.Map[String, MashValue],
                                     bareWords: Boolean): Seq[Line] = {
+    val styledChars = renderChars(rawChars, mishByDefault, globalVariables, bareWords)
+    val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
+    val lineRegions = new LineInfo(rawChars).lineRegions
+    lineRegions.zipWithIndex.map {
+      case (region, 0) ⇒ Line(prompt ++ region.of(styledChars))
+      case (region, _) ⇒ Line(continuationPrefix.style ++ region.of(styledChars))
+    }
+  }
+
+  def renderChars(rawChars: String, mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokens(s: String, mish: Boolean) = {
@@ -77,15 +87,15 @@ object LineBufferRenderer {
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
       (tokens, bareTokens)
     }
-    
+
     val (tokens, bareTokens) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
           getTokens(mishCmd, mish = true)
-        case MishCommand(prefix, mishCmd) ⇒
+        case MishCommand(prefix, mishCmd)       ⇒
           styledChars ++= prefix.map(StyledCharacter(_, Style(bold = true)))
           getTokens(mishCmd, mish = true)
-        case _ ⇒
+        case _                                  ⇒
           getTokens(rawChars, mish = mishByDefault)
       }
     for (token ← tokens) {
@@ -98,18 +108,13 @@ object LineBufferRenderer {
       if (!token.isEof)
         styledChars ++= token.text.style(style)
     }
-    
+
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
         styledChars ++= suffix.style(Style(bold = true))
-      case _ ⇒
+      case _                                  ⇒
     }
-    val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
-    val lineRegions = new LineInfo(rawChars).lineRegions
-    lineRegions.zipWithIndex.map {
-      case (region, 0) ⇒ Line(prompt ++ region.of(styledChars))
-      case (region, _) ⇒ Line(continuationPrefix.style ++ region.of(styledChars))
-    }
+    styledChars
   }
 
   private def getTokenStyle(token: Token): Style = getTokenStyle(token.tokenType)

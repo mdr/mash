@@ -9,6 +9,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo) {
@@ -19,15 +20,20 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   def renderObjectBrowser: Screen = {
     val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
-    Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
+    val (cursorPos, cursorVisible) = (state.searchStateOpt, state.expressionOpt) match {
+      case (Some(searchState), _)   => Point(lines.size - 1, searchState.query.length) -> true
+      case _                        => Point(0, 0) -> false
+    }
+    Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
   }
 
   private def renderLines: Seq[Line] = {
+    val upperStatusLine = renderUpperStatusLine
     val headerLines = renderHeaderLines
     val dataLines = renderDataLines
     val footerLine = renderFooterLine
     val statusLine = renderStatusLine
-    headerLines ++ dataLines ++ Seq(footerLine, statusLine)
+    Seq(upperStatusLine) ++ headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
 
   private def renderHeaderRow(model: ObjectsTableModel): Line = {
@@ -89,13 +95,13 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search) ++
       state.currentColumnOpt.toSeq.flatMap(_ => Seq(Row, HideColumn))
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
-    Line(s"${state.path} ".style ++ countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
+    Line(countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
   private def renderExpressionInputStatusLine(expression: String): Line = {
     import KeyHint._
     val hints = Seq(DoneSearch)
-    Line(expression.style ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
+    Line("(".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
   private def renderIncrementalSearchStatusLine(searchState: SearchState): Line = {
@@ -113,14 +119,22 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
       case None              =>
         state.expressionOpt match {
           case Some(expression) => renderExpressionInputStatusLine(expression)
-          case None => renderRegularStatusLine
+          case None             => renderRegularStatusLine
         }
     }
+
+  private def renderUpperStatusLine: Line = {
+    val fullExpression = state.expressionOpt match {
+      case Some(expression) => state.path + expression
+      case None             => state.path
+    }
+    Line(LineBufferRenderer.renderChars(fullExpression, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
+  }
 
   private def model = state.model
 
   private def currentRow = state.selectedRow
 
-  private def windowSize = terminalInfo.rows - 5 // three header rows, a footer row, a status line
+  private def windowSize = terminalInfo.rows - 6 // upper status line, three header rows, a footer row, a lower status line
 
 }

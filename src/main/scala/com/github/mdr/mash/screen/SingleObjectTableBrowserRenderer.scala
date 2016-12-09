@@ -7,6 +7,8 @@ import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
+import scala.collection.mutable
+
 class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
@@ -19,12 +21,16 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   }
 
   private def renderLines: Seq[Line] = {
+    val upperStatusLine = renderUpperStatusLine
     val headerLines = renderHeaderLines
     val dataLines = renderDataLines
     val footerLine = renderFooterLine
     val statusLine = renderStatusLine
-    headerLines ++ dataLines ++ Seq(footerLine, statusLine)
+    Seq(upperStatusLine) ++ headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
+
+  private def renderUpperStatusLine: Line =
+    Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   private def renderHeaderLines: Seq[Line] =
     Seq(objectStringifier.renderTopRow(model)).map(s ⇒ Line(s.style))
@@ -50,11 +56,11 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree)) ++ ")".style)
+    Line(renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree)))
   }
 
   private def model = state.model
 
-  private def windowSize = terminalInfo.rows - 3 // one header row, a footer row, a status line
+  private def windowSize = terminalInfo.rows - 4 // an upper status line, one header row, a footer row, a status line
 
 }

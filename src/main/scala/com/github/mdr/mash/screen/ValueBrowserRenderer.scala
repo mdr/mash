@@ -5,8 +5,13 @@ import com.github.mdr.mash.repl.ValueBrowserState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.screen.Style.StylableString
 
+import scala.collection.mutable
+
 class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo) {
   private val fileSystem = LinuxFileSystem
+
+  private def renderUpperStatusLine: Line =
+    Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   def renderDataLines: Seq[Line] = {
     val renderedValue = state.model.renderedValue
@@ -23,14 +28,15 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
   }
 
   private def renderLines: Seq[Line] = {
+    val upperStatusLine = renderUpperStatusLine
     val dataLines = renderDataLines
     val statusLine = renderStatusLine
-    dataLines ++ Seq(statusLine)
+    Seq(upperStatusLine) ++ dataLines ++ Seq(statusLine)
   }
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(s"${state.path} (".style ++ renderKeyHints(Seq(Exit, Back, InsertWhole)) ++ ")".style)
+    Line(renderKeyHints(Seq(Exit, Back, InsertWhole)))
   }
 
   def renderObjectBrowser: Screen = {
@@ -39,6 +45,6 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
     Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
   }
 
-  private val windowSize = terminalInfo.rows - 1 // a status line
+  private val windowSize = terminalInfo.rows - 2 // two status lines
 
 }
