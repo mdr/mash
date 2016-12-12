@@ -4,10 +4,10 @@ import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
-import com.github.mdr.mash.printer.model.{ ObjectModelCreator, ObjectTreeModelCreator, ObjectsTableModelCreator, ValueModelCreator }
+import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 import scala.PartialFunction.condOpt
 
@@ -73,8 +73,21 @@ trait ObjectBrowserActionHandler {
       case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
       case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
       case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
+      case textLinesBrowserState: TextLinesBrowserState            => handleTextLinesBrowserAction(action, textLinesBrowserState)
       case _                                                       =>
     }
+
+  protected def handleTextLinesBrowserAction(action: InputAction, browserState: TextLinesBrowserState): Unit = action match {
+    case ExitBrowser    ⇒
+      state.objectBrowserStateOpt = None
+    case Back           =>
+      navigateBack()
+    case Open =>
+      handleOpenItem(browserState)
+    case InsertWholeItem     ⇒
+      handleInsertWholeItem(browserState)
+    case _ =>
+  }
 
   protected def handleValueBrowserAction(action: InputAction, browserState: ValueBrowserState): Unit = action match {
     case ExitBrowser    ⇒
@@ -128,6 +141,9 @@ trait ObjectBrowserActionHandler {
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
+    case xs: MashList if xs.forall(_.isInstanceOf[MashString]) =>
+      val model = new TextLinesModelCreator(state.viewConfig).create(xs)
+      TextLinesBrowserState(model, path = path)
     case _ =>
       val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
       ValueBrowserState(model, path = path)

@@ -21,9 +21,9 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   def renderObjectBrowser: Screen = {
     val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
-    val (cursorPos, cursorVisible) = (state.searchStateOpt, state.expressionOpt) match {
-      case (Some(searchState), _)   => Point(lines.size - 1, searchState.query.length) -> true
-      case _                        => Point(0, 0) -> false
+    val (cursorPos, cursorVisible) = state.expressionOpt match {
+      case Some(expression) => Point(0, expression.length + state.path.length) -> true
+      case _                => Point(0, 0) -> false
     }
     Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
   }
