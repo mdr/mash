@@ -40,12 +40,12 @@ object CreateFunction extends MashFunction("git.branch.create") {
     MashNull.option(boundParams(FromRemote)).map {
       case MashString(s, _) ⇒ s
       case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
-      case _ ⇒ boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
+      case x ⇒ boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch, but was " + x.typeName)
     }.map { s ⇒
       if (getRemoteBranches contains s)
         s
       else
-        boundParams.throwInvalidArgument(FromRemote, "Must be a remote branch")
+        boundParams.throwInvalidArgument(FromRemote, s + "is not a valid remote branch")
     }
 
   def apply(arguments: Arguments): MashObject = {
