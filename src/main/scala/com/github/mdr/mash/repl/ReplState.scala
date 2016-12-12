@@ -5,6 +5,7 @@ import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.printer.ViewConfig
+import com.github.mdr.mash.repl.browser.{ ObjectBrowserState, ObjectsTableBrowserState }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region
 

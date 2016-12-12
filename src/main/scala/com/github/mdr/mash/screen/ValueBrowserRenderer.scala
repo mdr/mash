@@ -1,7 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.ValueBrowserState
+import com.github.mdr.mash.repl.browser.ValueBrowserState
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.screen.Style.StylableString
 

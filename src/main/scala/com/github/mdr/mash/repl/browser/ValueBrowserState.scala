@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.printer.model.ValueModel
 import com.github.mdr.mash.runtime.MashValue

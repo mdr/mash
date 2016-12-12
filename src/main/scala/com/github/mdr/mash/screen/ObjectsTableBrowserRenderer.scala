@@ -3,8 +3,8 @@ package com.github.mdr.mash.screen
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
 import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.ObjectsTableBrowserState
-import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled

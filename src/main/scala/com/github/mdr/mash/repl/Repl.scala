@@ -12,6 +12,7 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }

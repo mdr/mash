@@ -4,6 +4,7 @@ import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl._
+import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils

@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.{ ObjectStringifier, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.SingleObjectTableBrowserState
+import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils

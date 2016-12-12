@@ -1,10 +1,9 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.browser
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.printer.model.ObjectsTableModel
-
-import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region

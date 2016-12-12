@@ -1,15 +1,13 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
-import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
-
-import scala.PartialFunction.condOpt
 
 trait ObjectBrowserActionHandler {
   self: Repl ⇒

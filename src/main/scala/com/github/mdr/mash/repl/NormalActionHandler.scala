@@ -12,6 +12,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
+import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
