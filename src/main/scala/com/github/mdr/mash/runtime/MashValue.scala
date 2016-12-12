@@ -40,6 +40,12 @@ trait MashValue {
     case MashObject(fields, None) ⇒ fields.isEmpty
   }
 
+  def isNull: Boolean = this == MashNull
+
+  def isAString: Boolean = isA(StringClass)
+
+  def isAnObject: Boolean = isA(ObjectClass)
+
   def isA(klass: MashClass): Boolean =
     (primaryClass isSubClassOf klass) || cond(this) {
       case taggable: TaggableMashValue ⇒ taggable.tagClassOpt.exists(_ isSubClassOf klass)

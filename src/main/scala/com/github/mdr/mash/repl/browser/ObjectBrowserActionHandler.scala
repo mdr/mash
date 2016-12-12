@@ -75,6 +75,9 @@ trait ObjectBrowserActionHandler {
       case _                                                       =>
     }
 
+
+  private val textLinesWindowSize = terminal.info.rows - 2
+
   protected def handleTextLinesBrowserAction(action: InputAction, browserState: TextLinesBrowserState): Unit = action match {
     case ExitBrowser    ⇒
       state.objectBrowserStateOpt = None
@@ -82,8 +85,34 @@ trait ObjectBrowserActionHandler {
       navigateBack()
     case Open =>
       handleOpenItem(browserState)
+    case InsertItem =>
+      handleInsertItem(browserState)
     case InsertWholeItem     ⇒
       handleInsertWholeItem(browserState)
+    case NextItem       ⇒
+      val newState = browserState.adjustSelectedRow(1, textLinesWindowSize)
+      updateState(newState)
+    case PreviousItem   ⇒
+      val newState = browserState.adjustSelectedRow(-1, textLinesWindowSize)
+      updateState(newState)
+    case FirstItem    ⇒
+      val newState = browserState.copy(selectedRow = 0).adjustWindowToFit(textLinesWindowSize)
+      updateState(newState)
+    case LastItem     ⇒
+      val newRow = browserState.model.renderedLines.size - 1
+      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
+      updateState(newState)
+    case NextPage       ⇒
+      val newRow = math.min(browserState.model.renderedLines.size - 1, browserState.selectedRow + textLinesWindowSize - 1)
+      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
+      updateState(newState)
+    case PreviousPage   ⇒
+      val newRow = math.max(0, browserState.selectedRow - textLinesWindowSize - 1)
+      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
+      updateState(newState)
+    case Focus          ⇒
+      val rawObject = browserState.model.rawValue.items(browserState.selectedRow)
+      focus(rawObject, browserState.getInsertExpression, tree = false)
     case _ =>
   }
 
@@ -139,7 +168,7 @@ trait ObjectBrowserActionHandler {
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
-    case xs: MashList if xs.forall(_.isInstanceOf[MashString]) =>
+    case xs: MashList if xs.forall(x => x.isAString || x.isNull) =>
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
     case _ =>

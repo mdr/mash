@@ -14,7 +14,8 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
     Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   private def renderDataLines: Seq[Line] =
-    state.model.renderedLines.map(l => Line(l.style)).take(windowSize)
+    for ((l, index) <- state.model.renderedLines.drop(state.firstRow).take(windowSize).zipWithIndex)
+      yield Line(l.style(Style(inverse = index == (state.selectedRow - state.firstRow))))
 
   private def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
@@ -25,7 +26,9 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
 
   private def renderStatusLine = {
     import KeyHint._
-    Line(renderKeyHints(Seq(Exit, Back, InsertWhole)))
+    val hints = Seq(Exit, Back, InsertWhole)
+    val countChars = s"${state.selectedRow + 1}/${state.model.renderedLines.size}".style(Style(inverse = true))
+    Line(countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
   def renderObjectBrowser: Screen = {

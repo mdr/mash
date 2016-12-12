@@ -4,7 +4,7 @@ import com.github.mdr.mash.utils.Utils
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
-
+import Style._
 case class Point(row: Int, column: Int) {
 
   def up(rows: Int): Point = copy(row = row - rows)
@@ -14,7 +14,15 @@ case class Point(row: Int, column: Int) {
 
 case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
 
-  def truncate(n: Int) = copy(chars.take(n))
+  def truncate(n: Int) = {
+    if (chars.size > n)
+      if (n > 0)
+        copy(chars.take(n - 1) ++ "…".style(chars(n - 1).style))
+      else
+        copy(Seq())
+    else
+      this
+  }
 
 }
 

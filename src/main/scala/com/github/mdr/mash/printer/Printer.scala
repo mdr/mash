@@ -69,7 +69,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
     case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) =>
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
-    case xs: MashList if xs.forall(_.isInstanceOf[MashString]) =>
+    case xs: MashList if xs.forall(x => x.isAString || x.isNull) =>
       new TextLinesModelCreator(viewConfig).create(xs)
     case _                                                     =>
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
@@ -87,7 +87,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
         case _: MashList | _: MashObject if alwaysUseTreeBrowser                                       =>
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           return PrintResult(Some(model))
-        case xs: MashList if xs.nonEmpty && xs.forall(_.isInstanceOf[MashObject])                      ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_.isAnObject)                      ⇒
           val objects = xs.items.asInstanceOf[Seq[MashObject]]
           val nonDataRows = 4 // 3 header rows + 1 footer
           if (objects.size > terminalInfo.rows - nonDataRows) {
@@ -95,8 +95,12 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
             return PrintResult(Some(model))
           } else
             new ObjectsTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x == MashNull || x.isInstanceOf[MashString]) ⇒
-          xs.items.foreach(output.println)
+        case xs: MashList if xs.nonEmpty && xs.forall(x => x.isAString || x.isNull) =>
+          if (xs.length > terminalInfo.rows) {
+            val model = new TextLinesModelCreator(viewConfig).create(xs)
+            return PrintResult(Some(model))
+          } else
+            xs.items.foreach(output.println)
         case obj: MashObject if obj.classOpt == Some(ViewClass)                                        ⇒
           val data = obj(ViewClass.Fields.Data)
           val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
