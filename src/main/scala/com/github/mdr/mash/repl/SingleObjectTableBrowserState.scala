@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.printer.ObjectModel
+import com.github.mdr.mash.printer.model.ObjectModel
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 case class SingleObjectTableBrowserState(model: ObjectModel,

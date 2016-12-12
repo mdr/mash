@@ -2,8 +2,8 @@ package com.github.mdr.mash.repl
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
-import scala.util.matching.Regex
-import com.github.mdr.mash.printer.ObjectsTableModel
+import com.github.mdr.mash.printer.model.ObjectsTableModel
+
 import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Point
@@ -82,7 +82,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     copy(expressionOpt = None)
 
   def setSearch(query: String, windowSize: Int): BrowserState = {
-    val ignoreCase = searchStateOpt.map(_.ignoreCase).getOrElse(true)
+    val ignoreCase = searchStateOpt.forall(_.ignoreCase)
     runSearch(query, ignoreCase, windowSize)
   }
 

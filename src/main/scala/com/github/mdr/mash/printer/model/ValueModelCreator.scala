@@ -1,6 +1,7 @@
-package com.github.mdr.mash.printer
+package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.printer.{ FieldRenderer, ViewConfig }
+import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.terminal.TerminalInfo
 
 class ValueModelCreator(terminalInfo: TerminalInfo, viewConfig: ViewConfig) {

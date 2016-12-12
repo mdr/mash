@@ -13,6 +13,7 @@ import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
 import com.github.mdr.mash.ns.time.{ MillisecondsClass, SecondsClass }
 import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }

@@ -1,8 +1,9 @@
-package com.github.mdr.mash.printer
+package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
+import com.github.mdr.mash.printer.{ ColumnAllocator, ColumnSpec, FieldRenderer, ViewConfig }
 import com.github.mdr.mash.runtime.{ MashList, MashObject }
 import com.github.mdr.mash.terminal.TerminalInfo
 

@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
+import com.github.mdr.mash.printer.model.ObjectModelCreator
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils

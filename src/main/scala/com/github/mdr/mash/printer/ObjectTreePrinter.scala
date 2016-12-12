@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
+import com.github.mdr.mash.printer.model.{ ObjectTreeModelCreator, ObjectTreeNode }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import org.fusesource.jansi.Ansi

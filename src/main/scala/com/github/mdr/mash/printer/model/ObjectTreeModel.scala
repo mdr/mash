@@ -1,4 +1,4 @@
-package com.github.mdr.mash.printer
+package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.runtime._
 

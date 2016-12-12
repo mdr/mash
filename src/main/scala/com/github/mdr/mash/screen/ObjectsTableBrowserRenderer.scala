@@ -1,7 +1,8 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.{ ObjectTableRow, ObjectsTableModel, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
+import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.ObjectsTableBrowserState
 import com.github.mdr.mash.repl.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString

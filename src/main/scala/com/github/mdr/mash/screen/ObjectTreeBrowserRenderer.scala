@@ -1,7 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.ObjectTreeNode
+import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo

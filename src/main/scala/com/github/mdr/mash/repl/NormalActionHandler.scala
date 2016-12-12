@@ -10,7 +10,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.{ ObjectModel, ObjectTreeModel, ObjectsTableModel, ValueModel }
+import com.github.mdr.mash.printer.model.{ ObjectModel, ObjectTreeModel, ObjectsTableModel, ValueModel }
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal

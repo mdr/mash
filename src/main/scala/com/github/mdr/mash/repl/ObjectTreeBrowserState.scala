@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.printer.{ ObjectTreeModel, ObjectTreeNode }
+import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
 import com.github.mdr.mash.repl.ObjectTreeChoice.{ FieldChoice, IndexChoice, OntoFieldLabel, OntoValue }
 import com.github.mdr.mash.runtime.MashValue
 

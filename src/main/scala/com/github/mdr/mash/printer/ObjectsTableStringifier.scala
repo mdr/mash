@@ -1,5 +1,6 @@
 package com.github.mdr.mash.printer
 
+import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import org.fusesource.jansi.Ansi

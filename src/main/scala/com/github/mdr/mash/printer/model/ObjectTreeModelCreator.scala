@@ -1,5 +1,6 @@
-package com.github.mdr.mash.printer
+package com.github.mdr.mash.printer.model
 
+import com.github.mdr.mash.printer.{ FieldRenderer, ViewConfig }
 import com.github.mdr.mash.runtime._
 
 class ObjectTreeModelCreator(viewConfig: ViewConfig) {
