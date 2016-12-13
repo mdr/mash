@@ -125,7 +125,7 @@ object AbstractSyntax {
   }
 
   case class Literal(value: MashValue, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
-    assert(value == MashNull || value.isInstanceOf[MashBoolean] || value.isInstanceOf[MashNumber])
+    assert(value.isNull || value.isInstanceOf[MashBoolean] || value.isInstanceOf[MashNumber])
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
   }

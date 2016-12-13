@@ -32,7 +32,7 @@ object MapFunction extends MashFunction("collections.map") {
     val f = boundParams.validateFunction(F)
     val mapped = sequence.map(f)
     inSequence match {
-      case MashString(_, tagOpt) if mapped.forall(_.isInstanceOf[MashString]) ⇒
+      case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
         mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
       case _ ⇒
         MashList(mapped)

@@ -58,12 +58,12 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
 
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {
     val testObjects = objects.take(50)
-    if (testObjects.forall(_.classOpt contains GroupClass))
+    if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
       Seq(
         ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
         ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
         ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
-    else if (testObjects.forall(_.classOpt contains CommitClass))
+    else if (testObjects.nonEmpty && testObjects.forall(_ isA CommitClass))
       Seq(
         ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
         ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),

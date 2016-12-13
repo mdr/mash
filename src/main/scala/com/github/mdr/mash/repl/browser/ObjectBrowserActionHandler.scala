@@ -31,12 +31,14 @@ trait ObjectBrowserActionHandler {
       state.objectBrowserStateOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
 
+  private def treeBrowserWindowSize = terminal.info.rows - 2 // 2 status rows
+
   private def adjustWindowToFit(state: ObjectTreeBrowserState): ObjectTreeBrowserState = {
     val selectedRow = state.selectedRow
     val firstRow = state.firstRow
     var newState = state
 
-    val delta = selectedRow - (firstRow + windowSize - 1)
+    val delta = selectedRow - (firstRow + treeBrowserWindowSize - 1)
     if (delta >= 0)
       newState = newState.adjustFirstRow(delta)
 
@@ -48,14 +50,16 @@ trait ObjectBrowserActionHandler {
   }
 
   private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState =
-    state.adjustWindowToFit(windowSize)
+    state.adjustWindowToFit(objectsBrowserWindowSize)
+
+  private def singleObjectWindowSize = terminal.info.rows - 4 // 1 header row, 1 footer row, 2 status rows
 
   private def adjustWindowToFit(state: SingleObjectTableBrowserState): SingleObjectTableBrowserState = {
     val selectedRow = state.selectedRow
     val firstRow = state.firstRow
     var newState = state
 
-    val delta = selectedRow - (firstRow + windowSize - 1)
+    val delta = selectedRow - (firstRow + singleObjectWindowSize - 1)
     if (delta >= 0)
       newState = newState.adjustFirstRow(delta)
 
@@ -179,7 +183,7 @@ trait ObjectBrowserActionHandler {
 
   private def focus(value: MashValue, newPath: String, tree: Boolean): Unit = {
     navigateForward(
-      if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
+      if (tree && (value.isInstanceOf[MashList] || value.isAnObject)) {
         val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
         ObjectTreeBrowserState.initial(model, newPath)
       } else
@@ -263,16 +267,16 @@ trait ObjectBrowserActionHandler {
     import IncrementalSearch._
     action match {
       case SelfInsert(c) =>
-        updateState(browserState.setSearch(searchState.query + c, windowSize))
+        updateState(browserState.setSearch(searchState.query + c, objectsBrowserWindowSize))
       case ToggleCase    =>
-        updateState(browserState.toggleCase(windowSize))
+        updateState(browserState.toggleCase(objectsBrowserWindowSize))
       case Unsearch      =>
         if (searchState.query.nonEmpty)
-          updateState(browserState.setSearch(searchState.query.init, windowSize))
+          updateState(browserState.setSearch(searchState.query.init, objectsBrowserWindowSize))
       case NextHit       =>
-        updateState(browserState.nextHit(windowSize))
+        updateState(browserState.nextHit(objectsBrowserWindowSize))
       case PreviousHit   =>
-        updateState(browserState.previousHit(windowSize))
+        updateState(browserState.previousHit(objectsBrowserWindowSize))
       case ExitSearch    =>
         updateState(browserState.stopSearching)
       case _             =>
@@ -302,14 +306,14 @@ trait ObjectBrowserActionHandler {
         val newState = adjustWindowToFit(browserState.adjustSelectedRow(1))
         updateState(newState)
       case NextPage       ⇒
-        val newRow = math.min(model.objects.size - 1, currentRow + windowSize - 1)
+        val newRow = math.min(model.objects.size - 1, currentRow + objectsBrowserWindowSize - 1)
         val newState = adjustWindowToFit(browserState.copy(selectedRow = newRow))
         updateState(newState)
       case PreviousItem   ⇒
         val newState = adjustWindowToFit(browserState.adjustSelectedRow(-1))
         updateState(newState)
       case PreviousPage   ⇒
-        val newRow = math.max(0, currentRow - windowSize - 1)
+        val newRow = math.max(0, currentRow - objectsBrowserWindowSize - 1)
         val newState = adjustWindowToFit(browserState.copy(selectedRow = newRow))
         updateState(newState)
       case ExitBrowser    ⇒
@@ -394,6 +398,6 @@ trait ObjectBrowserActionHandler {
     runCommand(command)
   }
 
-  private def windowSize = terminal.info.rows - 5 // three header rows, a footer row, a status line
+  private def objectsBrowserWindowSize = terminal.info.rows - 6 // three header rows, a footer row, two status lines
 
 }

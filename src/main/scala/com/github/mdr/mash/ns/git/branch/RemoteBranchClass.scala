@@ -61,7 +61,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel(Seq(Switch))
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
+    def apply(target: MashValue, arguments: Arguments): MashObject = {
       val boundParams = params.validate(arguments)
       val switch = boundParams(Switch).isTruthy
       GitHelper.withGit { git ⇒
@@ -76,10 +76,9 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
           git.checkout().setName(localName).call()
         branch
       }
-      MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
     override def summary = "Create a local branch tracking this remote branch"
   }

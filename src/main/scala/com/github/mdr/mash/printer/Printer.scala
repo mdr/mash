@@ -66,7 +66,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private def getPrintModel(value: MashValue): PrintModel = value match {
     case obj: MashObject                                       =>
       new ObjectModelCreator(terminalInfo, viewConfig).create(obj)
-    case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) =>
+    case xs: MashList if xs.forall(_.isAnObject) =>
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
     case xs: MashList if xs.forall(x => x.isAString || x.isNull) =>

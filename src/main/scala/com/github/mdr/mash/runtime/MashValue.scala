@@ -21,7 +21,7 @@ trait MashValue {
   def primaryClass: MashClass = this match {
     case MashNull                  ⇒ NullClass
     case MashUnit                  ⇒ UnitClass
-    case obj: MashObject           ⇒ obj.classOpt.getOrElse(ObjectClass)
+    case obj: MashObject           ⇒ obj.classOpt getOrElse ObjectClass
     case _: MashNumber             ⇒ NumberClass
     case _: MashString             ⇒ StringClass
     case _: MashBoolean            ⇒ BooleanClass
