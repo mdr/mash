@@ -3,11 +3,12 @@ package com.github.mdr.mash.repl.browser
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 trait ObjectBrowserActionHandler {
   self: Repl ⇒
@@ -176,13 +177,14 @@ trait ObjectBrowserActionHandler {
       ValueBrowserState(model, path = path)
   }
 
-  private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
+  private def focus(value: MashValue, newPath: String, tree: Boolean): Unit = {
     navigateForward(
       if (tree && (value.isInstanceOf[MashList] || value.isInstanceOf[MashObject])) {
         val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
         ObjectTreeBrowserState.initial(model, newPath)
       } else
         getNewBrowserState(value, newPath))
+  }
 
   private def viewAsTree(browserState: BrowserState): Unit = {
     val model = new ObjectTreeModelCreator(state.viewConfig).create(browserState.rawValue)
@@ -224,18 +226,18 @@ trait ObjectBrowserActionHandler {
 
   }
 
-  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = browserState.searchStateOpt match {
-    case Some(searchState) =>
-      handleIncrementalSearchAction(action, browserState, searchState)
-    case None =>
-      browserState.expressionOpt match {
-        case Some(expression) =>
-          handleExpressionInputAction(action, browserState, expression)
-        case None =>
-          handleDefaultObjectsTableBrowserAction(action, browserState)
-      }
-  }
-
+  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) =
+    browserState.searchStateOpt match {
+      case Some(searchState) =>
+        handleIncrementalSearchAction(action, browserState, searchState)
+      case None              =>
+        browserState.expressionOpt match {
+          case Some(expression) =>
+            handleExpressionInputAction(action, browserState, expression)
+          case None             =>
+            handleDefaultObjectsTableBrowserAction(action, browserState)
+        }
+    }
 
   private def handleExpressionInputAction(action: InputAction, browserState: ObjectsTableBrowserState, expression: String): Unit = {
     import ExpressionInput._
@@ -246,7 +248,7 @@ trait ObjectBrowserActionHandler {
         if (expression.nonEmpty)
           updateState(browserState.setExpression(expression.init))
       case Accept =>
-        val newPath = browserState.path + expression
+        val newPath = SafeParens.safeParens(browserState.path, expression)
         val fullExpression = "it" + expression
         val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> browserState.rawValue))
         val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId)
@@ -330,13 +332,14 @@ trait ObjectBrowserActionHandler {
       case Focus          ⇒
         val rawObject = model.rawObjects(currentRow)
         val index = browserState.selectedRow
+        val safePath = SafeParens.safeParens(browserState.path)
         val (newPath, focusedObject) = browserState.currentColumnOpt match {
           case Some(column) =>
             val field = model.columnNames(column)
             val obj = model.objects(index).rawObjects.getOrElse(field, rawObject)
-            val newPath = s"${browserState.path}[$index].$field"
+            val newPath = s"$safePath[$index].$field"
             (newPath, obj)
-          case None         => (s"${browserState.path}[$index]", rawObject)
+          case None         => (s"$safePath[$index]", rawObject)
         }
         focus(focusedObject, newPath, tree = false)
       case ToggleMarked   ⇒

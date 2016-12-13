@@ -1,15 +1,18 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.lexer.MashLexer._
+import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.runtime.MashValue
 
 object BrowserState {
 
-  def safeProperty(path: String, property: String): String =
+  def safeProperty(path: String, property: String): String = {
+    val safePath = SafeParens.safeParens(path)
     if (isLegalIdentifier(property))
-      s"$path.$property"
+      s"$safePath.$property"
     else
-      s"$path['$property']"
+      s"$safePath['$property']"
+  }
 
 }
 

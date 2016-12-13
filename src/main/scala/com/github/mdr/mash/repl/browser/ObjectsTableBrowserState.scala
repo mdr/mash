@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl.browser
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
+import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.MashValue
@@ -125,9 +126,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   def withPath(newPath: String): ObjectsTableBrowserState = copy(path = newPath)
 
   def getInsertExpression: String = {
-    val command = path
+    val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
-      val rowPath = s"$command[$selectedRow]"
+      val rowPath = s"$safePath[$selectedRow]"
       currentColumnOpt match {
         case Some(column) if column > 0 =>
           val property = model.columnNames(column)
@@ -137,7 +138,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       }
     } else {
       val rows = markedRows.toSeq.sorted
-      val items = rows.map(i ⇒ s"$command[$i]").mkString(", ")
+      val items = rows.map(i ⇒ s"$safePath[$i]").mkString(", ")
       s"[$items]"
     }
   }
