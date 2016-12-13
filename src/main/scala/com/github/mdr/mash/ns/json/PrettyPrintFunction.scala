@@ -11,12 +11,14 @@ import com.google.gson._
 import com.google.gson.internal.Streams
 import com.google.gson.stream.JsonWriter
 
-object AsJsonFunction extends MashFunction("json.asJson") {
+object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
   object Params {
+
     val Value = Parameter(
       name = "value",
       summary = "Value to convert to a JSON string")
+
   }
   import Params._
 
@@ -61,6 +63,6 @@ object AsJsonFunction extends MashFunction("json.asJson") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
 
-  override def summary = "Convert the given value to a JSON string"
+  override def summary = "Convert the given value to a pretty-printed JSON string"
 }
 

@@ -5,7 +5,7 @@ import java.net.URI
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.ns.json.AsJsonFunction
+import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.client.methods.{ HttpPost, HttpPut }
@@ -51,7 +51,7 @@ object PutFunction extends MashFunction("http.put") {
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodyValue: MashValue, json: Boolean) {
-    val bodyString = if (json) AsJsonFunction.asJsonString(bodyValue) else ToStringifier.stringify(bodyValue)
+    val bodyString = if (json) PrettyPrintFunction.asJsonString(bodyValue) else ToStringifier.stringify(bodyValue)
     val entity = new StringEntity(bodyString, ContentType.APPLICATION_JSON)
     request.setEntity(entity)
   }
