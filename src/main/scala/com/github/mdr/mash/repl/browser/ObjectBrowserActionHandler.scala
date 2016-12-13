@@ -255,11 +255,12 @@ trait ObjectBrowserActionHandler {
         val newPath = SafeParens.safeParens(browserState.path, expression)
         val fullExpression = "it" + expression
         val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> browserState.rawValue))
-        val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId)
+        val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
         val compilationUnit = CompilationUnit(fullExpression)
         updateState(browserState.acceptExpression)
         for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
           focus(result, newPath, tree = false)
+      case _ =>
     }
   }
 

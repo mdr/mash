@@ -16,6 +16,7 @@ object KeyHint {
   val Table = KeyHint("t", "table")
   val HideColumn = KeyHint("h", "hide col")
   val Search = KeyHint("/", "find")
+  val Expression = KeyHint("e", "expr")
 
   val NextHit = KeyHint("^n", "next")
   val PreviousHit = KeyHint("^p", "prev")

@@ -7,7 +7,7 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.history.HistoryImpl
-import com.github.mdr.mash.runtime.{ MashNumber, MashString, MashUnit, MashValue }
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.{ Terminal, TerminalInfo }
 import org.scalatest._
 
@@ -94,7 +94,7 @@ class ReplTest extends FlatSpec with Matchers {
 
     repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
     repl.input("foo").acceptLine()
-    repl.it should equal(MashUnit /* Repl should have emitted an error */ )
+    repl.it should equal(MashBoolean.False /* Repl should have emitted an error */)
   }
 
   "Type inference loop bug" should "not happen" in {

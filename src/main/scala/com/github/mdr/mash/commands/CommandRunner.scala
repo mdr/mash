@@ -12,7 +12,11 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import org.fusesource.jansi.Ansi
 
-class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: MashObject, sessionId: UUID) {
+class CommandRunner(output: PrintStream,
+                    terminalInfo: TerminalInfo,
+                    globals: MashObject,
+                    sessionId: UUID,
+                    printErrors: Boolean = true) {
 
   private val errorPrinter = new ErrorPrinter(output, terminalInfo)
   private val debugCommandRunner = new DebugCommandRunner(output, globals)
@@ -40,7 +44,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords).map { expr ⇒ runExpr(expr, unit) }
+    safeCompile(unit, bareWords = bareWords).flatMap { expr ⇒ runExpr(expr, unit) }
 
   private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
@@ -51,7 +55,7 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
     CommandResult(Some(result), printModelOpt = printModelOpt)
   }
 
-  private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): MashValue =
+  private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): Option[MashValue] =
     try {
       val context = new ExecutionContext(Thread.currentThread)
       Singletons.environment = globals.get(StandardEnvironment.Env) match {
@@ -60,22 +64,25 @@ class CommandRunner(output: PrintStream, terminalInfo: TerminalInfo, globals: Ma
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)
-      Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals.fields)))
+      val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals.fields)))
+      Some(result)
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
-        errorPrinter.printError("Error", msg, unit, stack.reverse)
+        if (printErrors)
+          errorPrinter.printError("Error", msg, unit, stack.reverse)
         debugLogger.logException(e)
-        MashUnit
+        None
       case _: EvaluationInterruptedException ⇒
         output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
-        MashUnit
+        None
     }
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] = {
     val settings = CompilationSettings(inferTypes = false, bareWords = bareWords)
     Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
-        errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
+        if (printErrors)
+          errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
         None
       case Right(expr) ⇒
         Some(expr)
