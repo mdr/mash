@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.printer.model.ObjectModel
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.utils.Utils._
 
 case class SingleObjectTableBrowserState(model: ObjectModel,
                                          selectedRow: Int = 0,
@@ -17,7 +18,7 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
   def nextItem(terminalRows: Int): SingleObjectTableBrowserState = adjustSelectedRow(1, terminalRows)
 
   def adjustSelectedRow(delta: Int, terminalRows: Int): SingleObjectTableBrowserState =
-    copy(selectedRow = (selectedRow + delta + size) % size).adjustWindowToFit(terminalRows)
+    this.when(size > 0, _.copy(selectedRow = (selectedRow + delta + size) % size).adjustWindowToFit(terminalRows))
 
   def adjustFirstRow(delta: Int): SingleObjectTableBrowserState = copy(firstRow = firstRow + delta)
 

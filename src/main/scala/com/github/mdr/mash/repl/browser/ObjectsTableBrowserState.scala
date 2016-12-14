@@ -8,6 +8,7 @@ import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -102,12 +103,15 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   private val numberOfColumns = model.numberOfColumns
 
   def adjustSelectedRow(delta: Int): ObjectsTableBrowserState =
-    copy(selectedRow = (selectedRow + delta + size) % size)
+    this.when(size > 0, _.copy(selectedRow = (selectedRow + delta + size) % size))
 
-  def adjustSelectedColumn(delta: Int): ObjectsTableBrowserState = {
-    val currentColumn = currentColumnOpt.getOrElse(if (delta == 1) -1 else 0)
-    copy(currentColumnOpt = Some((currentColumn + delta + numberOfColumns) % numberOfColumns))
-  }
+  def adjustSelectedColumn(delta: Int): ObjectsTableBrowserState =
+    if (numberOfColumns == 0)
+      this
+    else {
+      val currentColumn = currentColumnOpt.getOrElse(if (delta == 1) -1 else 0)
+      copy(currentColumnOpt = Some((currentColumn + delta + numberOfColumns) % numberOfColumns))
+    }
 
   def unfocusColumn: ObjectsTableBrowserState = copy(currentColumnOpt = None)
 
