@@ -79,4 +79,9 @@ object Utils {
 
   def tupled[A, B, C](f: (A, B) => C): ((A, B)) => C = f.tupled
 
+  implicit class RichWhen[T](t: T) {
+
+    def when(cond: Boolean, f: T => T): T = if (cond) f(t) else t
+
+  }
 }

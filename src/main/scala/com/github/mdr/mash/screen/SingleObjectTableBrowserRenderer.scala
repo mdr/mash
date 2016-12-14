@@ -6,6 +6,7 @@ import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable
 
@@ -32,8 +33,12 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   private def renderUpperStatusLine: Line =
     Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
-  private def renderHeaderLines: Seq[Line] =
-    Seq(objectStringifier.renderTopRow(model)).map(s ⇒ Line(s.style))
+  private def renderHeaderLines: Seq[Line] = {
+    val topRow = objectStringifier.renderTopRow(model)
+    val moreDataItemsAboveWindow = state.firstRow > 0
+    val newTopRow = topRow.when(moreDataItemsAboveWindow, _.updated(topRow.size / 2, '↑'))
+    Seq(newTopRow).map(s ⇒ Line(s.style))
+  }
 
   private def renderDataLines: Seq[Line] = {
     val objects = model.fields.drop(state.firstRow).take(windowSize)
@@ -52,7 +57,14 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     Line(side ++ fieldChars ++ internalVertical ++ valueChars ++ side)
   }
 
-  private def renderFooterLine = Line(objectStringifier.renderBottomRow(model).style)
+  private def renderFooterLine = {
+    val bottomRow = objectStringifier.renderBottomRow(model)
+    val lastVisibleRow = state.firstRow + windowSize - 1
+    val lastRow = state.size - 1
+    val moreDataItemsBelowWindow = lastVisibleRow < lastRow
+    val newBottom = bottomRow.when(moreDataItemsBelowWindow, _.updated(bottomRow.size / 2, '↓'))
+    Line(newBottom.style)
+  }
 
   private def renderStatusLine = {
     import KeyHint._
