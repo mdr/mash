@@ -32,7 +32,7 @@ trait ObjectBrowserActionHandler {
     }
 
   private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState =
-    state.adjustWindowToFit(objectsBrowserWindowSize)
+    state.adjustWindowToFit(terminalRows)
 
   protected def handleObjBrowserAction(action: InputAction, browserState: ObjectBrowserState): Unit =
     browserState.browserState match {
@@ -225,16 +225,16 @@ trait ObjectBrowserActionHandler {
     import IncrementalSearch._
     action match {
       case SelfInsert(c) =>
-        updateState(browserState.setSearch(searchState.query + c, objectsBrowserWindowSize))
+        updateState(browserState.setSearch(searchState.query + c, terminalRows))
       case ToggleCase    =>
-        updateState(browserState.toggleCase(objectsBrowserWindowSize))
+        updateState(browserState.toggleCase(terminalRows))
       case Unsearch      =>
         if (searchState.query.nonEmpty)
-          updateState(browserState.setSearch(searchState.query.init, objectsBrowserWindowSize))
+          updateState(browserState.setSearch(searchState.query.init, terminalRows))
       case NextHit       =>
-        updateState(browserState.nextHit(objectsBrowserWindowSize))
+        updateState(browserState.nextHit(terminalRows))
       case PreviousHit   =>
-        updateState(browserState.previousHit(objectsBrowserWindowSize))
+        updateState(browserState.previousHit(terminalRows))
       case ExitSearch    =>
         updateState(browserState.stopSearching)
       case _             =>
@@ -264,16 +264,12 @@ trait ObjectBrowserActionHandler {
         val newState = adjustWindowToFit(browserState.adjustSelectedRow(1))
         updateState(newState)
       case NextPage                        ⇒
-        val newRow = math.min(model.objects.size - 1, currentRow + objectsBrowserWindowSize - 1)
-        val newState = adjustWindowToFit(browserState.copy(selectedRow = newRow))
-        updateState(newState)
+        updateState(browserState.nextPage(terminalRows))
       case PreviousItem                    ⇒
         val newState = adjustWindowToFit(browserState.adjustSelectedRow(-1))
         updateState(newState)
       case PreviousPage                    ⇒
-        val newRow = math.max(0, currentRow - objectsBrowserWindowSize - 1)
-        val newState = adjustWindowToFit(browserState.copy(selectedRow = newRow))
-        updateState(newState)
+        updateState(browserState.previousPage(terminalRows))
       case ExitBrowser                     ⇒
         state.objectBrowserStateOpt = None
       case FirstItem                       ⇒

@@ -32,27 +32,27 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     searchStateOpt: Option[SearchState] = None,
                                     expressionOpt: Option[String] = None) extends BrowserState {
 
-  def toggleCase(windowSize: Int): BrowserState = ifSearching { searchState =>
-    runSearch(searchState.query, !searchState.ignoreCase, windowSize)
+  def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState =>
+    runSearch(searchState.query, !searchState.ignoreCase, terminalRows)
   }
 
   private def ifSearching(f: SearchState => BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
 
   def stopSearching: BrowserState = copy(searchStateOpt = None)
 
-  def nextHit(windowSize: Int): BrowserState = ifSearching { searchState =>
+  def nextHit(terminalRows: Int): BrowserState = ifSearching { searchState =>
     val rows = searchState.rows
     val nextRow = rows.find(_ > selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
-    copy(selectedRow = nextRow).adjustWindowToFit(windowSize)
+    copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
   }
 
-  def previousHit(windowSize: Int): BrowserState = ifSearching { searchState =>
+  def previousHit(terminalRows: Int): BrowserState = ifSearching { searchState =>
     val rows = searchState.rows.reverse
     val nextRow = rows.find(_ < selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
-    copy(selectedRow = nextRow).adjustWindowToFit(windowSize)
+    copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
   }
 
-  private def runSearch(query: String, ignoreCase: Boolean, windowSize: Int): BrowserState = {
+  private def runSearch(query: String, ignoreCase: Boolean, terminalRows: Int): BrowserState = {
     val flags = if (ignoreCase) Pattern.CASE_INSENSITIVE else 0
     val pattern =
       try
@@ -73,7 +73,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
         .orElse(tuples.collectFirst { case (point, _) => point.row })
         .getOrElse(selectedRow)
     val searchInfo = SearchState(query, tuples.toMap, ignoreCase)
-    copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(windowSize)
+    copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def setExpression(expression: String): BrowserState =
@@ -82,9 +82,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   def acceptExpression: BrowserState =
     copy(expressionOpt = None)
 
-  def setSearch(query: String, windowSize: Int): BrowserState = {
+  def setSearch(query: String, terminalRows: Int): BrowserState = {
     val ignoreCase = searchStateOpt.forall(_.ignoreCase)
-    runSearch(query, ignoreCase, windowSize)
+    runSearch(query, ignoreCase, terminalRows)
   }
 
   private def getCellSearchInfo(pattern: Pattern, row: Int, column: Int): Option[CellSearchInfo] = {
@@ -147,10 +147,10 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     }
   }
 
-  def adjustWindowToFit(windowSize: Int): ObjectsTableBrowserState = {
+  def adjustWindowToFit(terminalRows: Int): ObjectsTableBrowserState = {
     var newState = this
 
-    val delta = selectedRow - (firstRow + windowSize - 1)
+    val delta = selectedRow - (firstRow + windowSize(terminalRows) - 1)
     if (delta >= 0)
       newState = newState.adjustFirstRow(delta)
 
@@ -160,4 +160,17 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
     newState
   }
+
+  private def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
+
+  def nextPage(terminalRows: Int): ObjectsTableBrowserState = {
+    val newRow = math.min(model.objects.size - 1, selectedRow + windowSize(terminalRows) - 1)
+    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+  }
+
+  def previousPage(terminalRows: Int): ObjectsTableBrowserState = {
+    val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
+    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+  }
+
 }
