@@ -31,24 +31,6 @@ trait ObjectBrowserActionHandler {
       state.objectBrowserStateOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
 
-  private def treeBrowserWindowSize = terminalRows - 2 // 2 status rows
-
-  private def adjustWindowToFit(state: ObjectTreeBrowserState): ObjectTreeBrowserState = {
-    val selectedRow = state.selectedRow
-    val firstRow = state.firstRow
-    var newState = state
-
-    val delta = selectedRow - (firstRow + treeBrowserWindowSize - 1)
-    if (delta >= 0)
-      newState = newState.adjustFirstRow(delta)
-
-    val delta2 = firstRow - selectedRow
-    if (delta2 >= 0)
-      newState = newState.adjustFirstRow(-delta2)
-
-    newState
-  }
-
   private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState =
     state.adjustWindowToFit(objectsBrowserWindowSize)
 
@@ -125,17 +107,13 @@ trait ObjectBrowserActionHandler {
     case Back            =>
       navigateBack()
     case NextColumn      ⇒
-      val newState = browserState.right
-      updateState(newState)
+      updateState(browserState.right)
     case PreviousColumn  ⇒
-      val newState = browserState.left
-      updateState(newState)
+      updateState(browserState.left)
     case NextItem        ⇒
-      val newState = adjustWindowToFit(browserState.down)
-      updateState(newState)
+      updateState(browserState.nextItem(terminalRows))
     case PreviousItem    ⇒
-      val newState = adjustWindowToFit(browserState.up)
-      updateState(newState)
+      updateState(browserState.previousItem(terminalRows))
     case ViewAsTree      =>
       updateState(getNewBrowserState(browserState.rawValue, browserState.path))
     case InsertItem      ⇒
@@ -155,7 +133,7 @@ trait ObjectBrowserActionHandler {
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
-    case xs: MashList if xs.forall(x => x.isAString || x.isNull) =>
+    case xs: MashList =>
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
     case _                                                       =>

@@ -41,7 +41,8 @@ object ObjectClass extends MashClass("core.Object") {
       val boundParams = params.validate(arguments)
       val field = boundParams.validateString(FieldName).s
       val prefixOpt = boundParams.validateStringOpt(Prefix).map(_.s)
-      val fieldValue = obj.get(field).getOrElse(boundParams.throwInvalidArgument(FieldName, "No field named " + field))
+      val fieldValue = obj.get(field).getOrElse(
+        boundParams.throwInvalidArgument(FieldName, s"No '$field' field in value of type ${obj.typeName}"))
       fieldValue match {
         case subObject: MashObject ⇒
           hoist(obj, field, subObject, prefixOpt)

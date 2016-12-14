@@ -197,19 +197,36 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
   def selectedRow = scanData.rows(selectionPath)
 
-  private def upDown(delta: Int): ObjectTreeBrowserState = {
+  private def upDown(delta: Int, terminalRows: Int): ObjectTreeBrowserState = {
     val depths = scanData.pathDepths
 
     val selectDepth = depths(selectionPath)
     val allPathsAtDepth = scanData.pathsByDepth(selectDepth)
     val i = allPathsAtDepth.indexOf(selectionPath)
-    withSelectionPath(allPathsAtDepth((i + delta + allPathsAtDepth.size) % allPathsAtDepth.size))
+    val path = allPathsAtDepth((i + delta + allPathsAtDepth.size) % allPathsAtDepth.size)
+    withSelectionPath(path).adjustWindowToFit(terminalRows)
   }
 
-  def down: ObjectTreeBrowserState = upDown(1)
+  def nextItem(terminalRows: Int): ObjectTreeBrowserState = upDown(1, terminalRows)
 
-  def up: ObjectTreeBrowserState = upDown(-1)
+  def previousItem(terminalRows: Int): ObjectTreeBrowserState = upDown(-1, terminalRows)
 
   override def getInsertExpression: String = getNewPath
+
+  private def windowSize(terminalRows: Int) = terminalRows - 2 // 2 status rows
+
+  private def adjustWindowToFit(terminalRows: Int): ObjectTreeBrowserState = {
+    var newState = this
+
+    val delta = selectedRow - (firstRow + windowSize(terminalRows) - 1)
+    if (delta >= 0)
+      newState = newState.adjustFirstRow(delta)
+
+    val delta2 = firstRow - selectedRow
+    if (delta2 >= 0)
+      newState = newState.adjustFirstRow(-delta2)
+
+    newState
+  }
 
 }

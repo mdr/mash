@@ -6,9 +6,11 @@ import com.github.mdr.mash.runtime.MashList
 
 class TextLinesModelCreator(viewConfig: ViewConfig) {
 
-  def create(lines: MashList): TextLinesModel =
-    TextLinesModel(
-      for (line <- lines.items)
-        yield ToStringifier.stringify(line), lines)
+  def create(list: MashList): TextLinesModel = {
+    val lines =
+      for (line <- list.items)
+        yield ToStringifier.stringify(line)
+    TextLinesModel(lines, list)
+  }
 
 }
