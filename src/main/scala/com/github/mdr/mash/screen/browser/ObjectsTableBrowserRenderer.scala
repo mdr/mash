@@ -1,17 +1,15 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
 import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ Colour, KeyHint, LineBufferRenderer, _ }
+import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo)
@@ -19,16 +17,6 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
   private val objectTableStringifier = new ObjectsTableStringifier(terminalInfo, showSelections = true)
-
-  override def renderObjectBrowser: Screen = {
-    val lines = renderLines.map(_.truncate(terminalInfo.columns))
-    val title = "mash " + fileSystem.pwd.toString
-    val (cursorPos, cursorVisible) = state.expressionOpt match {
-      case Some(expression) => Point(0, expression.length + state.path.length) -> true
-      case _                => Point(0, 0) -> false
-    }
-    Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
-  }
 
   protected def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
@@ -125,14 +113,6 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
           case None             => renderRegularStatusLine
         }
     }
-
-  override protected def renderUpperStatusLine: Line = {
-    val fullExpression = state.expressionOpt match {
-      case Some(expression) => state.path + expression
-      case None             => state.path
-    }
-    Line(LineBufferRenderer.renderChars(fullExpression, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
-  }
 
   private def model = state.model
 

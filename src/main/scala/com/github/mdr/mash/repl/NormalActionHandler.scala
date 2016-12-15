@@ -60,7 +60,7 @@ trait NormalActionHandler { self: Repl ⇒
       val path = s"${ReplState.Res}$commandNumber"
       for (value <- state.globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
-        state.objectBrowserStateOpt = Some(ObjectBrowserState(List(browserState)))
+        state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
       }
     }
   }
@@ -215,7 +215,7 @@ trait NormalActionHandler { self: Repl ⇒
         case model: TextLinesModel    => new TextLinesBrowserState(model, path = path)
         case _                        => throw new RuntimeException("Unknown type of print model: " + printModel)
       }
-      state.objectBrowserStateOpt = Some(ObjectBrowserState(List(browserState)))
+      state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }
   }
 

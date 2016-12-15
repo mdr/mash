@@ -7,7 +7,8 @@ import com.github.mdr.mash.runtime.MashValue
 case class TextLinesBrowserState(model: TextLinesModel,
                                  path: String,
                                  selectedRow: Int = 0,
-                                 firstRow: Int = 0) extends BrowserState {
+                                 firstRow: Int = 0,
+                                 expressionOpt: Option[String] = None) extends BrowserState {
 
   override def rawValue: MashValue = model.rawValue
 
@@ -38,4 +39,9 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
     newState
   }
+
+  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+
+  def acceptExpression: BrowserState = copy(expressionOpt = None)
+
 }

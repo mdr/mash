@@ -7,7 +7,8 @@ import com.github.mdr.mash.utils.Utils._
 case class SingleObjectTableBrowserState(model: ObjectModel,
                                          selectedRow: Int = 0,
                                          firstRow: Int = 0,
-                                         path: String) extends BrowserState {
+                                         path: String,
+                                         expressionOpt: Option[String] = None) extends BrowserState {
 
   override def rawValue: MashObject = model.rawValue
 
@@ -55,5 +56,8 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
   }
 
   private def windowSize(terminalRows: Int) = terminalRows - 4 // 1 header row, 1 footer row, 2 status rows
+
+  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def acceptExpression: BrowserState = copy(expressionOpt = None)
 
 }

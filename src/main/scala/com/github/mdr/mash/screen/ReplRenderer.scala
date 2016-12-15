@@ -22,7 +22,7 @@ object ReplRenderer {
 
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateOpt match {
+  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateStackOpt match {
     case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalInfo)
     case None                     ⇒ renderRegularRepl(state, terminalInfo)
   }
@@ -69,8 +69,8 @@ object ReplRenderer {
     ReplRenderResult(screen)
   }
 
-  private def renderObjectBrowser(state: ObjectBrowserState, terminalInfo: TerminalInfo): ReplRenderResult =
-    state.browserState match {
+  private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalInfo: TerminalInfo): ReplRenderResult =
+    state.headState match {
       case objectTableBrowserState: ObjectsTableBrowserState       => renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
       case singleObjectBrowserState: SingleObjectTableBrowserState => renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
       case objectTreeBrowserState: ObjectTreeBrowserState          => renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)

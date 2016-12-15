@@ -131,7 +131,7 @@ class Repl(
   }
 
   def handleAction(action: InputAction) {
-    state.objectBrowserStateOpt match {
+    state.objectBrowserStateStackOpt match {
       case Some(state) ⇒
         handleObjBrowserAction(action, state)
       case None ⇒

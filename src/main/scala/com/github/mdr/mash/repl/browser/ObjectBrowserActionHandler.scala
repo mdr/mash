@@ -16,127 +16,137 @@ trait ObjectBrowserActionHandler {
   import ObjectBrowserActions._
 
   private def updateState(newState: BrowserState) {
-    state.objectBrowserStateOpt.foreach { objectBrowserState =>
-      state.objectBrowserStateOpt = Some(objectBrowserState.replaceCurrentState(newState))
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+      state.objectBrowserStateStackOpt = Some(objectBrowserState.replaceCurrentState(newState))
     }
   }
 
   private def navigateForward(newState: BrowserState) =
-    state.objectBrowserStateOpt.foreach { objectBrowserState =>
-      state.objectBrowserStateOpt = Some(objectBrowserState.pushNewState(newState))
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+      state.objectBrowserStateStackOpt = Some(objectBrowserState.pushNewState(newState))
     }
 
   private def navigateBack() =
-    state.objectBrowserStateOpt.foreach { objectBrowserState =>
-      state.objectBrowserStateOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+      state.objectBrowserStateStackOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
 
   private def adjustWindowToFit(state: ObjectsTableBrowserState): ObjectsTableBrowserState =
     state.adjustWindowToFit(terminalRows)
 
-  protected def handleObjBrowserAction(action: InputAction, browserState: ObjectBrowserState): Unit =
-    browserState.browserState match {
-      case objectTableBrowserState: ObjectsTableBrowserState       => handleObjectsTableBrowserAction(action, objectTableBrowserState)
-      case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
-      case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
-      case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
-      case textLinesBrowserState: TextLinesBrowserState            => handleTextLinesBrowserAction(action, textLinesBrowserState)
-      case _                                                       =>
+  protected def handleObjBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
+    browserStateStack.headState.expressionOpt match {
+      case Some(expression) =>
+        handleExpressionInputAction(action, browserStateStack.headState, expression)
+      case None             =>
+        browserStateStack.headState match {
+          case objectTableBrowserState: ObjectsTableBrowserState       => handleObjectsTableBrowserAction(action, objectTableBrowserState)
+          case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
+          case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
+          case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
+          case textLinesBrowserState: TextLinesBrowserState            => handleTextLinesBrowserAction(action, textLinesBrowserState)
+          case _                                                       =>
+        }
     }
-
 
   private val textLinesWindowSize = terminalRows - 2
 
   protected def handleTextLinesBrowserAction(action: InputAction, browserState: TextLinesBrowserState): Unit = action match {
-    case ExitBrowser     ⇒
-      state.objectBrowserStateOpt = None
-    case Back            =>
+    case ExitBrowser                     ⇒
+      state.objectBrowserStateStackOpt = None
+    case Back                            =>
       navigateBack()
-    case Open            =>
+    case Open                            =>
       handleOpenItem(browserState)
-    case InsertItem      =>
+    case InsertItem                      =>
       handleInsertItem(browserState)
-    case InsertWholeItem ⇒
+    case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
-    case NextItem        ⇒
+    case NextItem                        ⇒
       val newState = browserState.adjustSelectedRow(1, textLinesWindowSize)
       updateState(newState)
-    case PreviousItem    ⇒
+    case PreviousItem                    ⇒
       val newState = browserState.adjustSelectedRow(-1, textLinesWindowSize)
       updateState(newState)
-    case FirstItem       ⇒
+    case FirstItem                       ⇒
       val newState = browserState.copy(selectedRow = 0).adjustWindowToFit(textLinesWindowSize)
       updateState(newState)
-    case LastItem        ⇒
+    case LastItem                        ⇒
       val newRow = browserState.model.renderedLines.size - 1
       val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
       updateState(newState)
-    case NextPage        ⇒
+    case NextPage                        ⇒
       val newRow = math.min(browserState.model.renderedLines.size - 1, browserState.selectedRow + textLinesWindowSize - 1)
       val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
       updateState(newState)
-    case PreviousPage    ⇒
+    case PreviousPage                    ⇒
       val newRow = math.max(0, browserState.selectedRow - textLinesWindowSize - 1)
       val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(textLinesWindowSize)
       updateState(newState)
-    case Focus           ⇒
+    case Focus                           ⇒
       val rawObject = browserState.model.rawValue.items(browserState.selectedRow)
       focus(rawObject, browserState.getInsertExpression, tree = false)
-    case _               =>
+    case ExpressionInput.BeginExpression =>
+      updateState(browserState.setExpression(""))
+    case _                               =>
   }
 
   protected def handleValueBrowserAction(action: InputAction, browserState: ValueBrowserState): Unit = action match {
-    case ExitBrowser     ⇒
-      state.objectBrowserStateOpt = None
-    case Back            =>
+    case ExitBrowser                     ⇒
+      state.objectBrowserStateStackOpt = None
+    case Back                            =>
       navigateBack()
-    case InsertItem      ⇒
+    case InsertItem                      ⇒
       handleInsertItem(browserState)
-    case Open            =>
+    case Open                            =>
       handleOpenItem(browserState)
-    case InsertWholeItem ⇒
+    case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
-    case _               =>
+    case ExpressionInput.BeginExpression =>
+      updateState(browserState.setExpression(""))
+    case _                               =>
   }
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
-    case Focus           ⇒
+    case Focus                           ⇒
       focus(browserState.getSelectedValue, browserState.getNewPath, tree = true)
-    case ExitBrowser     ⇒
-      state.objectBrowserStateOpt = None
-    case Back            =>
+    case ExitBrowser                     ⇒
+      state.objectBrowserStateStackOpt = None
+    case Back                            =>
       navigateBack()
-    case NextColumn      ⇒
+    case NextColumn                      ⇒
       updateState(browserState.right)
-    case PreviousColumn  ⇒
+    case PreviousColumn                  ⇒
       updateState(browserState.left)
-    case NextItem        ⇒
+    case NextItem                        ⇒
       updateState(browserState.nextItem(terminalRows))
-    case PreviousItem    ⇒
+    case PreviousItem                    ⇒
       updateState(browserState.previousItem(terminalRows))
-    case ViewAsTree      =>
+    case ViewAsTree                      =>
       updateState(getNewBrowserState(browserState.rawValue, browserState.path))
-    case InsertItem      ⇒
+    case InsertItem                      ⇒
       handleInsertItem(browserState)
-    case Open            =>
+    case Open                            =>
       handleOpenItem(browserState)
-    case InsertWholeItem ⇒
+    case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
-    case _               =>
+    case ExpressionInput.BeginExpression =>
+      updateState(browserState.setExpression(""))
+    case _                               =>
   }
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
-    case obj: MashObject                                         =>
+    case obj: MashObject                                       =>
       val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
-    case xs: MashList if xs.forall(_.isInstanceOf[MashObject])   ⇒
+    case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) ⇒
       val objects = xs.items.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
-    case xs: MashList =>
+    case xs: MashList                                          =>
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
-    case _                                                       =>
+    case _                                                     =>
       val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
       ValueBrowserState(model, path = path)
   }
@@ -157,33 +167,35 @@ trait ObjectBrowserActionHandler {
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit =
     action match {
-      case NextItem        ⇒
+      case NextItem                        ⇒
         updateState(browserState.nextItem(terminalRows))
-      case PreviousItem    ⇒
+      case PreviousItem                    ⇒
         val newState = browserState.previousItem(terminalRows)
         updateState(newState)
-      case FirstItem       ⇒
+      case FirstItem                       ⇒
         updateState(browserState.firstItem(terminalRows))
-      case LastItem        ⇒
+      case LastItem                        ⇒
         updateState(browserState.lastItem(terminalRows))
-      case ExitBrowser     ⇒
-        state.objectBrowserStateOpt = None
-      case Focus           ⇒
+      case ExitBrowser                     ⇒
+        state.objectBrowserStateStackOpt = None
+      case Focus                           ⇒
         val field = browserState.selectedField
         val value = browserState.selectedRawValue
         val newPath = BrowserState.safeProperty(browserState.path, field)
         focus(value, newPath, tree = false)
-      case Back            =>
+      case Back                            =>
         navigateBack()
-      case InsertItem      ⇒
+      case InsertItem                      ⇒
         handleInsertItem(browserState)
-      case InsertWholeItem ⇒
+      case InsertWholeItem                 ⇒
         handleInsertWholeItem(browserState)
-      case Open            =>
+      case Open                            =>
         handleOpenItem(browserState)
-      case ViewAsTree      =>
+      case ViewAsTree                      =>
         viewAsTree(browserState)
-      case _               =>
+      case ExpressionInput.BeginExpression =>
+        updateState(browserState.setExpression(""))
+      case _                               =>
 
     }
 
@@ -192,15 +204,10 @@ trait ObjectBrowserActionHandler {
       case Some(searchState) =>
         handleIncrementalSearchAction(action, browserState, searchState)
       case None              =>
-        browserState.expressionOpt match {
-          case Some(expression) =>
-            handleExpressionInputAction(action, browserState, expression)
-          case None             =>
-            handleDefaultObjectsTableBrowserAction(action, browserState)
-        }
+        handleDefaultObjectsTableBrowserAction(action, browserState)
     }
 
-  private def handleExpressionInputAction(action: InputAction, browserState: ObjectsTableBrowserState, expression: String): Unit = {
+  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expression: String): Unit = {
     import ExpressionInput._
     action match {
       case SelfInsert(c)      =>
@@ -224,20 +231,22 @@ trait ObjectBrowserActionHandler {
   private def handleIncrementalSearchAction(action: InputAction, browserState: ObjectsTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._
     action match {
-      case SelfInsert(c) =>
+      case SelfInsert(c)                   =>
         updateState(browserState.setSearch(searchState.query + c, terminalRows))
-      case ToggleCase    =>
+      case ToggleCase                      =>
         updateState(browserState.toggleCase(terminalRows))
-      case Unsearch      =>
+      case Unsearch                        =>
         if (searchState.query.nonEmpty)
           updateState(browserState.setSearch(searchState.query.init, terminalRows))
-      case NextHit       =>
+      case NextHit                         =>
         updateState(browserState.nextHit(terminalRows))
-      case PreviousHit   =>
+      case PreviousHit                     =>
         updateState(browserState.previousHit(terminalRows))
-      case ExitSearch    =>
+      case ExitSearch                      =>
         updateState(browserState.stopSearching)
-      case _             =>
+      case ExpressionInput.BeginExpression =>
+        updateState(browserState.setExpression(""))
+      case _                               =>
     }
   }
 
@@ -263,7 +272,7 @@ trait ObjectBrowserActionHandler {
       case PreviousPage                    ⇒
         updateState(browserState.previousPage(terminalRows))
       case ExitBrowser                     ⇒
-        state.objectBrowserStateOpt = None
+        state.objectBrowserStateStackOpt = None
       case FirstItem                       ⇒
         updateState(browserState.firstItem(terminalRows))
       case LastItem                        ⇒
@@ -313,7 +322,7 @@ trait ObjectBrowserActionHandler {
 
   private def insert(s: String): Unit = {
     state.lineBuffer = LineBuffer(s)
-    state.objectBrowserStateOpt = None
+    state.objectBrowserStateStackOpt = None
   }
 
   private def handleInsertWholeItem(browserState: BrowserState) =
@@ -324,7 +333,7 @@ trait ObjectBrowserActionHandler {
 
   private def handleOpenItem(browserState: BrowserState) = {
     state.lineBuffer = LineBuffer.Empty
-    state.objectBrowserStateOpt = None
+    state.objectBrowserStateStackOpt = None
     updateScreenAfterAccept()
     val command = s"${browserState.getInsertExpression} | open"
     runCommand(command)

@@ -79,11 +79,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def setExpression(expression: String): BrowserState =
-    copy(expressionOpt = Some(expression))
-
-  def acceptExpression: BrowserState =
-    copy(expressionOpt = None)
+  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def acceptExpression: BrowserState = copy(expressionOpt = None)
 
   def setSearch(query: String, terminalRows: Int): BrowserState = {
     val ignoreCase = searchStateOpt.forall(_.ignoreCase)
