@@ -1,33 +1,22 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ Colour, KeyHint, Style, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo: TerminalInfo) {
+case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo: TerminalInfo)
+  extends AbstractBrowserRenderer(state, terminalInfo) {
 
-  private val fileSystem = LinuxFileSystem
-
-  def renderObjectBrowser: Screen = {
-    val lines = renderLines.map(_.truncate(terminalInfo.columns))
-    val title = "mash " + fileSystem.pwd.toString
-    Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
-  }
-
-  private def renderLines: Seq[Line] = {
+  protected def renderLines: Seq[Line] = {
     val printer = new Printer
     print(printer, state.model.root)
     renderUpperStatusLine +: printer.getLines.drop(state.firstRow).take(windowSize) :+ renderStatusLine
   }
-
-  private def renderUpperStatusLine: Line =
-    Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   private class Printer() {
 
@@ -164,6 +153,6 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  private val windowSize = terminalInfo.rows - 2 // two status lines
+  protected val windowSize = terminalInfo.rows - 2 // two status lines
 
 }

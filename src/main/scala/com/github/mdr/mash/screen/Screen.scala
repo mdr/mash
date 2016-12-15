@@ -5,16 +5,18 @@ import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
 import Style._
+
 case class Point(row: Int, column: Int) {
 
-  def up(rows: Int): Point = copy(row = row - rows)
+  def up(rows: Int = 1): Point = copy(row = row - rows)
 
   def down(rows: Int = 1): Point = copy(row = row + rows)
+
 }
 
 case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
 
-  def truncate(n: Int) = {
+  def truncate(n: Int) =
     if (chars.size > n)
       if (n > 0)
         copy(chars.take(n - 1) ++ "…".style(chars(n - 1).style))
@@ -22,7 +24,6 @@ case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
         copy(Seq())
     else
       this
-  }
 
 }
 

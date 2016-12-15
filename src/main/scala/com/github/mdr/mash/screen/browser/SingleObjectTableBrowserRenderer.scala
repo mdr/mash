@@ -1,27 +1,22 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.{ ObjectStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils._
 
-import scala.collection.mutable
+class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo)
+  extends AbstractBrowserRenderer(state, terminalInfo) {
 
-class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo) {
-  private val fileSystem = LinuxFileSystem
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
   private val objectStringifier = new ObjectStringifier(terminalInfo)
 
-  def renderObjectBrowser: Screen = {
-    val lines = renderLines.map(_.truncate(terminalInfo.columns))
-    val title = "mash " + fileSystem.pwd.toString
-    Screen(lines, cursorPos = Point(0, 0), cursorVisible = false, title = title)
-  }
+  private val model = state.model
 
-  private def renderLines: Seq[Line] = {
+  protected def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
     val headerLines = renderHeaderLines
     val dataLines = renderDataLines
@@ -29,9 +24,6 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     val statusLine = renderStatusLine
     Seq(upperStatusLine) ++ headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
-
-  private def renderUpperStatusLine: Line =
-    Line(LineBufferRenderer.renderChars(state.path, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
 
   private def renderHeaderLines: Seq[Line] = {
     val topRow = objectStringifier.renderTopRow(model)
@@ -71,8 +63,6 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     Line(renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree)))
   }
 
-  private def model = state.model
-
-  private def windowSize = terminalInfo.rows - 4 // an upper status line, one header row, a footer row, a status line
+  protected val windowSize = terminalInfo.rows - 4 // an upper status line, one header row, a footer row, a status line
 
 }

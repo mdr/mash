@@ -1,4 +1,4 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
@@ -6,6 +6,7 @@ import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacte
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ Colour, KeyHint, LineBufferRenderer, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils.tupled
 import com.github.mdr.mash.utils.{ StringUtils, Utils }
@@ -13,12 +14,13 @@ import com.github.mdr.mash.utils.{ StringUtils, Utils }
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo) {
-  private val fileSystem = LinuxFileSystem
+class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo)
+  extends AbstractBrowserRenderer(state, terminalInfo) {
+
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
   private val objectTableStringifier = new ObjectsTableStringifier(terminalInfo, showSelections = true)
 
-  def renderObjectBrowser: Screen = {
+  override def renderObjectBrowser: Screen = {
     val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
     val (cursorPos, cursorVisible) = state.expressionOpt match {
@@ -28,7 +30,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
   }
 
-  private def renderLines: Seq[Line] = {
+  protected def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
     val headerLines = renderHeaderLines
     val dataLines = renderDataLines
@@ -124,7 +126,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
         }
     }
 
-  private def renderUpperStatusLine: Line = {
+  override protected def renderUpperStatusLine: Line = {
     val fullExpression = state.expressionOpt match {
       case Some(expression) => state.path + expression
       case None             => state.path
@@ -136,6 +138,6 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private def currentRow = state.selectedRow
 
-  private def windowSize = terminalInfo.rows - 6 // upper status line, three header rows, a footer row, a lower status line
+  protected val windowSize = terminalInfo.rows - 6 // upper status line, three header rows, a footer row, a lower status line
 
 }
