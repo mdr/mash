@@ -28,5 +28,8 @@ object GitNamespace {
     branch.SetCommitFunction,
     branch.SwitchFunction,
     stash.ApplyFunction,
-    stash.CreateFunction)
+    stash.CreateFunction,
+    tag.CreateFunction,
+    tag.DeleteFunction,
+    tag.ListFunction)
 }

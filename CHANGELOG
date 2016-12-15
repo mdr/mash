@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* git.tag.create/delete/list
 * Text lines browser
 * Incremental search in objects browser
 * Date and DateTime can now be compared with >, <, etc

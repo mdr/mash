@@ -4,8 +4,9 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model.ObjectsTableModel
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
@@ -19,6 +20,8 @@ object ObjectsTableBrowserState {
   case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map(), ignoreCase: Boolean = true) {
     def rows = byPoint.map(_._1.row).toSeq.distinct.sorted
   }
+
+  case class SelectionInfo(path: String, rawObject: MashValue)
 
 }
 
@@ -102,8 +105,16 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   private val size = model.objects.size
   private val numberOfColumns = model.numberOfColumns
 
+  def previousItem(terminalRows: Int): ObjectsTableBrowserState = adjustSelectedRow(-1).adjustWindowToFit(terminalRows)
+
+  def nextItem(terminalRows: Int): ObjectsTableBrowserState = adjustSelectedRow(1).adjustWindowToFit(terminalRows)
+
   def adjustSelectedRow(delta: Int): ObjectsTableBrowserState =
     this.when(size > 0, _.copy(selectedRow = (selectedRow + delta + size) % size))
+
+  def nextColumn: ObjectsTableBrowserState = adjustSelectedColumn(1)
+
+  def previousColumn: ObjectsTableBrowserState = adjustSelectedColumn(-1)
 
   def adjustSelectedColumn(delta: Int): ObjectsTableBrowserState =
     if (numberOfColumns == 0)
@@ -129,21 +140,26 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   def withPath(newPath: String): ObjectsTableBrowserState = copy(path = newPath)
 
-  def getInsertExpression: String = {
+  def getInsertExpression: String = selectionInfo.path
+
+  def selectionInfo: SelectionInfo = {
     val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
-      val rowPath = s"$safePath[$selectedRow]"
-      currentColumnOpt match {
-        case Some(column) if column > 0 =>
-          val property = model.columnNames(column)
-          BrowserState.safeProperty(rowPath, property)
-        case _                          =>
-          s"$rowPath"
-      }
+      val rowObject = model.rawObjects(selectedRow)
+      val rowPath = s"$safePath[${selectedRow}]"
+      val cellSelectionInfoOpt =
+        for {
+          column <- currentColumnOpt
+          field = model.columnNames(column)
+          cellObject <- model.objects(selectedRow).rawObjects.get(field)
+          newPath = safeProperty(rowPath, field)
+        } yield SelectionInfo(newPath, cellObject)
+      cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))
     } else {
-      val rows = markedRows.toSeq.sorted
-      val items = rows.map(i ⇒ s"$safePath[$i]").mkString(", ")
-      s"[$items]"
+      val rowIndices = markedRows.toSeq.sorted
+      val rowsPath = rowIndices.map(i ⇒ s"$safePath[$i]").mkString("[", ", ", "]")
+      val rowObjects = MashList(rowIndices.map(model.rawObjects))
+      SelectionInfo(rowsPath, rowObjects)
     }
   }
 
@@ -172,5 +188,11 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
+
+  def firstItem(terminalRows: Int): ObjectsTableBrowserState =
+    copy(selectedRow = 0).adjustWindowToFit(terminalRows)
+
+  def lastItem(terminalRows: Int): ObjectsTableBrowserState =
+    copy(selectedRow = size - 1).adjustWindowToFit(terminalRows)
 
 }

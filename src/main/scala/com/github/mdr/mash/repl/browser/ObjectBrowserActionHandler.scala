@@ -6,7 +6,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
@@ -241,44 +241,33 @@ trait ObjectBrowserActionHandler {
     }
   }
 
-  protected def handleDefaultObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) = {
-    val model = browserState.model
-    val currentRow = browserState.selectedRow
+  protected def handleDefaultObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) =
     action match {
       case NextColumn                      ⇒
-        val newState = adjustWindowToFit(browserState.adjustSelectedColumn(1))
-        updateState(newState)
+        updateState(browserState.nextColumn)
       case PreviousColumn                  ⇒
-        val newState = adjustWindowToFit(browserState.adjustSelectedColumn(-1))
-        updateState(newState)
+        updateState(browserState.previousColumn)
       case UnfocusColumn                   ⇒
         val newState = adjustWindowToFit(browserState.unfocusColumn)
         updateState(newState)
       case FirstColumn                     =>
-        val newState = adjustWindowToFit(browserState.lastColumn)
-        updateState(newState)
+        updateState(browserState.lastColumn)
       case LastColumn                      =>
-        val newState = adjustWindowToFit(browserState.firstColumn)
-        updateState(newState)
+        updateState(browserState.firstColumn)
       case NextItem                        ⇒
-        val newState = adjustWindowToFit(browserState.adjustSelectedRow(1))
-        updateState(newState)
+        updateState(browserState.nextItem(terminalRows))
       case NextPage                        ⇒
         updateState(browserState.nextPage(terminalRows))
       case PreviousItem                    ⇒
-        val newState = adjustWindowToFit(browserState.adjustSelectedRow(-1))
-        updateState(newState)
+        updateState(browserState.previousItem(terminalRows))
       case PreviousPage                    ⇒
         updateState(browserState.previousPage(terminalRows))
       case ExitBrowser                     ⇒
         state.objectBrowserStateOpt = None
       case FirstItem                       ⇒
-        val newState = adjustWindowToFit(browserState.copy(selectedRow = 0))
-        updateState(newState)
+        updateState(browserState.firstItem(terminalRows))
       case LastItem                        ⇒
-        val newRow = model.objects.size - 1
-        val newState = adjustWindowToFit(browserState.copy(selectedRow = newRow))
-        updateState(newState)
+        updateState(browserState.lastItem(terminalRows))
       case InsertItem                      ⇒
         handleInsertItem(browserState)
       case InsertWholeItem                 ⇒
@@ -288,18 +277,8 @@ trait ObjectBrowserActionHandler {
       case Back                            =>
         navigateBack()
       case Focus                           ⇒
-        val rawObject = model.rawObjects(currentRow)
-        val index = browserState.selectedRow
-        val safePath = SafeParens.safeParens(browserState.path)
-        val (newPath, focusedObject) = browserState.currentColumnOpt match {
-          case Some(column) =>
-            val field = model.columnNames(column)
-            val obj = model.objects(index).rawObjects.getOrElse(field, rawObject)
-            val newPath = s"$safePath[$index].$field"
-            (newPath, obj)
-          case None         => (s"$safePath[$index]", rawObject)
-        }
-        focus(focusedObject, newPath, tree = false)
+        val SelectionInfo(path, rawObject) = browserState.selectionInfo
+        focus(rawObject, path, tree = false)
       case ToggleMarked                    ⇒
         updateState(browserState.toggleMark)
       case Rerender                        ⇒
@@ -317,7 +296,6 @@ trait ObjectBrowserActionHandler {
         updateState(browserState.setExpression(""))
       case _                               ⇒
     }
-  }
 
   private def handleHideColumn(browserState: ObjectsTableBrowserState) {
     for (currentColumn <- browserState.currentColumnOpt if currentColumn > 0) {
@@ -351,8 +329,6 @@ trait ObjectBrowserActionHandler {
     val command = s"${browserState.getInsertExpression} | open"
     runCommand(command)
   }
-
-  private def objectsBrowserWindowSize = terminalRows - 6 // three header rows, a footer row, two status lines
 
   private def terminalRows: Int = terminal.info.rows
 
