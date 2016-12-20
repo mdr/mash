@@ -3,11 +3,13 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
-import com.github.mdr.mash.printer.model.ObjectsTableModel
+import com.github.mdr.mash.printer.ViewConfig
+import com.github.mdr.mash.printer.model.{ ObjectsTableModel, ObjectsTableModelCreator }
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
+import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
 

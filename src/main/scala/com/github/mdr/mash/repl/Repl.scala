@@ -133,7 +133,7 @@ class Repl(
   def handleAction(action: InputAction) {
     state.objectBrowserStateStackOpt match {
       case Some(state) ⇒
-        handleObjBrowserAction(action, state)
+        handleObjectBrowserAction(action, state)
       case None ⇒
         state.completionStateOpt match {
           case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)

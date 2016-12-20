@@ -21,15 +21,15 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
   def size = model.renderedLines.size
 
-  def adjustSelectedRow(delta: Int, windowSize: Int): TextLinesBrowserState =
-    copy(selectedRow = (selectedRow + delta + size) % size).adjustWindowToFit(windowSize)
+  def adjustSelectedRow(delta: Int, terminalRows: Int): TextLinesBrowserState =
+    copy(selectedRow = (selectedRow + delta + size) % size).adjustWindowToFit(terminalRows)
 
   def adjustFirstRow(delta: Int): TextLinesBrowserState = copy(firstRow = firstRow + delta)
 
-  def adjustWindowToFit(windowSize: Int): TextLinesBrowserState = {
+  def adjustWindowToFit(terminalRows: Int): TextLinesBrowserState = {
     var newState = this
 
-    val delta = selectedRow - (firstRow + windowSize - 1)
+    val delta = selectedRow - (firstRow + windowSize(terminalRows) - 1)
     if (delta >= 0)
       newState = newState.adjustFirstRow(delta)
 
@@ -43,5 +43,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
   def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
 
   def acceptExpression: BrowserState = copy(expressionOpt = None)
+
+  private def windowSize(terminalRows: Int) = terminalRows - 2
 
 }

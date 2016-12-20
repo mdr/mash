@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Object browser can apply an expression to the result
 * git.tag.create/delete/list
 * Text lines browser
 * Incremental search in objects browser
@@ -18,7 +19,7 @@ v0.0.5 (..)
 * config.view.humanTime -- control whether to display relative friendly datetimes
 * sortBy can pass in multiple attributes as sort keys
 * History navigation skips over multiline entries until "committed" to by some non-history action
-* Comparision operators handle nulls
+* Comparison operators handle nulls
 * sort/sortBy handle nulls
 * Add collection.indexOf
 * Add core.try
