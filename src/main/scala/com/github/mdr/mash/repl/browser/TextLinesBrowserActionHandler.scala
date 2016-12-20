@@ -19,29 +19,19 @@ trait TextLinesBrowserActionHandler {
     case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
     case NextItem                        ⇒
-      val newState = browserState.adjustSelectedRow(1, terminalRows)
-      updateState(newState)
+      updateState(browserState.nextItem(terminalRows))
     case PreviousItem                    ⇒
-      val newState = browserState.adjustSelectedRow(-1, terminalRows)
-      updateState(newState)
+      updateState(browserState.previousItem(terminalRows))
     case FirstItem                       ⇒
-      val newState = browserState.copy(selectedRow = 0).adjustWindowToFit(terminalRows)
-      updateState(newState)
+      updateState(browserState.firstItem(terminalRows))
     case LastItem                        ⇒
-      val newRow = browserState.model.renderedLines.size - 1
-      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
-      updateState(newState)
+      updateState(browserState.lastItem(terminalRows))
     case NextPage                        ⇒
-      val newRow = math.min(browserState.model.renderedLines.size - 1, browserState.selectedRow + terminalRows - 1)
-      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
-      updateState(newState)
+      updateState(browserState.nextPage(terminalRows))
     case PreviousPage                    ⇒
-      val newRow = math.max(0, browserState.selectedRow - terminalRows - 1)
-      val newState = browserState.copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
-      updateState(newState)
+      updateState(browserState.previousPage(terminalRows))
     case Focus                           ⇒
-      val rawObject = browserState.model.rawValue.items(browserState.selectedRow)
-      focus(rawObject, browserState.getInsertExpression, tree = false)
+      focus(browserState, tree = false)
     case ExpressionInput.BeginExpression =>
       updateState(browserState.setExpression(""))
     case _                               =>

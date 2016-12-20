@@ -6,8 +6,6 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
@@ -15,7 +13,7 @@ trait ObjectBrowserActionHandler
   extends TextLinesBrowserActionHandler
     with ValueBrowserActionHandler
     with ObjectTreeBrowserActionHandler
-    with SingleObjectBrowserActionHandler
+    with SingleObjectTableBrowserActionHandler
     with ObjectsTableBrowserActionHandler {
   self: Repl ⇒
 
@@ -37,7 +35,12 @@ trait ObjectBrowserActionHandler
       state.objectBrowserStateStackOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
 
-  protected def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
+  protected def focus(browserState: BrowserState, tree: Boolean = false): Unit = {
+    val selectionInfo = browserState.selectionInfo
+    focus(selectionInfo.rawObject, selectionInfo.path, tree)
+  }
+
+  private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
     navigateForward(
       if (tree && (value.isInstanceOf[MashList] || value.isAnObject)) {
         val model = new ObjectTreeModelCreator(state.viewConfig).create(value)

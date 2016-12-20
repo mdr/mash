@@ -19,7 +19,29 @@ case class TextLinesBrowserState(model: TextLinesModel,
     s"$safePath[$selectedRow]"
   }
 
+  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, model.rawValue.items(selectedRow))
+
   def size = model.renderedLines.size
+
+  def previousItem(terminalRows: Int): TextLinesBrowserState = adjustSelectedRow(-1, terminalRows)
+
+  def nextItem(terminalRows: Int): TextLinesBrowserState = adjustSelectedRow(1, terminalRows)
+
+  def firstItem(terminalRows: Int): TextLinesBrowserState =
+    copy(selectedRow = 0).adjustWindowToFit(terminalRows)
+
+  def lastItem(terminalRows: Int): TextLinesBrowserState =
+    copy(selectedRow = size - 1).adjustWindowToFit(terminalRows)
+
+  def nextPage(terminalRows: Int): TextLinesBrowserState = {
+    val newRow = math.min(size - 1, selectedRow + windowSize(terminalRows) - 1)
+    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+  }
+
+  def previousPage(terminalRows: Int): TextLinesBrowserState = {
+    val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
+    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+  }
 
   def adjustSelectedRow(delta: Int, terminalRows: Int): TextLinesBrowserState =
     copy(selectedRow = (selectedRow + delta + size) % size).adjustWindowToFit(terminalRows)

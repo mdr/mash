@@ -41,6 +41,8 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
     BrowserState.safeProperty(command, field)
   }
 
+  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, selectedRawValue)
+
   def adjustWindowToFit(terminalRows: Int): SingleObjectTableBrowserState = {
     var newState = this
 

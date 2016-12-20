@@ -4,7 +4,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
 
-trait SingleObjectBrowserActionHandler {
+trait SingleObjectTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl =>
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit =
@@ -21,10 +21,7 @@ trait SingleObjectBrowserActionHandler {
       case ExitBrowser                     ⇒
         state.objectBrowserStateStackOpt = None
       case Focus                           ⇒
-        val field = browserState.selectedField
-        val value = browserState.selectedRawValue
-        val newPath = BrowserState.safeProperty(browserState.path, field)
-        focus(value, newPath, tree = false)
+        focus(browserState)
       case Back                            =>
         navigateBack()
       case InsertItem                      ⇒

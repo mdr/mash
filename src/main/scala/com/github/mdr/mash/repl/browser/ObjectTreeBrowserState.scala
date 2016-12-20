@@ -214,6 +214,8 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
   override def getInsertExpression: String = getNewPath
 
+  override def selectionInfo: SelectionInfo = SelectionInfo(getNewPath, getSelectedValue)
+
   private def windowSize(terminalRows: Int) = terminalRows - 2 // 2 status rows
 
   private def adjustWindowToFit(terminalRows: Int): ObjectTreeBrowserState = {

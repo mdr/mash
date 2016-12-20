@@ -3,13 +3,11 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
-import com.github.mdr.mash.printer.ViewConfig
-import com.github.mdr.mash.printer.model.{ ObjectsTableModel, ObjectsTableModelCreator }
+import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
-import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
 
@@ -22,9 +20,6 @@ object ObjectsTableBrowserState {
   case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map(), ignoreCase: Boolean = true) {
     def rows = byPoint.map(_._1.row).toSeq.distinct.sorted
   }
-
-  case class SelectionInfo(path: String, rawObject: MashValue)
-
 }
 
 case class ObjectsTableBrowserState(model: ObjectsTableModel,
@@ -145,7 +140,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
       val rowObject = model.rawObjects(selectedRow)
-      val rowPath = s"$safePath[${selectedRow}]"
+      val rowPath = s"$safePath[$selectedRow]"
       val cellSelectionInfoOpt =
         for {
           column <- currentColumnOpt

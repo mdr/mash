@@ -31,11 +31,16 @@ trait BrowserState {
 
   def getInsertExpression: String
 
+  def selectionInfo: SelectionInfo
+
   def setExpression(expression: String): BrowserState
 
   def acceptExpression: BrowserState
 
 }
+
+case class SelectionInfo(path: String, rawObject: MashValue)
+
 
 case class ObjectBrowserStateStack(browserStates: List[BrowserState]) {
   require(browserStates.nonEmpty)

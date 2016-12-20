@@ -9,7 +9,7 @@ trait ObjectTreeBrowserActionHandler {
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
     case Focus                           ⇒
-      focus(browserState.getSelectedValue, browserState.getNewPath, tree = true)
+      focus(browserState, tree = true)
     case ExitBrowser                     ⇒
       state.objectBrowserStateStackOpt = None
     case Back                            =>

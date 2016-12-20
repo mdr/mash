@@ -13,6 +13,8 @@ case class ValueBrowserState(model: ValueModel,
 
   override def getInsertExpression: String = path
 
+  override def selectionInfo: SelectionInfo = SelectionInfo(path, model.rawValue)
+
   def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
 
   def acceptExpression: BrowserState = copy(expressionOpt = None)

@@ -5,7 +5,7 @@ import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ SearchState, SelectionInfo }
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 
 trait ObjectsTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl =>
@@ -76,8 +76,7 @@ trait ObjectsTableBrowserActionHandler {
       case Back                            =>
         navigateBack()
       case Focus                           ⇒
-        val SelectionInfo(path, rawObject) = browserState.selectionInfo
-        focus(rawObject, path, tree = false)
+        focus(browserState)
       case ToggleMarked                    ⇒
         updateState(browserState.toggleMark)
       case Rerender                        ⇒
