@@ -91,7 +91,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case xs: MashList                     ⇒ lookupMethod(xs, ListClass, name)
       case f: MashFunction                  ⇒ lookupMethod(f, FunctionClass, name)
       case bm: BoundMethod                  ⇒ lookupMethod(bm, BoundMethodClass, name)
-      case klass: MashClass                 ⇒ lookupMethod(klass, ClassClass, name)
+      case klass: MashClass                 ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
       case dt @ MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date @ MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
       case obj: MashObject                  ⇒ obj.get(name) orElse lookupMethod(obj, name)

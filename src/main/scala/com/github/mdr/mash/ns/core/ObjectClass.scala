@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, MashClass }
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.parser.AbstractSyntax.StringLiteral
 import com.github.mdr.mash.runtime._
@@ -12,12 +12,47 @@ import scala.collection.immutable.ListMap
 
 object ObjectClass extends MashClass("core.Object") {
 
+  override val staticMethods = Seq(
+    MergeFunction)
+
   override val methods = Seq(
     FieldsMethod,
     GetMethod,
     HasFieldMethod,
     HoistMethod,
     WithFieldMethod)
+
+  object MergeFunction extends MashFunction("merge") {
+
+    object Params {
+      val Objects = Parameter(
+        name = "objects",
+        summary = "Objects to merge",
+        isVariadic = true,
+        variadicAtLeastOne = true)
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Objects))
+
+    override def apply(arguments: Arguments): MashObject = {
+      val boundParams = params.validate(arguments)
+      val xs = boundParams.validateSequence(Objects)
+      val items = xs match {
+        case Seq(list: MashList) => list.items
+        case _                   => xs
+      }
+      val objects = items.map {
+        case item: MashObject => item
+        case badItem => boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
+      }
+      objects.reduce(_ + _)
+    }
+
+    override def summary: String = "Merge objects together"
+
+  }
 
   object HoistMethod extends MashMethod("hoist") {
 
@@ -32,6 +67,7 @@ object ObjectClass extends MashClass("core.Object") {
         isFlag = true,
         flagValueNameOpt = Some("prefix"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(FieldName, Prefix))
@@ -46,19 +82,19 @@ object ObjectClass extends MashClass("core.Object") {
       fieldValue match {
         case subObject: MashObject ⇒
           hoist(obj, field, subObject, prefixOpt)
-        case xs: MashList ⇒
+        case xs: MashList          ⇒
           MashList(xs.items.map {
             case subObject: MashObject ⇒
               hoist(obj, field, subObject, prefixOpt)
             case x                     ⇒
               boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
           })
-        case x ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
+        case x                     ⇒ boundParams.throwInvalidArgument(FieldName, "Field value is not an object, but instead a " + x.typeName)
       }
     }
 
     private def hoist(obj: MashObject, field: String, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
-      val subFields = subObject.fields.toSeq.map { case (field, value) => (prefixOpt.getOrElse("") + field)-> value}
+      val subFields = subObject.fields.toSeq.map { case (field, value) => (prefixOpt.getOrElse("") + field) -> value }
       val originalFields = obj.fields.toSeq
       val index = originalFields.indexWhere(_._1 == field)
       val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)
@@ -88,7 +124,7 @@ object ObjectClass extends MashClass("core.Object") {
       private def getFields(typ: Type): Option[Map[String, Type]] = condOpt(typ) {
         case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
           klass.fieldsMap.mapValues(_.fieldType)
-        case Type.Object(fields) => fields
+        case Type.Object(fields)                                    => fields
       }
 
     }
@@ -105,7 +141,8 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def summary = "Hoist the fields of a subobject up into this object"
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   { 
     foo: 42, 
     bar: {
@@ -119,7 +156,7 @@ object ObjectClass extends MashClass("core.Object") {
     baz1: 100,
     baz2: 200 
   }
-""")
+      """)
 
   }
 
@@ -150,6 +187,7 @@ object ObjectClass extends MashClass("core.Object") {
         name = "name",
         summary = "Field name")
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Name))
@@ -177,6 +215,7 @@ object ObjectClass extends MashClass("core.Object") {
         summary = "Default to use if no field with that name present in object (default null)",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Name, Default))
@@ -239,6 +278,7 @@ object ObjectClass extends MashClass("core.Object") {
         name = "value",
         summary = "Field value")
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Name, Value))
@@ -258,14 +298,14 @@ object ObjectClass extends MashClass("core.Object") {
         targetTypeOpt.flatMap {
           case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
             Some(Type.Instance(klass))
-          case Type.Object(fields) ⇒
+          case Type.Object(fields)                                    ⇒
             for {
               AnnotatedExpr(nameExprOpt, _) ← argBindings.get(WithFieldMethod.Params.Name)
               StringLiteral(s, _, _, _) ← nameExprOpt
               AnnotatedExpr(_, valueTypeOpt) ← argBindings.get(WithFieldMethod.Params.Value)
               valueType ← valueTypeOpt
             } yield Type.Object(fields + (s -> valueType))
-          case _ ⇒
+          case _                                                      ⇒
             None
         }
       }

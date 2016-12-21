@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.functions.{ HasName, MashMethod, Namespace }
+import com.github.mdr.mash.functions.{ HasName, MashFunction, MashMethod, Namespace }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime.MashValue
@@ -45,9 +45,13 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
   def methods: Seq[MashMethod] = Seq()
 
+  def staticMethods: Seq[MashFunction] = Seq()
+
   def getMethod(name: String) = methods.find(_.name == name)
 
   lazy val memberNames: Seq[String] = fields.map(_.name) ++ methods.map(_.name)
+
+  def getStaticMethod(name: String): Option[MashFunction] = staticMethods.find(_.name == name)
 
   override def toString = fullyQualifiedName.toString
 
