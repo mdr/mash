@@ -8,10 +8,7 @@ case class AnonymousFunction(params: ParameterModel, body: Expr, context: Evalua
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val pairs =
-      for (param ← params.params if param.bindsName)
-        yield param.name -> boundParams(param)
-    val newScopeStack = context.scopeStack.withBlockScope(pairs)
+    val newScopeStack = context.scopeStack.withBlockScope(boundParams.boundNames.toSeq)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 

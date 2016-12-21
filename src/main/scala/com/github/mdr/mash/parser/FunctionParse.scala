@@ -31,7 +31,7 @@ trait FunctionParse { self: MashParse ⇒
 
   private def paramList(): ParamList = {
     val params = ArrayBuffer[FunctionParam]()
-    safeWhile(IDENTIFIER || LPAREN || HOLE) {
+    safeWhile(IDENTIFIER || LPAREN || LBRACE || HOLE) {
       params += parameter()
     }
     ParamList(params)
@@ -61,7 +61,7 @@ trait FunctionParse { self: MashParse ⇒
               DefaultParam(name, equals, defaultExpr)
             } else
               param
-          case _ ⇒
+          case _                 ⇒
             param
         }
       val rparen =
@@ -72,6 +72,35 @@ trait FunctionParse { self: MashParse ⇒
         else
           errorExpectedToken(")")
       ParenParam(lparen, lazyOpt, actualParam, rparen)
+    } else if (LBRACE) {
+      val lbrace = nextToken()
+      val pattern =
+        if (RBRACE) {
+          val rbrace = nextToken()
+          ObjectPattern(lbrace, None, rbrace)
+        } else {
+          def parseItem() =
+            if (IDENTIFIER)
+              nextToken()
+            else
+              syntheticToken(IDENTIFIER)
+          val firstItem = parseItem()
+          val items = ArrayBuffer[(Token, Token)]()
+          safeWhile(COMMA) {
+            val comma = nextToken()
+            val item = parseItem()
+            items += (comma -> item)
+          }
+          val rbrace =
+            if (RBRACE)
+              nextToken()
+            else if (forgiving)
+              syntheticToken(RBRACE)
+            else
+              errorExpectedToken("]")
+          ObjectPattern(lbrace, Some(ObjectPatternContents(firstItem, items)), rbrace)
+        }
+      PatternParam(pattern)
     } else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else

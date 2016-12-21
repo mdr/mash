@@ -674,5 +674,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def foo (n = 0) = n * 2; foo -2" shouldEvaluateTo "-4" // <-- negative number literal confusion bug
 
   // scope
-  "a = 0; while (a < 10) { a = a + 1 }; a" shouldEvaluateTo ("10")
+  "a = 0; while (a < 10) { a = a + 1 }; a" shouldEvaluateTo "10"
+
+  // Patterns
+  "{ foo: 42, bar: 128 } | { foo } => foo + 1" shouldEvaluateTo "43"
+  "{ foo: 42, bar: 128 } | { wibble } => wibble" shouldEvaluateTo "null"
+  "{ foo: 42, bar: 128 } | { foo, bar } => foo + bar" shouldEvaluateTo "170"
+
 }

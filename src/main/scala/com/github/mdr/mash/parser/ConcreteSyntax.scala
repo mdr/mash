@@ -215,6 +215,16 @@ object ConcreteSyntax {
     lazy val tokens = (start +: expr.tokens) :+ rbrace
   }
 
+  sealed trait Pattern extends AstNode
+
+  case class ObjectPattern(lbrace: Token, contentsOpt: Option[ObjectPatternContents], rbrace: Token) extends Pattern {
+    lazy val tokens = lbrace +: contentsOpt.toSeq.flatMap(_.tokens) :+ rbrace
+  }
+
+  case class ObjectPatternContents(firstItem: Token, otherItems: Seq[(Token, Token)]) extends AstNode {
+    lazy val tokens = Seq(firstItem) ++ otherItems.flatMap { case (comma, item) ⇒ Seq(comma, item) }
+  }
+
   sealed trait FunctionParam extends AstNode
 
   case class AnonymousParam(hole: Token) extends FunctionParam {
@@ -223,6 +233,10 @@ object ConcreteSyntax {
 
   case class SimpleParam(name: Token) extends FunctionParam {
     lazy val tokens = Seq(name)
+  }
+
+  case class PatternParam(pattern: Pattern) extends FunctionParam {
+    lazy val tokens = pattern.tokens
   }
 
   case class ParenParam(lparen: Token, lazyOpt: Option[Token], param: FunctionParam, rparen: Token) extends FunctionParam {

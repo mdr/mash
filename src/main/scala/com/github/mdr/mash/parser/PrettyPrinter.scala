@@ -74,7 +74,7 @@ object PrettyPrinter {
     case FunctionDeclaration(name, params, body, _) ⇒
       val preparams = if (params.params.isEmpty) "" else " "
       "def " + name + preparams + params.params.map(pretty).mkString(" ") + " = " + pretty(body)
-    case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _) ⇒
+    case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
       var descr = nameOpt.getOrElse("_")
       if (isVariadic)
         descr += "..."

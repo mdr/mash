@@ -89,6 +89,14 @@ class Abstractifier(provenance: Provenance) {
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
     case Concrete.DefaultParam(name, _, defaultExpr) ⇒
       Abstract.FunctionParam(Some(name.text), defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
+    case Concrete.PatternParam(pattern) =>
+      Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
+  }
+
+  private def abstractifyPattern(pattern: Concrete.Pattern): Abstract.Pattern = pattern match {
+    case Concrete.ObjectPattern(_, contentsOpt, _) =>
+      val fieldNames = contentsOpt.map(contents => contents.firstItem +: contents.otherItems.map(_._2)).getOrElse(Seq()).map(_.text)
+      Abstract.ObjectPattern(fieldNames, sourceInfoOpt = sourceInfo(pattern))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {

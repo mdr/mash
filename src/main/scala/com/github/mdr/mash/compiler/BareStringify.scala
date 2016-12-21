@@ -61,8 +61,8 @@ class BareStringificationContext {
         newBindings = newBindings ++ extraGlobals
       }
       StatementSeq(res, sourceInfoOpt)
-    case LambdaExpr(parameter, body, sourceInfoOpt) ⇒
-      LambdaExpr(parameter, bareStringify(body, bindings ++ parameter.params.flatMap(_.nameOpt)), sourceInfoOpt)
+    case LambdaExpr(params, body, sourceInfoOpt) ⇒
+      LambdaExpr(params, bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt) ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
     case MemberExpr(expr, name, isNullSafe, sourceInfoOpt) ⇒
@@ -114,7 +114,7 @@ class BareStringificationContext {
       }
       MishInterpolation(newPart, sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
-      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.params.flatMap(_.nameOpt) + name), sourceInfoOpt)
+      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt) ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }

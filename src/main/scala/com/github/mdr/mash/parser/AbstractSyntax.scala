@@ -91,8 +91,8 @@ object AbstractSyntax {
         ExprPart(expr.transform(f))
       case StringPart(_) ⇒
         this
-      case FunctionParam(name, isVariadic, defaultOpt, isLazy, sourceInfoOpt) ⇒
-        FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, sourceInfoOpt)
+      case FunctionParam(name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt) ⇒
+        FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, patternOpt, sourceInfoOpt)
       case Argument.PositionArg(expr, sourceInfoOpt) ⇒
         Argument.PositionArg(expr.transform(f), sourceInfoOpt)
       case Argument.ShortFlag(_, _) ⇒
@@ -101,6 +101,8 @@ object AbstractSyntax {
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
       case ParamList(params) ⇒
         ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
+      case ObjectPattern(_, _) =>
+        this
     }
 
   }
@@ -122,6 +124,18 @@ object AbstractSyntax {
 
     override def toString: String = PrettyPrinter.pretty(this)
 
+  }
+
+  sealed trait Pattern extends AstNode {
+
+    def boundNames: Seq[String]
+
+  }
+
+  case class ObjectPattern(fieldNames: Seq[String], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
+    def boundNames: Seq[String] = fieldNames
   }
 
   case class Literal(value: MashValue, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
@@ -309,9 +323,15 @@ object AbstractSyntax {
     def children = Seq(arg)
   }
 
-  case class FunctionParam(nameOpt: Option[String], isVariadic: Boolean = false, defaultExprOpt: Option[Expr] = None, isLazy: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+  case class FunctionParam(nameOpt: Option[String],
+                           isVariadic: Boolean = false,
+                           defaultExprOpt: Option[Expr] = None,
+                           isLazy: Boolean = false,
+                           patternOpt: Option[Pattern] = None,
+                           sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = defaultExprOpt.toSeq
+    def boundNames: Seq[String] = nameOpt.toSeq ++ patternOpt.toSeq.flatMap(_.boundNames)
   }
 
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {
@@ -322,6 +342,7 @@ object AbstractSyntax {
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = this
 
+    def boundNames = params.flatMap(_.boundNames)
   }
 
   case class FunctionDeclaration(name: String, params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

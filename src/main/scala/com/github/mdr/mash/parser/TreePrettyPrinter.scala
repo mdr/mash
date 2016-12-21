@@ -119,7 +119,7 @@ object TreePrettyPrinter {
         for (param ← params.params)
           printTree(param, depth + 1)
         printTree(body, depth + 1)
-      case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _) ⇒
+      case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
         var descr = nameOpt.getOrElse("_")
         if (isVariadic)
           descr += "..."

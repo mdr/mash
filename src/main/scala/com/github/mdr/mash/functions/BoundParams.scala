@@ -8,12 +8,12 @@ import com.github.mdr.mash.runtime._
 
 import scala.util.control.Exception._
 
-case class BoundParams(params: Map[String, MashValue],
+case class BoundParams(boundNames: Map[String, MashValue],
                        argumentNodes: Map[String, Seq[Argument]]) {
 
-  def apply(param: String): MashValue = params(param)
+  def apply(param: String): MashValue = boundNames(param)
 
-  def apply(param: Parameter): MashValue = params(param.name)
+  def apply(param: Parameter): MashValue = boundNames(param.name)
 
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {

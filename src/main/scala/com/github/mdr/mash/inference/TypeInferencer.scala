@@ -70,7 +70,16 @@ class TypeInferencer {
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
       case LambdaExpr(params, body, _) ⇒
-        inferType(body, bindings ++ params.params.collect { case FunctionParam(Some(name), _, _, _, _) ⇒ name -> Type.Any }) // Preliminary -- might be updated to be more precise in an outer context
+        // Preliminary -- might be updated to be more precise in an outer context
+        def getPreliminaryBindings(param: FunctionParam): Seq[(String, Type)] = param match {
+          case FunctionParam(Some(name), _, _, _, _, _) ⇒
+            Seq(name -> Type.Any)
+          case FunctionParam(None, _, _, _, Some(pattern), _) ⇒
+            for (name <- pattern.boundNames)
+              yield name -> Type.Any
+          case _ => Seq()
+        }
+        inferType(body, bindings ++ params.params.flatMap(getPreliminaryBindings))
         Some(Type.Lambda(params.params.flatMap(_.nameOpt), body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
