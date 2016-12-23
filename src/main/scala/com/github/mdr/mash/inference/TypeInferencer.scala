@@ -296,6 +296,8 @@ class TypeInferencer {
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(InferencerImpl(this, bindings), typedArgs)
       case Type.Lambda(parameters, expr, lambdaBindings) ⇒
+        // TODO: convert parameters to ParameterModel, bind to TypedArguments, then bind names to types for each param
+        // (possibly including pattern bindings)
         val argBindings =
           for {
             (parameter, typeOpt) ← parameters.zip(typedArgs.positionArgs.map(_.typeOpt))
