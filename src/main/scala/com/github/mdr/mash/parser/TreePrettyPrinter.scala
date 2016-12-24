@@ -88,6 +88,12 @@ object TreePrettyPrinter {
         println("AssignmentExpr" + typeDescription + (if (alias) " (alias)" else "") + operatorOpt.map(" " + _).getOrElse(""))
         printTree(left, depth + 1)
         printTree(right, depth + 1)
+      case PatternAssignmentExpr(pattern, right, _) ⇒
+        println("PatternAssignmentExpr" + typeDescription + " = ")
+        printTree(pattern, depth + 1)
+        printTree(right, depth + 1)
+      case ObjectPattern(fieldNames, _) =>
+        println(fieldNames.mkString("{ ", ", ", " }"))
       case ListExpr(items, _) ⇒
         println("ListExpr" + typeDescription)
         for (item ← items)

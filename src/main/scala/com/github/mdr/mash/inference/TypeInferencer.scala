@@ -97,7 +97,7 @@ class TypeInferencer {
   }
 
   private def inferType(assignmentExpr: PatternAssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
-    val PatternAssignmentExpr(pattern, right, _) = assignmentExpr
+    val PatternAssignmentExpr(_, right, _) = assignmentExpr
     val rightTypeOpt = inferType(right, bindings)
     rightTypeOpt
   }
