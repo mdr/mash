@@ -43,7 +43,15 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
         Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables.fields)))
       }
 
-    def shouldEvaluateTo(expectedString: String) =
+    def shouldEvaluateTo(expected: Int): Unit = shouldEvaluateTo(expected.toString)
+
+    def shouldEvaluateTo(expected: Boolean): Unit = shouldEvaluateTo(expected.toString)
+
+    def shouldEvaluateTo(expected: Double): Unit = shouldEvaluateTo(expected.toString)
+
+    def shouldEvaluateTo(expected: Null): Unit = shouldEvaluateTo("null")
+
+    def shouldEvaluateTo(expectedString: String): Unit =
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
         val env = StandardEnvironment.create
 

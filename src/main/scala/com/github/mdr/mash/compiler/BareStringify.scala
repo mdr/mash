@@ -54,11 +54,7 @@ class BareStringificationContext {
       for (s ← statements) {
         res += bareStringify(s, newBindings)
         // Flawed -- these assignments might occur within nested local scopes, and therefore not matter:
-        val extraGlobals = s.findAll {
-          case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
-          case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
-          case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
-        }.flatten
+        val extraGlobals = getNewlyBoundNames(s)
         newBindings = newBindings ++ extraGlobals
       }
       StatementSeq(res, sourceInfoOpt)
@@ -78,11 +74,7 @@ class BareStringificationContext {
       }
       InvocationExpr(bareStringify(function, bindings), newArguments, isParenInvocation, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
-      val extraGlobals = left.findAll {
-        case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
-        case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
-        case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
-      }.flatten
+      val extraGlobals = getNewlyBoundNames(left)
       val newBindings = bindings ++ extraGlobals
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)
     case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
@@ -121,4 +113,10 @@ class BareStringificationContext {
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
 
+  def getNewlyBoundNames(left: Expr): Seq[String] =
+    left.findAll {
+      case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
+      case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
+      case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
+    }.flatten
 }

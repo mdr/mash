@@ -47,8 +47,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-
-    private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
+  private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val LookupExpr(target, index, _) = lookupExpr
     val targetValue = Evaluator.evaluate(target)
     val indexValue = Evaluator.evaluate(index)
