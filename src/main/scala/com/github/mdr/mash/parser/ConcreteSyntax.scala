@@ -54,10 +54,17 @@ object ConcreteSyntax {
   case class Hole(token: Token) extends Expr { val tokens = Seq(token) }
 
   /**
-   * a = b, a += b, a -= b, a *= b, a /= b
-   */
+    * a = b, a += b, a -= b, a *= b, a /= b
+    */
   case class AssignmentExpr(left: Expr, equals: Token, aliasOpt: Option[Token], right: Expr) extends Expr {
     lazy val tokens = (left.tokens :+ equals) ++ aliasOpt.toSeq ++ right.tokens
+  }
+
+  /**
+    * { a, b } = someObject
+    */
+  case class PatternAssignmentExpr(left: Pattern, equals: Token, right: Expr) extends Expr {
+    lazy val tokens = (left.tokens :+ equals) ++ right.tokens
   }
 
   case class ParenExpr(lparen: Token, expr: Expr, rparen: Token) extends Expr {

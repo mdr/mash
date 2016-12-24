@@ -55,9 +55,10 @@ class BareStringificationContext {
         res += bareStringify(s, newBindings)
         // Flawed -- these assignments might occur within nested local scopes, and therefore not matter:
         val extraGlobals = s.findAll {
-          case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
-          case FunctionDeclaration(name, _, _, _)                     ⇒ name
-        }
+          case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
+          case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
+          case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
+        }.flatten
         newBindings = newBindings ++ extraGlobals
       }
       StatementSeq(res, sourceInfoOpt)
@@ -78,9 +79,10 @@ class BareStringificationContext {
       InvocationExpr(bareStringify(function, bindings), newArguments, isParenInvocation, sourceInfoOpt)
     case BinOpExpr(left, op @ BinaryOperator.Sequence, right, sourceInfoOpt) ⇒
       val extraGlobals = left.findAll {
-        case AssignmentExpr(left @ Identifier(name, _), _, _, _, _) ⇒ name
-        case FunctionDeclaration(name, _, _, _)                     ⇒ name
-      }
+        case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
+        case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
+        case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
+      }.flatten
       val newBindings = bindings ++ extraGlobals
       BinOpExpr(bareStringify(left, bindings), op, bareStringify(right, newBindings), sourceInfoOpt)
     case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
@@ -98,10 +100,10 @@ class BareStringificationContext {
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt) ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
-    case AssignmentExpr(left @ Identifier(name, _), operatorOpt, right, alias, sourceInfoOpt) ⇒
-      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
       AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
+    case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒
+      PatternAssignmentExpr(pattern, bareStringify(right, bindings), sourceInfoOpt)
     case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt) ⇒
       val newRedirects = redirects.map {
         case MishRedirect(op, arg, sourceInfoOpt) ⇒ MishRedirect(op, bareStringify(arg, bindings), sourceInfoOpt)

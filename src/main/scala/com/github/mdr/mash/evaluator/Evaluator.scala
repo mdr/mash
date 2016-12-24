@@ -73,6 +73,7 @@ object Evaluator extends EvaluatorHelper {
       case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
       case chainedOpExpr: ChainedOpExpr           ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
       case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
+      case assExpr: PatternAssignmentExpr         ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
       case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
       case ListExpr(items, _)                     ⇒ MashList(items.map(evaluate(_)))
       case mishExpr: MishExpr                     ⇒ MishEvaluator.evaluateMishExpr(mishExpr)

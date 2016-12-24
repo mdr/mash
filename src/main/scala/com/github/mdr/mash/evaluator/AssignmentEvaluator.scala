@@ -1,4 +1,5 @@
 package com.github.mdr.mash.evaluator
+import com.github.mdr.mash.functions.ArgumentException
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime._
@@ -30,7 +31,24 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
+  def evaluatePatternAssignment(expr: PatternAssignmentExpr)(implicit context: EvaluationContext): MashValue = {
+    val PatternAssignmentExpr(pattern, right, _) = expr
+    val rightValue = Evaluator.evaluate(right)
+    pattern match {
+      case ObjectPattern(fieldNames, _) =>
+        rightValue match {
+          case obj: MashObject =>
+            for (fieldName <- fieldNames)
+              context.scopeStack.set(fieldName, obj.get(fieldName).getOrElse(MashNull))
+            rightValue
+          case _               =>
+            throw new ArgumentException(s"Cannot match object pattern against value of type " + rightValue.typeName, sourceLocation(expr))
+        }
+    }
+  }
+
+
+    private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val LookupExpr(target, index, _) = lookupExpr
     val targetValue = Evaluator.evaluate(target)
     val indexValue = Evaluator.evaluate(index)

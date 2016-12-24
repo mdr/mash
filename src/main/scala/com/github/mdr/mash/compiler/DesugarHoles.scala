@@ -121,6 +121,10 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield AssignmentExpr(newLeft, operatorOpt, newRight, alias, sourceInfoOpt)
+    case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒
+      for {
+        newRight ← desugarHoles_(right)
+      } yield PatternAssignmentExpr(pattern, newRight, sourceInfoOpt)
     case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt) ⇒
       def desugarHoles(redirect: MishRedirect): Result[MishRedirect] =
         for (newArg ← desugarHoles_(redirect.arg))

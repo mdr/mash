@@ -44,14 +44,31 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       previousExpr
 
   protected def assignmentExpr(): Expr = {
-    val left = ifExpr()
-    if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
-      val equals = nextToken()
-      val aliasOpt = if (ALIAS) Some(nextToken()) else None
-      val right = pipeExpr()
-      AssignmentExpr(left, equals, aliasOpt, right)
-    } else
-      left
+    val patternEqualsOpt = speculate {
+      val pat = pattern()
+      val equals =
+        if (SHORT_EQUALS)
+          nextToken()
+        else if (forgiving)
+          syntheticToken(SHORT_EQUALS)
+        else
+          errorExpectedToken("=")
+      (pat, equals)
+    }
+    patternEqualsOpt match {
+      case Some((pat, equals)) =>
+        val right = pipeExpr()
+        PatternAssignmentExpr(pat, equals, right)
+      case None =>
+        val left = ifExpr()
+        if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
+          val equals = nextToken()
+          val aliasOpt = if (ALIAS) Some(nextToken()) else None
+          val right = pipeExpr()
+          AssignmentExpr(left, equals, aliasOpt, right)
+        } else
+          left
+    }
   }
 
   private def ifExpr(): Expr =

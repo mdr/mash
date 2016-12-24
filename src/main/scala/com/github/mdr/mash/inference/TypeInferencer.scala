@@ -68,6 +68,7 @@ class TypeInferencer {
       case interpolation: MishInterpolation             ⇒ inferType(interpolation, bindings)
       case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
       case assignmentExpr: AssignmentExpr               ⇒ inferType(assignmentExpr, bindings)
+      case assignmentExpr: PatternAssignmentExpr        ⇒ inferType(assignmentExpr, bindings)
       case StatementSeq(statements, _) ⇒
         statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
       case LambdaExpr(params, body, _) ⇒
@@ -93,6 +94,12 @@ class TypeInferencer {
     val leftTypeOpt = inferType(left, bindings)
     val rightTypeOpt = inferType(right, bindings)
     operatorOpt.flatMap(op ⇒ inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt, right)) orElse rightTypeOpt
+  }
+
+  private def inferType(assignmentExpr: PatternAssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
+    val PatternAssignmentExpr(pattern, right, _) = assignmentExpr
+    val rightTypeOpt = inferType(right, bindings)
+    rightTypeOpt
   }
 
   private def inferType(listExpr: ListExpr, bindings: Map[String, Type]): Option[Type] = {
