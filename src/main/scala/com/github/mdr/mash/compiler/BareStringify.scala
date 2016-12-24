@@ -92,6 +92,8 @@ class BareStringificationContext {
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt) ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
+    case AssignmentExpr(left @ Identifier(name, _), operatorOpt, right, alias, sourceInfoOpt) ⇒
+      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
       AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
     case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒

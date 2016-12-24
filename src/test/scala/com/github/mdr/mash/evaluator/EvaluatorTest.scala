@@ -572,6 +572,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     // Was a bug here, where foo was incorrectly identified as a bare word
     "def foo x = if x == 0 then 1 else foo (x - 1); foo 5" shouldEvaluateTo 1
 
+    "a = 10; a" shouldEvaluateTo 10
+
   }
 
   // Object.hasField
