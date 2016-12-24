@@ -3,6 +3,7 @@ package com.github.mdr.mash.inference
 import java.util.IdentityHashMap
 
 import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
+import com.github.mdr.mash.functions.{ Parameter, ParameterModel }
 import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
@@ -80,7 +81,7 @@ class TypeInferencer {
           case _ => Seq()
         }
         inferType(body, bindings ++ params.params.flatMap(getPreliminaryBindings))
-        Some(Type.Lambda(params.params.flatMap(_.nameOpt), body, bindings))
+        Some(Type.Lambda(Evaluator.parameterModel(params), body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
@@ -295,14 +296,12 @@ class TypeInferencer {
       case Type.DefinedFunction(f) ⇒
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(InferencerImpl(this, bindings), typedArgs)
-      case Type.Lambda(parameters, expr, lambdaBindings) ⇒
-        // TODO: convert parameters to ParameterModel, bind to TypedArguments, then bind names to types for each param
-        // (possibly including pattern bindings)
+      case Type.Lambda(parameterModel, expr, lambdaBindings) ⇒
         val argBindings =
           for {
-            (parameter, typeOpt) ← parameters.zip(typedArgs.positionArgs.map(_.typeOpt))
-            argType ← typeOpt
-          } yield parameter -> argType
+            (name, annotatedExpr) <- parameterModel.bindTypes(SimpleTypedArguments(typedArgs.arguments)).params
+            argType <- annotatedExpr.typeOpt
+          } yield name -> argType
         inferType(expr, lambdaBindings ++ bindings ++ argBindings.toMap)
       case _ ⇒
         None

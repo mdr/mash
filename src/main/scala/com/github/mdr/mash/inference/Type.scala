@@ -1,7 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -28,8 +28,8 @@ object Type {
   case class DefinedFunction(f: MashFunction) extends Type
   case class BoundMethod(receiver: Type, method: MashMethod) extends Type
 
-  case class Lambda(parameters: collection.Seq[String], body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"Lambda(${parameters.mkString(", ")}, $body)"
+  case class Lambda(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
+    override def toString = s"Lambda(${params.params.map(_.name).mkString(", ")}, $body)"
   }
 
   // Various implicits to make it less wordy to describe types

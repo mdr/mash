@@ -137,24 +137,25 @@ object Evaluator extends EvaluatorHelper {
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val FunctionDeclaration(functionName, paramList, body, sourceInfoOpt) = decl
-    val params = parameterModel(paramList)
+    val params = parameterModel(paramList, Some(context))
     val function = new UserDefinedFunction(functionName, params, body, context)
     context.scopeStack.set(functionName, function)
     MashUnit
   }
 
-  private def makeParameter(param: FunctionParam, argIndex: Int)(implicit context: EvaluationContext): Parameter = {
+  private def makeParameter(param: FunctionParam, argIndex: Int, evaluationContextOpt: Option[EvaluationContext]): Parameter = {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, sourceInfoOpt) = param
-    val defaultValueGeneratorOpt = defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr))
+    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context => defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val name = nameOpt.getOrElse("arg" + (argIndex + 1))
     val fieldNames = patternOpt.map(_.boundNames)
     Parameter(name, s"Parameter '$name'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined, patternObjectNamesOpt = fieldNames)
   }
 
-  private def parameterModel(paramList: ParamList)(implicit context: EvaluationContext): ParameterModel = {
-    val parameters: Seq[Parameter] = paramList.params.zipWithIndex.map { case (p, i) ⇒ makeParameter(p, i) }
-    verifyParameters(paramList)
+  def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] =  None): ParameterModel = {
+    val parameters: Seq[Parameter] = paramList.params.zipWithIndex.map { case (p, i) ⇒ makeParameter(p, i, evaluationContextOpt) }
+    for (context <- evaluationContextOpt)
+      verifyParameters(paramList)(context)
     ParameterModel(parameters)
   }
 
@@ -184,7 +185,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def makeAnonymousFunction(paramList: ParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
-    AnonymousFunction(parameterModel(paramList), body, context)
+    AnonymousFunction(parameterModel(paramList, Some(context)), body, context)
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr

@@ -27,8 +27,8 @@ case class InferencerImpl(typeInferencer: TypeInferencer, bindings: Map[String, 
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
       strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
-    case Type.Lambda(parameters, expr, lambdaBindings) ⇒
-      parameters.headOption.flatMap { param ⇒
+    case Type.Lambda(parameterModel, expr, lambdaBindings) ⇒
+      parameterModel.params.map(_.name).headOption.flatMap { param ⇒
         typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param -> elementType))
       }
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
@@ -53,8 +53,8 @@ case class InferencerImpl(typeInferencer: TypeInferencer, bindings: Map[String, 
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
       strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
-    case Type.Lambda(parameters, expr, lambdaBindings) ⇒
-      val paramBindings = parameters.zip(Seq(element1Type, element2Type)).toMap
+    case Type.Lambda(parameterModel, expr, lambdaBindings) ⇒
+      val paramBindings = parameterModel.params.map(_.name).zip(Seq(element1Type, element2Type)).toMap
       typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ paramBindings)
     case _ ⇒
       None
