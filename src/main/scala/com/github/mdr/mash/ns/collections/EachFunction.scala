@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.runtime.MashUnit
+import com.github.mdr.mash.runtime.{ MashBoolean, MashNumber, MashUnit }
 
 object EachFunction extends MashFunction("collections.each") {
 
@@ -12,6 +12,13 @@ object EachFunction extends MashFunction("collections.each") {
     val Action = Parameter(
       name = "action",
       summary = "Function used to act on elements of the sequence")
+    val WithIndex = Parameter(
+      name = "withIndex",
+      shortFlagOpt = Some('i'),
+      summary = "Pass index into the function as well as the item",
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      isFlag = true,
+      isBooleanFlag = true)
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to run an action over",
@@ -19,13 +26,19 @@ object EachFunction extends MashFunction("collections.each") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Action, Sequence))
+  val params = ParameterModel(Seq(Action, Sequence, WithIndex))
 
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
-    val action = boundParams.validateFunction(Action)
-    sequence.foreach(action)
+    val withIndex = boundParams(WithIndex).isTruthy
+    if (withIndex) {
+      val action = boundParams.validateFunction2(Action)
+      sequence.zipWithIndex.foreach { case (v, i) => action(v, MashNumber(i)) }
+    } else {
+      val action = boundParams.validateFunction(Action)
+      sequence.foreach(action)
+    }
     MashUnit
   }
 

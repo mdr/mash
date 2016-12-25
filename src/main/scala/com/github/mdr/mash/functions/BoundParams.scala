@@ -67,6 +67,14 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateFunction(param: Parameter): MashValue ⇒ MashValue = validateFunction(param, this(param))
 
+  def validateFunction2(param: Parameter): (MashValue, MashValue) => MashValue = this(param) match {
+    case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
+      FunctionHelpers.interpretAsFunction2(f)
+    case x                                                    ⇒
+      val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
+      throw new ArgumentException(message, locationOpt(param))
+  }
+
   def validateClass(param: Parameter): MashClass =
     this(param) match {
       case klass: MashClass ⇒

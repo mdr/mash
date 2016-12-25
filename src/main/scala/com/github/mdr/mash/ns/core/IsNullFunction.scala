@@ -17,7 +17,7 @@ object IsNullFunction extends MashFunction("core.isNull") {
 
   def apply(arguments: Arguments): MashBoolean = {
     val boundParams = params.validate(arguments)
-    MashBoolean(boundParams(Value) == MashNull)
+    MashBoolean(boundParams(Value).isNull)
   }
 
   override def summary = "Check whether or not the given argument is null"

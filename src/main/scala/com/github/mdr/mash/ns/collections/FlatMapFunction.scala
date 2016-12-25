@@ -4,7 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashNumber, MashValue }
 
 import scala.PartialFunction.condOpt
 
@@ -15,6 +15,13 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
       name = "f",
       summary = "Function used to transform elements of the sequence",
       descriptionOpt = Some("Must return a sequence"))
+    val WithIndex = Parameter(
+      name = "withIndex",
+      shortFlagOpt = Some('i'),
+      summary = "Pass index into the function as well as the item",
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      isFlag = true,
+      isBooleanFlag = true)
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to map over",
@@ -23,21 +30,30 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F, Sequence))
+  val params = ParameterModel(Seq(F, Sequence, WithIndex))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val inSequence = boundParams(Sequence)
+    val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)
-    val f = boundParams.validateFunction(F)
-    val mapped = sequence.flatMap { item ⇒
-      f(item) match {
-        case MashList(items @ _*) ⇒
-          items
-        case badItem ⇒
-          throw new EvaluatorException("Invalid item of type " + badItem.typeName)
-      }
+    def getItems(value: MashValue) = value match {
+      case MashList(items @ _*) ⇒
+        items
+      case badItem            ⇒
+        throw new EvaluatorException("Invalid item of type " + badItem.typeName)
     }
+    val mapped =
+      if (withIndex) {
+        val f = boundParams.validateFunction2(F)
+        sequence.zipWithIndex.flatMap { case (item, index) ⇒
+          getItems(f(item, MashNumber(index)))
+        }
+      } else {
+        val f = boundParams.validateFunction(F)
+        sequence.flatMap { item ⇒
+          getItems(f(item))
+        }
+      }
     MashList(mapped)
   }
 

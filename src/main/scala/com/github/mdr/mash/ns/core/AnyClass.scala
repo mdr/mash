@@ -14,7 +14,45 @@ object AnyClass extends MashClass("core.Any") {
     ClassMethod,
     InMethod,
     IsAMethod,
+    IsNullMethod,
+    IsTruthy,
     ToStringMethod)
+
+  object IsNullMethod extends MashMethod("isNull") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      params.validate(arguments)
+      MashBoolean(target.isNull)
+    }
+
+    override def summary = "Check whether or not the given value is null"
+
+    override def descriptionOpt = Some("""Examples:
+  null.isNull # true
+  0.isNull    # false""")
+
+  }
+
+  object IsTruthy extends MashMethod("isTruthy") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
+      params.validate(arguments)
+      MashBoolean(target.isTruthy)
+    }
+
+    override def summary = "Check whether or not the given value is truthy"
+
+    override def descriptionOpt = Some("""Examples:
+  true.isTruthy  # true
+  false.isTruthy # false
+  null.isTruthy  # false
+  10.isTruthy    # true""")
+
+  }
 
   object IsAMethod extends MashMethod("isA") {
 

@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
+import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
 
@@ -15,6 +15,13 @@ object MapFunction extends MashFunction("collections.map") {
     val F = Parameter(
       name = "f",
       summary = "Function used to transform elements of the sequence")
+    val WithIndex = Parameter(
+      name = "withIndex",
+      shortFlagOpt = Some('i'),
+      summary = "Pass index into the function as well as the item",
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      isFlag = true,
+      isBooleanFlag = true)
     val Sequence = Parameter(
       name = "sequence",
       summary = "Sequence to map over",
@@ -23,14 +30,21 @@ object MapFunction extends MashFunction("collections.map") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F, Sequence))
+  val params = ParameterModel(Seq(F, Sequence, WithIndex))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
+    val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)
-    val f = boundParams.validateFunction(F)
-    val mapped = sequence.map(f)
+    val mapped =
+      if (withIndex) {
+        val f = boundParams.validateFunction2(F)
+        sequence.zipWithIndex.map { case (x, i) => f(x, MashNumber(i)) }
+      } else {
+        val f = boundParams.validateFunction(F)
+        sequence.map(f)
+      }
     inSequence match {
       case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
         mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)

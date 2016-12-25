@@ -83,7 +83,7 @@ object LineBufferRenderer {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokens(s: String, mish: Boolean) = {
-      val bareTokens = if (bareWords) getBareTokens(s, mishByDefault, globalVariables) else Set[Token]()
+      val bareTokens = getBareTokens(s, mishByDefault, globalVariables)
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
       (tokens, bareTokens)
     }
@@ -101,7 +101,7 @@ object LineBufferRenderer {
     for (token ← tokens) {
       val style =
         if (bareTokens contains token)
-          getTokenStyle(TokenType.STRING_LITERAL)
+          if (bareWords) getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = Colour.Red)
         else
           getTokenStyle(token)
 

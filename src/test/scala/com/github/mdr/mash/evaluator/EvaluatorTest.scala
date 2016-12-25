@@ -262,6 +262,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // flatMap
   "[1, 2, 3].flatMap (n => [n * 10, n])" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
   "flatMap (n => [n * 10, n]) [1, 2, 3]" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
+  "flatMap --withIndex (n i => [n, i]) [1, 2, 3]" shouldEvaluateTo "[1, 0, 2, 1, 3, 2]"
 
   // map
   "[1, 2, 3].map (_ * 2)" shouldEvaluateTo "[2, 4, 6]"
@@ -271,6 +272,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3] | map --f=(_ * 2)" shouldEvaluateTo "[2, 4, 6]"
   "map (_.toUpper) 'foo'" shouldEvaluateTo "'FOO'"
   "'123' | map (_.toNumber)" shouldEvaluateTo "[1, 2, 3]"
+  "map --withIndex (n i => n + i) [1, 2, 3]" shouldEvaluateTo "[1, 3, 5]"
 
   // max
   "max [1, 200, 3]" shouldEvaluateTo 200
@@ -573,7 +575,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     "def foo x = if x == 0 then 1 else foo (x - 1); foo 5" shouldEvaluateTo 1
 
     "a = 10; a" shouldEvaluateTo 10
-
   }
 
   // Object.hasField
