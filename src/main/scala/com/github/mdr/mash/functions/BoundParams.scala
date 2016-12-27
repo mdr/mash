@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime._
 import scala.util.control.Exception._
 
 case class BoundParams(boundNames: Map[String, MashValue],
-                       argumentNodes: Map[String, Seq[Argument]]) {
+                       argumentNodes: Map[Parameter, Seq[Argument]]) {
 
   def apply(param: String): MashValue = boundNames(param)
 
@@ -25,7 +25,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     SourceLocation(location1.provenance, location1.pointedRegion merge location2.pointedRegion)
 
   private def locationOpt(param: Parameter): Option[SourceLocation] =
-    argumentNodes.get(param.name).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
+    argumentNodes.get(param).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
 
   def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
     case xs: MashList                          ⇒ xs.items

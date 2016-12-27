@@ -8,7 +8,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
 
   private var boundNames: Map[String, MashValue] = Map()
   private var boundParams: Set[Parameter] = Set()
-  private var argumentNodes: Map[String, Seq[Argument]] = Map()
+  private var argumentNodes: Map[Parameter, Seq[Argument]] = Map()
   private var lastParameterConsumed = false
 
   def validate(): BoundParams = {
@@ -19,8 +19,8 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     BoundParams(boundNames, argumentNodes)
   }
 
-  private def addArgumentNode(paramName: String, argNode: Argument) {
-    argumentNodes += paramName -> (argumentNodes.getOrElse(paramName, Seq()) :+ argNode)
+  private def addArgumentNode(parameter: Parameter, argNode: Argument) {
+    argumentNodes += parameter -> (argumentNodes.getOrElse(parameter, Seq()) :+ argNode)
   }
 
   private def handleLastArg() =
@@ -34,7 +34,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       boundNames += paramName -> resolve(lastParam, lastArg.value)
       boundParams += lastParam
       for (argNode ← lastArg.argumentNodeOpt)
-        addArgumentNode(paramName, argNode)
+        addArgumentNode(lastParam, argNode)
     }
 
   private def handlePositionalArgs() {
@@ -57,7 +57,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case None =>
           boundNames += param.name -> resolve(param, arg.value)
           for (argNode ← arg.argumentNodeOpt)
-            addArgumentNode(param.name, argNode)
+            addArgumentNode(param, argNode)
       }
       boundParams += param
     }
@@ -79,7 +79,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           for {
             firstVararg ← varargs
             argNode ← firstVararg.argumentNodeOpt
-          } addArgumentNode(variadicParam.name, argNode)
+          } addArgumentNode(variadicParam, argNode)
         case None ⇒
           val maxPositionArgs = params.positionalParams.size
           val providedArgs = arguments.positionArgs.size
@@ -118,7 +118,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           boundParams += param
 
           for (argNode ← argNodeOpt)
-            addArgumentNode(param.name, argNode)
+            addArgumentNode(param, argNode)
         }
       case None ⇒
         if (!ignoreAdditionalParameters)
@@ -146,15 +146,3 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
 
 }
 
-case class SuspendedValueFunction(suspendedValue: SuspendedMashValue) extends MashFunction(nameOpt = None) {
-
-  val params = ParameterModel()
-
-  def apply(arguments: Arguments): MashValue = {
-    params.validate(arguments)
-    suspendedValue.resolve()
-  }
-
-  override def summary = s"Lazily computed argument"
-
-}
