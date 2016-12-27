@@ -30,39 +30,30 @@ case class BoundParams(boundNames: Map[String, MashValue],
   def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
     case xs: MashList                          ⇒ xs.items
     case MashString(s, tagOpt) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case x                                     ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a sequence, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+    case x                                     ⇒ throwInvalidArgumentType("sequence", x, param)
   }
 
-  def validateString(param: Parameter): MashString = this(param) match {
+  def validateString(param: Parameter): MashString = this (param) match {
     case s: MashString ⇒ s
-    case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a String, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+    case x             ⇒ throwInvalidArgumentType("String", x, param)
   }
 
-  def validateObject(param: Parameter): MashObject = this(param) match {
+  def validateObject(param: Parameter): MashObject = this (param) match {
     case obj: MashObject ⇒ obj
-    case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be an Object, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+    case x               ⇒ throwInvalidArgumentType("Object", x, param)
   }
 
-  def validateStringOpt(param: Parameter): Option[MashString] = this(param) match {
+  def validateStringOpt(param: Parameter): Option[MashString] = this (param) match {
     case s: MashString ⇒ Some(s)
     case MashNull      ⇒ None
-    case x ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a string, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+    case x             ⇒ throwInvalidArgumentType("String", x, param)
   }
 
   def validateFunction(param: Parameter, value: MashValue): MashValue => MashValue = value match {
     case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
       FunctionHelpers.interpretAsFunction(f)
     case x                                                    ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+      throwInvalidArgumentType("function", x, param)
   }
 
   def validateFunction(param: Parameter): MashValue ⇒ MashValue = validateFunction(param, this(param))
@@ -71,26 +62,25 @@ case class BoundParams(boundNames: Map[String, MashValue],
     case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
       FunctionHelpers.interpretAsFunction2(f)
     case x                                                    ⇒
-      val message = s"Invalid argument '${param.name}'. Must be a function, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+      throwInvalidArgumentType("function", x, param)
+  }
+
+  private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {
+    val message = s"Invalid argument '${param.name}'. Must be a $desiredType, but was a ${value.typeName}"
+    throw new ArgumentException(message, locationOpt(param))
   }
 
   def validateClass(param: Parameter): MashClass =
-    this(param) match {
-      case klass: MashClass ⇒
-        klass
-      case x ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a class, but was a ${x.typeName}"
-        throw new ArgumentException(message, locationOpt(param))
+    this (param) match {
+      case klass: MashClass ⇒ klass
+      case x                ⇒ throwInvalidArgumentType("class", x, param)
     }
 
   def validatePath(param: Parameter): Path = {
-    val arg = this(param)
+    val arg = this (param)
     FunctionHelpers.safeInterpretAsPath(arg) match {
       case Some(path) ⇒ path
-      case None ⇒
-        val message = s"Invalid argument '${param.name}'. Must be a path, but was a ${arg.typeName}"
-        throw new ArgumentException(message, locationOpt(param))
+      case None       ⇒ throwInvalidArgumentType("path", arg, param)
     }
   }
 
