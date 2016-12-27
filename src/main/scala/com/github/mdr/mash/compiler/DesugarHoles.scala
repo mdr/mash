@@ -90,12 +90,13 @@ object DesugarHoles {
       for (newItems ← sequence(items.map(desugarHoles_)))
         yield ListExpr(newItems, sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
-      def desugarHoles(entry: ObjectEntry): Result[ObjectEntry] = {
-        val ObjectEntry(field, value, sourceInfo) = entry
-        for {
-          newField ← desugarHoles_(field)
-          newValue ← desugarHoles_(value)
-        } yield ObjectEntry(newField, newValue, sourceInfo)
+      def desugarHoles(entry: ObjectEntry): Result[ObjectEntry] = entry match {
+        case fullEntry: FullObjectEntry           =>
+          for {
+            newField ← desugarHoles_(fullEntry.field)
+            newValue ← desugarHoles_(fullEntry.value)
+          } yield FullObjectEntry(newField, newValue, fullEntry.sourceInfoOpt)
+        case shorthandEntry: ShorthandObjectEntry => Result(shorthandEntry)
       }
       for (newEntries ← sequence(entries.map(desugarHoles)))
         yield ObjectExpr(newEntries, sourceInfoOpt)

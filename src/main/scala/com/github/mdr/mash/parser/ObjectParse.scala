@@ -1,12 +1,13 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
 
 import scala.collection.mutable.ArrayBuffer
 
-trait ObjectParse { self: MashParse ⇒
+trait ObjectParse {
+  self: MashParse ⇒
 
   protected def objectExpr(): Expr = {
     val lbrace = nextToken()
@@ -16,7 +17,6 @@ trait ObjectParse { self: MashParse ⇒
     } else {
       val firstEntry = objectEntry()
       val entries = ArrayBuffer[(Token, ObjectEntry)]()
-      var continue = true
       safeWhile(COMMA) {
         val comma = nextToken()
         val entry = objectEntry()
@@ -35,17 +35,21 @@ trait ObjectParse { self: MashParse ⇒
     }
   }
 
-  private def objectEntry(): ObjectEntry = {
-    val field = suffixExpr()
-    val colon =
-      if (COLON)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(COLON)
-      else
-        errorExpectedToken(":")
-    val expr = pipeExpr()
-    ObjectEntry(field, colon, expr)
-  }
+  private def objectEntry(): ObjectEntry =
+    if (IDENTIFIER && Set[TokenType](RBRACE, COMMA).contains(lookahead(1))) {
+      val field = nextToken()
+      ShorthandObjectEntry(field)
+    } else {
+      val field = suffixExpr()
+      val colon =
+        if (COLON)
+          nextToken()
+        else if (forgiving)
+          syntheticToken(COLON)
+        else
+          errorExpectedToken(":")
+      val expr = pipeExpr()
+      FullObjectEntry(field, colon, expr)
+    }
 
 }

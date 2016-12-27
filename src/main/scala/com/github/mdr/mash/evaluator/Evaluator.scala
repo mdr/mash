@@ -99,9 +99,10 @@ object Evaluator extends EvaluatorHelper {
             case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(field))
           }
       }
-    val fields =
-      for (ObjectEntry(field, value, _) ← objectExpr.fields)
-        yield getField(field) -> evaluate(value)
+    val fields = objectExpr.fields.map {
+      case FullObjectEntry(field, value, _) => getField(field) -> evaluate(value)
+      case ShorthandObjectEntry(field, sourceInfoOpt) => field -> evaluateIdentifier(field, sourceInfoOpt.map(_.location))
+    }
     MashObject.of(fields)
   }
 
@@ -110,12 +111,13 @@ object Evaluator extends EvaluatorHelper {
     Evaluator.evaluate(blockExpr.expr)(newContext)
   }
 
-  def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue = {
-    val Identifier(name, _) = identifier
+  def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
+    evaluateIdentifier(identifier.name, sourceLocation(identifier))
+
+  private def evaluateIdentifier(name: String, locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
     context.scopeStack.lookup(name).getOrElse {
-      throw new EvaluatorException(s"No binding for '$name'", sourceLocation(identifier))
+      throw new EvaluatorException(s"No binding for '$name'", locationOpt)
     }
-  }
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate

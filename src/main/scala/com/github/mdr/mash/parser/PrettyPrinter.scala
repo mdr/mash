@@ -41,7 +41,10 @@ object PrettyPrinter {
     case ListExpr(items, _)                        ⇒ items.mkString("[", ", ", "]")
     case MishExpr(command, args, redirects, _, _)  ⇒ pretty(command) + " " + args.map(pretty)
     case ObjectExpr(entries, _) ⇒
-      entries.map { case ObjectEntry(field, value, _) ⇒ s"${pretty(field)}: ${pretty(value)}" }.mkString("{ ", ", ", " }")
+      entries.map {
+        case FullObjectEntry(field, value, _) ⇒ s"${pretty(field)}: ${pretty(value)}"
+        case ShorthandObjectEntry(field, _)   ⇒ field
+      }.mkString("{ ", ", ", " }")
     case AssignmentExpr(left, operatorOpt, right, alias, _) ⇒
       val operatorSymbol = operatorOpt match {
         case Some(BinaryOperator.Plus)     ⇒ "+="

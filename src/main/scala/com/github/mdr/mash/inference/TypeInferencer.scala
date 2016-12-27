@@ -144,15 +144,30 @@ class TypeInferencer {
     }
   }
 
+  private def inferType(name: String, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] =
+    bindings.get(name).flatMap {
+      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
+        f.typeInferenceStrategy.inferTypes(InferencerImpl(this, bindings), SimpleTypedArguments(Seq()))
+      case x ⇒
+        Some(x)
+    }
+
   private def inferType(objectExpr: ObjectExpr, bindings: Map[String, Type]): Option[Type] = {
     val ObjectExpr(entries, _) = objectExpr
     val fieldTypes =
-      for {
-        ObjectEntry(fieldExpr, valueExpr, _) ← entries
-        _ = inferType(fieldExpr, bindings)
-        label ← getFieldName(fieldExpr)
-        typ_ ← inferType(valueExpr, bindings)
-      } yield label -> typ_
+      entries.flatMap {
+        case FullObjectEntry(fieldExpr, valueExpr, _) =>
+          inferType(fieldExpr, bindings)
+          for {
+            label ← getFieldName(fieldExpr)
+            typ_ ← inferType(valueExpr, bindings)
+          } yield label -> typ_
+        case ShorthandObjectEntry(field, _)           =>
+          inferType(field, bindings, immediateExec = true) match {
+            case Some(fieldType) => Seq(field -> fieldType)
+            case None => Seq(field -> Type.Any)
+          }
+      }
     Some(Type.Object(fieldTypes.toMap))
   }
 

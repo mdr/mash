@@ -152,8 +152,16 @@ class Abstractifier(provenance: Provenance) {
       Abstract.StringLiteral(token.text, QuotationType.Double)
   }
 
-  private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectEntry =
-    Abstract.ObjectEntry(abstractify(entry.field), abstractify(entry.value), sourceInfo(entry))
+  private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectEntry = entry match {
+    case fullEntry: Concrete.FullObjectEntry => abstractifyEntry(fullEntry)
+    case shorthandEntry: Concrete.ShorthandObjectEntry => abstractifyEntry(shorthandEntry)
+  }
+
+  private def abstractifyEntry(entry: Concrete.ShorthandObjectEntry): Abstract.ShorthandObjectEntry =
+    Abstract.ShorthandObjectEntry(entry.identifier.text, sourceInfo(entry))
+
+  private def abstractifyEntry(entry: Concrete.FullObjectEntry): Abstract.FullObjectEntry =
+    Abstract.FullObjectEntry(abstractify(entry.field), abstractify(entry.value), sourceInfo(entry))
 
   private def abstractifyObject(objectExpr: Concrete.ObjectExpr): Abstract.ObjectExpr = {
     val Concrete.ObjectExpr(lbrace, contentsOpt, rbrace) = objectExpr
@@ -163,6 +171,7 @@ class Abstractifier(provenance: Provenance) {
           abstractifyEntry(firstEntry) +: otherEntries.map(_._2).map(abstractifyEntry)
         case None ⇒ Seq()
       }
+
     Abstract.ObjectExpr(fields, sourceInfo(objectExpr))
   }
 

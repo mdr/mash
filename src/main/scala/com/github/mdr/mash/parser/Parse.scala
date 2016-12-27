@@ -36,18 +36,20 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       token
   }
 
-  private def currentSequenceToken =
+  private def getToken(pos: Int): Token =
     if (pos < tokens.length)
       tokens(pos)
     else
       tokens.last
+
+  private def currentSequenceToken: Token = getToken(pos)
 
   private def shouldInferSemicolon(token: Token): Boolean =
     lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
 
   private def currentTokenType = currentToken.tokenType
 
-  private def currentPos = currentToken.offset
+  protected def lookahead(n: Int): TokenType = getToken(pos + n).tokenType
 
   protected def currentLocation = PointedRegion(currentToken.offset, currentToken.region)
 

@@ -33,7 +33,7 @@ object AbstractSyntax {
     }
 
     private def transformDescendents(f: PartialFunction[AstNode, AstNode]) = this match {
-      case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) ⇒
+      case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry ⇒
         this
       case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
         InterpolatedString(start, parts.map {
@@ -61,21 +61,21 @@ object AbstractSyntax {
       case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt) ⇒
         val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
         InvocationExpr(function.transform(f), newArguments, isParenInvocation, sourceInfoOpt)
-      case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
+      case BinOpExpr(left, op, right, sourceInfoOpt)                               ⇒
         BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
-      case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+      case ChainedOpExpr(left, opRights, sourceInfoOpt)                            ⇒
         ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
-      case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
+      case IfExpr(cond, body, elseOpt, sourceInfoOpt)                              ⇒
         IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
-      case ListExpr(items, sourceInfoOpt) ⇒
+      case ListExpr(items, sourceInfoOpt)                                          ⇒
         ListExpr(items.map(_.transform(f)), sourceInfoOpt)
-      case ObjectEntry(field, value, sourceInfoOpt) ⇒
-        ObjectEntry(field.transform(f), value.transform(f), sourceInfoOpt)
-      case ObjectExpr(entries, sourceInfoOpt) ⇒
+      case FullObjectEntry(field, value, sourceInfoOpt)                            ⇒
+        FullObjectEntry(field.transform(f), value.transform(f), sourceInfoOpt)
+      case ObjectExpr(entries, sourceInfoOpt)                                      ⇒
         ObjectExpr(entries.map(_.transform(f).asInstanceOf[ObjectEntry]), sourceInfoOpt)
-      case MinusExpr(expr, sourceInfoOpt) ⇒
+      case MinusExpr(expr, sourceInfoOpt)                                          ⇒
         MinusExpr(expr.transform(f), sourceInfoOpt)
-      case MishInterpolation(part, sourceInfoOpt) ⇒
+      case MishInterpolation(part, sourceInfoOpt)                                  ⇒
         val newPart = part match {
           case StringPart(s) ⇒ StringPart(s)
           case ExprPart(e)   ⇒ ExprPart(e.transform(f))
@@ -254,7 +254,14 @@ object AbstractSyntax {
     def children = items
   }
 
-  case class ObjectEntry(field: Expr, value: Expr, sourceInfoOpt: Option[SourceInfo]) extends AstNode {
+  sealed trait ObjectEntry extends AstNode
+
+  case class ShorthandObjectEntry(field: String, sourceInfoOpt: Option[SourceInfo]) extends ObjectEntry {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
+  }
+
+  case class FullObjectEntry(field: Expr, value: Expr, sourceInfoOpt: Option[SourceInfo]) extends ObjectEntry {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(field, value)
   }
