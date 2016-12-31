@@ -139,15 +139,19 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
-    val FunctionDeclaration(functionName, paramList, body, sourceInfoOpt) = decl
-    val params = parameterModel(paramList, Some(context))
-    val function = new UserDefinedFunction(functionName, params, body, context)
-    context.scopeStack.set(functionName, function)
+    val function = userDefinedFunction(decl)
+    context.scopeStack.set(function.name, function)
     MashUnit
   }
 
+  private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
+    val FunctionDeclaration(functionName, paramList, body, _) = decl
+    val params = parameterModel(paramList, Some(context))
+    new UserDefinedFunction(functionName, params, body, context)
+  }
+
   private def makeParameter(param: FunctionParam, argIndex: Int, evaluationContextOpt: Option[EvaluationContext]): Parameter = {
-    val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, sourceInfoOpt) = param
+    val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context => defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val name = nameOpt.getOrElse("arg" + (argIndex + 1))
     val fieldNames = patternOpt.map(_.boundNames)

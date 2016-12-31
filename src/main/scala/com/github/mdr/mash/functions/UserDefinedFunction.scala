@@ -4,9 +4,9 @@ import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, Evaluator }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.runtime.MashValue
 
-class UserDefinedFunction(
+case class UserDefinedFunction(
     functionName: String,
-    val params: ParameterModel,
+    params: ParameterModel,
     body: Expr,
     context: EvaluationContext) extends MashFunction(nameOpt = Some(functionName)) {
 

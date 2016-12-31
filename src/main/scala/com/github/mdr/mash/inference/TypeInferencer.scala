@@ -3,7 +3,7 @@ package com.github.mdr.mash.inference
 import java.util.IdentityHashMap
 
 import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
-import com.github.mdr.mash.functions.{ Parameter, ParameterModel }
+import com.github.mdr.mash.functions.UserDefinedFunction
 import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
@@ -54,14 +54,14 @@ class TypeInferencer {
       case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(StringClass taggedWith PathClass)
       case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(Type.Instance(StringClass))
       case is: InterpolatedString                       ⇒ inferType(is, bindings)
-      case MinusExpr(_, _)                              ⇒ Some(Type.Instance(NumberClass))
+      case MinusExpr(_, _)                              ⇒ Some(NumberClass)
       case binOpExpr: BinOpExpr                         ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
       case chainedOpExpr: ChainedOpExpr                 ⇒ inferTypeChainedOpExpr(chainedOpExpr, bindings)
       case memberExpr: MemberExpr                       ⇒ inferType(memberExpr, bindings, immediateExec)
       case lookupExpr: LookupExpr                       ⇒ inferType(lookupExpr, bindings)
       case ifExpr: IfExpr                               ⇒ inferType(ifExpr, bindings)
       case objectExpr: ObjectExpr                       ⇒ inferType(objectExpr, bindings)
-      case FunctionDeclaration(name, params, body, _)   ⇒ Some(Type.Instance(UnitClass))
+      case FunctionDeclaration(name, params, body, _)   ⇒ Some(Unit)
       case identifier: Identifier                       ⇒ inferType(identifier, bindings, immediateExec)
       case mishExpr: MishExpr                           ⇒ inferType(mishExpr, bindings)
       case invocationExpr: InvocationExpr               ⇒ inferTypeInvocationExpr(invocationExpr, bindings)
@@ -70,7 +70,18 @@ class TypeInferencer {
       case assignmentExpr: AssignmentExpr               ⇒ inferType(assignmentExpr, bindings)
       case assignmentExpr: PatternAssignmentExpr        ⇒ inferType(assignmentExpr, bindings)
       case StatementSeq(statements, _) ⇒
-        statements.flatMap(s ⇒ inferType(s, bindings)).lastOption.orElse(Some(Type.Instance(UnitClass)))
+        var latestBindings = bindings
+        for (statement <- statements) {
+          inferType(statement, latestBindings)
+          statement match {
+            case AssignmentExpr(Identifier(name, _), _, _, _, _) =>
+              statement.typeOpt.foreach(latestBindings += name -> _)
+            case decl @ FunctionDeclaration(name, paramList, body, _) =>
+              latestBindings += name -> Type.Lambda(Evaluator.parameterModel(paramList), body, latestBindings)
+            case _ =>
+          }
+        }
+        statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
       case LambdaExpr(params, body, _) ⇒
         // Preliminary -- might be updated to be more precise in an outer context
         def getPreliminaryBindings(param: FunctionParam): Seq[(String, Type)] = param match {
@@ -79,13 +90,14 @@ class TypeInferencer {
           case FunctionParam(None, _, _, _, Some(pattern), _) ⇒
             for (name <- pattern.boundNames)
               yield name -> Type.Any
-          case _ => Seq()
+          case _ =>
+            Seq()
         }
         inferType(body, bindings ++ params.params.flatMap(getPreliminaryBindings))
         Some(Type.Lambda(Evaluator.parameterModel(params), body, bindings))
       case HelpExpr(subexpr, _) ⇒
         inferType(subexpr, bindings, immediateExec = false) collect {
-          case Type.DefinedFunction(_) ⇒ Type.Instance(FunctionHelpClass)
+          case Type.DefinedFunction(_) ⇒ FunctionHelpClass
         }
     }
 
@@ -110,7 +122,7 @@ class TypeInferencer {
 
   private def inferType(interpolation: MishInterpolation, bindings: Map[String, Type]): Option[Type] =
     interpolation.part match {
-      case StringPart(s)  ⇒ Some(Type.Instance(StringClass))
+      case StringPart(s)  ⇒ Some(StringClass)
       case ExprPart(expr) ⇒ inferType(expr, bindings)
     }
 
@@ -119,8 +131,7 @@ class TypeInferencer {
     inferType(command, bindings)
     redirects.foreach(redirect ⇒ inferType(redirect.arg, bindings))
     args.foreach(inferType(_, bindings))
-    val resultClass = if (captureProcessOutput) ProcessResultClass else UnitClass
-    Some(Type.Instance(resultClass))
+    Some(if (captureProcessOutput) ProcessResultClass else UnitClass)
   }
 
   private def inferType(interpolatedString: InterpolatedString, bindings: Map[String, Type]): Option[Type] = {
@@ -334,7 +345,7 @@ class TypeInferencer {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
     inferType(cond, bindings)
     val bodyTypeOpt = inferType(body, bindings)
-    val elseTypeOpt = elseOpt.flatMap(inferType(_, bindings))
+    elseOpt.flatMap(inferType(_, bindings))
     bodyTypeOpt // If the elseType is different, tough cheese
   }
 

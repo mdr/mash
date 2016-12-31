@@ -1,6 +1,6 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.inference.{ TypeInferencer, ValueTypeDetector }
+import com.github.mdr.mash.inference.{ Type, TypeInferencer, ValueTypeDetector }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.runtime.MashValue
@@ -35,7 +35,6 @@ object Compiler {
     val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteExpr)
     val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
     val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
-    val withoutParens = ParenRemover.removeParens(withoutHoles)
     val withoutPipes = DesugarPipes.desugarPipes(withoutHoles)
     val bareStringified =
       if (settings.bareWords)
@@ -45,11 +44,15 @@ object Compiler {
     val finalExpr = bareStringified
 
     if (settings.inferTypes) {
-      val typeInferencer = new TypeInferencer
-      val typeBindings = new ValueTypeDetector().buildBindings(bindings)
-      typeInferencer.inferType(finalExpr, typeBindings)
+      inferTypes(bindings, finalExpr)
     }
+
     finalExpr
+  }
+
+  private def inferTypes(bindings: Map[String, MashValue], finalExpr: Expr): Option[Type] = {
+    val typeBindings = new ValueTypeDetector().buildBindings(bindings)
+    new TypeInferencer().inferType(finalExpr, typeBindings)
   }
 
 }

@@ -250,6 +250,13 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" shouldBeInferredAsHavingType
     Object(Map("foo" -> NumberType, "a" -> NumberType, "b" -> NumberType))
 
+  // statements
+  "a = 42; a" shouldBeInferredAsHavingType NumberClass
+  "a = 42; b = 20; c = a + b; c" shouldBeInferredAsHavingType NumberClass
+
+  // User-defined functions
+  "def square n = n * n; square 42" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

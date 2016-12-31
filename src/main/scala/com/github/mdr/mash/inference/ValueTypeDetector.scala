@@ -4,10 +4,10 @@ import java.time.{ Instant, LocalDate }
 import java.util.IdentityHashMap
 
 import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass }
-import com.github.mdr.mash.functions.{ AnonymousFunction, MashFunction }
+import com.github.mdr.mash.functions.{ AnonymousFunction, MashFunction, UserDefinedFunction }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.{ DateTimeClass, DateClass }
+import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.runtime._
 
 object ValueTypeDetector {
@@ -44,6 +44,7 @@ class ValueTypeDetector {
   def getType_(x: MashValue): Type = x match {
     case MashNull                                         ⇒ Type.Instance(NullClass)
     case AnonymousFunction(parameterModel, body, context) ⇒ Type.Lambda(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(_, parameterModel, body, context) ⇒ Type.Lambda(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case f: MashFunction                                  ⇒ Type.DefinedFunction(f)
     case BoundMethod(target, method, _)                   ⇒ Type.BoundMethod(getType(target), method)
     case MashString(_, None)                              ⇒ Type.Instance(StringClass)
