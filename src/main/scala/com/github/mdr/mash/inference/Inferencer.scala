@@ -4,19 +4,9 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 
 /**
- * Inferencer interface used by type-inference strategies
+ * Inferencer used by type-inference strategies
  */
-trait Inferencer {
-
-  def applyFunction(functionType: Type, elementType: Type, functionExprOpt: Option[Expr]): Option[Type]
-
-  def applyFunction2(functionType: Type, element1Type: Type, element2Type: Type): Option[Type]
-
-  def memberLookup(typ: Type, name: String): Option[Type]
-
-}
-
-case class InferencerImpl(typeInferencer: TypeInferencer, bindings: Map[String, Type]) extends Inferencer {
+class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
   def applyFunction(functionType: Type, elementType: Type, functionExprOpt: Option[Expr]): Option[Type] = functionType match {
     case Type.DefinedFunction(f) ⇒

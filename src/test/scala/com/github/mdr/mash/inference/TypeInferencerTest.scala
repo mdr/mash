@@ -225,7 +225,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[{foo: 42}].map(_.foo)" shouldBeInferredAsHavingType Seq(NumberClass)
 
+  // lambdas
   "(x y => x * y) 42 24" shouldBeInferredAsHavingType NumberClass
+  "(x => x + 1) 10" shouldBeInferredAsHavingType NumberClass
+  "(=> 42) | x => x" shouldBeInferredAsHavingType NumberClass
 
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
@@ -256,6 +259,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // User-defined functions
   "def square n = n * n; square 42" shouldBeInferredAsHavingType NumberClass
+
+  "def foo n = if n > 0 then bar (n - 1) else 42; def bar n = foo (n - 1); bar 10" shouldBeInferredAsHavingType NumberClass
 
   private implicit class RichString(s: String) {
 
