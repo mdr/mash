@@ -40,10 +40,9 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     if (positionArgs.size > regularPosParams.size)
       for (variadicParam ← params.variadicParamOpt) {
         val varargs = positionArgs.drop(regularPosParams.size)
-        val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
-        val varargSeqType = varargType.seq
-        boundArguments += variadicParam.name -> AnnotatedExpr(None, Some(varargSeqType))
-        boundNames += variadicParam.name -> varargSeqType
+        val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
+        boundArguments += variadicParam.name -> AnnotatedExpr(None, Some(varargType))
+        boundNames += variadicParam.name -> varargType
         val extraArgs = positionArgs.drop(regularPosParams.size)
         for (arg ← extraArgs)
           posToParam += posOfArg(arg) -> variadicParam
