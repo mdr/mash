@@ -256,6 +256,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // statements
   "a = 42; a" shouldBeInferredAsHavingType NumberClass
   "a = 42; b = 20; c = a + b; c" shouldBeInferredAsHavingType NumberClass
+  "{ a } = { a: 42 }; a" shouldBeInferredAsHavingType NumberClass
 
   // User-defined functions
   "def square n = n * n; square 42" shouldBeInferredAsHavingType NumberClass

@@ -67,20 +67,7 @@ class TypeInferencer {
       case listExpr: ListExpr                           ⇒ inferType(listExpr, bindings)
       case assignmentExpr: AssignmentExpr               ⇒ inferType(assignmentExpr, bindings)
       case assignmentExpr: PatternAssignmentExpr        ⇒ inferType(assignmentExpr, bindings)
-      case StatementSeq(statements, _) ⇒
-        var latestBindings = bindings
-        for (statement <- statements) {
-          inferType(statement, latestBindings)
-          statement match {
-            case AssignmentExpr(Identifier(name, _), _, _, _, _) =>
-              statement.typeOpt.foreach(latestBindings += name -> _)
-            case decl @ FunctionDeclaration(name, paramList, body, _) =>
-              latestBindings += name -> Type.Lambda(Evaluator.parameterModel(paramList), body, latestBindings)
-            // TODO: pattern assignment bindings
-            case _ =>
-          }
-        }
-        statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
+      case statementSeq: StatementSeq                   ⇒ inferType(statementSeq, bindings)
       case FunctionDeclaration(name, params, body, _)   ⇒
         inferType(body, bindings ++ getPreliminaryBindings(params))
         Some(Unit)
@@ -92,6 +79,34 @@ class TypeInferencer {
           case Type.DefinedFunction(_) ⇒ FunctionHelpClass
         }
     }
+
+  private def inferType(statementSeq: StatementSeq, bindings: Map[String, Type]): Option[Type] = {
+    var latestBindings = bindings
+    for (statement <- statementSeq.statements) {
+      inferType(statement, latestBindings)
+      statement match {
+        case AssignmentExpr(Identifier(name, _), _, _, _, _) =>
+          statement.typeOpt.foreach(latestBindings += name -> _)
+        case PatternAssignmentExpr(pattern, right, _)        =>
+          val wholeType = right.typeOpt.getOrElse(Type.Any)
+          pattern match {
+            case ObjectPattern(fieldNames, _) =>
+              val fieldTypes: Map[String, Type] =
+                wholeType match {
+                  case Type.Object(knownFields) => knownFields
+                  case Type.Instance(klass)     => klass.fieldsMap.mapValues(_.fieldType)
+                  case _                        => Map()
+                }
+              for (fieldName <- fieldNames)
+                latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
+          }
+        case decl@FunctionDeclaration(name, paramList, body, _) =>
+          latestBindings += name -> Type.Lambda(Evaluator.parameterModel(paramList), body, latestBindings)
+        case _ =>
+      }
+    }
+    statementSeq.statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
+  }
 
   // Preliminary typing pass -- might be updated to be more precise once we know argument types
   private def getPreliminaryBindings(params: ParamList): Map[String, Type] =

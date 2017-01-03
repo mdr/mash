@@ -38,6 +38,8 @@ abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[N
 
   def fields: Seq[Field] = Seq()
 
+  def getField(fieldName: String): Option[Field] = fields.find(_.name == fieldName)
+
   lazy val fieldsMap: ListMap[String, Field] = {
     val pairs = for (field ← fields) yield field.name -> field
     ListMap(pairs: _*)
