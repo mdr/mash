@@ -11,10 +11,6 @@ sealed trait EvaluatedArgument {
 
 }
 
-case class SuspendedMashValue(thunk: () => MashValue) {
-  def resolve(): MashValue = thunk()
-}
-
 object EvaluatedArgument {
 
   case class PositionArg(value: SuspendedMashValue, argumentNodeOpt: Option[Argument] = None) extends EvaluatedArgument {
@@ -29,4 +25,8 @@ object EvaluatedArgument {
     def isPositionArg = false
   }
 
+}
+
+case class SuspendedMashValue(thunk: () => MashValue) {
+  def resolve(): MashValue = thunk()
 }

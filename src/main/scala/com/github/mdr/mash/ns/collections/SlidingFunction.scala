@@ -40,14 +40,9 @@ object SlidingFunction extends MashFunction("collections.sliding") {
 
 object SlidingTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = SlidingFunction.params.bindTypes(arguments)
-    import SlidingFunction.Params._
-    val sequenceExprOpt = argBindings.get(Sequence)
-    for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
-      sequenceType ← sequenceTypeOpt
-    } yield Type.Seq(sequenceType)
-  }
+  import SlidingFunction.Params._
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
+    SlidingFunction.params.bindTypes(arguments).getType(Sequence).map(Type.Seq)
 
 }

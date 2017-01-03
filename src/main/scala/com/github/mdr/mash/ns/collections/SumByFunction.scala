@@ -50,13 +50,16 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
 object SumByTypeInferenceStrategy extends TypeInferenceStrategy {
 
+  import SumByFunction.Params._
+
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = SumByFunction.params.bindTypes(arguments)
-    import SumByFunction.Params._
-    val inferredTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, argBindings.get(Attribute), argBindings.get(Sequence))
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val attributeArg = argBindings.getArgument(Attribute)
+    val inferredTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, attributeArg, sequenceTypeOpt)
     inferredTypeOpt match {
       case Some(Type.Tagged(NumberClass, _)) ⇒ inferredTypeOpt
-      case _                                 ⇒ Some(Type.Instance(NumberClass))
+      case _                                 ⇒ Some(NumberClass)
     }
   }
 

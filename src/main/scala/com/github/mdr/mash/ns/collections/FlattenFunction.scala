@@ -45,10 +45,8 @@ object FlattenTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = FlatMapFunction.params.bindTypes(arguments)
     import FlatMapFunction.Params._
-    val sequenceOpt = argBindings.get(Sequence)
     for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceOpt
-      sequenceType ← sequenceTypeOpt
+      sequenceType ← argBindings.getType(Sequence)
       newSequenceType ← condOpt(sequenceType) {
         case Type.Seq(Type.Seq(x)) ⇒ Type.Seq(x)
       }

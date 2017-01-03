@@ -50,9 +50,8 @@ object AllTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     import AllFunction.Params._
     val argBindings = AllFunction.params.bindTypes(arguments)
-    val sequenceExprOpt = argBindings.get(Sequence)
-    val predicateExprOpt = argBindings.get(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
+    val predicateExprOpt = argBindings.getArgument(Predicate)
+    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, argBindings.getType(Sequence))
     Some(BooleanClass)
   }
 

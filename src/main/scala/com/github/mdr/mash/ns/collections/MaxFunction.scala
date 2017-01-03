@@ -58,18 +58,14 @@ object MaxTypeInferenceStrategy extends TypeInferenceStrategy {
     import MaxFunction.Params._
     if (arguments.positionArgs.size == 1)
       for {
-        AnnotatedExpr(_, inputTypeOpt) ← argBindings.get(Items)
-        Type.Seq(inputType) ← inputTypeOpt
+        inputType ← argBindings.getType(Items).collect { case Type.Seq(inputType) => inputType }
         elementType ← condOpt(inputType) {
           case Type.Seq(elementType)                                    ⇒ elementType
           case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ inputType
         }
       } yield elementType
     else
-      for {
-        AnnotatedExpr(_, inputTypeOpt) ← argBindings.get(Items)
-        Type.Seq(elementType) ← inputTypeOpt
-      } yield elementType
+      argBindings.getType(Items).collect { case Type.Seq(elementType) => elementType }
   }
 
 }

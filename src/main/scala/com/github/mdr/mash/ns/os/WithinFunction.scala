@@ -55,10 +55,9 @@ object WithinFunction extends MashFunction("os.within") {
 
 object WithinFunctionTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    import WithinFunction.Params._
-    val argBindings = WithinFunction.params.bindTypes(arguments)
-    argBindings.get(Block).flatMap(_.typeOpt)
-  }
+  import WithinFunction.Params._
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
+    WithinFunction.params.bindTypes(arguments).getType(Block)
 
 }

@@ -35,12 +35,7 @@ case class ConstantTypeInferenceStrategy(typ: Type) extends TypeInferenceStrateg
 
 object SeqToSeqTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = MapFunction.params.bindTypes(arguments)
-    for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← argBindings.get(MapFunction.Params.Sequence)
-      sequenceType ← sequenceTypeOpt
-    } yield sequenceType
-  }
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
+    MapFunction.params.bindTypes(arguments).getType(MapFunction.Params.Sequence)
 
 }

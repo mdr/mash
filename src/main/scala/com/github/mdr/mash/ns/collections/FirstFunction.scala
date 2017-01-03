@@ -65,15 +65,11 @@ object FirstTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = FirstFunction.params.bindTypes(arguments)
     import FirstFunction.Params._
-    if (argBindings.contains(N))
-      for {
-        AnnotatedExpr(_, sequenceTypeOpt) ← argBindings.get(Sequence)
-        sequenceType ← sequenceTypeOpt
-      } yield sequenceType
+    if (argBindings contains N)
+      argBindings.getType(Sequence)
     else
       for {
-        AnnotatedExpr(_, sequenceTypeOpt) ← argBindings.get(Sequence)
-        sequenceType ← sequenceTypeOpt
+        sequenceType ← argBindings.getType(Sequence)
         elementType ← condOpt(sequenceType) {
           case Type.Seq(elementType)                                    ⇒ elementType
           case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType

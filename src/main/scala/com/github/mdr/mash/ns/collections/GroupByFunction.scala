@@ -118,11 +118,10 @@ object GroupByTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     import GroupByFunction.Params._
     val argBindings = GroupByFunction.params.bindTypes(arguments)
-    val sequenceExprOpt = argBindings.get(Sequence)
-    val discriminatorExprOpt = argBindings.get(Discriminator)
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val discriminatorExprOpt = argBindings.getArgument(Discriminator)
     for {
-      keyType ← MapTypeInferenceStrategy.inferAppliedType(inferencer, discriminatorExprOpt, sequenceExprOpt)
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
+      keyType ← MapTypeInferenceStrategy.inferAppliedType(inferencer, discriminatorExprOpt, sequenceTypeOpt)
       sequenceType ← sequenceTypeOpt
       valuesType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType

@@ -8,6 +8,7 @@ import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
+
 object HelpFunction extends MashFunction("core.help.help") {
 
   object Params {
@@ -50,10 +51,8 @@ object HelpFunction extends MashFunction("core.help.help") {
       FunctionHelpClass)
   }
 
-  def getHelp(bm: BoundMethod): MashObject = {
-    val m = bm.method
-    getHelp(bm.method, bm.klass)
-  }
+  def getHelp(boundMethod: BoundMethod): MashObject =
+    getHelp(boundMethod.method, boundMethod.klass)
 
   def getHelp(m: MashMethod, klass: MashClass): MashObject = {
     import FunctionHelpClass.Fields._
@@ -119,9 +118,9 @@ object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = HelpFunction.params.bindTypes(arguments)
     import HelpFunction.Params._
-    argBindings.get(Item).flatMap(_.typeOpt).collect {
-      case Type.DefinedFunction(_) | Type.Lambda(_, _, _) | Type.BoundMethod(_, _) ⇒ Type.Instance(FunctionHelpClass)
-      case Type.Instance(ClassClass) ⇒ Type.Instance(ClassHelpClass)
+    argBindings.getType(Item).collect {
+      case Type.DefinedFunction(_) | Type.Lambda(_, _, _) | Type.BoundMethod(_, _) ⇒ FunctionHelpClass
+      case Type.Instance(ClassClass)                                               ⇒ ClassHelpClass
     }
 
   }

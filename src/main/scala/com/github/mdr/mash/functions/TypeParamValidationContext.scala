@@ -7,7 +7,8 @@ import scala.PartialFunction.cond
 
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 
-  private var boundParams: Map[String, AnnotatedExpr] = Map()
+  private var boundArguments: Map[String, AnnotatedExpr] = Map()
+  private var boundNames: Map[String, Type] = Map()
   private var posToParam: Map[Int, Parameter] = Map()
   private var lastParameterConsumed = false
 
@@ -15,7 +16,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     handleLastArg()
     handlePositionalArgs()
     handleFlagArgs()
-    BoundTypeParams(boundParams, posToParam)
+    BoundTypeParams(boundArguments, boundNames, posToParam)
   }
 
   private def handleLastArg() {
@@ -26,7 +27,8 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       if !arguments.isProvidedAsNamedArg(paramName)
     } {
       lastParameterConsumed = true
-      boundParams += lastParam.name -> lastArg
+      boundArguments += lastParam.name -> lastArg
+      lastArg.typeOpt.foreach { boundNames += lastParam.name -> _ }
       posToParam += posOfArg(lastArg) -> lastParam
     }
   }
@@ -39,16 +41,30 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       for (variadicParam ← params.variadicParamOpt) {
         val varargs = positionArgs.drop(regularPosParams.size)
         val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
-        boundParams += variadicParam.name -> AnnotatedExpr(None, Some(Type.Seq(varargType)))
+        val varargSeqType = Type.Seq(varargType)
+        boundArguments += variadicParam.name -> AnnotatedExpr(None, Some(varargSeqType))
+        boundNames += variadicParam.name -> varargSeqType
         val extraArgs = positionArgs.drop(regularPosParams.size)
         for (arg ← extraArgs)
           posToParam += posOfArg(arg) -> variadicParam
       }
 
-    for ((param, arg) ← regularPosParams zip positionArgs) {
-      boundParams += param.name -> arg
-      posToParam += posOfArg(arg) -> param
-    }
+    for ((param, arg) ← regularPosParams zip positionArgs)
+      param.patternObjectNamesOpt match {
+        case Some(patternObjectNames) =>
+          val fieldTypes: Map[String, Type] = arg.typeOpt.map {
+            case Type.Object(knownFields) => knownFields
+            case Type.Instance(klass)     => klass.fieldsMap.mapValues(_.fieldType)
+            case _                        => Map[String, Type]()
+          }.getOrElse(Map())
+          for (fieldName <- patternObjectNames)
+            boundNames += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
+          posToParam += posOfArg(arg) -> param
+        case None                     =>
+          boundArguments += param.name -> arg
+          arg.typeOpt.foreach { boundNames += param.name -> _ }
+          posToParam += posOfArg(arg) -> param
+      }
   }
 
   private def posOfArg(arg: AnnotatedExpr): Int =
@@ -56,19 +72,20 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
 
   private def handleFlagArgs() {
     for (flagArg ← arguments.argSet)
-      bindFlagParam(flagArg, expr = AnnotatedExpr(None, Some(Type.Instance(BooleanClass))))
+      bindFlagParam(flagArg, arg = AnnotatedExpr(None, Some(BooleanClass)))
     for {
       (flagArg, valueOpt) ← arguments.argValues
       value ← valueOpt
-    } bindFlagParam(flagArg, expr = value)
+    } bindFlagParam(flagArg, arg = value)
   }
 
-  private def bindFlagParam(paramName: String, expr: AnnotatedExpr) =
+  private def bindFlagParam(paramName: String, arg: AnnotatedExpr) =
     for (param ← params.paramByName.get(paramName)) {
-      boundParams += param.name -> expr
+      boundArguments += param.name -> arg
+      arg.typeOpt.foreach { boundNames += param.name -> _ }
       val argIndex = arguments.arguments.indexWhere {
         case TypedArgument.LongFlag(`paramName`, _) ⇒ true
-        case TypedArgument.ShortFlag(flags)         ⇒ flags.contains(paramName)
+        case TypedArgument.ShortFlag(flags)         ⇒ flags contains paramName
         case _                                      ⇒ false
       }
       posToParam += argIndex -> param

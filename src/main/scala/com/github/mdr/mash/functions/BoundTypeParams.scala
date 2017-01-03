@@ -1,21 +1,17 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.inference.AnnotatedExpr
+import com.github.mdr.mash.inference.{ AnnotatedExpr, Type }
 
-case class BoundTypeParams(params: Map[String, AnnotatedExpr], posToParam: Map[Int, Parameter]) {
+case class BoundTypeParams(boundArguments: Map[String, AnnotatedExpr],
+                           boundNames: Map[String, Type],
+                           posToParam: Map[Int, Parameter]) {
 
-  def apply(param: String): AnnotatedExpr = params(param)
+  def getType(param: Parameter): Option[Type] = boundNames get param.name
 
-  def apply(param: Parameter): AnnotatedExpr = params(param.name)
+  def getArgument(param: Parameter): Option[AnnotatedExpr] = boundArguments get param.name
 
-  def get(param: Parameter): Option[AnnotatedExpr] = params.get(param.name)
+  def contains(param: Parameter) = getArgument(param).isDefined
 
-  def get(param: String): Option[AnnotatedExpr] = params.get(param)
-
-  def contains(param: String) = get(param).isDefined
-
-  def contains(param: Parameter) = get(param).isDefined
-
-  def paramAt(pos: Int): Option[Parameter] = posToParam.get(pos)
+  def paramAt(pos: Int): Option[Parameter] = posToParam get pos
 
 }

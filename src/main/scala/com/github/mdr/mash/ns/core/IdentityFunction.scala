@@ -32,9 +32,9 @@ object IdentityFunction extends MashFunction("core.identity") {
 
 object IdentityTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = IdentityFunction.params.bindTypes(arguments)
-    argBindings.get(IdentityFunction.Params.Item).flatMap(_.typeOpt)
-  }
+  import IdentityFunction.Params._
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
+    IdentityFunction.params.bindTypes(arguments).getType(Item)
 
 }

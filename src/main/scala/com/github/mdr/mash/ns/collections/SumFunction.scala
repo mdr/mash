@@ -51,11 +51,9 @@ object SumTypeInferenceStrategy extends TypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = SumFunction.params.bindTypes(arguments)
-    val elementTypeOpt =
-      for {
-        AnnotatedExpr(_, typeOpt) ← argBindings.get(SumFunction.Params.Sequence)
-        Type.Seq(elementType) ← typeOpt
-      } yield elementType
+    val elementTypeOpt = argBindings.getType(SumFunction.Params.Sequence).collect {
+      case Type.Seq(elementType) => elementType
+    }
     elementTypeOpt match {
       case Some(Type.Tagged(NumberClass | StringClass, _)) ⇒ elementTypeOpt
       case Some(Type.Instance(NumberClass | StringClass)) ⇒ elementTypeOpt

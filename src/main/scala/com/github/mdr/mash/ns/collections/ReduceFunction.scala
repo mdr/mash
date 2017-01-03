@@ -78,12 +78,12 @@ object ReduceTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = ReduceFunction.params.bindTypes(arguments)
     val elementTypeOpt =
       for {
-        AnnotatedExpr(_, typeOpt) ← argBindings.get(Sequence)
+        AnnotatedExpr(_, typeOpt) ← argBindings.getArgument(Sequence)
         Type.Seq(elementType) ← typeOpt
       } yield elementType
 
-    val accumulationTypeOpt = argBindings.get(Initial).flatMap(_.typeOpt) orElse elementTypeOpt
-    val functionTypeOpt = argBindings.get(Accumulator).flatMap(_.typeOpt)
+    val accumulationTypeOpt = argBindings.getType(Initial) orElse elementTypeOpt
+    val functionTypeOpt = argBindings.getType(Accumulator)
     val outputTypeOpt =
       for {
         functionType ← functionTypeOpt

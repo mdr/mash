@@ -355,11 +355,7 @@ class TypeInferencer {
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(new Inferencer(this, bindings), typedArgs)
       case Type.Lambda(parameterModel, expr, lambdaBindings) ⇒
-        val argBindings =
-          for {
-            (name, annotatedExpr) <- parameterModel.bindTypes(SimpleTypedArguments(typedArgs.arguments)).params
-            argType <- annotatedExpr.typeOpt
-          } yield name -> argType
+        val argBindings = parameterModel.bindTypes(SimpleTypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
       case _ ⇒
         None

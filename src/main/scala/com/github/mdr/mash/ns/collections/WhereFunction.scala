@@ -52,13 +52,10 @@ object WhereTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = WhereFunction.params.bindTypes(arguments)
     import WhereFunction.Params._
-    val sequenceExprOpt = argBindings.get(Sequence)
-    val predicateExprOpt = argBindings.get(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
-    for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
-      sequenceType ← sequenceTypeOpt
-    } yield sequenceType
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val predicateExprOpt = argBindings.getArgument(Predicate)
+    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
+    sequenceTypeOpt
   }
 
 }

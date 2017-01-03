@@ -61,7 +61,7 @@ object MapFunction extends MashFunction("collections.map") {
       for {
         param ← argBindings.paramAt(argPos)
         if param == F
-        AnnotatedExpr(_, Some(Type.Seq(elementType))) ← argBindings.get(Sequence)
+        Type.Seq(elementType) ← argBindings.getType(Sequence)
       } yield CompletionSpec.Members(elementType)
     specOpt.toSeq
   }
@@ -82,11 +82,10 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = MapFunction.params.bindTypes(arguments)
     import MapFunction.Params._
-    val functionOpt = argBindings.get(F)
-    val sequenceOpt = argBindings.get(Sequence)
-    val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, sequenceOpt)
+    val functionOpt = argBindings.getArgument(F)
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, sequenceTypeOpt)
     for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceOpt
       sequenceType ← sequenceTypeOpt
       newSequenceType ← condOpt(sequenceType) {
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
@@ -103,11 +102,10 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
     } yield newSequenceType
   }
 
-  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceExprOpt: Option[AnnotatedExpr]): Option[Type] = {
+  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceTypeOpt: Option[Type]): Option[Type] = {
     for {
       AnnotatedExpr(functionExprOpt, functionTypeOpt) ← functionExprOpt
       functionType ← functionTypeOpt
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceExprOpt
       sequenceType ← sequenceTypeOpt
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType

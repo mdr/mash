@@ -44,7 +44,7 @@ object ParallelMapFunction extends MashFunction("core.thread.parallelMap") {
       for {
         param ← argBindings.paramAt(argPos)
         if param == F
-        AnnotatedExpr(_, Some(Type.Seq(elementType))) ← argBindings.get(Sequence)
+        Type.Seq(elementType) ← argBindings.getType(Sequence)
       } yield CompletionSpec.Members(elementType)
     specOpt.toSeq
   }

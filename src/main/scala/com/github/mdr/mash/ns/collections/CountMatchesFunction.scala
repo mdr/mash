@@ -46,10 +46,10 @@ object CountMatchesTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     import CountMatchesFunction.Params._
     val argBindings = CountMatchesFunction.params.bindTypes(arguments)
-    val sequenceExprOpt = argBindings.get(Sequence)
-    val predicateExprOpt = argBindings.get(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
-    Some(Type.Instance(NumberClass))
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val predicateExprOpt = argBindings.getArgument(Predicate)
+    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
+    Some(NumberClass)
   }
 
 }

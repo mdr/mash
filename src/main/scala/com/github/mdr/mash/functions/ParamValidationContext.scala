@@ -8,7 +8,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
 
   private var boundNames: Map[String, MashValue] = Map()
   private var boundParams: Set[Parameter] = Set()
-  private var argumentNodes: Map[Parameter, Seq[Argument]] = Map()
+  private var parameterToArguments: Map[Parameter, Seq[Argument]] = Map()
   private var lastParameterConsumed = false
 
   def validate(): BoundParams = {
@@ -16,11 +16,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     handlePositionalArgs()
     handleFlagArgs()
     handleDefaultAndMandatory()
-    BoundParams(boundNames, argumentNodes)
+    BoundParams(boundNames, parameterToArguments)
   }
 
-  private def addArgumentNode(parameter: Parameter, argNode: Argument) {
-    argumentNodes += parameter -> (argumentNodes.getOrElse(parameter, Seq()) :+ argNode)
+  private def addArgumentToParameter(parameter: Parameter, argNode: Argument) {
+    parameterToArguments += parameter -> (parameterToArguments.getOrElse(parameter, Seq()) :+ argNode)
   }
 
   private def handleLastArg() =
@@ -31,10 +31,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       if !arguments.isProvidedAsNamedArg(paramName)
     } {
       lastParameterConsumed = true
-      boundNames += paramName -> resolve(lastParam, lastArg.value)
-      boundParams += lastParam
+      bindParam(lastParam, resolve(lastParam, lastArg.value), lastArg)
       for (argNode ← lastArg.argumentNodeOpt)
-        addArgumentNode(lastParam, argNode)
+        addArgumentToParameter(lastParam, argNode)
     }
 
   private def handlePositionalArgs() {
@@ -44,24 +43,29 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     handleExcessArguments(positionArgs, regularParams)
 
     for ((param, arg) ← regularParams zip positionArgs) {
-      val value = resolve(param, arg.value)
-      param.patternObjectNamesOpt match {
-        case Some(patternObjectNames) =>
-          value match {
-            case obj: MashObject =>
-              for (fieldName <- patternObjectNames)
-                boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
-            case _ =>
-              throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, getLocation(arg))
-          }
-        case None =>
-          boundNames += param.name -> resolve(param, arg.value)
-          for (argNode ← arg.argumentNodeOpt)
-            addArgumentNode(param, argNode)
-      }
-      boundParams += param
+      bindParam(param, resolve(param, arg.value), arg)
+      for (argNode ← arg.argumentNodeOpt)
+        addArgumentToParameter(param, argNode)
     }
   }
+
+  private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument): Unit =
+    param.patternObjectNamesOpt match {
+      case Some(patternObjectNames) =>
+        value match {
+          case obj: MashObject =>
+            for (fieldName <- patternObjectNames) {
+              boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
+              boundParams += param
+            }
+          case _               =>
+            throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, getLocation(arg))
+        }
+      case None                     =>
+        boundNames += param.name -> value
+        boundParams += param
+    }
+
 
   private def resolve(param: Parameter, suspendedValue: SuspendedMashValue): MashValue =
     if (param.isLazy)
@@ -79,8 +83,8 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           for {
             firstVararg ← varargs
             argNode ← firstVararg.argumentNodeOpt
-          } addArgumentNode(variadicParam, argNode)
-        case None ⇒
+          } addArgumentToParameter(variadicParam, argNode)
+        case None                ⇒
           val maxPositionArgs = params.positionalParams.size
           val providedArgs = arguments.positionArgs.size
           if (!ignoreAdditionalParameters) {
@@ -95,14 +99,14 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   private def handleFlagArgs() {
     for (argument ← arguments.evaluatedArguments)
       argument match {
-        case EvaluatedArgument.ShortFlag(flags, argNodeOpt) ⇒
+        case EvaluatedArgument.ShortFlag(flags, argNodeOpt)            ⇒
           for (flag ← flags)
             bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
-        case EvaluatedArgument.LongFlag(flag, None, argNodeOpt) ⇒
+        case EvaluatedArgument.LongFlag(flag, None, argNodeOpt)        ⇒
           bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
           bindFlagParam(flag, argNodeOpt, value)
-        case posArg: EvaluatedArgument.PositionArg ⇒
+        case posArg: EvaluatedArgument.PositionArg                     ⇒
         // handled elsewhere
       }
   }
@@ -118,9 +122,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           boundParams += param
 
           for (argNode ← argNodeOpt)
-            addArgumentNode(param, argNode)
+            addArgumentToParameter(param, argNode)
         }
-      case None ⇒
+      case None        ⇒
         if (!ignoreAdditionalParameters)
           throw new ArgumentException(s"Unexpected named argument '$paramName'", errorLocationOpt)
     }
@@ -132,7 +136,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case Some(generator) ⇒
           boundNames += param.name -> generator()
           boundParams += param
-        case None ⇒
+        case None            ⇒
           if (param.isVariadic)
             if (param.variadicAtLeastOne)
               throw new ArgumentException(s"Missing mandatory argument '${param.name}'")

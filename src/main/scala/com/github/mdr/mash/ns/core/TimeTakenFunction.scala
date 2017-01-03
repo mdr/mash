@@ -55,7 +55,7 @@ object TimeTakenTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     import WithinFunction.Params._
     val argBindings = TimeTakenFunction.params.bindTypes(arguments)
-    val resultType = argBindings.get(Block).flatMap(_.typeOpt).getOrElse(Type.Any)
+    val resultType = argBindings.getType(Block).getOrElse(Type.Any)
     Some(Type.Generic(TimedResultClass, resultType))
   }
 

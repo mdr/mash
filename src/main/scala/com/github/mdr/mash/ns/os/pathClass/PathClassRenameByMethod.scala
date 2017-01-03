@@ -36,8 +36,7 @@ object PathClassRenameByMethod extends MashMethod("renameBy") {
     def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
       val argBindings = params.bindTypes(arguments)
       for {
-        annotatedExpr ← argBindings.get(F)
-        functionType ← annotatedExpr.typeOpt
+        functionType ← argBindings.getType(F)
         targetType ← targetTypeOpt
       } inferencer.applyFunction(functionType, targetType, None)
       Some(StringClass taggedWith PathClass)

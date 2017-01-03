@@ -51,12 +51,11 @@ object FindTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = FindFunction.params.bindTypes(arguments)
     import FindFunction.Params._
-    val sequenceExprOpt = argBindings.get(Sequence)
-    val predicateExprOpt = argBindings.get(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceExprOpt)
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val predicateExprOpt = argBindings.getArgument(Predicate)
+    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
     for {
-      sequenceExpr ← sequenceExprOpt
-      sequenceType ← sequenceExpr.typeOpt
+      sequenceType ← sequenceTypeOpt
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType

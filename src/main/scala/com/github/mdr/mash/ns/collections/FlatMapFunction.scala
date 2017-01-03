@@ -65,7 +65,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
       for {
         param ← argBindings.paramAt(argPos)
         if param == F
-        AnnotatedExpr(_, Some(Type.Seq(elementType))) ← argBindings.get(Sequence)
+        Type.Seq(elementType) ← argBindings.getType(Sequence)
       } yield CompletionSpec.Members(elementType)
     specOpt.toSeq
   }
@@ -83,14 +83,14 @@ Examples:
 
 object FlatMapTypeInferenceStrategy extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+  import FlatMapFunction.Params._
+
+    def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = FlatMapFunction.params.bindTypes(arguments)
-    import FlatMapFunction.Params._
-    val functionOpt = argBindings.get(F)
-    val sequenceOpt = argBindings.get(Sequence)
-    val newElementSeqTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, functionOpt, sequenceOpt)
+    val functionOpt = argBindings.getArgument(F)
+    val sequenceTypeOpt = argBindings.getType(Sequence)
+    val newElementSeqTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, functionOpt, sequenceTypeOpt)
     for {
-      AnnotatedExpr(_, sequenceTypeOpt) ← sequenceOpt
       sequenceType ← sequenceTypeOpt
       newSequenceType ← condOpt(sequenceType) {
         case Type.Seq(_) ⇒

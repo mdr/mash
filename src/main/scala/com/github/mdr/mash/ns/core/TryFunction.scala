@@ -37,7 +37,7 @@ object TryFunction extends MashFunction("core.try") {
   override def typeInferenceStrategy = new TypeInferenceStrategy {
 
     def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
-      params.bindTypes(arguments).get(Body).flatMap(_.typeOpt)
+      params.bindTypes(arguments).getType(Body)
 
   }
 

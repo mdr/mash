@@ -229,6 +229,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "(x y => x * y) 42 24" shouldBeInferredAsHavingType NumberClass
   "(x => x + 1) 10" shouldBeInferredAsHavingType NumberClass
   "(=> 42) | x => x" shouldBeInferredAsHavingType NumberClass
+  // "{ a: 42 } | { a } => a" shouldBeInferredAsHavingType NumberClass
 
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
