@@ -26,8 +26,8 @@ object Type {
   case class DefinedFunction(f: MashFunction) extends Type
   case class BoundMethod(receiver: Type, method: MashMethod) extends Type
 
-  case class Lambda(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"Lambda(${params.params.map(_.name).mkString(", ")}, $body)"
+  case class Function(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
+    override def toString = s"Function(${params.params.map(_.name).mkString(", ")}, $body)"
   }
 
   // Various implicits to make it less wordy to describe types

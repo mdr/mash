@@ -73,7 +73,7 @@ class TypeInferencer {
         Some(Unit)
       case LambdaExpr(params, body, _) ⇒
         inferType(body, bindings ++ getPreliminaryBindings(params))
-        Some(Type.Lambda(Evaluator.parameterModel(params), body, bindings))
+        Some(Type.Function(Evaluator.parameterModel(params), body, bindings))
       case HelpExpr(subExpr, _) ⇒
         inferType(subExpr, bindings, immediateExec = false) collect {
           case Type.DefinedFunction(_) ⇒ FunctionHelpClass
@@ -101,7 +101,7 @@ class TypeInferencer {
                 latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
           }
         case decl@FunctionDeclaration(name, paramList, body, _) =>
-          latestBindings += name -> Type.Lambda(Evaluator.parameterModel(paramList), body, latestBindings)
+          latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
         case _ =>
       }
     }
@@ -169,13 +169,13 @@ class TypeInferencer {
   private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val Identifier(s, _) = identifier
     bindings.get(s).flatMap {
-      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
+      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec                                          ⇒
         identifier.preInvocationTypeOpt = Some(typ)
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), SimpleTypedArguments(Seq()))
-      case typ @ Type.Lambda(parameterModel, body, lambdaBindings) if parameterModel.allowsNullary && immediateExec ⇒
+      case typ @ Type.Function(parameterModel, body, lambdaBindings) if parameterModel.allowsNullary && immediateExec ⇒
         identifier.preInvocationTypeOpt = Some(typ)
         inferType(body, lambdaBindings)
-      case x ⇒
+      case x                                                                                                          ⇒
         Some(x)
     }
   }
@@ -341,23 +341,23 @@ class TypeInferencer {
           argType ← arg.typeOpt
           memberType ← memberLookup(argType, s, immediateExec = true)
         } yield memberType
-      case Type.Seq(Type.BoundMethod(receiverType, method)) ⇒
+      case Type.Seq(Type.BoundMethod(receiverType, method))    ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = SimpleTypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments).map(Type.Seq)
-      case Type.Seq(elementType) ⇒
+      case Type.Seq(elementType)                               ⇒
         Some(elementType)
-      case Type.BoundMethod(receiverType, method) ⇒
+      case Type.BoundMethod(receiverType, method)              ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = SimpleTypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
-      case Type.DefinedFunction(f) ⇒
+      case Type.DefinedFunction(f)                             ⇒
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case Type.Lambda(parameterModel, expr, lambdaBindings) ⇒
+      case Type.Function(parameterModel, expr, lambdaBindings) ⇒
         val argBindings = parameterModel.bindTypes(SimpleTypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
-      case _ ⇒
+      case _                                                   ⇒
         None
     }
   }
