@@ -95,8 +95,8 @@ object FlatMapTypeInferenceStrategy extends TypeInferenceStrategy {
       newSequenceType ← condOpt(sequenceType) {
         case Type.Seq(_) ⇒
           newElementSeqTypeOpt match {
-            case Some(Type.Seq(newElementType)) ⇒ Type.Seq(newElementType)
-            case _                              ⇒ Type.Seq(Type.Any)
+            case Some(Type.Seq(newElementType)) ⇒ newElementType.seq
+            case _                              ⇒ Type.Any.seq
           }
       }
     } yield newSequenceType

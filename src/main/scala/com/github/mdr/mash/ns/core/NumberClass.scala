@@ -124,7 +124,7 @@ object NumberClass extends MashClass("core.Number") {
 
       def inferTypes(inferencer: Inferencer,  targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
         val argBindings = params.bindTypes(arguments)
-        argBindings.getType(Params.Block).map(Type.Seq)
+        argBindings.getType(Params.Block).map(_.seq)
       }
 
     }

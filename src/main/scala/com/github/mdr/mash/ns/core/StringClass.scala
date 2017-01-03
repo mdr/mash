@@ -251,7 +251,7 @@ object StringClass extends MashClass("core.String") {
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
 
       override def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
-        targetTypeOpt.orElse(Some(Type.Instance(StringClass))).map(Type.Seq)
+        targetTypeOpt.orElse(Some(Type.Instance(StringClass))).map(_.seq)
 
     }
 

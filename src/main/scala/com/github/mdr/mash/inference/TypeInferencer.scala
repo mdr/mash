@@ -139,7 +139,7 @@ class TypeInferencer {
   private def inferType(listExpr: ListExpr, bindings: Map[String, Type]): Option[Type] = {
     val elementTypes = listExpr.items.flatMap(inferType(_, bindings))
     val elementType = elementTypes.headOption.getOrElse(Type.Any)
-    Some(Type.Seq(elementType))
+    Some(elementType.seq)
   }
 
   private def inferType(interpolation: MishInterpolation, bindings: Map[String, Type]): Option[Type] =
@@ -387,7 +387,7 @@ class TypeInferencer {
         if (name == GroupClass.Fields.Key.name)
           Some(keyType)
         else if (name == GroupClass.Fields.Values.name)
-          Some(Type.Seq(elementType))
+          Some(elementType.seq)
         else
           memberLookup(typ, GroupClass, name)
       case Type.Generic(TimedResultClass, resultType) ⇒

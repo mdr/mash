@@ -8,11 +8,9 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 
 import scala.language.implicitConversions
 
-sealed trait Type
+sealed trait Type {
 
-trait TypeFunction {
-
-  def apply(positionArgs: Seq[Option[Type]], argSet: Set[String], argValues: Map[String, Type]): Option[Type]
+  def seq = Type.Seq(this)
 
 }
 
@@ -36,7 +34,7 @@ object Type {
   implicit def classToType[T](x: MashClass): Type = Type.Instance(x)
   implicit def seqToType[T <: MashClass](xs: scala.collection.Seq[T]): Type = {
     require(xs.length == 1)
-    Type.Seq(xs.head)
+    xs.head.seq
   }
   implicit def pathClassToType[T](x: PathClass.type): Type = StringClass taggedWith PathClass
   implicit def unitToType[T](x: Unit.type): Type = Type.Instance(UnitClass)

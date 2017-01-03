@@ -91,9 +91,9 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
           newElementTypeOpt match {
             case None | Some(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ sequenceType
-            case Some(newElementType) ⇒ Type.Seq(newElementType)
+            case Some(newElementType)                                                  ⇒ Type.Seq(newElementType)
           }
-        case Type.Seq(_) ⇒
+        case Type.Seq(_)                                              ⇒
           newElementTypeOpt match {
             case Some(newElementType) ⇒ Type.Seq(newElementType)
             case None                 ⇒ Type.Seq(Type.Any)
