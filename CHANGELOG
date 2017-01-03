@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Better user-defined function type inference
 * map/flatMap/each --withIndex
 * Object destructuring in assignment and function params
 * Add http.delete

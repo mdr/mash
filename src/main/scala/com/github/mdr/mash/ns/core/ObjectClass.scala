@@ -45,9 +45,9 @@ object ObjectClass extends MashClass("core.Object") {
       }
       val objects = items.map {
         case item: MashObject => item
-        case badItem => boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
+        case badItem          => boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
       }
-      objects.reduce(_ + _)
+      objects.reduceOption(_ + _) getOrElse MashObject.empty
     }
 
     override def summary: String = "Merge objects together"

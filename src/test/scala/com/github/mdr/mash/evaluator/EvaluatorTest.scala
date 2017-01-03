@@ -686,4 +686,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo, bar } = { bar: 1, baz: 2, foo: 3 }; foo + bar" shouldEvaluateTo 4
   "{ baz } = { foo: 42 }; baz" shouldEvaluateTo null
   "{ baz } = 42" shouldThrowAnException
+
+  // Object.merge
+  "Object.merge []" shouldEvaluateTo "{}"
+  "Object.merge { foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
+  "Object.merge { foo: 42 } { bar: 128 }" shouldEvaluateTo "{ foo: 42, bar: 128 }"
+  "Object.merge { foo: 42 } { foo: 128 }" shouldEvaluateTo "{ foo: 128 }"
 }

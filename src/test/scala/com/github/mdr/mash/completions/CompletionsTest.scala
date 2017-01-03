@@ -295,6 +295,8 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "(foo bar => foo.perm▶) --bar=100 --foo=ls.first" shouldGiveCompletions "permissions"
 
+  "def foo = { ls.perm▶" shouldGiveCompletions "permissions"
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
