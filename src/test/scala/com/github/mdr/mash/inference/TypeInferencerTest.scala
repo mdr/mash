@@ -21,75 +21,72 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   import Type._
 
-  private val NumberType = Instance(NumberClass)
-  private val BooleanType = Instance(BooleanClass)
-  private val StringType = Instance(StringClass)
   private val TaggedStringType = Tagged(StringClass, PathClass)
 
   "42" shouldBeInferredAsHavingType NumberClass
 
   "{ foo: 42 }.foo" shouldBeInferredAsHavingType NumberClass
-  "{ foo: 42 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType))
-  "foo = 42; { foo }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType))
+  "{ foo: 42 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
+  "foo = 42; { foo }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
 
   "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberClass
 
   "map [1, 2, 3].map [(_ * 2), (_ * _)]" shouldBeInferredAsHavingType Seq(Seq(NumberClass))
 
-  "(boundMethod => [(_ * 2), (_ * _)].map boundMethod) [1, 2, 3].map" shouldBeInferredAsHavingType Seq(Seq(NumberType))
+  "(boundMethod => [(_ * 2), (_ * _)].map boundMethod) [1, 2, 3].map" shouldBeInferredAsHavingType Seq(Seq(NumberClass))
 
-  "[1, 2, 3][0]" shouldBeInferredAsHavingType NumberType
+  "[1, 2, 3][0]" shouldBeInferredAsHavingType NumberClass
 
-  "[1, 2, 3] 0" shouldBeInferredAsHavingType NumberType
+  "[1, 2, 3] 0" shouldBeInferredAsHavingType NumberClass
 
-  " 'foo'[0] " shouldBeInferredAsHavingType StringType
+  " 'foo'[0] " shouldBeInferredAsHavingType StringClass
 
   // Addition
-  " 'foo' + 'bar' " shouldBeInferredAsHavingType StringType
+  " 'foo' + 'bar' " shouldBeInferredAsHavingType StringClass
   """ "foo" + "bar" """ shouldBeInferredAsHavingType TaggedStringType
-  " 'foo' + 42 " shouldBeInferredAsHavingType StringType
-  " 42 + 'bar' " shouldBeInferredAsHavingType StringType
-  " 'foo'.untagged + 'bar'.untagged" shouldBeInferredAsHavingType StringType
-  "42 + 24" shouldBeInferredAsHavingType NumberType
-  "[1] + [2]" shouldBeInferredAsHavingType Seq(NumberType)
-  "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType, "bar" -> NumberType))
+  " 'foo' + 42 " shouldBeInferredAsHavingType StringClass
+  " 42 + 'bar' " shouldBeInferredAsHavingType StringClass
+  " 'foo'.untagged + 'bar'.untagged" shouldBeInferredAsHavingType StringClass
+  "42 + 24" shouldBeInferredAsHavingType NumberClass
+  "[1] + [2]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass, "bar" -> NumberClass))
 
   // subtraction
-  "2 - 1" shouldBeInferredAsHavingType NumberType
-  "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberType))
+  "2 - 1" shouldBeInferredAsHavingType NumberClass
+  "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberClass))
 
   // Multiplication
-  "2 * 2" shouldBeInferredAsHavingType NumberType
-  "'foo' * 2" shouldBeInferredAsHavingType StringType
-  "2 * 'foo'" shouldBeInferredAsHavingType StringType
+  "2 * 2" shouldBeInferredAsHavingType NumberClass
+  "'foo' * 2" shouldBeInferredAsHavingType StringClass
+  "2 * 'foo'" shouldBeInferredAsHavingType StringClass
   """ "foo" * 2 """ shouldBeInferredAsHavingType TaggedStringType
-  "[1, 2] * 3" shouldBeInferredAsHavingType Seq(NumberType)
-  "3 * [1, 2]" shouldBeInferredAsHavingType Seq(NumberType)
+  "[1, 2] * 3" shouldBeInferredAsHavingType Seq(NumberClass)
+  "3 * [1, 2]" shouldBeInferredAsHavingType Seq(NumberClass)
   "5 * 1.seconds" shouldBeInferredAsHavingType (NumberClass taggedWith SecondsClass)
   "1.seconds * 5" shouldBeInferredAsHavingType (NumberClass taggedWith SecondsClass)
 
   // Map
-  "[true].map 'not' " shouldBeInferredAsHavingType Seq(BooleanType)
-  "['f', 'g'].map ('foo'.startsWith)" shouldBeInferredAsHavingType Seq(BooleanType)
-  "['f', 'g'].map 'foo'.startsWith" shouldBeInferredAsHavingType Seq(BooleanType)
-  "[ (_ * 2), (_ + 1) ] | map (_ 10)" shouldBeInferredAsHavingType Seq(NumberType)
-  "map --f=(_ * 2) --sequence=[1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
-  "map --f=(_ * 2) [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
-  "map (_.toUpper) 'foo'" shouldBeInferredAsHavingType StringType
+  "[true].map 'not' " shouldBeInferredAsHavingType Seq(BooleanClass)
+  "['f', 'g'].map ('foo'.startsWith)" shouldBeInferredAsHavingType Seq(BooleanClass)
+  "['f', 'g'].map 'foo'.startsWith" shouldBeInferredAsHavingType Seq(BooleanClass)
+  "[ (_ * 2), (_ + 1) ] | map (_ 10)" shouldBeInferredAsHavingType Seq(NumberClass)
+  "map --f=(_ * 2) --sequence=[1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "map --f=(_ * 2) [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "map (_.toUpper) 'foo'" shouldBeInferredAsHavingType StringClass
   "map (x => x x) [1, 2, 3]" shouldBeInferredAsHavingType Seq(Any)
-  "map (_.toNumber) '123'" shouldBeInferredAsHavingType Seq(NumberType)
-  "'[1, 2, 3]' | json.fromString | map (x => 2)" shouldBeInferredAsHavingType Seq(NumberType)
+  "map (_.toNumber) '123'" shouldBeInferredAsHavingType Seq(NumberClass)
+  "'[1, 2, 3]' | json.fromString | map (x => 2)" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // flatMap
-  "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringType)
+  "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringClass)
 
-  "42.toString" shouldBeInferredAsHavingType StringType
+  "42.toString" shouldBeInferredAsHavingType StringClass
 
   "ls.first.children" shouldBeInferredAsHavingType Seq(Instance(PathSummaryClass))
 
   "[]" shouldBeInferredAsHavingType Seq(Any)
 
-  "[].join" shouldBeInferredAsHavingType StringType
+  "[].join" shouldBeInferredAsHavingType StringClass
 
   if (!SystemUtils.IS_OS_MAC_OSX) {
     "user.groups" shouldBeInferredAsHavingType Seq(Tagged(StringClass, GroupClass))
@@ -98,109 +95,109 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   }
 
   // grep
-  "[1, 2, 3] | grep 2" shouldBeInferredAsHavingType Seq(NumberType)
+  "[1, 2, 3] | grep 2" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // last
-  "last [1, 2, 3]" shouldBeInferredAsHavingType NumberType
-  "last 2 [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
-  "last --n=2 --sequence=[1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
-  "'foo' | last" shouldBeInferredAsHavingType StringType
-  "'foo' | last 2" shouldBeInferredAsHavingType StringType
-  "'foo'.last" shouldBeInferredAsHavingType StringType
-  "'foo'.last 2" shouldBeInferredAsHavingType StringType
+  "last [1, 2, 3]" shouldBeInferredAsHavingType NumberClass
+  "last 2 [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "last --n=2 --sequence=[1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "'foo' | last" shouldBeInferredAsHavingType StringClass
+  "'foo' | last 2" shouldBeInferredAsHavingType StringClass
+  "'foo'.last" shouldBeInferredAsHavingType StringClass
+  "'foo'.last 2" shouldBeInferredAsHavingType StringClass
 
   // first
-  "first [1, 2, 3]" shouldBeInferredAsHavingType NumberType
-  "first 2 [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberType)
-  " 'foo' | first " shouldBeInferredAsHavingType StringType
-  " 'foo' | first 2" shouldBeInferredAsHavingType StringType
-  " 'foo'.first " shouldBeInferredAsHavingType StringType
-  " 'foo'.first 2" shouldBeInferredAsHavingType StringType
+  "first [1, 2, 3]" shouldBeInferredAsHavingType NumberClass
+  "first 2 [1, 2, 3]" shouldBeInferredAsHavingType Seq(NumberClass)
+  " 'foo' | first " shouldBeInferredAsHavingType StringClass
+  " 'foo' | first 2" shouldBeInferredAsHavingType StringClass
+  " 'foo'.first " shouldBeInferredAsHavingType StringClass
+  " 'foo'.first 2" shouldBeInferredAsHavingType StringClass
 
   // select
-  "{ foo: 42 } | select 'foo' " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberType))
-  "[{ foo: 42 }] | select 'foo' " shouldBeInferredAsHavingType Seq(Object(ListMap("foo" -> NumberType)))
-  "{ foo: 42 } | select --add --bar=(_.foo * 2) " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberType, "bar" -> NumberType))
-  "{ foo: 42, bar: 24 } | select --foo 'bar' " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberType, "bar" -> NumberType))
-  " { foo: 42 } | select --bar='foo' " shouldBeInferredAsHavingType Object(ListMap("bar" -> NumberType))
-  " { foo: 42 } | select --bar=(_.foo * 2) " shouldBeInferredAsHavingType Object(ListMap("bar" -> NumberType))
+  "{ foo: 42 } | select 'foo' " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberClass))
+  "[{ foo: 42 }] | select 'foo' " shouldBeInferredAsHavingType Seq(Object(ListMap("foo" -> NumberClass)))
+  "{ foo: 42 } | select --add --bar=(_.foo * 2) " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberClass, "bar" -> NumberClass))
+  "{ foo: 42, bar: 24 } | select --foo 'bar' " shouldBeInferredAsHavingType Object(ListMap("foo" -> NumberClass, "bar" -> NumberClass))
+  " { foo: 42 } | select --bar='foo' " shouldBeInferredAsHavingType Object(ListMap("bar" -> NumberClass))
+  " { foo: 42 } | select --bar=(_.foo * 2) " shouldBeInferredAsHavingType Object(ListMap("bar" -> NumberClass))
 
   // reverse
-  "reverse [42]" shouldBeInferredAsHavingType Seq(NumberType)
-  "reverse 'abc'" shouldBeInferredAsHavingType StringType
+  "reverse [42]" shouldBeInferredAsHavingType Seq(NumberClass)
+  "reverse 'abc'" shouldBeInferredAsHavingType StringClass
 
   // where
-  "[1, 2, 3] | where (_ > 2)" shouldBeInferredAsHavingType Seq(NumberType)
-  "'foo' | where (_ > 'm')" shouldBeInferredAsHavingType StringType
+  "[1, 2, 3] | where (_ > 2)" shouldBeInferredAsHavingType Seq(NumberClass)
+  "'foo' | where (_ > 'm')" shouldBeInferredAsHavingType StringClass
   "'[1, 2, 3]' | json.fromString | where (_ > 2)"  shouldBeInferredAsHavingType Seq(AnyClass)
 
   "null" shouldBeInferredAsHavingType Instance(NullClass)
 
   // sum
   " [1.bytes] | sum " shouldBeInferredAsHavingType Tagged(NumberClass, BytesClass)
-  " [] | sum " shouldBeInferredAsHavingType NumberType
-  " ['foo', 'bar'] | sum" shouldBeInferredAsHavingType StringType
-  " [[1, 2], [3]] | sum" shouldBeInferredAsHavingType Seq(NumberType)
+  " [] | sum " shouldBeInferredAsHavingType NumberClass
+  " ['foo', 'bar'] | sum" shouldBeInferredAsHavingType StringClass
+  " [[1, 2], [3]] | sum" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // sumBy
   " [1.bytes] | sumBy (_) " shouldBeInferredAsHavingType Tagged(NumberClass, BytesClass)
-  " [] | sumBy (_) " shouldBeInferredAsHavingType NumberType
-  "sumBy (_.toNumber) '123'" shouldBeInferredAsHavingType NumberType
+  " [] | sumBy (_) " shouldBeInferredAsHavingType NumberClass
+  "sumBy (_.toNumber) '123'" shouldBeInferredAsHavingType NumberClass
 
   // max
-  "[1, 2, 3] | max" shouldBeInferredAsHavingType NumberType
-  "'abc' | max" shouldBeInferredAsHavingType StringType
-  "max 1 2 3" shouldBeInferredAsHavingType NumberType
-  "max 'a' 'b' 'c'" shouldBeInferredAsHavingType StringType
+  "[1, 2, 3] | max" shouldBeInferredAsHavingType NumberClass
+  "'abc' | max" shouldBeInferredAsHavingType StringClass
+  "max 1 2 3" shouldBeInferredAsHavingType NumberClass
+  "max 'a' 'b' 'c'" shouldBeInferredAsHavingType StringClass
 
   // min
-  "[1, 2, 3] | min" shouldBeInferredAsHavingType NumberType
-  "'abc' | min" shouldBeInferredAsHavingType StringType
-  "min 1 2 3" shouldBeInferredAsHavingType NumberType
-  "min 'a' 'b' 'c'" shouldBeInferredAsHavingType StringType
+  "[1, 2, 3] | min" shouldBeInferredAsHavingType NumberClass
+  "'abc' | min" shouldBeInferredAsHavingType StringClass
+  "min 1 2 3" shouldBeInferredAsHavingType NumberClass
+  "min 'a' 'b' 'c'" shouldBeInferredAsHavingType StringClass
 
   // maxBy
-  "['a', 'bb', 'ccc'] | maxBy length" shouldBeInferredAsHavingType StringType
-  "'abc' | maxBy (_)" shouldBeInferredAsHavingType StringType
+  "['a', 'bb', 'ccc'] | maxBy length" shouldBeInferredAsHavingType StringClass
+  "'abc' | maxBy (_)" shouldBeInferredAsHavingType StringClass
 
   // minBy
-  "['a', 'bb', 'ccc'] | minBy length" shouldBeInferredAsHavingType StringType
-  "'abc' | minBy (_)" shouldBeInferredAsHavingType StringType
+  "['a', 'bb', 'ccc'] | minBy length" shouldBeInferredAsHavingType StringClass
+  "'abc' | minBy (_)" shouldBeInferredAsHavingType StringClass
 
   // find
-  "['a', 'bb', 'ccc'] | find (_.length == 2)" shouldBeInferredAsHavingType StringType
-  "'foo' | find (_ != 'f')" shouldBeInferredAsHavingType StringType
+  "['a', 'bb', 'ccc'] | find (_.length == 2)" shouldBeInferredAsHavingType StringClass
+  "'foo' | find (_ != 'f')" shouldBeInferredAsHavingType StringClass
 
   // isEmpty
-  "isEmpty []" shouldBeInferredAsHavingType BooleanType
+  "isEmpty []" shouldBeInferredAsHavingType BooleanClass
 
   "'size' pwd" shouldBeInferredAsHavingType Tagged(NumberClass, BytesClass)
   "'size' ls" shouldBeInferredAsHavingType Seq(Tagged(NumberClass, BytesClass))
 
   "pwd?.parent" shouldBeInferredAsHavingType TaggedStringType
 
-  "['foo', 'bar'].startsWith 'f'" shouldBeInferredAsHavingType Seq(BooleanType)
-  "['foo bar', 'baz'].split" shouldBeInferredAsHavingType Seq(Seq(StringType))
-  "['foo:bar', 'baz'].split ':'" shouldBeInferredAsHavingType Seq(Seq(StringType))
+  "['foo', 'bar'].startsWith 'f'" shouldBeInferredAsHavingType Seq(BooleanClass)
+  "['foo bar', 'baz'].split" shouldBeInferredAsHavingType Seq(Seq(StringClass))
+  "['foo:bar', 'baz'].split ':'" shouldBeInferredAsHavingType Seq(Seq(StringClass))
 
   // groupBy and Group
-  " [ {foo: 42} ] | groupBy 'foo' " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, NumberType, Object(ListMap("foo" -> NumberType))))
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.key) " shouldBeInferredAsHavingType NumberType
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.values) " shouldBeInferredAsHavingType Seq(Object(ListMap("foo" -> NumberType)))
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " shouldBeInferredAsHavingType NumberType
-  " 'foo' | groupBy (_) " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, StringType, StringType))
+  " [ {foo: 42} ] | groupBy 'foo' " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, NumberClass, Object(ListMap("foo" -> NumberClass))))
+  " [ {foo: 42} ] | groupBy 'foo' | (_.first.key) " shouldBeInferredAsHavingType NumberClass
+  " [ {foo: 42} ] | groupBy 'foo' | (_.first.values) " shouldBeInferredAsHavingType Seq(Object(ListMap("foo" -> NumberClass)))
+  " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " shouldBeInferredAsHavingType NumberClass
+  " 'foo' | groupBy (_) " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, StringClass, StringClass))
 
   // sliding
-  "[1, 2, 3] | sliding 2" shouldBeInferredAsHavingType Seq(Seq(NumberType))
+  "[1, 2, 3] | sliding 2" shouldBeInferredAsHavingType Seq(Seq(NumberClass))
 
   // Strings as functions
-  " 'foo' { foo: 42 } " shouldBeInferredAsHavingType NumberType
-  " 'toString' 42 " shouldBeInferredAsHavingType StringType
-  " 'foo' [{ foo: 42 }] " shouldBeInferredAsHavingType Seq(NumberType)
+  " 'foo' { foo: 42 } " shouldBeInferredAsHavingType NumberClass
+  " 'toString' 42 " shouldBeInferredAsHavingType StringClass
+  " 'foo' [{ foo: 42 }] " shouldBeInferredAsHavingType Seq(NumberClass)
 
   "ls.first.name.absolute" shouldBeInferredAsHavingType Tagged(StringClass, PathClass)
 
-  "{}.toString" shouldBeInferredAsHavingType StringType
+  "{}.toString" shouldBeInferredAsHavingType StringClass
 
   // help
   "ls?" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
@@ -210,7 +207,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "ls? .parameters" shouldBeInferredAsHavingType Seq(ParameterHelpClass)
 
   // target
-  "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberType)
+  "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberClass)
 
   "!!{nano}" shouldBeInferredAsHavingType Instance(UnitClass)
   "!{which ls}" shouldBeInferredAsHavingType Instance(ProcessResultClass)
@@ -238,7 +235,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // Object.withField
-  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType, "bar" -> NumberType))
+  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass, "bar" -> NumberClass))
   "ls.first.withField 'bar' 256" shouldBeInferredAsHavingType PathSummaryClass
 
   // Object.get
@@ -256,7 +253,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // .hoist
   "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" shouldBeInferredAsHavingType
-    Object(Map("foo" -> NumberType, "a" -> NumberType, "b" -> NumberType))
+    Object(Map("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass))
 
   // statements
   "a = 42; a" shouldBeInferredAsHavingType NumberClass
@@ -270,7 +267,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "{ foo: => 42 }.foo"  shouldBeInferredAsHavingType NumberClass
 
-  "'{foo: 42}' | json.fromString | .foo" shouldBeInferredAsHavingType AnyClass
+  "'{ foo: 42 }' | json.fromString | .foo" shouldBeInferredAsHavingType AnyClass
 
   private implicit class RichString(s: String) {
 
