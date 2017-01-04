@@ -45,7 +45,8 @@ object MashRoot {
         http.GetFunction,
         http.PostFunction,
         http.PutFunction,
-        net.UrlEncodeFunction) ++
+        net.UrlEncodeFunction,
+        net.UrlFunction) ++
       Seq(random.UuidFunction) ++
       Seq(mash.SourceFunction, mash.VersionFunction)
 
@@ -219,5 +220,7 @@ object MashRoot {
     ViewClass,
     http.CookieClass,
     http.HeaderClass,
-    http.ResponseClass)
+    http.ResponseClass,
+    net.HostClass,
+    net.UrlClass)
 }
