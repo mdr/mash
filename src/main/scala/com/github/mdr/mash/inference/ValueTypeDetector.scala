@@ -42,30 +42,30 @@ class ValueTypeDetector {
     }
 
   def getType_(x: MashValue): Type = x match {
-    case MashNull                                         ⇒ Type.Instance(NullClass)
-    case AnonymousFunction(parameterModel, body, context) ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case MashNull                                              ⇒ NullClass
+    case AnonymousFunction(parameterModel, body, context)      ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case UserDefinedFunction(_, parameterModel, body, context) ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case f: MashFunction                                  ⇒ Type.DefinedFunction(f)
-    case BoundMethod(target, method, _)                   ⇒ Type.BoundMethod(getType(target), method)
-    case MashString(_, None)                              ⇒ Type.Instance(StringClass)
-    case MashString(_, Some(tagClass))                    ⇒ StringClass taggedWith tagClass
-    case MashNumber(_, None)                              ⇒ Type.Instance(NumberClass)
-    case MashNumber(_, Some(tagClass))                    ⇒ NumberClass taggedWith tagClass
-    case _: MashBoolean                                   ⇒ Type.Instance(BooleanClass)
-    case MashWrapped(_: Instant)                          ⇒ Type.Instance(DateTimeClass)
-    case MashWrapped(_: LocalDate)                        ⇒ Type.Instance(DateClass)
-    case _: MashClass                                     ⇒ Type.Instance(ClassClass)
-    case MashUnit                                         ⇒ Type.Instance(UnitClass)
-    case xs: MashList                                     ⇒ xs.items.headOption.map(item ⇒ Type.Seq(getType(item))).getOrElse(Type.Seq(Type.Any))
-    case obj@MashObject(_, None)                          ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
-    case obj@MashObject(_, Some(GroupClass))              ⇒ getTypeOfGroup(obj)
-    case obj@MashObject(_, Some(TimedResultClass))        ⇒
+    case f: MashFunction                                       ⇒ Type.DefinedFunction(f)
+    case BoundMethod(target, method, _)                        ⇒ Type.BoundMethod(getType(target), method)
+    case MashString(_, None)                                   ⇒ StringClass
+    case MashString(_, Some(tagClass))                         ⇒ StringClass taggedWith tagClass
+    case MashNumber(_, None)                                   ⇒ NumberClass
+    case MashNumber(_, Some(tagClass))                         ⇒ NumberClass taggedWith tagClass
+    case _: MashBoolean                                        ⇒ BooleanClass
+    case MashWrapped(_: Instant)                               ⇒ DateTimeClass
+    case MashWrapped(_: LocalDate)                             ⇒ DateClass
+    case _: MashClass                                          ⇒ ClassClass
+    case MashUnit                                              ⇒ Unit
+    case xs: MashList                                          ⇒ xs.items.headOption.map(item ⇒ getType(item).seq) getOrElse Type.Any.seq
+    case obj@MashObject(_, None)                               ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
+    case obj@MashObject(_, Some(GroupClass))                   ⇒ getTypeOfGroup(obj)
+    case obj@MashObject(_, Some(TimedResultClass))             ⇒
       (for {
         key ← obj.get(TimedResultClass.Fields.Result)
         keyType = getType(key)
-      } yield Type.Generic(TimedResultClass, keyType)) getOrElse Type.Generic(TimedResultClass, Type.Any)
-    case MashObject(_, Some(klass))                       ⇒ Type.Instance(klass)
-    case _                                                ⇒ Type.Any
+      } yield TimedResultClass.withGenerics(keyType)) getOrElse TimedResultClass.withGenerics(Type.Any)
+    case MashObject(_, Some(klass))                            ⇒ klass
+    case _                                                     ⇒ Type.Any
   }
 
   private def getTypeOfGroup(obj: MashObject) = {

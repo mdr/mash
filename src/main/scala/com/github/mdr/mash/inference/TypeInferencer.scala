@@ -408,7 +408,9 @@ class TypeInferencer {
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), arguments)
         case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          body.typeOpt
+          val argBindings = params.bindTypes(SimpleTypedArguments(Seq())).boundNames
+          inferType(body, functionBindings ++ argBindings)
+//          body.typeOpt
         case x ⇒
           x
       }

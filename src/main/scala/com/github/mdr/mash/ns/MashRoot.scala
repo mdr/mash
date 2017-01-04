@@ -68,7 +68,8 @@ object MashRoot {
     TapFunction,
     TimeTakenFunction,
     TryFunction,
-    WhileFunction)
+    WhileFunction,
+    type_.hint.ListFunction)
 
   private val MathsFunctions = Seq(
     maths.LogFunction,

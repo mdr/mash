@@ -41,7 +41,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.httpcomponents" % "httpclient" % "4.5.2",
-  "com.joestelmach" % "natty" % "0.12")
+  "com.joestelmach" % "natty" % "0.12",
+  "net.grey-panther" % "natural-comparator" % "1.1")
 
 // == Eclipse integration =====================================================================
 
