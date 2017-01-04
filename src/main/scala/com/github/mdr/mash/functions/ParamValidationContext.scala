@@ -50,11 +50,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   }
 
   private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument): Unit =
-    param.patternObjectNamesOpt match {
-      case Some(patternObjectNames) =>
+    param.patternOpt match {
+      case Some(ParamPattern.Object(fieldNames)) =>
         value match {
           case obj: MashObject =>
-            for (fieldName <- patternObjectNames) {
+            for (fieldName <- fieldNames) {
               boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
               boundParams += param
             }

@@ -16,7 +16,7 @@ case class Parameter(name: String,
                      isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list
                      isLazy: Boolean = false, // if true, don't evaluate argument
                      bindsName: Boolean = true, // if true, bind name inside method body when called
-                     patternObjectNamesOpt: Option[Seq[String]] = None // object pattern names to bind
+                     patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 
   def isOptional = defaultValueGeneratorOpt.isDefined
@@ -24,5 +24,13 @@ case class Parameter(name: String,
   def isMandatory = !isOptional
 
   override def toString = name
+
+}
+
+sealed trait ParamPattern
+
+object ParamPattern {
+
+  case class Object(fieldNames: Seq[String]) extends ParamPattern
 
 }

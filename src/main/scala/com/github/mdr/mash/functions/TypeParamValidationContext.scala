@@ -49,14 +49,14 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       }
 
     for ((param, arg) ← regularPosParams zip positionArgs)
-      param.patternObjectNamesOpt match {
-        case Some(patternObjectNames) =>
+      param.patternOpt match {
+        case Some(ParamPattern.Object(fieldNames)) =>
           val fieldTypes: Map[String, Type] = arg.typeOpt.map {
             case Type.Object(knownFields) => knownFields
             case Type.Instance(klass)     => klass.fieldsMap.mapValues(_.fieldType)
             case _                        => Map[String, Type]()
           }.getOrElse(Map())
-          for (fieldName <- patternObjectNames)
+          for (fieldName <- fieldNames)
             boundNames += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
           posToParam += posOfArg(arg) -> param
         case None                     =>
