@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 
 object WhereFunction extends MashFunction("collections.where") {
@@ -49,13 +50,16 @@ object WhereFunction extends MashFunction("collections.where") {
 
 object WhereTypeInferenceStrategy extends TypeInferenceStrategy {
 
+  import WhereFunction.Params._
+
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = WhereFunction.params.bindTypes(arguments)
-    import WhereFunction.Params._
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val predicateExprOpt = argBindings.getArgument(Predicate)
     MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
-    sequenceTypeOpt
+    sequenceTypeOpt.collect {
+      case typ@(Type.Instance(StringClass) | Type.Tagged(StringClass, _) | Type.Seq(_)) ⇒ typ
+    }.orElse(Some(Type.Seq(AnyClass)))
   }
 
 }

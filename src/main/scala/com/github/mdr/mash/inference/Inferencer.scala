@@ -18,8 +18,8 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val args = Seq(positionArg(elementType))
       strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
     case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
-      parameterModel.params.map(_.name).headOption.flatMap { param ⇒
-        typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param -> elementType))
+      parameterModel.params.headOption.flatMap { param ⇒
+        typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param.name -> elementType))
       }
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
       functionExprOpt match {

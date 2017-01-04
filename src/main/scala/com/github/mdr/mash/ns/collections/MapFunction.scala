@@ -84,34 +84,36 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
     import MapFunction.Params._
     val functionOpt = argBindings.getArgument(F)
     val sequenceTypeOpt = argBindings.getType(Sequence)
-    val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, sequenceTypeOpt)
-    for {
-      sequenceType ← sequenceTypeOpt
-      newSequenceType ← condOpt(sequenceType) {
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
-          newElementTypeOpt match {
-            case None | Some(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ sequenceType
-            case Some(newElementType)                                                  ⇒ Type.Seq(newElementType)
-          }
-        case Type.Seq(_)                                              ⇒
-          newElementTypeOpt match {
-            case Some(newElementType) ⇒ Type.Seq(newElementType)
-            case None                 ⇒ Type.Seq(Type.Any)
-          }
-      }
-    } yield newSequenceType
+    val sequenceType = sequenceTypeOpt match {
+      case Some(Type.Seq(elementType))                                                   => elementType.seq
+      case Some(sequenceType@(Type.Instance(StringClass) | Type.Tagged(StringClass, _))) => sequenceType
+      case _                                                                             => Type.Any.seq
+    }
+    val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, Some(sequenceType))
+    Some(getResultType(sequenceType, newElementTypeOpt))
   }
 
-  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceTypeOpt: Option[Type]): Option[Type] = {
+  private def getResultType(sequenceType: Type, newElementTypeOpt: Option[Type]): Type =
+    sequenceType match {
+      case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
+        newElementTypeOpt match {
+          case None | Some(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ sequenceType
+          case Some(newElementType)                                                  ⇒ Type.Seq(newElementType)
+        }
+      case _                                                        ⇒
+        (newElementTypeOpt getOrElse Type.Any).seq
+    }
+
+  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceTypeOpt: Option[Type]): Option[Type] =
     for {
       AnnotatedExpr(functionExprOpt, functionTypeOpt) ← functionExprOpt
       functionType ← functionTypeOpt
-      sequenceType ← sequenceTypeOpt
+      sequenceType = sequenceTypeOpt getOrElse Type.Any.seq
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
       }
       newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt)
     } yield newElementType
-  }
+
 }

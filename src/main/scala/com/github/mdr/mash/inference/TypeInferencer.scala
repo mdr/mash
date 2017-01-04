@@ -35,7 +35,7 @@ class TypeInferencer {
       visitedMap.put(expr, true)
       try {
         val typeOpt = inferType_(expr, bindings, immediateExec)
-        expr.typeOpt = typeOpt
+        expr.typeOpt = typeOpt orElse Some(AnyClass)
         expr.typeBindings = bindings
         typeOpt
       } finally
@@ -51,7 +51,7 @@ class TypeInferencer {
       case BlockExpr(body, _)                           ⇒ inferType(body, bindings)
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
       case StringLiteral(s, QuotationType.Double, _, _) ⇒ Some(StringClass taggedWith PathClass)
-      case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(Type.Instance(StringClass))
+      case StringLiteral(s, QuotationType.Single, _, _) ⇒ Some(StringClass)
       case is: InterpolatedString                       ⇒ inferType(is, bindings)
       case MinusExpr(_, _)                              ⇒ Some(NumberClass)
       case binOpExpr: BinOpExpr                         ⇒ inferTypeBinOpExpr(binOpExpr, bindings)
@@ -406,6 +406,9 @@ class TypeInferencer {
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
           val arguments = SimpleTypedArguments(Seq())
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), arguments)
+        case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
+          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+          body.typeOpt
         case x ⇒
           x
       }

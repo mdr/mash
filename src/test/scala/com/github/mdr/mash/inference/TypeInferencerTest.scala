@@ -26,13 +26,15 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   private val StringType = Instance(StringClass)
   private val TaggedStringType = Tagged(StringClass, PathClass)
 
-  "42" shouldBeInferredAsHavingType NumberType
+  "42" shouldBeInferredAsHavingType NumberClass
 
-  "{ foo: 42 }.foo" shouldBeInferredAsHavingType NumberType
+  "{ foo: 42 }.foo" shouldBeInferredAsHavingType NumberClass
+  "{ foo: 42 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType))
+  "foo = 42; { foo }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberType))
 
-  "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberType
+  "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberClass
 
-  "map [1, 2, 3].map [(_ * 2), (_ * _)]" shouldBeInferredAsHavingType Seq(Seq(NumberType))
+  "map [1, 2, 3].map [(_ * 2), (_ * _)]" shouldBeInferredAsHavingType Seq(Seq(NumberClass))
 
   "(boundMethod => [(_ * 2), (_ * _)].map boundMethod) [1, 2, 3].map" shouldBeInferredAsHavingType Seq(Seq(NumberType))
 
@@ -76,6 +78,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "map (_.toUpper) 'foo'" shouldBeInferredAsHavingType StringType
   "map (x => x x) [1, 2, 3]" shouldBeInferredAsHavingType Seq(Any)
   "map (_.toNumber) '123'" shouldBeInferredAsHavingType Seq(NumberType)
+  "'[1, 2, 3]' | json.fromString | map (x => 2)" shouldBeInferredAsHavingType Seq(NumberType)
 
   // flatMap
   "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringType)
@@ -129,6 +132,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // where
   "[1, 2, 3] | where (_ > 2)" shouldBeInferredAsHavingType Seq(NumberType)
   "'foo' | where (_ > 'm')" shouldBeInferredAsHavingType StringType
+  "'[1, 2, 3]' | json.fromString | where (_ > 2)"  shouldBeInferredAsHavingType Seq(AnyClass)
 
   "null" shouldBeInferredAsHavingType Instance(NullClass)
 
@@ -263,6 +267,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "def square n = n * n; square 42" shouldBeInferredAsHavingType NumberClass
 
   "def foo n = if n > 0 then bar (n - 1) else 42; def bar n = foo (n - 1); bar 10" shouldBeInferredAsHavingType NumberClass
+
+  "{ foo: => 42 }.foo"  shouldBeInferredAsHavingType NumberClass
+
+  "'{foo: 42}' | json.fromString | .foo" shouldBeInferredAsHavingType AnyClass
 
   private implicit class RichString(s: String) {
 
