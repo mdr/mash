@@ -23,7 +23,7 @@ object Type {
   case class Tagged(baseClass: MashClass, tagClass: MashClass) extends Type
   case class Instance(klass: MashClass) extends Type { override def toString = klass.toString }
   case class Object(knownFields: Map[String, Type]) extends Type
-  case class DefinedFunction(f: MashFunction) extends Type
+  case class BuiltinFunction(f: MashFunction) extends Type
   case class BoundMethod(receiver: Type, method: MashMethod) extends Type
 
   case class Function(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {

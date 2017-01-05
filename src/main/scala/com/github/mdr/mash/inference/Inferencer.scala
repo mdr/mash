@@ -9,14 +9,14 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
   def applyFunction(functionType: Type, elementType: Type, functionExprOpt: Option[Expr]): Option[Type] = functionType match {
-    case Type.DefinedFunction(f)                                  ⇒
+    case Type.BuiltinFunction(f)                                  ⇒
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
-      strategy.inferTypes(this, SimpleTypedArguments(args))
+      strategy.inferTypes(this, TypedArguments(args))
     case Type.BoundMethod(targetType, method)                     ⇒
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
-      strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
+      strategy.inferTypes(this, Some(targetType), TypedArguments(args))
     case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
       parameterModel.params.headOption.flatMap { param ⇒
         typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param.name -> elementType))
@@ -35,14 +35,14 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
   private def positionArg(typ: Type) = TypedArgument.PositionArg(AnnotatedExpr(None, Some(typ)))
 
   def applyFunction2(functionType: Type, element1Type: Type, element2Type: Type): Option[Type] = functionType match {
-    case Type.DefinedFunction(f)                             ⇒
+    case Type.BuiltinFunction(f)                             ⇒
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
-      strategy.inferTypes(this, SimpleTypedArguments(args))
+      strategy.inferTypes(this, TypedArguments(args))
     case Type.BoundMethod(targetType, method)                ⇒
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
-      strategy.inferTypes(this, Some(targetType), SimpleTypedArguments(args))
+      strategy.inferTypes(this, Some(targetType), TypedArguments(args))
     case Type.Function(parameterModel, expr, lambdaBindings) ⇒
       val paramBindings = parameterModel.params.map(_.name).zip(Seq(element1Type, element2Type)).toMap
       typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ paramBindings)

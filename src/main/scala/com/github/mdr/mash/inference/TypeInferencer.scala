@@ -46,7 +46,7 @@ class TypeInferencer {
     expr match {
       case Hole(_) | PipeExpr(_, _, _)                  ⇒ None // should not be present in AST at this point
       case memberExpr: HeadlessMemberExpr               ⇒ None // should not be present in AST at this point
-      case MishFunction(command, _)                     ⇒ Some(Type.DefinedFunction(SystemCommandFunction(command)))
+      case MishFunction(command, _)                     ⇒ Some(Type.BuiltinFunction(SystemCommandFunction(command)))
       case ParenExpr(body, _)                           ⇒ inferType(body, bindings)
       case BlockExpr(body, _)                           ⇒ inferType(body, bindings)
       case Literal(x, _)                                ⇒ Some(ValueTypeDetector.getType(x))
@@ -76,7 +76,7 @@ class TypeInferencer {
         Some(Type.Function(Evaluator.parameterModel(params), body, bindings))
       case HelpExpr(subExpr, _) ⇒
         inferType(subExpr, bindings, immediateExec = false) collect {
-          case Type.DefinedFunction(_) ⇒ FunctionHelpClass
+          case Type.BuiltinFunction(_) ⇒ FunctionHelpClass
         }
     }
 
@@ -169,9 +169,9 @@ class TypeInferencer {
   private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val Identifier(s, _) = identifier
     bindings.get(s).flatMap {
-      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec                                          ⇒
+      case typ @ Type.BuiltinFunction(f) if f.allowsNullary && immediateExec                                          ⇒
         identifier.preInvocationTypeOpt = Some(typ)
-        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), SimpleTypedArguments(Seq()))
+        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), TypedArguments())
       case typ @ Type.Function(parameterModel, body, lambdaBindings) if parameterModel.allowsNullary && immediateExec ⇒
         identifier.preInvocationTypeOpt = Some(typ)
         inferType(body, lambdaBindings)
@@ -182,9 +182,9 @@ class TypeInferencer {
 
   private def inferType(name: String, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] =
     bindings.get(name).flatMap {
-      case typ @ Type.DefinedFunction(f) if f.allowsNullary && immediateExec ⇒
-        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), SimpleTypedArguments(Seq()))
-      case x ⇒
+      case typ @ Type.BuiltinFunction(f) if f.allowsNullary && immediateExec ⇒
+        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), TypedArguments())
+      case x                                                                 ⇒
         Some(x)
     }
 
@@ -331,7 +331,7 @@ class TypeInferencer {
     val InvocationExpr(function, args, _, _) = invocationExpr
 
     args.foreach(inferTypeArg(_, bindings))
-    val typedArgs = SimpleTypedArguments.from(invocationExpr)
+    val typedArgs = TypedArguments.from(invocationExpr)
 
     inferType(function, bindings, immediateExec = false).flatMap {
       case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
@@ -343,19 +343,19 @@ class TypeInferencer {
         } yield memberType
       case Type.Seq(Type.BoundMethod(receiverType, method))    ⇒
         val strategy = method.typeInferenceStrategy
-        val arguments = SimpleTypedArguments(typedArgs.arguments)
+        val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments).map(Type.Seq)
       case Type.Seq(elementType)                               ⇒
         Some(elementType)
       case Type.BoundMethod(receiverType, method)              ⇒
         val strategy = method.typeInferenceStrategy
-        val arguments = SimpleTypedArguments(typedArgs.arguments)
+        val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
-      case Type.DefinedFunction(f)                             ⇒
+      case Type.BuiltinFunction(f)                             ⇒
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(new Inferencer(this, bindings), typedArgs)
       case Type.Function(parameterModel, expr, lambdaBindings) ⇒
-        val argBindings = parameterModel.bindTypes(SimpleTypedArguments(typedArgs.arguments)).boundNames
+        val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
       case _                                                   ⇒
         None
@@ -377,12 +377,12 @@ class TypeInferencer {
 
   def memberLookup(typ: Type, name: String, immediateExec: Boolean, memberExprOpt: Option[MemberExpr] = None): Option[Type] = {
     val intermediate = typ match {
-      case Type.Instance(klass)             ⇒ memberLookup(typ, klass, name)
-      case Type.Tagged(baseClass, tagClass) ⇒ memberLookup(typ, baseClass, name) orElse memberLookup(typ, tagClass, name)
-      case Type.Seq(elementType)            ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
-      case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
-      case Type.DefinedFunction(_)          ⇒ memberLookup(typ, FunctionClass, name)
-      case Type.BoundMethod(_, _)           ⇒ memberLookup(typ, BoundMethodClass, name)
+      case Type.Instance(klass)                           ⇒ memberLookup(typ, klass, name)
+      case Type.Tagged(baseClass, tagClass)               ⇒ memberLookup(typ, baseClass, name) orElse memberLookup(typ, tagClass, name)
+      case Type.Seq(elementType)                          ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
+      case Type.Object(knownFields)                       ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
+      case Type.BuiltinFunction(_)                        ⇒ memberLookup(typ, FunctionClass, name)
+      case Type.BoundMethod(_, _)                         ⇒ memberLookup(typ, BoundMethodClass, name)
       case Type.Generic(GroupClass, keyType, elementType) ⇒
         if (name == GroupClass.Fields.Key.name)
           Some(keyType)
@@ -390,28 +390,26 @@ class TypeInferencer {
           Some(elementType.seq)
         else
           memberLookup(typ, GroupClass, name)
-      case Type.Generic(TimedResultClass, resultType) ⇒
+      case Type.Generic(TimedResultClass, resultType)     ⇒
         if (name == TimedResultClass.Fields.Result.name)
           Some(resultType)
         else
           memberLookup(typ, GroupClass, name)
-      case _ ⇒ None
+      case _                                              ⇒ None
     }
     if (immediateExec)
       intermediate match {
-        case Some(Type.BoundMethod(receiver, method)) if method.allowsNullary ⇒
+        case Some(Type.BoundMethod(receiver, method)) if method.allowsNullary            ⇒
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), SimpleTypedArguments(Seq()))
-        case Some(Type.DefinedFunction(f)) if f.allowsNullary ⇒
+          method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
+        case Some(Type.BuiltinFunction(f)) if f.allowsNullary                            ⇒
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          val arguments = SimpleTypedArguments(Seq())
-          f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), arguments)
+          f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
         case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          val argBindings = params.bindTypes(SimpleTypedArguments(Seq())).boundNames
+         val argBindings = params.bindTypes(TypedArguments()).boundNames
           inferType(body, functionBindings ++ argBindings)
-//          body.typeOpt
-        case x ⇒
+        case x                                                                           ⇒
           x
       }
     else

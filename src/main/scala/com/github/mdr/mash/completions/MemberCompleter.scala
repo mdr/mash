@@ -95,12 +95,12 @@ object MemberCompleter {
     case Type.Instance(klass)             ⇒ getMembers(klass)
     case Type.Tagged(baseClass, tagClass) ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
     case Type.Generic(klass, _*)          ⇒ getMembers(klass)
-    case Type.DefinedFunction(_)          ⇒ getMembers(FunctionClass)
+    case Type.BuiltinFunction(_)          ⇒ getMembers(FunctionClass)
     case Type.BoundMethod(_, _)           ⇒ getMembers(BoundMethodClass)
-    case Type.Object(fields) ⇒
+    case Type.Object(fields)              ⇒
       val fieldMembers = fields.keys.toSeq.map(f ⇒ MemberInfo(f, isField = true))
       distinct(fieldMembers ++ getMembers(ObjectClass))
-    case Type.Seq(elementType) ⇒
+    case Type.Seq(elementType)            ⇒
       val seqMembers = getMembers(ListClass)
       if (canVectorise) {
         val elementMembers = getMembers(elementType, canVectorise = false).map(_.copy(isVectorised = true))

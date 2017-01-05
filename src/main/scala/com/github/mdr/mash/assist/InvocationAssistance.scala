@@ -31,8 +31,8 @@ object InvocationAssistance {
   }
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(seqType) ⇒ assistInvocation(seqType)
-    case Type.DefinedFunction(f) ⇒
+    case Type.Seq(seqType)           ⇒ assistInvocation(seqType)
+    case Type.BuiltinFunction(f)     ⇒
       Some(AssistanceState(
         f.name,
         Seq(
@@ -46,7 +46,7 @@ object InvocationAssistance {
           m.summary,
           "",
           "target." + callingSyntax(m))))
-    case _ ⇒ None
+    case _                           ⇒ None
   }
 
   def callingSyntax(funOrMethod: Any): String =
@@ -68,7 +68,7 @@ object InvocationAssistance {
 
   private def hasFunctionType(e: Expr) =
     e.typeOpt.exists(cond(_) {
-      case Type.DefinedFunction(_) | Type.BoundMethod(_, _) ⇒ true
+      case Type.BuiltinFunction(_) | Type.BoundMethod(_, _) ⇒ true
     })
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =

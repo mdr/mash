@@ -76,7 +76,7 @@ object ListClass extends MashClass("collections.List") {
 
     private def updateArgs(arguments: TypedArguments, targetTypeOpt: Option[Type]): TypedArguments = {
       val sequenceArg = TypedArgument.PositionArg(AnnotatedExpr(None, targetTypeOpt))
-      SimpleTypedArguments(arguments.arguments :+ sequenceArg)
+      TypedArguments(arguments.arguments :+ sequenceArg)
     }
 
     override def flags: Seq[Flag] = params.flags

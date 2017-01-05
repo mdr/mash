@@ -27,7 +27,7 @@ object PathClassChildrenMethod extends MashMethod("children") {
 
   override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {
     def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
-      val newArguments = SimpleTypedArguments(arguments.arguments :+ TypedArgument.PositionArg(AnnotatedExpr(None, targetTypeOpt)))
+      val newArguments = TypedArguments(arguments.arguments :+ TypedArgument.PositionArg(AnnotatedExpr(None, targetTypeOpt)))
       ChildrenFunction.typeInferenceStrategy.inferTypes(inferencer, newArguments)
     }
   }

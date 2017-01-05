@@ -127,6 +127,13 @@ class ReplTest extends FlatSpec with Matchers {
     repl.it should equal(MashNumber(42))  
   }
 
+  "Type inferencer" should "handle previously-defined user-defined nullary functions" in {
+    makeRepl()
+      .input("foo = { bar: => { baz: 100 } }").acceptLine
+      .input("foo.bar.ba").complete()
+      .text should equal("foo.bar.baz")
+  }
+
 }
 
 object ReplTest {

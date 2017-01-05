@@ -45,7 +45,7 @@ class ValueTypeDetector {
     case MashNull                                              ⇒ NullClass
     case AnonymousFunction(parameterModel, body, context)      ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case UserDefinedFunction(_, parameterModel, body, context) ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case f: MashFunction                                       ⇒ Type.DefinedFunction(f)
+    case f: MashFunction                                       ⇒ Type.BuiltinFunction(f)
     case BoundMethod(target, method, _)                        ⇒ Type.BoundMethod(getType(target), method)
     case MashString(_, None)                                   ⇒ StringClass
     case MashString(_, Some(tagClass))                         ⇒ StringClass taggedWith tagClass
@@ -56,30 +56,31 @@ class ValueTypeDetector {
     case MashWrapped(_: LocalDate)                             ⇒ DateClass
     case _: MashClass                                          ⇒ ClassClass
     case MashUnit                                              ⇒ Unit
-    case xs: MashList                                          ⇒ xs.items.headOption.map(item ⇒ getType(item).seq) getOrElse Type.Any.seq
+    case xs: MashList                                          ⇒ xs.items.headOption.map(getType).getOrElse(Type.Any).seq
     case obj@MashObject(_, None)                               ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case obj@MashObject(_, Some(GroupClass))                   ⇒ getTypeOfGroup(obj)
-    case obj@MashObject(_, Some(TimedResultClass))             ⇒
-      (for {
-        key ← obj.get(TimedResultClass.Fields.Result)
-        keyType = getType(key)
-      } yield TimedResultClass.withGenerics(keyType)) getOrElse TimedResultClass.withGenerics(Type.Any)
+    case obj@MashObject(_, Some(TimedResultClass))             ⇒ getTypeOfTimedResult(obj)
     case MashObject(_, Some(klass))                            ⇒ klass
     case _                                                     ⇒ Type.Any
   }
 
-  private def getTypeOfGroup(obj: MashObject) = {
+  private def getTypeOfTimedResult(obj: MashObject): Type = {
+    val resultType = obj.get(TimedResultClass.Fields.Result).map(getType).getOrElse(Type.Any)
+    TimedResultClass.withGenerics(resultType)
+  }
+
+  private def getTypeOfGroup(obj: MashObject): Type = {
     val groupTypeOpt =
       for {
         key ← obj.get(GroupClass.Fields.Key)
         keyType = getType(key)
         values ← obj.get(GroupClass.Fields.Values)
-        valuesType = getType(values)
-      } yield valuesType match {
-        case Type.Seq(valueType) ⇒ Type.Generic(GroupClass, keyType, valueType)
-        case _                   ⇒ Type.Generic(GroupClass, keyType, Type.Any)
-      }
-    groupTypeOpt.getOrElse(Type.Generic(GroupClass, Type.Any, Type.Any))
+        valueType = getType(values) match {
+          case Type.Seq(valueType) ⇒ valueType
+          case _                   ⇒ Type.Any
+        }
+      } yield GroupClass.withGenerics(keyType, valueType)
+    groupTypeOpt.getOrElse(GroupClass.withGenerics(Type.Any, Type.Any))
   }
 
 }

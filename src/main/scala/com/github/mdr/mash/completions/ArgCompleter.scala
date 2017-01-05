@@ -25,10 +25,10 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
 
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
     invocationExpr.function.typeOpt.collect {
-      case Type.DefinedFunction(f) ⇒
-        f.getCompletionSpecs(argPos, SimpleTypedArguments.from(invocationExpr))
+      case Type.BuiltinFunction(f)         ⇒
+        f.getCompletionSpecs(argPos, TypedArguments.from(invocationExpr))
       case Type.BoundMethod(targetType, m) ⇒
-        m.getCompletionSpecs(argPos, Some(targetType), SimpleTypedArguments.from(invocationExpr))
+        m.getCompletionSpecs(argPos, Some(targetType), TypedArguments.from(invocationExpr))
     }
 
   private def completeFromSpecs(completionSpecs: Seq[CompletionSpec], literalToken: Token): Option[CompletionResult] =
