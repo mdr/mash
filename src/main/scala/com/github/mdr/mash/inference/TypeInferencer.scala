@@ -196,13 +196,10 @@ class TypeInferencer {
           inferType(fieldExpr, bindings)
           for {
             label ← getFieldName(fieldExpr)
-            typ_ ← inferType(valueExpr, bindings)
+            typ_ = inferType(valueExpr, bindings).getOrElse(Type.Any)
           } yield label -> typ_
         case ShorthandObjectEntry(field, _)           =>
-          inferType(field, bindings, immediateExec = true) match {
-            case Some(fieldType) => Seq(field -> fieldType)
-            case None => Seq(field -> Type.Any)
-          }
+          Seq(field -> inferType(field, bindings, immediateExec = true).getOrElse(Type.Any))
       }
     Some(Type.Object(fieldTypes.toMap))
   }
