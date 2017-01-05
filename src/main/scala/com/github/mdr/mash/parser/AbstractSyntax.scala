@@ -146,7 +146,10 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class StringLiteral(s: String, quotationType: QuotationType, hasTildePrefix: Boolean = false, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class StringLiteral(s: String,
+                           quotationType: QuotationType,
+                           hasTildePrefix: Boolean = false,
+                           sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
   }

@@ -10,12 +10,16 @@ sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
 }
 
 /**
-  * A block scope lets writes escape out of it, as long as they are already bound
+  * A block scope lets writes escape out of it, as long as they are already bound.
+  *
+  * e.g. the body of lambdas, or inside a { block }
   */
 case class BlockScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables)
 
 /**
-  * A full scope doesn't let writes escape
+  * A full scope doesn't let writes escape.
+  *
+  * e.g. the body of def-defined functions
   */
 case class FullScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables)
 
@@ -55,17 +59,12 @@ case class ScopeStack(scopes: List[Scope]) {
         throw new AssertionError("Missing global scope")
     }
 
-  def withEmptyScope = {
-    val scope = FullScope(makeVariables())
-    ScopeStack(scope :: scopes)
-  }
-
   def withBlockScope(nameValues: Seq[(String, MashValue)]) = {
     val scope = BlockScope(makeVariables(nameValues: _*))
     ScopeStack(scope :: scopes)
   }
 
-  def withFunctionCallScope(bindings: Map[String, MashValue]) = {
+  def withFullScope(bindings: Map[String, MashValue]) = {
     val scope = FullScope(makeVariables(bindings.toSeq: _*))
     ScopeStack(scope :: scopes)
   }

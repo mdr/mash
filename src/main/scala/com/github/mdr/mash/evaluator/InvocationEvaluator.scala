@@ -129,7 +129,7 @@ object InvocationEvaluator extends EvaluatorHelper {
 
   }
 
-  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation], functionOpt: Option[MashFunction])(p: ⇒ T): T =
+  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation], functionOpt: Option[MashFunction] = None)(p: ⇒ T): T =
     try
       p
     catch {

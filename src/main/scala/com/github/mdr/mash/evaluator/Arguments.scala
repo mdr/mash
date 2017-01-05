@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-case class Arguments(evaluatedArguments: Seq[EvaluatedArgument]) {
+case class Arguments(evaluatedArguments: Seq[EvaluatedArgument] = Seq()) {
 
   def positionArgs: Seq[EvaluatedArgument.PositionArg] =
     evaluatedArguments.collect { case arg: EvaluatedArgument.PositionArg ⇒ arg }

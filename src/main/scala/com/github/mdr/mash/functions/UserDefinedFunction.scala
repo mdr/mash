@@ -12,7 +12,7 @@ case class UserDefinedFunction(
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
-    val newScopeStack = context.scopeStack.withFunctionCallScope(boundParams.boundNames)
+    val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 

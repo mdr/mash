@@ -18,14 +18,13 @@ object Evaluator extends EvaluatorHelper {
   def evaluate(expr: Expr)(implicit context: EvaluationContext): MashValue = {
     try {
       ExecutionContext.checkInterrupted()
-      val v = simpleEvaluate(expr)
+      val simpleResult = simpleEvaluate(expr)
       ExecutionContext.checkInterrupted()
-      val result = expr match {
-        case _: Identifier | _: MemberExpr ⇒
-          immediatelyResolveNullaryFunctions(v, sourceLocation(expr))
-        case _ ⇒ v
+      val finalResult = expr match {
+        case _: Identifier | _: MemberExpr ⇒ immediatelyResolveNullaryFunctions(simpleResult, sourceLocation(expr))
+        case _                             ⇒ simpleResult
       }
-      result
+      finalResult
     } catch {
       case e: EvaluatorException ⇒
         throw e
@@ -46,11 +45,11 @@ object Evaluator extends EvaluatorHelper {
     v match {
       case f: MashFunction if f.allowsNullary ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
-          f(Arguments(Seq()))
+          f(Arguments())
         }
       case BoundMethod(target, method, _) if method.allowsNullary ⇒
-        InvocationEvaluator.addInvocationToStackOnException(locationOpt, None) {
-          method(target, Arguments(Seq()))
+        InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
+          method(target, Arguments())
         }
       case _ ⇒ v
     }
