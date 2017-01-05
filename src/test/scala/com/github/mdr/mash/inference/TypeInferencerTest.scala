@@ -29,7 +29,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{ foo: 42 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
   "foo = 42; { foo }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
   "{ bar: '{ foo : 42 }' | json.fromString | .foo }" shouldBeInferredAsHavingType Object(Map("bar" -> AnyClass))
-  
+
   "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberClass
 
   "map [1, 2, 3].map [(_ * 2), (_ * _)]" shouldBeInferredAsHavingType Seq(Seq(NumberClass))

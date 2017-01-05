@@ -348,9 +348,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'abc' | sliding 2" shouldEvaluateTo "['ab', 'bc']"
 
   // sort
-  " ['c', 'a', 'b'].sort " shouldEvaluateTo " ['a', 'b', 'c'] "
+  " ['c', 'a', 'b'].sort " shouldEvaluateTo "['a', 'b', 'c']"
   "'eaebcd' | sort" shouldEvaluateTo "'abcdee'"
-  "[1, null, 2].sort" shouldEvaluateTo "[null, 1, 2]  "
+  "[1, null, 2].sort" shouldEvaluateTo "[null, 1, 2]"
+  "sort [1, 3, 2] --descending" shouldEvaluateTo "[3, 2, 1]"
+  "sort ['a1.txt', 'a10.txt', 'a2.txt'] --naturalOrder" shouldEvaluateTo "['a1.txt', 'a2.txt', 'a10.txt']"
   // Bug where we used lte rather than lt to sort with:
   "sort [15, 12, 9, 3, 2, 90, 75, 7, 18, 9, 2, 1, 1, 14, 3, 3, 2, 21, 53, 2, 61, 24, 31, 1, 13, 14, 21, 4, 28, 17, 2, 5, 1, 17, 3, 3, 10, 100, 246, 176, 2, 10, 2, 4, 1, 1, 2, 1, 261, 1, 27, 10, 3, 6, 390, 44, 1, 2, 4, 1, 13, 4, 6, 1, 2, 8, 9, 3, 33, 9, 3, 131, 10, 2, 15, 35, 2, 157, 71, 32, 4, 12, 6, 7, 3, 8, 43, 8, 35, 1, 1, 11, 4, 2, 1, 9, 1]" shouldNotThrowAnException
 

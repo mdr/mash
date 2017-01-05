@@ -41,6 +41,7 @@ object MashRoot {
       Seq(BrowserFunction, RawFunction, TreeFunction) ++
       Seq(json.FromFileFunction, json.FromStringFunction, json.PrettyPrintFunction) ++
       Seq(
+        dns.LookupFunction,
         http.DeleteFunction,
         http.GetFunction,
         http.PostFunction,

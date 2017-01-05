@@ -28,9 +28,10 @@ object HostClass extends MashClass("net.Host") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(StringClass))
 
     override def summary = "Look up the IP addresses of the given host"
-  }
 
-  private def asMashString(address: InetAddress) = MashString(address.getHostAddress)
+    def asMashString(address: InetAddress) = MashString(address.getHostAddress)
+
+  }
 
   override def parentOpt = Some(AnyClass)
 
