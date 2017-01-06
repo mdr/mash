@@ -696,4 +696,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "Object.merge { foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
   "Object.merge { foo: 42 } { bar: 128 }" shouldEvaluateTo "{ foo: 42, bar: 128 }"
   "Object.merge { foo: 42 } { foo: 128 }" shouldEvaluateTo "{ foo: 128 }"
+
+  // type.hint
+  "type.hint [String] 42" shouldEvaluateTo "42"
 }

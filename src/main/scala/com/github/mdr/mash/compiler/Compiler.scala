@@ -34,7 +34,10 @@ object Compiler {
     MashParser.parse(compilationUnit.text, mish = compilationUnit.mish).right.map(concreteExpr ⇒
       compile(concreteExpr, compilationUnit, settings, bindings))
 
-  private def compile(concreteExpr: ConcreteSyntax.Expr, compilationUnit: CompilationUnit, settings: CompilationSettings, bindings: Map[String, MashValue]): Expr = {
+  private def compile(concreteExpr: ConcreteSyntax.Expr,
+                      compilationUnit: CompilationUnit,
+                      settings: CompilationSettings,
+                      bindings: Map[String, MashValue]): Expr = {
     val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteExpr)
     val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
     val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
@@ -46,10 +49,10 @@ object Compiler {
         withoutPipes
     val finalExpr = bareStringified
 
-    if (settings.inferTypes) {
-      SimpleEvaluator.evaluate(finalExpr)(EvaluationContext(ScopeStack(mutable.Map(bindings.toSeq: _*))))
+    SimpleEvaluator.evaluate(finalExpr)(EvaluationContext(ScopeStack(mutable.Map(bindings.toSeq: _*))))
+
+    if (settings.inferTypes)
       inferTypes(bindings, finalExpr)
-    }
 
     finalExpr
   }

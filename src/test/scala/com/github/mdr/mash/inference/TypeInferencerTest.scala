@@ -270,6 +270,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "'{ foo: 42 }' | json.fromString | .foo" shouldBeInferredAsHavingType AnyClass
 
+  // hint
+  "json.fromFile 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" shouldBeInferredAsHavingType
+    Object(Map("name" -> StringClass, "addresses" -> Seq(Object(Map("houseNumber" -> StringClass, "postcode" -> StringClass)))))
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {
