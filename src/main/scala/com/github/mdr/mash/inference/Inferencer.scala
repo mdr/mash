@@ -2,13 +2,14 @@ package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 /**
  * Inferencer used by type-inference strategies
  */
 class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
-  def applyFunction(functionType: Type, elementType: Type, functionExprOpt: Option[Expr]): Option[Type] = functionType match {
+  def applyFunction(functionType: Type, elementType: Type, functionExprValueOpt: Option[MashValue]): Option[Type] = functionType match {
     case Type.BuiltinFunction(f)                                  ⇒
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
@@ -22,11 +23,9 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
         typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param.name -> elementType))
       }
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
-      functionExprOpt match {
-        case Some(StringLiteral(s, _, _, _)) ⇒
-          typeInferencer.memberLookup(elementType, s, immediateExec = true)
-        case _ ⇒
-          None
+      functionExprValueOpt.flatMap {
+        case MashString(s, _) ⇒ typeInferencer.memberLookup(elementType, s, immediateExec = true)
+        case _                ⇒ None
       }
     case _                                                        ⇒
       None

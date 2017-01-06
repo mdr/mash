@@ -109,7 +109,9 @@ object ObjectClass extends MashClass("core.Object") {
         val argBindings = HoistMethod.params.bindTypes(arguments)
         for {
           AnnotatedExpr(nameExprOpt, _) ← argBindings.getArgument(HoistMethod.Params.FieldName)
-          StringLiteral(fieldName, _, _, _) ← nameExprOpt
+          nameExpr ← nameExprOpt
+          value <- nameExpr.constantValueOpt
+          fieldName <- condOpt(value) { case MashString(s, _) => s }
           fields <- targetTypeOpt.flatMap(getFields)
           fieldType <- fields.get(fieldName)
           (newFieldsOpt, isList) = fieldType match {

@@ -113,7 +113,7 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
       }
-      newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt)
+      newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt.flatMap(_.constantValueOpt))
     } yield newElementType
 
 }

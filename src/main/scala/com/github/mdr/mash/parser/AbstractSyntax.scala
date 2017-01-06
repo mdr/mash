@@ -124,6 +124,8 @@ object AbstractSyntax {
 
     var typeBindings: Map[String, Type] = Map()
 
+    var constantValueOpt: Option[MashValue] = None
+
     override def toString: String = PrettyPrinter.pretty(this)
 
   }
@@ -244,12 +246,12 @@ object AbstractSyntax {
 
   case class ChainedOpExpr(left: Expr, opRights: Seq[(BinaryOperator, Expr)], sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = left +: opRights.map(_._2)
+    def children: Seq[Expr] = left +: opRights.map(_._2)
   }
 
   case class IfExpr(cond: Expr, body: Expr, elseOpt: Option[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(cond, body) ++ elseOpt.toSeq
+    def children: Seq[Expr] = Seq(cond, body) ++ elseOpt.toSeq
   }
 
   case class ListExpr(items: Seq[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
@@ -338,7 +340,7 @@ object AbstractSyntax {
    */
   case class MishExpr(command: Expr, args: Seq[Expr], redirects: Seq[MishRedirect], captureProcessOutput: Boolean, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = command +: args
+    def children: Seq[Expr] = command +: args
   }
 
   case class MishRedirect(operator: RedirectOperator, arg: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {

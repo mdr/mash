@@ -4,6 +4,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.utils.Utils
 
 import scala.PartialFunction.condOpt
@@ -28,17 +29,20 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
   private def isSpecialFlag(flag: String) = flag == Add.name || flag == Target.name
 
   private def getFieldName(inferencer: Inferencer, elementType: Type, typedArg: TypedArgument): Option[(String, Option[Type])] =
-    condOpt(typedArg) {
-      case TypedArgument.PositionArg(AnnotatedExpr(functionExprOpt @ Some(StringLiteral(s, _, _, _)), Some(functionType))) ⇒
-        val typeOpt = inferencer.applyFunction(functionType, elementType, functionExprOpt)
-        s -> typeOpt
+    typedArg match {
+      case TypedArgument.PositionArg(AnnotatedExpr(functionExprOpt, Some(functionType))) ⇒
+        val functionValueOpt = functionExprOpt.flatMap(_.constantValueOpt)
+        val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
+        functionValueOpt.collect { case MashString(s, _) => s -> typeOpt }
       case TypedArgument.LongFlag(flag, Some(AnnotatedExpr(functionExprOpt, Some(functionType)))) if !isSpecialFlag(flag) ⇒
-        val typeOpt = inferencer.applyFunction(functionType, elementType, functionExprOpt)
-        flag -> typeOpt
+        val functionValueOpt = functionExprOpt.flatMap(_.constantValueOpt)
+        val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
+        Some(flag -> typeOpt)
       case TypedArgument.LongFlag(flag, None) if !isSpecialFlag(flag) ⇒
-        val dummyStringLiteral = StringLiteral(flag, QuotationType.Single)
-        val typeOpt = inferencer.applyFunction(Type.Instance(StringClass), elementType, Some(dummyStringLiteral))
-        flag -> typeOpt
+        val typeOpt = inferencer.applyFunction(StringClass, elementType, Some(MashString(flag)))
+        Some(flag -> typeOpt)
+      case _ =>
+        None
     }
 
   private def handle(inputType: Type, fieldsAndTypes: Seq[(String, Option[Type])], inferencer: Inferencer, add: Boolean): Type = {

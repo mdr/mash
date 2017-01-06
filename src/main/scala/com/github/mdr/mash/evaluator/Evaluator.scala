@@ -88,18 +88,18 @@ object Evaluator extends EvaluatorHelper {
     }
 
   def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
-    def getField(field: Expr): String =
-      field match {
+    def getFieldName(fieldNameExpr: Expr): String =
+      fieldNameExpr match {
         case Identifier(name, _) ⇒
           name
         case _ ⇒
-          evaluate(field) match {
+          evaluate(fieldNameExpr) match {
             case MashString(s, _) ⇒ s
-            case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(field))
+            case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(fieldNameExpr))
           }
       }
     val fields = objectExpr.fields.map {
-      case FullObjectEntry(field, value, _) => getField(field) -> evaluate(value)
+      case FullObjectEntry(field, value, _)           => getFieldName(field) -> evaluate(value)
       case ShorthandObjectEntry(field, sourceInfoOpt) => field -> evaluateIdentifier(field, sourceInfoOpt.map(_.location))
     }
     MashObject.of(fields)
@@ -123,7 +123,7 @@ object Evaluator extends EvaluatorHelper {
     case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.typeName, sourceLocation(subExpr))
   }
 
-  private def evaluateStringLiteral(lit: StringLiteral): MashValue = {
+  def evaluateStringLiteral(lit: StringLiteral): MashValue = {
     val StringLiteral(s, quotationType, tildePrefix, _) = lit
     val tagOpt = condOpt(quotationType) { case QuotationType.Double ⇒ PathClass }
     val detilded = if (tildePrefix) environmentInteractions.home + s else s

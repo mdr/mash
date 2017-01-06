@@ -1,9 +1,12 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.inference.{ Type, TypeInferencer, ValueTypeDetector }
+import com.github.mdr.mash.evaluator.{ EvaluationContext, ScopeStack }
+import com.github.mdr.mash.inference.{ SimpleEvaluator, Type, TypeInferencer, ValueTypeDetector }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.runtime.MashValue
+
+import scala.collection.mutable
 
 case class CompilationSettings(inferTypes: Boolean = false, bareWords: Boolean = true)
 
@@ -16,8 +19,8 @@ case class CompilationUnit(text: String, name: String = "N/A", interactive: Bool
 object Compiler {
 
   /**
-   * Compile the given program into an expression.
-   */
+    * Compile the given program into an expression.
+    */
   def compileForgiving(compilationUnit: CompilationUnit,
                        bindings: Map[String, MashValue],
                        settings: CompilationSettings = CompilationSettings()): Expr = {
@@ -44,6 +47,7 @@ object Compiler {
     val finalExpr = bareStringified
 
     if (settings.inferTypes) {
+      SimpleEvaluator.evaluate(finalExpr)(EvaluationContext(ScopeStack(mutable.Map(bindings.toSeq: _*))))
       inferTypes(bindings, finalExpr)
     }
 
