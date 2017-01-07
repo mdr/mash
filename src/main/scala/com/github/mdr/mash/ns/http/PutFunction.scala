@@ -41,7 +41,7 @@ object PutFunction extends MashFunction("http.put") {
     val client = HttpClientBuilder.create
       .setDefaultCookieStore(cookieStore)
       .setSSLContext(InsecureSsl.makeInsecureSslContext())
-      .setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier)
+      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
       .build
     setBody(request, bodyValue, json)
 

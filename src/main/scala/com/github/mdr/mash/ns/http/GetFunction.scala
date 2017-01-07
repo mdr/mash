@@ -40,8 +40,12 @@ object GetFunction extends MashFunction("http.get") {
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
 
     val cookieStore = new BasicCookieStore
-    val customBuilder = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
-    val client = customBuilder.setDefaultCookieStore(cookieStore).setSSLContext(InsecureSsl.makeInsecureSslContext()).setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier).build
+    val client = HttpClients.custom()
+      .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.DEFAULT).build())
+      .setDefaultCookieStore(cookieStore)
+      .setSSLContext(InsecureSsl.makeInsecureSslContext())
+      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
+      .build
     val response = client.execute(request)
 
     asMashObject(response, cookieStore)

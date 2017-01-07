@@ -15,6 +15,7 @@ object SimpleEvaluator {
 
   def simplyEvaluate(expr: Expr)(implicit context: EvaluationContext): Option[MashValue] = expr match {
     case _: Hole | _: PipeExpr | _: HeadlessMemberExpr ⇒ None // Should have been removed from the AST by now
+    case _: InterpolatedString | _: MishFunction       => None
     case literal: Literal                              => Some(literal.value)
     case stringLiteral: StringLiteral                  => Some(Evaluator.evaluateStringLiteral(stringLiteral))
     case listExpr: ListExpr                            => Utils.sequence(listExpr.items.map(evaluate(_))).map(MashList(_))
@@ -23,8 +24,6 @@ object SimpleEvaluator {
     case StatementSeq(statements, _)                   => statements.map(evaluate).lastOption.getOrElse(Some(MashUnit))
     case ParenExpr(body, _)                            ⇒ evaluate(body)
     case blockExpr: BlockExpr                          ⇒ evaluate(blockExpr.expr)
-    case _: InterpolatedString                         => None
-    case _: MishFunction                               => None
     case HelpExpr(body, _)                             ⇒
       evaluate(body)
       None

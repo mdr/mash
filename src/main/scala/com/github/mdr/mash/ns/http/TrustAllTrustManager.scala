@@ -18,16 +18,6 @@ object InsecureSsl {
 
   }
 
-  object TrustAllX509HostnameVerifier extends X509HostnameVerifier {
-    override def verify(host: String, ssl: SSLSocket) {}
-
-    override def verify(host: String, cert: X509Certificate) {}
-
-    override def verify(host: String, cns: Array[String], subjectAlts: Array[String]) = {}
-
-    override def verify(s: String, sslSession: SSLSession): Boolean = true
-  }
-
   object TrustAllHostnameVerifier extends HostnameVerifier {
     override def verify(s: String, sslSession: SSLSession): Boolean = true
   }

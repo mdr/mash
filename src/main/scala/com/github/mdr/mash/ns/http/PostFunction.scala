@@ -10,9 +10,8 @@ import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.client.params.{ ClientPNames, CookiePolicy }
 import org.apache.http.entity.{ ContentType, StringEntity }
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder, HttpClients }
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClients }
 
 object PostFunction extends MashFunction("http.post") {
 
@@ -66,10 +65,10 @@ object PostFunction extends MashFunction("http.post") {
     BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
     val cookieStore = new BasicCookieStore
     val client = HttpClients.custom()
-      .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
+      .setDefaultRequestConfig(RequestConfig.custom.setCookieSpec(CookieSpecs.DEFAULT).build())
       .setDefaultCookieStore(cookieStore)
       .setSSLContext(InsecureSsl.makeInsecureSslContext())
-      .setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier)
+      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
       .build
 
     setBody(request, bodyValue, json)

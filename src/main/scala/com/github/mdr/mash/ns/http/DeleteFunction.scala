@@ -37,7 +37,7 @@ object DeleteFunction extends MashFunction("http.delete") {
     val client = HttpClientBuilder.create
       .setDefaultCookieStore(cookieStore)
       .setSSLContext(InsecureSsl.makeInsecureSslContext())
-      .setHostnameVerifier(InsecureSsl.TrustAllX509HostnameVerifier)
+      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
       .build
 
     val response = client.execute(request)
