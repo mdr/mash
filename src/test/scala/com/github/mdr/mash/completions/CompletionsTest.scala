@@ -297,6 +297,12 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "def foo = { ls.perm▶" shouldGiveCompletions "permissions"
 
+  // Tracks new bindings:
+  "(foobar => foob▶)" shouldGiveCompletions "foobar"
+  "foobar = 42; foob▶" shouldGiveCompletions "foobar"
+  "def fun foobar = foob▶" shouldGiveCompletions "foobar"
+  "foobundle = 42; { foobar = 42 }; foob▶" shouldGiveCompletions "foobundle"
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),

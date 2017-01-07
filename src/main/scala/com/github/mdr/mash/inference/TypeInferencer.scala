@@ -17,17 +17,17 @@ case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
 class TypeInferencer {
 
   /**
-   * We maintain a visited map to avoid loops in the type inference (this can happen, for example, when
-   * typing fixed-point combinators)
-   */
+    * We maintain a visited map to avoid loops in the type inference (this can happen, for example, when
+    * typing fixed-point combinators)
+    */
   private val visitedMap: IdentityHashMap[Expr, Boolean] = new IdentityHashMap
 
   /**
-   * Attempt to infer the type of a given expression (and subexpression).
-   *
-   * @param bindings -- known type information about the variable bindings available to this expression.
-   * @param immediateExec -- if true, immediately "execute" (at the type level) nullary functions and methods
-   */
+    * Attempt to infer the type of a given expression (and subexpression).
+    *
+    * @param bindings      -- known type information about the variable bindings available to this expression.
+    * @param immediateExec -- if true, immediately "execute" (at the type level) nullary functions and methods
+    */
   def inferType(expr: Expr, bindings: Map[String, Type], immediateExec: Boolean = true): Option[Type] =
     if (visitedMap.containsKey(expr))
       expr.typeOpt
@@ -68,16 +68,24 @@ class TypeInferencer {
       case assignmentExpr: AssignmentExpr               ⇒ inferType(assignmentExpr, bindings)
       case assignmentExpr: PatternAssignmentExpr        ⇒ inferType(assignmentExpr, bindings)
       case statementSeq: StatementSeq                   ⇒ inferType(statementSeq, bindings)
-      case FunctionDeclaration(name, params, body, _)   ⇒
-        inferType(body, bindings ++ getPreliminaryBindings(params))
-        Some(Unit)
-      case LambdaExpr(params, body, _) ⇒
-        inferType(body, bindings ++ getPreliminaryBindings(params))
-        Some(Type.Function(Evaluator.parameterModel(params), body, bindings))
-      case HelpExpr(subExpr, _) ⇒
-        inferType(subExpr, bindings, immediateExec = false) collect {
-          case Type.BuiltinFunction(_) ⇒ FunctionHelpClass
-        }
+      case helpExpr: HelpExpr                           ⇒ inferType(helpExpr, bindings)
+      case functionDecl: FunctionDeclaration            ⇒ inferType(functionDecl, bindings)
+      case lamdbaExpr: LambdaExpr                       ⇒ inferType(lamdbaExpr, bindings)
+    }
+
+  private def inferType(lambdaExpr: LambdaExpr, bindings: Map[String, Type]): Option[Type] = {
+    inferType(lambdaExpr.body, bindings ++ getPreliminaryBindings(lambdaExpr.params))
+    Some(Type.Function(Evaluator.parameterModel(lambdaExpr.params), lambdaExpr.body, bindings))
+  }
+
+  private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
+    inferType(functionDecl.body, bindings ++ getPreliminaryBindings(functionDecl.params))
+    Some(Unit)
+  }
+
+  private def inferType(helpExpr: HelpExpr, bindings: Map[String, Type]): Option[Type] =
+    inferType(helpExpr.expr, bindings, immediateExec = false) collect {
+      case Type.BuiltinFunction(_) ⇒ FunctionHelpClass
     }
 
   private def inferType(statementSeq: StatementSeq, bindings: Map[String, Type]): Option[Type] = {
@@ -85,9 +93,9 @@ class TypeInferencer {
     for (statement <- statementSeq.statements) {
       inferType(statement, latestBindings)
       statement match {
-        case AssignmentExpr(Identifier(name, _), _, _, _, _) =>
+        case AssignmentExpr(Identifier(name, _), _, _, _, _)    ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
-        case PatternAssignmentExpr(pattern, right, _)        =>
+        case PatternAssignmentExpr(pattern, right, _)           =>
           val wholeType = right.typeOpt.getOrElse(Type.Any)
           pattern match {
             case ObjectPattern(fieldNames, _) =>
@@ -102,7 +110,7 @@ class TypeInferencer {
           }
         case decl@FunctionDeclaration(name, paramList, body, _) =>
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
-        case _ =>
+        case _                                                  =>
       }
     }
     statementSeq.statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
@@ -159,7 +167,7 @@ class TypeInferencer {
   private def inferType(interpolatedString: InterpolatedString, bindings: Map[String, Type]): Option[Type] = {
     val InterpolatedString(_, parts, _, _) = interpolatedString
     parts.foreach {
-      case StringPart(s) ⇒
+      case StringPart(s)  ⇒
       case ExprPart(expr) ⇒
         inferType(expr, bindings)
     }
@@ -169,22 +177,22 @@ class TypeInferencer {
   private def inferType(identifier: Identifier, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
     val Identifier(s, _) = identifier
     bindings.get(s).flatMap {
-      case typ @ Type.BuiltinFunction(f) if f.allowsNullary && immediateExec                                          ⇒
+      case typ@Type.BuiltinFunction(f) if f.allowsNullary && immediateExec                                          ⇒
         identifier.preInvocationTypeOpt = Some(typ)
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), TypedArguments())
-      case typ @ Type.Function(parameterModel, body, lambdaBindings) if parameterModel.allowsNullary && immediateExec ⇒
+      case typ@Type.Function(parameterModel, body, lambdaBindings) if parameterModel.allowsNullary && immediateExec ⇒
         identifier.preInvocationTypeOpt = Some(typ)
         inferType(body, lambdaBindings)
-      case x                                                                                                          ⇒
+      case x                                                                                                        ⇒
         Some(x)
     }
   }
 
   private def inferType(name: String, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] =
     bindings.get(name).flatMap {
-      case typ @ Type.BuiltinFunction(f) if f.allowsNullary && immediateExec ⇒
+      case typ@Type.BuiltinFunction(f) if f.allowsNullary && immediateExec ⇒
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), TypedArguments())
-      case x                                                                 ⇒
+      case x                                                               ⇒
         Some(x)
     }
 
@@ -235,11 +243,11 @@ class TypeInferencer {
     (leftTypeOpt, rightTypeOpt) match {
       case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
         if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
-      case (Some(StringLike(_)), _) ⇒ leftTypeOpt
-      case (_, Some(StringLike(_))) ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _) ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_))) ⇒ rightTypeOpt
-      case _ ⇒
+      case (Some(StringLike(_)), _)                                            ⇒ leftTypeOpt
+      case (_, Some(StringLike(_)))                                            ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _)                                            ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_)))                                            ⇒ rightTypeOpt
+      case _                                                                   ⇒
         val objectAdditionTypeOpt =
           for {
             leftFields ← leftTypeOpt.flatMap(fields)
@@ -263,11 +271,11 @@ class TypeInferencer {
 
   private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(NumberLike(Some(klass))), Some(NumberLike(_))) ⇒ leftTypeOpt
-      case (Some(NumberLike(None)), Some(NumberLike(klassOpt))) ⇒ rightTypeOpt
+      case (Some(NumberLike(Some(klass))), Some(NumberLike(_)))     ⇒ leftTypeOpt
+      case (Some(NumberLike(None)), Some(NumberLike(klassOpt)))     ⇒ rightTypeOpt
       case (Some(NumberLike(_)), Some(StringLike(_) | Type.Seq(_))) ⇒ rightTypeOpt
       case (Some(StringLike(_) | Type.Seq(_)), Some(NumberLike(_))) ⇒ leftTypeOpt
-      case _ ⇒ Some(Type.Instance(NumberClass))
+      case _                                                        ⇒ Some(Type.Instance(NumberClass))
     }
 
   private object StringLike {
@@ -285,23 +293,23 @@ class TypeInferencer {
 
   private def inferTypeSubtract(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type], right: Expr): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
-      case (_, Some(Type.Tagged(NumberClass, _))) ⇒ rightTypeOpt
+      case (Some(Type.Tagged(NumberClass, _)), _)                   ⇒ leftTypeOpt
+      case (_, Some(Type.Tagged(NumberClass, _)))                   ⇒ rightTypeOpt
       case (Some(ThingWithFields(leftFields)), Some(StringLike(_))) ⇒
         right match {
           case StringLiteral(fieldName, _, false, _) ⇒ Some(Type.Object(leftFields - fieldName))
           case _                                     ⇒ None
         }
-      case _ ⇒ Some(Type.Instance(NumberClass))
+      case _                                                        ⇒ Some(Type.Instance(NumberClass))
     }
 
   private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type], right: Expr): Option[Type] = {
     import BinaryOperator._
     op match {
-      case Plus     ⇒ inferTypeAdd(leftTypeOpt, rightTypeOpt)
-      case Multiply ⇒ inferTypeMultiply(leftTypeOpt, rightTypeOpt)
-      case Minus    ⇒ inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
-      case Divide ⇒
+      case Plus                                                                             ⇒ inferTypeAdd(leftTypeOpt, rightTypeOpt)
+      case Multiply                                                                         ⇒ inferTypeMultiply(leftTypeOpt, rightTypeOpt)
+      case Minus                                                                            ⇒ inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
+      case Divide                                                                           ⇒
         (leftTypeOpt, rightTypeOpt) match {
           case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
           case (_, Some(Type.Tagged(NumberClass, _))) ⇒ rightTypeOpt
@@ -309,9 +317,9 @@ class TypeInferencer {
         }
       case Equals | NotEquals | LessThan | LessThanEquals | GreaterThan | GreaterThanEquals ⇒
         Some(Type.Instance(BooleanClass))
-      case Sequence ⇒
+      case Sequence                                                                         ⇒
         rightTypeOpt
-      case And | Or ⇒
+      case And | Or                                                                         ⇒
         leftTypeOpt orElse rightTypeOpt
     }
   }
@@ -338,23 +346,23 @@ class TypeInferencer {
           argType ← arg.typeOpt
           memberType ← memberLookup(argType, s, immediateExec = true)
         } yield memberType
-      case Type.Seq(Type.BoundMethod(receiverType, method))    ⇒
+      case Type.Seq(Type.BoundMethod(receiverType, method))         ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments).map(Type.Seq)
-      case Type.Seq(elementType)                               ⇒
+      case Type.Seq(elementType)                                    ⇒
         Some(elementType)
-      case Type.BoundMethod(receiverType, method)              ⇒
+      case Type.BoundMethod(receiverType, method)                   ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
-      case Type.BuiltinFunction(f)                             ⇒
+      case Type.BuiltinFunction(f)                                  ⇒
         val strategy = f.typeInferenceStrategy
         strategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case Type.Function(parameterModel, expr, lambdaBindings) ⇒
+      case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
-      case _                                                   ⇒
+      case _                                                        ⇒
         None
     }
   }
@@ -404,7 +412,7 @@ class TypeInferencer {
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
         case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
           memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-         val argBindings = params.bindTypes(TypedArguments()).boundNames
+          val argBindings = params.bindTypes(TypedArguments()).boundNames
           inferType(body, functionBindings ++ argBindings)
         case x                                                                           ⇒
           x
@@ -422,9 +430,9 @@ class TypeInferencer {
       case _                         ⇒
     }
     condOpt((targetTypeOpt, indexTypeOpt)) {
-      case (Some(Type.Seq(elementType)), Some(Type.Instance(NumberClass)))                    ⇒ elementType
-      case (Some(Type.Instance(StringClass)), Some(Type.Instance(NumberClass)))               ⇒ Type.Instance(StringClass)
-      case (Some(taggedType @ Type.Tagged(StringClass, _)), Some(Type.Instance(NumberClass))) ⇒ taggedType
+      case (Some(Type.Seq(elementType)), Some(Type.Instance(NumberClass)))                  ⇒ elementType
+      case (Some(Type.Instance(StringClass)), Some(Type.Instance(NumberClass)))             ⇒ Type.Instance(StringClass)
+      case (Some(taggedType@Type.Tagged(StringClass, _)), Some(Type.Instance(NumberClass))) ⇒ taggedType
     }
   }
 

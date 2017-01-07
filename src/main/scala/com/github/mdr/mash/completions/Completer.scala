@@ -2,6 +2,7 @@ package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.parser.AbstractSyntax.Identifier
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.{ Region, Utils }
 
@@ -73,16 +74,17 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     CompletionResult.merge(asStringResultOpt, flagResultOpt)
   }
 
-  private def completeIdentifier(text: String, identiferToken: Token, parser: CompletionParser): Option[CompletionResult] = {
+  private def completeIdentifier(text: String, identifier: Token, parser: CompletionParser): Option[CompletionResult] = {
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
-      stringCompleter.completeAsString(text, identiferToken, parser)
+      stringCompleter.completeAsString(text, identifier, parser)
     val MemberCompletionResult(isMemberExpr, memberResultOpt, prioritiseMembers) =
-      MemberCompleter.completeIdentifier(text, identiferToken, parser)
+      MemberCompleter.completeIdentifier(text, identifier, parser)
     val bindingResultOpt =
       if (isMemberExpr)
         None // It would be misleading to try and complete bindings in member position
       else
-        BindingCompleter.completeBindings(parser.env, identiferToken.text, identiferToken.region)
+        BindingCompleter.completeBindings(text, identifier, parser)
+//        BindingCompleter.completeBindings(parser.env, identifier.text, identifier.region)
     val stringBindingResultOpt =
       if (isPathCompletion)
         CompletionResult.merge(asStringResultOpt, bindingResultOpt)
