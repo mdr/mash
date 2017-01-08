@@ -162,7 +162,7 @@ object Evaluator extends EvaluatorHelper {
     case FullObjectPatternEntry(field, valuePattern, _) ⇒ ParamPattern.ObjectEntry(field, Some(makeParamPattern(valuePattern)))
   }
 
-  private def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
+  def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
     case ObjectPattern(entries, _)   ⇒ ParamPattern.Object(entries.map(makeParamEntry))
     case HolePattern(_)              ⇒ ParamPattern.Hole
     case IdentPattern(identifier, _) ⇒ ParamPattern.Ident(identifier)

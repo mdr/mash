@@ -1,8 +1,9 @@
 package com.github.mdr.mash.inference
 
-import java.util.IdentityHashMap
+import java.{ util ⇒ ju }
 
 import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
+import com.github.mdr.mash.functions.TypeParamValidationContext
 import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
@@ -16,12 +17,11 @@ import scala.PartialFunction.condOpt
 case class ValueInfo(valueOpt: Option[MashValue], typeOpt: Option[Type])
 
 class TypeInferencer {
-
   /**
     * We maintain a visited map to avoid loops in the type inference (this can happen, for example, when
     * typing fixed-point combinators)
     */
-  private val visitedMap: IdentityHashMap[Expr, Boolean] = new IdentityHashMap
+  private val visitedMap: ju.IdentityHashMap[Expr, Boolean] = new ju.IdentityHashMap
 
   /**
     * Attempt to infer the type of a given expression (and subexpression).
@@ -71,7 +71,7 @@ class TypeInferencer {
       case statementSeq: StatementSeq                   ⇒ inferType(statementSeq, bindings)
       case helpExpr: HelpExpr                           ⇒ inferType(helpExpr, bindings)
       case functionDecl: FunctionDeclaration            ⇒ inferType(functionDecl, bindings)
-      case lamdbaExpr: LambdaExpr                       ⇒ inferType(lamdbaExpr, bindings)
+      case lambda: LambdaExpr                           ⇒ inferType(lambda, bindings)
     }
 
   private def inferType(lambdaExpr: LambdaExpr, bindings: Map[String, Type]): Option[Type] = {
@@ -97,30 +97,7 @@ class TypeInferencer {
         case AssignmentExpr(Identifier(name, _), _, _, _, _)    ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)           =>
-          def handlePattern(pattern: Pattern, typeOpt: Option[Type]): Unit =
-            pattern match {
-              case ObjectPattern(entries, _)   ⇒
-                val fieldTypes: Map[String, Type] = typeOpt.map {
-                  case Type.Object(knownFields) ⇒ knownFields
-                  case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
-                  case _                        ⇒ Map[String, Type]()
-                }.getOrElse(Map())
-                for (entry <- entries)
-                  entry match {
-                    case ShorthandObjectPatternEntry(fieldName, _)          ⇒
-                      latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
-                    case FullObjectPatternEntry(fieldName, valuePattern, _) ⇒
-                      handlePattern(valuePattern, fieldTypes.get(fieldName))
-                  }
-              case HolePattern(_)              ⇒
-              case IdentPattern(identifier, _) ⇒
-                latestBindings += identifier -> typeOpt.getOrElse(Type.Any)
-              case ListPattern(patterns, _) ⇒
-                val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
-                for (elementPattern ← patterns)
-                  handlePattern(elementPattern, elementTypeOpt)
-            }
-          handlePattern(pattern, right.typeOpt)
+          latestBindings ++= TypeParamValidationContext.inferTypes(Evaluator.makeParamPattern(pattern), right.typeOpt)
         case decl@FunctionDeclaration(name, paramList, body, _) =>
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
         case _                                                  =>

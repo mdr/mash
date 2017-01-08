@@ -1,11 +1,42 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.inference.{ ValueInfo, Type, TypedArgument, TypedArguments }
+import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.parser.AbstractSyntax.{ HolePattern, IdentPattern, ListPattern, _ }
 
 import scala.PartialFunction.cond
 
+object TypeParamValidationContext {
+
+  def inferTypes(pattern: ParamPattern, typeOpt: Option[Type]): Map[String, Type] =
+    pattern match {
+      case ParamPattern.Object(entries)   ⇒
+        val fieldTypes: Map[String, Type] = typeOpt.map {
+          case Type.Object(knownFields) ⇒ knownFields
+          case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
+          case _                        ⇒ Map[String, Type]()
+        }.getOrElse(Map())
+        def inferEntry(entry: ParamPattern.ObjectEntry): Map[String, Type] =
+          entry match {
+            case ParamPattern.ObjectEntry(fieldName, None)          ⇒
+              Map(fieldName -> fieldTypes.getOrElse(fieldName, Type.Any))
+            case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
+              inferTypes(valuePattern, fieldTypes.get(fieldName))
+          }
+        entries.flatMap(inferEntry).toMap
+      case ParamPattern.Hole              ⇒
+        Map()
+      case ParamPattern.Ident(identifier) ⇒
+        Map(identifier -> typeOpt.getOrElse(Type.Any))
+      case ParamPattern.List(patterns)    ⇒
+        val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
+        patterns.flatMap(inferTypes(_, elementTypeOpt)).toMap
+    }
+
+}
+
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
+  import TypeParamValidationContext._
 
   private var boundArguments: Map[String, ValueInfo] = Map()
   private var boundNames: Map[String, Type] = Map()
@@ -53,7 +84,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     for ((param, arg) ← regularPosParams zip positionArgs) {
       param.patternOpt match {
         case Some(pattern) ⇒
-          bindPattern(pattern, arg.typeOpt)
+          boundNames ++= inferTypes(pattern, arg.typeOpt)
         case None          =>
           boundArguments += param.name -> arg
           arg.typeOpt.foreach {
@@ -81,7 +112,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
     case ParamPattern.Hole              ⇒
     case ParamPattern.Ident(identifier) ⇒
       boundNames += identifier -> typeOpt.getOrElse(Type.Any)
-    case ParamPattern.List(patterns) ⇒
+    case ParamPattern.List(patterns)    ⇒
       val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
       for (elementPattern ← patterns)
         bindPattern(elementPattern, elementTypeOpt)
