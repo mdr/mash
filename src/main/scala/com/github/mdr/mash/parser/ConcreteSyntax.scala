@@ -238,11 +238,11 @@ object ConcreteSyntax {
     lazy val tokens = Seq(firstItem) ++ otherItems.flatMap { case (comma, item) ⇒ Seq(comma, item) }
   }
 
-  sealed trait FunctionParam extends AstNode
-
-  case class AnonymousParam(hole: Token) extends FunctionParam {
+  case class HolePattern(hole: Token) extends Pattern {
     lazy val tokens = Seq(hole)
   }
+
+  sealed trait FunctionParam extends AstNode
 
   case class SimpleParam(name: Token) extends FunctionParam {
     lazy val tokens = Seq(name)

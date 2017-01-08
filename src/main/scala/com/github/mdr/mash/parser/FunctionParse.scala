@@ -40,7 +40,7 @@ trait FunctionParse { self: MashParse ⇒
   private def parameter(parenAllowed: Boolean = true): FunctionParam =
     if (HOLE) {
       val hole = nextToken()
-      AnonymousParam(hole)
+      PatternParam(HolePattern(hole))
     } else if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {

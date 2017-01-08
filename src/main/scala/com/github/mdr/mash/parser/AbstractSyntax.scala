@@ -103,7 +103,7 @@ object AbstractSyntax {
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
       case ParamList(params) ⇒
         ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
-      case ObjectPattern(_, _) =>
+      case ObjectPattern(_, _) | HolePattern(_) =>
         this
     }
 
@@ -140,6 +140,12 @@ object AbstractSyntax {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
     def boundNames: Seq[String] = fieldNames
+  }
+
+  case class HolePattern(sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
+    def boundNames: Seq[String] = Seq()
   }
 
   case class Literal(value: MashValue, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

@@ -1,4 +1,5 @@
 package com.github.mdr.mash.evaluator
+
 import com.github.mdr.mash.functions.ArgumentException
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.BinaryOperator
@@ -11,21 +12,21 @@ object AssignmentEvaluator extends EvaluatorHelper {
     val rightValue = if (alias) Evaluator.simpleEvaluate(right) else Evaluator.evaluate(right)
 
     left match {
-      case identifier @ Identifier(name, _) ⇒
+      case identifier@Identifier(name, _)                         ⇒
         val actualRightValue = operatorOpt match {
           case Some(op) ⇒
             val currentValue = Evaluator.evaluateIdentifier(identifier)
             BinaryOperatorEvaluator.evaluateBinOp(currentValue, op, rightValue, sourceLocation(expr))
-          case None ⇒
+          case None     ⇒
             rightValue
         }
         context.scopeStack.set(name, actualRightValue)
         actualRightValue
-      case memberExpr @ MemberExpr(_, _, /* isNullSafe */ false, _) ⇒
+      case memberExpr@MemberExpr(_, _, /* isNullSafe */ false, _) ⇒
         evaluateAssignmentToMemberExpr(memberExpr, expr, operatorOpt, rightValue)
-      case lookupExpr: LookupExpr ⇒
+      case lookupExpr: LookupExpr                                 ⇒
         evaluateAssignmentToLookupExpr(lookupExpr, expr, operatorOpt, rightValue)
-      case _ ⇒
+      case _                                                      ⇒
         // TODO: this is purely syntactic, and therefore should be handled by the parser/compiler, not evaluator
         throw new EvaluatorException("Expression is not assignable", sourceLocation(left))
     }
@@ -40,11 +41,12 @@ object AssignmentEvaluator extends EvaluatorHelper {
           case obj: MashObject =>
             for (fieldName <- fieldNames)
               context.scopeStack.set(fieldName, obj.get(fieldName).getOrElse(MashNull))
-            rightValue
           case _               =>
             throw new ArgumentException(s"Cannot match object pattern against value of type " + rightValue.typeName, sourceLocation(expr))
         }
+      case HolePattern(_)               ⇒
     }
+    rightValue
   }
 
   private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
@@ -52,11 +54,11 @@ object AssignmentEvaluator extends EvaluatorHelper {
     val targetValue = Evaluator.evaluate(target)
     val indexValue = Evaluator.evaluate(index)
     targetValue match {
-      case xs: MashList ⇒
+      case xs: MashList    ⇒
         evaluateAssignmentToListIndex(lookupExpr, xs, index, indexValue, operatorOpt, rightValue)
       case obj: MashObject ⇒
         evaluateAssignmentToObject(lookupExpr, expr, obj, index, indexValue, operatorOpt, rightValue)
-      case x ⇒
+      case x               ⇒
         throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.typeName, sourceLocation(target))
     }
   }
@@ -72,12 +74,12 @@ object AssignmentEvaluator extends EvaluatorHelper {
           case Some(op) ⇒
             val currentValue = xs.items(i)
             BinaryOperatorEvaluator.evaluateBinOp(currentValue, op, rightValue, sourceLocation(lookupExpr))
-          case None ⇒
+          case None     ⇒
             rightValue
         }
         xs.items(i) = actualRightValue
         actualRightValue
-      case x ⇒
+      case x             ⇒
         throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
     }
 
@@ -91,7 +93,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     indexValue match {
       case MashString(fieldName, _) ⇒
         assignToField(obj, fieldName, operatorOpt, rightValue, lookupExpr, assignmentExpr)
-      case _ ⇒
+      case _                        ⇒
         throw new EvaluatorException("Invalid object index of type " + indexValue.typeName, sourceLocation(index))
     }
   }
@@ -101,7 +103,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
     Evaluator.evaluate(target) match {
       case obj: MashObject ⇒
         assignToField(obj, fieldName, operatorOpt, rightValue, memberExpr, assignmentExpr)
-      case targetValue ⇒
+      case targetValue     ⇒
         throw new EvaluatorException("Cannot assign to fields of a value of type " + targetValue.typeName, sourceLocation(assignmentExpr))
     }
   }
@@ -114,7 +116,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case Some(op) ⇒
         val currentValue = fields(fieldName)
         BinaryOperatorEvaluator.evaluateBinOp(currentValue, op, rightValue, sourceLocation(assignmentExpr))
-      case None ⇒
+      case None     ⇒
         rightValue
     }
     fields += fieldName -> actualRightValue

@@ -108,6 +108,7 @@ class TypeInferencer {
                 }
               for (fieldName <- fieldNames)
                 latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
+            case HolePattern(_) ⇒
           }
         case decl@FunctionDeclaration(name, paramList, body, _) =>
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)

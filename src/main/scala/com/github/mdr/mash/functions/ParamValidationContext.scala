@@ -49,22 +49,22 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     }
   }
 
-  private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument): Unit =
+  private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument) {
     param.patternOpt match {
-      case Some(ParamPattern.Object(fieldNames)) =>
+      case Some(ParamPattern.Object(fieldNames)) ⇒
         value match {
-          case obj: MashObject =>
-            for (fieldName <- fieldNames) {
+          case obj: MashObject ⇒
+            for (fieldName <- fieldNames)
               boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
-              boundParams += param
-            }
-          case _               =>
+          case _               ⇒
             throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, getLocation(arg))
         }
-      case None                     =>
+      case Some(ParamPattern.Hole)               ⇒
+      case None                                  ⇒
         boundNames += param.name -> value
-        boundParams += param
     }
+    boundParams += param
+  }
 
 
   private def resolve(param: Parameter, suspendedValue: SuspendedMashValue): MashValue =

@@ -32,5 +32,6 @@ sealed trait ParamPattern
 object ParamPattern {
 
   case class Object(fieldNames: Seq[String]) extends ParamPattern
+  case object Hole extends ParamPattern
 
 }

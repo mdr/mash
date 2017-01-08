@@ -297,12 +297,12 @@ object ObjectClass extends MashClass("core.Object") {
         val argBindings = WithFieldMethod.params.bindTypes(arguments)
         targetTypeOpt.flatMap {
           case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
-            Some(Type.Instance(klass))
+            Some(klass)
           case Type.Object(fields)                                    ⇒
             for {
               ValueInfo(valueOpt, _) ← argBindings.getArgument(WithFieldMethod.Params.Name)
               fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
-              valueType ← argBindings.getType(WithFieldMethod.Params.Value)
+              valueType = argBindings.getType(WithFieldMethod.Params.Value) getOrElse Type.Any
             } yield Type.Object(fields + (fieldName -> valueType))
           case _                                                      ⇒
             None

@@ -85,8 +85,6 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
-    case Concrete.AnonymousParam(_) ⇒
-      Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(param))
     case Concrete.SimpleParam(name) ⇒
       Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
     case Concrete.VariadicParam(name, _) ⇒
@@ -103,6 +101,8 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.ObjectPattern(_, contentsOpt, _) =>
       val fieldNames = contentsOpt.map(contents => contents.firstItem +: contents.otherItems.map(_._2)).getOrElse(Seq()).map(_.text)
       Abstract.ObjectPattern(fieldNames, sourceInfoOpt = sourceInfo(pattern))
+    case Concrete.HolePattern(_) ⇒
+      Abstract.HolePattern(sourceInfoOpt = sourceInfo(pattern))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {
