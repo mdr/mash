@@ -151,8 +151,8 @@ object ConcreteSyntax {
     lazy val tokens = lsquare +: contentsOpt.toSeq.flatMap(_.tokens) :+ rsquare
   }
 
-  case class ListExprContents(firstItem: Expr, otherItems: Seq[(Token, Expr)]) extends AstNode {
-    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
+  case class ListExprContents(firstElement: Expr, otherElements: Seq[(Token, Expr)]) extends AstNode {
+    lazy val tokens = firstElement.tokens ++ otherElements.flatMap { case (comma, element) ⇒ comma +: element.tokens }
   }
 
   sealed trait ObjectEntry extends AstNode
@@ -238,8 +238,8 @@ object ConcreteSyntax {
     lazy val tokens = lbrace +: contentsOpt.toSeq.flatMap(_.tokens) :+ rbrace
   }
 
-  case class ObjectPatternContents(firstItem: ObjectPatternEntry, otherItems: Seq[(Token, ObjectPatternEntry)]) extends AstNode {
-    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
+  case class ObjectPatternContents(firstEntry: ObjectPatternEntry, otherEntries: Seq[(Token, ObjectPatternEntry)]) extends AstNode {
+    lazy val tokens = firstEntry.tokens ++ otherEntries.flatMap { case (comma, entry) ⇒ comma +: entry.tokens }
   }
 
   sealed trait ObjectPatternEntry extends AstNode
@@ -256,37 +256,37 @@ object ConcreteSyntax {
     lazy val tokens = lsquare +: contentsOpt.toSeq.flatMap(_.tokens) :+ rsquare
   }
 
-  case class ListPatternContents(firstItem: Pattern, otherItems: Seq[(Token, Pattern)]) extends AstNode {
-    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
+  case class ListPatternContents(firstElement: Pattern, otherElements: Seq[(Token, Pattern)]) extends AstNode {
+    lazy val tokens = firstElement.tokens ++ otherElements.flatMap { case (comma, element) ⇒ comma +: element.tokens }
   }
 
   case class HolePattern(hole: Token) extends Pattern {
     lazy val tokens = Seq(hole)
   }
 
-  sealed trait FunctionParam extends AstNode
+  sealed trait Param extends AstNode
 
-  case class SimpleParam(name: Token) extends FunctionParam {
+  case class SimpleParam(name: Token) extends Param {
     lazy val tokens = Seq(name)
   }
 
-  case class PatternParam(pattern: Pattern) extends FunctionParam {
+  case class PatternParam(pattern: Pattern) extends Param {
     lazy val tokens = pattern.tokens
   }
 
-  case class ParenParam(lparen: Token, lazyOpt: Option[Token], param: FunctionParam, rparen: Token) extends FunctionParam {
+  case class ParenParam(lparen: Token, lazyOpt: Option[Token], param: Param, rparen: Token) extends Param {
     lazy val tokens = lparen +: (lazyOpt.toSeq ++ param.tokens) :+ rparen
   }
 
-  case class VariadicParam(name: Token, ellipsis: Token) extends FunctionParam {
+  case class VariadicParam(name: Token, ellipsis: Token) extends Param {
     lazy val tokens = Seq(name, ellipsis)
   }
 
-  case class DefaultParam(name: Token, equals: Token, defaultExpr: Expr) extends FunctionParam {
+  case class DefaultParam(name: Token, equals: Token, defaultExpr: Expr) extends Param {
     lazy val tokens = Seq(name, equals) ++ defaultExpr.tokens
   }
 
-  case class ParamList(params: Seq[FunctionParam]) extends AstNode {
+  case class ParamList(params: Seq[Param]) extends AstNode {
     lazy val tokens = params.flatMap(_.tokens)
   }
 

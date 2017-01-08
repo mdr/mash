@@ -67,8 +67,8 @@ object AbstractSyntax {
         ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
       case IfExpr(cond, body, elseOpt, sourceInfoOpt)                              ⇒
         IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
-      case ListExpr(items, sourceInfoOpt)                                          ⇒
-        ListExpr(items.map(_.transform(f)), sourceInfoOpt)
+      case ListExpr(elements, sourceInfoOpt)                                          ⇒
+        ListExpr(elements.map(_.transform(f)), sourceInfoOpt)
       case FullObjectEntry(field, value, sourceInfoOpt)                            ⇒
         FullObjectEntry(field.transform(f), value.transform(f), sourceInfoOpt)
       case ObjectExpr(entries, sourceInfoOpt)                                      ⇒
@@ -292,9 +292,9 @@ object AbstractSyntax {
     def children: Seq[Expr] = Seq(cond, body) ++ elseOpt.toSeq
   }
 
-  case class ListExpr(items: Seq[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class ListExpr(elements: Seq[Expr], sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = items
+    def children = elements
   }
 
   sealed trait ObjectEntry extends AstNode

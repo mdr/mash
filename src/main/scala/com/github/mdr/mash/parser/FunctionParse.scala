@@ -31,14 +31,14 @@ trait FunctionParse {
   }
 
   private def paramList(): ParamList = {
-    val params = ArrayBuffer[FunctionParam]()
+    val params = ArrayBuffer[Param]()
     safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
       params += parameter()
     }
     ParamList(params)
   }
 
-  private def parameter(parenAllowed: Boolean = true): FunctionParam =
+  private def parameter(parenAllowed: Boolean = true): Param =
      if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {
@@ -53,7 +53,7 @@ trait FunctionParse {
       val actualParam =
         param match {
           case SimpleParam(name) ⇒
-            if (SHORT_EQUALS && param.isInstanceOf[SimpleParam]) {
+            if (SHORT_EQUALS) {
               val equals = nextToken()
               val defaultExpr = pipeExpr()
               DefaultParam(name, equals, defaultExpr)

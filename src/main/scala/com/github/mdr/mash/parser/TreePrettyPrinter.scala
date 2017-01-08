@@ -94,10 +94,10 @@ object TreePrettyPrinter {
         printTree(right, depth + 1)
       case ObjectPattern(fieldNames, _) =>
         println(fieldNames.mkString("{ ", ", ", " }"))
-      case ListExpr(items, _) ⇒
+      case ListExpr(elements, _) ⇒
         println("ListExpr" + typeDescription)
-        for (item ← items)
-          printTree(item, depth + 1)
+        for (element ← elements)
+          printTree(element, depth + 1)
       case StatementSeq(statements, _) ⇒
         println("StatementSeq" + typeDescription)
         for (statement ← statements)

@@ -87,7 +87,7 @@ The default character encoding and line separator are used.""")
       val args =
         target +: (boundParams(Args) match {
           case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_)).toSeq
-          case xs: MashList               ⇒ xs.items
+          case xs: MashList               ⇒ xs.elements
         })
       val result = ProcessRunner.runProcess(args, captureProcess = true)
       ProcessResultClass.fromResult(result)

@@ -61,11 +61,10 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case ListPattern(patterns, _)  ⇒
         value match {
           case list: MashList ⇒
-            for ((itemOpt, elementPattern) ← list.items.map(Some(_)).padTo(patterns.length, None).zip(patterns))
-              bindPattern(elementPattern, itemOpt.getOrElse(MashNull), locationOpt)
+            for ((elementOpt, elementPattern) ← list.elements.map(Some(_)).padTo(patterns.length, None).zip(patterns))
+              bindPattern(elementPattern, elementOpt.getOrElse(MashNull), locationOpt)
           case _ ⇒
             throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
-
         }
     }
 
@@ -88,16 +87,16 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(
           throw new EvaluatorException("Invalid list index '" + indexValue + "'", sourceLocation(index)))
-        if (i < 0 || i > xs.items.size - 1)
+        if (i < 0 || i > xs.elements.size - 1)
           throw new EvaluatorException("Index out of range '" + indexValue + "'", sourceLocation(index))
         val actualRightValue = operatorOpt match {
           case Some(op) ⇒
-            val currentValue = xs.items(i)
+            val currentValue = xs.elements(i)
             BinaryOperatorEvaluator.evaluateBinOp(currentValue, op, rightValue, sourceLocation(lookupExpr))
           case None     ⇒
             rightValue
         }
-        xs.items(i) = actualRightValue
+        xs.elements(i) = actualRightValue
         actualRightValue
       case x             ⇒
         throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))

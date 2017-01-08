@@ -18,7 +18,7 @@ object SimpleEvaluator {
     case _: InterpolatedString | _: MishFunction       => None
     case literal: Literal                              => Some(literal.value)
     case stringLiteral: StringLiteral                  => Some(Evaluator.evaluateStringLiteral(stringLiteral))
-    case listExpr: ListExpr                            => Utils.sequence(listExpr.items.map(evaluate(_))).map(MashList(_))
+    case listExpr: ListExpr                            => Utils.sequence(listExpr.elements.map(evaluate(_))).map(MashList(_))
     case identifier: Identifier                        => context.scopeStack.lookup(identifier.name)
     case objectExpr: ObjectExpr                        => simplyEvaluate(objectExpr)
     case StatementSeq(statements, _)                   => statements.map(evaluate).lastOption.getOrElse(Some(MashUnit))

@@ -42,7 +42,7 @@ object MemberEvaluator extends EvaluatorHelper {
   private def vectorisedMemberLookup(target: MashValue, name: String, isNullSafe: Boolean, immediatelyResolveNullaryWhenVectorising: Boolean, locationOpt: Option[SourceLocation]): Option[MashList] =
     target match {
       case xs: MashList ⇒
-        val options = xs.items.map {
+        val options = xs.elements.map {
           case MashNull if isNullSafe ⇒ Some(MashNull)
           case x ⇒
             val lookupOpt = MemberEvaluator.maybeLookup(x, name)

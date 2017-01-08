@@ -19,8 +19,8 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val args = boundParams(Args) match {
-      case MashList(xs: MashList) ⇒ xs.items
-      case xs: MashList           ⇒ xs.items
+      case MashList(xs: MashList) ⇒ xs.elements
+      case xs: MashList           ⇒ xs.elements
       case x                      ⇒ Seq(x)
     }
     ProcessRunner.runProcess(MashString(command) +: args)

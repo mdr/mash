@@ -40,7 +40,7 @@ object ObjectClass extends MashClass("core.Object") {
       val boundParams = params.validate(arguments)
       val xs = boundParams.validateSequence(Objects)
       val items = xs match {
-        case Seq(list: MashList) => list.items
+        case Seq(list: MashList) => list.elements
         case _                   => xs
       }
       val objects = items.map {
@@ -83,7 +83,7 @@ object ObjectClass extends MashClass("core.Object") {
         case subObject: MashObject ⇒
           hoist(obj, field, subObject, prefixOpt)
         case xs: MashList          ⇒
-          MashList(xs.items.map {
+          MashList(xs.elements.map {
             case subObject: MashObject ⇒
               hoist(obj, field, subObject, prefixOpt)
             case x                     ⇒
@@ -94,7 +94,7 @@ object ObjectClass extends MashClass("core.Object") {
     }
 
     private def hoist(obj: MashObject, field: String, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
-      val subFields = subObject.fields.toSeq.map { case (field, value) => (prefixOpt.getOrElse("") + field) -> value }
+      val subFields = subObject.fields.toSeq.map { case (subfield, value) => (prefixOpt.getOrElse("") + subfield) -> value }
       val originalFields = obj.fields.toSeq
       val index = originalFields.indexWhere(_._1 == field)
       val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)

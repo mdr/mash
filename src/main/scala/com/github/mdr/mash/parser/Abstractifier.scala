@@ -85,7 +85,7 @@ class Abstractifier(provenance: Provenance) {
     Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
-  private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
+  private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
     case Concrete.SimpleParam(name)                     ⇒
       Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
     case Concrete.VariadicParam(name, _)                ⇒
@@ -108,8 +108,8 @@ class Abstractifier(provenance: Provenance) {
   private def abstractifyObjectPattern(pattern: Concrete.ObjectPattern): Abstract.ObjectPattern = {
     val Concrete.ObjectPattern(_, contentsOpt, _) = pattern
     val entries = contentsOpt.map { contents =>
-      val firstEntry = abstractifyObjectPatternEntry(contents.firstItem)
-      val otherEntries = contents.otherItems.map { case (_, item) ⇒ abstractifyObjectPatternEntry(item) }
+      val firstEntry = abstractifyObjectPatternEntry(contents.firstEntry)
+      val otherEntries = contents.otherEntries.map { case (_, item) ⇒ abstractifyObjectPatternEntry(item) }
       firstEntry +: otherEntries
     }.getOrElse(Seq())
     Abstract.ObjectPattern(entries, sourceInfoOpt = sourceInfo(pattern))
@@ -117,8 +117,8 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyListPattern(pattern: Concrete.ListPattern): Abstract.ListPattern = {
     val elements = pattern.contentsOpt.map { contents ⇒
-      val firstEntry = abstractifyPattern(contents.firstItem)
-      val otherEntries = contents.otherItems.map { case (_, item) ⇒ abstractifyPattern(item) }
+      val firstEntry = abstractifyPattern(contents.firstElement)
+      val otherEntries = contents.otherElements.map { case (_, item) ⇒ abstractifyPattern(item) }
       firstEntry +: otherEntries
     }.getOrElse(Seq())
     Abstract.ListPattern(elements)
@@ -200,12 +200,14 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyList(listExpr: Concrete.ListExpr): Abstract.ListExpr = {
-    val items =
+    val elements =
       listExpr.contentsOpt match {
-        case Some(Concrete.ListExprContents(firstItem, otherItems)) ⇒ abstractify(firstItem) +: otherItems.map(_._2).map(abstractify)
-        case None                                                   ⇒ Seq()
+        case Some(Concrete.ListExprContents(firstElement, otherElements)) ⇒
+          abstractify(firstElement) +: otherElements.map(_._2).map(abstractify)
+        case None                                                         ⇒
+          Seq()
       }
-    Abstract.ListExpr(items, sourceInfo(listExpr))
+    Abstract.ListExpr(elements, sourceInfo(listExpr))
   }
 
   private def abstractifyParenInvocation(invocationExpr: Concrete.ParenInvocationExpr): Abstract.Expr = {

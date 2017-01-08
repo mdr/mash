@@ -26,7 +26,7 @@ object Header {
     }
     MashNull.option(boundParams(param)).toSeq.flatMap {
       case xs: MashList =>
-        xs.items.map(getHeader)
+        xs.elements.map(getHeader)
       case obj: MashObject =>
         obj.fields.toSeq.map { case (fieldName, value) => Header(fieldName, ToStringifier.stringify(value)) }
       case _            =>

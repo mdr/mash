@@ -32,7 +32,7 @@ object StatusClass extends MashClass("git.Status") {
 
   case class Wrapper(obj: MashObject) {
     private def unmashify(field: Field): Seq[String] =
-      obj(field).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString].s)
+      obj(field).asInstanceOf[MashList].elements.map(_.asInstanceOf[MashString].s)
     def added = unmashify(Added)
     def changed = unmashify(Changed)
     def missing = unmashify(Missing)

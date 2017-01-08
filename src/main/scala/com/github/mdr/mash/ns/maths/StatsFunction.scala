@@ -24,7 +24,7 @@ object StatsFunction extends MashFunction("maths.stats") {
     val boundParams = params.validate(arguments)
     val numbers: Seq[Double] =
       boundParams(Sequence) match {
-        case list: MashList ⇒ list.items.map {
+        case list: MashList ⇒ list.elements.map {
           case MashNumber(n, _) ⇒ n
           case value            ⇒ boundParams.throwInvalidArgument(Sequence, "Invalid item of type " + value.typeName)
         }

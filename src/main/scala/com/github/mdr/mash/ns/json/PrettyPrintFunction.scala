@@ -49,7 +49,7 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
     case MashNull         ⇒ JsonNull.INSTANCE
     case list: MashList ⇒
       val array = new JsonArray
-      for (item ← list.items)
+      for (item ← list.elements)
         array.add(asJson(item))
       array
     case obj: MashObject ⇒

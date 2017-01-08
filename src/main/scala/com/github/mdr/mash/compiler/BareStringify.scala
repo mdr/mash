@@ -83,8 +83,8 @@ class BareStringificationContext {
       ChainedOpExpr(bareStringify(left, bindings), opRights.map { case (op, right) ⇒ op -> bareStringify(right, bindings) }, sourceInfoOpt)
     case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
       IfExpr(bareStringify(cond, bindings), bareStringify(body, bindings), elseOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
-    case ListExpr(items, sourceInfoOpt) ⇒
-      ListExpr(items.map(bareStringify(_, bindings)), sourceInfoOpt)
+    case ListExpr(elements, sourceInfoOpt) ⇒
+      ListExpr(elements.map(bareStringify(_, bindings)), sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
       val newEntries =
         entries.map {

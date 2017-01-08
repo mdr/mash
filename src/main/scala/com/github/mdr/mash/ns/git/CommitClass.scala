@@ -46,7 +46,7 @@ object CommitClass extends MashClass("git.Commit") {
     def hash: MashString = target.asInstanceOf[MashObject](Hash).asInstanceOf[MashString]
 
     def parents: Seq[MashString] =
-      target.asInstanceOf[MashObject](Parents).asInstanceOf[MashList].items.map(_.asInstanceOf[MashString])
+      target.asInstanceOf[MashObject](Parents).asInstanceOf[MashList].elements.map(_.asInstanceOf[MashString])
 
     def parentOpt: Option[MashString] = parents.headOption
 

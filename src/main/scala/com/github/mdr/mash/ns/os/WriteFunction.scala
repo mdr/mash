@@ -41,7 +41,7 @@ Otherwise, write the item as a string."""))
     val data = boundParams(Data)
     data match {
       case xs: MashList ⇒
-        val lines = xs.items.map(ToStringifier.stringify)
+        val lines = xs.elements.map(ToStringifier.stringify)
         FileUtils.writeLines(file, lines.asJava, append)
       case x ⇒
         FileUtils.write(file, ToStringifier.stringify(x), StandardCharsets.UTF_8, append)

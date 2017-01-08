@@ -74,7 +74,7 @@ object Evaluator extends EvaluatorHelper {
       case assExpr: AssignmentExpr                                   ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
       case assExpr: PatternAssignmentExpr                            ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
       case ifExpr: IfExpr                                            ⇒ evaluateIfExpr(ifExpr)
-      case ListExpr(items, _)                                        ⇒ MashList(items.map(evaluate(_)))
+      case ListExpr(elements, _)                                     ⇒ MashList(elements.map(evaluate(_)))
       case mishExpr: MishExpr                                        ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
       case expr: MishInterpolation                                   ⇒ MishEvaluator.evaluateMishInterpolation(expr)
       case MishFunction(command, _)                                  ⇒ SystemCommandFunction(command)

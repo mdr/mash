@@ -309,23 +309,23 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       val rsquare = nextToken()
       ListExpr(lsquare, None, rsquare)
     } else {
-      val firstItem = pipeExpr()
-      val items = ArrayBuffer[(Token, Expr)]()
+      val firstElement = pipeExpr()
+      val otherElements = ArrayBuffer[(Token, Expr)]()
       safeWhile(COMMA) {
         val comma = nextToken()
-        val item = pipeExpr()
-        items += (comma -> item)
+        val element = pipeExpr()
+        otherElements += (comma -> element)
       }
       val rsquare =
         if (RSQUARE)
           nextToken()
         else if (forgiving) {
-          val lastExpr = (firstItem +: items.map(_._2)).last
+          val lastExpr = (firstElement +: otherElements.map(_._2)).last
           val lastToken = lastExpr.tokens.last
           syntheticToken(RSQUARE, lastToken)
         } else
           errorExpectedToken("]")
-      ListExpr(lsquare, Some(ListExprContents(firstItem, items)), rsquare)
+      ListExpr(lsquare, Some(ListExprContents(firstElement, otherElements)), rsquare)
     }
   }
 

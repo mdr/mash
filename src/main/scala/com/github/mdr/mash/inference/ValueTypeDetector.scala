@@ -56,7 +56,7 @@ class ValueTypeDetector {
     case MashWrapped(_: LocalDate)                             ⇒ DateClass
     case _: MashClass                                          ⇒ ClassClass
     case MashUnit                                              ⇒ Unit
-    case xs: MashList                                          ⇒ xs.items.headOption.map(getType).getOrElse(Type.Any).seq
+    case xs: MashList                                          ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
     case obj@MashObject(_, None)                               ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case obj@MashObject(_, Some(GroupClass))                   ⇒ getTypeOfGroup(obj)
     case obj@MashObject(_, Some(TimedResultClass))             ⇒ getTypeOfTimedResult(obj)

@@ -32,7 +32,7 @@ object MishEvaluator extends EvaluatorHelper {
         evaluateCd(evaluatedArgs, args)
       case _ ⇒
         val flattenedArgs: Seq[MashValue] = evaluatedArgs.flatMap {
-          case xs: MashList ⇒ xs.items
+          case xs: MashList ⇒ xs.elements
           case x            ⇒ Seq(x)
         }
         val allArgs = evaluatedCommand +: flattenedArgs

@@ -78,7 +78,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       case ParamPattern.List(patterns) ⇒
         value match {
           case list: MashList ⇒
-            for ((elementOpt, elementPattern) ← list.items.map(Some(_)).padTo(patterns.length, None).zip(patterns))
+            for ((elementOpt, elementPattern) ← list.elements.map(Some(_)).padTo(patterns.length, None).zip(patterns))
               bindPattern(elementPattern, elementOpt.getOrElse(MashNull), locationOpt)
           case _               ⇒
             throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)

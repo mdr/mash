@@ -28,7 +28,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     parameterToArguments.get(param).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
 
   def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
-    case xs: MashList                          ⇒ xs.items
+    case xs: MashList                          ⇒ xs.elements
     case MashString(s, tagOpt) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x                                     ⇒ throwInvalidArgumentType("sequence", x, param)
   }

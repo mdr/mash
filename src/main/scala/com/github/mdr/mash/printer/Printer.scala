@@ -47,8 +47,8 @@ class FieldRenderer(viewConfig: ViewConfig) {
     case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
     case MashWrapped(i: Instant) if viewConfig.fuzzyTime    ⇒ Printer.prettyTime.format(Date.from(i))
     case MashWrapped(i: Instant)                            ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
-    case xs: MashList if inCell                             ⇒ xs.items.map(renderField(_)).mkString(", ")
-    case xs: MashList                                       ⇒ xs.items.map(renderField(_)).mkString("[", ", ", "]")
+    case xs: MashList if inCell                             ⇒ xs.elements.map(renderField(_)).mkString(", ")
+    case xs: MashList                                       ⇒ xs.elements.map(renderField(_)).mkString("[", ", ", "]")
     case _                                                  ⇒
       val s = ToStringifier.safeStringify(value)
       if (inCell) Printer.replaceProblematicChars(s) else s
@@ -67,7 +67,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
     case obj: MashObject                                       =>
       new ObjectModelCreator(terminalInfo, viewConfig).create(obj)
     case xs: MashList if xs.forall(_.isAnObject) =>
-      val objects = xs.items.asInstanceOf[Seq[MashObject]]
+      val objects = xs.elements.asInstanceOf[Seq[MashObject]]
       new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
     case xs: MashList =>
       new TextLinesModelCreator(viewConfig).create(xs)
@@ -88,7 +88,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           return PrintResult(Some(model))
         case xs: MashList if xs.nonEmpty && xs.forall(_.isAnObject)                      ⇒
-          val objects = xs.items.asInstanceOf[Seq[MashObject]]
+          val objects = xs.elements.asInstanceOf[Seq[MashObject]]
           val nonDataRows = 4 // 3 header rows + 1 footer
           if (objects.size > terminalInfo.rows - nonDataRows) {
             val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
@@ -100,7 +100,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
             val model = new TextLinesModelCreator(viewConfig).create(xs)
             return PrintResult(Some(model))
           } else
-            xs.items.foreach(output.println)
+            xs.elements.foreach(output.println)
         case obj: MashObject if obj.classOpt == Some(ViewClass)                                        ⇒
           val data = obj(ViewClass.Fields.Data)
           val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True

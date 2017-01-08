@@ -135,7 +135,7 @@ class TypeInferencer {
   }
 
   private def inferType(listExpr: ListExpr, bindings: Map[String, Type]): Option[Type] = {
-    val elementTypes = listExpr.items.flatMap(inferType(_, bindings))
+    val elementTypes = listExpr.elements.flatMap(inferType(_, bindings))
     val elementType = elementTypes.headOption.getOrElse(Type.Any)
     Some(elementType.seq)
   }

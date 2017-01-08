@@ -35,7 +35,7 @@ class HelpPrinter(output: PrintStream) {
     val maybeTarget = if (classOpt.isDefined) "target." else ""
     output.println(indentSpace + maybeTarget + obj(CallingSyntax))
     output.println()
-    val parameters = obj(Parameters).asInstanceOf[MashList].items
+    val parameters = obj(Parameters).asInstanceOf[MashList].elements
     if (parameters.nonEmpty) {
       output.println(bold("PARAMETERS"))
       for (param ← parameters)
@@ -117,7 +117,7 @@ class HelpPrinter(output: PrintStream) {
         output.println()
       }
     }
-    val methods = obj(Methods).asInstanceOf[MashList].items
+    val methods = obj(Methods).asInstanceOf[MashList].elements
     if (methods.nonEmpty) {
       output.println(bold("METHODS"))
       for (method ← methods) {

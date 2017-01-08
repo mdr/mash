@@ -13,7 +13,7 @@ object FunctionHelpers {
 
   def interpretAsPaths(value: MashValue): Seq[Path] =
     value match {
-      case xs: MashList ⇒ xs.items.flatMap(interpretAsPaths)
+      case xs: MashList ⇒ xs.elements.flatMap(interpretAsPaths)
       case _            ⇒ Seq(interpretAsPath(value))
     }
 
@@ -46,7 +46,7 @@ object FunctionHelpers {
   private def makePositionArg(value: MashValue) = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ value))
 
   def interpretAsSequence(value: MashValue): Seq[MashValue] = value match {
-    case xs: MashList          ⇒ xs.items
+    case xs: MashList          ⇒ xs.elements
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case _                     ⇒ throw new EvaluatorException(s"Could not interpret value of type ${value.typeName} as a sequence")
   }

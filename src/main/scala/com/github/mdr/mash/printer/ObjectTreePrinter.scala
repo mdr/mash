@@ -17,7 +17,7 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
 
   private def print(node: ObjectTreeNode, prefix: String): Unit = node match {
     case ObjectTreeNode.List(Seq(), _)    => output.println("[]")
-    case ObjectTreeNode.List(items, _)    => printList(items, prefix, connectUp = true)
+    case ObjectTreeNode.List(elements, _) => printList(elements, prefix, connectUp = true)
     case ObjectTreeNode.Object(Seq(), _)  => output.println("{}")
     case ObjectTreeNode.Object(values, _) => printObject(values, prefix, connectUp = true)
     case ObjectTreeNode.Leaf(value, _)    => output.println(value)

@@ -19,7 +19,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
     s"$safePath[$selectedRow]"
   }
 
-  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, model.rawValue.items(selectedRow))
+  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, model.rawValue.elements(selectedRow))
 
   def size = model.renderedLines.size
 

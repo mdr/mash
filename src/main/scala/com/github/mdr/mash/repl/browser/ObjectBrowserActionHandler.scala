@@ -58,7 +58,7 @@ trait ObjectBrowserActionHandler
       val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) ⇒
-      val objects = xs.items.asInstanceOf[Seq[MashObject]]
+      val objects = xs.elements.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
     case xs: MashList                                          =>

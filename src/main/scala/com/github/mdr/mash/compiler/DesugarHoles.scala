@@ -86,9 +86,9 @@ object DesugarHoles {
           newFunction ← desugarHoles_(function)
           newArgs ← sequence(args.map(desugarHoles_))
         } yield InvocationExpr(newFunction, newArgs, isParenInvocation, sourceInfoOpt)
-    case ListExpr(items, sourceInfoOpt) ⇒
-      for (newItems ← sequence(items.map(desugarHoles_)))
-        yield ListExpr(newItems, sourceInfoOpt)
+    case ListExpr(elements, sourceInfoOpt) ⇒
+      for (newElements ← sequence(elements.map(desugarHoles_)))
+        yield ListExpr(newElements, sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
       def desugarHoles(entry: ObjectEntry): Result[ObjectEntry] = entry match {
         case fullEntry: FullObjectEntry           =>

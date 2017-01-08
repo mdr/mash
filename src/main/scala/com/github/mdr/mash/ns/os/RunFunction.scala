@@ -30,9 +30,9 @@ object RunFunction extends MashFunction("os.run") {
     val boundParams = params.validate(arguments)
     val args: Seq[MashValue] =
       boundParams(Command) match {
-        case MashList(xs: MashList)     ⇒ xs.items
+        case MashList(xs: MashList)     ⇒ xs.elements
         case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_))
-        case xs: MashList               ⇒ xs.items
+        case xs: MashList               ⇒ xs.elements
         case x                          ⇒ Seq(x)
       }
     val stdinImmediateOpt = MashNull.option(boundParams(StandardIn)).map(ToStringifier.stringify)

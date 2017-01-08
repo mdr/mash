@@ -22,7 +22,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
     boundParams.validateSequence(Sequence)
     boundParams(Sequence) match {
       case s: MashString ⇒ s.reverse
-      case xs: MashList  ⇒ MashList(xs.items.reverse)
+      case xs: MashList  ⇒ MashList(xs.elements.reverse)
     }
   }
 

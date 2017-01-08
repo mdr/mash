@@ -27,7 +27,7 @@ object LastFunction extends MashFunction("collections.last") {
       case Some(count) ⇒
         sequence match {
           case s: MashString ⇒ s.modify(_ takeRight count)
-          case xs: MashList  ⇒ MashList(xs.items takeRight count)
+          case xs: MashList  ⇒ MashList(xs.elements takeRight count)
         }
       case None ⇒
         sequence match {
