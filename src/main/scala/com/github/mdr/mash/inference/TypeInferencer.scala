@@ -99,7 +99,7 @@ class TypeInferencer {
         case PatternAssignmentExpr(pattern, right, _)           =>
           def handlePattern(pattern: Pattern, typeOpt: Option[Type]): Unit =
             pattern match {
-              case ObjectPattern(entries, _) =>
+              case ObjectPattern(entries, _)   ⇒
                 val fieldTypes: Map[String, Type] = typeOpt.map {
                   case Type.Object(knownFields) ⇒ knownFields
                   case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
@@ -112,7 +112,9 @@ class TypeInferencer {
                     case FullObjectPatternEntry(fieldName, valuePattern, _) ⇒
                       handlePattern(valuePattern, fieldTypes.get(fieldName))
                   }
-              case HolePattern(_)            ⇒
+              case HolePattern(_)              ⇒
+              case IdentPattern(identifier, _) ⇒
+                latestBindings += identifier -> typeOpt.getOrElse(Type.Any)
             }
           handlePattern(pattern, right.typeOpt)
         case decl@FunctionDeclaration(name, paramList, body, _) =>

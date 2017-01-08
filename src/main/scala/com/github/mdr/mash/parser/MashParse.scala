@@ -43,7 +43,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     } else
       previousExpr
 
-  protected def assignmentExpr(): Expr = {
+  protected def patternAssignmentExpr(): Expr = {
     val patternEqualsOpt = speculate {
       val pat = pattern()
       val equals =

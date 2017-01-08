@@ -55,6 +55,8 @@ object AssignmentEvaluator extends EvaluatorHelper {
             throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
         }
       case HolePattern(_)            ⇒
+      case IdentPattern(ident, _)       ⇒
+        context.scopeStack.set(ident, value)
     }
 
   private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {

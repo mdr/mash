@@ -80,45 +80,50 @@ trait FunctionParse {
     else
       errorExpectedToken("identifier")
 
+  private def objectPattern(): ObjectPattern = {
+    val lbrace = nextToken()
+    if (RBRACE) {
+      val rbrace = nextToken()
+      ObjectPattern(lbrace, None, rbrace)
+    } else {
+      def parseEntry(): ObjectPatternEntry = {
+        if (IDENTIFIER) {
+          val field = nextToken()
+          if (COLON) {
+            val colon = nextToken()
+            val valuePattern = pattern()
+            FullObjectPatternEntry(field, colon, valuePattern)
+          } else
+            ShorthandObjectPatternEntry(field)
+        }
+        else
+          ShorthandObjectPatternEntry(syntheticToken(IDENTIFIER))
+      }
+      val firstEntry = parseEntry()
+      val entries = ArrayBuffer[(Token, ObjectPatternEntry)]()
+      safeWhile(COMMA) {
+        val comma = nextToken()
+        val entry = parseEntry()
+        entries += (comma -> entry)
+      }
+      val rbrace =
+        if (RBRACE)
+          nextToken()
+        else if (forgiving)
+          syntheticToken(RBRACE)
+        else
+          errorExpectedToken("]")
+      ObjectPattern(lbrace, Some(ObjectPatternContents(firstEntry, entries)), rbrace)
+    }
+  }
+
   protected def pattern(): Pattern =
     if (HOLE)
       HolePattern(nextToken())
-    else {
-      val lbrace = nextToken()
-      if (RBRACE) {
-        val rbrace = nextToken()
-        ObjectPattern(lbrace, None, rbrace)
-      } else {
-        def parseItem(): ObjectPatternEntry = {
-          if (IDENTIFIER) {
-            val field = nextToken()
-            if (COLON) {
-              val colon = nextToken()
-              val valuePattern = pattern()
-              FullObjectPatternEntry(field, colon, valuePattern)
-            } else
-              ShorthandObjectPatternEntry(field)
-          }
-          else
-            ShorthandObjectPatternEntry(syntheticToken(IDENTIFIER))
-        }
-        val firstItem = parseItem()
-        val items = ArrayBuffer[(Token, ObjectPatternEntry)]()
-        safeWhile(COMMA) {
-          val comma = nextToken()
-          val item = parseItem()
-          items += (comma -> item)
-        }
-        val rbrace =
-          if (RBRACE)
-            nextToken()
-          else if (forgiving)
-            syntheticToken(RBRACE)
-          else
-            errorExpectedToken("]")
-        ObjectPattern(lbrace, Some(ObjectPatternContents(firstItem, items)), rbrace)
-      }
-    }
+    else if (IDENTIFIER)
+      IdentPattern(nextToken())
+    else
+      objectPattern()
 
   protected case class LambdaStart(paramList: ParamList, arrow: Token)
 
@@ -147,6 +152,6 @@ trait FunctionParse {
       case Some(lambdaStart) ⇒
         completeLambdaExpr(lambdaStart, mayContainPipe = mayContainPipe, mayContainStatementSeq = mayContainStatementSeq)
       case None              ⇒
-        assignmentExpr()
+        patternAssignmentExpr()
     }
 }

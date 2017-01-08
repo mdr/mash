@@ -103,7 +103,7 @@ object AbstractSyntax {
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
       case ParamList(params) ⇒
         ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
-      case HolePattern(_) | ShorthandObjectPatternEntry(_, _) ⇒
+      case HolePattern(_) | ShorthandObjectPatternEntry(_, _) | IdentPattern(_, _) ⇒
         this
       case FullObjectPatternEntry(field, valuePattern, sourceInfoOpt) ⇒
         FullObjectPatternEntry(field, valuePattern.transform(f).asInstanceOf[Pattern], sourceInfoOpt)
@@ -136,6 +136,12 @@ object AbstractSyntax {
 
   sealed trait Pattern extends AstNode {
     def boundNames: Seq[String]
+  }
+
+  case class IdentPattern(identifier: String, sourceInfoOpt: Option[SourceInfo]) extends Pattern {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
+    def boundNames = Seq(identifier)
   }
 
   sealed trait ObjectPatternEntry extends AstNode {

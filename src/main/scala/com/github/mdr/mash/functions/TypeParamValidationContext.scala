@@ -52,9 +52,9 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
       param.patternOpt match {
-        case Some(pattern)                         ⇒
+        case Some(pattern) ⇒
           bindPattern(pattern, arg.typeOpt)
-        case None =>
+        case None          =>
           boundArguments += param.name -> arg
           arg.typeOpt.foreach {
             boundNames += param.name -> _
@@ -65,7 +65,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
   }
 
   private def bindPattern(pattern: ParamPattern, typeOpt: Option[Type]): Unit = pattern match {
-    case ParamPattern.Object(entries) ⇒
+    case ParamPattern.Object(entries)   ⇒
       val fieldTypes: Map[String, Type] = typeOpt.map {
         case Type.Object(knownFields) ⇒ knownFields
         case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
@@ -78,7 +78,9 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
           case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
             bindPattern(valuePattern, fieldTypes.get(fieldName))
         }
-    case ParamPattern.Hole            ⇒
+    case ParamPattern.Hole              ⇒
+    case ParamPattern.Ident(identifier) ⇒
+      boundNames += identifier -> typeOpt.getOrElse(Type.Any)
   }
 
   private def posOfArg(arg: ValueInfo): Int =

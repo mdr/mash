@@ -163,8 +163,9 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
-    case ObjectPattern(entries, _) ⇒ ParamPattern.Object(entries.map(makeParamEntry))
-    case HolePattern(_)            ⇒ ParamPattern.Hole
+    case ObjectPattern(entries, _)   ⇒ ParamPattern.Object(entries.map(makeParamEntry))
+    case HolePattern(_)              ⇒ ParamPattern.Hole
+    case IdentPattern(identifier, _) ⇒ ParamPattern.Ident(identifier)
   }
 
   def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] = None): ParameterModel = {

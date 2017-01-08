@@ -33,6 +33,7 @@ object ParamPattern {
 
   case class ObjectEntry(fieldName: String, patternOpt: Option[ParamPattern] = None)
   case class Object(entries: Seq[ObjectEntry]) extends ParamPattern
+  case class Ident(name: String) extends ParamPattern
   case object Hole extends ParamPattern
 
 }

@@ -230,6 +230,10 @@ object ConcreteSyntax {
 
   sealed trait Pattern extends AstNode
 
+  case class IdentPattern(identifier: Token) extends Pattern {
+    lazy val tokens = Seq(identifier)
+  }
+
   case class ObjectPattern(lbrace: Token, contentsOpt: Option[ObjectPatternContents], rbrace: Token) extends Pattern {
     lazy val tokens = lbrace +: contentsOpt.toSeq.flatMap(_.tokens) :+ rbrace
   }

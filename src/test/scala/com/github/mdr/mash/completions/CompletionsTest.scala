@@ -302,6 +302,8 @@ class CompletionsTest extends FlatSpec with Matchers {
   "{ foobar } => foob▶)" shouldGiveCompletions "foobar"
   "foobar = 42; foob▶" shouldGiveCompletions "foobar"
   "{ foobar } = { foobar: 42 }; foob▶" shouldGiveCompletions "foobar"
+  "{ foobar: { bazzle } } = { foobar: { bazzle: 42 } }; bazz▶" shouldGiveCompletions "bazzle"
+  "{ foobar: { bazzle: buzzle } } = { foobar: { bazzle: 42 } }; buzz▶" shouldGiveCompletions "buzzle"
   "def fun foobar = foob▶" shouldGiveCompletions "foobar"
   "foobundle = 42; { foobar = 42 }; foob▶" shouldGiveCompletions "foobundle"
 

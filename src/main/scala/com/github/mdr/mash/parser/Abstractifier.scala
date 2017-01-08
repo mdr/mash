@@ -118,6 +118,7 @@ class Abstractifier(provenance: Provenance) {
   private def abstractifyPattern(pattern: Concrete.Pattern): Abstract.Pattern = pattern match {
     case objectPattern: Concrete.ObjectPattern ⇒ abstractifyObjectPattern(objectPattern)
     case Concrete.HolePattern(_)               ⇒ Abstract.HolePattern(sourceInfoOpt = sourceInfo(pattern))
+    case Concrete.IdentPattern(identifier)     ⇒ Abstract.IdentPattern(identifier.text, sourceInfoOpt = sourceInfo(pattern))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {

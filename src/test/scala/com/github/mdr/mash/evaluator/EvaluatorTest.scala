@@ -506,7 +506,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
 
-  "a = alias ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
+  "a = ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
 
   "[].sumBy.target" shouldEvaluateTo "[]"
 
@@ -567,7 +567,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "a = 42" shouldEvaluateTo 42
   "a = 5; a += 10" shouldEvaluateTo 15
-  
+  "_ = 10" shouldEvaluateTo 10
+  "{ foo } = { foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
+
   { // bare words
     implicit val config = Config(bareWords = true)
 
@@ -666,9 +668,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     "[{ foo: 42, baz1: 100, baz2: 200 }, { foo: 42, baz1: 300, baz2: 400 }]"
   "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar' --prefix='bar_'" shouldEvaluateTo "{ foo: 42, bar_baz1: 100, bar_baz2: 200 }"
 
-  // Patterns in parameters
-  "(_ => 42) 10" shouldEvaluateTo 42
- 
   // maths.stats
   "[1, 2, 3] | maths.stats | .mean" shouldEvaluateTo 2
   
@@ -689,6 +688,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42, bar: 128 } | { foo, bar } => foo + bar" shouldEvaluateTo 170
   "{ foo, bar } = { bar: 1, baz: 2, foo: 3 }; foo + bar" shouldEvaluateTo 4
   "{ baz } = { foo: 42 }; baz" shouldEvaluateTo null
+  "{ foo: { bar } } = { foo: { bar: 42 } }; bar" shouldEvaluateTo 42
+  "{ foo: 42, bar: 128 } | { foo: foofar } => foofar" shouldEvaluateTo 42
+  "{ foo: 42, bar: 128 } | { foo: _ } => 10" shouldEvaluateTo 10
+  "(_ => 42) 10" shouldEvaluateTo 42
   "{ baz } = 42" shouldThrowAnException
 
   // Object.merge
