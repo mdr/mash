@@ -252,6 +252,14 @@ object ConcreteSyntax {
     lazy val tokens = field +: (colon +: value.tokens)
   }
 
+  case class ListPattern(lsquare: Token, contentsOpt: Option[ListPatternContents], rsquare: Token) extends Pattern {
+    lazy val tokens = lsquare +: contentsOpt.toSeq.flatMap(_.tokens) :+ rsquare
+  }
+
+  case class ListPatternContents(firstItem: Pattern, otherItems: Seq[(Token, Pattern)]) extends AstNode {
+    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
+  }
+
   case class HolePattern(hole: Token) extends Pattern {
     lazy val tokens = Seq(hole)
   }

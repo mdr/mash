@@ -4,6 +4,7 @@ import com.github.mdr.mash.functions.ArgumentException
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.Utils
 
 object AssignmentEvaluator extends EvaluatorHelper {
 
@@ -55,8 +56,17 @@ object AssignmentEvaluator extends EvaluatorHelper {
             throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
         }
       case HolePattern(_)            ⇒
-      case IdentPattern(ident, _)       ⇒
+      case IdentPattern(ident, _)    ⇒
         context.scopeStack.set(ident, value)
+      case ListPattern(patterns, _)  ⇒
+        value match {
+          case list: MashList ⇒
+            for ((itemOpt, elementPattern) ← list.items.map(Some(_)).padTo(patterns.length, None).zip(patterns))
+              bindPattern(elementPattern, itemOpt.getOrElse(MashNull), locationOpt)
+          case _ ⇒
+            throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
+
+        }
     }
 
   private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {

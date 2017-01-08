@@ -32,17 +32,14 @@ trait FunctionParse {
 
   private def paramList(): ParamList = {
     val params = ArrayBuffer[FunctionParam]()
-    safeWhile(IDENTIFIER || LPAREN || LBRACE || HOLE) {
+    safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
       params += parameter()
     }
     ParamList(params)
   }
 
   private def parameter(parenAllowed: Boolean = true): FunctionParam =
-    if (HOLE) {
-      val hole = nextToken()
-      PatternParam(HolePattern(hole))
-    } else if (IDENTIFIER) {
+     if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {
         val ellipsis = nextToken()
@@ -73,7 +70,7 @@ trait FunctionParse {
         else
           errorExpectedToken(")")
       ParenParam(lparen, lazyOpt, actualParam, rparen)
-    } else if (LBRACE)
+    } else if (LBRACE || LSQUARE || HOLE)
       PatternParam(pattern())
     else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
@@ -122,8 +119,36 @@ trait FunctionParse {
       HolePattern(nextToken())
     else if (IDENTIFIER)
       IdentPattern(nextToken())
+    else if (LSQUARE)
+      listPattern()
     else
       objectPattern()
+
+  private def listPattern(): Pattern = {
+    val lsquare = nextToken()
+    if (RSQUARE) {
+      val rsquare = nextToken()
+      ListPattern(lsquare, None, rsquare)
+    } else {
+      val firstElement = pattern()
+      val otherElements = ArrayBuffer[(Token, Pattern)]()
+      safeWhile(COMMA) {
+        val comma = nextToken()
+        val item = pattern()
+        otherElements += (comma -> item)
+      }
+      val rsquare =
+        if (RSQUARE)
+          nextToken()
+        else if (forgiving) {
+          val lastElement = (firstElement +: otherElements.map(_._2)).last
+          val lastToken = lastElement.tokens.last
+          syntheticToken(RSQUARE, lastToken)
+        } else
+          errorExpectedToken("]")
+      ListPattern(lsquare, Some(ListPatternContents(firstElement, otherElements)), rsquare)
+    }
+  }
 
   protected case class LambdaStart(paramList: ParamList, arrow: Token)
 

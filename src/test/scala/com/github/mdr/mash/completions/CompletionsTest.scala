@@ -306,6 +306,8 @@ class CompletionsTest extends FlatSpec with Matchers {
   "{ foobar: { bazzle: buzzle } } = { foobar: { bazzle: 42 } }; buzz▶" shouldGiveCompletions "buzzle"
   "def fun foobar = foob▶" shouldGiveCompletions "foobar"
   "foobundle = 42; { foobar = 42 }; foob▶" shouldGiveCompletions "foobundle"
+  "[a, b, foobar] = [1, 2, 3]; foob▶" shouldGiveCompletions "foobar"
+  "[a, b, foobar] = [1, 2]; foob▶" shouldGiveCompletions "foobar"
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,

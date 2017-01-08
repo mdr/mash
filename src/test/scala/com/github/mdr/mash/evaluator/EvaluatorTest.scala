@@ -28,13 +28,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "[] < [1]" shouldEvaluateTo true
   "[1] < [1, 2]" shouldEvaluateTo true
-  
+
   "1 == 1" shouldEvaluateTo true
   "1 == 2" shouldEvaluateTo false
 
   "1 != 1" shouldEvaluateTo false
   "1 != 2" shouldEvaluateTo true
-  
+
   // Chained comparisons
   "1 < 2 < 3" shouldEvaluateTo true
   "1 <= 2 < 3" shouldEvaluateTo true
@@ -646,7 +646,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "1.until 5" shouldEvaluateTo "[1, 2, 3, 4]"
   "1.until 10 --step=2" shouldEvaluateTo "[1, 3, 5, 7, 9]"
   "5.until 1 --step=-1" shouldEvaluateTo "[5, 4, 3, 2]"
-  
+
   // Lambdas inside parens and blocks
   "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" shouldEvaluateTo 42
   "a = 0; (x => a += x; a += x) 21; a" shouldEvaluateTo 42
@@ -654,14 +654,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Number.times
   "a = 0; 5.times (a += 1); a" shouldEvaluateTo 5
   "a = 0; (a += 1) | 5.times" shouldEvaluateTo "[1, 2, 3, 4, 5]"
-  
+
   // Lazy arguments
   "a = 0; def twice (lazy block) = { block; block }; twice (a += 1); a" shouldEvaluateTo 2
   "a = 0; def twice (lazy block) = { block; block }; twice --block=(a += 1); a" shouldEvaluateTo 2
   "a = 0; ((lazy block) => { block; block }) (a += 1); a" shouldEvaluateTo 2
 
   "def foo n = n += _; f = foo 1; f 2; f 3" shouldEvaluateTo 6
- 
+
   // Object.hoist
   "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar'" shouldEvaluateTo "{ foo: 42, baz1: 100, baz2: 200 }"
   "{ foo: 42, bar: [{ baz1: 100, baz2: 200 }, { baz1: 300, baz2: 400 }] }.hoist 'bar'" shouldEvaluateTo
@@ -670,10 +670,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // maths.stats
   "[1, 2, 3] | maths.stats | .mean" shouldEvaluateTo 2
-  
+
   // maths.log
   "maths.log 1000 --base=10" shouldEvaluateTo 3
-  
+
   // tap
   "x = 0; 42 | tap (x = _) | [x, _]" shouldEvaluateTo "[42, 42]"
 
@@ -692,6 +692,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42, bar: 128 } | { foo: foofar } => foofar" shouldEvaluateTo 42
   "{ foo: 42, bar: 128 } | { foo: _ } => 10" shouldEvaluateTo 10
   "(_ => 42) 10" shouldEvaluateTo 42
+  "[a, b, c] = [1, 2, 3]; a + b + c" shouldEvaluateTo 6
+  "[a, b] = [1, 2, 3]; a + b" shouldEvaluateTo 3
+  "[a, b] = [1]; b" shouldEvaluateTo null
   "{ baz } = 42" shouldThrowAnException
 
   // Object.merge

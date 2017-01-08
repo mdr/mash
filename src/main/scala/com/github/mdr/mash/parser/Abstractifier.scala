@@ -19,8 +19,8 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
     case Concrete.Hole(_)                                   ⇒ Abstract.Hole(sourceInfo(expr))
     case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), sourceInfo(expr))
-    case mexpr@Concrete.MemberExpr(e, _, name)              ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, sourceInfo(expr))
-    case mexpr@Concrete.HeadlessMemberExpr(_, name)         ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, sourceInfo(expr))
+    case memberExpr@Concrete.MemberExpr(e, _, name)         ⇒ Abstract.MemberExpr(abstractify(e), name.text, memberExpr.isNullSafe, sourceInfo(expr))
+    case memberExpr@Concrete.HeadlessMemberExpr(_, name)    ⇒ Abstract.HeadlessMemberExpr(name.text, memberExpr.isNullSafe, sourceInfo(expr))
     case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), sourceInfo(expr))
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), sourceInfo(expr))
     case Concrete.BlockExpr(_, statements, _)               ⇒ Abstract.BlockExpr(abstractify(statements), sourceInfo(expr))
@@ -29,7 +29,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))
     case assignmentExpr: Concrete.AssignmentExpr            ⇒ abstractifyAssignmentExpr(assignmentExpr)
     case assignmentExpr: Concrete.PatternAssignmentExpr     ⇒ abstractifyPatternAssignmentExpr(assignmentExpr)
-    case chainedExpr@Concrete.ChainedOpExpr(_, _)           ⇒ abstractifyChainedComparision(chainedExpr)
+    case chainedExpr@Concrete.ChainedOpExpr(_, _)           ⇒ abstractifyChainedComparison(chainedExpr)
     case iExpr@Concrete.InvocationExpr(_, _)                ⇒ abstractifyInvocation(iExpr)
     case iExpr@Concrete.ParenInvocationExpr(_, _, _, _)     ⇒ abstractifyParenInvocation(iExpr)
     case listExpr@Concrete.ListExpr(_, _, _)                ⇒ abstractifyList(listExpr)
@@ -45,7 +45,7 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyPatternAssignmentExpr(assignmentExpr: Concrete.PatternAssignmentExpr): Abstract.PatternAssignmentExpr = {
-    val Concrete.PatternAssignmentExpr(pattern, equalsToken, right) = assignmentExpr
+    val Concrete.PatternAssignmentExpr(pattern, _, right) = assignmentExpr
     Abstract.PatternAssignmentExpr(abstractifyPattern(pattern), abstractify(right), sourceInfo(assignmentExpr))
   }
 
@@ -115,8 +115,18 @@ class Abstractifier(provenance: Provenance) {
     Abstract.ObjectPattern(entries, sourceInfoOpt = sourceInfo(pattern))
   }
 
+  private def abstractifyListPattern(pattern: Concrete.ListPattern): Abstract.ListPattern = {
+    val elements = pattern.contentsOpt.map { contents ⇒
+      val firstEntry = abstractifyPattern(contents.firstItem)
+      val otherEntries = contents.otherItems.map { case (_, item) ⇒ abstractifyPattern(item) }
+      firstEntry +: otherEntries
+    }.getOrElse(Seq())
+    Abstract.ListPattern(elements)
+  }
+
   private def abstractifyPattern(pattern: Concrete.Pattern): Abstract.Pattern = pattern match {
     case objectPattern: Concrete.ObjectPattern ⇒ abstractifyObjectPattern(objectPattern)
+    case listPattern: Concrete.ListPattern     ⇒ abstractifyListPattern(listPattern)
     case Concrete.HolePattern(_)               ⇒ Abstract.HolePattern(sourceInfoOpt = sourceInfo(pattern))
     case Concrete.IdentPattern(identifier)     ⇒ Abstract.IdentPattern(identifier.text, sourceInfoOpt = sourceInfo(pattern))
   }
@@ -146,7 +156,6 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyMish(expr: Concrete.MishExpr, captureProcessOutput: Boolean): Abstract.MishExpr = {
     val Concrete.MishExpr(command, args) = expr
-    val abstractArgs = args.flatMap(abstractifyMishItem)
     val redirects = args.collect {
       case Concrete.MishRedirect(token, arg) ⇒
         val operator =
@@ -180,9 +189,8 @@ class Abstractifier(provenance: Provenance) {
     Abstract.FullObjectEntry(abstractify(entry.field), abstractify(entry.value), sourceInfo(entry))
 
   private def abstractifyObject(objectExpr: Concrete.ObjectExpr): Abstract.ObjectExpr = {
-    val Concrete.ObjectExpr(lbrace, contentsOpt, rbrace) = objectExpr
     val fields =
-      contentsOpt match {
+      objectExpr.contentsOpt match {
         case Some(Concrete.ObjectExprContents(firstEntry, otherEntries)) ⇒
           abstractifyEntry(firstEntry) +: otherEntries.map(_._2).map(abstractifyEntry)
         case None                                                        ⇒ Seq()
@@ -192,9 +200,8 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyList(listExpr: Concrete.ListExpr): Abstract.ListExpr = {
-    val Concrete.ListExpr(lsquare, contentsOpt, rsquare) = listExpr
     val items =
-      contentsOpt match {
+      listExpr.contentsOpt match {
         case Some(Concrete.ListExprContents(firstItem, otherItems)) ⇒ abstractify(firstItem) +: otherItems.map(_._2).map(abstractify)
         case None                                                   ⇒ Seq()
       }
@@ -231,7 +238,7 @@ class Abstractifier(provenance: Provenance) {
     Abstract.InvocationExpr(abstractify(function), abstractArgs, isParenInvocation = false, sourceInfo(invocationExpr))
   }
 
-  private def abstractifyChainedComparision(chainedExpr: Concrete.ChainedOpExpr): Abstract.Expr = {
+  private def abstractifyChainedComparison(chainedExpr: Concrete.ChainedOpExpr): Abstract.Expr = {
     val Concrete.ChainedOpExpr(left, opRights) = chainedExpr
     Abstract.ChainedOpExpr(abstractify(left), opRights.map {
       case (opToken, right) ⇒ (getBinaryOperator(opToken), abstractify(right))

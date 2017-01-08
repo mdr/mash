@@ -115,6 +115,10 @@ class TypeInferencer {
               case HolePattern(_)              ⇒
               case IdentPattern(identifier, _) ⇒
                 latestBindings += identifier -> typeOpt.getOrElse(Type.Any)
+              case ListPattern(patterns, _) ⇒
+                val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
+                for (elementPattern ← patterns)
+                  handlePattern(elementPattern, elementTypeOpt)
             }
           handlePattern(pattern, right.typeOpt)
         case decl@FunctionDeclaration(name, paramList, body, _) =>

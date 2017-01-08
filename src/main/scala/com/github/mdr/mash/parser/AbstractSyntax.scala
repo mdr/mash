@@ -109,6 +109,8 @@ object AbstractSyntax {
         FullObjectPatternEntry(field, valuePattern.transform(f).asInstanceOf[Pattern], sourceInfoOpt)
       case ObjectPattern(entries, sourceInfoOpt) ⇒
         ObjectPattern(entries.map(_.transform(f).asInstanceOf[ObjectPatternEntry]), sourceInfoOpt)
+      case ListPattern(patterns, sourceInfoOpt) ⇒
+        ListPattern(patterns.map(_.transform(f).asInstanceOf[Pattern]), sourceInfoOpt)
     }
 
   }
@@ -164,6 +166,12 @@ object AbstractSyntax {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = entries.flatMap(_.children)
     def boundNames: Seq[String] = entries.flatMap(_.boundNames)
+  }
+
+  case class ListPattern(patterns: Seq[Pattern], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = patterns.flatMap(_.children)
+    def boundNames: Seq[String] = patterns.flatMap(_.boundNames)
   }
 
   case class HolePattern(sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
