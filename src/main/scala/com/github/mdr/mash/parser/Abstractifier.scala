@@ -8,9 +8,10 @@ import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 import scala.PartialFunction.condOpt
 
 /**
- * Convert from concrete to abstract syntax trees.
- */
+  * Convert from concrete to abstract syntax trees.
+  */
 class Abstractifier(provenance: Provenance) {
+
   import com.github.mdr.mash.parser.{ AbstractSyntax => Abstract, ConcreteSyntax => Concrete }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
@@ -18,8 +19,8 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
     case Concrete.Hole(_)                                   ⇒ Abstract.Hole(sourceInfo(expr))
     case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), sourceInfo(expr))
-    case mexpr @ Concrete.MemberExpr(e, _, name)            ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, sourceInfo(expr))
-    case mexpr @ Concrete.HeadlessMemberExpr(_, name)       ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, sourceInfo(expr))
+    case mexpr@Concrete.MemberExpr(e, _, name)              ⇒ Abstract.MemberExpr(abstractify(e), name.text, mexpr.isNullSafe, sourceInfo(expr))
+    case mexpr@Concrete.HeadlessMemberExpr(_, name)         ⇒ Abstract.HeadlessMemberExpr(name.text, mexpr.isNullSafe, sourceInfo(expr))
     case Concrete.LookupExpr(e, _, index, _)                ⇒ Abstract.LookupExpr(abstractify(e), abstractify(index), sourceInfo(expr))
     case Concrete.ParenExpr(_, e, _)                        ⇒ Abstract.ParenExpr(abstractify(e), sourceInfo(expr))
     case Concrete.BlockExpr(_, statements, _)               ⇒ Abstract.BlockExpr(abstractify(statements), sourceInfo(expr))
@@ -28,11 +29,11 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.BinOpExpr(left, opToken, right)           ⇒ Abstract.BinOpExpr(abstractify(left), getBinaryOperator(opToken), abstractify(right), sourceInfo(expr))
     case assignmentExpr: Concrete.AssignmentExpr            ⇒ abstractifyAssignmentExpr(assignmentExpr)
     case assignmentExpr: Concrete.PatternAssignmentExpr     ⇒ abstractifyPatternAssignmentExpr(assignmentExpr)
-    case chainedExpr @ Concrete.ChainedOpExpr(_, _)         ⇒ abstractifyChainedComparision(chainedExpr)
-    case iExpr @ Concrete.InvocationExpr(_, _)              ⇒ abstractifyInvocation(iExpr)
-    case iExpr @ Concrete.ParenInvocationExpr(_, _, _, _)   ⇒ abstractifyParenInvocation(iExpr)
-    case listExpr @ Concrete.ListExpr(_, _, _)              ⇒ abstractifyList(listExpr)
-    case objectExpr @ Concrete.ObjectExpr(_, _, _)          ⇒ abstractifyObject(objectExpr)
+    case chainedExpr@Concrete.ChainedOpExpr(_, _)           ⇒ abstractifyChainedComparision(chainedExpr)
+    case iExpr@Concrete.InvocationExpr(_, _)                ⇒ abstractifyInvocation(iExpr)
+    case iExpr@Concrete.ParenInvocationExpr(_, _, _, _)     ⇒ abstractifyParenInvocation(iExpr)
+    case listExpr@Concrete.ListExpr(_, _, _)                ⇒ abstractifyList(listExpr)
+    case objectExpr@Concrete.ObjectExpr(_, _, _)            ⇒ abstractifyObject(objectExpr)
     case Concrete.IfExpr(_, cond, _, body, elseOpt)         ⇒ Abstract.IfExpr(abstractify(cond), abstractify(body), elseOpt.map { case (_, elseBody) ⇒ abstractify(elseBody) }, sourceInfo(expr))
     case Concrete.MinusExpr(_, subExpr)                     ⇒ Abstract.MinusExpr(abstractify(subExpr), sourceInfo(expr))
     case mishExpr: Concrete.MishExpr                        ⇒ abstractifyMish(mishExpr, captureProcessOutput = false)
@@ -74,7 +75,7 @@ class Abstractifier(provenance: Provenance) {
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
         val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double, pruneInitial = true, pruneFinal = true)
         Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
-      case _ ⇒
+      case _                        ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
 
@@ -85,24 +86,38 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyParam(param: Concrete.FunctionParam): Abstract.FunctionParam = param match {
-    case Concrete.SimpleParam(name) ⇒
+    case Concrete.SimpleParam(name)                     ⇒
       Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
-    case Concrete.VariadicParam(name, _) ⇒
+    case Concrete.VariadicParam(name, _)                ⇒
       Abstract.FunctionParam(Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
     case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
-    case Concrete.DefaultParam(name, _, defaultExpr) ⇒
+    case Concrete.DefaultParam(name, _, defaultExpr)    ⇒
       Abstract.FunctionParam(Some(name.text), defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
-    case Concrete.PatternParam(pattern) =>
+    case Concrete.PatternParam(pattern)                 =>
       Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }
 
+  private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {
+    case Concrete.ShorthandObjectPatternEntry(identifier)        ⇒
+      Abstract.ShorthandObjectPatternEntry(identifier.text, sourceInfoOpt = sourceInfo(entry))
+    case Concrete.FullObjectPatternEntry(identifier, _, pattern) ⇒
+      Abstract.FullObjectPatternEntry(identifier.text, abstractifyPattern(pattern), sourceInfoOpt = sourceInfo(entry))
+  }
+
+  private def abstractifyObjectPattern(pattern: Concrete.ObjectPattern): Abstract.ObjectPattern = {
+    val Concrete.ObjectPattern(_, contentsOpt, _) = pattern
+    val entries = contentsOpt.map { contents =>
+      val firstEntry = abstractifyObjectPatternEntry(contents.firstItem)
+      val otherEntries = contents.otherItems.map { case (_, item) ⇒ abstractifyObjectPatternEntry(item) }
+      firstEntry +: otherEntries
+    }.getOrElse(Seq())
+    Abstract.ObjectPattern(entries, sourceInfoOpt = sourceInfo(pattern))
+  }
+
   private def abstractifyPattern(pattern: Concrete.Pattern): Abstract.Pattern = pattern match {
-    case Concrete.ObjectPattern(_, contentsOpt, _) =>
-      val fieldNames = contentsOpt.map(contents => contents.firstItem +: contents.otherItems.map(_._2)).getOrElse(Seq()).map(_.text)
-      Abstract.ObjectPattern(fieldNames, sourceInfoOpt = sourceInfo(pattern))
-    case Concrete.HolePattern(_) ⇒
-      Abstract.HolePattern(sourceInfoOpt = sourceInfo(pattern))
+    case objectPattern: Concrete.ObjectPattern ⇒ abstractifyObjectPattern(objectPattern)
+    case Concrete.HolePattern(_)               ⇒ Abstract.HolePattern(sourceInfoOpt = sourceInfo(pattern))
   }
 
   private def abstractifyParamList(params: Concrete.ParamList): Abstract.ParamList = {
@@ -119,11 +134,11 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyInterpolationPart(part: Concrete.InterpolationPart): Abstract.InterpolationPart = part match {
-    case Concrete.SimpleInterpolation(_, subExpr) ⇒
+    case Concrete.SimpleInterpolation(_, subExpr)     ⇒
       Abstract.ExprPart(abstractify(subExpr))
     case Concrete.ComplexInterpolation(_, subExpr, _) ⇒
       Abstract.ExprPart(abstractify(subExpr))
-    case Concrete.StringPart(stringMiddle) ⇒
+    case Concrete.StringPart(stringMiddle)            ⇒
       val (literalText, _) = getStringText(stringMiddle.text, maybeTilde = false, pruneInitial = false, pruneFinal = false)
       Abstract.StringPart(literalText)
   }
@@ -146,14 +161,14 @@ class Abstractifier(provenance: Provenance) {
   private def abstractifyMishItem(item: Concrete.MishItem): Option[Abstract.Expr] = condOpt(item) {
     case Concrete.MishInterpolation(part) ⇒
       Abstract.MishInterpolation(abstractifyInterpolationPart(part))
-    case Concrete.MishString(expr) ⇒
+    case Concrete.MishString(expr)        ⇒
       abstractify(expr)
-    case Concrete.MishWord(token) ⇒
+    case Concrete.MishWord(token)         ⇒
       Abstract.StringLiteral(token.text, QuotationType.Double)
   }
 
   private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectEntry = entry match {
-    case fullEntry: Concrete.FullObjectEntry => abstractifyEntry(fullEntry)
+    case fullEntry: Concrete.FullObjectEntry           => abstractifyEntry(fullEntry)
     case shorthandEntry: Concrete.ShorthandObjectEntry => abstractifyEntry(shorthandEntry)
   }
 
@@ -169,7 +184,7 @@ class Abstractifier(provenance: Provenance) {
       contentsOpt match {
         case Some(Concrete.ObjectExprContents(firstEntry, otherEntries)) ⇒
           abstractifyEntry(firstEntry) +: otherEntries.map(_._2).map(abstractifyEntry)
-        case None ⇒ Seq()
+        case None                                                        ⇒ Seq()
       }
 
     Abstract.ObjectExpr(fields, sourceInfo(objectExpr))
@@ -180,7 +195,7 @@ class Abstractifier(provenance: Provenance) {
     val items =
       contentsOpt match {
         case Some(Concrete.ListExprContents(firstItem, otherItems)) ⇒ abstractify(firstItem) +: otherItems.map(_._2).map(abstractify)
-        case None ⇒ Seq()
+        case None                                                   ⇒ Seq()
       }
     Abstract.ListExpr(items, sourceInfo(listExpr))
   }
@@ -192,7 +207,7 @@ class Abstractifier(provenance: Provenance) {
       (argsOpt match {
         case Some(Concrete.ParenInvocationArgs(firstArg, otherArgs)) ⇒
           abstractifyArg(firstArg) +: otherArgs.map(_._2).map(abstractifyArg)
-        case None ⇒
+        case None                                                    ⇒
           Seq()
       }).map(arg ⇒ Argument.PositionArg(arg, arg.sourceInfoOpt))
     Abstract.InvocationExpr(abstractify(function), args, isParenInvocation = true, sourceInfo(invocationExpr))
@@ -201,15 +216,15 @@ class Abstractifier(provenance: Provenance) {
   private def abstractifyInvocation(invocationExpr: Concrete.InvocationExpr): Abstract.InvocationExpr = {
     val Concrete.InvocationExpr(function, args) = invocationExpr
     val abstractArgs: Seq[Argument] = args map {
-      case arg @ Concrete.ShortArg(flag) ⇒
+      case arg@Concrete.ShortArg(flag)                  ⇒
         Argument.ShortFlag(flag.text.drop(1).map(_.toString), sourceInfo(arg))
-      case arg @ Concrete.LongArg(flag, None) ⇒
+      case arg@Concrete.LongArg(flag, None)             ⇒
         Argument.LongFlag(flag.text.drop(2), None, sourceInfo(arg))
-      case arg @ Concrete.LongArg(flag, Some((_, value))) ⇒
+      case arg@Concrete.LongArg(flag, Some((_, value))) ⇒
         Argument.LongFlag(flag.text.drop(2), Some(abstractify(value)), sourceInfo(arg))
-      case e: Concrete.Expr ⇒
+      case e: Concrete.Expr                             ⇒
         Argument.PositionArg(abstractify(e), sourceInfo(e))
-      case x ⇒
+      case x                                            ⇒
         throw new RuntimeException("Unexpected argument: " + x)
     }
     Abstract.InvocationExpr(abstractify(function), abstractArgs, isParenInvocation = false, sourceInfo(invocationExpr))

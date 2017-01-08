@@ -31,7 +31,8 @@ sealed trait ParamPattern
 
 object ParamPattern {
 
-  case class Object(fieldNames: Seq[String]) extends ParamPattern
+  case class ObjectEntry(fieldName: String, patternOpt: Option[ParamPattern] = None)
+  case class Object(entries: Seq[ObjectEntry]) extends ParamPattern
   case object Hole extends ParamPattern
 
 }

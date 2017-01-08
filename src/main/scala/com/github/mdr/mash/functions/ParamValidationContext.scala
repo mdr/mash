@@ -51,21 +51,29 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
 
   private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument) {
     param.patternOpt match {
-      case Some(ParamPattern.Object(fieldNames)) ⇒
-        value match {
-          case obj: MashObject ⇒
-            for (fieldName <- fieldNames)
-              boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
-          case _               ⇒
-            throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, getLocation(arg))
-        }
-      case Some(ParamPattern.Hole)               ⇒
-      case None                                  ⇒
-        boundNames += param.name -> value
+      case Some(pattern) ⇒ bindPattern(pattern, value, getLocation(arg))
+      case None          ⇒ boundNames += param.name -> value
     }
     boundParams += param
   }
 
+  private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation]): Unit =
+    pattern match {
+      case ParamPattern.Object(entries) ⇒
+        value match {
+          case obj: MashObject ⇒
+            for (entry <- entries)
+              entry match {
+                case ParamPattern.ObjectEntry(fieldName, None)          ⇒
+                  boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)
+                case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
+                  bindPattern(valuePattern, obj.get(fieldName).getOrElse(MashNull), locationOpt)
+              }
+          case _               ⇒
+            throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
+        }
+      case ParamPattern.Hole            ⇒
+    }
 
   private def resolve(param: Parameter, suspendedValue: SuspendedMashValue): MashValue =
     if (param.isLazy)
@@ -94,7 +102,8 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           }
       }
 
-  private def getLocation(arg: EvaluatedArgument) = arg.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
+  private def getLocation(arg: EvaluatedArgument): Option[SourceLocation] =
+    arg.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
 
   private def handleFlagArgs() {
     for (argument ← arguments.evaluatedArguments)

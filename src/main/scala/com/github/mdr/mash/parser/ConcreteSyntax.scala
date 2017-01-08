@@ -234,8 +234,18 @@ object ConcreteSyntax {
     lazy val tokens = lbrace +: contentsOpt.toSeq.flatMap(_.tokens) :+ rbrace
   }
 
-  case class ObjectPatternContents(firstItem: Token, otherItems: Seq[(Token, Token)]) extends AstNode {
-    lazy val tokens = Seq(firstItem) ++ otherItems.flatMap { case (comma, item) ⇒ Seq(comma, item) }
+  case class ObjectPatternContents(firstItem: ObjectPatternEntry, otherItems: Seq[(Token, ObjectPatternEntry)]) extends AstNode {
+    lazy val tokens = firstItem.tokens ++ otherItems.flatMap { case (comma, item) ⇒ comma +: item.tokens }
+  }
+
+  sealed trait ObjectPatternEntry extends AstNode
+
+  case class ShorthandObjectPatternEntry(identifier: Token) extends ObjectPatternEntry {
+    lazy val tokens = Seq(identifier)
+  }
+
+  case class FullObjectPatternEntry(field: Token, colon: Token, value: Pattern) extends ObjectPatternEntry {
+    lazy val tokens = field +: (colon +: value.tokens)
   }
 
   case class HolePattern(hole: Token) extends Pattern {

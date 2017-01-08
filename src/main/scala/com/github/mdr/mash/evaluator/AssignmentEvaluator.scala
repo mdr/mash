@@ -35,19 +35,27 @@ object AssignmentEvaluator extends EvaluatorHelper {
   def evaluatePatternAssignment(expr: PatternAssignmentExpr)(implicit context: EvaluationContext): MashValue = {
     val PatternAssignmentExpr(pattern, right, _) = expr
     val rightValue = Evaluator.evaluate(right)
-    pattern match {
-      case ObjectPattern(fieldNames, _) =>
-        rightValue match {
-          case obj: MashObject =>
-            for (fieldName <- fieldNames)
-              context.scopeStack.set(fieldName, obj.get(fieldName).getOrElse(MashNull))
-          case _               =>
-            throw new ArgumentException(s"Cannot match object pattern against value of type " + rightValue.typeName, sourceLocation(expr))
-        }
-      case HolePattern(_)               ⇒
-    }
+    bindPattern(pattern, rightValue, sourceLocation(expr))
     rightValue
   }
+
+  private def bindPattern(pattern: Pattern, value: MashValue, locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): Unit =
+    pattern match {
+      case ObjectPattern(entries, _) ⇒
+        value match {
+          case obj: MashObject ⇒
+            for (entry <- entries)
+              entry match {
+                case ShorthandObjectPatternEntry(fieldName, _)          ⇒
+                  context.scopeStack.set(fieldName, obj.get(fieldName).getOrElse(MashNull))
+                case FullObjectPatternEntry(fieldName, valuePattern, _) ⇒
+                  bindPattern(valuePattern, obj.get(fieldName).getOrElse(MashNull), locationOpt)
+              }
+          case _               ⇒
+            throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
+        }
+      case HolePattern(_)            ⇒
+    }
 
   private def evaluateAssignmentToLookupExpr(lookupExpr: LookupExpr, expr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val LookupExpr(target, index, _) = lookupExpr

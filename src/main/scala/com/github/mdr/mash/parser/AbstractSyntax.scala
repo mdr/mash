@@ -103,8 +103,12 @@ object AbstractSyntax {
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
       case ParamList(params) ⇒
         ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
-      case ObjectPattern(_, _) | HolePattern(_) =>
+      case HolePattern(_) | ShorthandObjectPatternEntry(_, _) ⇒
         this
+      case FullObjectPatternEntry(field, valuePattern, sourceInfoOpt) ⇒
+        FullObjectPatternEntry(field, valuePattern.transform(f).asInstanceOf[Pattern], sourceInfoOpt)
+      case ObjectPattern(entries, sourceInfoOpt) ⇒
+        ObjectPattern(entries.map(_.transform(f).asInstanceOf[ObjectPatternEntry]), sourceInfoOpt)
     }
 
   }
@@ -131,15 +135,29 @@ object AbstractSyntax {
   }
 
   sealed trait Pattern extends AstNode {
-
     def boundNames: Seq[String]
-
   }
 
-  case class ObjectPattern(fieldNames: Seq[String], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
+  sealed trait ObjectPatternEntry extends AstNode {
+    def boundNames: Seq[String]
+  }
+
+  case class ShorthandObjectPatternEntry(field: String, sourceInfoOpt: Option[SourceInfo]) extends ObjectPatternEntry {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
-    def boundNames: Seq[String] = fieldNames
+    def boundNames = Seq(field)
+  }
+
+  case class FullObjectPatternEntry(field: String, valuePattern: Pattern, sourceInfoOpt: Option[SourceInfo]) extends ObjectPatternEntry {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq(valuePattern)
+    def boundNames = field +: valuePattern.boundNames
+  }
+
+  case class ObjectPattern(entries: Seq[ObjectPatternEntry], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = entries.flatMap(_.children)
+    def boundNames: Seq[String] = entries.flatMap(_.boundNames)
   }
 
   case class HolePattern(sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {

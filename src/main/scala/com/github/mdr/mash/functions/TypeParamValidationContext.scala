@@ -52,16 +52,8 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
       param.patternOpt match {
-        case Some(ParamPattern.Object(fieldNames)) ⇒
-          val fieldTypes: Map[String, Type] = arg.typeOpt.map {
-            case Type.Object(knownFields) ⇒ knownFields
-            case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
-            case _                        ⇒ Map[String, Type]()
-          }.getOrElse(Map())
-          for (fieldName ← fieldNames)
-            boundNames += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
-        case Some(ParamPattern.Hole)               ⇒
-
+        case Some(pattern)                         ⇒
+          bindPattern(pattern, arg.typeOpt)
         case None =>
           boundArguments += param.name -> arg
           arg.typeOpt.foreach {
@@ -70,6 +62,23 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       }
       posToParam += posOfArg(arg) -> param
     }
+  }
+
+  private def bindPattern(pattern: ParamPattern, typeOpt: Option[Type]): Unit = pattern match {
+    case ParamPattern.Object(entries) ⇒
+      val fieldTypes: Map[String, Type] = typeOpt.map {
+        case Type.Object(knownFields) ⇒ knownFields
+        case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
+        case _                        ⇒ Map[String, Type]()
+      }.getOrElse(Map())
+      for (entry ← entries)
+        entry match {
+          case ParamPattern.ObjectEntry(fieldName, None)               ⇒
+            boundNames += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
+          case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
+            bindPattern(valuePattern, fieldTypes.get(fieldName))
+        }
+    case ParamPattern.Hole            ⇒
   }
 
   private def posOfArg(arg: ValueInfo): Int =

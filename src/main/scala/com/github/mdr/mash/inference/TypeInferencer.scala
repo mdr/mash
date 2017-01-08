@@ -97,19 +97,24 @@ class TypeInferencer {
         case AssignmentExpr(Identifier(name, _), _, _, _, _)    ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)           =>
-          val wholeType = right.typeOpt.getOrElse(Type.Any)
-          pattern match {
-            case ObjectPattern(fieldNames, _) =>
-              val fieldTypes: Map[String, Type] =
-                wholeType match {
-                  case Type.Object(knownFields) => knownFields
-                  case Type.Instance(klass)     => klass.fieldsMap.mapValues(_.fieldType)
-                  case _                        => Map()
-                }
-              for (fieldName <- fieldNames)
-                latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
-            case HolePattern(_) ⇒
-          }
+          def handlePattern(pattern: Pattern, typeOpt: Option[Type]): Unit =
+            pattern match {
+              case ObjectPattern(entries, _) =>
+                val fieldTypes: Map[String, Type] = typeOpt.map {
+                  case Type.Object(knownFields) ⇒ knownFields
+                  case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
+                  case _                        ⇒ Map[String, Type]()
+                }.getOrElse(Map())
+                for (entry <- entries)
+                  entry match {
+                    case ShorthandObjectPatternEntry(fieldName, _)          ⇒
+                      latestBindings += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
+                    case FullObjectPatternEntry(fieldName, valuePattern, _) ⇒
+                      handlePattern(valuePattern, fieldTypes.get(fieldName))
+                  }
+              case HolePattern(_)            ⇒
+            }
+          handlePattern(pattern, right.typeOpt)
         case decl@FunctionDeclaration(name, paramList, body, _) =>
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
         case _                                                  =>

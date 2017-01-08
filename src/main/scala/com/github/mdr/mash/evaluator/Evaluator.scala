@@ -26,11 +26,11 @@ object Evaluator extends EvaluatorHelper {
       }
       finalResult
     } catch {
-      case e: EvaluatorException ⇒
+      case e: EvaluatorException             ⇒
         throw e
       case e: EvaluationInterruptedException ⇒
         throw e
-      case t: Exception ⇒
+      case t: Exception                      ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
           stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(loc)),
           cause = t)
@@ -38,12 +38,12 @@ object Evaluator extends EvaluatorHelper {
   }
 
   /**
-   * If the given value is a function or bound method that allows nullary invocation, invoke it immediately and
-   * return the result.
-   */
+    * If the given value is a function or bound method that allows nullary invocation, invoke it immediately and
+    * return the result.
+    */
   def immediatelyResolveNullaryFunctions(v: MashValue, locationOpt: Option[SourceLocation]): MashValue =
     v match {
-      case f: MashFunction if f.allowsNullary ⇒
+      case f: MashFunction if f.allowsNullary                     ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
           f(Arguments())
         }
@@ -51,40 +51,40 @@ object Evaluator extends EvaluatorHelper {
         InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
           method(target, Arguments())
         }
-      case _ ⇒ v
+      case _                                                      ⇒ v
     }
 
   /**
-   * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
-   */
+    * Evaluate the given expression. If the result is a function/bound method that allows a nullary call, it is not called.
+    */
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw new EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
-      case interpolatedString: InterpolatedString ⇒ evaluateInterpolatedString(interpolatedString)
-      case ParenExpr(body, _)                     ⇒ evaluate(body)
-      case blockExpr: BlockExpr                   ⇒ evaluateBlockExpr(blockExpr)
-      case Literal(v, _)                          ⇒ v
-      case memberExpr: MemberExpr                 ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
-      case lookupExpr: LookupExpr                 ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
-      case invocationExpr: InvocationExpr         ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
-      case LambdaExpr(params, body, _)            ⇒ makeAnonymousFunction(params, body)
-      case binOp: BinOpExpr                       ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
-      case chainedOpExpr: ChainedOpExpr           ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
-      case assExpr: AssignmentExpr                ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
-      case assExpr: PatternAssignmentExpr         ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
-      case ifExpr: IfExpr                         ⇒ evaluateIfExpr(ifExpr)
-      case ListExpr(items, _)                     ⇒ MashList(items.map(evaluate(_)))
-      case mishExpr: MishExpr                     ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
-      case expr: MishInterpolation                ⇒ MishEvaluator.evaluateMishInterpolation(expr)
-      case MishFunction(command, _)               ⇒ SystemCommandFunction(command)
-      case decl: FunctionDeclaration              ⇒ evaluateFunctionDecl(decl)
-      case helpExpr: HelpExpr                     ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
-      case StatementSeq(statements, _)            ⇒ evaluateStatements(statements)
-      case lit: StringLiteral                     ⇒ evaluateStringLiteral(lit)
-      case MinusExpr(subExpr, _)                  ⇒ evaluateMinusExpr(subExpr)
-      case identifier: Identifier                 ⇒ evaluateIdentifier(identifier)
-      case objectExpr: ObjectExpr                 ⇒ evaluateObjectExpr(objectExpr)
+      case interpolatedString: InterpolatedString                    ⇒ evaluateInterpolatedString(interpolatedString)
+      case ParenExpr(body, _)                                        ⇒ evaluate(body)
+      case blockExpr: BlockExpr                                      ⇒ evaluateBlockExpr(blockExpr)
+      case Literal(v, _)                                             ⇒ v
+      case memberExpr: MemberExpr                                    ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
+      case lookupExpr: LookupExpr                                    ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
+      case invocationExpr: InvocationExpr                            ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
+      case LambdaExpr(params, body, _)                               ⇒ makeAnonymousFunction(params, body)
+      case binOp: BinOpExpr                                          ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
+      case chainedOpExpr: ChainedOpExpr                              ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
+      case assExpr: AssignmentExpr                                   ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
+      case assExpr: PatternAssignmentExpr                            ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
+      case ifExpr: IfExpr                                            ⇒ evaluateIfExpr(ifExpr)
+      case ListExpr(items, _)                                        ⇒ MashList(items.map(evaluate(_)))
+      case mishExpr: MishExpr                                        ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
+      case expr: MishInterpolation                                   ⇒ MishEvaluator.evaluateMishInterpolation(expr)
+      case MishFunction(command, _)                                  ⇒ SystemCommandFunction(command)
+      case decl: FunctionDeclaration                                 ⇒ evaluateFunctionDecl(decl)
+      case helpExpr: HelpExpr                                        ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
+      case StatementSeq(statements, _)                               ⇒ evaluateStatements(statements)
+      case lit: StringLiteral                                        ⇒ evaluateStringLiteral(lit)
+      case MinusExpr(subExpr, _)                                     ⇒ evaluateMinusExpr(subExpr)
+      case identifier: Identifier                                    ⇒ evaluateIdentifier(identifier)
+      case objectExpr: ObjectExpr                                    ⇒ evaluateObjectExpr(objectExpr)
     }
 
   def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
@@ -92,15 +92,15 @@ object Evaluator extends EvaluatorHelper {
       fieldNameExpr match {
         case Identifier(name, _) ⇒
           name
-        case _ ⇒
+        case _                   ⇒
           evaluate(fieldNameExpr) match {
             case MashString(s, _) ⇒ s
             case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(fieldNameExpr))
           }
       }
     val fields = objectExpr.fields.map {
-      case FullObjectEntry(field, value, _)           => getFieldName(field) -> evaluate(value)
-      case ShorthandObjectEntry(field, sourceInfoOpt) => field -> evaluateIdentifier(field, sourceInfoOpt.map(_.location))
+      case FullObjectEntry(field, value, _)           ⇒ getFieldName(field) -> evaluate(value)
+      case ShorthandObjectEntry(field, sourceInfoOpt) ⇒ field -> evaluateIdentifier(field, sourceInfoOpt.map(_.location))
     }
     MashObject.of(fields)
   }
@@ -151,18 +151,23 @@ object Evaluator extends EvaluatorHelper {
 
   private def makeParameter(param: FunctionParam, argIndex: Int, evaluationContextOpt: Option[EvaluationContext]): Parameter = {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
-    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context => defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
+    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒ defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val name = nameOpt.getOrElse("arg" + (argIndex + 1))
     Parameter(name, s"Parameter '$name'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined, patternOpt = patternOpt.map(makeParamPattern))
   }
 
-  private def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
-    case ObjectPattern(fieldNames, _) => ParamPattern.Object(fieldNames)
-    case HolePattern(_)               ⇒ ParamPattern.Hole
+  private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry = entry match {
+    case ShorthandObjectPatternEntry(field, _)          ⇒ ParamPattern.ObjectEntry(field)
+    case FullObjectPatternEntry(field, valuePattern, _) ⇒ ParamPattern.ObjectEntry(field, Some(makeParamPattern(valuePattern)))
   }
 
-  def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] =  None): ParameterModel = {
+  private def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
+    case ObjectPattern(entries, _) ⇒ ParamPattern.Object(entries.map(makeParamEntry))
+    case HolePattern(_)            ⇒ ParamPattern.Hole
+  }
+
+  def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] = None): ParameterModel = {
     val parameters: Seq[Parameter] = paramList.params.zipWithIndex.map { case (p, i) ⇒ makeParameter(p, i, evaluationContextOpt) }
     for (context <- evaluationContextOpt)
       verifyParameters(paramList)(context)
@@ -185,7 +190,7 @@ object Evaluator extends EvaluatorHelper {
     val chunks =
       MashString(start, PathClass) +:
         parts.map {
-          case StringPart(s) ⇒ MashString(s, PathClass)
+          case StringPart(s)  ⇒ MashString(s, PathClass)
           case ExprPart(expr) ⇒ evaluate(expr) match {
             case ms: MashString ⇒ ms
             case x              ⇒ MashString(ToStringifier.stringify(x))
