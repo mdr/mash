@@ -49,7 +49,10 @@ object MashRoot {
         net.UrlEncodeFunction,
         net.UrlFunction) ++
       Seq(random.UuidFunction) ++
-      Seq(mash.SourceFunction, mash.VersionFunction)
+      Seq(
+        mash.EvalFunction,
+        mash.SourceFunction,
+        mash.VersionFunction)
 
   private val CoreFunctions = Seq(
     ExitFunction,

@@ -31,7 +31,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       None
   }
 
-  private def positionArg(typ: Type) = TypedArgument.PositionArg(AnnotatedExpr(None, Some(typ)))
+  private def positionArg(typ: Type) = TypedArgument.PositionArg(ValueInfo(None, Some(typ)))
 
   def applyFunction2(functionType: Type, element1Type: Type, element2Type: Type): Option[Type] = functionType match {
     case Type.BuiltinFunction(f)                             ⇒

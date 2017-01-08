@@ -9,10 +9,11 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
+import com.github.mdr.mash.runtime.MashValue
 
 import scala.PartialFunction.condOpt
 
-case class AnnotatedExpr(exprOpt: Option[Expr], typeOpt: Option[Type])
+case class ValueInfo(valueOpt: Option[MashValue], typeOpt: Option[Type])
 
 class TypeInferencer {
 

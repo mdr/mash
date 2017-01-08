@@ -78,7 +78,7 @@ object ReduceTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = ReduceFunction.params.bindTypes(arguments)
     val elementTypeOpt =
       for {
-        AnnotatedExpr(_, typeOpt) ← argBindings.getArgument(Sequence)
+        ValueInfo(_, typeOpt) ← argBindings.getArgument(Sequence)
         Type.Seq(elementType) ← typeOpt
       } yield elementType
 

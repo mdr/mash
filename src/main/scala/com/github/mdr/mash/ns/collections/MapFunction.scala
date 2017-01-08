@@ -104,16 +104,16 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
         (newElementTypeOpt getOrElse Type.Any).seq
     }
 
-  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[AnnotatedExpr], sequenceTypeOpt: Option[Type]): Option[Type] =
+  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[ValueInfo], sequenceTypeOpt: Option[Type]): Option[Type] =
     for {
-      AnnotatedExpr(functionExprOpt, functionTypeOpt) ← functionExprOpt
+      ValueInfo(functionValueOpt, functionTypeOpt) ← functionExprOpt
       functionType ← functionTypeOpt
       sequenceType = sequenceTypeOpt getOrElse Type.Any.seq
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
       }
-      newElementType ← inferencer.applyFunction(functionType, elementType, functionExprOpt.flatMap(_.constantValueOpt))
+      newElementType ← inferencer.applyFunction(functionType, elementType, functionValueOpt)
     } yield newElementType
 
 }

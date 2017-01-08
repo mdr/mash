@@ -2,12 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.QuotationType
 import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.utils.Utils
-
-import scala.PartialFunction.condOpt
 
 object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
 
@@ -16,7 +12,7 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
     for {
       selectArgs ← Utils.initOpt(arguments.arguments)
-      TypedArgument.PositionArg(AnnotatedExpr(_, inputTypeOpt)) ← arguments.arguments.lastOption
+      TypedArgument.PositionArg(ValueInfo(_, inputTypeOpt)) ← arguments.arguments.lastOption
       inputType ← inputTypeOpt
       targetType = inputType match {
         case Type.Seq(elementType) ⇒ elementType
@@ -30,18 +26,16 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
 
   private def getFieldName(inferencer: Inferencer, elementType: Type, typedArg: TypedArgument): Option[(String, Option[Type])] =
     typedArg match {
-      case TypedArgument.PositionArg(AnnotatedExpr(functionExprOpt, Some(functionType))) ⇒
-        val functionValueOpt = functionExprOpt.flatMap(_.constantValueOpt)
+      case TypedArgument.PositionArg(ValueInfo(functionValueOpt, Some(functionType)))                                  ⇒
         val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
         functionValueOpt.collect { case MashString(s, _) => s -> typeOpt }
-      case TypedArgument.LongFlag(flag, Some(AnnotatedExpr(functionExprOpt, Some(functionType)))) if !isSpecialFlag(flag) ⇒
-        val functionValueOpt = functionExprOpt.flatMap(_.constantValueOpt)
+      case TypedArgument.LongFlag(flag, Some(ValueInfo(functionValueOpt, Some(functionType)))) if !isSpecialFlag(flag) ⇒
         val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
         Some(flag -> typeOpt)
-      case TypedArgument.LongFlag(flag, None) if !isSpecialFlag(flag) ⇒
+      case TypedArgument.LongFlag(flag, None) if !isSpecialFlag(flag)                                                  ⇒
         val typeOpt = inferencer.applyFunction(StringClass, elementType, Some(MashString(flag)))
         Some(flag -> typeOpt)
-      case _ =>
+      case _                                                                                                           =>
         None
     }
 

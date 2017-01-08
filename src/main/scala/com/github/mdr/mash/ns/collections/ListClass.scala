@@ -75,7 +75,7 @@ object ListClass extends MashClass("collections.List") {
       function.getCompletionSpecs(argPos, updateArgs(arguments, targetTypeOpt))
 
     private def updateArgs(arguments: TypedArguments, targetTypeOpt: Option[Type]): TypedArguments = {
-      val sequenceArg = TypedArgument.PositionArg(AnnotatedExpr(None, targetTypeOpt))
+      val sequenceArg = TypedArgument.PositionArg(ValueInfo(None, targetTypeOpt))
       TypedArguments(arguments.arguments :+ sequenceArg)
     }
 

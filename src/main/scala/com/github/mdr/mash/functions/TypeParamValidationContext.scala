@@ -1,13 +1,13 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.inference.{ AnnotatedExpr, Type, TypedArgument, TypedArguments }
+import com.github.mdr.mash.inference.{ ValueInfo, Type, TypedArgument, TypedArguments }
 import com.github.mdr.mash.ns.core.BooleanClass
 
 import scala.PartialFunction.cond
 
 class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
 
-  private var boundArguments: Map[String, AnnotatedExpr] = Map()
+  private var boundArguments: Map[String, ValueInfo] = Map()
   private var boundNames: Map[String, Type] = Map()
   private var posToParam: Map[Int, Parameter] = Map()
   private var lastParameterConsumed = false
@@ -41,7 +41,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       for (variadicParam ← params.variadicParamOpt) {
         val varargs = positionArgs.drop(regularPosParams.size)
         val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
-        boundArguments += variadicParam.name -> AnnotatedExpr(None, Some(varargType))
+        boundArguments += variadicParam.name -> ValueInfo(None, Some(varargType))
         boundNames += variadicParam.name -> varargType
         val extraArgs = positionArgs.drop(regularPosParams.size)
         for (arg ← extraArgs)
@@ -66,19 +66,19 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       }
   }
 
-  private def posOfArg(arg: AnnotatedExpr): Int =
+  private def posOfArg(arg: ValueInfo): Int =
     arguments.arguments.indexWhere(cond(_) { case TypedArgument.PositionArg(`arg`) ⇒ true })
 
   private def handleFlagArgs() {
     for (flagArg ← arguments.argSet)
-      bindFlagParam(flagArg, arg = AnnotatedExpr(None, Some(BooleanClass)))
+      bindFlagParam(flagArg, arg = ValueInfo(None, Some(BooleanClass)))
     for {
       (flagArg, valueOpt) ← arguments.argValues
       value ← valueOpt
     } bindFlagParam(flagArg, arg = value)
   }
 
-  private def bindFlagParam(paramName: String, arg: AnnotatedExpr) =
+  private def bindFlagParam(paramName: String, arg: ValueInfo) =
     for (param ← params.paramByName.get(paramName)) {
       boundArguments += param.name -> arg
       arg.typeOpt.foreach { boundNames += param.name -> _ }

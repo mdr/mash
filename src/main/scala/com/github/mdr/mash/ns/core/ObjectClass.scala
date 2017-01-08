@@ -108,10 +108,8 @@ object ObjectClass extends MashClass("core.Object") {
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
         val argBindings = HoistMethod.params.bindTypes(arguments)
         for {
-          AnnotatedExpr(nameExprOpt, _) ← argBindings.getArgument(HoistMethod.Params.FieldName)
-          nameExpr ← nameExprOpt
-          value <- nameExpr.constantValueOpt
-          fieldName <- condOpt(value) { case MashString(s, _) => s }
+          ValueInfo(valueOpt, _) ← argBindings.getArgument(HoistMethod.Params.FieldName)
+          fieldName ← valueOpt.collect { case MashString(s, _) => s }
           fields <- targetTypeOpt.flatMap(getFields)
           fieldType <- fields.get(fieldName)
           (newFieldsOpt, isList) = fieldType match {
@@ -236,8 +234,8 @@ object ObjectClass extends MashClass("core.Object") {
         val argBindings = params.bindTypes(arguments)
         val fieldTypeOpt =
           for {
-            AnnotatedExpr(nameExprOpt, _) ← argBindings.getArgument(Name)
-            StringLiteral(fieldName, _, _, _) ← nameExprOpt
+            ValueInfo(valueOpt, _) ← argBindings.getArgument(Name)
+            fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
             targetType ← targetTypeOpt
             fieldType ← targetType match {
               case Type.Object(fields)  ⇒ fields.get(fieldName)
@@ -302,10 +300,10 @@ object ObjectClass extends MashClass("core.Object") {
             Some(Type.Instance(klass))
           case Type.Object(fields)                                    ⇒
             for {
-              AnnotatedExpr(nameExprOpt, _) ← argBindings.getArgument(WithFieldMethod.Params.Name)
-              StringLiteral(s, _, _, _) ← nameExprOpt
+              ValueInfo(valueOpt, _) ← argBindings.getArgument(WithFieldMethod.Params.Name)
+              fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
               valueType ← argBindings.getType(WithFieldMethod.Params.Value)
-            } yield Type.Object(fields + (s -> valueType))
+            } yield Type.Object(fields + (fieldName -> valueType))
           case _                                                      ⇒
             None
         }

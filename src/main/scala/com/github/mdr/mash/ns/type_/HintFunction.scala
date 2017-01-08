@@ -42,8 +42,7 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
     HintFunction.params
       .bindTypes(arguments)
       .getArgument(Hint)
-      .flatMap(_.exprOpt)
-      .flatMap(_.constantValueOpt)
+      .flatMap(_.valueOpt)
       .flatMap(getType)
 
   private def getType(value: MashValue): Option[Type] = value match {
