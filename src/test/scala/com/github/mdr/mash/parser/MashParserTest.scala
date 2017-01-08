@@ -34,7 +34,7 @@ class MashParserTest extends FlatSpec with Matchers {
   "A lambda on the left of a pipe" should "bind looser than pipes" in {
     val s = "x => x | a"
     val Seq(x, arrow, x2, pipe, a, eof) = MashLexer.tokenise(s).tokens
-    // x => (x | a)
+    // x ⇒ (x | a)
     parse(s) should equal(
       LambdaExpr(ParamList(Seq(SimpleParam(x))), arrow,
         PipeExpr(
@@ -46,7 +46,7 @@ class MashParserTest extends FlatSpec with Matchers {
   "A lambda on the left of a pipe" should "bind looser than pipes when nested" in {
     val s = "x => y => y | length"
     val Seq(x, arr, y, arr2, y2, pipe, length, _) = MashLexer.tokenise(s).tokens
-    // (x => y => y) | length
+    // (x ⇒ y ⇒ y) | length
     parse(s) should equal(
       LambdaExpr(
         ParamList(Seq(SimpleParam(x))),
@@ -63,7 +63,7 @@ class MashParserTest extends FlatSpec with Matchers {
   "A lambda on the right of a pipe" should "bind tighter than pipes" in {
     val s = "a | x => x | b "
     val Seq(a, pipe, x, arrow, x2, pipe2, b, eof) = MashLexer.tokenise(s).tokens
-    // a | (x => x) | b
+    // a | (x ⇒ x) | b
     parse(s) should equal(
       PipeExpr(
         PipeExpr(
@@ -79,7 +79,7 @@ class MashParserTest extends FlatSpec with Matchers {
     val s = "a | x => y => y | b"
     val Seq(a, pipe, x, arr, y, arr2, y2, pipe2, b, _) = MashLexer.tokenise(s).tokens
 
-    // a | (x => y => y) | b
+    // a | (x ⇒ y ⇒ y) | b
     parse(s) should equal(
       PipeExpr(
         PipeExpr(

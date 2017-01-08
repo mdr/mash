@@ -20,18 +20,18 @@ trait ObjectBrowserActionHandler
   import ObjectBrowserActions._
 
   protected def updateState(newState: BrowserState) {
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
       state.objectBrowserStateStackOpt = Some(objectBrowserState.replaceCurrentState(newState))
     }
   }
 
   protected def navigateForward(newState: BrowserState) =
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
       state.objectBrowserStateStackOpt = Some(objectBrowserState.pushNewState(newState))
     }
 
   protected def navigateBack() =
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState =>
+    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
       state.objectBrowserStateStackOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
     }
 
@@ -54,17 +54,17 @@ trait ObjectBrowserActionHandler
   }
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
-    case obj: MashObject                                       =>
+    case obj: MashObject                                       ⇒
       val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) ⇒
       val objects = xs.elements.asInstanceOf[Seq[MashObject]]
       val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(objects, xs)
       ObjectsTableBrowserState(model, path = path)
-    case xs: MashList                                          =>
+    case xs: MashList                                          ⇒
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
-    case _                                                     =>
+    case _                                                     ⇒
       val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
       ValueBrowserState(model, path = path)
   }
@@ -82,28 +82,28 @@ trait ObjectBrowserActionHandler
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
     browserStateStack.headState.expressionOpt match {
-      case Some(expression) =>
+      case Some(expression) ⇒
         handleExpressionInputAction(action, browserStateStack.headState, expression)
-      case None             =>
+      case None             ⇒
         browserStateStack.headState match {
-          case objectTableBrowserState: ObjectsTableBrowserState       => handleObjectsTableBrowserAction(action, objectTableBrowserState)
-          case singleObjectBrowserState: SingleObjectTableBrowserState => handleSingleObjectBrowserAction(action, singleObjectBrowserState)
-          case objectTreeBrowserState: ObjectTreeBrowserState          => handleObjectTreeBrowserAction(action, objectTreeBrowserState)
-          case valueBrowserState: ValueBrowserState                    => handleValueBrowserAction(action, valueBrowserState)
-          case textLinesBrowserState: TextLinesBrowserState            => handleTextLinesBrowserAction(action, textLinesBrowserState)
-          case _                                                       =>
+          case objectTableBrowserState: ObjectsTableBrowserState       ⇒ handleObjectsTableBrowserAction(action, objectTableBrowserState)
+          case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectBrowserAction(action, singleObjectBrowserState)
+          case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ handleObjectTreeBrowserAction(action, objectTreeBrowserState)
+          case valueBrowserState: ValueBrowserState                    ⇒ handleValueBrowserAction(action, valueBrowserState)
+          case textLinesBrowserState: TextLinesBrowserState            ⇒ handleTextLinesBrowserAction(action, textLinesBrowserState)
+          case _                                                       ⇒
         }
     }
 
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expression: String): Unit = {
     import ExpressionInput._
     action match {
-      case SelfInsert(c)      =>
+      case SelfInsert(c)      ⇒
         updateState(browserState.setExpression(expression + c))
-      case BackwardDeleteChar =>
+      case BackwardDeleteChar ⇒
         if (expression.nonEmpty)
           updateState(browserState.setExpression(expression.init))
-      case Accept             =>
+      case Accept             ⇒
         val newPath = SafeParens.safeParens(browserState.path, expression)
         val fullExpression = "it" + expression
         val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> browserState.rawValue))
@@ -112,7 +112,7 @@ trait ObjectBrowserActionHandler
         updateState(browserState.acceptExpression)
         for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
           focus(result, newPath, tree = false)
-      case _                  =>
+      case _                  ⇒
     }
   }
 

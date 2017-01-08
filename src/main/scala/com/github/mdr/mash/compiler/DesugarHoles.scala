@@ -91,12 +91,12 @@ object DesugarHoles {
         yield ListExpr(newElements, sourceInfoOpt)
     case ObjectExpr(entries, sourceInfoOpt) ⇒
       def desugarHoles(entry: ObjectEntry): Result[ObjectEntry] = entry match {
-        case fullEntry: FullObjectEntry           =>
+        case fullEntry: FullObjectEntry           ⇒
           for {
             newField ← desugarHoles_(fullEntry.field)
             newValue ← desugarHoles_(fullEntry.value)
           } yield FullObjectEntry(newField, newValue, fullEntry.sourceInfoOpt)
-        case shorthandEntry: ShorthandObjectEntry => Result(shorthandEntry)
+        case shorthandEntry: ShorthandObjectEntry ⇒ Result(shorthandEntry)
       }
       for (newEntries ← sequence(entries.map(desugarHoles)))
         yield ObjectExpr(newEntries, sourceInfoOpt)

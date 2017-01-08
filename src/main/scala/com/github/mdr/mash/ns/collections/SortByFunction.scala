@@ -35,10 +35,10 @@ object SortByFunction extends MashFunction("collections.sortBy") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy
-    val attributes: Seq[MashValue => MashValue] =
+    val attributes: Seq[MashValue ⇒ MashValue] =
       boundParams.validateSequence(Attributes, allowStrings = false).map(boundParams.validateFunction(Attributes, _))
     def asNullFreeList(xs: Seq[MashValue]) = if (xs contains MashNull) MashNull else MashList(xs)
-    val sorted = sequence.sortWith((a, b) => {
+    val sorted = sequence.sortWith((a, b) ⇒ {
       val as = asNullFreeList(attributes.map(_(a)))
       val bs = asNullFreeList(attributes.map(_(b)))
       MashValueOrderingWithNullBottom.lt(as, bs)

@@ -6,7 +6,7 @@ package com.github.mdr.mash.repl
  * For example, moving down in the last (complete) row:
  *
  * ▢▢▢▢      ▢▢▣▢
- * ▢▢▼▢  =>  ▢▢▢▢
+ * ▢▢▼▢  ⇒  ▢▢▢▢
  * ▢▢         ▢▢
  *
  * @param total - total number of elements in the grid

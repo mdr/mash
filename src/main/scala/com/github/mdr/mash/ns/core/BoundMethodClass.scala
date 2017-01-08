@@ -19,11 +19,11 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val Args = Parameter(
         name = "args",
         summary = "Positional arguments for this function",
-        defaultValueGeneratorOpt = Option(() => MashList.empty))
+        defaultValueGeneratorOpt = Option(() ⇒ MashList.empty))
       val NamedArgs = Parameter(
         name = "namedArgs",
         summary = "Named arguments for this function",
-        defaultValueGeneratorOpt = Option(() => MashObject.empty))
+        defaultValueGeneratorOpt = Option(() ⇒ MashObject.empty))
     }
 
     import Params._
@@ -34,8 +34,8 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val boundParams = params.validate(arguments)
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
-      val methodArguments = Arguments(args.map(v => EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
-        namedArgs.fields.toSeq.map { case (field, value) =>
+      val methodArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
+        namedArgs.fields.toSeq.map { case (field, value) ⇒
           EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
         })
       val boundMethod = target.asInstanceOf[BoundMethod]

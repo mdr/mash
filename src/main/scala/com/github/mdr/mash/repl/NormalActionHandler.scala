@@ -85,8 +85,8 @@ trait NormalActionHandler { self: Repl ⇒
   private def handlePreviousHistory() =
     if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
       history.goBackwards(state.lineBuffer.text) match {
-        case Some(cmd) => state.lineBuffer = LineBuffer(cmd)
-        case None => state.updateLineBuffer(_.up)
+        case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
+        case None ⇒ state.updateLineBuffer(_.up)
       }
     else
       state.updateLineBuffer(_.up)
@@ -94,8 +94,8 @@ trait NormalActionHandler { self: Repl ⇒
   private def handleNextHistory() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
-        case Some(cmd) => state.lineBuffer = LineBuffer(cmd)
-        case None => state.updateLineBuffer(_.down)
+        case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
+        case None ⇒ state.updateLineBuffer(_.down)
       }
     else
       state.updateLineBuffer(_.down)
@@ -144,7 +144,7 @@ trait NormalActionHandler { self: Repl ⇒
     import TokenType._
     val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE,
       STRING_INTERPOLATION_START_COMPLEX)
-    val openBraceCount = tokens.count(token => OpenBraceTypes.contains(token.tokenType))
+    val openBraceCount = tokens.count(token ⇒ OpenBraceTypes.contains(token.tokenType))
     val mismatchedBrackets = openBraceCount != tokens.count(_.tokenType == TokenType.RBRACE)
 
     if (state.lineBuffer.isMultiline && !state.lineBuffer.cursorAtEnd || mismatchedBrackets)
@@ -208,12 +208,12 @@ trait NormalActionHandler { self: Repl ⇒
       val commandNumber = state.commandNumber - 1
       val path = s"${ReplState.Res}$commandNumber"
       val browserState = printModel match {
-        case model: ObjectsTableModel => ObjectsTableBrowserState(model, path = path)
-        case model: ObjectModel       => SingleObjectTableBrowserState(model, path = path)
-        case model: ObjectTreeModel   => ObjectTreeBrowserState.initial(model, path = path)
-        case model: ValueModel        => new ValueBrowserState(model, path = path)
-        case model: TextLinesModel    => new TextLinesBrowserState(model, path = path)
-        case _                        => throw new RuntimeException("Unknown type of print model: " + printModel)
+        case model: ObjectsTableModel ⇒ ObjectsTableBrowserState(model, path = path)
+        case model: ObjectModel       ⇒ SingleObjectTableBrowserState(model, path = path)
+        case model: ObjectTreeModel   ⇒ ObjectTreeBrowserState.initial(model, path = path)
+        case model: ValueModel        ⇒ new ValueBrowserState(model, path = path)
+        case model: TextLinesModel    ⇒ new TextLinesBrowserState(model, path = path)
+        case _                        ⇒ throw new RuntimeException("Unknown type of print model: " + printModel)
       }
       state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }

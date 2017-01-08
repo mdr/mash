@@ -24,10 +24,10 @@ trait MishLexer { self: MashLexer ⇒
       readStringInterpolationToken()
     case '#' ⇒
       getComment()
-    case '>' =>
+    case '>' ⇒
       nextChar()
       token(GREATER_THAN)
-    case '<' =>
+    case '<' ⇒
       nextChar()
       token(LESS_THAN)
     case '}' ⇒

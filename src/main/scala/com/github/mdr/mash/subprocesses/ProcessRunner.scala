@@ -71,8 +71,8 @@ object ProcessRunner {
       case Some(path) ⇒ ProcessBuilder.Redirect.from(path.toFile)
       case _          ⇒
         stdinImmediateOpt match {
-          case Some(_) => ProcessBuilder.Redirect.PIPE
-          case _       => ProcessBuilder.Redirect.INHERIT
+          case Some(_) ⇒ ProcessBuilder.Redirect.PIPE
+          case _       ⇒ ProcessBuilder.Redirect.INHERIT
         }
     }
   }

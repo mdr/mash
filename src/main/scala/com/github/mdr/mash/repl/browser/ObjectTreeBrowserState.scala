@@ -43,9 +43,9 @@ object ObjectTreeBrowserState {
 
   def initial(model: ObjectTreeModel, path: String): ObjectTreeBrowserState = {
     val choice = model.root match {
-      case ObjectTreeNode.List(items, _) if items.nonEmpty   => IndexChoice(0)
-      case ObjectTreeNode.Object(items, _) if items.nonEmpty => FieldChoice(items.head._1)
-      case _                                                 => throw new RuntimeException("Cannot initialise object tree browser on: " + model)
+      case ObjectTreeNode.List(items, _) if items.nonEmpty   ⇒ IndexChoice(0)
+      case ObjectTreeNode.Object(items, _) if items.nonEmpty ⇒ FieldChoice(items.head._1)
+      case _                                                 ⇒ throw new RuntimeException("Cannot initialise object tree browser on: " + model)
     }
     ObjectTreeBrowserState(model, ObjectTreePath(Seq(choice)), path, 0)
   }
@@ -68,9 +68,9 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     def rec(choices: Seq[ObjectTreeChoice]): Unit = {
       if (choices.nonEmpty) {
         choices.head match {
-          case ObjectTreeChoice.IndexChoice(i)     => sb.append(s"[$i]")
-          case ObjectTreeChoice.FieldChoice(field) => sb.append(s".$field")
-          case _                                   =>
+          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(s"[$i]")
+          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(s".$field")
+          case _                                   ⇒
         }
         rec(choices.tail)
       }
@@ -103,29 +103,29 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
     private def scan(node: ObjectTreeNode, path: ObjectTreePath, depth: Int): Unit = node match {
 
-      case ObjectTreeNode.List(values, _) if values.nonEmpty =>
+      case ObjectTreeNode.List(values, _) if values.nonEmpty ⇒
         for ((value, index) <- values.zipWithIndex) {
           val itemPath = path.descend(index)
           rows += (itemPath -> row)
           recordPathDepth(itemPath, depth)
           value match {
-            case ObjectTreeNode.Leaf(_, _)       =>
+            case ObjectTreeNode.Leaf(_, _)       ⇒
               scan(value, itemPath, depth)
-            case ObjectTreeNode.Object(Seq(), _) =>
+            case ObjectTreeNode.Object(Seq(), _) ⇒
               scan(value, itemPath, depth)
-            case ObjectTreeNode.List(Seq(), _)   =>
+            case ObjectTreeNode.List(Seq(), _)   ⇒
               scan(value, itemPath, depth)
-            case _                               =>
+            case _                               ⇒
               scan(value, itemPath, depth + 1)
           }
         }
 
-      case ObjectTreeNode.List(values, _) =>
+      case ObjectTreeNode.List(values, _) ⇒
         rows += (path.ontoValue -> row)
         row += 1
         recordPathDepth(path.ontoValue, depth + 1)
 
-      case ObjectTreeNode.Object(values, _) if values.nonEmpty =>
+      case ObjectTreeNode.Object(values, _) if values.nonEmpty ⇒
         for ((field, value) <- values) {
           val itemPath = path.descend(field)
           rows += (itemPath -> row)
@@ -133,22 +133,22 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
           val labelPath = itemPath.ontoFieldLabel
           rows += (labelPath -> row)
           value match {
-            case ObjectTreeNode.Leaf(_, _)       =>
-            case ObjectTreeNode.Object(Seq(), _) =>
-            case ObjectTreeNode.List(Seq(), _)   =>
-            case _                               =>
+            case ObjectTreeNode.Leaf(_, _)       ⇒
+            case ObjectTreeNode.Object(Seq(), _) ⇒
+            case ObjectTreeNode.List(Seq(), _)   ⇒
+            case _                               ⇒
               row += 1
           }
           recordPathDepth(labelPath, depth + 1)
           scan(value, labelPath, depth + 1)
         }
 
-      case ObjectTreeNode.Object(values, _) =>
+      case ObjectTreeNode.Object(values, _) ⇒
         rows += (path.ontoValue -> row)
         row += 1
         recordPathDepth(path.ontoValue, depth + 1)
 
-      case ObjectTreeNode.Leaf(_, _) =>
+      case ObjectTreeNode.Leaf(_, _) ⇒
         rows += (path.ontoValue -> row)
         row += 1
         recordPathDepth(path.ontoValue, depth + 1)
@@ -160,12 +160,12 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def rawValue: MashValue = model.rawValue
 
   private def getNode(node: ObjectTreeNode, path: Seq[ObjectTreeChoice]): ObjectTreeNode = (node, path) match {
-    case (_, Seq())                                                           => node
-    case (_, Seq(OntoFieldLabel, tail@_*))                                    => getNode(node, tail)
-    case (_, Seq(OntoValue, tail@_*))                                         => node
-    case (ObjectTreeNode.List(values, _), Seq(IndexChoice(i), tail@_*))       => getNode(values(i), tail)
-    case (ObjectTreeNode.Object(values, _), Seq(FieldChoice(field), tail@_*)) =>
-      getNode(values.collectFirst { case (`field`, node) => node }.get, tail)
+    case (_, Seq())                                                           ⇒ node
+    case (_, Seq(OntoFieldLabel, tail@_*))                                    ⇒ getNode(node, tail)
+    case (_, Seq(OntoValue, tail@_*))                                         ⇒ node
+    case (ObjectTreeNode.List(values, _), Seq(IndexChoice(i), tail@_*))       ⇒ getNode(values(i), tail)
+    case (ObjectTreeNode.Object(values, _), Seq(FieldChoice(field), tail@_*)) ⇒
+      getNode(values.collectFirst { case (`field`, node) ⇒ node }.get, tail)
   }
 
   private def getNode(path: ObjectTreePath): ObjectTreeNode =
@@ -177,20 +177,20 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def withPath(newPath: String): ObjectTreeBrowserState = copy(path = newPath)
 
   def right: ObjectTreeBrowserState = selectionPath.choices.last match {
-    case FieldChoice(_) => withSelectionPath(selectionPath.ontoFieldLabel)
-    case IndexChoice(_) =>
+    case FieldChoice(_) ⇒ withSelectionPath(selectionPath.ontoFieldLabel)
+    case IndexChoice(_) ⇒
       getNode(selectionPath) match {
-        case ObjectTreeNode.List(items, _) if items.nonEmpty   => withSelectionPath(selectionPath.descend(0))
-        case ObjectTreeNode.Object(items, _) if items.nonEmpty => withSelectionPath(selectionPath.descend(items.head._1))
-        case _                                                 => withSelectionPath(selectionPath.ontoValue)
+        case ObjectTreeNode.List(items, _) if items.nonEmpty   ⇒ withSelectionPath(selectionPath.descend(0))
+        case ObjectTreeNode.Object(items, _) if items.nonEmpty ⇒ withSelectionPath(selectionPath.descend(items.head._1))
+        case _                                                 ⇒ withSelectionPath(selectionPath.ontoValue)
       }
-    case OntoFieldLabel =>
+    case OntoFieldLabel ⇒
       getNode(selectionPath) match {
-        case ObjectTreeNode.List(items, _) if items.nonEmpty   => withSelectionPath(selectionPath.descend(0))
-        case ObjectTreeNode.Object(items, _) if items.nonEmpty => withSelectionPath(selectionPath.descend(items.head._1))
-        case _                                                 => withSelectionPath(selectionPath.ontoValue)
+        case ObjectTreeNode.List(items, _) if items.nonEmpty   ⇒ withSelectionPath(selectionPath.descend(0))
+        case ObjectTreeNode.Object(items, _) if items.nonEmpty ⇒ withSelectionPath(selectionPath.descend(items.head._1))
+        case _                                                 ⇒ withSelectionPath(selectionPath.ontoValue)
       }
-    case OntoValue      => this
+    case OntoValue      ⇒ this
   }
 
   def left: ObjectTreeBrowserState = withSelectionPath(

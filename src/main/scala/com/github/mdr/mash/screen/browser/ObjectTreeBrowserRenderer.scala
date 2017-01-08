@@ -55,11 +55,11 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     val prefix = ""
     val currentPath = ObjectTreePath(Seq())
     node match {
-      case ObjectTreeNode.List(Seq(), _)    => printer.println("[]")
-      case ObjectTreeNode.List(items, _)    => printList(printer, items, prefix, currentPath, connectUp = true)
-      case ObjectTreeNode.Object(Seq(), _)  => printer.println("{}")
-      case ObjectTreeNode.Object(values, _) => printObject(printer, values, prefix, currentPath, connectUp = true)
-      case ObjectTreeNode.Leaf(value, _)    => printer.println(value)
+      case ObjectTreeNode.List(Seq(), _)    ⇒ printer.println("[]")
+      case ObjectTreeNode.List(items, _)    ⇒ printList(printer, items, prefix, currentPath, connectUp = true)
+      case ObjectTreeNode.Object(Seq(), _)  ⇒ printer.println("{}")
+      case ObjectTreeNode.Object(values, _) ⇒ printObject(printer, values, prefix, currentPath, connectUp = true)
+      case ObjectTreeNode.Leaf(value, _)    ⇒ printer.println(value)
     }
   }
 
@@ -72,23 +72,23 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       printer.print(connector, highlighted = itemPath == state.selectionPath)
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
-        case ObjectTreeNode.Leaf(value, _)      =>
+        case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print("─ ")
           val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.List(Seq(), _)      =>
+        case ObjectTreeNode.List(Seq(), _)      ⇒
           printer.print("─ ")
           printer.print("[]", highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.Object(Seq(), _)    =>
+        case ObjectTreeNode.Object(Seq(), _)    ⇒
           printer.print("─ ")
           printer.print("{}", highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.List(childNodes, _) =>
+        case ObjectTreeNode.List(childNodes, _) ⇒
           printer.print(s"──")
           printList(printer, childNodes, nestingPrefix, itemPath, connectUp = false)
-        case ObjectTreeNode.Object(values, _)   =>
+        case ObjectTreeNode.Object(values, _)   ⇒
           printer.print(s"──")
           printObject(printer, values, nestingPrefix, itemPath, connectUp = false)
       }
@@ -108,24 +108,24 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       printer.print(":")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
-        case ObjectTreeNode.Leaf(value, _)      =>
+        case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print(" ")
           val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.List(Seq(), _)      =>
+        case ObjectTreeNode.List(Seq(), _)      ⇒
           printer.print(" ")
           printer.print("[]", highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.Object(Seq(), _)    =>
+        case ObjectTreeNode.Object(Seq(), _)    ⇒
           printer.print(" ")
           printer.print("{}", highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
-        case ObjectTreeNode.List(childNodes, _) =>
+        case ObjectTreeNode.List(childNodes, _) ⇒
           printer.println()
           printer.print(nestingPrefix)
           printList(printer, childNodes, nestingPrefix, fieldPath, connectUp = true)
-        case ObjectTreeNode.Object(values, _)   =>
+        case ObjectTreeNode.Object(values, _)   ⇒
           printer.println()
           printer.print(nestingPrefix)
           printObject(printer, values, nestingPrefix, fieldPath, connectUp = true)

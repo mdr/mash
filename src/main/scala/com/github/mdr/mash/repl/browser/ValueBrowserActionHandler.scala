@@ -4,22 +4,22 @@ import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, _ }
 
 trait ValueBrowserActionHandler {
-  self: ObjectBrowserActionHandler with Repl =>
+  self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleValueBrowserAction(action: InputAction, browserState: ValueBrowserState): Unit = action match {
     case ExitBrowser                     ⇒
       state.objectBrowserStateStackOpt = None
-    case Back                            =>
+    case Back                            ⇒
       navigateBack()
     case InsertItem                      ⇒
       handleInsertItem(browserState)
-    case Open                            =>
+    case Open                            ⇒
       handleOpenItem(browserState)
     case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
-    case ExpressionInput.BeginExpression =>
+    case ExpressionInput.BeginExpression ⇒
       updateState(browserState.setExpression(""))
-    case _                               =>
+    case _                               ⇒
   }
 
 }

@@ -35,11 +35,11 @@ object FunctionHelpers {
 
   def asPathString(f: File) = MashString(f.toString, PathClass)
 
-  def interpretAsFunction(f: MashValue): MashValue ⇒ MashValue = { value =>
+  def interpretAsFunction(f: MashValue): MashValue ⇒ MashValue = { value ⇒
     InvocationEvaluator.callFunction(f, Arguments(Seq(makePositionArg(value))))
   }
 
-  def interpretAsFunction2(f: MashValue): (MashValue, MashValue) ⇒ MashValue = { (value1, value2) =>
+  def interpretAsFunction2(f: MashValue): (MashValue, MashValue) ⇒ MashValue = { (value1, value2) ⇒
     InvocationEvaluator.callFunction(f, Arguments(Seq(makePositionArg(value1), makePositionArg(value2))))
   }
 

@@ -18,7 +18,7 @@ object StandardEnvironment {
   def createGlobalVariables(): MashObject = {
     val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ f.name -> f)
-    val nameClassPairs = MashRoot.StandardClasses.map(c => c.name -> c)
+    val nameClassPairs = MashRoot.StandardClasses.map(c ⇒ c.name -> c)
     val aliasPairs = MashRoot.Aliases.toSeq
     val rootNsPairs = ns.fields.toSeq
     val otherPairs: Seq[(String, MashValue)] =

@@ -26,7 +26,7 @@ object SlidingFunction extends MashFunction("collections.sliding") {
       boundParams.throwInvalidArgument(Size, "size must be positive")
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
-    MashList(sequence.sliding(n).toList.map(xs => WhereFunction.reassembleSequence(inSequence, xs)))
+    MashList(sequence.sliding(n).toList.map(xs ⇒ WhereFunction.reassembleSequence(inSequence, xs)))
   }
 
   override def typeInferenceStrategy = SlidingTypeInferenceStrategy

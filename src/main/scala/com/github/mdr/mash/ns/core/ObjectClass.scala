@@ -40,12 +40,12 @@ object ObjectClass extends MashClass("core.Object") {
       val boundParams = params.validate(arguments)
       val xs = boundParams.validateSequence(Objects)
       val items = xs match {
-        case Seq(list: MashList) => list.elements
-        case _                   => xs
+        case Seq(list: MashList) ⇒ list.elements
+        case _                   ⇒ xs
       }
       val objects = items.map {
-        case item: MashObject => item
-        case badItem          => boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
+        case item: MashObject ⇒ item
+        case badItem          ⇒ boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
       }
       objects.reduceOption(_ + _) getOrElse MashObject.empty
     }
@@ -94,7 +94,7 @@ object ObjectClass extends MashClass("core.Object") {
     }
 
     private def hoist(obj: MashObject, field: String, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
-      val subFields = subObject.fields.toSeq.map { case (subfield, value) => (prefixOpt.getOrElse("") + subfield) -> value }
+      val subFields = subObject.fields.toSeq.map { case (subfield, value) ⇒ (prefixOpt.getOrElse("") + subfield) -> value }
       val originalFields = obj.fields.toSeq
       val index = originalFields.indexWhere(_._1 == field)
       val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)
@@ -109,12 +109,12 @@ object ObjectClass extends MashClass("core.Object") {
         val argBindings = HoistMethod.params.bindTypes(arguments)
         for {
           ValueInfo(valueOpt, _) ← argBindings.getArgument(HoistMethod.Params.FieldName)
-          fieldName ← valueOpt.collect { case MashString(s, _) => s }
+          fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
           fields <- targetTypeOpt.flatMap(getFields)
           fieldType <- fields.get(fieldName)
           (newFieldsOpt, isList) = fieldType match {
-            case Type.Seq(elementType) => (getFields(elementType), true)
-            case _                     => (getFields(fieldType), false)
+            case Type.Seq(elementType) ⇒ (getFields(elementType), true)
+            case _                     ⇒ (getFields(fieldType), false)
           }
           newFields <- newFieldsOpt
           newObjectType = Type.Object((fields - fieldName) ++ newFields)
@@ -124,7 +124,7 @@ object ObjectClass extends MashClass("core.Object") {
       private def getFields(typ: Type): Option[Map[String, Type]] = condOpt(typ) {
         case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
           klass.fieldsMap.mapValues(_.fieldType)
-        case Type.Object(fields)                                    => fields
+        case Type.Object(fields)                                    ⇒ fields
       }
 
     }

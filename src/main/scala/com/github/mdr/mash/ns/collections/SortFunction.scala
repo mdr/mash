@@ -35,9 +35,9 @@ object SortFunction extends MashFunction("collections.sort") {
   object MashValueOrderingWithNullBottom extends Ordering[MashValue] {
 
     override def compare(v1: MashValue, v2: MashValue): Int = (v1, v2) match {
-      case (MashNull, _) => -1
-      case (_, MashNull) => 1
-      case _             => MashValueOrdering.compare(v1, v2)
+      case (MashNull, _) ⇒ -1
+      case (_, MashNull) ⇒ 1
+      case _             ⇒ MashValueOrdering.compare(v1, v2)
     }
 
   }

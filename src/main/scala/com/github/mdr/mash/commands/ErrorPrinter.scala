@@ -28,7 +28,7 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     val (lineIndex, _) = lineInfo.lineAndColumn(point)
     val line = lineInfo.lines(lineIndex)
     val isImmediateError = unit.provenance == provenance && unit.interactive
-    val functionName = functionOpt.map(f => ":" + f.name).getOrElse("")
+    val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
     val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}$functionName: "
     val padding = " " * prefix.length
     val lineRegion = lineInfo.lineRegion(lineIndex)

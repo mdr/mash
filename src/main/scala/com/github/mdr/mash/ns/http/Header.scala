@@ -25,11 +25,11 @@ object Header {
         boundParams.throwInvalidArgument(param, "Invalid header of type " + value.typeName)
     }
     MashNull.option(boundParams(param)).toSeq.flatMap {
-      case xs: MashList =>
+      case xs: MashList ⇒
         xs.elements.map(getHeader)
-      case obj: MashObject =>
-        obj.fields.toSeq.map { case (fieldName, value) => Header(fieldName, ToStringifier.stringify(value)) }
-      case _            =>
+      case obj: MashObject ⇒
+        obj.fields.toSeq.map { case (fieldName, value) ⇒ Header(fieldName, ToStringifier.stringify(value)) }
+      case _            ⇒
         Seq()
     }
   }

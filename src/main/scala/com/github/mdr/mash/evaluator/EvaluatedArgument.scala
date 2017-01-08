@@ -27,6 +27,6 @@ object EvaluatedArgument {
 
 }
 
-case class SuspendedMashValue(thunk: () => MashValue) {
+case class SuspendedMashValue(thunk: () ⇒ MashValue) {
   def resolve(): MashValue = thunk()
 }

@@ -46,14 +46,14 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
       .flatMap(getType)
 
   private def getType(value: MashValue): Option[Type] = value match {
-    case klass: MashClass    => Some(Type.Instance(klass))
-    case MashList(listValue) => getType(listValue).map(_.seq)
-    case obj: MashObject     =>
+    case klass: MashClass    ⇒ Some(Type.Instance(klass))
+    case MashList(listValue) ⇒ getType(listValue).map(_.seq)
+    case obj: MashObject     ⇒
       val fieldTypes =
         for ((fieldName, fieldValue) <- obj.immutableFields)
           yield fieldName -> getType(fieldValue).getOrElse(Type.Instance(AnyClass))
       Some(Type.Object(fieldTypes))
-    case _ =>
+    case _ ⇒
       None
   }
 

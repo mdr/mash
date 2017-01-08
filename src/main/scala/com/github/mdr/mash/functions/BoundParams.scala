@@ -49,7 +49,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     case x             ⇒ throwInvalidArgumentType("String", x, param)
   }
 
-  def validateFunction(param: Parameter, value: MashValue): MashValue => MashValue = value match {
+  def validateFunction(param: Parameter, value: MashValue): MashValue ⇒ MashValue = value match {
     case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
       FunctionHelpers.interpretAsFunction(f)
     case x                                                    ⇒
@@ -58,7 +58,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateFunction(param: Parameter): MashValue ⇒ MashValue = validateFunction(param, this(param))
 
-  def validateFunction2(param: Parameter): (MashValue, MashValue) => MashValue = this(param) match {
+  def validateFunction2(param: Parameter): (MashValue, MashValue) ⇒ MashValue = this(param) match {
     case f@(_: MashString | _: MashFunction | _: BoundMethod) ⇒
       FunctionHelpers.interpretAsFunction2(f)
     case x                                                    ⇒

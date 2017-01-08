@@ -51,13 +51,13 @@ class ReplState(
 
   def mode: ReplMode =
     objectBrowserStateStackOpt match {
-      case Some(stack) =>
+      case Some(stack) ⇒
         stack.headState match {
-          case s: ObjectsTableBrowserState if s.searchStateOpt.isDefined => ReplMode.ObjectBrowser.IncrementalSearch
-          case s if s.expressionOpt.isDefined                            => ReplMode.ObjectBrowser.ExpressionInput
-          case _                                                         => ReplMode.ObjectBrowser
+          case s: ObjectsTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+          case s if s.expressionOpt.isDefined                            ⇒ ReplMode.ObjectBrowser.ExpressionInput
+          case _                                                         ⇒ ReplMode.ObjectBrowser
         }
-      case None =>
+      case None ⇒
         completionStateOpt match {
           case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
           case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions

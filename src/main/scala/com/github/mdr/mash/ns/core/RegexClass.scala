@@ -32,8 +32,8 @@ object RegexClass extends MashClass("core.Regex") {
       matchOption.map { m ⇒
         import MatchClass.Fields
         val groups = MashList(m.subgroups.map {
-          case null => MashNull
-          case s => MashString(s)
+          case null ⇒ MashNull
+          case s ⇒ MashString(s)
         })
         MashObject.of(
           ListMap(

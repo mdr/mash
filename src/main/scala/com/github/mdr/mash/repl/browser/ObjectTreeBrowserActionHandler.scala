@@ -5,14 +5,14 @@ import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
 
 trait ObjectTreeBrowserActionHandler {
-  self: ObjectBrowserActionHandler with Repl =>
+  self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit = action match {
     case Focus                           ⇒
       focus(browserState, tree = true)
     case ExitBrowser                     ⇒
       state.objectBrowserStateStackOpt = None
-    case Back                            =>
+    case Back                            ⇒
       navigateBack()
     case NextColumn                      ⇒
       updateState(browserState.right)
@@ -22,16 +22,16 @@ trait ObjectTreeBrowserActionHandler {
       updateState(browserState.nextItem(terminalRows))
     case PreviousItem                    ⇒
       updateState(browserState.previousItem(terminalRows))
-    case ViewAsTree                      =>
+    case ViewAsTree                      ⇒
       updateState(getNewBrowserState(browserState.rawValue, browserState.path))
     case InsertItem                      ⇒
       handleInsertItem(browserState)
-    case Open                            =>
+    case Open                            ⇒
       handleOpenItem(browserState)
     case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
-    case ExpressionInput.BeginExpression =>
+    case ExpressionInput.BeginExpression ⇒
       updateState(browserState.setExpression(""))
-    case _                               =>
+    case _                               ⇒
   }
 }

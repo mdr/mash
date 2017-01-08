@@ -92,7 +92,7 @@ object TreePrettyPrinter {
         println("PatternAssignmentExpr" + typeDescription + " = ")
         printTree(pattern, depth + 1)
         printTree(right, depth + 1)
-      case ObjectPattern(fieldNames, _) =>
+      case ObjectPattern(fieldNames, _) ⇒
         println(fieldNames.mkString("{ ", ", ", " }"))
       case ListExpr(elements, _) ⇒
         println("ListExpr" + typeDescription)
@@ -105,10 +105,10 @@ object TreePrettyPrinter {
       case ObjectExpr(entries, _) ⇒
         println("ObjectExpr" + typeDescription)
         entries.foreach {
-          case FullObjectEntry(field, body, _) =>
+          case FullObjectEntry(field, body, _) ⇒
             println("  " * (depth + 1) + field)
             printTree(body, depth + 2)
-          case ShorthandObjectEntry(field, _) =>
+          case ShorthandObjectEntry(field, _) ⇒
             println("  " * (depth + 1) + field)
         }
       case MishInterpolation(part, _) ⇒

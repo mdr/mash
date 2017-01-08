@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import java.{ util => ju }
+import java.{ util ⇒ ju }
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers._

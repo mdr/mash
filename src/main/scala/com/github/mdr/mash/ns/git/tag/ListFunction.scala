@@ -18,7 +18,7 @@ object ListFunction extends MashFunction("git.tag.list") {
 
   def apply(arguments: Arguments): MashList = {
     params.validate(arguments)
-    GitHelper.withGit { git =>
+    GitHelper.withGit { git ⇒
       val tags = git.tagList.call().asScala
       MashList(tags.map(asMashObject))
     }

@@ -56,10 +56,10 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       (pat, equals)
     }
     patternEqualsOpt match {
-      case Some((pat, equals)) =>
+      case Some((pat, equals)) ⇒
         val right = pipeExpr()
         PatternAssignmentExpr(pat, equals, right)
-      case None =>
+      case None ⇒
         val left = ifExpr()
         if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
           val equals = nextToken()

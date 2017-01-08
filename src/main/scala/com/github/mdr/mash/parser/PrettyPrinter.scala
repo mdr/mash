@@ -56,7 +56,7 @@ object PrettyPrinter {
       parens(pretty(left), simpleOmitParens(left)) + " " + operatorSymbol + " " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
     case PatternAssignmentExpr(pattern, right, _)                         ⇒
       s"$pattern = ${parens(pretty(right), simpleOmitParens(right))}"
-    case ObjectPattern(fieldNames, _)                                     =>
+    case ObjectPattern(fieldNames, _)                                     ⇒
       fieldNames.mkString("{ ", ", ", " }")
     case ChainedOpExpr(left, opRights, _)                                 ⇒
       parens(pretty(left), simpleOmitParens(left)) +

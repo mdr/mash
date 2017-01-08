@@ -12,7 +12,7 @@ import scala.PartialFunction.condOpt
   */
 class Abstractifier(provenance: Provenance) {
 
-  import com.github.mdr.mash.parser.{ AbstractSyntax => Abstract, ConcreteSyntax => Concrete }
+  import com.github.mdr.mash.parser.{ AbstractSyntax ⇒ Abstract, ConcreteSyntax ⇒ Concrete }
 
   def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
@@ -94,7 +94,7 @@ class Abstractifier(provenance: Provenance) {
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
     case Concrete.DefaultParam(name, _, defaultExpr)    ⇒
       Abstract.FunctionParam(Some(name.text), defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
-    case Concrete.PatternParam(pattern)                 =>
+    case Concrete.PatternParam(pattern)                 ⇒
       Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }
 
@@ -107,7 +107,7 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyObjectPattern(pattern: Concrete.ObjectPattern): Abstract.ObjectPattern = {
     val Concrete.ObjectPattern(_, contentsOpt, _) = pattern
-    val entries = contentsOpt.map { contents =>
+    val entries = contentsOpt.map { contents ⇒
       val firstEntry = abstractifyObjectPatternEntry(contents.firstEntry)
       val otherEntries = contents.otherEntries.map { case (_, item) ⇒ abstractifyObjectPatternEntry(item) }
       firstEntry +: otherEntries
@@ -178,8 +178,8 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyEntry(entry: Concrete.ObjectEntry): Abstract.ObjectEntry = entry match {
-    case fullEntry: Concrete.FullObjectEntry           => abstractifyEntry(fullEntry)
-    case shorthandEntry: Concrete.ShorthandObjectEntry => abstractifyEntry(shorthandEntry)
+    case fullEntry: Concrete.FullObjectEntry           ⇒ abstractifyEntry(fullEntry)
+    case shorthandEntry: Concrete.ShorthandObjectEntry ⇒ abstractifyEntry(shorthandEntry)
   }
 
   private def abstractifyEntry(entry: Concrete.ShorthandObjectEntry): Abstract.ShorthandObjectEntry =

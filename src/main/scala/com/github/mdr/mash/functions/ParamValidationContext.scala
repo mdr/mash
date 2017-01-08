@@ -121,9 +121,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       argument match {
         case EvaluatedArgument.ShortFlag(flags, argNodeOpt)            ⇒
           for (flag ← flags)
-            bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
+            bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() ⇒ MashBoolean.True))
         case EvaluatedArgument.LongFlag(flag, None, argNodeOpt)        ⇒
-          bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() => MashBoolean.True))
+          bindFlagParam(flag, argNodeOpt, value = SuspendedMashValue(() ⇒ MashBoolean.True))
         case EvaluatedArgument.LongFlag(flag, Some(value), argNodeOpt) ⇒
           bindFlagParam(flag, argNodeOpt, value)
         case posArg: EvaluatedArgument.PositionArg                     ⇒

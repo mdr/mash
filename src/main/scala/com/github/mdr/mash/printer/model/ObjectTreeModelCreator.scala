@@ -11,9 +11,9 @@ class ObjectTreeModelCreator(viewConfig: ViewConfig) {
     ObjectTreeModel(createNode(value), value)
 
   private def createNode(value: MashValue): ObjectTreeNode = value match {
-    case xs: MashList    => ObjectTreeNode.List(xs.elements.map(createNode), xs)
-    case obj: MashObject => ObjectTreeNode.Object(obj.fields.toSeq.map { case (field, value) => field -> createNode(value) }, obj)
-    case _               => ObjectTreeNode.Leaf(fieldRenderer.renderField(value, inCell = true), value)
+    case xs: MashList    ⇒ ObjectTreeNode.List(xs.elements.map(createNode), xs)
+    case obj: MashObject ⇒ ObjectTreeNode.Object(obj.fields.toSeq.map { case (field, value) ⇒ field -> createNode(value) }, obj)
+    case _               ⇒ ObjectTreeNode.Leaf(fieldRenderer.renderField(value, inCell = true), value)
   }
 
 }

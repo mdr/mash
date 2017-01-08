@@ -5,16 +5,16 @@ import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
 
 trait TextLinesBrowserActionHandler {
-  self: ObjectBrowserActionHandler with Repl =>
+  self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleTextLinesBrowserAction(action: InputAction, browserState: TextLinesBrowserState): Unit = action match {
     case ExitBrowser                     ⇒
       state.objectBrowserStateStackOpt = None
-    case Back                            =>
+    case Back                            ⇒
       navigateBack()
-    case Open                            =>
+    case Open                            ⇒
       handleOpenItem(browserState)
-    case InsertItem                      =>
+    case InsertItem                      ⇒
       handleInsertItem(browserState)
     case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
@@ -32,8 +32,8 @@ trait TextLinesBrowserActionHandler {
       updateState(browserState.previousPage(terminalRows))
     case Focus                           ⇒
       focus(browserState, tree = false)
-    case ExpressionInput.BeginExpression =>
+    case ExpressionInput.BeginExpression ⇒
       updateState(browserState.setExpression(""))
-    case _                               =>
+    case _                               ⇒
   }
 }

@@ -25,7 +25,7 @@ object UrlFunction extends MashFunction("net.url") {
     try
       new URI(s)
     catch {
-      case e: URISyntaxException => boundParams.throwInvalidArgument(Url, e.getMessage)
+      case e: URISyntaxException ⇒ boundParams.throwInvalidArgument(Url, e.getMessage)
     }
     MashString(s, UrlClass)
   }

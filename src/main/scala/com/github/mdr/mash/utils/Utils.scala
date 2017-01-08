@@ -77,11 +77,11 @@ object Utils {
       case (Some(value1), Some(value2)) ⇒ Some(f(value1, value2))
     }
 
-  def tupled[A, B, C](f: (A, B) => C): ((A, B)) => C = f.tupled
+  def tupled[A, B, C](f: (A, B) ⇒ C): ((A, B)) ⇒ C = f.tupled
 
   implicit class RichWhen[T](t: T) {
 
-    def when(cond: Boolean, f: T => T): T = if (cond) f(t) else t
+    def when(cond: Boolean, f: T ⇒ T): T = if (cond) f(t) else t
 
   }
 }

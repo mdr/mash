@@ -32,21 +32,21 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     searchStateOpt: Option[SearchState] = None,
                                     expressionOpt: Option[String] = None) extends BrowserState {
 
-  def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState =>
+  def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     runSearch(searchState.query, !searchState.ignoreCase, terminalRows)
   }
 
-  private def ifSearching(f: SearchState => BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
+  private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
 
   def stopSearching: BrowserState = copy(searchStateOpt = None)
 
-  def nextHit(terminalRows: Int): BrowserState = ifSearching { searchState =>
+  def nextHit(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     val rows = searchState.rows
     val nextRow = rows.find(_ > selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
     copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
   }
 
-  def previousHit(terminalRows: Int): BrowserState = ifSearching { searchState =>
+  def previousHit(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     val rows = searchState.rows.reverse
     val nextRow = rows.find(_ < selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
     copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
@@ -58,7 +58,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       try
         Pattern.compile(query, flags)
       catch {
-        case _: PatternSyntaxException =>
+        case _: PatternSyntaxException ⇒
           Pattern.compile(Pattern.quote(query))
       }
     val tuples: Seq[(Point, CellSearchInfo)] =
@@ -69,8 +69,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
         cellInfo <- getCellSearchInfo(pattern, row, column)
       } yield point -> cellInfo
     val newRow =
-      tuples.collectFirst { case (point, _) if point.row >= selectedRow => point.row }
-        .orElse(tuples.collectFirst { case (point, _) => point.row })
+      tuples.collectFirst { case (point, _) if point.row >= selectedRow ⇒ point.row }
+        .orElse(tuples.collectFirst { case (point, _) ⇒ point.row })
         .getOrElse(selectedRow)
     val searchInfo = SearchState(query, tuples.toMap, ignoreCase)
     copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)

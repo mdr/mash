@@ -71,12 +71,12 @@ object ReplRenderer {
 
   private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalInfo: TerminalInfo): ReplRenderResult =
     state.headState match {
-      case objectTableBrowserState: ObjectsTableBrowserState       => renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
-      case singleObjectBrowserState: SingleObjectTableBrowserState => renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
-      case objectTreeBrowserState: ObjectTreeBrowserState          => renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
-      case valueBrowserState: ValueBrowserState                    => renderValueBrowser(valueBrowserState, terminalInfo)
-      case textLinesBrowserState: TextLinesBrowserState            => renderTextLinesBrowserState(textLinesBrowserState, terminalInfo)
-      case _                                                       => ???
+      case objectTableBrowserState: ObjectsTableBrowserState       ⇒ renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
+      case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
+      case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
+      case valueBrowserState: ValueBrowserState                    ⇒ renderValueBrowser(valueBrowserState, terminalInfo)
+      case textLinesBrowserState: TextLinesBrowserState            ⇒ renderTextLinesBrowserState(textLinesBrowserState, terminalInfo)
+      case _                                                       ⇒ ???
     }
 
   private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {

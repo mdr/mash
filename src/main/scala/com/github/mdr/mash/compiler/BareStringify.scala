@@ -88,8 +88,8 @@ class BareStringificationContext {
     case ObjectExpr(entries, sourceInfoOpt) ⇒
       val newEntries =
         entries.map {
-          case FullObjectEntry(label, value, sourceInfoOpt) => FullObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
-          case ShorthandObjectEntry(field, sourceInfoOpt) => ShorthandObjectEntry(field, sourceInfoOpt)
+          case FullObjectEntry(label, value, sourceInfoOpt) ⇒ FullObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
+          case ShorthandObjectEntry(field, sourceInfoOpt) ⇒ ShorthandObjectEntry(field, sourceInfoOpt)
         }
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt) ⇒

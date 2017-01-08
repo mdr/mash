@@ -32,7 +32,7 @@ object Singletons {
 
 object GlobalInterpreterLock {
 
-  def withLock[T](f: => T): T = synchronized {
+  def withLock[T](f: ⇒ T): T = synchronized {
     f
   }
 

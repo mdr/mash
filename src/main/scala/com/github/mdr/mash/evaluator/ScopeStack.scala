@@ -48,9 +48,9 @@ case class ScopeStack(scopes: List[Scope]) {
     scopes match {
       case (scope: BlockScope) :: rest ⇒
         lookup(name, rest) match {
-          case Some(_) =>
+          case Some(_) ⇒
             set(name, value, rest)
-          case None =>
+          case None ⇒
             scope.set(name, value)
         }
       case (scope: FullScope) :: rest  ⇒

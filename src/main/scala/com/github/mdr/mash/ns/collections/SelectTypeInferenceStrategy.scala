@@ -28,14 +28,14 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
     typedArg match {
       case TypedArgument.PositionArg(ValueInfo(functionValueOpt, Some(functionType)))                                  ⇒
         val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
-        functionValueOpt.collect { case MashString(s, _) => s -> typeOpt }
+        functionValueOpt.collect { case MashString(s, _) ⇒ s -> typeOpt }
       case TypedArgument.LongFlag(flag, Some(ValueInfo(functionValueOpt, Some(functionType)))) if !isSpecialFlag(flag) ⇒
         val typeOpt = inferencer.applyFunction(functionType, elementType, functionValueOpt)
         Some(flag -> typeOpt)
       case TypedArgument.LongFlag(flag, None) if !isSpecialFlag(flag)                                                  ⇒
         val typeOpt = inferencer.applyFunction(StringClass, elementType, Some(MashString(flag)))
         Some(flag -> typeOpt)
-      case _                                                                                                           =>
+      case _                                                                                                           ⇒
         None
     }
 

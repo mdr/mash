@@ -16,11 +16,11 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
   }
 
   private def print(node: ObjectTreeNode, prefix: String): Unit = node match {
-    case ObjectTreeNode.List(Seq(), _)    => output.println("[]")
-    case ObjectTreeNode.List(elements, _) => printList(elements, prefix, connectUp = true)
-    case ObjectTreeNode.Object(Seq(), _)  => output.println("{}")
-    case ObjectTreeNode.Object(values, _) => printObject(values, prefix, connectUp = true)
-    case ObjectTreeNode.Leaf(value, _)    => output.println(value)
+    case ObjectTreeNode.List(Seq(), _)    ⇒ output.println("[]")
+    case ObjectTreeNode.List(elements, _) ⇒ printList(elements, prefix, connectUp = true)
+    case ObjectTreeNode.Object(Seq(), _)  ⇒ output.println("{}")
+    case ObjectTreeNode.Object(values, _) ⇒ printObject(values, prefix, connectUp = true)
+    case ObjectTreeNode.Leaf(value, _)    ⇒ output.println(value)
   }
 
   private def printList2(nodes: Seq[ObjectTreeNode], prefix: String, connectUp: Boolean) {
@@ -31,16 +31,16 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
       output.print(s"$stuff─ $index:")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
-        case ObjectTreeNode.Leaf(value, _)      =>
+        case ObjectTreeNode.Leaf(value, _)      ⇒
           output.println(s" $value")
-        case ObjectTreeNode.List(Seq(), _)      =>
+        case ObjectTreeNode.List(Seq(), _)      ⇒
           output.println(" []")
-        case ObjectTreeNode.Object(Seq(), _)    =>
+        case ObjectTreeNode.Object(Seq(), _)    ⇒
           output.println(" {}")
-        case ObjectTreeNode.List(childNodes, _) =>
+        case ObjectTreeNode.List(childNodes, _) ⇒
           output.print(s"\n$nestingPrefix")
           printList(childNodes, nestingPrefix, connectUp = true)
-        case ObjectTreeNode.Object(values, _)   =>
+        case ObjectTreeNode.Object(values, _)   ⇒
           output.print(s"\n$nestingPrefix")
           printObject(values, nestingPrefix, connectUp = true)
       }
@@ -53,16 +53,16 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
       val stuff = getStuff(index, nodes, connectUp, prefix)
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
-        case ObjectTreeNode.Leaf(value, _)      =>
+        case ObjectTreeNode.Leaf(value, _)      ⇒
           output.println(s"$stuff─ $value")
-        case ObjectTreeNode.List(Seq(), _)      =>
+        case ObjectTreeNode.List(Seq(), _)      ⇒
           output.println(s"$stuff─ []")
-        case ObjectTreeNode.Object(Seq(), _)    =>
+        case ObjectTreeNode.Object(Seq(), _)    ⇒
           output.println(s"$stuff─ {}")
-        case ObjectTreeNode.List(childNodes, _) =>
+        case ObjectTreeNode.List(childNodes, _) ⇒
           output.print(s"$stuff──")
           printList(childNodes, nestingPrefix, connectUp = false)
-        case ObjectTreeNode.Object(values, _)   =>
+        case ObjectTreeNode.Object(values, _)   ⇒
           output.print(s"$stuff──")
           printObject(values, nestingPrefix, connectUp = false)
       }
@@ -78,16 +78,16 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
       output.print(":")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
-        case ObjectTreeNode.Leaf(value, _)      =>
+        case ObjectTreeNode.Leaf(value, _)      ⇒
           output.println(s" $value")
-        case ObjectTreeNode.List(Seq(), _)      =>
+        case ObjectTreeNode.List(Seq(), _)      ⇒
           output.println(" []")
-        case ObjectTreeNode.Object(Seq(), _)    =>
+        case ObjectTreeNode.Object(Seq(), _)    ⇒
           output.println(" {}")
-        case ObjectTreeNode.List(childNodes, _) =>
+        case ObjectTreeNode.List(childNodes, _) ⇒
           output.print(s"\n$nestingPrefix")
           printList(childNodes, nestingPrefix, connectUp = true)
-        case ObjectTreeNode.Object(values, _)   =>
+        case ObjectTreeNode.Object(values, _)   ⇒
           output.print(s"\n$nestingPrefix")
           printObject(values, nestingPrefix, connectUp = true)
       }

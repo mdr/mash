@@ -34,7 +34,7 @@ object EachFunction extends MashFunction("collections.each") {
     val withIndex = boundParams(WithIndex).isTruthy
     if (withIndex) {
       val action = boundParams.validateFunction2(Action)
-      sequence.zipWithIndex.foreach { case (v, i) => action(v, MashNumber(i)) }
+      sequence.zipWithIndex.foreach { case (v, i) ⇒ action(v, MashNumber(i)) }
     } else {
       val action = boundParams.validateFunction(Action)
       sequence.foreach(action)

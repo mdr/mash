@@ -40,7 +40,7 @@ object MapFunction extends MashFunction("collections.map") {
     val mapped =
       if (withIndex) {
         val f = boundParams.validateFunction2(F)
-        sequence.zipWithIndex.map { case (x, i) => f(x, MashNumber(i)) }
+        sequence.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
       } else {
         val f = boundParams.validateFunction(F)
         sequence.map(f)
@@ -85,9 +85,9 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
     val functionOpt = argBindings.getArgument(F)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val sequenceType = sequenceTypeOpt match {
-      case Some(Type.Seq(elementType))                                                   => elementType.seq
-      case Some(sequenceType@(Type.Instance(StringClass) | Type.Tagged(StringClass, _))) => sequenceType
-      case _                                                                             => Type.Any.seq
+      case Some(Type.Seq(elementType))                                                   ⇒ elementType.seq
+      case Some(sequenceType@(Type.Instance(StringClass) | Type.Tagged(StringClass, _))) ⇒ sequenceType
+      case _                                                                             ⇒ Type.Any.seq
     }
     val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, Some(sequenceType))
     Some(getResultType(sequenceType, newElementTypeOpt))

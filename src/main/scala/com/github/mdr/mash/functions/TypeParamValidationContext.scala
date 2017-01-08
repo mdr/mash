@@ -85,7 +85,7 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       param.patternOpt match {
         case Some(pattern) ⇒
           boundNames ++= inferTypes(pattern, arg.typeOpt)
-        case None          =>
+        case None          ⇒
           boundArguments += param.name -> arg
           arg.typeOpt.foreach {
             boundNames += param.name -> _

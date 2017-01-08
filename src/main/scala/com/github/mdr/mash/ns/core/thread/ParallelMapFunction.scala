@@ -31,8 +31,8 @@ object ParallelMapFunction extends MashFunction("core.thread.parallelMap") {
     }
   }
 
-  private def parallelMap(sequence: Seq[MashValue], f: MashValue => MashValue): Seq[MashValue] = {
-    val xs = Future.traverse(sequence)(x => Future(f(x)))
+  private def parallelMap(sequence: Seq[MashValue], f: MashValue ⇒ MashValue): Seq[MashValue] = {
+    val xs = Future.traverse(sequence)(x ⇒ Future(f(x)))
     Await.result(xs, Duration.Inf)
   }
 

@@ -7,8 +7,8 @@ object SafeParens {
   def safeParens(exprString: String): String = {
     val expr = MashParser.parseForgiving(exprString)
     val needsParens = expr match {
-      case _: ParenExpr | _: MemberExpr | _: LookupExpr | _: BlockExpr | _: ListExpr | _: ObjectExpr | _: Identifier => false
-      case _ => true
+      case _: ParenExpr | _: MemberExpr | _: LookupExpr | _: BlockExpr | _: ListExpr | _: ObjectExpr | _: Identifier ⇒ false
+      case _ ⇒ true
     }
     addParens(exprString, needsParens)
   }
@@ -20,9 +20,9 @@ object SafeParens {
     val prefixExpr = MashParser.parseForgiving(prefix)
     val suffixExpr = MashParser.parseForgiving("it" + suffix)
     val yes = (prefixExpr, suffixExpr) match {
-      case (_: ParenExpr | _: MemberExpr | _: LookupExpr | _: BlockExpr | _: ListExpr | _: ObjectExpr | _: Identifier, _) => false
-      case (_: PipeExpr, _: PipeExpr) => false
-      case _ => true
+      case (_: ParenExpr | _: MemberExpr | _: LookupExpr | _: BlockExpr | _: ListExpr | _: ObjectExpr | _: Identifier, _) ⇒ false
+      case (_: PipeExpr, _: PipeExpr) ⇒ false
+      case _ ⇒ true
     }
     addParens(prefix, yes) + suffix
   }

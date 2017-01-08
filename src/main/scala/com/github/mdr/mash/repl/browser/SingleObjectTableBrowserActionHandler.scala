@@ -5,7 +5,7 @@ import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
 
 trait SingleObjectTableBrowserActionHandler {
-  self: ObjectBrowserActionHandler with Repl =>
+  self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleSingleObjectBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit =
     action match {
@@ -22,19 +22,19 @@ trait SingleObjectTableBrowserActionHandler {
         state.objectBrowserStateStackOpt = None
       case Focus                           ⇒
         focus(browserState)
-      case Back                            =>
+      case Back                            ⇒
         navigateBack()
       case InsertItem                      ⇒
         handleInsertItem(browserState)
       case InsertWholeItem                 ⇒
         handleInsertWholeItem(browserState)
-      case Open                            =>
+      case Open                            ⇒
         handleOpenItem(browserState)
-      case ViewAsTree                      =>
+      case ViewAsTree                      ⇒
         viewAsTree(browserState)
-      case ExpressionInput.BeginExpression =>
+      case ExpressionInput.BeginExpression ⇒
         updateState(browserState.setExpression(""))
-      case _                               =>
+      case _                               ⇒
 
     }
 }

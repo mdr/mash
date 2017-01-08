@@ -32,7 +32,7 @@ object TokenType {
   case object GREATER_THAN extends TokenType
   case object LESS_THAN_EQUALS extends TokenType
   case object LESS_THAN extends TokenType
-  case object RIGHT_ARROW extends TokenType // =>
+  case object RIGHT_ARROW extends TokenType // ⇒
   case object PLUS extends TokenType // +
   case object MINUS extends TokenType // -
   case object TIMES extends TokenType // *

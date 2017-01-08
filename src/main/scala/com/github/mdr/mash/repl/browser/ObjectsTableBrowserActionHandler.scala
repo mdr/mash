@@ -8,35 +8,35 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, 
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 
 trait ObjectsTableBrowserActionHandler {
-  self: ObjectBrowserActionHandler with Repl =>
+  self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) =
     browserState.searchStateOpt match {
-      case Some(searchState) =>
+      case Some(searchState) ⇒
         handleIncrementalSearchAction(action, browserState, searchState)
-      case None              =>
+      case None              ⇒
         handleDefaultObjectsTableBrowserAction(action, browserState)
     }
 
   private def handleIncrementalSearchAction(action: InputAction, browserState: ObjectsTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._
     action match {
-      case SelfInsert(c)                   =>
+      case SelfInsert(c)                   ⇒
         updateState(browserState.setSearch(searchState.query + c, terminalRows))
-      case ToggleCase                      =>
+      case ToggleCase                      ⇒
         updateState(browserState.toggleCase(terminalRows))
-      case Unsearch                        =>
+      case Unsearch                        ⇒
         if (searchState.query.nonEmpty)
           updateState(browserState.setSearch(searchState.query.init, terminalRows))
-      case NextHit                         =>
+      case NextHit                         ⇒
         updateState(browserState.nextHit(terminalRows))
-      case PreviousHit                     =>
+      case PreviousHit                     ⇒
         updateState(browserState.previousHit(terminalRows))
-      case ExitSearch                      =>
+      case ExitSearch                      ⇒
         updateState(browserState.stopSearching)
-      case ExpressionInput.BeginExpression =>
+      case ExpressionInput.BeginExpression ⇒
         updateState(browserState.setExpression(""))
-      case _                               =>
+      case _                               ⇒
     }
   }
 
@@ -49,9 +49,9 @@ trait ObjectsTableBrowserActionHandler {
       case UnfocusColumn                   ⇒
         val newState = browserState.unfocusColumn
         updateState(newState)
-      case FirstColumn                     =>
+      case FirstColumn                     ⇒
         updateState(browserState.lastColumn)
-      case LastColumn                      =>
+      case LastColumn                      ⇒
         updateState(browserState.firstColumn)
       case NextItem                        ⇒
         updateState(browserState.nextItem(terminalRows))
@@ -71,9 +71,9 @@ trait ObjectsTableBrowserActionHandler {
         handleInsertItem(browserState)
       case InsertWholeItem                 ⇒
         handleInsertWholeItem(browserState)
-      case Open                            =>
+      case Open                            ⇒
         handleOpenItem(browserState)
-      case Back                            =>
+      case Back                            ⇒
         navigateBack()
       case Focus                           ⇒
         focus(browserState)
@@ -84,13 +84,13 @@ trait ObjectsTableBrowserActionHandler {
         val model = modelCreator.create(browserState.model.rawObjects, browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
-      case ViewAsTree                      =>
+      case ViewAsTree                      ⇒
         viewAsTree(browserState)
-      case HideColumn                      =>
+      case HideColumn                      ⇒
         handleHideColumn(browserState)
-      case IncrementalSearch.BeginSearch   =>
+      case IncrementalSearch.BeginSearch   ⇒
         updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
-      case ExpressionInput.BeginExpression =>
+      case ExpressionInput.BeginExpression ⇒
         updateState(browserState.setExpression(""))
       case _                               ⇒
     }

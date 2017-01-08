@@ -55,8 +55,8 @@ object GetFunction extends MashFunction("http.get") {
     val code = response.getStatusLine.getStatusCode
     val content = response.getEntity.getContent
     val responseBody = IOUtils.toString(content, "UTF-8")
-    val headers = response.getAllHeaders.map(header => asMashObject(header))
-    val cookies = cookieStore.getCookies.asScala.map(cookie => asMashObject(cookie))
+    val headers = response.getAllHeaders.map(header ⇒ asMashObject(header))
+    val cookies = cookieStore.getCookies.asScala.map(cookie ⇒ asMashObject(cookie))
     import ResponseClass.Fields._
     MashObject.of(ListMap(
       Status -> MashNumber(code),

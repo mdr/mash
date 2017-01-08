@@ -84,7 +84,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   private def renderRegularStatusLine: Line = {
     import KeyHint._
     val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression) ++
-      state.currentColumnOpt.toSeq.flatMap(_ => Seq(Row, HideColumn))
+      state.currentColumnOpt.toSeq.flatMap(_ ⇒ Seq(Row, HideColumn))
     val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
     Line(countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
@@ -106,11 +106,11 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private def renderStatusLine: Line =
     state.searchStateOpt match {
-      case Some(searchState) => renderIncrementalSearchStatusLine(searchState)
-      case None              =>
+      case Some(searchState) ⇒ renderIncrementalSearchStatusLine(searchState)
+      case None              ⇒
         state.expressionOpt match {
-          case Some(expression) => renderExpressionInputStatusLine(expression)
-          case None             => renderRegularStatusLine
+          case Some(expression) ⇒ renderExpressionInputStatusLine(expression)
+          case None             ⇒ renderRegularStatusLine
         }
     }
 

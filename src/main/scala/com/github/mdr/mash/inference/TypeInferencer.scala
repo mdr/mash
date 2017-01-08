@@ -96,11 +96,11 @@ class TypeInferencer {
       statement match {
         case AssignmentExpr(Identifier(name, _), _, _, _, _)    ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
-        case PatternAssignmentExpr(pattern, right, _)           =>
+        case PatternAssignmentExpr(pattern, right, _)           ⇒
           latestBindings ++= TypeParamValidationContext.inferTypes(Evaluator.makeParamPattern(pattern), right.typeOpt)
-        case decl@FunctionDeclaration(name, paramList, body, _) =>
+        case decl@FunctionDeclaration(name, paramList, body, _) ⇒
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
-        case _                                                  =>
+        case _                                                  ⇒
       }
     }
     statementSeq.statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
@@ -117,7 +117,7 @@ class TypeInferencer {
       case FunctionParam(None, _, _, _, Some(pattern), _) ⇒
         for (name <- pattern.boundNames)
           yield name -> Type.Any
-      case _                                              =>
+      case _                                              ⇒
         Seq()
     }).toMap
 
@@ -190,13 +190,13 @@ class TypeInferencer {
     val ObjectExpr(entries, _) = objectExpr
     val fieldTypes =
       entries.flatMap {
-        case FullObjectEntry(fieldExpr, valueExpr, _) =>
+        case FullObjectEntry(fieldExpr, valueExpr, _) ⇒
           inferType(fieldExpr, bindings)
           for {
             label ← getFieldName(fieldExpr)
             typ_ = inferType(valueExpr, bindings).getOrElse(Type.Any)
           } yield label -> typ_
-        case ShorthandObjectEntry(field, _)           =>
+        case ShorthandObjectEntry(field, _)           ⇒
           Seq(field -> inferType(field, bindings, immediateExec = true).getOrElse(Type.Any))
       }
     Some(Type.Object(fieldTypes.toMap))

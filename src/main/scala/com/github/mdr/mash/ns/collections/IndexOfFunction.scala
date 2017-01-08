@@ -25,8 +25,8 @@ object IndexOfFunction extends MashFunction("collections.indexOf") {
     val sequence = boundParams.validateSequence(Sequence)
     val element = boundParams(Element)
     sequence.indexOf(element) match {
-      case -1 => MashNull
-      case n => MashNumber(n)
+      case -1 ⇒ MashNull
+      case n ⇒ MashNumber(n)
     }
   }
 

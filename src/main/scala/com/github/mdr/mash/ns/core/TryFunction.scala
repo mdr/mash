@@ -29,8 +29,8 @@ object TryFunction extends MashFunction("core.try") {
     try
       body.apply(Arguments(Seq()))
     catch {
-      case e: EvaluationInterruptedException => throw e
-      case _: Throwable => catchBlock.apply(Arguments(Seq()))
+      case e: EvaluationInterruptedException ⇒ throw e
+      case _: Throwable ⇒ catchBlock.apply(Arguments(Seq()))
     }
   }
 

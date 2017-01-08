@@ -32,11 +32,11 @@ object FunctionClass extends MashClass("core.Function") {
       val Args = Parameter(
         name = "args",
         summary = "Positional arguments for this function",
-        defaultValueGeneratorOpt = Option(() => MashList.empty))
+        defaultValueGeneratorOpt = Option(() ⇒ MashList.empty))
       val NamedArgs = Parameter(
         name = "namedArgs",
         summary = "Named arguments for this function",
-        defaultValueGeneratorOpt = Option(() => MashObject.empty))
+        defaultValueGeneratorOpt = Option(() ⇒ MashObject.empty))
     }
 
     import Params._
@@ -47,8 +47,8 @@ object FunctionClass extends MashClass("core.Function") {
       val boundParams = params.validate(arguments)
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
-      val functionArguments = Arguments(args.map(v => EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
-      namedArgs.fields.toSeq.map { case (field, value) =>
+      val functionArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
+      namedArgs.fields.toSeq.map { case (field, value) ⇒
         EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
       })
       target.asInstanceOf[MashFunction].apply(functionArguments)

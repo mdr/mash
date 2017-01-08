@@ -24,15 +24,15 @@ object SleepFunction extends MashFunction("time.sleep") {
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val millis = boundParams(Duration) match {
-      case MashNumber(n, Some(klass: ChronoUnitClass)) =>
+      case MashNumber(n, Some(klass: ChronoUnitClass)) ⇒
         val nowInstant = clock.instant
         val now = LocalDateTime.ofInstant(nowInstant, clock.getZone)
         val amount = klass.temporalAmount(n.toInt)
         val future = now.plus(amount).atZone(clock.getZone).toInstant
         future.toEpochMilli - nowInstant.toEpochMilli
-      case MashNumber(n, _)                            =>
+      case MashNumber(n, _)                            ⇒
         n.toLong
-      case x                                           =>
+      case x                                           ⇒
         boundParams.throwInvalidArgument(Duration, "Invalid duration of type " + x.typeName)
     }
     Thread.sleep(millis)
