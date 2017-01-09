@@ -7,7 +7,7 @@ v0.0.5 (..)
 * Very basic Host/Url/DNS: net.url, net.Url, net.Host
 * Better user-defined function type inference
 * map/flatMap/each --withIndex
-* Object destructuring in assignment and function params
+* Destructuring in assignment and function params
 * Add http.delete
 * Object browser can apply an expression to the result
 * git.tag.create/delete/list
