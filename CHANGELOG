@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Add grep --regex
 * Add type.hint
 * sort --naturalOrder
 * Very basic Host/Url/DNS: net.url, net.Url, net.Host
