@@ -87,8 +87,10 @@ object AbstractSyntax {
         MishRedirect(op, arg.transform(f), sourceInfoOpt)
       case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
         FunctionDeclaration(name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
-      case ClassDeclaration(name, params, sourceInfoOpt) ⇒
-        ClassDeclaration(name, params.transform(f).asInstanceOf[ParamList], sourceInfoOpt)
+      case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt) ⇒
+        ClassDeclaration(name, params.transform(f).asInstanceOf[ParamList], bodyOpt.map(_.transform(f).asInstanceOf[ClassBody]), sourceInfoOpt)
+      case ClassBody(methods, sourceInfoOpt) ⇒
+        ClassBody(methods.map(_.transform(f).asInstanceOf[FunctionDeclaration]), sourceInfoOpt)
       case HelpExpr(expr, sourceInfoOpt) ⇒
         HelpExpr(expr.transform(f), sourceInfoOpt)
       case ExprPart(expr) ⇒
@@ -406,9 +408,14 @@ object AbstractSyntax {
     def children = Seq(body, params)
   }
 
-  case class ClassDeclaration(name: String, params: ParamList, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class ClassDeclaration(name: String, params: ParamList, bodyOpt: Option[ClassBody], sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(params)
+    def children = Seq(params) ++ bodyOpt
+  }
+
+  case class ClassBody(methods: Seq[FunctionDeclaration], sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = methods
   }
 
   case class MishFunction(command: String, sourceInfoOpt: Option[SourceInfo]) extends Expr {

@@ -38,7 +38,15 @@ trait FunctionParse {
     ParamList(params)
   }
 
-  private def parameter(parenAllowed: Boolean = true): Param =
+  protected def classParamList(): ParamList = {
+    val params = ArrayBuffer[Param]()
+    safeWhile(IDENTIFIER || LPAREN || LSQUARE || HOLE) {
+      params += parameter()
+    }
+    ParamList(params)
+  }
+
+  protected def parameter(parenAllowed: Boolean = true): Param =
      if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {

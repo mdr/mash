@@ -76,7 +76,11 @@ object SimpleEvaluator {
       evaluate(body)
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None
-    case ClassDeclaration(_, params, _)                ⇒
+    case ClassDeclaration(_, params, bodyOpt, _)                ⇒
+      for {
+        body ← bodyOpt
+        method ← body.methods
+      } evaluate(method)
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None
   }

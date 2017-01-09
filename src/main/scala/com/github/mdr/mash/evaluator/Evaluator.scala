@@ -147,11 +147,37 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): MashUnit = {
-    val ClassDeclaration(className, paramList, _) = decl
+    val ClassDeclaration(className, paramList, bodyOpt, _) = decl
+    val methodDecls = bodyOpt.map(_.methods).getOrElse(Seq())
     val classParams = parameterModel(paramList, Some(context))
     val classFields = classParams.params.map { param ⇒
       val fieldName = param.nameOpt.getOrElse("anon")
       Field(fieldName, s"Field '$fieldName'", AnyClass)
+    }
+
+    def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashMethod = {
+      val FunctionDeclaration(functionName, paramList, body, _) = decl
+      val methodParams = parameterModel(paramList, Some(context))
+
+      object Method extends MashMethod(functionName) {
+
+        override def apply(target: MashValue, arguments: Arguments): MashValue = {
+          val boundParams = params.validate(arguments)
+          val boundFields =
+            for {
+              field ← classFields
+              value = target.asInstanceOf[MashObject](field.name)
+            } yield field.name -> value
+
+          val newScopeStack = context.scopeStack.withFullScope(boundFields.toMap ++ boundParams.boundNames)
+          Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
+        }
+
+        override def summary: String = s"Method '$functionName'"
+
+        override def params: ParameterModel = methodParams
+      }
+      Method
     }
 
     object UserDefinedClass extends MashClass(nameOpt = Some(className)) {
@@ -162,6 +188,8 @@ object Evaluator extends EvaluatorHelper {
 
       override val staticMethods = Seq(
         NewStaticMethod)
+
+      override val methods = methodDecls.map(makeMethod)
 
       object NewStaticMethod extends MashFunction("new") {
         override def apply(arguments: Arguments): MashObject = {

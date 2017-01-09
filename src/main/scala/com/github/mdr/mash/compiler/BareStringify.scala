@@ -113,8 +113,9 @@ class BareStringificationContext {
       MishInterpolation(newPart, sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
       FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
-    case ClassDeclaration(name, params, sourceInfoOpt) ⇒
-      ClassDeclaration(name, params, sourceInfoOpt)
+    case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt) ⇒
+      // TODO: bodyOpt, param defaults
+      ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt) ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
