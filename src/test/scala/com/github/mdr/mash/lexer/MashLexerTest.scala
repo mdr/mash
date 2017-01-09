@@ -56,6 +56,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   "if then else" shouldProduce Seq(IF, THEN, ELSE)
 
   "def" shouldProduce Seq(DEF)
+  "class" shouldProduce Seq(CLASS)
 
   "[ ] ," shouldProduce Seq(LSQUARE, RSQUARE, COMMA)
 

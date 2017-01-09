@@ -303,6 +303,10 @@ object ConcreteSyntax {
     lazy val tokens = params.flatMap(_.tokens)
   }
 
+  case class ClassDeclaration(classToken: Token, name: Token, params: ParamList) extends Expr {
+    lazy val tokens = Seq(classToken, name) ++ params.tokens
+  }
+
   case class FunctionDeclaration(defToken: Token, name: Token, params: ParamList, equals: Token, body: Expr) extends Expr {
     lazy val tokens = Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
   }

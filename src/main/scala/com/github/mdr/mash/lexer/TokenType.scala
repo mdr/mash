@@ -17,7 +17,7 @@ abstract sealed class TokenType {
 
 object TokenType {
 
-  val Keywords: Set[TokenType] = Set(TRUE, FALSE, AND, OR, IF, THEN, ELSE, NULL, DEF, ALIAS, LAZY)
+  val Keywords: Set[TokenType] = Set(TRUE, FALSE, AND, OR, IF, THEN, ELSE, NULL, DEF, CLASS, ALIAS, LAZY)
   val Literals: Set[TokenType] = Set(TRUE, FALSE, NUMBER_LITERAL, STRING_LITERAL, NULL)
 
   case object WHITESPACE extends TokenType
@@ -82,4 +82,5 @@ object TokenType {
   case object ERROR extends TokenType
   case object ALIAS extends TokenType
   case object LAZY extends TokenType
+  case object CLASS extends TokenType
 }

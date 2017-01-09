@@ -11,7 +11,7 @@ import com.github.mdr.mash.utils.NumberUtils
 object AnyClass extends MashClass("core.Any") {
 
   override val methods = Seq(
-    ClassMethod,
+    GetClassMethod,
     InMethod,
     IsAMethod,
     IsNullMethod,
@@ -83,7 +83,7 @@ object AnyClass extends MashClass("core.Any") {
 
   }
 
-  object ClassMethod extends MashMethod("class") {
+  object GetClassMethod extends MashMethod("getClass") {
 
     val params = ParameterModel()
 

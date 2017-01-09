@@ -14,6 +14,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     with ObjectParse
     with MishParse
     with FunctionParse
+    with ClassParse
     with InvocationParse {
 
   def program(): Expr = {
@@ -26,6 +27,8 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def statementExpr(): Expr =
     if (DEF)
       functionDeclaration()
+    else if (CLASS)
+      classDeclaration()
     else
       pipeExpr()
 

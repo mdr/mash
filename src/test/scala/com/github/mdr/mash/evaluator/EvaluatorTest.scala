@@ -496,7 +496,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[pwd].info.permissions? .name" shouldEvaluateTo "'permissions'"
 
   "git.log? .name" shouldEvaluateTo "'log'"
-  "help 42.class | _.name" shouldEvaluateTo "'Number'"
+  "help 42.getClass | _.name" shouldEvaluateTo "'Number'"
 
   "def square n = n * n; square 8" shouldEvaluateTo 64
   "def square n = n * n; square --n=8" shouldEvaluateTo 64

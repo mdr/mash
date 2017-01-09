@@ -204,7 +204,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "ls?" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
   "help readLines" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
   "help [].maxBy" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
-  "help 42.class" shouldBeInferredAsHavingType Instance(ClassHelpClass)
+  "help 42.getClass" shouldBeInferredAsHavingType Instance(ClassHelpClass)
   "ls? .parameters" shouldBeInferredAsHavingType Seq(ParameterHelpClass)
 
   // target

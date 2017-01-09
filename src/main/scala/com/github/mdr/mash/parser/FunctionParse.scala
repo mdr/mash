@@ -30,7 +30,7 @@ trait FunctionParse {
     FunctionDeclaration(defToken, name, params, equals, body)
   }
 
-  private def paramList(): ParamList = {
+  protected def paramList(): ParamList = {
     val params = ArrayBuffer[Param]()
     safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
       params += parameter()
