@@ -57,7 +57,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     boundParams += param
   }
 
-  private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation]): Unit =
+  private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation] = None): Unit =
     pattern match {
       case ParamPattern.Object(entries)   ⇒
         value match {
@@ -154,7 +154,11 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     for (param ← params.params if !boundParams.contains(param))
       param.defaultValueGeneratorOpt match {
         case Some(generator) ⇒
-          param.nameOpt.foreach(boundNames += _ -> generator())
+          val defaultValue = generator()
+          param.patternOpt match {
+            case Some(pattern) ⇒ bindPattern(pattern, defaultValue)
+            case None          ⇒ param.nameOpt.foreach(boundNames += _ -> defaultValue)
+          }
           boundParams += param
         case None            ⇒
           if (param.isVariadic)

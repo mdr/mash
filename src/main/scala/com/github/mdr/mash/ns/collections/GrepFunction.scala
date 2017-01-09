@@ -1,5 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
+import java.util.regex.Pattern
+
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
@@ -22,27 +24,39 @@ object GrepFunction extends MashFunction("collections.grep") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
+    val Regex = Parameter(
+      nameOpt = Some("regex"),
+      shortFlagOpt = Some('r'),
+      summary = "Interpret query as a regular expression; otherwise, interpret query as the literal string (default false)",
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      isFlag = true,
+      isBooleanFlag = true)
+
   }
   import Params._
 
-  val params = ParameterModel(Seq(Query, Sequence, IgnoreCase))
+  val params = ParameterModel(Seq(Query, Sequence, IgnoreCase, Regex))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val ignoreCase = boundParams(IgnoreCase).isTruthy
+    val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
-    val newSequence = sequence.filter(matches(_, query, ignoreCase))
+    val newSequence = sequence.filter(matches(_, query, ignoreCase, regex))
     reassembleSequence(inSequence, newSequence)
   }
 
-  private def matches(value: MashValue, query: String, ignoreCase: Boolean): Boolean = {
+  private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean): Boolean = {
     val valueString = ToStringifier.stringify(value)
-    if (ignoreCase)
-      valueString.toLowerCase.contains(query.toLowerCase)
+    if (regex) {
+      val pattern = Pattern.compile(query, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
+      pattern.matcher(valueString).find()
+    } else if (ignoreCase)
+      valueString.toLowerCase contains query.toLowerCase
     else
-      valueString.contains(query)
+      valueString contains query
   }
 
   def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =

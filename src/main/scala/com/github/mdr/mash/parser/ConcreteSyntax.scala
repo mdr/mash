@@ -232,10 +232,13 @@ object ConcreteSyntax {
     lazy val tokens = (start +: expr.tokens) :+ rbrace
   }
 
-  sealed trait Pattern extends AstNode
+  sealed trait Pattern extends AstNode {
+    def nameOpt: Option[String] = None
+  }
 
   case class IdentPattern(identifier: Token) extends Pattern {
     lazy val tokens = Seq(identifier)
+    override def nameOpt = Some(identifier.text)
   }
 
   case class ObjectPattern(lbrace: Token, contentsOpt: Option[ObjectPatternContents], rbrace: Token) extends Pattern {
@@ -292,8 +295,8 @@ object ConcreteSyntax {
     lazy val tokens = Seq(name, ellipsis)
   }
 
-  case class DefaultParam(name: Token, equals: Token, defaultExpr: Expr) extends Param {
-    lazy val tokens = Seq(name, equals) ++ defaultExpr.tokens
+  case class DefaultParam(pattern: Pattern, equals: Token, defaultExpr: Expr) extends Param {
+    lazy val tokens = pattern.tokens ++ Seq(equals) ++ defaultExpr.tokens
   }
 
   case class ParamList(params: Seq[Param]) extends AstNode {

@@ -92,8 +92,8 @@ class Abstractifier(provenance: Provenance) {
       Abstract.FunctionParam(Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
     case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
-    case Concrete.DefaultParam(name, _, defaultExpr)    ⇒
-      Abstract.FunctionParam(Some(name.text), defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param))
+    case Concrete.DefaultParam(pattern, _, defaultExpr)    ⇒
+      Abstract.FunctionParam(pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
     case Concrete.PatternParam(pattern)                 ⇒
       Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }

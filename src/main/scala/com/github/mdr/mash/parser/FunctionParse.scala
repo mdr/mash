@@ -56,7 +56,7 @@ trait FunctionParse {
             if (SHORT_EQUALS) {
               val equals = nextToken()
               val defaultExpr = pipeExpr()
-              DefaultParam(name, equals, defaultExpr)
+              DefaultParam(IdentPattern(name), equals, defaultExpr)
             } else
               param
           case _                 ⇒
@@ -70,8 +70,15 @@ trait FunctionParse {
         else
           errorExpectedToken(")")
       ParenParam(lparen, lazyOpt, actualParam, rparen)
-    } else if (LBRACE || LSQUARE || HOLE)
-      PatternParam(pattern())
+    } else if (LBRACE || LSQUARE || HOLE) {
+       val pat = pattern()
+       if (SHORT_EQUALS) {
+         val equals = nextToken()
+         val defaultExpr = pipeExpr()
+         DefaultParam(pat, equals, defaultExpr)
+       } else
+         PatternParam(pat)
+     }
     else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else
