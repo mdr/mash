@@ -87,6 +87,8 @@ object AbstractSyntax {
         MishRedirect(op, arg.transform(f), sourceInfoOpt)
       case FunctionDeclaration(name, params, body, sourceInfoOpt) ⇒
         FunctionDeclaration(name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
+      case ClassDeclaration(name, params, sourceInfoOpt) ⇒
+        ClassDeclaration(name, params.transform(f).asInstanceOf[ParamList], sourceInfoOpt)
       case HelpExpr(expr, sourceInfoOpt) ⇒
         HelpExpr(expr.transform(f), sourceInfoOpt)
       case ExprPart(expr) ⇒
@@ -402,6 +404,11 @@ object AbstractSyntax {
   case class FunctionDeclaration(name: String, params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(body, params)
+  }
+
+  case class ClassDeclaration(name: String, params: ParamList, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq(params)
   }
 
   case class MishFunction(command: String, sourceInfoOpt: Option[SourceInfo]) extends Expr {

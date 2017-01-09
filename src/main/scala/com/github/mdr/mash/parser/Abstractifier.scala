@@ -39,6 +39,7 @@ class Abstractifier(provenance: Provenance) {
     case mishExpr: Concrete.MishExpr                        ⇒ abstractifyMish(mishExpr, captureProcessOutput = false)
     case str: Concrete.InterpolatedString                   ⇒ abstractifyInterpolatedString(str)
     case decl: Concrete.FunctionDeclaration                 ⇒ abstractifyFunctionDeclaration(decl)
+    case decl: Concrete.ClassDeclaration                    ⇒ abstractifyClassDeclaration(decl)
     case Concrete.MishFunction(word)                        ⇒ Abstract.MishFunction(word.text.tail, sourceInfo(expr))
     case Concrete.HelpExpr(subExpr, _)                      ⇒ Abstract.HelpExpr(abstractify(subExpr), sourceInfo(expr))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
@@ -85,6 +86,12 @@ class Abstractifier(provenance: Provenance) {
     Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
+  private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
+    val Concrete.ClassDeclaration(_, name, params) = decl
+    val abstractParams = abstractifyParamList(params)
+    Abstract.ClassDeclaration(name.text, abstractParams, sourceInfo(decl))
+  }
+
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
     case Concrete.SimpleParam(name)                     ⇒
       Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
@@ -92,7 +99,7 @@ class Abstractifier(provenance: Provenance) {
       Abstract.FunctionParam(Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
     case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
-    case Concrete.DefaultParam(pattern, _, defaultExpr)    ⇒
+    case Concrete.DefaultParam(pattern, _, defaultExpr) ⇒
       Abstract.FunctionParam(pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
     case Concrete.PatternParam(pattern)                 ⇒
       Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))

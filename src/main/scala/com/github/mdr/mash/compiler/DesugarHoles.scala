@@ -146,6 +146,9 @@ object DesugarHoles {
       val newParams = ParamList(params.map(desugarHoles))
       val newBody = addLambdaIfNeeded(body)
       Result(FunctionDeclaration(name, newParams, newBody, sourceInfoOpt))
+    case ClassDeclaration(name, ParamList(params), sourceInfoOpt) ⇒
+      val newParams = ParamList(params.map(desugarHoles))
+      Result(ClassDeclaration(name, newParams, sourceInfoOpt))
     case HelpExpr(expr, sourceInfoOpt) ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)

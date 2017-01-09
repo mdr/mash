@@ -1,6 +1,8 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.functions._
+import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, ConstantTypeInferenceStrategy, Type }
+import com.github.mdr.mash.ns.core.{ AnyClass, FieldAndValueClass, StringClass }
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -79,6 +81,7 @@ object Evaluator extends EvaluatorHelper {
       case expr: MishInterpolation                                   ⇒ MishEvaluator.evaluateMishInterpolation(expr)
       case MishFunction(command, _)                                  ⇒ SystemCommandFunction(command)
       case decl: FunctionDeclaration                                 ⇒ evaluateFunctionDecl(decl)
+      case decl: ClassDeclaration                                    ⇒ evaluateClassDecl(decl)
       case helpExpr: HelpExpr                                        ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
       case StatementSeq(statements, _)                               ⇒ evaluateStatements(statements)
       case lit: StringLiteral                                        ⇒ evaluateStringLiteral(lit)
@@ -140,6 +143,44 @@ object Evaluator extends EvaluatorHelper {
   private def evaluateFunctionDecl(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val function = userDefinedFunction(decl)
     context.scopeStack.set(function.name, function)
+    MashUnit
+  }
+
+  private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): MashUnit = {
+    val ClassDeclaration(className, paramList, _) = decl
+    val classParams = parameterModel(paramList, Some(context))
+    val classFields = classParams.params.map { param ⇒
+      val fieldName = param.nameOpt.getOrElse("anon")
+      Field(fieldName, s"Field '$fieldName'", AnyClass)
+    }
+
+    object UserDefinedClass extends MashClass(nameOpt = Some(className)) {
+
+      override val fields = classFields
+
+      override def summary: String = s"Class $className"
+
+      override val staticMethods = Seq(
+        NewStaticMethod)
+
+      object NewStaticMethod extends MashFunction("new") {
+        override def apply(arguments: Arguments): MashObject = {
+          val boundParams = params.validate(arguments)
+          val fields =
+            for (param <- params.params)
+              yield param.nameOpt.getOrElse("anon") -> boundParams(param)
+          MashObject.of(fields, UserDefinedClass)
+        }
+
+        override def summary: String = s"Construct a new $className"
+
+        override def params: ParameterModel = classParams
+
+        override def typeInferenceStrategy = UserDefinedClass
+
+      }
+    }
+    context.scopeStack.set(className, UserDefinedClass)
     MashUnit
   }
 

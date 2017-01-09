@@ -71,6 +71,7 @@ class TypeInferencer {
       case statementSeq: StatementSeq                   ⇒ inferType(statementSeq, bindings)
       case helpExpr: HelpExpr                           ⇒ inferType(helpExpr, bindings)
       case functionDecl: FunctionDeclaration            ⇒ inferType(functionDecl, bindings)
+      case decl: ClassDeclaration                       ⇒ inferType(decl, bindings)
       case lambda: LambdaExpr                           ⇒ inferType(lambda, bindings)
     }
 
@@ -81,6 +82,11 @@ class TypeInferencer {
 
   private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
     inferType(functionDecl.body, bindings ++ getPreliminaryBindings(functionDecl.params))
+    Some(Unit)
+  }
+
+  private def inferType(decl: ClassDeclaration, bindings: Map[String, Type]): Option[Type] = {
+    //inferType(functionDecl.body, bindings ++ getPreliminaryBindings(functionDecl.params))
     Some(Unit)
   }
 
