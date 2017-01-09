@@ -12,18 +12,18 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   object Params {
     val F = Parameter(
-      name = "f",
+      nameOpt = Some("f"),
       summary = "Function used to transform elements of the sequence",
       descriptionOpt = Some("Must return a sequence"))
     val WithIndex = Parameter(
-      name = "withIndex",
+      nameOpt = Some("withIndex"),
       shortFlagOpt = Some('i'),
       summary = "Pass index into the function as well as the item",
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to map over",
       isLast = true)
   }

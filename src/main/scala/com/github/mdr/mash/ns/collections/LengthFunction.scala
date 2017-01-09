@@ -10,7 +10,7 @@ object LengthFunction extends MashFunction("collections.length") {
 
   object Params {
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find the length of")
   }
   import Params._

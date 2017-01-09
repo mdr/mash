@@ -10,14 +10,14 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
   object Params {
     val Attribute = Parameter(
-      name = "attribute",
+      nameOpt = Some("attribute"),
       summary = "Function to extract a value from to sum")
     val EmptyValue = Parameter(
-      name = "emptyValue",
+      nameOpt = Some("emptyValue"),
       summary = "Value used as the sum of an empty list (default 0)",
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find the sum of",
       isLast = true)
   }

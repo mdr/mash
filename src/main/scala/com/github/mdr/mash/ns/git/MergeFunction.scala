@@ -12,10 +12,10 @@ object MergeFunction extends MashFunction("git.merge") {
 
   object Params {
     val Commit = Parameter(
-      name = "commit",
+      nameOpt = Some("commit"),
       summary = "Name of a commit to merge")
     val Squash = Parameter(
-      name = "squash",
+      nameOpt = Some("squash"),
       summary = "Squash commits (default false)",
       shortFlagOpt = Some('s'),
       isFlag = true,

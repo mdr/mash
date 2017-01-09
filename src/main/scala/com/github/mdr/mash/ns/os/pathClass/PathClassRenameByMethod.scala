@@ -14,7 +14,7 @@ object PathClassRenameByMethod extends MashMethod("renameBy") {
 
   object Params {
     val F = Parameter(
-      name = "f",
+      nameOpt = Some("f"),
       summary = "Function to transform the old name into a new name")
   }
   import Params._

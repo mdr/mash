@@ -10,10 +10,10 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
 
   object Params {
     val Predicate = Parameter(
-      name = "predicate",
+      nameOpt = Some("predicate"),
       summary = "Predicate used to test elements of the sequence")
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to count matches in",
       isLast = true)
   }

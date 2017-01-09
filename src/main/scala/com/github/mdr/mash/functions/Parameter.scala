@@ -2,7 +2,7 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.runtime.MashValue
 
-case class Parameter(name: String,
+case class Parameter(nameOpt: Option[String],
                      summary: String, // One-liner description of the parameter
                      descriptionOpt: Option[String] = None, // Rest of the docs
                      shortFlagOpt: Option[Character] = None, // Single character version of the flag
@@ -23,7 +23,7 @@ case class Parameter(name: String,
 
   def isMandatory = !isOptional
 
-  override def toString = name
+  override def toString = nameOpt.getOrElse("anon")
 
 }
 

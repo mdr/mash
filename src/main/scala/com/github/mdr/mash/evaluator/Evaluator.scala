@@ -152,8 +152,8 @@ object Evaluator extends EvaluatorHelper {
   private def makeParameter(param: FunctionParam, argIndex: Int, evaluationContextOpt: Option[EvaluationContext]): Parameter = {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒ defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
-    val name = nameOpt.getOrElse("arg" + (argIndex + 1))
-    Parameter(name, s"Parameter '$name'", defaultValueGeneratorOpt = defaultValueGeneratorOpt,
+    val summary = nameOpt.map(name ⇒ s"Parameter '$name'").getOrElse("Anonymous parameter")
+    Parameter(nameOpt, summary, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined, patternOpt = patternOpt.map(makeParamPattern))
   }
 

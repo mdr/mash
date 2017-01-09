@@ -15,17 +15,17 @@ object WriteFunction extends MashFunction("os.write") {
 
   object Params {
     val Append = Parameter(
-      name = "append",
+      nameOpt = Some("append"),
       summary = "Append to the end of the file, if it already exists",
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val File = Parameter(
-      name = "file",
+      nameOpt = Some("file"),
       summary = "File to write to")
     val Data = Parameter(
-      name = "data",
+      nameOpt = Some("data"),
       summary = "Data to write to the file",
       descriptionOpt = Some("""If the given data is a sequence, write a line to the file for each item.
 Otherwise, write the item as a string."""))

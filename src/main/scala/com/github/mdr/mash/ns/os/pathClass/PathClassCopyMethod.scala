@@ -12,7 +12,7 @@ object PathClassCopyMethod extends MashMethod("copy") {
 
   object Params {
     val Destination = Parameter(
-      name = "destination",
+      nameOpt = Some("destination"),
       summary = "Location to copy file to")
   }
   import Params._

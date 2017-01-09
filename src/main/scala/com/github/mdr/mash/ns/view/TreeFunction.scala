@@ -11,7 +11,7 @@ object TreeFunction extends MashFunction("view.tree") {
 
   object Params {
     val Data = Parameter(
-      name = "data",
+      nameOpt = Some("data"),
       summary = "Data to view")
   }
   import Params._

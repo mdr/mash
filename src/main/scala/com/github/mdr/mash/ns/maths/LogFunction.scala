@@ -10,10 +10,10 @@ object LogFunction extends MashFunction("maths.log") {
 
   object Params {
     val N = Parameter(
-      name = "n",
+      nameOpt = Some("n"),
       summary = "Number to take the logarithm of")
     val Base = Parameter(
-      name = "base",
+      nameOpt = Some("base"),
       summary = "base",
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(Math.E)))
   }

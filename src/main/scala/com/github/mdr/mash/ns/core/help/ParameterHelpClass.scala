@@ -10,7 +10,7 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
     val Summary = Field("summary", "Summary of what the parameter does", StringClass)
     val Description = Field("description", "Description of the parameter", StringClass)
     val ShortFlag = Field("shortFlag", "Alternative single-character flag form, or null if none", StringClass)
-    val IsFlagParameter = Field("isFlageter", "If true, this parameter can only be given as a flag", BooleanClass)
+    val IsFlagParameter = Field("isFlagParameter", "If true, this parameter can only be given as a flag", BooleanClass)
     val IsOptional = Field("isOptional", "If true, this parameter is optional", BooleanClass)
     val IsLast = Field("isLast", "If true, this parameter is the last positonal parameter", BooleanClass)
     val IsLazy = Field("isLazy", "If true, this parameter is evaluated lazily", BooleanClass)

@@ -10,18 +10,18 @@ object SortFunction extends MashFunction("collections.sort") {
 
   object Params {
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to sort",
       isLast = true)
     val Descending = Parameter(
-      name = "descending",
+      nameOpt = Some("descending"),
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val NaturalOrder = Parameter(
-      name = "naturalOrder",
+      nameOpt = Some("naturalOrder"),
       shortFlagOpt = Some('n'),
       summary = "Use natural sort order ('alphanum') when comparing items",
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),

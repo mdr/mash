@@ -9,7 +9,7 @@ object FromStringFunction extends MashFunction("json.fromString") {
 
   object Params {
     val String = Parameter(
-      name = "string",
+      nameOpt = Some("string"),
       summary = "String to parse as JSON")
   }
   import Params._

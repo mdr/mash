@@ -11,12 +11,12 @@ object RunFunction extends MashFunction("os.run") {
 
   object Params {
     val Command = Parameter(
-      name = "command",
+      nameOpt = Some("command"),
       summary = "Command to execute",
       isVariadic = true,
       variadicAtLeastOne = true)
     val StandardIn = Parameter(
-      name = "standardIn",
+      nameOpt = Some("standardIn"),
       summary = "What to send to standard input",
       defaultValueGeneratorOpt = Some(() ⇒ MashNull),
       isFlag = true,

@@ -17,11 +17,11 @@ object SelectFunction extends MashFunction("collections.select") {
 
   object Params {
     val Target = Parameter(
-      name = "target",
+      nameOpt = Some("target"),
       summary = "Either an object or sequence of objects to select fields from",
       isLast = true)
     val Add = Parameter(
-      name = "add",
+      nameOpt = Some("add"),
       summary = "Add the fields to the existing set of members, rather than replacing",
       shortFlagOpt = Some(AddShortFlag),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
@@ -49,7 +49,7 @@ object SelectFunction extends MashFunction("collections.select") {
         else
           throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
       case EvaluatedArgument.LongFlag(flag, None, _) ⇒
-        if (flag == Add.name)
+        if (Add.nameOpt contains flag)
           None
         else
           Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))

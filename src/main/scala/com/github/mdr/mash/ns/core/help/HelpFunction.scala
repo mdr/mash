@@ -13,7 +13,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   object Params {
     val Item = Parameter(
-      name = "item",
+      nameOpt = Some("item"),
       summary = "The item to find help for")
   }
   import Params._
@@ -83,7 +83,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     import ParameterHelpClass.Fields._
     MashObject.of(
       ListMap(
-        Name -> MashString(param.name),
+        Name -> param.nameOpt.map(MashString(_)).getOrElse(MashNull),
         Summary -> MashString(param.summary),
         Description -> param.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).getOrElse(MashNull),

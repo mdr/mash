@@ -72,11 +72,11 @@ object InvocationEvaluator extends EvaluatorHelper {
 
     object Params {
       val Then = Parameter(
-        name = "then",
+        nameOpt = Some("then"),
         summary = "The result if this is true",
         isLazy = true)
       val Else = Parameter(
-        name = "else",
+        nameOpt = Some("else"),
         summary = "The result if this is false",
         defaultValueGeneratorOpt = Some(() ⇒ MashUnit),
         isLazy = true)
@@ -105,7 +105,9 @@ object InvocationEvaluator extends EvaluatorHelper {
                                invocationLocationOpt: Option[SourceLocation]) extends MashFunction() {
 
     object Params {
-      val Target = Parameter("target", "Member to look-up in the target object")
+      val Target = Parameter(
+        nameOpt = Some("target"),
+        summary = "Member to look-up in the target object")
     }
     import Params._
 

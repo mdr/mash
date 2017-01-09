@@ -9,7 +9,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
 
   object Params {
     val String = Parameter(
-      name = "string",
+      nameOpt = Some("string"),
       summary = "String to parse as a number")
   }
 

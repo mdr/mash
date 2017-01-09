@@ -9,10 +9,10 @@ object SlidingFunction extends MashFunction("collections.sliding") {
 
   object Params {
     val Size = Parameter(
-      name = "size",
+      nameOpt = Some("size"),
       summary = "Size of window")
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to slide windows along")
   }
   import Params._

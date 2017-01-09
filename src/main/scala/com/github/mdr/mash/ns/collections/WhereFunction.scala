@@ -10,10 +10,10 @@ object WhereFunction extends MashFunction("collections.where") {
 
   object Params {
     val Predicate = Parameter(
-      name = "predicate",
+      nameOpt = Some("predicate"),
       summary = "Predicate used to test elements of the sequence")
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find values in",
       isLast = true)
   }

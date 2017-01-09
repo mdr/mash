@@ -23,7 +23,7 @@ object KillFunction extends MashFunction("os.kill") {
 
   object Params {
     val Signal = Parameter(
-      name = "signal",
+      nameOpt = Some("signal"),
       summary = "Signal to send to the process",
       defaultValueGeneratorOpt = Some(() ⇒ MashString(Term, SignalClass)),
       isFlag = true,
@@ -32,7 +32,7 @@ object KillFunction extends MashFunction("os.kill") {
       descriptionOpt = Some("""The signal can either be given as a number, or by name (e.g. "KILL", "TERM", "HUP" etc).
 The default signal is TERM."""))
     val Processes = Parameter(
-      name = "processes",
+      nameOpt = Some("processes"),
       summary = "Processes to kill",
       isVariadic = true,
       descriptionOpt = Some("""Processes can be provided either as numbers (PIDs), or Process objects, or a sequence of numbers or Process objects."""))

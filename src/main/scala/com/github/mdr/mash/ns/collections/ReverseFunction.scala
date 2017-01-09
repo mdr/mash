@@ -9,7 +9,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   object Params {
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to reverse",
       isLast = true)
   }

@@ -8,7 +8,7 @@ object IsNullFunction extends MashFunction("core.isNull") {
 
   object Params {
     val Value = Parameter(
-      name = "value",
+      nameOpt = Some("value"),
       summary = "Value to test for nullness")
   }
   import Params._

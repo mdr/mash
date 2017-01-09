@@ -26,9 +26,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   private def handleLastArg() =
     for {
       lastParam ← params.lastParamOpt
-      paramName = lastParam.name
+      paramName = lastParam.nameOpt
       lastArg ← arguments.positionArgs.lastOption
-      if !arguments.isProvidedAsNamedArg(paramName)
+      if !lastParam.nameOpt.exists(arguments.isProvidedAsNamedArg)
     } {
       lastParameterConsumed = true
       bindParam(lastParam, resolve(lastParam, lastArg.value), lastArg)
@@ -52,7 +52,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   private def bindParam(param: Parameter, value: MashValue, arg: EvaluatedArgument) {
     param.patternOpt match {
       case Some(pattern) ⇒ bindPattern(pattern, value, getLocation(arg))
-      case None          ⇒ boundNames += param.name -> value
+      case None          ⇒ param.nameOpt.foreach(boundNames += _ -> value)
     }
     boundParams += param
   }
@@ -97,7 +97,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
           val varargs = positionArgs.drop(regularParams.size)
-          boundNames += variadicParam.name -> MashList(varargs.map(_.value.resolve()))
+          variadicParam.nameOpt.foreach(boundNames += _ -> MashList(varargs.map(_.value.resolve())))
           boundParams += variadicParam
           for {
             firstVararg ← varargs
@@ -136,9 +136,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param)
-          throw new ArgumentException(s"Argument '${param.name}' is provided multiple times", errorLocationOpt)
+          throw new ArgumentException(s"Argument '${param.nameOpt}' is provided multiple times", errorLocationOpt)
         else {
-          boundNames += param.name -> resolve(param, value)
+          param.nameOpt.foreach(boundNames += _ -> resolve(param, value))
           boundParams += param
 
           for (argNode ← argNodeOpt)
@@ -154,18 +154,18 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     for (param ← params.params if !boundParams.contains(param))
       param.defaultValueGeneratorOpt match {
         case Some(generator) ⇒
-          boundNames += param.name -> generator()
+          param.nameOpt.foreach(boundNames += _ -> generator())
           boundParams += param
         case None            ⇒
           if (param.isVariadic)
             if (param.variadicAtLeastOne)
-              throw new ArgumentException(s"Missing mandatory argument '${param.name}'")
+              throw new ArgumentException(s"Missing mandatory argument '${param.nameOpt}'")
             else {
-              boundNames += param.name -> MashList.empty
+              param.nameOpt.foreach(boundNames += _ -> MashList.empty)
               boundParams += param
             }
           else
-            throw new ArgumentException(s"Missing mandatory argument '${param.name}'")
+            throw new ArgumentException(s"Missing mandatory argument '${param.nameOpt}'")
       }
 
 }

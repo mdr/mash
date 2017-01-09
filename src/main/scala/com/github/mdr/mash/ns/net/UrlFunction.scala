@@ -12,7 +12,7 @@ object UrlFunction extends MashFunction("net.url") {
 
   object Params {
     val Url = Parameter(
-      name = "url",
+      nameOpt = Some("url"),
       summary = "String to interpret as a URL")
   }
   import Params._

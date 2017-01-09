@@ -26,7 +26,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     object Params {
       val Objects = Parameter(
-        name = "objects",
+        nameOpt = Some("objects"),
         summary = "Objects to merge",
         isVariadic = true,
         variadicAtLeastOne = true)
@@ -58,10 +58,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     object Params {
       val FieldName = Parameter(
-        name = "fieldName",
+        nameOpt = Some("fieldName"),
         summary = "Field name to hoist")
       val Prefix = Parameter(
-        name = "prefix",
+        nameOpt = Some("prefix"),
         summary = "Add this prefix to hoisted field names",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull),
         isFlag = true,
@@ -184,7 +184,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     object Params {
       val Name = Parameter(
-        name = "name",
+        nameOpt = Some("name"),
         summary = "Field name")
     }
 
@@ -208,10 +208,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     object Params {
       val Name = Parameter(
-        name = "name",
+        nameOpt = Some("name"),
         summary = "Field name")
       val Default = Parameter(
-        name = "default",
+        nameOpt = Some("default"),
         summary = "Default to use if no field with that name present in object (default null)",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
@@ -272,10 +272,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     object Params {
       val Name = Parameter(
-        name = "name",
+        nameOpt = Some("name"),
         summary = "Field name")
       val Value = Parameter(
-        name = "value",
+        nameOpt = Some("value"),
         summary = "Field value")
     }
 

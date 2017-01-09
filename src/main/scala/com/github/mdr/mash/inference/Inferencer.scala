@@ -5,8 +5,8 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 /**
- * Inferencer used by type-inference strategies
- */
+  * Inferencer used by type-inference strategies
+  */
 class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
   def applyFunction(functionType: Type, elementType: Type, functionExprValueOpt: Option[MashValue]): Option[Type] = functionType match {
@@ -20,7 +20,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))
     case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
       parameterModel.params.headOption.flatMap { param ⇒
-        typeInferencer.inferType(expr, lambdaBindings ++ bindings + (param.name -> elementType))
+        typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ param.nameOpt.map(_ -> elementType))
       }
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
       functionExprValueOpt.flatMap {
@@ -43,8 +43,17 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))
     case Type.Function(parameterModel, expr, lambdaBindings) ⇒
-      val paramBindings = parameterModel.params.map(_.name).zip(Seq(element1Type, element2Type)).toMap
-      typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ paramBindings)
+      val binding1 =
+        for {
+          param ← parameterModel.params.lift(0)
+          name ← param.nameOpt
+        } yield name -> element1Type
+      val binding2 =
+        for {
+          param ← parameterModel.params.lift(1)
+          name ← param.nameOpt
+        } yield name -> element2Type
+      typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ binding1 ++ binding2)
     case _                                                   ⇒
       None
   }

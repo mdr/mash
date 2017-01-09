@@ -53,15 +53,16 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
   private def handleLastArg() {
     for {
       lastParam ← params.lastParamOpt
-      paramName = lastParam.name
+      paramName = lastParam.nameOpt
       lastArg ← arguments.positionArgs.lastOption
-      if !arguments.isProvidedAsNamedArg(paramName)
+      if !lastParam.nameOpt.exists(arguments.isProvidedAsNamedArg)
     } {
       lastParameterConsumed = true
-      boundArguments += lastParam.name -> lastArg
-      lastArg.typeOpt.foreach {
-        boundNames += lastParam.name -> _
-      }
+      lastParam.nameOpt.foreach(boundArguments += _ -> lastArg)
+      for {
+        argType ← lastArg.typeOpt
+        paramName ← lastParam.nameOpt
+      } boundNames += paramName -> argType
       posToParam += posOfArg(lastArg) -> lastParam
     }
   }
@@ -74,8 +75,8 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       for (variadicParam ← params.variadicParamOpt) {
         val varargs = positionArgs.drop(regularPosParams.size)
         val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
-        boundArguments += variadicParam.name -> ValueInfo(None, Some(varargType))
-        boundNames += variadicParam.name -> varargType
+        variadicParam.nameOpt.foreach(boundArguments += _ -> ValueInfo(None, Some(varargType)))
+        variadicParam.nameOpt.foreach(boundNames += _ -> varargType)
         val extraArgs = positionArgs.drop(regularPosParams.size)
         for (arg ← extraArgs)
           posToParam += posOfArg(arg) -> variadicParam
@@ -86,10 +87,11 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
         case Some(pattern) ⇒
           boundNames ++= inferTypes(pattern, arg.typeOpt)
         case None          ⇒
-          boundArguments += param.name -> arg
-          arg.typeOpt.foreach {
-            boundNames += param.name -> _
-          }
+          param.nameOpt.foreach(boundArguments += _ -> arg)
+          for {
+            argType ← arg.typeOpt
+            paramName ← param.nameOpt
+          } boundNames += paramName -> argType
       }
       posToParam += posOfArg(arg) -> param
     }
@@ -132,10 +134,11 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
 
   private def bindFlagParam(paramName: String, arg: ValueInfo) =
     for (param ← params.paramByName.get(paramName)) {
-      boundArguments += param.name -> arg
-      arg.typeOpt.foreach {
-        boundNames += param.name -> _
-      }
+      param.nameOpt.foreach(boundArguments += _ -> arg)
+      for {
+        argType ← arg.typeOpt
+        paramName ← param.nameOpt
+      } boundNames += paramName -> argType
       val argIndex = arguments.arguments.indexWhere {
         case TypedArgument.LongFlag(`paramName`, _) ⇒ true
         case TypedArgument.ShortFlag(flags)         ⇒ flags contains paramName

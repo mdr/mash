@@ -13,10 +13,10 @@ object WithinFunction extends MashFunction("os.within") {
 
   object Params {
     val Directory = Parameter(
-      name = "directory",
+      nameOpt = Some("directory"),
       summary = "Directory to change into")
     val Block = Parameter(
-      name = "block",
+      nameOpt = Some("block"),
       summary = "Code to execute",
       isLazy = true)
   }

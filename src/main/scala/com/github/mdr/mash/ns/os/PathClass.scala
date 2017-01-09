@@ -74,7 +74,7 @@ The default character encoding and line separator are used.""")
 
     object Params {
       val Args = Parameter(
-        name = "args",
+        nameOpt = Some("args"),
         summary = "Arguments to command",
         isVariadic = true)
     }
@@ -139,7 +139,7 @@ The default character encoding and line separator are used.""")
 
     object Params {
       val Destination = Parameter(
-        name = "destination",
+        nameOpt = Some("destination"),
         summary = "Location to copy file to")
     }
     import Params._
@@ -172,7 +172,7 @@ The default character encoding and line separator are used.""")
 
     object Params {
       val Destination = Parameter(
-        name = "destination",
+        nameOpt = Some("destination"),
         summary = "Location to copy file to")
     }
     import Params._

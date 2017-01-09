@@ -16,7 +16,7 @@ object UpFunction extends MashFunction("os.up") {
 
   object Params {
     val N = Parameter(
-      name = "n",
+      nameOpt = Some("n"),
       summary = "Number of parent directories to move up (default 1)",
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
   }

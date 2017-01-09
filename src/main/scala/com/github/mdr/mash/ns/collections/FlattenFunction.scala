@@ -11,7 +11,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
 
   object Params {
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence of sequences to flatten",
       isLast = true)
   }

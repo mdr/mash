@@ -16,7 +16,7 @@ object ReadLinesFunction extends MashFunction("os.readLines") {
 
   object Params {
     val File = Parameter(
-      name = "file",
+      nameOpt = Some("file"),
       summary = "File from which to read lines")
   }
   import Params._

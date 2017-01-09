@@ -6,9 +6,9 @@ case class BoundTypeParams(boundArguments: Map[String, ValueInfo],
                            boundNames: Map[String, Type],
                            posToParam: Map[Int, Parameter]) {
 
-  def getType(param: Parameter): Option[Type] = boundNames get param.name
+  def getType(param: Parameter): Option[Type] = param.nameOpt.flatMap(boundNames.get)
 
-  def getArgument(param: Parameter): Option[ValueInfo] = boundArguments get param.name
+  def getArgument(param: Parameter): Option[ValueInfo] = param.nameOpt.flatMap(boundArguments.get)
 
   def contains(param: Parameter) = getArgument(param).isDefined
 

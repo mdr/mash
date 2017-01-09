@@ -59,7 +59,7 @@ object ListClass extends MashClass("collections.List") {
 
   private def methodise(function: MashFunction): MashMethod = new MashMethod(function.nameOpt.get) {
 
-    val params = function.params.copy(function.params.params.filterNot(_.name == "sequence"))
+    val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains "sequence"))
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       val targetArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ target), None)

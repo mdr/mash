@@ -19,10 +19,10 @@ object SelectTypeInferenceStrategy extends TypeInferenceStrategy {
         case _                     ⇒ inputType
       }
       fieldsAndTypes = selectArgs.flatMap(getFieldName(inferencer, targetType, _))
-      add = arguments.argSet.contains(Add.name)
+      add = Add.nameOpt.exists(arguments.argSet)
     } yield handle(inputType, fieldsAndTypes, inferencer, add = add)
 
-  private def isSpecialFlag(flag: String) = flag == Add.name || flag == Target.name
+  private def isSpecialFlag(flag: String) = Add.nameOpt.contains(flag) || Target.nameOpt.contains(flag)
 
   private def getFieldName(inferencer: Inferencer, elementType: Type, typedArg: TypedArgument): Option[(String, Option[Type])] =
     typedArg match {

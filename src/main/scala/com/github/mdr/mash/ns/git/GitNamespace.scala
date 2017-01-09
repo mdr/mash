@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 object GitNamespace {
 
-  val name = "git"
+  val name = Some("git")
 
   val GitFunctions = Seq(
     AddFunction,

@@ -13,11 +13,11 @@ object RestoreFunction extends MashFunction("git.restore") {
 
   object Params {
     val Paths = Parameter(
-      name = "paths",
+      nameOpt = Some("paths"),
       summary = "Restore the given paths",
       isVariadic = true)
     val All = Parameter(
-      name = "all",
+      nameOpt = Some("all"),
       summary = "Restore all modified paths (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,

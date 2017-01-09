@@ -48,7 +48,7 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val Substring = Parameter(
-        name = "substring",
+        nameOpt = Some("substring"),
         summary = "Substring to match")
     }
 
@@ -179,10 +179,10 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val _Pattern = Parameter(
-        name = "pattern",
+        nameOpt = Some("pattern"),
         summary = "Regular expression pattern")
       val IgnoreCase = Parameter(
-        name = "ignoreCase",
+        nameOpt = Some("ignoreCase"),
         summary = "Perform a case-insensitive match",
         shortFlagOpt = Some('i'),
         isFlag = true,
@@ -213,14 +213,14 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val Regex = Parameter(
-        name = "regex",
+        nameOpt = Some("regex"),
         shortFlagOpt = Some('r'),
         summary = "Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)",
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isFlag = true,
         isBooleanFlag = true)
       val Separator = Parameter(
-        name = "separator",
+        nameOpt = Some("separator"),
         summary = "Separator to split string on; if not provided, the default is to split on whitespace",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
@@ -263,13 +263,13 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val Target = Parameter(
-        name = "target",
+        nameOpt = Some("target"),
         summary = "String to replace")
       val Replacement = Parameter(
-        name = "replacement",
+        nameOpt = Some("replacement"),
         summary = "Replacement string")
       val Regex = Parameter(
-        name = "regex",
+        nameOpt = Some("regex"),
         shortFlagOpt = Some('r'),
         summary = "Interpret target as a regular expression",
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
@@ -417,7 +417,7 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val N = Parameter(
-        name = "n",
+        nameOpt = Some("n"),
         summary = "Number of characters",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
@@ -445,7 +445,7 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val N = Parameter(
-        name = "n",
+        nameOpt = Some("n"),
         summary = "Number of characters",
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
@@ -488,7 +488,7 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val Prefix = Parameter(
-        name = "prefix",
+        nameOpt = Some("prefix"),
         summary = "Prefix to test")
     }
     import Params._
@@ -512,7 +512,7 @@ object StringClass extends MashClass("core.String") {
 
     object Params {
       val Suffix = Parameter(
-        name = "suffix",
+        nameOpt = Some("suffix"),
         summary = "Suffix to test")
     }
     import Params._

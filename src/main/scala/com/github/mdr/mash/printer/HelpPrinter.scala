@@ -82,7 +82,7 @@ class HelpPrinter(output: PrintStream) {
       case Seq() ⇒ ""
       case _     ⇒ qualifiers.mkString(" [", ", ", "]")
     }
-    val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else param(Name)))
+    val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else MashNull.option(param(Name)).getOrElse("anon")))
     val shortFlagDescription = paramNameStyle(MashNull.option(param(ShortFlag)).map(f ⇒ s" | -$f").getOrElse(""))
     output.println(paramName + shortFlagDescription + qualifierString + " - " + param(Summary))
     for (description ← MashNull.option(param(Description)).map(_.asInstanceOf[MashString]))

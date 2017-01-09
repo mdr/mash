@@ -10,19 +10,19 @@ object SortByFunction extends MashFunction("collections.sortBy") {
 
   object Params {
     val Descending = Parameter(
-      name = "descending",
+      nameOpt = Some("descending"),
       shortFlagOpt = Some('d'),
       summary = "Sort results from highest value to lowest",
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Attributes = Parameter(
-      name = "attributes",
+      nameOpt = Some("attributes"),
       summary = "Function(s) to extract a value to compare elements",
       isVariadic = true,
       variadicAtLeastOne = true)
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to sort",
       isLast = true)
   }

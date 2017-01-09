@@ -8,11 +8,11 @@ object LastFunction extends MashFunction("collections.last") {
 
   object Params {
     val N: Parameter = Parameter(
-      name = "n",
+      nameOpt = Some("n"),
       summary = "Number of elements to take",
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find the last value(s) of",
       isLast = true)
   }
@@ -41,9 +41,9 @@ object LastFunction extends MashFunction("collections.last") {
 
   override def summary = "Find the last element(s) of a sequence"
 
-  override def descriptionOpt = Some(s"""If a count ${N.name} is provided, the last ${N.name} items of the sequence will be returned.
-If there are fewer than ${N.name} in the sequence, the entire sequence is returned.
-If a count ${N.name} is omitted, then the last item of the sequence is returned, if nonempty, else null.
+  override def descriptionOpt = Some(s"""If a count ${N.nameOpt} is provided, the last ${N.nameOpt} items of the sequence will be returned.
+If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.
+If a count ${N.nameOpt} is omitted, then the last item of the sequence is returned, if nonempty, else null.
 
 Examples:
    last 3 [1, 2, 3, 4 5] # [3, 4, 5]

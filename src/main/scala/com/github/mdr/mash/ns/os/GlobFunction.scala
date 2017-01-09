@@ -14,7 +14,7 @@ object GlobFunction extends MashFunction("os.glob") {
 
   object Params {
     val Pattern = Parameter(
-      name = "pattern",
+      nameOpt = Some("pattern"),
       summary = "Pattern to match path names against")
   }
   import Params._

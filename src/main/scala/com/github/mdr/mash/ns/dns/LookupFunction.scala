@@ -13,7 +13,7 @@ object LookupFunction extends MashFunction("dns.lookup") {
 
   object Params {
     val Host = Parameter(
-      name = "host",
+      nameOpt = Some("host"),
       summary = "Host name")
   }
   import Params._

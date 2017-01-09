@@ -17,7 +17,7 @@ object SourceFunction extends MashFunction("mash.source") {
 
   object Params {
     val File = Parameter(
-      name = "file",
+      nameOpt = Some("file"),
       summary = "Mash source file to read commands from")
   }
   import Params._

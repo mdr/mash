@@ -13,7 +13,7 @@ object EvalFunction extends MashFunction("mash.eval") {
 
   object Params {
     val Mash = Parameter(
-      name = "mash",
+      nameOpt = Some("mash"),
       summary = "Mash code")
   }
   import Params._

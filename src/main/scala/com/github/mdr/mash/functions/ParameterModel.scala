@@ -18,7 +18,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   val paramByName: Map[String, Parameter] = {
     var paramMap: Map[String, Parameter] = Map()
     for (param ← params) {
-      paramMap += param.name -> param
+      for (paramName <- param.nameOpt)
+        paramMap += paramName -> param
       for (shortFlag ← param.shortFlagOpt)
         paramMap += shortFlag.toString -> param
     }
@@ -28,14 +29,14 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def validate(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
     new ParamValidationContext(this, arguments, ignoreAdditionalParameters).validate()
 
-  def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summary, param.shortFlagOpt.map(_.toString), Some(param.name)))
+  def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summary, param.shortFlagOpt.map(_.toString), param.nameOpt))
 
   def allowsNullary: Boolean = params.forall(p ⇒ (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined)
 
   def callingSyntax: String = {
     val positionalParams =
       for (param ← params.filterNot(_.isFlag)) yield {
-        val name = param.name
+        val name = param.nameOpt.getOrElse("anon")
         if (param.isVariadic)
           if (param.variadicAtLeastOne)
             s"<$name>+..."
@@ -48,7 +49,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
       }
     val flagParams =
       for (param ← params.filter(_.isFlag)) yield {
-        val name = param.name
+        val name = param.nameOpt.getOrElse("anon")
         val flagValueName = param.flagValueNameOpt.getOrElse("value")
         val flagValueSuffix =
           if (param.isBooleanFlag)

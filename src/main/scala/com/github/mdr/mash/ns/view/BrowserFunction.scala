@@ -11,7 +11,7 @@ object BrowserFunction extends MashFunction("view.browser") {
 
   object Params {
     val Data = Parameter(
-      name = "data",
+      nameOpt = Some("data"),
       summary = "Data to view")
   }
   import Params._

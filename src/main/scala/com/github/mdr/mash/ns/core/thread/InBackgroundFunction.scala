@@ -12,7 +12,7 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
 
   object Params {
     val Block = Parameter(
-      name = "block",
+      nameOpt = Some("block"),
       summary = "Code to execute",
       isLazy = true)
   }

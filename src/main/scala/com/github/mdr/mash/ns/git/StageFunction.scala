@@ -13,11 +13,11 @@ object StageFunction extends MashFunction("git.stage") {
 
   object Params {
     val Paths = Parameter(
-      name = "paths",
+      nameOpt = Some("paths"),
       summary = "Stage the given paths",
       isVariadic = true)
     val All = Parameter(
-      name = "all",
+      nameOpt = Some("all"),
       summary = "Stage all unstaged files (default false)",
       shortFlagOpt = Some('a'),
       isFlag = true,

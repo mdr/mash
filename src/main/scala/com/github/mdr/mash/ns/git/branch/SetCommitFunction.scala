@@ -12,10 +12,10 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
   object Params {
     val Branch = Parameter(
-      name = "branch",
+      nameOpt = Some("branch"),
       summary = "Local branch to update")
     val Commit = Parameter(
-      name = "commit",
+      nameOpt = Some("commit"),
       summary = "Commit to point to")
   }
   import Params._

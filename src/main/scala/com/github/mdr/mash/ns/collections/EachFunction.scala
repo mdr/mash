@@ -10,17 +10,17 @@ object EachFunction extends MashFunction("collections.each") {
 
   object Params {
     val Action = Parameter(
-      name = "action",
+      nameOpt = Some("action"),
       summary = "Function used to act on elements of the sequence")
     val WithIndex = Parameter(
-      name = "withIndex",
+      nameOpt = Some("withIndex"),
       shortFlagOpt = Some('i'),
       summary = "Pass index into the function as well as the item",
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to run an action over",
       isLast = true)
   }

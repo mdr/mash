@@ -12,11 +12,11 @@ object FirstFunction extends MashFunction("collections.first") {
 
   object Params {
     val N: Parameter = Parameter(
-      name = "n",
+      nameOpt = Some("n"),
       summary = "Number of elements",
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find the first value(s) of",
       isLast = true)
   }
@@ -48,9 +48,9 @@ object FirstFunction extends MashFunction("collections.first") {
 
   override def summary = "Find the first element(s) of a sequence"
 
-  override def descriptionOpt = Some(s"""If a count ${N.name} is provided, the first ${N.name} items of the sequence will be returned.
-If there are fewer than ${N.name} in the sequence, the entire sequence is returned.
-If a count ${N.name} is omitted, then the first item of the sequence is returned, if nonempty, else null.
+  override def descriptionOpt = Some(s"""If a count ${N.nameOpt} is provided, the first ${N.nameOpt} items of the sequence will be returned.
+If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.
+If a count ${N.nameOpt} is omitted, then the first item of the sequence is returned, if nonempty, else null.
 
 Examples:
    first 3 [1, 2, 3, 4 5] # [1, 2, 3]

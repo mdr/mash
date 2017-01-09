@@ -13,7 +13,7 @@ object CopyFunction extends MashFunction("os.copy") {
 
   object Params {
     val SourcePaths = Parameter(
-      name = "sourcePaths",
+      nameOpt = Some("sourcePaths"),
       summary = "Paths to copy",
       isVariadic = true,
       variadicAtLeastOne = true,
@@ -21,7 +21,7 @@ object CopyFunction extends MashFunction("os.copy") {
 If there are multiple paths provided, the destination must be a directory.        
 If a path is a directory, it and all its contents (recursively) will be copied to the destination."""))
     val Destination = Parameter(
-      name = "destination",
+      nameOpt = Some("destination"),
       summary = "Location to copy path(s)",
       isLast = true,
       descriptionOpt = Some("""If the destination is a directory, the source paths will be copied into it.

@@ -143,7 +143,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   object Params {
     val Commit = Parameter(
-      name = "commit",
+      nameOpt = Some("commit"),
       summary = "Name of a commit to test if it is descendant")
   }
   import Params._

@@ -15,19 +15,19 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
   object Params {
     lazy val Branch: Parameter = Parameter(
-      name = "branch",
+      nameOpt = Some("branch"),
       summary = "Name to give the new local branch",
       defaultValueGeneratorOpt = Some(() ⇒ MashNull),
-      descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.name}' is provided"))
+      descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.nameOpt}' is provided"))
     lazy val Switch = Parameter(
-      name = "switch",
+      nameOpt = Some("switch"),
       summary = "Switch to the new branch after creating it (default false)",
       shortFlagOpt = Some('s'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     lazy val FromRemote = Parameter(
-      name = "fromRemote",
+      nameOpt = Some("fromRemote"),
       summary = "Create the new branch as a local tracking branch of the given remote branch",
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
@@ -54,7 +54,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     val fromRemoteOpt = validateRemote(boundParams)
     val switch = boundParams(Switch).isTruthy
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
-      throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
+      throw new EvaluatorException(s"Must provide at least one of '${Branch.nameOpt}' and '${FromRemote.nameOpt}'")
 
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
@@ -90,5 +90,5 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
   override def summary = "Create a new local branch"
 
-  override def descriptionOpt = Some(s"""If '${Params.FromRemote.name}' is provided, '${Params.Branch.name}' can be omitted, with the same name used locally.""")
+  override def descriptionOpt = Some(s"""If '${Params.FromRemote.nameOpt}' is provided, '${Params.Branch.nameOpt}' can be omitted, with the same name used locally.""")
 }

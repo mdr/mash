@@ -10,7 +10,10 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 case class SystemCommandFunction(command: String) extends MashFunction(nameOpt = None) {
 
   object Params {
-    val Args = Parameter("args", "Arguments", isVariadic = true)
+    val Args = Parameter(
+      nameOpt = Some("args"),
+      summary = "Arguments",
+      isVariadic = true)
   }
   import Params._
 

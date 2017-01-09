@@ -9,7 +9,7 @@ object NotFunction extends MashFunction("core.not") {
 
   object Params {
     val Item = Parameter(
-      name = "item",
+      nameOpt = Some("item"),
       summary = "Item to negate")
   }
   import Params._

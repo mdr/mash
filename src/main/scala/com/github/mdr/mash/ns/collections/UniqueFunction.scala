@@ -9,7 +9,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   object Params {
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to remove duplicates from",
       isLast = true)
   }

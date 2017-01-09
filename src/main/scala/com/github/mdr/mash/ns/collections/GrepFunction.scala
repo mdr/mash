@@ -9,14 +9,14 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   object Params {
     val Query = Parameter(
-      name = "query",
+      nameOpt = Some("query"),
       summary = "Query to find in the given sequence")
     val Sequence = Parameter(
-      name = "sequence",
+      nameOpt = Some("sequence"),
       summary = "Sequence to find values in",
       isLast = true)
     val IgnoreCase = Parameter(
-      name = "ignoreCase",
+      nameOpt = Some("ignoreCase"),
       summary = "Perform a case-insensitive match",
       shortFlagOpt = Some('i'),
       isFlag = true,

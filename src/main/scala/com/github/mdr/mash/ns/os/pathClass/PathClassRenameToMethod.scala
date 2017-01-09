@@ -16,7 +16,7 @@ object PathClassRenameToMethod extends MashMethod("renameTo") {
 
   object Params {
     val NewName = Parameter(
-      name = "newName",
+      nameOpt = Some("newName"),
       summary = "New name for the file or directory",
       descriptionOpt = Some("""New name must be a simple name (not a path with directory separators)"""))
   }

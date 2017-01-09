@@ -14,14 +14,14 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
 
   object Params {
     val CreateIntermediates = Parameter(
-      name = "createIntermediates",
+      nameOpt = Some("createIntermediates"),
       summary = "Create intermediate directories as required (default false)",
       shortFlagOpt = Some('c'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Paths = Parameter(
-      name = "paths",
+      nameOpt = Some("paths"),
       summary = "Paths to create directories at",
       isVariadic = true,
       variadicAtLeastOne = true)
