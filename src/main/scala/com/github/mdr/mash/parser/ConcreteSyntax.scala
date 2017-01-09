@@ -6,8 +6,8 @@ import com.github.mdr.mash.utils.{ PointedRegion, Region }
 import scala.language.implicitConversions
 
 /**
- * Trees representing the concrete syntax of mash (retaining all the semantically uninteresting tokens)
- */
+  * Trees representing the concrete syntax of mash (retaining all the semantically uninteresting tokens)
+  */
 object ConcreteSyntax {
 
   sealed trait AstNode {
@@ -31,7 +31,9 @@ object ConcreteSyntax {
     val tokens = Seq(token)
   }
 
-  case class Identifier(token: Token) extends Expr { val tokens = Seq(token) }
+  case class Identifier(token: Token) extends Expr {
+    val tokens = Seq(token)
+  }
 
   sealed trait InterpolationPart extends AstNode
 
@@ -51,7 +53,9 @@ object ConcreteSyntax {
     lazy val tokens = start +: parts.flatMap(_.tokens) :+ end
   }
 
-  case class Hole(token: Token) extends Expr { val tokens = Seq(token) }
+  case class Hole(token: Token) extends Expr {
+    val tokens = Seq(token)
+  }
 
   /**
     * a = b, a += b, a -= b, a *= b, a /= b
@@ -106,8 +110,8 @@ object ConcreteSyntax {
   }
 
   /**
-   * args can be Expr's, for position arguments, or Long/ShortArgs
-   */
+    * args can be Expr's, for position arguments, or Long/ShortArgs
+    */
   case class InvocationExpr(function: Expr, args: Seq[AstNode]) extends Expr {
     lazy val tokens = function.tokens ++ args.flatMap(_.tokens)
   }
@@ -136,8 +140,8 @@ object ConcreteSyntax {
   }
 
   /**
-   * e.g. 0 <= x < y <= 100
-   */
+    * e.g. 0 <= x < y <= 100
+    */
   case class ChainedOpExpr(left: Expr, opRights: Seq[(Token, Expr)]) extends Expr {
     lazy val tokens = left.tokens ++ opRights.flatMap { case (token, expr) ⇒ token +: expr.tokens }
   }
@@ -178,24 +182,24 @@ object ConcreteSyntax {
   }
 
   /**
-   * e.g -r
-   */
+    * e.g -r
+    */
   case class ShortArg(flag: Token) extends AstNode {
     lazy val tokens = Seq(flag)
   }
 
   /**
-   * e.g.
-   * --recursive
-   * --foo=bar
-   */
+    * e.g.
+    * --recursive
+    * --foo=bar
+    */
   case class LongArg(flag: Token, equalsValueOpt: Option[(Token, Expr)] = None) extends AstNode {
     lazy val tokens = Seq(flag) ++ equalsValueOpt.toSeq.flatMap { case (token, expr) ⇒ token +: expr.tokens }
   }
 
   /**
-   * Mish item (command or argument), either a bare word, a quoted string, or a Mash interpolation
-   */
+    * Mish item (command or argument), either a bare word, a quoted string, or a Mash interpolation
+    */
   sealed trait MishItem extends AstNode
 
   case class MishWord(token: Token) extends MishItem {
@@ -209,21 +213,21 @@ object ConcreteSyntax {
   case class MishInterpolation(part: InterpolationPart) extends MishItem {
     lazy val tokens = part.tokens
   }
-  
+
   case class MishRedirect(redirectToken: Token, item: MishItem) extends MishItem {
     lazy val tokens = redirectToken +: item.tokens
   }
 
   /**
-   * Raw mish command of the form: cmd arg1 arg2 arg3
-   */
+    * Raw mish command of the form: cmd arg1 arg2 arg3
+    */
   case class MishExpr(command: MishItem, args: Seq[MishItem]) extends Expr {
     lazy val tokens = command.tokens ++ args.flatMap(_.tokens)
   }
 
   /**
-   * Mish expression inside Mash, of the form !{ ... }
-   */
+    * Mish expression inside Mash, of the form !{ ... }
+    */
   case class MishInterpolationExpr(start: Token, expr: MishExpr, rbrace: Token) extends Expr {
     lazy val tokens = (start +: expr.tokens) :+ rbrace
   }
@@ -244,10 +248,16 @@ object ConcreteSyntax {
 
   sealed trait ObjectPatternEntry extends AstNode
 
+  /**
+    * { ..., foo, ... }
+    */
   case class ShorthandObjectPatternEntry(identifier: Token) extends ObjectPatternEntry {
     lazy val tokens = Seq(identifier)
   }
 
+  /**
+    * { ..., foo: foobar, ... }
+    */
   case class FullObjectPatternEntry(field: Token, colon: Token, value: Pattern) extends ObjectPatternEntry {
     lazy val tokens = field +: (colon +: value.tokens)
   }
@@ -295,8 +305,8 @@ object ConcreteSyntax {
   }
 
   /**
-   * An expression of the form: !less
-   */
+    * An expression of the form: !less
+    */
   case class MishFunction(word: Token) extends Expr {
     lazy val tokens = Seq(word)
   }

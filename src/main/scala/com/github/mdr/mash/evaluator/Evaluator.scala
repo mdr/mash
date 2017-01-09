@@ -157,10 +157,8 @@ object Evaluator extends EvaluatorHelper {
       isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined, patternOpt = patternOpt.map(makeParamPattern))
   }
 
-  private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry = entry match {
-    case ShorthandObjectPatternEntry(field, _)          ⇒ ParamPattern.ObjectEntry(field)
-    case FullObjectPatternEntry(field, valuePattern, _) ⇒ ParamPattern.ObjectEntry(field, Some(makeParamPattern(valuePattern)))
-  }
+  private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =
+    ParamPattern.ObjectEntry(entry.field, entry.valuePatternOpt map makeParamPattern)
 
   def makeParamPattern(pattern: Pattern): ParamPattern = pattern match {
     case ObjectPattern(entries, _)   ⇒ ParamPattern.Object(entries.map(makeParamEntry))

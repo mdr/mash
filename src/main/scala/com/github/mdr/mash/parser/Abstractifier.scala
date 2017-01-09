@@ -100,9 +100,9 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {
     case Concrete.ShorthandObjectPatternEntry(identifier)        ⇒
-      Abstract.ShorthandObjectPatternEntry(identifier.text, sourceInfoOpt = sourceInfo(entry))
+      Abstract.ObjectPatternEntry(identifier.text, None, sourceInfoOpt = sourceInfo(entry))
     case Concrete.FullObjectPatternEntry(identifier, _, pattern) ⇒
-      Abstract.FullObjectPatternEntry(identifier.text, abstractifyPattern(pattern), sourceInfoOpt = sourceInfo(entry))
+      Abstract.ObjectPatternEntry(identifier.text, Some(abstractifyPattern(pattern)), sourceInfoOpt = sourceInfo(entry))
   }
 
   private def abstractifyObjectPattern(pattern: Concrete.ObjectPattern): Abstract.ObjectPattern = {

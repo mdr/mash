@@ -95,21 +95,21 @@ object AbstractSyntax {
         this
       case FunctionParam(name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt) ⇒
         FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, patternOpt, sourceInfoOpt)
-      case Argument.PositionArg(expr, sourceInfoOpt) ⇒
+      case Argument.PositionArg(expr, sourceInfoOpt)                                      ⇒
         Argument.PositionArg(expr.transform(f), sourceInfoOpt)
-      case Argument.ShortFlag(_, _) ⇒
+      case Argument.ShortFlag(_, _)                                                       ⇒
         this
-      case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
+      case Argument.LongFlag(flag, valueOpt, sourceInfoOpt)                               ⇒
         Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
-      case ParamList(params) ⇒
+      case ParamList(params)                                                              ⇒
         ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
-      case HolePattern(_) | ShorthandObjectPatternEntry(_, _) | IdentPattern(_, _) ⇒
+      case HolePattern(_) | IdentPattern(_, _)                                            ⇒
         this
-      case FullObjectPatternEntry(field, valuePattern, sourceInfoOpt) ⇒
-        FullObjectPatternEntry(field, valuePattern.transform(f).asInstanceOf[Pattern], sourceInfoOpt)
-      case ObjectPattern(entries, sourceInfoOpt) ⇒
+      case ObjectPatternEntry(field, valuePatternOpt, sourceInfoOpt)                      ⇒
+        ObjectPatternEntry(field, valuePatternOpt.map(_.transform(f).asInstanceOf[Pattern]), sourceInfoOpt)
+      case ObjectPattern(entries, sourceInfoOpt)                                          ⇒
         ObjectPattern(entries.map(_.transform(f).asInstanceOf[ObjectPatternEntry]), sourceInfoOpt)
-      case ListPattern(patterns, sourceInfoOpt) ⇒
+      case ListPattern(patterns, sourceInfoOpt)                                           ⇒
         ListPattern(patterns.map(_.transform(f).asInstanceOf[Pattern]), sourceInfoOpt)
     }
 
@@ -140,26 +140,17 @@ object AbstractSyntax {
     def boundNames: Seq[String]
   }
 
-  case class IdentPattern(identifier: String, sourceInfoOpt: Option[SourceInfo]) extends Pattern {
+  case class IdentPattern(identifier: String, sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq()
     def boundNames = Seq(identifier)
   }
 
-  sealed trait ObjectPatternEntry extends AstNode {
-    def boundNames: Seq[String]
-  }
-
-  case class ShorthandObjectPatternEntry(field: String, sourceInfoOpt: Option[SourceInfo]) extends ObjectPatternEntry {
+  case class ObjectPatternEntry(field: String, valuePatternOpt: Option[Pattern], sourceInfoOpt: Option[SourceInfo]) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq()
-    def boundNames = Seq(field)
-  }
-
-  case class FullObjectPatternEntry(field: String, valuePattern: Pattern, sourceInfoOpt: Option[SourceInfo]) extends ObjectPatternEntry {
-    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(valuePattern)
-    def boundNames = field +: valuePattern.boundNames
+    def children = valuePatternOpt.toSeq
+    def boundNames = valuePattern.boundNames
+    val valuePattern = valuePatternOpt getOrElse IdentPattern(field)
   }
 
   case class ObjectPattern(entries: Seq[ObjectPatternEntry], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {

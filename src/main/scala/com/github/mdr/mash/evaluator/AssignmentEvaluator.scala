@@ -46,12 +46,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         value match {
           case obj: MashObject ⇒
             for (entry <- entries)
-              entry match {
-                case ShorthandObjectPatternEntry(fieldName, _)          ⇒
-                  context.scopeStack.set(fieldName, obj.get(fieldName).getOrElse(MashNull))
-                case FullObjectPatternEntry(fieldName, valuePattern, _) ⇒
-                  bindPattern(valuePattern, obj.get(fieldName).getOrElse(MashNull), locationOpt)
-              }
+              bindPattern(entry.valuePattern, obj.get(entry.field) getOrElse MashNull, locationOpt)
           case _               ⇒
             throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
         }
