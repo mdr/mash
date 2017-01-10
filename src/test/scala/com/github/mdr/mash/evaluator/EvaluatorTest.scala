@@ -699,6 +699,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[a, b, c] = [1, 2, 3]; a + b + c" shouldEvaluateTo 6
   "[a, b] = [1, 2, 3]; a + b" shouldEvaluateTo 3
   "[a, b] = [1]; b" shouldEvaluateTo null
+  "def foo { bar } = bar; foo { bar: 42 }" shouldEvaluateTo 42
   "{ baz } = 42" shouldThrowAnException
 
   // Object.merge

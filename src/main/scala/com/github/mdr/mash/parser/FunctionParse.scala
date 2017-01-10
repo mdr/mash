@@ -46,7 +46,7 @@ trait FunctionParse {
     ParamList(params)
   }
 
-  protected def parameter(parenAllowed: Boolean = true): Param =
+  protected def parameter(withinParen: Boolean = false): Param =
      if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {
@@ -54,10 +54,10 @@ trait FunctionParse {
         VariadicParam(ident, ellipsis)
       } else
         SimpleParam(ident)
-    } else if (LPAREN && parenAllowed) {
+    } else if (LPAREN && !withinParen) {
       val lparen = nextToken()
       val lazyOpt = if (LAZY) Some(nextToken()) else None
-      val param = parameter(parenAllowed = false)
+      val param = parameter(withinParen = true)
       val actualParam =
         param match {
           case SimpleParam(name) ⇒
@@ -80,7 +80,7 @@ trait FunctionParse {
       ParenParam(lparen, lazyOpt, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
        val pat = pattern()
-       if (SHORT_EQUALS) {
+       if (SHORT_EQUALS && withinParen) {
          val equals = nextToken()
          val defaultExpr = pipeExpr()
          DefaultParam(pat, equals, defaultExpr)
