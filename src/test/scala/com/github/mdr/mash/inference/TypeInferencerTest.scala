@@ -272,7 +272,13 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // hint
   "json.fromFile 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" shouldBeInferredAsHavingType
-    Object(Map("name" -> StringClass, "addresses" -> Seq(Object(Map("houseNumber" -> StringClass, "postcode" -> StringClass)))))
+    Object(Map(
+        "name" -> StringClass,
+        "addresses" ->
+          Seq(
+            Object(Map(
+              "houseNumber" -> StringClass,
+              "postcode" -> StringClass)))))
 
   // static
   "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeFunction)

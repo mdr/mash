@@ -353,11 +353,14 @@ class TypeInferencer {
         val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
       case Type.BuiltinFunction(f)                                  ⇒
-        val strategy = f.typeInferenceStrategy
-        strategy.inferTypes(new Inferencer(this, bindings), typedArgs)
+        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
       case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
+      case Type.Instance(ClassClass)                                ⇒
+        getStaticMethod(Some(function), "new").flatMap { case Type.BuiltinFunction(f) ⇒
+          f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
+        }
       case _                                                        ⇒
         None
     }
