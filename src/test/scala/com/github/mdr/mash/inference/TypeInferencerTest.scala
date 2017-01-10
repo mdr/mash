@@ -280,6 +280,13 @@ class TypeInferencerTest extends FlatSpec with Matchers {
               "houseNumber" -> StringClass,
               "postcode" -> StringClass)))))
 
+  "42.isNull" shouldBeInferredAsHavingType BooleanClass
+  "42.isTruthy" shouldBeInferredAsHavingType BooleanClass
+  "42.isA Number" shouldBeInferredAsHavingType BooleanClass
+
+  "def rev x = x.reverse; rev.isNull" shouldBeInferredAsHavingType BooleanClass
+  "(x => x).isNull" shouldBeInferredAsHavingType BooleanClass
+
   // static
   "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeFunction)
 

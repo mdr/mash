@@ -177,7 +177,7 @@ object Evaluator extends EvaluatorHelper {
 
       override val methods = methodDecls.map(makeMethod)
 
-      object NewStaticMethod extends MashFunction("new") {
+      object NewStaticMethod extends MashFunction(MashClass.ConstructorMethodName) {
         override def apply(arguments: Arguments): MashObject = {
           val boundParams = params.validate(arguments)
           val fields =

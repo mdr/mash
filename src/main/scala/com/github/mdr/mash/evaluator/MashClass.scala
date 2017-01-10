@@ -9,6 +9,8 @@ import scala.collection.immutable.ListMap
 
 object MashClass {
 
+  val ConstructorMethodName = "new"
+
   /**
    * Create an alias to a method
    */

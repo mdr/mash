@@ -1,7 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, ParameterModel, UserDefinedFunction }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -23,11 +23,20 @@ object Type {
   case class Tagged(baseClass: MashClass, tagClass: MashClass) extends Type
   case class Instance(klass: MashClass) extends Type { override def toString = klass.toString }
   case class Object(knownFields: Map[String, Type]) extends Type
-  case class BuiltinFunction(f: MashFunction) extends Type
   case class BoundMethod(receiver: Type, method: MashMethod) extends Type
 
+  /**
+    * Function defined in Mash
+    */
   case class Function(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
     override def toString = s"Function(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
+  }
+
+  /**
+    * Built-in (Scala) function
+    */
+  case class BuiltinFunction(f: MashFunction) extends Type {
+    require(!f.isInstanceOf[UserDefinedFunction])
   }
 
   // Various implicits to make it less wordy to describe types

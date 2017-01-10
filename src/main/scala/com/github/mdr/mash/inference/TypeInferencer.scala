@@ -358,7 +358,7 @@ class TypeInferencer {
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
       case Type.Instance(ClassClass)                                ⇒
-        getStaticMethod(Some(function), "new").flatMap { case Type.BuiltinFunction(f) ⇒
+        getStaticMethod(Some(function), MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
         }
       case _                                                        ⇒
@@ -386,51 +386,63 @@ class TypeInferencer {
       .flatMap(_ getStaticMethod name)
       .map(Type.BuiltinFunction)
 
+  private def memberLookup(genericType: Type.Generic,
+                           name: String): Option[Type] = genericType match {
+    case Type.Generic(GroupClass, keyType, elementType) ⇒
+      if (name == GroupClass.Fields.Key.name)
+        Some(keyType)
+      else if (name == GroupClass.Fields.Values.name)
+        Some(elementType.seq)
+      else
+        memberLookup(genericType, GroupClass, name)
+    case Type.Generic(TimedResultClass, resultType)     ⇒
+      if (name == TimedResultClass.Fields.Result.name)
+        Some(resultType)
+      else
+        memberLookup(genericType, TimedResultClass, name)
+    case _                                              ⇒
+      None
+  }
+
   def memberLookup(targetType: Type,
                    name: String,
                    immediateExec: Boolean,
                    memberExprOpt: Option[MemberExpr] = None,
                    targetExprOpt: Option[Expr] = None): Option[Type] = {
-    val intermediate = targetType match {
-      case Type.Instance(ClassClass)                      ⇒ getStaticMethod(targetExprOpt, name) orElse memberLookup(targetType, ClassClass, name)
-      case Type.Instance(klass)                           ⇒ memberLookup(targetType, klass, name)
-      case Type.Tagged(baseClass, tagClass)               ⇒ memberLookup(targetType, baseClass, name) orElse memberLookup(targetType, tagClass, name)
-      case Type.Seq(elementType)                          ⇒ memberLookup(targetType, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
-      case Type.Object(knownFields)                       ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
-      case Type.BuiltinFunction(_)                        ⇒ memberLookup(targetType, FunctionClass, name)
-      case Type.BoundMethod(_, _)                         ⇒ memberLookup(targetType, BoundMethodClass, name)
-      case Type.Generic(GroupClass, keyType, elementType) ⇒
-        if (name == GroupClass.Fields.Key.name)
-          Some(keyType)
-        else if (name == GroupClass.Fields.Values.name)
-          Some(elementType.seq)
-        else
-          memberLookup(targetType, GroupClass, name)
-      case Type.Generic(TimedResultClass, resultType)     ⇒
-        if (name == TimedResultClass.Fields.Result.name)
-          Some(resultType)
-        else
-          memberLookup(targetType, GroupClass, name)
-      case _                                              ⇒ None
+    val rawType = targetType match {
+      case Type.Instance(ClassClass)        ⇒ getStaticMethod(targetExprOpt, name) orElse memberLookup(targetType, ClassClass, name)
+      case Type.Instance(klass)             ⇒ memberLookup(targetType, klass, name)
+      case Type.Tagged(baseClass, tagClass) ⇒ memberLookup(targetType, baseClass, name) orElse memberLookup(targetType, tagClass, name)
+      case Type.Seq(elementType)            ⇒ memberLookup(targetType, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
+      case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
+      case Type.BuiltinFunction(_)          ⇒ memberLookup(targetType, FunctionClass, name)
+      case Type.Function(_, _, _)           ⇒ memberLookup(targetType, FunctionClass, name)
+      case Type.BoundMethod(_, _)           ⇒ memberLookup(targetType, BoundMethodClass, name)
+      case genericType: Type.Generic        ⇒ memberLookup(genericType, name)
+      case _                                ⇒ None
     }
     if (immediateExec)
-      intermediate match {
-        case Some(Type.BoundMethod(receiver, method)) if method.allowsNullary            ⇒
-          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
-        case Some(Type.BuiltinFunction(f)) if f.allowsNullary                            ⇒
-          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
-        case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
-          memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-          val argBindings = params.bindTypes(TypedArguments()).boundNames
-          inferType(body, functionBindings ++ argBindings)
-        case x                                                                           ⇒
-          x
-      }
+      inferImmediateExec(rawType, memberExprOpt)
     else
-      intermediate
+      rawType
   }
+
+  private def inferImmediateExec(intermediate: Option[Type], memberExprOpt: Option[MemberExpr]): Option[Type] =
+    intermediate match {
+      case Some(Type.BoundMethod(receiver, method)) if method.allowsNullary            ⇒
+        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+        method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
+      case Some(Type.BuiltinFunction(f)) if f.allowsNullary                            ⇒
+        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+        f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
+      case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
+        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+        val argBindings = params.bindTypes(TypedArguments()).boundNames
+        inferType(body, functionBindings ++ argBindings)
+      case x                                                                           ⇒
+        x
+    }
+
 
   private def inferType(lookupExpr: LookupExpr, bindings: Map[String, Type]): Option[Type] = {
     val LookupExpr(targetExpr, indexExpr, _) = lookupExpr

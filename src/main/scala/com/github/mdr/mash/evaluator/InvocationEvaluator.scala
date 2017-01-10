@@ -65,7 +65,7 @@ object InvocationEvaluator extends EvaluatorHelper {
           method(target, arguments)
         }
       case klass: MashClass ⇒
-        klass.getStaticMethod("new") match {
+        klass.getStaticMethod(MashClass.ConstructorMethodName) match {
           case Some(staticMethod) ⇒ callFunction(staticMethod, arguments, functionLocationOpt, invocationLocationOpt)
           case None ⇒ throw new EvaluatorException(s"Value of type ${klass.typeName} is not callable", functionLocationOpt)
         }

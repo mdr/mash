@@ -33,6 +33,8 @@ object AnyClass extends MashClass("core.Any") {
   null.isNull # true
   0.isNull    # false""")
 
+    override def typeInferenceStrategy = BooleanClass
+
   }
 
   object IsTruthy extends MashMethod("isTruthy") {
@@ -51,6 +53,8 @@ object AnyClass extends MashClass("core.Any") {
   false.isTruthy # false
   null.isTruthy  # false
   10.isTruthy    # true""")
+
+    override def typeInferenceStrategy = BooleanClass
 
   }
 
@@ -71,7 +75,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(target isA klass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summary = "Return true if and only if this value is an instance of the given class"
 
