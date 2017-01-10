@@ -14,8 +14,8 @@ object NormalMashLexer {
     "_" -> HOLE,
     "alias" -> ALIAS,
     "and" -> AND,
-    "def" -> DEF,
     "class" -> CLASS,
+    "def" -> DEF,
     "else" -> ELSE,
     "false" -> FALSE,
     "if" -> IF,
@@ -23,6 +23,7 @@ object NormalMashLexer {
     "null" -> NULL,
     "or" -> OR,
     "then" -> THEN,
+    "this" -> THIS,
     "true" -> TRUE)
 
 }

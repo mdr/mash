@@ -62,6 +62,7 @@ object Evaluator extends EvaluatorHelper {
     expr match {
       case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw new EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
+      case thisExpr: ThisExpr                                        ⇒ evaluateThisExpr(thisExpr)
       case interpolatedString: InterpolatedString                    ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                                        ⇒ evaluate(body)
       case blockExpr: BlockExpr                                      ⇒ evaluateBlockExpr(blockExpr)
@@ -111,6 +112,11 @@ object Evaluator extends EvaluatorHelper {
     val newContext = context.copy(scopeStack = context.scopeStack.withBlockScope(Seq()))
     Evaluator.evaluate(blockExpr.expr)(newContext)
   }
+
+  def evaluateThisExpr(thisExpr: ThisExpr)(implicit context: EvaluationContext): MashValue = context.scopeStack.thisOpt.getOrElse {
+    throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
+  }
+
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
     evaluateIdentifier(identifier.name, sourceLocation(identifier))
@@ -200,6 +206,7 @@ object Evaluator extends EvaluatorHelper {
         override def typeInferenceStrategy = UserDefinedClass
 
       }
+
     }
     context.scopeStack.set(className, UserDefinedClass)
     MashUnit

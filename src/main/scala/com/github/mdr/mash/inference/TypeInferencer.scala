@@ -73,6 +73,7 @@ class TypeInferencer {
       case functionDecl: FunctionDeclaration            ⇒ inferType(functionDecl, bindings)
       case decl: ClassDeclaration                       ⇒ inferType(decl, bindings)
       case lambda: LambdaExpr                           ⇒ inferType(lambda, bindings)
+      case thisExpr: ThisExpr                           ⇒ None
     }
 
   private def inferType(lambdaExpr: LambdaExpr, bindings: Map[String, Type]): Option[Type] = {
@@ -214,10 +215,9 @@ class TypeInferencer {
   }
 
   private def inferType(memberExpr: MemberExpr, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] = {
-    val MemberExpr(target, name, _, _) = memberExpr
     for {
-      targetType ← inferType(target, bindings)
-      memberType ← memberLookup(targetType, name, immediateExec = immediateExec, Some(memberExpr))
+      targetType ← inferType(memberExpr.target, bindings)
+      memberType ← memberLookup(targetType, memberExpr.name, immediateExec = immediateExec, Some(memberExpr), Some(memberExpr.target))
     } yield memberType
   }
 
@@ -376,26 +376,38 @@ class TypeInferencer {
       klass.getMethod(name).map { method ⇒ Type.BoundMethod(typ, method) } orElse
       klass.parentOpt.flatMap(superClass ⇒ memberLookup(typ, superClass, name))
 
-  def memberLookup(typ: Type, name: String, immediateExec: Boolean, memberExprOpt: Option[MemberExpr] = None): Option[Type] = {
-    val intermediate = typ match {
-      case Type.Instance(klass)                           ⇒ memberLookup(typ, klass, name)
-      case Type.Tagged(baseClass, tagClass)               ⇒ memberLookup(typ, baseClass, name) orElse memberLookup(typ, tagClass, name)
-      case Type.Seq(elementType)                          ⇒ memberLookup(typ, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
-      case Type.Object(knownFields)                       ⇒ knownFields.get(name) orElse memberLookup(typ, ObjectClass, name)
-      case Type.BuiltinFunction(_)                        ⇒ memberLookup(typ, FunctionClass, name)
-      case Type.BoundMethod(_, _)                         ⇒ memberLookup(typ, BoundMethodClass, name)
+  private def getStaticMethod(targetExprOpt: Option[Expr], name: String): Option[Type.BuiltinFunction] =
+    targetExprOpt
+      .flatMap(_.constantValueOpt)
+      .collect { case klass: MashClass ⇒ klass }
+      .flatMap(_ getStaticMethod name)
+      .map(Type.BuiltinFunction)
+
+  def memberLookup(targetType: Type,
+                   name: String,
+                   immediateExec: Boolean,
+                   memberExprOpt: Option[MemberExpr] = None,
+                   targetExprOpt: Option[Expr] = None): Option[Type] = {
+    val intermediate = targetType match {
+      case Type.Instance(ClassClass)                      ⇒ getStaticMethod(targetExprOpt, name) orElse memberLookup(targetType, ClassClass, name)
+      case Type.Instance(klass)                           ⇒ memberLookup(targetType, klass, name)
+      case Type.Tagged(baseClass, tagClass)               ⇒ memberLookup(targetType, baseClass, name) orElse memberLookup(targetType, tagClass, name)
+      case Type.Seq(elementType)                          ⇒ memberLookup(targetType, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
+      case Type.Object(knownFields)                       ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
+      case Type.BuiltinFunction(_)                        ⇒ memberLookup(targetType, FunctionClass, name)
+      case Type.BoundMethod(_, _)                         ⇒ memberLookup(targetType, BoundMethodClass, name)
       case Type.Generic(GroupClass, keyType, elementType) ⇒
         if (name == GroupClass.Fields.Key.name)
           Some(keyType)
         else if (name == GroupClass.Fields.Values.name)
           Some(elementType.seq)
         else
-          memberLookup(typ, GroupClass, name)
+          memberLookup(targetType, GroupClass, name)
       case Type.Generic(TimedResultClass, resultType)     ⇒
         if (name == TimedResultClass.Fields.Result.name)
           Some(resultType)
         else
-          memberLookup(typ, GroupClass, name)
+          memberLookup(targetType, GroupClass, name)
       case _                                              ⇒ None
     }
     if (immediateExec)

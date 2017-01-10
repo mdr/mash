@@ -31,6 +31,11 @@ object ConcreteSyntax {
     val tokens = Seq(token)
   }
 
+  case class ThisExpr(token: Token) extends Expr {
+    require(token.tokenType == TokenType.THIS)
+    val tokens = Seq(token)
+  }
+
   case class Identifier(token: Token) extends Expr {
     val tokens = Seq(token)
   }

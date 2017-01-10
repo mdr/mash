@@ -17,9 +17,11 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
-    val fullMessage = s"Invalid argument '${param.nameOpt}'. $message"
+    val fullMessage = s"Invalid argument '${name(param)}'. $message"
     throw new ArgumentException(fullMessage, locationOpt(param))
   }
+
+  private def name(param: Parameter): String = param.nameOpt.getOrElse("anon")
 
   private def mergeLocation(location1: SourceLocation, location2: SourceLocation): SourceLocation =
     SourceLocation(location1.provenance, location1.pointedRegion merge location2.pointedRegion)
@@ -66,7 +68,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   }
 
   private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {
-    val message = s"Invalid argument '${param.nameOpt}'. Must be a $desiredType, but was a ${value.typeName}"
+    val message = s"Invalid argument '${name(param)}'. Must be a $desiredType, but was a ${value.typeName}"
     throw new ArgumentException(message, locationOpt(param))
   }
 
@@ -87,7 +89,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   def validatePaths(param: Parameter): Seq[Path] = {
     val arg = this (param)
     catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(arg) getOrElse (
-      throw new ArgumentException(s"Invalid argument '${param.nameOpt}', could not interpret value of type ${arg.typeName} as path.", locationOpt(param)))
+      throw new ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as path.", locationOpt(param)))
   }
 
   object MashInteger {
@@ -111,10 +113,10 @@ case class BoundParams(boundNames: Map[String, MashValue],
     case MashInteger(n) ⇒
       n
     case n: MashNumber  ⇒
-      val message = s"Invalid argument '${param.nameOpt}'. Must be an integer, but was '$n'"
+      val message = s"Invalid argument '${name(param)}'. Must be an integer, but was '$n'"
       throw new ArgumentException(message, locationOpt(param))
     case x              ⇒
-      val message = s"Invalid argument '${param.nameOpt}'. Must be an integer, but was a ${x.typeName}"
+      val message = s"Invalid argument '${name(param)}'. Must be an integer, but was a ${x.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 
@@ -122,7 +124,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     case MashNumber(n, _) ⇒
       n
     case value            ⇒
-      val message = s"Invalid argument '${param.nameOpt}'. Must be an integer, but was a ${value.typeName}"
+      val message = s"Invalid argument '${name(param)}'. Must be an integer, but was a ${value.typeName}"
       throw new ArgumentException(message, locationOpt(param))
   }
 

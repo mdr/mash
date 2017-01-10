@@ -230,6 +230,8 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def primaryExpr(): Expr =
     if (NUMBER_LITERAL || STRING_LITERAL || TRUE || FALSE || NULL)
       Literal(nextToken())
+    else if (THIS)
+      ThisExpr(nextToken())
     else if (STRING_START)
       interpolatedString()
     else if (IDENTIFIER)

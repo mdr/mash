@@ -136,7 +136,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param)
-          throw new ArgumentException(s"Argument '${param.nameOpt}' is provided multiple times", errorLocationOpt)
+          throw new ArgumentException(s"Argument '${name(param)}' is provided multiple times", errorLocationOpt)
         else {
           param.nameOpt.foreach(boundNames += _ -> resolve(param, value))
           boundParams += param
@@ -163,14 +163,16 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case None            ⇒
           if (param.isVariadic)
             if (param.variadicAtLeastOne)
-              throw new ArgumentException(s"Missing mandatory argument '${param.nameOpt}'")
+              throw new ArgumentException(s"Missing mandatory argument '${name(param)}'")
             else {
               param.nameOpt.foreach(boundNames += _ -> MashList.empty)
               boundParams += param
             }
           else
-            throw new ArgumentException(s"Missing mandatory argument '${param.nameOpt}'")
+            throw new ArgumentException(s"Missing mandatory argument '${name(param)}'")
       }
+
+  private def name(param: Parameter): String = param.nameOpt.getOrElse("anon")
 
 }
 

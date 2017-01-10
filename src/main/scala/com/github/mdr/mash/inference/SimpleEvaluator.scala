@@ -83,6 +83,8 @@ object SimpleEvaluator {
       } evaluate(method)
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None
+    case ThisExpr(_) ⇒
+      None
   }
 
   def simplyEvaluate(objectExpr: ObjectExpr)(implicit context: EvaluationContext): Option[MashValue] = {

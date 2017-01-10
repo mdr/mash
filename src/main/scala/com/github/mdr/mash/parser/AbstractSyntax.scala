@@ -33,7 +33,7 @@ object AbstractSyntax {
     }
 
     private def transformDescendents(f: PartialFunction[AstNode, AstNode]) = this match {
-      case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry ⇒
+      case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry | ThisExpr(_) ⇒
         this
       case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
         InterpolatedString(start, parts.map {
@@ -430,6 +430,11 @@ object AbstractSyntax {
   case class HelpExpr(expr: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(expr)
+  }
+
+  case class ThisExpr(sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+    def children = Seq()
   }
 
 }

@@ -31,7 +31,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   "-1.23" shouldProduce Seq(NUMBER_LITERAL)
 
   "true false" shouldProduce Seq(TRUE, FALSE)
-
+  "this" shouldProduce Seq(THIS)
   "ls -a" shouldProduce Seq(IDENTIFIER, SHORT_FLAG)
   "ls --recursive" shouldProduce Seq(IDENTIFIER, LONG_FLAG)
   "foo --bar=baz" shouldProduce Seq(IDENTIFIER, LONG_FLAG, SHORT_EQUALS, IDENTIFIER)

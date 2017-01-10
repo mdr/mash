@@ -266,13 +266,16 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "def foo n = if n > 0 then bar (n - 1) else 42; def bar n = foo (n - 1); bar 10" shouldBeInferredAsHavingType NumberClass
 
-  "{ foo: => 42 }.foo"  shouldBeInferredAsHavingType NumberClass
+  "{ foo: => 42 }.foo" shouldBeInferredAsHavingType NumberClass
 
   "'{ foo: 42 }' | json.fromString | .foo" shouldBeInferredAsHavingType AnyClass
 
   // hint
   "json.fromFile 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" shouldBeInferredAsHavingType
     Object(Map("name" -> StringClass, "addresses" -> Seq(Object(Map("houseNumber" -> StringClass, "postcode" -> StringClass)))))
+
+  // static
+  "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeFunction)
 
   private implicit class RichString(s: String) {
 

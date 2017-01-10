@@ -3,6 +3,7 @@ package com.github.mdr.mash.parser
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
+import com.github.mdr.mash.parser.ConcreteSyntax.ThisExpr
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 
 import scala.PartialFunction.condOpt
@@ -43,6 +44,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.MishFunction(word)                        ⇒ Abstract.MishFunction(word.text.tail, sourceInfo(expr))
     case Concrete.HelpExpr(subExpr, _)                      ⇒ Abstract.HelpExpr(abstractify(subExpr), sourceInfo(expr))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
+    case Concrete.ThisExpr(thisToken)                       ⇒ Abstract.ThisExpr(sourceInfo(expr))
   }
 
   private def abstractifyPatternAssignmentExpr(assignmentExpr: Concrete.PatternAssignmentExpr): Abstract.PatternAssignmentExpr = {

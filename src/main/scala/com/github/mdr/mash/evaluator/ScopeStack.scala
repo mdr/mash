@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 import scala.collection.mutable
 
@@ -26,7 +26,7 @@ sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
   * e.g. the body of lambdas, or inside a { block }
   */
 case class BlockScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables) {
-  override val thisOpt = None
+  override val thisOpt: Option[MashValue] = None
 }
 
 /**
@@ -68,16 +68,19 @@ case class ScopeStack(scopes: List[Scope]) {
 
   private def set(name: String, value: MashValue, scopes: List[Scope]): Unit =
     scopes match {
-      case (scope: BlockScope) :: rest ⇒
-        lookup(name, rest) match {
-          case Some(_) ⇒
-            set(name, value, rest)
-          case None ⇒
-            scope.set(name, value)
+      case innermostScope :: outerScopes ⇒
+        if (innermostScope.variables.get(name).isDefined)
+          innermostScope.set(name, value)
+        else innermostScope.thisOpt.collect { case obj: MashObject if obj.get(name).isDefined ⇒ obj } match {
+          case Some(obj) ⇒
+            obj.set(name, value)
+          case None      ⇒
+            innermostScope match {
+              case blockScope: BlockScope if lookup(name, outerScopes).isDefined ⇒ set(name, value, outerScopes)
+              case _                                                      ⇒ innermostScope.set(name, value)
+            }
         }
-      case (scope: FullScope) :: rest  ⇒
-        scope.set(name, value)
-      case Nil                         ⇒
+      case Nil                ⇒
         throw new AssertionError("Missing global scope")
     }
 
