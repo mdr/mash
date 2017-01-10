@@ -163,20 +163,7 @@ object Evaluator extends EvaluatorHelper {
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashMethod = {
       val FunctionDeclaration(functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context))
-
-      object Method extends MashMethod(functionName) {
-
-        override def apply(target: MashValue, arguments: Arguments): MashValue = {
-          val boundParams = params.validate(arguments)
-          val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames, target)
-          Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
-        }
-
-        override def summary: String = s"Method '$functionName'"
-
-        override def params: ParameterModel = methodParams
-      }
-      Method
+      UserDefinedMethod(functionName, methodParams, body, context)
     }
 
     object UserDefinedClass extends MashClass(nameOpt = Some(className)) {
