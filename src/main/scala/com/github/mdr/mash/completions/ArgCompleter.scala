@@ -25,9 +25,9 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
 
   private def getCompletionSpecs(invocationExpr: InvocationExpr, argPos: Int): Option[Seq[CompletionSpec]] =
     invocationExpr.function.typeOpt.collect {
-      case Type.BuiltinFunction(f)         ⇒
+      case Type.BuiltinFunction(f)                ⇒
         f.getCompletionSpecs(argPos, TypedArguments.from(invocationExpr))
-      case Type.BoundMethod(targetType, m) ⇒
+      case Type.BoundBuiltinMethod(targetType, m) ⇒
         m.getCompletionSpecs(argPos, Some(targetType), TypedArguments.from(invocationExpr))
     }
 

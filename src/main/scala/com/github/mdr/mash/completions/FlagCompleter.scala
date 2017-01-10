@@ -65,8 +65,8 @@ object FlagCompleter {
   }
 
   private def getFlags(functionType: Type): Option[Seq[Flag]] = condOpt(functionType) {
-    case Type.BuiltinFunction(f) ⇒ f.flags
-    case Type.BoundMethod(_, m)  ⇒ m.flags
+    case Type.BuiltinFunction(f)       ⇒ f.flags
+    case Type.BoundBuiltinMethod(_, m) ⇒ m.flags
   }
 
 }

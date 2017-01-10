@@ -19,12 +19,12 @@ object ValueTypeDetector {
 /** Detect the type of runtime values **/
 class ValueTypeDetector {
 
-  private val visitingMap: IdentityHashMap[MashValue, Boolean] = new IdentityHashMap
-  private val visitedMap: IdentityHashMap[MashValue, Type] = new IdentityHashMap
-
   def buildBindings(bindings: Map[String, MashValue]): Map[String, Type] =
     for ((k, v) ← bindings)
       yield k -> getType(v)
+
+  private val visitingMap: IdentityHashMap[MashValue, Boolean] = new IdentityHashMap
+  private val visitedMap: IdentityHashMap[MashValue, Type] = new IdentityHashMap
 
   def getType(x: MashValue): Type =
     Option(visitedMap.get(x)).getOrElse {
@@ -46,7 +46,7 @@ class ValueTypeDetector {
     case AnonymousFunction(parameterModel, body, context)      ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case UserDefinedFunction(_, parameterModel, body, context) ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case f: MashFunction                                       ⇒ Type.BuiltinFunction(f)
-    case BoundMethod(target, method, _)                        ⇒ Type.BoundMethod(getType(target), method)
+    case BoundMethod(target, method, _)                        ⇒ Type.BoundBuiltinMethod(getType(target), method)
     case MashString(_, None)                                   ⇒ StringClass
     case MashString(_, Some(tagClass))                         ⇒ StringClass taggedWith tagClass
     case MashNumber(_, None)                                   ⇒ NumberClass

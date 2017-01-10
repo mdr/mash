@@ -14,7 +14,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
       strategy.inferTypes(this, TypedArguments(args))
-    case Type.BoundMethod(targetType, method)                     ⇒
+    case Type.BoundBuiltinMethod(targetType, method)              ⇒
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))
@@ -38,7 +38,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
       strategy.inferTypes(this, TypedArguments(args))
-    case Type.BoundMethod(targetType, method)                ⇒
+    case Type.BoundBuiltinMethod(targetType, method)         ⇒
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))

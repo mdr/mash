@@ -3,7 +3,7 @@ package com.github.mdr.mash.inference
 import java.{ util ⇒ ju }
 
 import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
-import com.github.mdr.mash.functions.TypeParamValidationContext
+import com.github.mdr.mash.functions.{ MashMethod, TypeParamValidationContext, UserDefinedMethod }
 import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
@@ -335,33 +335,37 @@ class TypeInferencer {
     val typedArgs = TypedArguments.from(invocationExpr)
 
     inferType(function, bindings, immediateExec = false).flatMap {
-      case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
+      case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                 ⇒
         for {
           arg ← typedArgs.positionArgs.headOption
           StringLiteral(s, _, _, _) ← Some(function)
           argType ← arg.typeOpt
           memberType ← memberLookup(argType, s, immediateExec = true)
         } yield memberType
-      case Type.Seq(Type.BoundMethod(receiverType, method))         ⇒
+      // TODO: case Type.Seq(Type.UserDefinedBoundMethod...
+      case Type.Seq(Type.BoundBuiltinMethod(receiverType, method))                  ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments).map(Type.Seq)
-      case Type.Seq(elementType)                                    ⇒
+      case Type.Seq(elementType)                                                    ⇒
         Some(elementType)
-      case Type.BoundMethod(receiverType, method)                   ⇒
+      case Type.UserDefinedBoundMethod(targetTypeOpt, parameterModel, body, methodBindings) ⇒
+        val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
+        inferType(body, methodBindings ++ argBindings)
+      case Type.BoundBuiltinMethod(receiverType, method)                            ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
         strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
-      case Type.BuiltinFunction(f)                                  ⇒
+      case Type.BuiltinFunction(f)                                                  ⇒
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case Type.Function(parameterModel, expr, lambdaBindings)      ⇒
+      case Type.Function(parameterModel, expr, lambdaBindings)                      ⇒
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
-      case Type.Instance(ClassClass)                                ⇒
+      case Type.Instance(ClassClass)                                                ⇒
         getStaticMethod(Some(function), MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
         }
-      case _                                                        ⇒
+      case _                                                                        ⇒
         None
     }
   }
@@ -374,10 +378,17 @@ class TypeInferencer {
     bodyTypeOpt orElse elseTypeOpt
   }
 
-  private def memberLookup(typ: Type, klass: MashClass, name: String): Option[Type] =
+  private def memberLookup(targetType: Type, klass: MashClass, name: String): Option[Type] =
     klass.fieldsMap.get(name).map(_.fieldType) orElse
-      klass.getMethod(name).map { method ⇒ Type.BoundMethod(typ, method) } orElse
-      klass.parentOpt.flatMap(superClass ⇒ memberLookup(typ, superClass, name))
+      klass.getMethod(name).map(getMethodType(targetType, _)) orElse
+      klass.parentOpt.flatMap(superClass ⇒ memberLookup(targetType, superClass, name))
+
+  private def getMethodType(targetType: Type, method: MashMethod) = method match {
+    case UserDefinedMethod(_, params, body, context) ⇒
+      Type.UserDefinedBoundMethod(targetType, params, body, new ValueTypeDetector().buildBindings(context.scopeStack.bindings))
+    case _                                           ⇒
+      Type.BoundBuiltinMethod(targetType, method)
+  }
 
   private def getStaticMethod(targetExprOpt: Option[Expr], name: String): Option[Type.BuiltinFunction] =
     targetExprOpt
@@ -417,7 +428,7 @@ class TypeInferencer {
       case Type.Object(knownFields)         ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
       case Type.BuiltinFunction(_)          ⇒ memberLookup(targetType, FunctionClass, name)
       case Type.Function(_, _, _)           ⇒ memberLookup(targetType, FunctionClass, name)
-      case Type.BoundMethod(_, _)           ⇒ memberLookup(targetType, BoundMethodClass, name)
+      case Type.BoundBuiltinMethod(_, _)    ⇒ memberLookup(targetType, BoundMethodClass, name)
       case genericType: Type.Generic        ⇒ memberLookup(genericType, name)
       case _                                ⇒ None
     }
@@ -429,17 +440,21 @@ class TypeInferencer {
 
   private def inferImmediateExec(intermediate: Option[Type], memberExprOpt: Option[MemberExpr]): Option[Type] =
     intermediate match {
-      case Some(Type.BoundMethod(receiver, method)) if method.allowsNullary            ⇒
-        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-        method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
-      case Some(Type.BuiltinFunction(f)) if f.allowsNullary                            ⇒
+      case Some(Type.BuiltinFunction(f)) if f.allowsNullary                                                       ⇒
         memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
-      case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary ⇒
+      case Some(Type.Function(params, body, functionBindings)) if params.allowsNullary                            ⇒
         memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, functionBindings ++ argBindings)
-      case x                                                                           ⇒
+      case Some(Type.BoundBuiltinMethod(receiver, method)) if method.allowsNullary                                ⇒
+        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+        method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
+      case Some(Type.UserDefinedBoundMethod(targetTypeOpt, params, body, methodBindings)) if params.allowsNullary ⇒
+        memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
+        val argBindings = params.bindTypes(TypedArguments()).boundNames
+        inferType(body, methodBindings ++ argBindings)
+      case x                                                                                                      ⇒
         x
     }
 

@@ -215,7 +215,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "git.status" shouldBeInferredAsHavingType Instance(StatusClass)
   "git['status']" shouldBeInferredAsHavingType BuiltinFunction(StatusFunction)
-  "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundMethod(Seq(NumberClass), ListClass.methods.find(_.name == "reverse").get)
+  "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundBuiltinMethod(Seq(NumberClass), ListClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
 
   "{ foo: 42 } | .foo" shouldBeInferredAsHavingType NumberClass

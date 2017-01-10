@@ -21,9 +21,9 @@ object BindingCompleter {
         (name, type_) ← expr.typeBindings.toSeq
         if name startsWith identifierToken.text
         (completionType, descriptionOpt) = type_ match {
-          case Type.BoundMethod(_, method) ⇒ (CompletionType.Method, Some(method.summary))
-          case Type.BuiltinFunction(fun)   ⇒ (CompletionType.Function, Some(fun.summary))
-          case x                           ⇒ (CompletionType.Binding, None)
+          case Type.BoundBuiltinMethod(_, method) ⇒ (CompletionType.Method, Some(method.summary))
+          case Type.BuiltinFunction(fun)          ⇒ (CompletionType.Function, Some(fun.summary))
+          case x                                  ⇒ (CompletionType.Binding, None)
         }
       } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = descriptionOpt)
     CompletionResult.of(completions, identifierToken.region)
