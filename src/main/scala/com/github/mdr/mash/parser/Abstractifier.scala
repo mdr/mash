@@ -94,7 +94,7 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyClassBody(body: Concrete.ClassBody): Abstract.ClassBody =
-    Abstract.ClassBody(body.methods.map(abstractifyFunctionDeclaration))
+    Abstract.ClassBody(body.methods.map(method ⇒ abstractifyFunctionDeclaration(method.methodDeclaration)))
 
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
     case Concrete.SimpleParam(name)                     ⇒

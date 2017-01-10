@@ -307,8 +307,12 @@ object ConcreteSyntax {
     lazy val tokens = Seq(classToken, name) ++ params.tokens
   }
 
-  case class ClassBody(lbrace: Token, methods: Seq[FunctionDeclaration], rbrace: Token) extends AstNode {
+  case class ClassBody(lbrace: Token, methods: Seq[Method], rbrace: Token) extends AstNode {
     lazy val tokens = lbrace +: methods.flatMap(_.tokens) :+ rbrace
+  }
+
+  case class Method(methodDeclaration: FunctionDeclaration, semiOpt: Option[Token]) extends AstNode {
+    lazy val tokens = methodDeclaration.tokens ++ semiOpt
   }
 
   case class FunctionDeclaration(defToken: Token, name: Token, params: ParamList, equals: Token, body: Expr) extends Expr {

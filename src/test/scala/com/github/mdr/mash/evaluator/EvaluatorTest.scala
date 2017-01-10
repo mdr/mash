@@ -714,5 +714,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Point x y; Point.new 3 4 | [.x, .y]" shouldEvaluateTo "[3, 4]"
   "class Point x y; Point 3 4 | [.x, .y]" shouldEvaluateTo "[3, 4]"
   "class Point x y { def sum = x + y }; Point 3 4 | .sum" shouldEvaluateTo "7"
-  "class Point x y { def sum = x + y def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo "49"
+  "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo "49"
 }

@@ -30,9 +30,11 @@ trait ClassParse {
     val bodyOpt =
       if (LBRACE) {
         val lbrace = nextToken()
-        val methods: ArrayBuffer[FunctionDeclaration] = ArrayBuffer()
-        safeWhile(DEF) {
-          methods += functionDeclaration()
+        val methods: ArrayBuffer[Method] = ArrayBuffer()
+        while (DEF) {
+          val methodDecl = functionDeclaration()
+          val semiOpt = if (SEMI) Some(nextToken()) else None
+          methods += Method(methodDecl, semiOpt)
         }
         val rbrace = consumeRequiredToken(RBRACE)
         Some(ClassBody(lbrace, methods, rbrace))

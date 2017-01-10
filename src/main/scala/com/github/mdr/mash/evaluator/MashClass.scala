@@ -32,7 +32,8 @@ object MashClass {
 
 }
 
-abstract class MashClass(val nameOpt: Option[String], val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName {
+abstract class MashClass(val nameOpt: Option[String],
+                         val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
