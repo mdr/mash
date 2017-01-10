@@ -1,8 +1,7 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, ConstantTypeInferenceStrategy, Type }
-import com.github.mdr.mash.ns.core.{ AnyClass, FieldAndValueClass, StringClass }
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -163,13 +162,7 @@ object Evaluator extends EvaluatorHelper {
 
         override def apply(target: MashValue, arguments: Arguments): MashValue = {
           val boundParams = params.validate(arguments)
-          val boundFields =
-            for {
-              field ← classFields
-              value = target.asInstanceOf[MashObject](field.name)
-            } yield field.name -> value
-
-          val newScopeStack = context.scopeStack.withFullScope(boundFields.toMap ++ boundParams.boundNames)
+          val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames, target)
           Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
         }
 

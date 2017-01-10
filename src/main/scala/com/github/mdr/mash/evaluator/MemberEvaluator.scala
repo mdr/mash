@@ -56,7 +56,7 @@ object MemberEvaluator extends EvaluatorHelper {
         None
     }
 
-  private def lookupMethod(target: MashValue, klass: MashClass, name: String): Option[MashValue] = {
+  private def lookupMethod(target: MashValue, klass: MashClass, name: String): Option[BoundMethod] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
@@ -64,12 +64,6 @@ object MemberEvaluator extends EvaluatorHelper {
     def parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
     directResultOpt orElse parentResultOpt
   }
-
-  private def lookupMethod(target: MashObject, name: String): Option[MashValue] =
-    for {
-      klass ← target.classOpt orElse Some(ObjectClass)
-      boundMethod ← lookupMethod(target, klass, name)
-    } yield boundMethod
 
   def lookup(target: MashValue, field: Field): MashValue =
     lookup(target, field.name)
@@ -81,10 +75,13 @@ object MemberEvaluator extends EvaluatorHelper {
   def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
 
+  /**
+    * @return a bound method, a static method, or a field value corresponding to the given name in the target
+    */
   def maybeLookup(target: MashValue, name: String): Option[MashValue] =
     target match {
-      case MashNumber(n, tagClassOpt)       ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
-      case MashString(s, tagClassOpt)       ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(tag ⇒ lookupMethod(target, tag, name))
+      case MashNumber(n, tagClassOpt)       ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
+      case MashString(s, tagClassOpt)       ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
       case MashNull                         ⇒ lookupMethod(target, NullClass, name)
       case MashUnit                         ⇒ lookupMethod(target, UnitClass, name)
       case b: MashBoolean                   ⇒ lookupMethod(b, BooleanClass, name)
@@ -94,7 +91,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case klass: MashClass                 ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
       case dt @ MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date @ MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
-      case obj: MashObject                  ⇒ obj.get(name) orElse lookupMethod(obj, name)
+      case obj: MashObject                  ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name)
       case _                                ⇒ None
     }
 
