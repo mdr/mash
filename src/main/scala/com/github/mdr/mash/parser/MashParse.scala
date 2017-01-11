@@ -244,9 +244,12 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       parenExpr()
     else if (LSQUARE)
       listExpr()
-    else if (LBRACE)
-      speculate(objectExpr()) getOrElse blockExpr()
-    else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
+    else if (LBRACE) {
+      if (lookahead(1) == IDENTIFIER && lookahead(2) == COLON)
+        objectExpr() // <-- better error messages if we can positively commit to this being an objectExpr
+      else
+        speculate(objectExpr()) getOrElse blockExpr()
+    } else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
       mishInterpolation()
     else if (forgiving)
       Literal(syntheticToken(STRING_LITERAL))
