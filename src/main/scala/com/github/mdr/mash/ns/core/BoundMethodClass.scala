@@ -73,7 +73,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
         targetTypeOpt.collect {
-          case Type.BoundBuiltinMethod(receiver, _) ⇒ receiver
+          case Type.BoundBuiltinMethod(targetType, _) ⇒ targetType
         }
     }
 

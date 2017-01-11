@@ -344,22 +344,22 @@ class TypeInferencer {
           memberType ← memberLookup(argType, s, immediateExec = true)
         } yield memberType
       // TODO: case Type.Seq(Type.UserDefinedBoundMethod...
-      case Type.Seq(Type.BoundBuiltinMethod(receiverType, method))                  ⇒
+      case Type.Seq(Type.BoundBuiltinMethod(targetType, method))                          ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
-        strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments).map(Type.Seq)
-      case Type.Seq(elementType)                                                    ⇒
+        strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments).map(Type.Seq)
+      case Type.Seq(elementType)                                                            ⇒
         Some(elementType)
-      case Type.UserDefinedBoundMethod(targetTypeOpt, parameterModel, body, methodBindings) ⇒
+      case Type.BoundUserDefinedMethod(targetTypeOpt, parameterModel, body, methodBindings) ⇒
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(body, methodBindings ++ argBindings)
-      case Type.BoundBuiltinMethod(receiverType, method)                            ⇒
+      case Type.BoundBuiltinMethod(targetType, method)                                    ⇒
         val strategy = method.typeInferenceStrategy
         val arguments = TypedArguments(typedArgs.arguments)
-        strategy.inferTypes(new Inferencer(this, bindings), Some(receiverType), arguments)
-      case Type.BuiltinFunction(f)                                                  ⇒
+        strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments)
+      case Type.BuiltinFunction(f)                                                          ⇒
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case Type.Function(parameterModel, expr, lambdaBindings)                      ⇒
+      case Type.Function(parameterModel, expr, lambdaBindings)                              ⇒
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
       case Type.Instance(ClassClass)                                                ⇒
@@ -386,7 +386,7 @@ class TypeInferencer {
 
   private def getMethodType(targetType: Type, method: MashMethod) = method match {
     case UserDefinedMethod(_, params, body, context) ⇒
-      Type.UserDefinedBoundMethod(targetType, params, body, new ValueTypeDetector().buildBindings(context.scopeStack.bindings))
+      Type.BoundUserDefinedMethod(targetType, params, body, new ValueTypeDetector().buildBindings(context.scopeStack.bindings))
     case _                                           ⇒
       Type.BoundBuiltinMethod(targetType, method)
   }
@@ -448,10 +448,10 @@ class TypeInferencer {
         memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, functionBindings ++ argBindings)
-      case Some(Type.BoundBuiltinMethod(receiver, method)) if method.allowsNullary                                ⇒
+      case Some(Type.BoundBuiltinMethod(targetType, method)) if method.allowsNullary                                ⇒
         memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
-        method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(receiver), TypedArguments())
-      case Some(Type.UserDefinedBoundMethod(targetTypeOpt, params, body, methodBindings)) if params.allowsNullary ⇒
+        method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(targetType), TypedArguments())
+      case Some(Type.BoundUserDefinedMethod(targetTypeOpt, params, body, methodBindings)) if params.allowsNullary ⇒
         memberExprOpt.foreach(_.preInvocationTypeOpt = intermediate)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, methodBindings ++ argBindings)

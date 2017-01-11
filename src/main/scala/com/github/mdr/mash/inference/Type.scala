@@ -33,14 +33,17 @@ object Type {
 
   case class Object(knownFields: Map[String, Type]) extends Type
 
-  case class UserDefinedBoundMethod(receiver: Type, params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"UserDefinedBoundMethod(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
+  /**
+    * Method defined in mash, bound to a target
+    */
+  case class BoundUserDefinedMethod(target: Type, params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
+    override def toString = s"BoundUserDefinedMethod(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
   }
 
   /**
     * Built-in (Scala) method
     */
-  case class BoundBuiltinMethod(receiver: Type, method: MashMethod) extends Type {
+  case class BoundBuiltinMethod(target: Type, method: MashMethod) extends Type {
     require(!method.isInstanceOf[UserDefinedMethod])
   }
 
