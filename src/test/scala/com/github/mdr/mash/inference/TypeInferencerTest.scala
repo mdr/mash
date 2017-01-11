@@ -290,6 +290,13 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // static
   "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeFunction)
 
+  // classes
+  "class Foo { def bar = 10 }; Foo.new.bar" shouldBeInferredAsHavingType NumberClass
+  "class Foo n { def bar = 10 }; Foo.new 5 | .bar" shouldBeInferredAsHavingType NumberClass
+  "class Foo { def bar = 10 }; Foo 5 | .bar" shouldBeInferredAsHavingType NumberClass
+  "class Foo { def bar m = 10 }; Foo 5 | .bar 10" shouldBeInferredAsHavingType NumberClass
+  "class Foo { def bar m = m }; Foo 5 | .bar 10" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

@@ -20,7 +20,7 @@ class CommandRunner(output: PrintStream,
 
   private val errorPrinter = new ErrorPrinter(output, terminalInfo)
   private val debugCommandRunner = new DebugCommandRunner(output, globals)
-  private val debugLogger = new DebugLogger(sessionId)
+  private val debugLogger = new DebugLogger(sessionId.toString)
 
   def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean, viewConfig: ViewConfig): CommandResult = {
     cmd match {

@@ -10,7 +10,7 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.Terminal
 
 class ScriptExecutor(output: PrintStream, terminal: Terminal, sessionId: UUID, globalVariables: MashObject) {
-  private val debugLogger = new DebugLogger(sessionId)
+  private val debugLogger = new DebugLogger(sessionId.toString)
 
   def runUnit(unit: CompilationUnit): MashValue = {
     val commandRunner = new CommandRunner(output, terminal.info, globalVariables, sessionId)

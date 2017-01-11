@@ -732,4 +732,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Thing { def x = 100; def y = { x = 42; x } }; Thing.new.y" shouldEvaluateTo "42"
   "class Thing; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
   "class Thing { }; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
+  "class Point x y { def add = x + y }; [Point 1 2, Point 3 4].add" shouldEvaluateTo "[3, 7]"
 }

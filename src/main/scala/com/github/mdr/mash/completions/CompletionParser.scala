@@ -1,5 +1,6 @@
 package com.github.mdr.mash.completions
 
+import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.compiler.{ BareStringify, CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr

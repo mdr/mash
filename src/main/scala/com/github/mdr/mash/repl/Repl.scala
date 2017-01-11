@@ -44,7 +44,7 @@ class Repl(
 
   import Repl._
 
-  protected val debugLogger = new DebugLogger(sessionId)
+  protected val debugLogger = new DebugLogger(sessionId.toString)
   protected val completer = new Completer(fileSystem, envInteractions)
 
   val state = new ReplState

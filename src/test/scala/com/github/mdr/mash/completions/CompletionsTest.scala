@@ -311,7 +311,13 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "class Bob { def bob = [].reve▶" shouldGiveCompletions "reverse"
   "class Point x y; Poin▶" shouldGiveCompletions "Point"
-
+  "{ class Rectangle width height { def area = width * height }; Rectangle(3, 4).are▶ }" shouldGiveCompletions "area"
+  "{ class Rectangle width height; Rectangle(3, 4).wid▶ }" shouldGiveCompletions "width"
+  "class Foo { def foobar = 42 }; Foo.new.▶" shouldContainCompletion "foobar"
+  "class Foo { def foobar n = n.▶ }" shouldContainCompletion "toString"
+  "class Foo wibble { def foo = wibb▶ }" shouldGiveCompletions "wibble"
+  "class Foo { def foo wibble = wibb▶ }" shouldGiveCompletions "wibble"
+  
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),

@@ -309,7 +309,7 @@ object ConcreteSyntax {
   }
 
   case class ClassDeclaration(classToken: Token, name: Token, params: ParamList, bodyOpt: Option[ClassBody]) extends Expr {
-    lazy val tokens = Seq(classToken, name) ++ params.tokens
+    lazy val tokens = Seq(classToken, name) ++ params.tokens ++ bodyOpt.toSeq.flatMap(_.tokens)
   }
 
   case class ClassBody(lbrace: Token, methods: Seq[Method], rbrace: Token) extends AstNode {

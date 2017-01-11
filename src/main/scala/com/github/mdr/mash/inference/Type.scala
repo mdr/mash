@@ -6,6 +6,7 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 
+import scala.collection.immutable.ListMap
 import scala.language.implicitConversions
 
 sealed trait Type {
@@ -31,13 +32,17 @@ object Type {
     override def toString = klass.toString
   }
 
+  case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.Function]) extends Type
+
+  case class UserClassInstance(userClass: UserClass) extends Type
+
   case class Object(knownFields: Map[String, Type]) extends Type
 
   /**
     * Method defined in mash, bound to a target
     */
   case class BoundUserDefinedMethod(target: Type, params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"BoundUserDefinedMethod(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
+    override def toString = s"${classOf[BoundUserDefinedMethod].getSimpleName}(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
   }
 
   /**

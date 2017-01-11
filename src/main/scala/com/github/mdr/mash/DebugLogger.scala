@@ -10,7 +10,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 /**
  * A debug logger for debugging internal exceptions
  */
-class DebugLogger(sessionId: UUID) {
+class DebugLogger(sessionId: String) {
 
   private val logFile = new File(s"/tmp/mash-debug-$sessionId.log")
 
