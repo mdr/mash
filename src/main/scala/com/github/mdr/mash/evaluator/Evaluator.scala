@@ -153,49 +153,17 @@ object Evaluator extends EvaluatorHelper {
 
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): MashUnit = {
     val ClassDeclaration(className, paramList, bodyOpt, _) = decl
-    val methodDecls = bodyOpt.map(_.methods).getOrElse(Seq())
-    val classParams = parameterModel(paramList, Some(context))
-    val classFields = classParams.params.map { param ⇒
-      val fieldName = param.nameOpt.getOrElse("anon")
-      Field(fieldName, s"Field '$fieldName'", AnyClass)
-    }
+    val params = parameterModel(paramList, Some(context))
 
-    def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): MashMethod = {
+    def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context))
       UserDefinedMethod(functionName, methodParams, body, context)
     }
+    val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
-    object UserDefinedClass extends MashClass(nameOpt = Some(className)) {
-
-      override val fields = classFields
-
-      override def summary: String = s"Class $className"
-
-      override val staticMethods = Seq(
-        NewStaticMethod)
-
-      override val methods = methodDecls.map(makeMethod)
-
-      object NewStaticMethod extends MashFunction(MashClass.ConstructorMethodName) {
-        override def apply(arguments: Arguments): MashObject = {
-          val boundParams = params.validate(arguments)
-          val fields =
-            for (param <- params.params)
-              yield param.nameOpt.getOrElse("anon") -> boundParams(param)
-          MashObject.of(fields, UserDefinedClass)
-        }
-
-        override def summary: String = s"Construct a new $className"
-
-        override def params: ParameterModel = classParams
-
-        override def typeInferenceStrategy = UserDefinedClass
-
-      }
-
-    }
-    context.scopeStack.set(className, UserDefinedClass)
+    val klass = UserDefinedClass(className, params, methods)
+    context.scopeStack.set(className, klass)
     MashUnit
   }
 

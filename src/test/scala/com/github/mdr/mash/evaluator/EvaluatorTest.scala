@@ -696,10 +696,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42, bar: 128 } | { foo: foofar } => foofar" shouldEvaluateTo 42
   "{ foo: 42, bar: 128 } | { foo: _ } => 10" shouldEvaluateTo 10
   "(_ => 42) 10" shouldEvaluateTo 42
+  "def foo { bar } = bar; foo { bar: 42 }" shouldEvaluateTo 42
   "[a, b, c] = [1, 2, 3]; a + b + c" shouldEvaluateTo 6
   "[a, b] = [1, 2, 3]; a + b" shouldEvaluateTo 3
   "[a, b] = [1]; b" shouldEvaluateTo null
-  "def foo { bar } = bar; foo { bar: 42 }" shouldEvaluateTo 42
   "{ baz } = 42" shouldThrowAnException
 
   // Object.merge

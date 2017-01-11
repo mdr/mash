@@ -105,8 +105,9 @@ class TypeInferencer {
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)           ⇒
           latestBindings ++= TypeParamValidationContext.inferTypes(Evaluator.makeParamPattern(pattern), right.typeOpt)
-        case decl@FunctionDeclaration(name, paramList, body, _) ⇒
+        case FunctionDeclaration(name, paramList, body, _) ⇒
           latestBindings += name -> Type.Function(Evaluator.parameterModel(paramList), body, latestBindings)
+        // TODO: case ClassDeclaration(...)
         case _                                                  ⇒
       }
     }
