@@ -310,6 +310,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "[a, b, foobar] = [1, 2]; foob▶" shouldGiveCompletions "foobar"
 
   "class Bob { def bob = [].reve▶" shouldGiveCompletions "reverse"
+  "class Point x y; Poin▶" shouldGiveCompletions "Point"
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
