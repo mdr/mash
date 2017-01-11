@@ -87,7 +87,9 @@ class TypeInferencer {
   }
 
   private def inferType(decl: ClassDeclaration, bindings: Map[String, Type]): Option[Type] = {
-    //inferType(functionDecl.body, bindings ++ getPreliminaryBindings(functionDecl.params))
+    val methods = decl.bodyOpt.toSeq.flatMap(_.methods)
+    val classBindings = bindings ++ getPreliminaryBindings(decl.params)
+    methods.foreach(inferType(_, classBindings))
     Some(Unit)
   }
 

@@ -309,6 +309,8 @@ class CompletionsTest extends FlatSpec with Matchers {
   "[a, b, foobar] = [1, 2, 3]; foob▶" shouldGiveCompletions "foobar"
   "[a, b, foobar] = [1, 2]; foob▶" shouldGiveCompletions "foobar"
 
+  "class Bob { def bob = [].reve▶" shouldGiveCompletions "reverse"
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
