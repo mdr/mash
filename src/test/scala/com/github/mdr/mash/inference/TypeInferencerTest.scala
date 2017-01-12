@@ -308,6 +308,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class A { def bar = 100 }; A.new['bar'] | x => x" shouldBeInferredAsHavingType NumberClass
   "class A { def bar = this; def baz = 100 }; A.new['bar'] | x => x.baz" shouldBeInferredAsHavingType NumberClass
 
+  // Vectorised static member
   // "[Object].merge {}" shouldBeInferredAsHavingType Seq(Object(Map()))
 
   "class A { def square n = n * n }; A.new.square.help" shouldBeInferredAsHavingType FunctionHelpClass

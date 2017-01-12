@@ -344,51 +344,53 @@ class TypeInferencer {
     }
   }
 
+  private def inferTypeInvocation(functionType: Type,
+                                  typedArgs: TypedArguments,
+                                  function: Expr,
+                                  bindings: Map[String, Type]): Option[Type] = functionType match {
+    case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                                                          ⇒
+      for {
+        arg ← typedArgs.positionArgs.headOption
+        StringLiteral(s, _, _, _) ← Some(function)
+        argType ← arg.typeOpt
+        memberType ← memberLookup(argType, s, immediateExec = true)
+      } yield memberType
+    case Type.Seq(elementType: Type.BoundUserDefinedMethod) ⇒
+      inferTypeInvocation(elementType, typedArgs, function, bindings).map(Type.Seq)
+    case Type.Seq(elementType: Type.BoundBuiltinMethod) ⇒
+      inferTypeInvocation(elementType, typedArgs, function, bindings).map(Type.Seq)
+    case Type.Seq(elementType)                                                                                             ⇒
+      Some(elementType)
+    case Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(parameterModel, body, methodBindings))           ⇒
+      val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
+      inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))
+    case Type.BoundBuiltinMethod(targetType, method)                                                                       ⇒
+      val strategy = method.typeInferenceStrategy
+      val arguments = TypedArguments(typedArgs.arguments)
+      strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments)
+    case Type.BuiltinFunction(f)                                                                                           ⇒
+      f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
+    case Type.UserDefinedFunction(parameterModel, expr, lambdaBindings)                                                    ⇒
+      val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
+      inferType(expr, lambdaBindings ++ argBindings)
+    case Type.Instance(ClassClass)                                                                                         ⇒
+      getStaticMethodType(function, MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
+        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
+      }
+    case userClass: Type.UserClass                                                                                         ⇒
+      val Type.BuiltinFunction(constructor) = getConstructor(userClass)
+      constructor.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
+    case _                                                                                                                 ⇒
+      None
+  }
+
   private def inferTypeInvocationExpr(invocationExpr: InvocationExpr, bindings: Map[String, Type]): Option[Type] = {
     val InvocationExpr(function, args, _, _) = invocationExpr
 
     args.foreach(inferTypeArg(_, bindings))
     val typedArgs = TypedArguments.from(invocationExpr)
 
-    inferType(function, bindings, immediateExec = false).flatMap {
-      case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                                                          ⇒
-        for {
-          arg ← typedArgs.positionArgs.headOption
-          StringLiteral(s, _, _, _) ← Some(function)
-          argType ← arg.typeOpt
-          memberType ← memberLookup(argType, s, immediateExec = true)
-        } yield memberType
-      case Type.Seq(Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(parameterModel, body, methodBindings))) ⇒
-        val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
-        inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType)).map(Type.Seq)
-      case Type.Seq(Type.BoundBuiltinMethod(targetType, method))                                                             ⇒
-        val strategy = method.typeInferenceStrategy
-        val arguments = TypedArguments(typedArgs.arguments)
-        strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments).map(Type.Seq)
-      case Type.Seq(elementType)                                                                                             ⇒
-        Some(elementType)
-      case Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(parameterModel, body, methodBindings))           ⇒
-        val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
-        inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))
-      case Type.BoundBuiltinMethod(targetType, method)                                                                       ⇒
-        val strategy = method.typeInferenceStrategy
-        val arguments = TypedArguments(typedArgs.arguments)
-        strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments)
-      case Type.BuiltinFunction(f)                                                                                           ⇒
-        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case Type.UserDefinedFunction(parameterModel, expr, lambdaBindings)                                                    ⇒
-        val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
-        inferType(expr, lambdaBindings ++ argBindings)
-      case Type.Instance(ClassClass)                                                                                         ⇒
-        getStaticMethodType(function, MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
-          f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-        }
-      case userClass: Type.UserClass                                                                                         ⇒
-        val Type.BuiltinFunction(constructor) = getConstructor(userClass)
-        constructor.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      case _                                                                                                                 ⇒
-        None
-    }
+    inferType(function, bindings, immediateExec = false).flatMap(inferTypeInvocation(_, typedArgs, function, bindings))
   }
 
   private def inferType(ifExpr: IfExpr, bindings: Map[String, Type]): Option[Type] = {
