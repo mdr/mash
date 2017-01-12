@@ -85,6 +85,14 @@ class CompletionsTest extends FlatSpec with Matchers {
   "cd .▶" shouldGiveCompletions ("../", "./")
   // "cd ..▶" shouldGiveCompletions "../"
 
+  "def foo (n = ls.permiss▶)" shouldGiveCompletions "permissions"
+  "(n = ls.permiss▶) => 42" shouldGiveCompletions "permissions"
+  "class Foo (n = ls.permiss▶)" shouldGiveCompletions "permissions"
+
+  "def foo (n = ls) = n.permiss▶" shouldGiveCompletions "permissions"
+  "(n = ls) => n.permiss▶" shouldGiveCompletions "permissions"
+  "class Foo (n = ls) { def foo = n.permiss▶ }" shouldGiveCompletions "permissions"
+
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 

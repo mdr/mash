@@ -8,7 +8,7 @@ import scala.PartialFunction.cond
 
 object TypeParamValidationContext {
 
-  def inferTypes(pattern: ParamPattern, typeOpt: Option[Type]): Map[String, Type] =
+  def bindPatternParam(pattern: ParamPattern, typeOpt: Option[Type]): Map[String, Type] =
     pattern match {
       case ParamPattern.Object(entries)   ⇒
         val fieldTypes: Map[String, Type] = typeOpt.map {
@@ -21,7 +21,7 @@ object TypeParamValidationContext {
             case ParamPattern.ObjectEntry(fieldName, None)          ⇒
               Map(fieldName -> fieldTypes.getOrElse(fieldName, Type.Any))
             case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
-              inferTypes(valuePattern, fieldTypes.get(fieldName))
+              bindPatternParam(valuePattern, fieldTypes.get(fieldName))
           }
         entries.flatMap(inferEntry).toMap
       case ParamPattern.Hole              ⇒
@@ -30,7 +30,17 @@ object TypeParamValidationContext {
         Map(identifier -> typeOpt.getOrElse(Type.Any))
       case ParamPattern.List(patterns)    ⇒
         val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
-        patterns.flatMap(inferTypes(_, elementTypeOpt)).toMap
+        patterns.flatMap(bindPatternParam(_, elementTypeOpt)).toMap
+    }
+
+  def bindParam(param: Parameter, argTypeOpt: Option[Type]): Map[String, Type] =
+    param.patternOpt match {
+      case Some(pattern) ⇒
+        bindPatternParam(pattern, argTypeOpt)
+      case None          ⇒
+        (for {
+          paramName ← param.nameOpt
+        } yield paramName -> argTypeOpt.getOrElse(Type.Any)).toMap
     }
 
 }
@@ -83,16 +93,10 @@ class TypeParamValidationContext(params: ParameterModel, arguments: TypedArgumen
       }
 
     for ((param, arg) ← regularPosParams zip positionArgs) {
-      param.patternOpt match {
-        case Some(pattern) ⇒
-          boundNames ++= inferTypes(pattern, arg.typeOpt)
-        case None          ⇒
-          param.nameOpt.foreach(boundArguments += _ -> arg)
-          for {
-            argType ← arg.typeOpt
-            paramName ← param.nameOpt
-          } boundNames += paramName -> argType
-      }
+      val argTypeOpt = arg.typeOpt
+      val paramNames = bindParam(param, argTypeOpt)
+      param.nameOpt.foreach(boundArguments += _ -> arg)
+      boundNames ++= paramNames
       posToParam += posOfArg(arg) -> param
     }
   }

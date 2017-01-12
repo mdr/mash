@@ -269,7 +269,7 @@ object AbstractSyntax {
 
   case class LambdaExpr(params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(body)
+    def children = Seq(params, body)
   }
 
   case class BinOpExpr(left: Expr, op: BinaryOperator, right: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
@@ -405,7 +405,7 @@ object AbstractSyntax {
 
   case class FunctionDeclaration(name: String, params: ParamList, body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
-    def children = Seq(body, params)
+    def children = Seq(params, body)
   }
 
   case class ClassDeclaration(name: String, params: ParamList, bodyOpt: Option[ClassBody], sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

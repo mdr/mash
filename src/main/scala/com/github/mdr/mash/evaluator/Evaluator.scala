@@ -1,7 +1,6 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -173,7 +172,7 @@ object Evaluator extends EvaluatorHelper {
     new UserDefinedFunction(functionName, params, body, context)
   }
 
-  private def makeParameter(param: FunctionParam, argIndex: Int, evaluationContextOpt: Option[EvaluationContext]): Parameter = {
+  def makeParameter(param: FunctionParam, evaluationContextOpt: Option[EvaluationContext] = None): Parameter = {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒ defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val summary = nameOpt.map(name ⇒ s"Parameter '$name'").getOrElse("Anonymous parameter")
@@ -192,7 +191,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] = None): ParameterModel = {
-    val parameters: Seq[Parameter] = paramList.params.zipWithIndex.map { case (p, i) ⇒ makeParameter(p, i, evaluationContextOpt) }
+    val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, evaluationContextOpt))
     for (context <- evaluationContextOpt)
       verifyParameters(paramList)(context)
     ParameterModel(parameters)

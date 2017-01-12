@@ -71,9 +71,10 @@ object TreePrettyPrinter {
       case BlockExpr(body, _) ⇒
         println("BlockExpr" + typeDescription)
         printTree(body, depth + 1)
-      case LambdaExpr(v, body, _) ⇒
+      case LambdaExpr(params, body, _) ⇒
         println("LambdaExpr" + typeDescription)
-        println("  " * (depth + 1) + v)
+        for (param ← params.params)
+          printTree(param, depth + 1)
         printTree(body, depth + 1)
       case BinOpExpr(left, op, right, _) ⇒
         println("BinOpExpr: " + op + typeDescription)
