@@ -1,7 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.functions._
+import com.github.mdr.mash.functions.{ UserDefinedFunction ⇒ UDF, _ }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -54,14 +54,14 @@ object Type {
     * Function defined in Mash
     */
   case class UserDefinedFunction(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"Function(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
+    override def toString = s"${classOf[UserDefinedFunction].getSimpleName}(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
   }
 
   /**
     * Built-in (Scala) function
     */
   case class BuiltinFunction(f: MashFunction) extends Type {
-    require(!f.isInstanceOf[UserDefinedFunction])
+    require(!f.isInstanceOf[UDF])
   }
 
   // Various implicits to make it less wordy to describe types:

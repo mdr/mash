@@ -313,6 +313,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "class A { def square n = n * n }; A.new.square.help" shouldBeInferredAsHavingType FunctionHelpClass
 
+  "def foo (n = ls) = 42; foo" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

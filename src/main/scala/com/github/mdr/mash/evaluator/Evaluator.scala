@@ -191,7 +191,8 @@ object Evaluator extends EvaluatorHelper {
   }
 
   def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] = None): ParameterModel = {
-    val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, evaluationContextOpt))
+    val evaluationContext = evaluationContextOpt.getOrElse(EvaluationContext(ScopeStack(Nil)))
+    val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, Some(evaluationContext)))
     for (context <- evaluationContextOpt)
       verifyParameters(paramList)(context)
     ParameterModel(parameters)
