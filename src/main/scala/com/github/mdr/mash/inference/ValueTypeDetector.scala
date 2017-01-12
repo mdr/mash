@@ -45,10 +45,10 @@ class ValueTypeDetector {
 
   def getType_(x: MashValue): Type = x match {
     case MashNull                                                            ⇒ NullClass
-    case AnonymousFunction(parameterModel, body, context)                    ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case UserDefinedFunction(_, parameterModel, body, context)               ⇒ Type.Function(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case AnonymousFunction(parameterModel, body, context)                    ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(_, parameterModel, body, context)               ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case f: MashFunction                                                     ⇒ Type.BuiltinFunction(f)
-    case BoundMethod(target, UserDefinedMethod(_, params, body, context), _) ⇒ Type.BoundUserDefinedMethod(getType(target), params, body, buildBindings(context.scopeStack.bindings))
+    case BoundMethod(target, UserDefinedMethod(_, params, body, context), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(params, body, buildBindings(context.scopeStack.bindings)))
     case BoundMethod(target, method, _)                                      ⇒ Type.BoundBuiltinMethod(getType(target), method)
     case MashString(_, None)                                                 ⇒ StringClass
     case MashString(_, Some(tagClass))                                       ⇒ StringClass taggedWith tagClass
@@ -69,9 +69,9 @@ class ValueTypeDetector {
     case _                                                                   ⇒ Type.Any
   }
 
-  private def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.Function] = {
+  private def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
     val pairs = methods.map { method ⇒
-      method.name -> Type.Function(method.params, method.body, buildBindings(method.context.scopeStack.bindings))
+      method.name -> Type.UserDefinedFunction(method.params, method.body, buildBindings(method.context.scopeStack.bindings))
     }
     ListMap(pairs: _*)
   }

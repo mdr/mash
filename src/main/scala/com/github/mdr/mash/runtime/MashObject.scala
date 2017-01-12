@@ -89,10 +89,9 @@ case class MashObject private (val fields: LinkedHashMap[String, MashValue], val
       throw new EvaluatorException("Field has unexpected type " + value.typeName)
   }
 
-
   override def equals(x: Any) = withLock {
     x match {
-      case that: MashObject ⇒ this.fields == that.fields
+      case that: MashObject ⇒ this.classOpt == that.classOpt && this.fields == that.fields
       case _                ⇒ false
     }
   }

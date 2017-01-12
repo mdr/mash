@@ -32,7 +32,7 @@ object Type {
     override def toString = klass.toString
   }
 
-  case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.Function]) extends Type
+  case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.UserDefinedFunction]) extends Type
 
   case class UserClassInstance(userClass: UserClass) extends Type
 
@@ -41,9 +41,7 @@ object Type {
   /**
     * Method defined in mash, bound to a target
     */
-  case class BoundUserDefinedMethod(target: Type, params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
-    override def toString = s"${classOf[BoundUserDefinedMethod].getSimpleName}(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
-  }
+  case class BoundUserDefinedMethod(target: Type, function: UserDefinedFunction) extends Type
 
   /**
     * Built-in (Scala) method
@@ -55,7 +53,7 @@ object Type {
   /**
     * Function defined in Mash
     */
-  case class Function(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
+  case class UserDefinedFunction(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
     override def toString = s"Function(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
   }
 

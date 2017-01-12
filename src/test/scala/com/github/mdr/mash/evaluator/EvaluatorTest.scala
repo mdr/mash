@@ -75,6 +75,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "true or null.bang" shouldEvaluateTo true
   "false and null.bang" shouldEvaluateTo false
 
+  "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" shouldEvaluateTo true
+  "class Box n; Box 42 == { n: 42 }" shouldEvaluateTo false
+
   "{} or 42" shouldEvaluateTo "42"
   "{ a: 1 } or 42" shouldEvaluateTo "{ a: 1 }"
 
@@ -733,4 +736,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Thing; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
   "class Thing { }; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
   "class Point x y { def add = x + y }; [Point 1 2, Point 3 4].add" shouldEvaluateTo "[3, 7]"
+
+  "[Object, Object].merge { foo: 42 }" shouldEvaluateTo "[{ foo: 42 }, { foo: 42 }]"
 }

@@ -82,6 +82,8 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   ".▶" shouldGiveCompletions ("../", "./")
+  "cd .▶" shouldGiveCompletions ("../", "./")
+  // "cd ..▶" shouldGiveCompletions "../"
 
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
@@ -317,7 +319,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "class Foo { def foobar n = n.▶ }" shouldContainCompletion "toString"
   "class Foo wibble { def foo = wibb▶ }" shouldGiveCompletions "wibble"
   "class Foo { def foo wibble = wibb▶ }" shouldGiveCompletions "wibble"
-  
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
