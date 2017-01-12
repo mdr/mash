@@ -14,7 +14,7 @@ import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
 
-import scala.PartialFunction.condOpt
+import scala.PartialFunction._
 import scala.collection.immutable.ListMap
 
 case class ValueInfo(valueOpt: Option[MashValue], typeOpt: Option[Type])
@@ -351,7 +351,7 @@ class TypeInferencer {
     val typedArgs = TypedArguments.from(invocationExpr)
 
     inferType(function, bindings, immediateExec = false).flatMap {
-      case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
+      case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                                                          ⇒
         for {
           arg ← typedArgs.positionArgs.headOption
           StringLiteral(s, _, _, _) ← Some(function)
@@ -380,7 +380,7 @@ class TypeInferencer {
         val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
         inferType(expr, lambdaBindings ++ argBindings)
       case Type.Instance(ClassClass)                                                                                         ⇒
-        getStaticMethod(Some(function), MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
+        getStaticMethodType(function, MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
           f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
         }
       case userClass: Type.UserClass                                                                                         ⇒
@@ -411,12 +411,14 @@ class TypeInferencer {
       Type.BoundBuiltinMethod(targetType, method)
   }
 
-  private def getStaticMethod(targetExprOpt: Option[Expr], name: String): Option[Type.BuiltinFunction] =
-    targetExprOpt
-      .flatMap(_.constantValueOpt)
-      .collect { case klass: MashClass ⇒ klass }
-      .flatMap(_ getStaticMethod name)
+  private def getStaticMethodType(targetExpr: Expr, name: String): Option[Type.BuiltinFunction] =
+    targetExpr
+      .constantValueOpt
+      .flatMap(getStaticMethod(_, name))
       .map(Type.BuiltinFunction)
+
+  private def getStaticMethod(value: MashValue, name: String): Option[MashFunction] =
+    condOpt(value) { case klass: MashClass ⇒ klass }.flatMap(_ getStaticMethod name)
 
   private def memberLookup(genericType: Type.Generic,
                            name: String): Option[Type] = genericType match {
@@ -439,9 +441,10 @@ class TypeInferencer {
   private def getConstructor(userClass: Type.UserClass): Type.BuiltinFunction = {
 
     object FakeFunction extends MashFunction(MashClass.ConstructorMethodName) {
-      override def apply(arguments: Arguments): MashValue = ???
 
-      override def summary: String = "fake new"
+      override def apply(arguments: Arguments): MashValue = ??? // Never executes
+
+      override def summary: String = "fake constructor"
 
       override def params: ParameterModel = userClass.params
 
@@ -460,24 +463,21 @@ class TypeInferencer {
                    memberExprOpt: Option[MemberExpr] = None,
                    targetExprOpt: Option[Expr] = None): Option[Type] = {
     val rawType = targetType match {
-      case Type.Instance(ClassClass)                                            ⇒ getStaticMethod(targetExprOpt, name) orElse memberLookup(targetType, ClassClass, name)
-      case userClass: Type.UserClass if name == MashClass.ConstructorMethodName ⇒ Some(getConstructor(userClass))
-      case userClass: Type.UserClass                                            ⇒ memberLookup(targetType, ClassClass, name)
-      case Type.Instance(klass)                                                 ⇒ memberLookup(targetType, klass, name)
-      case userClassInstance: Type.UserClassInstance                            ⇒ memberLookup(userClassInstance, name)
-      case Type.Tagged(baseClass, tagClass)                                     ⇒ memberLookup(targetType, baseClass, name) orElse memberLookup(targetType, tagClass, name)
-      case Type.Seq(elementType)                                                ⇒ memberLookup(targetType, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt).map(Type.Seq)
-      case Type.Object(knownFields)                                             ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
-      case Type.BuiltinFunction(_)                                              ⇒ memberLookup(targetType, FunctionClass, name)
-      case Type.UserDefinedFunction(_, _, _)                                    ⇒ memberLookup(targetType, FunctionClass, name)
-      case Type.BoundBuiltinMethod(_, _)                                        ⇒ memberLookup(targetType, BoundMethodClass, name)
-      case genericType: Type.Generic                                            ⇒ memberLookup(genericType, name)
-      case _                                                                    ⇒ None
+      case Type.Instance(ClassClass)                 ⇒ targetExprOpt.flatMap(getStaticMethodType(_, name)) orElse memberLookup(targetType, ClassClass, name)
+      case userClass: Type.UserClass                 ⇒ if (name == MashClass.ConstructorMethodName) Some(getConstructor(userClass)) else memberLookup(targetType, ClassClass, name)
+      case Type.Instance(klass)                      ⇒ memberLookup(targetType, klass, name)
+      case userClassInstance: Type.UserClassInstance ⇒ memberLookup(userClassInstance, name)
+      case Type.Tagged(baseClass, tagClass)          ⇒ memberLookup(targetType, baseClass, name) orElse memberLookup(targetType, tagClass, name)
+      case Type.Seq(elementType)                     ⇒ memberLookup(targetType, ListClass, name) orElse memberLookup(elementType, name, immediateExec, memberExprOpt, targetExprOpt).map(Type.Seq)
+      case Type.Object(knownFields)                  ⇒ knownFields.get(name) orElse memberLookup(targetType, ObjectClass, name)
+      case Type.BuiltinFunction(_)                   ⇒ memberLookup(targetType, FunctionClass, name)
+      case Type.UserDefinedFunction(_, _, _)         ⇒ memberLookup(targetType, FunctionClass, name)
+      case Type.BoundUserDefinedMethod(_, _)         ⇒ memberLookup(targetType, BoundMethodClass, name)
+      case Type.BoundBuiltinMethod(_, _)             ⇒ memberLookup(targetType, BoundMethodClass, name)
+      case genericType: Type.Generic                 ⇒ memberLookup(genericType, name)
+      case _                                         ⇒ None
     }
-    if (immediateExec)
-      inferImmediateExec(rawType, memberExprOpt)
-    else
-      rawType
+    rawType.when(immediateExec, inferImmediateExec(_, memberExprOpt))
   }
 
   private def memberLookup(userClassInstance: Type.UserClassInstance, name: String): Option[Type] = {
