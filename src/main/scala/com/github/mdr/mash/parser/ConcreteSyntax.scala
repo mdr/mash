@@ -65,8 +65,8 @@ object ConcreteSyntax {
   /**
     * a = b, a += b, a -= b, a *= b, a /= b
     */
-  case class AssignmentExpr(left: Expr, equals: Token, aliasOpt: Option[Token], right: Expr) extends Expr {
-    lazy val tokens = (left.tokens :+ equals) ++ aliasOpt.toSeq ++ right.tokens
+  case class AssignmentExpr(left: Expr, equals: Token, right: Expr) extends Expr {
+    lazy val tokens = (left.tokens :+ equals) ++ right.tokens
   }
 
   /**

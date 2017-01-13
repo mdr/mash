@@ -12,7 +12,6 @@ object NormalMashLexer {
 
   private final val Keywords: Map[String, TokenType] = Map(
     "_" -> HOLE,
-    "alias" -> ALIAS,
     "and" -> AND,
     "class" -> CLASS,
     "def" -> DEF,

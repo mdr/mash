@@ -128,7 +128,7 @@ class TypeInferencer {
     for (statement <- statementSeq.statements) {
       inferType(statement, latestBindings)
       statement match {
-        case AssignmentExpr(Identifier(name, _), _, _, _, _) ⇒
+        case AssignmentExpr(Identifier(name, _), _, _, _) ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)        ⇒
           latestBindings ++= TypeParamValidationContext.bindPatternParam(Evaluator.makeParamPattern(pattern), right.typeOpt)
@@ -167,7 +167,7 @@ class TypeInferencer {
     }).toMap
 
   private def inferType(assignmentExpr: AssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
-    val AssignmentExpr(left, operatorOpt, right, _, _) = assignmentExpr
+    val AssignmentExpr(left, operatorOpt, right, _) = assignmentExpr
     val leftTypeOpt = inferType(left, bindings)
     val rightTypeOpt = inferType(right, bindings)
     operatorOpt.flatMap(op ⇒ inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt, right)) orElse rightTypeOpt

@@ -9,8 +9,8 @@ import com.github.mdr.mash.utils.Utils
 object AssignmentEvaluator extends EvaluatorHelper {
 
   def evaluateAssignment(expr: AssignmentExpr)(implicit context: EvaluationContext): MashValue = {
-    val AssignmentExpr(left, operatorOpt, right, alias, _) = expr
-    val rightValue = if (alias) Evaluator.simpleEvaluate(right) else Evaluator.evaluate(right)
+    val AssignmentExpr(left, operatorOpt, right, _) = expr
+    val rightValue = Evaluator.evaluate(right)
 
     left match {
       case identifier@Identifier(name, _)                         ⇒

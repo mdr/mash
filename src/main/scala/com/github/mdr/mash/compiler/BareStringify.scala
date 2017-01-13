@@ -1,5 +1,6 @@
 package com.github.mdr.mash.compiler
 
+import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
@@ -58,8 +59,6 @@ class BareStringificationContext {
         newBindings = newBindings ++ extraGlobals
       }
       StatementSeq(res, sourceInfoOpt)
-    case LambdaExpr(params, body, sourceInfoOpt)                                                                              ⇒
-      LambdaExpr(params, bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt)                                                                                 ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
     case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                                                                    ⇒
@@ -94,10 +93,10 @@ class BareStringificationContext {
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt)                                                                                       ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
-    case AssignmentExpr(left@Identifier(name, _), operatorOpt, right, alias, sourceInfoOpt)                                   ⇒
-      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt)                                                       ⇒
-      AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), alias, sourceInfoOpt)
+    case AssignmentExpr(left@Identifier(name, _), operatorOpt, right, sourceInfoOpt)                                   ⇒
+      AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), sourceInfoOpt)
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                                                       ⇒
+      AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), sourceInfoOpt)
     case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                                                 ⇒
       PatternAssignmentExpr(pattern, bareStringify(right, bindings), sourceInfoOpt)
     case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt)                                              ⇒
@@ -111,20 +110,30 @@ class BareStringificationContext {
         case ExprPart(expr) ⇒ ExprPart(bareStringify(expr, bindings))
       }
       MishInterpolation(newPart, sourceInfoOpt)
+    case LambdaExpr(params, body, sourceInfoOpt)                                                                              ⇒
+      LambdaExpr(bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
     case FunctionDeclaration(name, params, body, sourceInfoOpt)                                                               ⇒
-      FunctionDeclaration(name, params, bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
+      FunctionDeclaration(name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
     case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)                                                               ⇒
-      // TODO: bodyOpt, param defaults
-      ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)
+      ClassDeclaration(name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                                                        ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
 
+  private def bareStringify(param: FunctionParam, bindings: Set[String]): FunctionParam =
+    param.copy(defaultExprOpt = param.defaultExprOpt.map(bareStringify(_, bindings)))
+
+  private def bareStringify(params: ParamList, bindings: Set[String]): ParamList =
+    ParamList(params.params.map(bareStringify(_, bindings)))
+
+  private def bareStringify(body: ClassBody, bindings: Set[String]): ClassBody =
+    ClassBody(body.methods.map(bareStringify(_, bindings).asInstanceOf[FunctionDeclaration]), body.sourceInfoOpt)
+
   def getNewlyBoundNames(left: Expr): Seq[String] =
     left.findAll {
-      case AssignmentExpr(left@Identifier(name, _), _, _, _, _) ⇒ Seq(name)
-      case PatternAssignmentExpr(pattern, _, _)                 ⇒ pattern.boundNames
-      case FunctionDeclaration(name, _, _, _)                   ⇒ Seq(name)
-      case ClassDeclaration(name, _, _, _)                      ⇒ Seq(name)
+      case AssignmentExpr(left@Identifier(name, _), _, _, _) ⇒ Seq(name)
+      case PatternAssignmentExpr(pattern, _, _)              ⇒ pattern.boundNames
+      case FunctionDeclaration(name, _, _, _)                ⇒ Seq(name)
+      case ClassDeclaration(name, _, _, _)                   ⇒ Seq(name)
     }.flatten
 }

@@ -117,11 +117,11 @@ object DesugarHoles {
         newLeft ← desugarHoles_(left)
         newOpRights ← sequencePairs(for ((op, right) ← opRights) yield op -> desugarHoles_(right))
       } yield ChainedOpExpr(newLeft, newOpRights, sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt) ⇒
       for {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
-      } yield AssignmentExpr(newLeft, operatorOpt, newRight, alias, sourceInfoOpt)
+      } yield AssignmentExpr(newLeft, operatorOpt, newRight, sourceInfoOpt)
     case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒
       for {
         newRight ← desugarHoles_(right)

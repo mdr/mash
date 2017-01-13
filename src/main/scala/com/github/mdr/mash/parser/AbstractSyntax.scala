@@ -40,8 +40,8 @@ object AbstractSyntax {
           case StringPart(s) ⇒ StringPart(s)
           case ExprPart(e)   ⇒ ExprPart(e.transform(f))
         }, end, sourceInfoOpt)
-      case AssignmentExpr(left, operatorOpt, right, alias, sourceInfoOpt) ⇒
-        AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), alias, sourceInfoOpt)
+      case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt) ⇒
+        AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), sourceInfoOpt)
       case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒
         PatternAssignmentExpr(pattern.transform(f).asInstanceOf[Pattern], right.transform(f), sourceInfoOpt)
       case ParenExpr(expr, sourceInfoOpt) ⇒
@@ -350,7 +350,6 @@ object AbstractSyntax {
   case class AssignmentExpr(left: Expr,
                             operatorOpt: Option[BinaryOperator],
                             right: Expr,
-                            alias: Boolean,
                             sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
     def children = Seq(left, right)

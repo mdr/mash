@@ -53,9 +53,9 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyAssignmentExpr(assignmentExpr: Concrete.AssignmentExpr): Abstract.AssignmentExpr = {
-    val Concrete.AssignmentExpr(left, equalsToken, aliasOpt, right) = assignmentExpr
+    val Concrete.AssignmentExpr(left, equalsToken, right) = assignmentExpr
     val op = getAssignmentBinaryOperator(equalsToken)
-    Abstract.AssignmentExpr(abstractify(left), op, abstractify(right), aliasOpt.isDefined, sourceInfo(assignmentExpr))
+    Abstract.AssignmentExpr(abstractify(left), op, abstractify(right), sourceInfo(assignmentExpr))
   }
 
   private def getStringText(s: String, maybeTilde: Boolean, pruneInitial: Boolean, pruneFinal: Boolean): (String, Boolean) = {

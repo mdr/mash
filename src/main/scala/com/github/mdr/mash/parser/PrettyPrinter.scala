@@ -45,7 +45,7 @@ object PrettyPrinter {
         case FullObjectEntry(field, value, _) ⇒ s"${pretty(field)}: ${pretty(value)}"
         case ShorthandObjectEntry(field, _)   ⇒ field
       }.mkString("{ ", ", ", " }")
-    case AssignmentExpr(left, operatorOpt, right, alias, _)               ⇒
+    case AssignmentExpr(left, operatorOpt, right, _)               ⇒
       val operatorSymbol = operatorOpt match {
         case Some(BinaryOperator.Plus)     ⇒ "+="
         case Some(BinaryOperator.Minus)    ⇒ "-="
@@ -53,7 +53,7 @@ object PrettyPrinter {
         case Some(BinaryOperator.Divide)   ⇒ "/="
         case _                             ⇒ "="
       }
-      parens(pretty(left), simpleOmitParens(left)) + " " + operatorSymbol + " " + (if (alias) "alias " else "") + parens(pretty(right), simpleOmitParens(right))
+      parens(pretty(left), simpleOmitParens(left)) + " " + operatorSymbol + " " + parens(pretty(right), simpleOmitParens(right))
     case PatternAssignmentExpr(pattern, right, _)                         ⇒
       s"$pattern = ${parens(pretty(right), simpleOmitParens(right))}"
     case ObjectPattern(fieldNames, _)                                     ⇒
