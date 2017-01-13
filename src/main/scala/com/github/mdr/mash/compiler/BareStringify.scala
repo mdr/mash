@@ -109,8 +109,8 @@ class BareStringificationContext {
       MishInterpolation(newPart, sourceInfoOpt)
     case LambdaExpr(params, body, sourceInfoOpt)                                                                              ⇒
       LambdaExpr(bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
-    case FunctionDeclaration(name, params, body, sourceInfoOpt)                                                               ⇒
-      FunctionDeclaration(name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
+    case FunctionDeclaration(docCommentOpt, name, params, body, sourceInfoOpt)                                                ⇒
+      FunctionDeclaration(docCommentOpt, name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
     case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)                                                               ⇒
       ClassDeclaration(name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings ++ params.boundNames)), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                                                        ⇒
@@ -137,7 +137,7 @@ class BareStringificationContext {
     left.findAll {
       case AssignmentExpr(left@Identifier(name, _), _, _, _) ⇒ Seq(name)
       case PatternAssignmentExpr(pattern, _, _)              ⇒ pattern.boundNames
-      case FunctionDeclaration(name, _, _, _)                ⇒ Seq(name)
+      case FunctionDeclaration(_, name, _, _, _)             ⇒ Seq(name)
       case ClassDeclaration(name, _, _, _)                   ⇒ Seq(name)
     }.flatten
 }

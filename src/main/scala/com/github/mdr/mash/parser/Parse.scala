@@ -1,6 +1,6 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ LexerResult, Token, TokenType }
+import com.github.mdr.mash.lexer.{ DocComment, LexerResult, Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.utils.PointedRegion
 
@@ -46,6 +46,8 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   private def shouldInferSemicolon(token: Token): Boolean =
     lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
+
+  protected def docComment(token: Token): Option[DocComment] = lexerResult.docComments.get(token)
 
   private def currentTokenType = currentToken.tokenType
 

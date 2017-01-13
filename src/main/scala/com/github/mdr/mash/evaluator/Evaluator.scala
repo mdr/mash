@@ -155,7 +155,7 @@ object Evaluator extends EvaluatorHelper {
     val params = parameterModel(paramList, Some(context))
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
-      val FunctionDeclaration(functionName, paramList, body, _) = decl
+      val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context))
       UserDefinedMethod(functionName, methodParams, paramList, body, context)
     }
@@ -167,9 +167,9 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
-    val FunctionDeclaration(functionName, paramList, body, _) = decl
+    val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
     val params = parameterModel(paramList, Some(context))
-    new UserDefinedFunction(functionName, params, body, context)
+    UserDefinedFunction(docCommentOpt, functionName, params, body, context)
   }
 
   def makeParameter(param: FunctionParam, evaluationContextOpt: Option[EvaluationContext] = None): Parameter = {

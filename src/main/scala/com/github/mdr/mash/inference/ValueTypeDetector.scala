@@ -46,7 +46,7 @@ class ValueTypeDetector {
   def getType_(x: MashValue): Type = x match {
     case MashNull                                                               ⇒ NullClass
     case AnonymousFunction(parameterModel, body, context)                       ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case UserDefinedFunction(_, parameterModel, body, context)                  ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(_, _, parameterModel, body, context)               ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
     case f: MashFunction                                                        ⇒ Type.BuiltinFunction(f)
     case BoundMethod(target, UserDefinedMethod(_, params, _, body, context), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(params, body, buildBindings(context.scopeStack.bindings)))
     case BoundMethod(target, method, _)                                         ⇒ Type.BoundBuiltinMethod(getType(target), method)

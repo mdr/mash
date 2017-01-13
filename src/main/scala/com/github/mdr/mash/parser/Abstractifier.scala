@@ -76,16 +76,18 @@ class Abstractifier(provenance: Provenance) {
       case TokenType.STRING_LITERAL ⇒
         val s = token.text
         val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
-        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double, pruneInitial = true, pruneFinal = true)
+        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double,
+          pruneInitial = true, pruneFinal = true)
         Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
       case _                        ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
-    val Concrete.FunctionDeclaration(_, name, params, _, body) = decl
+    val Concrete.FunctionDeclaration(_, _, name, params, _, body) = decl
     val abstractParams = abstractifyParamList(params)
-    Abstract.FunctionDeclaration(name.text, abstractParams, abstractify(body), sourceInfo(decl))
+    val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
+    Abstract.FunctionDeclaration(docCommentOpt, name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
   private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
@@ -106,7 +108,8 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
       abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
     case Concrete.DefaultParam(pattern, _, defaultExpr) ⇒
-      Abstract.FunctionParam(pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)), sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
+      Abstract.FunctionParam(pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)),
+        sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
     case Concrete.PatternParam(pattern)                 ⇒
       Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }

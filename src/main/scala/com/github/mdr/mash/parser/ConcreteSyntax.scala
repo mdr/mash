@@ -1,7 +1,7 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.utils.{ PointedRegion, Region }
+import com.github.mdr.mash.lexer.{ Token, TokenType, DocComment ⇒ LexerDocComment }
 
 import scala.language.implicitConversions
 
@@ -243,6 +243,7 @@ object ConcreteSyntax {
 
   case class IdentPattern(identifier: Token) extends Pattern {
     lazy val tokens = Seq(identifier)
+
     override def nameOpt = Some(identifier.text)
   }
 
@@ -320,8 +321,15 @@ object ConcreteSyntax {
     lazy val tokens = methodDeclaration.tokens ++ semiOpt
   }
 
-  case class FunctionDeclaration(defToken: Token, name: Token, params: ParamList, equals: Token, body: Expr) extends Expr {
+  case class FunctionDeclaration(docCommentOpt: Option[LexerDocComment],
+                                 defToken: Token,
+                                 name: Token,
+                                 params: ParamList,
+                                 equals: Token,
+                                 body: Expr) extends Expr {
+
     lazy val tokens = Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
+
   }
 
   /**

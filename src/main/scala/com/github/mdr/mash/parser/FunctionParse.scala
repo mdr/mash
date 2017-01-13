@@ -27,7 +27,7 @@ trait FunctionParse {
       else
         errorExpectedToken("=")
     val body = pipeExpr()
-    FunctionDeclaration(defToken, name, params, equals, body)
+    FunctionDeclaration(docComment(defToken), defToken, name, params, equals, body)
   }
 
   protected def paramList(): ParamList = {

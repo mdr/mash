@@ -132,7 +132,7 @@ class TypeInferencer {
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)        ⇒
           latestBindings ++= TypeParamValidationContext.bindPatternParam(Evaluator.makeParamPattern(pattern), right.typeOpt)
-        case FunctionDeclaration(name, paramList, body, _)   ⇒
+        case FunctionDeclaration(_, name, paramList, body, _)   ⇒
           latestBindings += name -> Type.UserDefinedFunction(Evaluator.parameterModel(paramList), body, latestBindings)
         case classDeclaration: ClassDeclaration              ⇒
           val userClassType = getUserClassType(classDeclaration, latestBindings)
@@ -145,7 +145,7 @@ class TypeInferencer {
 
   private def getUserClassType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Type.UserClass = {
     val ClassDeclaration(name, paramList, bodyOpt, _) = classDeclaration
-    val methods = bodyOpt.toSeq.flatMap(_.methods).map { case FunctionDeclaration(name, paramList, body, _) ⇒
+    val methods = bodyOpt.toSeq.flatMap(_.methods).map { case FunctionDeclaration(_, name, paramList, body, _) ⇒
       name -> Type.UserDefinedFunction(Evaluator.parameterModel(paramList), body, bindings)
     }
     Type.UserClass(name, Evaluator.parameterModel(paramList), ListMap(methods: _*))
