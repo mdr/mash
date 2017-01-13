@@ -20,8 +20,10 @@ case class UserDefinedClass(override val name: String,
     override def apply(arguments: Arguments): MashObject = {
       val boundParams = params.validate(arguments)
       val fields =
-        for (param <- params.params)
-          yield param.nameOpt.getOrElse("anon") -> boundParams(param)
+        for {
+          param <- params.params
+          boundName ← param.boundNames
+        } yield boundName -> boundParams(boundName)
       MashObject.of(fields, UserDefinedClass.this)
     }
 

@@ -157,7 +157,7 @@ object Evaluator extends EvaluatorHelper {
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context))
-      UserDefinedMethod(functionName, methodParams, body, context)
+      UserDefinedMethod(functionName, methodParams, paramList, body, context)
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
@@ -177,7 +177,7 @@ object Evaluator extends EvaluatorHelper {
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒ defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val summary = nameOpt.map(name ⇒ s"Parameter '$name'").getOrElse("Anonymous parameter")
     Parameter(nameOpt, summary, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isLazy = isLazy, bindsName = nameOpt.isDefined, patternOpt = patternOpt.map(makeParamPattern))
+      isVariadic = isVariadic, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =

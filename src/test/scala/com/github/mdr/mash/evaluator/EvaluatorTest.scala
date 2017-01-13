@@ -738,4 +738,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Point x y { def add = x + y }; [Point 1 2, Point 3 4].add" shouldEvaluateTo "[3, 7]"
 
   "[Object, Object].merge { foo: 42 }" shouldEvaluateTo "[{ foo: 42 }, { foo: 42 }]"
+
+  "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" shouldEvaluateTo "100"
+  "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" shouldEvaluateTo "100"
+
+  // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 }

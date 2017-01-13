@@ -15,7 +15,6 @@ case class Parameter(nameOpt: Option[String],
                      flagValueNameOpt: Option[String] = None, // Name of flag value (used in generating calling summary)
                      isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list
                      isLazy: Boolean = false, // if true, don't evaluate argument
-                     bindsName: Boolean = true, // if true, bind name inside method body when called
                      patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 
@@ -25,16 +24,25 @@ case class Parameter(nameOpt: Option[String],
 
   override def toString = nameOpt.getOrElse("anon")
 
+  def boundNames: Seq[String] = nameOpt.map(Seq(_)).getOrElse(patternOpt.toSeq.flatMap(_.boundNames))
 }
 
-sealed trait ParamPattern
+sealed trait ParamPattern {
+  def boundNames: Seq[String] = Seq()
+}
 
 object ParamPattern {
 
   case class ObjectEntry(fieldName: String, patternOpt: Option[ParamPattern] = None)
-  case class Object(entries: Seq[ObjectEntry]) extends ParamPattern
-  case class Ident(name: String) extends ParamPattern
+  case class Object(entries: Seq[ObjectEntry]) extends ParamPattern {
+    override def boundNames = entries.flatMap(_.patternOpt).flatMap(_.boundNames)
+  }
+  case class Ident(name: String) extends ParamPattern {
+    override def boundNames = Seq(name)
+  }
   case object Hole extends ParamPattern
-  case class List(patterns: Seq[ParamPattern]) extends ParamPattern
+  case class List(patterns: Seq[ParamPattern]) extends ParamPattern {
+    override def boundNames = patterns.flatMap(_.boundNames)
+  }
 
 }

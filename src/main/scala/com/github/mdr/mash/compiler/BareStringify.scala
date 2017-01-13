@@ -1,6 +1,5 @@
 package com.github.mdr.mash.compiler
 
-import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
@@ -50,15 +49,13 @@ class BareStringificationContext {
     case BlockExpr(expr, sourceInfoOpt)                                                                                       ⇒
       BlockExpr(bareStringify(expr, bindings), sourceInfoOpt)
     case StatementSeq(statements, sourceInfoOpt)                                                                              ⇒
-      var res = ArrayBuffer[Expr]()
-      var newBindings = bindings
-      for (s ← statements) {
-        res += bareStringify(s, newBindings)
-        // Flawed -- these assignments might occur within nested local scopes, and therefore not matter:
-        val extraGlobals = getNewlyBoundNames(s)
-        newBindings = newBindings ++ extraGlobals
+      var newStatements = ArrayBuffer[Expr]()
+      var latestBindings = bindings
+      for (statement ← statements) {
+        newStatements += bareStringify(statement, latestBindings)
+        latestBindings = latestBindings ++ getNewlyBoundNames(statement)
       }
-      StatementSeq(res, sourceInfoOpt)
+      StatementSeq(newStatements, sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt)                                                                                 ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
     case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                                                                    ⇒
@@ -68,7 +65,7 @@ class BareStringificationContext {
     case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt)                                                ⇒
       val newArguments = arguments.map {
         case Argument.PositionArg(expr, sourceInfoOpt)        ⇒ Argument.PositionArg(bareStringify(expr, bindings), sourceInfoOpt)
-        case arg@Argument.ShortFlag(_, sourceInfoOpt)         ⇒ arg
+        case arg: Argument.ShortFlag                          ⇒ arg
         case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒ Argument.LongFlag(flag, valueOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
       }
       InvocationExpr(bareStringify(function, bindings), newArguments, isParenInvocation, sourceInfoOpt)
@@ -93,9 +90,9 @@ class BareStringificationContext {
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt)                                                                                       ⇒
       MinusExpr(bareStringify(expr, bindings), sourceInfoOpt)
-    case AssignmentExpr(left@Identifier(name, _), operatorOpt, right, sourceInfoOpt)                                   ⇒
+    case AssignmentExpr(left@Identifier(name, _), operatorOpt, right, sourceInfoOpt)                                          ⇒
       AssignmentExpr(left, operatorOpt, bareStringify(right, bindings), sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                                                       ⇒
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                                                              ⇒
       AssignmentExpr(bareStringify(left, bindings), operatorOpt, bareStringify(right, bindings), sourceInfoOpt)
     case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                                                 ⇒
       PatternAssignmentExpr(pattern, bareStringify(right, bindings), sourceInfoOpt)
@@ -115,7 +112,7 @@ class BareStringificationContext {
     case FunctionDeclaration(name, params, body, sourceInfoOpt)                                                               ⇒
       FunctionDeclaration(name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
     case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)                                                               ⇒
-      ClassDeclaration(name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings)), sourceInfoOpt)
+      ClassDeclaration(name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings ++ params.boundNames)), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                                                        ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
@@ -126,8 +123,15 @@ class BareStringificationContext {
   private def bareStringify(params: ParamList, bindings: Set[String]): ParamList =
     ParamList(params.params.map(bareStringify(_, bindings)))
 
-  private def bareStringify(body: ClassBody, bindings: Set[String]): ClassBody =
-    ClassBody(body.methods.map(bareStringify(_, bindings).asInstanceOf[FunctionDeclaration]), body.sourceInfoOpt)
+  private def bareStringify(body: ClassBody, bindings: Set[String]): ClassBody = {
+    var methods = ArrayBuffer[FunctionDeclaration]()
+    var latestBindings = bindings
+    for (method ← body.methods) {
+      methods += bareStringify(method, latestBindings).asInstanceOf[FunctionDeclaration]
+      latestBindings += method.name
+    }
+    ClassBody(methods, body.sourceInfoOpt)
+  }
 
   def getNewlyBoundNames(left: Expr): Seq[String] =
     left.findAll {
