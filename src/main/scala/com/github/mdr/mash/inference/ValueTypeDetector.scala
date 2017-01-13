@@ -44,29 +44,29 @@ class ValueTypeDetector {
     }
 
   def getType_(x: MashValue): Type = x match {
-    case MashNull                                                               ⇒ NullClass
-    case AnonymousFunction(parameterModel, body, context)                       ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case UserDefinedFunction(_, _, parameterModel, body, context)               ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case f: MashFunction                                                        ⇒ Type.BuiltinFunction(f)
-    case BoundMethod(target, UserDefinedMethod(_, params, _, body, context), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(params, body, buildBindings(context.scopeStack.bindings)))
-    case BoundMethod(target, method, _)                                         ⇒ Type.BoundBuiltinMethod(getType(target), method)
-    case MashString(_, None)                                                    ⇒ StringClass
-    case MashString(_, Some(tagClass))                                          ⇒ StringClass taggedWith tagClass
-    case MashNumber(_, None)                                                    ⇒ NumberClass
-    case MashNumber(_, Some(tagClass))                                          ⇒ NumberClass taggedWith tagClass
-    case _: MashBoolean                                                         ⇒ BooleanClass
-    case MashWrapped(_: Instant)                                                ⇒ DateTimeClass
-    case MashWrapped(_: LocalDate)                                              ⇒ DateClass
-    case UserDefinedClass(name, params, methods)                                ⇒ Type.UserClass(name, params, getMethodTypes(methods))
-    case _: MashClass                                                           ⇒ ClassClass
-    case MashUnit                                                               ⇒ Unit
-    case xs: MashList                                                           ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
-    case obj@MashObject(_, None)                                                ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
-    case obj@MashObject(_, Some(GroupClass))                                    ⇒ getTypeOfGroup(obj)
-    case obj@MashObject(_, Some(TimedResultClass))                              ⇒ getTypeOfTimedResult(obj)
-    case MashObject(_, Some(UserDefinedClass(name, params, methods)))           ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
-    case MashObject(_, Some(klass))                                             ⇒ klass
-    case _                                                                      ⇒ Type.Any
+    case MashNull                                                                  ⇒ NullClass
+    case AnonymousFunction(parameterModel, body, context)                          ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(_, _, parameterModel, body, context)                  ⇒ Type.UserDefinedFunction(parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case f: MashFunction                                                           ⇒ Type.BuiltinFunction(f)
+    case BoundMethod(target, UserDefinedMethod(_, _, params, _, body, context), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(params, body, buildBindings(context.scopeStack.bindings)))
+    case BoundMethod(target, method, _)                                            ⇒ Type.BoundBuiltinMethod(getType(target), method)
+    case MashString(_, None)                                                       ⇒ StringClass
+    case MashString(_, Some(tagClass))                                             ⇒ StringClass taggedWith tagClass
+    case MashNumber(_, None)                                                       ⇒ NumberClass
+    case MashNumber(_, Some(tagClass))                                             ⇒ NumberClass taggedWith tagClass
+    case _: MashBoolean                                                            ⇒ BooleanClass
+    case MashWrapped(_: Instant)                                                   ⇒ DateTimeClass
+    case MashWrapped(_: LocalDate)                                                 ⇒ DateClass
+    case UserDefinedClass(name, params, methods)                                   ⇒ Type.UserClass(name, params, getMethodTypes(methods))
+    case _: MashClass                                                              ⇒ ClassClass
+    case MashUnit                                                                  ⇒ Unit
+    case xs: MashList                                                              ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
+    case obj@MashObject(_, None)                                                   ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
+    case obj@MashObject(_, Some(GroupClass))                                       ⇒ getTypeOfGroup(obj)
+    case obj@MashObject(_, Some(TimedResultClass))                                 ⇒ getTypeOfTimedResult(obj)
+    case MashObject(_, Some(UserDefinedClass(name, params, methods)))              ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
+    case MashObject(_, Some(klass))                                                ⇒ klass
+    case _                                                                         ⇒ Type.Any
   }
 
   private def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {

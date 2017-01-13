@@ -157,7 +157,7 @@ object Evaluator extends EvaluatorHelper {
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context))
-      UserDefinedMethod(functionName, methodParams, paramList, body, context)
+      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context)
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 

@@ -2,14 +2,15 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, Evaluator }
 import com.github.mdr.mash.parser.AbstractSyntax.{ Expr, ParamList }
+import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashValue
 
-case class UserDefinedMethod(
-    methodName: String,
-    params: ParameterModel,
-    paramList: ParamList,
-    body: Expr,
-    context: EvaluationContext) extends MashMethod(methodName) {
+case class UserDefinedMethod(docCommentOpt: Option[DocComment],
+                             methodName: String,
+                             params: ParameterModel,
+                             paramList: ParamList,
+                             body: Expr,
+                             context: EvaluationContext) extends MashMethod(methodName) {
 
   override def apply(target: MashValue, arguments: Arguments): MashValue = {
     val parameterEvalContext = Some(context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target)))
@@ -18,6 +19,9 @@ case class UserDefinedMethod(
     Evaluator.evaluate(body)(methodBodyEvalContext)
   }
 
-  override def summary: String = s"Method '$methodName'"
+  override def summary = docCommentOpt.map(_.summary) getOrElse s"Method '$name'"
+
+  override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
+
 
 }

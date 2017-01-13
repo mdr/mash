@@ -417,7 +417,7 @@ class TypeInferencer {
       klass.parentOpt.flatMap(superClass ⇒ memberLookup(targetType, superClass, name))
 
   private def getMethodType(targetType: Type, method: MashMethod) = method match {
-    case UserDefinedMethod(_, params, _, body, context) ⇒
+    case UserDefinedMethod(_, _, params, _, body, context) ⇒
       Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(params, body, new ValueTypeDetector().buildBindings(context.scopeStack.bindings)))
     case _                                           ⇒
       Type.BoundBuiltinMethod(targetType, method)
