@@ -87,10 +87,10 @@ object AbstractSyntax {
           redirects.map(_.transform(f).asInstanceOf[MishRedirect]), captureProcessOutput, sourceInfoOpt)
       case MishRedirect(op, arg, sourceInfoOpt)                                           ⇒
         MishRedirect(op, arg.transform(f), sourceInfoOpt)
-      case FunctionDeclaration(docCommentOpt, name, params, body, sourceInfoOpt)                         ⇒
+      case FunctionDeclaration(docCommentOpt, name, params, body, sourceInfoOpt)          ⇒
         FunctionDeclaration(docCommentOpt, name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
-      case ClassDeclaration(name, params, bodyOpt, sourceInfoOpt)                         ⇒
-        ClassDeclaration(name, params.transform(f).asInstanceOf[ParamList],
+      case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)          ⇒
+        ClassDeclaration(docCommentOpt, name, params.transform(f).asInstanceOf[ParamList],
           bodyOpt.map(_.transform(f).asInstanceOf[ClassBody]), sourceInfoOpt)
       case ClassBody(methods, sourceInfoOpt)                                              ⇒
         ClassBody(methods.map(_.transform(f).asInstanceOf[FunctionDeclaration]), sourceInfoOpt)
@@ -479,7 +479,8 @@ object AbstractSyntax {
     def children = Seq(params, body)
   }
 
-  case class ClassDeclaration(name: String,
+  case class ClassDeclaration(docCommentOpt: Option[DocComment],
+                              name: String,
                               params: ParamList,
                               bodyOpt: Option[ClassBody],
                               sourceInfoOpt: Option[SourceInfo] = None) extends Expr {

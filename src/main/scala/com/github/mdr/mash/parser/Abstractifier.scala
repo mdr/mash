@@ -91,10 +91,11 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
-    val Concrete.ClassDeclaration(_, name, params, bodyOpt) = decl
+    val Concrete.ClassDeclaration(_, _, name, params, bodyOpt) = decl
     val abstractParams = abstractifyParamList(params)
     val abstractBodyOpt = decl.bodyOpt.map(abstractifyClassBody)
-    Abstract.ClassDeclaration(name.text, abstractParams, abstractBodyOpt, sourceInfo(decl))
+    val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
+    Abstract.ClassDeclaration(docCommentOpt, name.text, abstractParams, abstractBodyOpt, sourceInfo(decl))
   }
 
   private def abstractifyClassBody(body: Concrete.ClassBody): Abstract.ClassBody =

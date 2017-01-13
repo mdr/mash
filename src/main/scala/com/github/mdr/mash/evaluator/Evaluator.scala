@@ -151,7 +151,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): MashUnit = {
-    val ClassDeclaration(className, paramList, bodyOpt, _) = decl
+    val ClassDeclaration(docCommentOpt, className, paramList, bodyOpt, _) = decl
     val params = parameterModel(paramList, Some(context))
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
@@ -161,7 +161,7 @@ object Evaluator extends EvaluatorHelper {
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
-    val klass = UserDefinedClass(className, params, methods)
+    val klass = UserDefinedClass(docCommentOpt, className, params, methods)
     context.scopeStack.set(className, klass)
     MashUnit
   }

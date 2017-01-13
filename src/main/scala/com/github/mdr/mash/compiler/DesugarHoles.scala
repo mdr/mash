@@ -146,10 +146,10 @@ object DesugarHoles {
       val newParams = ParamList(params.map(desugarHoles))
       val newBody = addLambdaIfNeeded(body)
       Result(FunctionDeclaration(docCommentOpt, name, newParams, newBody, sourceInfoOpt))
-    case ClassDeclaration(name, ParamList(params), bodyOpt, sourceInfoOpt) ⇒
+    case ClassDeclaration(docCommentOpt, name, ParamList(params), bodyOpt, sourceInfoOpt) ⇒
       val newParams = ParamList(params.map(desugarHoles))
       val newBodyOpt = bodyOpt.map(body ⇒ ClassBody(body.methods.map(desugarHoles).map(_.asInstanceOf[FunctionDeclaration])))
-      Result(ClassDeclaration(name, newParams, newBodyOpt, sourceInfoOpt))
+      Result(ClassDeclaration(docCommentOpt, name, newParams, newBodyOpt, sourceInfoOpt))
     case HelpExpr(expr, sourceInfoOpt) ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)

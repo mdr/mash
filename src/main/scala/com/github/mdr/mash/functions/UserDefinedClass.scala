@@ -2,9 +2,11 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
 import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashObject
 
-case class UserDefinedClass(override val name: String,
+case class UserDefinedClass(docCommentOpt: Option[DocComment],
+                            override val name: String,
                             params: ParameterModel,
                             override val methods: Seq[UserDefinedMethod]) extends MashClass(nameOpt = Some(name)) {
 
@@ -35,6 +37,8 @@ case class UserDefinedClass(override val name: String,
 
   }
 
-  override def summary: String = s"Class $name"
+  override def summary = docCommentOpt.map(_.summary) getOrElse s"User-defined class '$name'"
+
+  override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
 }

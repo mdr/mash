@@ -309,7 +309,11 @@ object ConcreteSyntax {
     lazy val tokens = params.flatMap(_.tokens)
   }
 
-  case class ClassDeclaration(classToken: Token, name: Token, params: ParamList, bodyOpt: Option[ClassBody]) extends Expr {
+  case class ClassDeclaration(docCommentOpt: Option[LexerDocComment],
+                              classToken: Token,
+                              name: Token,
+                              params: ParamList,
+                              bodyOpt: Option[ClassBody]) extends Expr {
     lazy val tokens = Seq(classToken, name) ++ params.tokens ++ bodyOpt.toSeq.flatMap(_.tokens)
   }
 

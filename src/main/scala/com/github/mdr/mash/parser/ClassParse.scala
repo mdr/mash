@@ -40,7 +40,7 @@ trait ClassParse {
         Some(ClassBody(lbrace, methods, rbrace))
       } else
         None
-    ClassDeclaration(classToken, name, params, bodyOpt)
+    ClassDeclaration(docComment(classToken), classToken, name, params, bodyOpt)
   }
 
 }

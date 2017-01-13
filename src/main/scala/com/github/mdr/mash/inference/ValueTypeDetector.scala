@@ -57,14 +57,14 @@ class ValueTypeDetector {
     case _: MashBoolean                                                            ⇒ BooleanClass
     case MashWrapped(_: Instant)                                                   ⇒ DateTimeClass
     case MashWrapped(_: LocalDate)                                                 ⇒ DateClass
-    case UserDefinedClass(name, params, methods)                                   ⇒ Type.UserClass(name, params, getMethodTypes(methods))
+    case UserDefinedClass(_, name, params, methods)                                ⇒ Type.UserClass(name, params, getMethodTypes(methods))
     case _: MashClass                                                              ⇒ ClassClass
     case MashUnit                                                                  ⇒ Unit
     case xs: MashList                                                              ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
     case obj@MashObject(_, None)                                                   ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case obj@MashObject(_, Some(GroupClass))                                       ⇒ getTypeOfGroup(obj)
     case obj@MashObject(_, Some(TimedResultClass))                                 ⇒ getTypeOfTimedResult(obj)
-    case MashObject(_, Some(UserDefinedClass(name, params, methods)))              ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
+    case MashObject(_, Some(UserDefinedClass(_, name, params, methods)))           ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
     case MashObject(_, Some(klass))                                                ⇒ klass
     case _                                                                         ⇒ Type.Any
   }
