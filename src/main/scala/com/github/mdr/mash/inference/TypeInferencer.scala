@@ -98,24 +98,25 @@ class TypeInferencer {
     (for {
       param ← params.params
       paramTypeOpt = param.defaultExprOpt.flatMap(inferType(_, bindings))
-     (name, typ_) ← TypeParamValidationContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
+      (name, typ_) ← TypeParamValidationContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
     } yield name -> typ_).toMap
 
   private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
     val preliminaryBindings = inferType(functionDecl.params, bindings)
     inferType(functionDecl.body, bindings ++ preliminaryBindings)
-    Some(Unit)
+    Some(getFunctionType(functionDecl, bindings))
   }
 
   private def inferType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Option[Type] = {
     val fieldBindings = inferType(classDeclaration.params, bindings)
     val methods = classDeclaration.bodyOpt.toSeq.flatMap(_.methods)
+    val classType = getUserClassType(classDeclaration, bindings)
     val classBindings =
       bindings ++
         fieldBindings ++
-        Seq(ThisName -> UserClassInstance(getUserClassType(classDeclaration, bindings)))
+        Seq(ThisName -> UserClassInstance(classType))
     methods.foreach(inferType(_, classBindings))
-    Some(Unit)
+    Some(classType)
   }
 
   private def inferType(helpExpr: HelpExpr, bindings: Map[String, Type]): Option[Type] =
@@ -130,17 +131,22 @@ class TypeInferencer {
       statement match {
         case AssignmentExpr(Identifier(name, _), _, _, _) ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
-        case PatternAssignmentExpr(pattern, right, _)        ⇒
+        case PatternAssignmentExpr(pattern, right, _)     ⇒
           latestBindings ++= TypeParamValidationContext.bindPatternParam(Evaluator.makeParamPattern(pattern), right.typeOpt)
-        case FunctionDeclaration(_, name, paramList, body, _)   ⇒
-          latestBindings += name -> Type.UserDefinedFunction(Evaluator.parameterModel(paramList), body, latestBindings)
-        case classDeclaration: ClassDeclaration              ⇒
+        case functionDeclaration: FunctionDeclaration     ⇒
+          latestBindings += functionDeclaration.name -> getFunctionType(functionDeclaration, latestBindings)
+        case classDeclaration: ClassDeclaration           ⇒
           val userClassType = getUserClassType(classDeclaration, latestBindings)
           latestBindings += userClassType.name -> userClassType
-        case _                                               ⇒
+        case _                                            ⇒
       }
     }
     statementSeq.statements.lastOption.map(_.typeOpt).getOrElse(Some(Unit))
+  }
+
+  private def getFunctionType(functionDeclaration: FunctionDeclaration, bindings: Map[String, Type]): Type.UserDefinedFunction = {
+    val FunctionDeclaration(_, name, paramList, body, _) = functionDeclaration
+    Type.UserDefinedFunction(Evaluator.parameterModel(paramList), body, bindings)
   }
 
   private def getUserClassType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Type.UserClass = {
@@ -419,7 +425,7 @@ class TypeInferencer {
   private def getMethodType(targetType: Type, method: MashMethod) = method match {
     case UserDefinedMethod(_, _, params, _, body, context) ⇒
       Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(params, body, new ValueTypeDetector().buildBindings(context.scopeStack.bindings)))
-    case _                                           ⇒
+    case _                                                 ⇒
       Type.BoundBuiltinMethod(targetType, method)
   }
 

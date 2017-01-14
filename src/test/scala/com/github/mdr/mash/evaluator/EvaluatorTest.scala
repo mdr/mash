@@ -712,15 +712,15 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "Object.merge { foo: 42 } { foo: 128 }" shouldEvaluateTo "{ foo: 128 }"
 
   // type.hint
-  "type.hint [String] 42" shouldEvaluateTo "42"
+  "type.hint [String] 42" shouldEvaluateTo 42
 
   // classes
   "class Point x y; Point.new 3 4 | [.x, .y]" shouldEvaluateTo "[3, 4]"
   "class Point x y; Point 3 4 | [.x, .y]" shouldEvaluateTo "[3, 4]"
-  "class Point x y { def sum = x + y }; Point 3 4 | .sum" shouldEvaluateTo "7"
-  "class Point x y { def sum = this.x + this.y }; Point 3 4 | .sum" shouldEvaluateTo "7"
-  "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo "49"
-  "class Box x { def update x = this.x = x }; b = Box 0; b.update 10; b.x" shouldEvaluateTo "10"
+  "class Point x y { def sum = x + y }; Point 3 4 | .sum" shouldEvaluateTo 7
+  "class Point x y { def sum = this.x + this.y }; Point 3 4 | .sum" shouldEvaluateTo 7
+  "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo 49
+  "class Box x { def update x = this.x = x }; b = Box 0; b.update 10; b.x" shouldEvaluateTo 10
   """class Outer o1 {
        def outer o2 = {
          class Inner i1 {
@@ -731,16 +731,19 @@ class EvaluatorTest extends AbstractEvaluatorTest {
      }
      Outer 3 | .outer 4
   """ shouldEvaluateTo "10"
-  "class Thing x { def x = 100 }; Thing 42 | .x" shouldEvaluateTo "42"
-  "class Thing { def x = 100; def y = { x = 42; x } }; Thing.new.y" shouldEvaluateTo "42"
+  "class Thing x { def x = 100 }; Thing 42 | .x" shouldEvaluateTo 42
+  "class Thing { def x = 100; def y = { x = 42; x } }; Thing.new.y" shouldEvaluateTo 42
   "class Thing; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
   "class Thing { }; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
   "class Point x y { def add = x + y }; [Point 1 2, Point 3 4].add" shouldEvaluateTo "[3, 7]"
 
   "[Object, Object].merge { foo: 42 }" shouldEvaluateTo "[{ foo: 42 }, { foo: 42 }]"
 
-  "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" shouldEvaluateTo "100"
-  "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" shouldEvaluateTo "100"
+  "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" shouldEvaluateTo 100
+  "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" shouldEvaluateTo 100
+
+  "(class A { def foo = 42 }) | .new.foo" shouldEvaluateTo 42
+  "(def foo = 42) | x => x" shouldEvaluateTo 42
 
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 }
