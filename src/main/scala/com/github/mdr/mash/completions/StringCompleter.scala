@@ -35,12 +35,11 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
       val stringRegion = contiguousRegion.copy(length = replacement.length)
       completeString(replaced, stringRegion, parser, substring).withReplacementLocation(contiguousRegion)
     }
-    completeAsString(liberal = true, substring = false) orElse completeAsString(liberal = false, substring = false) orElse
-      completeAsString(liberal = true, substring = true) orElse completeAsString(liberal = false, substring = true)
+    completeAsString(liberal = true, substring = false) orElse
+      completeAsString(liberal = false, substring = false) orElse
+      completeAsString(liberal = true, substring = true) orElse
+      completeAsString(liberal = false, substring = true)
   }
-
-  def completeString(text: String, token: Token, parser: CompletionParser, substring: Boolean): StringCompletionResult =
-    completeString(text, token.region, parser, substring)
 
   /**
    * Provide completions for the string literal at the given position, attempting several strategies:
@@ -49,7 +48,7 @@ class StringCompleter(fileSystem: FileSystem, envInteractions: EnvironmentIntera
    * - if it's one side of an equality or inequality expression, provide completions based on the type of the other side
    * - complete paths
    */
-  def completeString(text: String, stringRegion: Region, parser: CompletionParser, substring: Boolean): StringCompletionResult = {
+  private def completeString(text: String, stringRegion: Region, parser: CompletionParser, substring: Boolean): StringCompletionResult = {
     lazy val argCompletionOpt = argCompleter.completeArg(text, stringRegion, parser)
     lazy val equalityCompletionOpt = EqualityCompleter.completeEquality(text, stringRegion, parser)
     lazy val pathCompletionOpt = {

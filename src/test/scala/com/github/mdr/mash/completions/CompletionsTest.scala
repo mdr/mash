@@ -83,7 +83,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   ".▶" shouldGiveCompletions ("../", "./")
   "cd .▶" shouldGiveCompletions ("../", "./")
-  // "cd ..▶" shouldGiveCompletions "../"
+   "cd ..▶" shouldGiveCompletions "../"
 
   "def foo (n = ls.permiss▶)" shouldGiveCompletions "permissions"
   "(n = ls.permiss▶) => 42" shouldGiveCompletions "permissions"

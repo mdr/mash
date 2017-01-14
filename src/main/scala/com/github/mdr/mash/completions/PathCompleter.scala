@@ -52,7 +52,7 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
     CompletionResult.of(completions, region)
   }
 
-  def getCompletions(searchString: String, directoriesOnly: Boolean = false, substring: Boolean): Seq[PathCompletion] = {
+  private[completions] def getCompletions(searchString: String, directoriesOnly: Boolean = false, substring: Boolean): Seq[PathCompletion] = {
     val (searchPath, fragment) = getSearchPathAndFragment(searchString)
     val childPaths = getMatchingChildren(searchPath, fragment, directoriesOnly = directoriesOnly, substring = substring)
     val specialPaths = getSpecialDotDirs(searchPath, fragment)
