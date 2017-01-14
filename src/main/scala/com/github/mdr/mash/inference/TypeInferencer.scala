@@ -11,7 +11,7 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
@@ -367,7 +367,7 @@ class TypeInferencer {
     case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                                                ⇒
       for {
         arg ← typedArgs.positionArgs.headOption
-        StringLiteral(s, _, _, _) ← Some(function)
+        MashString(s, _) ← function.constantValueOpt
         argType ← arg.typeOpt
         memberType ← memberLookup(argType, s, immediateExec = true)
       } yield memberType

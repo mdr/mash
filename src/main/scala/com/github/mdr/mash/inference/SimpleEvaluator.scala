@@ -21,7 +21,7 @@ object SimpleEvaluator {
     case listExpr: ListExpr                            ⇒ Utils.sequence(listExpr.elements.map(evaluate(_))).map(MashList(_))
     case identifier: Identifier                        ⇒ context.scopeStack.lookup(identifier.name)
     case objectExpr: ObjectExpr                        ⇒ simplyEvaluate(objectExpr)
-    case StatementSeq(statements, _)                   ⇒ statements.map(evaluate).lastOption.getOrElse(Some(MashUnit))
+    case StatementSeq(statements, _)                   ⇒ statements.map(evaluate).lastOption getOrElse Some(MashUnit)
     case ParenExpr(body, _)                            ⇒ evaluate(body)
     case blockExpr: BlockExpr                          ⇒ evaluate(blockExpr.expr)
     case HelpExpr(body, _)                             ⇒
