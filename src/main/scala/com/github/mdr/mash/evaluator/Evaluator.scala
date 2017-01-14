@@ -4,7 +4,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
-import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.parser.{ DocComment, QuotationType }
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -156,7 +156,7 @@ object Evaluator extends EvaluatorHelper {
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
-      val methodParams = parameterModel(paramList, Some(context))
+      val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
       UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context)
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
@@ -168,14 +168,24 @@ object Evaluator extends EvaluatorHelper {
 
   private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
     val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
-    val params = parameterModel(paramList, Some(context))
+    val params = parameterModel(paramList, Some(context), docCommentOpt)
     UserDefinedFunction(docCommentOpt, functionName, params, body, context)
   }
 
-  def makeParameter(param: FunctionParam, evaluationContextOpt: Option[EvaluationContext] = None): Parameter = {
+  def makeParameter(param: FunctionParam,
+                    evaluationContextOpt: Option[EvaluationContext] = None,
+                    docCommentOpt: Option[DocComment] = None): Parameter = {
     val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
-    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒ defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
-    val summary = nameOpt.map(name ⇒ s"Parameter '$name'").getOrElse("Anonymous parameter")
+    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒
+      defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
+    val docSummaryOpt =
+      for {
+        name ← nameOpt
+        docComment ← docCommentOpt
+        paramComment ← docComment.getParamComment(name)
+      } yield paramComment.summary
+
+    val summary = docSummaryOpt orElse nameOpt.map(name ⇒ s"Parameter '$name'") getOrElse "Anonymous parameter"
     Parameter(nameOpt, summary, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
   }
@@ -190,9 +200,11 @@ object Evaluator extends EvaluatorHelper {
     case ListPattern(patterns, _)    ⇒ ParamPattern.List(patterns.map(makeParamPattern))
   }
 
-  def parameterModel(paramList: ParamList, evaluationContextOpt: Option[EvaluationContext] = None): ParameterModel = {
+  def parameterModel(paramList: ParamList,
+                     evaluationContextOpt: Option[EvaluationContext] = None,
+                     docCommentOpt: Option[DocComment] = None): ParameterModel = {
     val evaluationContext = evaluationContextOpt.getOrElse(EvaluationContext(ScopeStack(Nil)))
-    val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, Some(evaluationContext)))
+    val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, Some(evaluationContext), docCommentOpt))
     for (context <- evaluationContextOpt)
       verifyParameters(paramList)(context)
     ParameterModel(parameters)

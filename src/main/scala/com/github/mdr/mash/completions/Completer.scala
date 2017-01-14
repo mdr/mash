@@ -104,7 +104,8 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     val posBefore = dotToken.offset - 1
     val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace && text(posBefore) != '.'
 
-    val isAfterStringOrIdent = parser.tokenise(text).find(_.region.posAfter == dotToken.offset).exists(t ⇒ t.isString || t.isIdentifier)
+    val isAfterStringOrIdent =
+      parser.tokenise(text).find(_.region.posAfter == dotToken.offset).exists(t ⇒ t.isString || t.isIdentifier)
     if (isMemberDot && !isAfterStringOrIdent)
       memberResultOpt orElse asStringResultOpt
     else
