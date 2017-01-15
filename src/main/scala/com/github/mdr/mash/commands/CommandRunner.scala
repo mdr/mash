@@ -12,6 +12,9 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
 import org.fusesource.jansi.Ansi
 
+/**
+  * Run an interactive command
+  */
 class CommandRunner(output: PrintStream,
                     terminalInfo: TerminalInfo,
                     globals: MashObject,
@@ -22,7 +25,7 @@ class CommandRunner(output: PrintStream,
   private val debugCommandRunner = new DebugCommandRunner(output, globals)
   private val debugLogger = new DebugLogger(sessionId.toString)
 
-  def run(cmd: String, unitName: String, mish: Boolean = false, bareWords: Boolean, viewConfig: ViewConfig): CommandResult = {
+  def run(cmd: String, unitName: String, mish: Boolean, bareWords: Boolean, viewConfig: ViewConfig): CommandResult = {
     cmd match {
       case DebugCommand(keyword, args) ⇒
         debugCommandRunner.runDebugCommand(keyword, args, bareWords)
@@ -44,7 +47,7 @@ class CommandRunner(output: PrintStream,
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords).flatMap { expr ⇒ runExpr(expr, unit) }
+    safeCompile(unit, bareWords = bareWords).flatMap(runExpr(_, unit))
 
   private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())

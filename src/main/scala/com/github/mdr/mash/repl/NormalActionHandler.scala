@@ -17,7 +17,8 @@ import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
 
-trait NormalActionHandler { self: Repl ⇒
+trait NormalActionHandler {
+  self: Repl ⇒
   private val fileSystem = LinuxFileSystem
 
   def handleNormalAction(action: InputAction) = {
@@ -34,11 +35,21 @@ trait NormalActionHandler { self: Repl ⇒
       case BackwardChar             ⇒ state.updateLineBuffer(_.cursorLeft)
       case ForwardWord              ⇒ state.updateLineBuffer(_.forwardWord)
       case BackwardWord             ⇒ state.updateLineBuffer(_.backwardWord)
-      case DeleteChar               ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.delete) }
-      case BackwardDeleteChar       ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.backspace) }
-      case KillLine                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteToEndOfLine) }
-      case KillWord                 ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteForwardWord) }
-      case BackwardKillWord         ⇒ resetHistoryIfTextChanges { state.updateLineBuffer(_.deleteBackwardWord) }
+      case DeleteChar               ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.delete)
+      }
+      case BackwardDeleteChar       ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.backspace)
+      }
+      case KillLine                 ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.deleteToEndOfLine)
+      }
+      case KillWord                 ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.deleteForwardWord)
+      }
+      case BackwardKillWord         ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.deleteBackwardWord)
+      }
       case SelfInsert(s)            ⇒ handleSelfInsert(s)
       case AssistInvocation         ⇒ handleAssistInvocation()
       case YankLastArg              ⇒ handleYankLastArg()
@@ -66,7 +77,9 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   private def handleSelfInsert(s: String) =
-    resetHistoryIfTextChanges { for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c)) }
+    resetHistoryIfTextChanges {
+      for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c))
+    }
 
   private def handleIncrementalHistorySearch() {
     state.incrementalSearchStateOpt = Some(IncrementalSearchState())
@@ -86,7 +99,7 @@ trait NormalActionHandler { self: Repl ⇒
     if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
       history.goBackwards(state.lineBuffer.text) match {
         case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
-        case None ⇒ state.updateLineBuffer(_.up)
+        case None      ⇒ state.updateLineBuffer(_.up)
       }
     else
       state.updateLineBuffer(_.up)
@@ -95,7 +108,7 @@ trait NormalActionHandler { self: Repl ⇒
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
         case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
-        case None ⇒ state.updateLineBuffer(_.down)
+        case None      ⇒ state.updateLineBuffer(_.down)
       }
     else
       state.updateLineBuffer(_.down)
@@ -134,22 +147,12 @@ trait NormalActionHandler { self: Repl ⇒
         val newRegion = Region(oldRegion.offset, newArg.length)
         state.lineBuffer = LineBuffer(newText, newRegion.posAfter)
         state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
-      case None ⇒
+      case None         ⇒
     }
   }
 
-  private def handleAcceptLine() {
-    val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish).tokens
-    // TODO: We'll want to be smarter than this:
-    import TokenType._
-    val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE,
-      STRING_INTERPOLATION_START_COMPLEX)
-    val openBraceCount = tokens.count(token ⇒ OpenBraceTypes.contains(token.tokenType))
-    val mismatchedBrackets = openBraceCount != tokens.count(_.tokenType == TokenType.RBRACE)
-
-    if (state.lineBuffer.isMultiline && !state.lineBuffer.cursorAtEnd || mismatchedBrackets)
-      handleSelfInsert("\n")
-    else {
+  private def handleAcceptLine() =
+    if (canAcceptBuffer) {
       updateScreenAfterAccept()
       previousReplRenderResultOpt = None
 
@@ -159,7 +162,18 @@ trait NormalActionHandler { self: Repl ⇒
       state.lineBuffer = LineBuffer.Empty
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
-    }
+    } else
+      handleSelfInsert("\n")
+
+  def canAcceptBuffer: Boolean = {
+    val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish).tokens
+    // TODO: We'll want to be smarter than this:
+    import TokenType._
+    val OpenBraceTypes: Set[TokenType] = Set(LBRACE, MISH_INTERPOLATION_START, MISH_INTERPOLATION_START_NO_CAPTURE,
+      STRING_INTERPOLATION_START_COMPLEX)
+    val openBraceCount = tokens.count(token ⇒ OpenBraceTypes.contains(token.tokenType))
+    val mismatchedBrackets = openBraceCount != tokens.count(_.tokenType == TokenType.RBRACE)
+    (state.lineBuffer.cursorAtEnd || !state.lineBuffer.isMultiline) && !mismatchedBrackets
   }
 
   protected def updateScreenAfterAccept() {
@@ -174,7 +188,6 @@ trait NormalActionHandler { self: Repl ⇒
   }
 
   protected def runCommand(cmd: String) {
-    val workingDirectory = fileSystem.pwd
     val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
     val unitName = s"command-${state.commandNumber}"
     val commandResult =
@@ -186,14 +199,14 @@ trait NormalActionHandler { self: Repl ⇒
           debugLogger.logException(e)
           return
       }
-    processCommandResult(cmd, commandResult, workingDirectory)
+    processCommandResult(cmd, commandResult, workingDirectory = fileSystem.pwd)
   }
 
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
     val CommandResult(resultOpt, toggleMish, printModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
-      case obj @ MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
-      case result                               ⇒ result
+      case obj@MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
+      case result                             ⇒ result
     }
     val commandNumber = state.commandNumber
     if (toggleMish)
@@ -223,8 +236,8 @@ trait NormalActionHandler { self: Repl ⇒
     state.globalVariables.set(ReplState.It, result)
     state.globalVariables.set(ReplState.Res + number, result)
     val oldResults = state.globalVariables.get(ReplState.Res) match {
-      case Some(MashList(oldResults @ _*)) ⇒ oldResults
-      case _                               ⇒ Seq()
+      case Some(MashList(oldResults@_*)) ⇒ oldResults
+      case _                             ⇒ Seq()
     }
     val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(MashNull)
     val newResults = MashList(extendedResults.updated(number, result))
