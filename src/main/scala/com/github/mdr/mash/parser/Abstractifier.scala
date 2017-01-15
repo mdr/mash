@@ -3,7 +3,6 @@ package com.github.mdr.mash.parser
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
-import com.github.mdr.mash.parser.ConcreteSyntax.ThisExpr
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 
 import scala.PartialFunction.condOpt
@@ -15,7 +14,17 @@ class Abstractifier(provenance: Provenance) {
 
   import com.github.mdr.mash.parser.{ AbstractSyntax ⇒ Abstract, ConcreteSyntax ⇒ Concrete }
 
-  def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
+  def abstractify(program: Concrete.Program): Abstract.Program = {
+    val namespaceOpt = program.namespaceOpt.map(abstractifyNamespace(_))
+    Abstract.Program(namespaceOpt, abstractify(program.body), sourceInfo(program))
+  }
+
+  private def abstractifyNamespace(namespace: Concrete.Namespace): Abstract.Namespace = {
+    val segments = namespace.firstSegment.text +: namespace.dotSegments.map(_._2.text)
+    Abstract.Namespace(segments, sourceInfo(namespace))
+  }
+
+  private def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
     case Concrete.Hole(_)                                   ⇒ Abstract.Hole(sourceInfo(expr))

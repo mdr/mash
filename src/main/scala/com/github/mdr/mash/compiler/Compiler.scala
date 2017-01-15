@@ -36,7 +36,7 @@ object Compiler {
                       compilationUnit: CompilationUnit,
                       settings: CompilationSettings,
                       bindings: Map[String, MashValue]): Expr = {
-    val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteProgram.body)
+    val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteProgram).body
     val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
     val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
     val withoutPipes = DesugarPipes.desugarPipes(withoutHoles)

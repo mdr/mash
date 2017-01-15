@@ -59,9 +59,9 @@ object LineBufferRenderer {
 
   private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
     val bindings = globalVariables.keySet.toSet
-    val concreteExpr = MashParser.parseForgiving(s, mish = mish)
+    val concreteProgram = MashParser.parseForgiving(s, mish = mish)
     val provenance = Provenance("not required", s)
-    val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr.body)
+    val abstractExpr = new Abstractifier(provenance).abstractify(concreteProgram).body
     BareStringify.getBareTokens(abstractExpr, bindings)
   }
 

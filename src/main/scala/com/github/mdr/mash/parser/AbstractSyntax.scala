@@ -424,4 +424,18 @@ object AbstractSyntax {
     def children = Seq()
   }
 
+  /**
+    * namespace foo.bar.baz
+    */
+  case class Namespace(segments: Seq[String], sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+
+    def children = Seq()
+  }
+
+  case class Program(namespaceOpt: Option[Namespace], body: Expr, sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+
+    def children = namespaceOpt.toSeq :+ body
+  }
 }

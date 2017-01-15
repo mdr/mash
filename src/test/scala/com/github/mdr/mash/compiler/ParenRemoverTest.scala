@@ -33,7 +33,10 @@ class ParenRemoverTest extends FlatSpec with Matchers {
     }
   }
 
-  private def parse(s: String): Expr = new Abstractifier(Provenance(s, "test")).abstractify(MashParser.parseForgiving(s).body)
+  private def parse(s: String): Expr = {
+    val abstractifier = new Abstractifier(Provenance(s, "test"))
+    abstractifier.abstractify(MashParser.parseForgiving(s)).body
+  }
 
   private def removeSourceInfo(expr: Expr) = expr.transform { case e ⇒ e.withSourceInfoOpt(None) }
 

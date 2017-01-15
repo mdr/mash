@@ -29,7 +29,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     Program(namespaceDeclarationOpt, result)
   }
 
-  private def namespaceDeclaration(): NamespaceDeclaration = {
+  private def namespaceDeclaration(): Namespace = {
     val namespace = consumeRequiredToken(NAMESPACE)
     val firstSegment = consumeRequiredToken(IDENTIFIER)
     val dotSegments: ArrayBuffer[(Token, Token)] = ArrayBuffer()
@@ -38,7 +38,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       val segment = consumeRequiredToken(IDENTIFIER)
       dotSegments += ((dot, segment))
     }
-    NamespaceDeclaration(namespace, firstSegment, dotSegments)
+    Namespace(namespace, firstSegment, dotSegments)
   }
 
   private def statementExpr(): Expr =

@@ -30,7 +30,7 @@ class DesugarHolesTest extends FlatSpec with Matchers {
 
   private def parse(s: String): Expr = {
     val abstractifier = new Abstractifier(Provenance(s, "test"))
-    abstractifier.abstractify(MashParser.parseForgiving(s).body)
+    abstractifier.abstractify(MashParser.parseForgiving(s)).body
   }
 
   private def removeSourceInfo(expr : Expr): Expr = expr.transform { case e ⇒ e.withSourceInfoOpt(None) }
