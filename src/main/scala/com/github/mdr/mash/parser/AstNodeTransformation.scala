@@ -2,7 +2,8 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.parser.AbstractSyntax.{ ListPattern, _ }
 
-trait AstNodeTransformation { self: AbstractSyntax.AstNode ⇒
+trait AstNodeTransformation {
+  self: AbstractSyntax.AstNode ⇒
 
   def transform(f: PartialFunction[AstNode, AstNode]): AstNode = {
     val withTransformedDescendents = transformDescendents(f)
@@ -11,90 +12,92 @@ trait AstNodeTransformation { self: AbstractSyntax.AstNode ⇒
 
   private def transformDescendents(f: PartialFunction[AstNode, AstNode]) = this match {
     case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) |
-         HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry | ThisExpr(_)            ⇒
+         HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry | ThisExpr(_) | Namespace(_, _) ⇒
       this
-    case InterpolatedString(start, parts, end, sourceInfoOpt)                           ⇒
+    case InterpolatedString(start, parts, end, sourceInfoOpt)                                  ⇒
       InterpolatedString(start, parts.map {
         case StringPart(s) ⇒ StringPart(s)
         case ExprPart(e)   ⇒ ExprPart(e.transform(f))
       }, end, sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                        ⇒
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                               ⇒
       AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), sourceInfoOpt)
-    case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                           ⇒
+    case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                  ⇒
       PatternAssignmentExpr(pattern.transform(f).asInstanceOf[Pattern], right.transform(f), sourceInfoOpt)
-    case ParenExpr(expr, sourceInfoOpt)                                                 ⇒
+    case ParenExpr(expr, sourceInfoOpt)                                                        ⇒
       ParenExpr(expr.transform(f), sourceInfoOpt)
-    case BlockExpr(expr, sourceInfoOpt)                                                 ⇒
+    case BlockExpr(expr, sourceInfoOpt)                                                        ⇒
       BlockExpr(expr.transform(f), sourceInfoOpt)
-    case StatementSeq(statements, sourceInfoOpt)                                        ⇒
+    case StatementSeq(statements, sourceInfoOpt)                                               ⇒
       StatementSeq(statements.map(_.transform(f)), sourceInfoOpt)
-    case LambdaExpr(params, body, sourceInfoOpt)                                        ⇒
+    case LambdaExpr(params, body, sourceInfoOpt)                                               ⇒
       LambdaExpr(params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
-    case PipeExpr(left, right, sourceInfoOpt)                                           ⇒
+    case PipeExpr(left, right, sourceInfoOpt)                                                  ⇒
       PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
-    case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                              ⇒
+    case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                                     ⇒
       MemberExpr(expr.transform(f), name, isNullSafe, sourceInfoOpt)
-    case LookupExpr(expr, index, sourceInfoOpt)                                         ⇒
+    case LookupExpr(expr, index, sourceInfoOpt)                                                ⇒
       LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
-    case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt)          ⇒
+    case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt)                 ⇒
       val newArguments = arguments.map(_.transform(f).asInstanceOf[Argument])
       InvocationExpr(function.transform(f), newArguments, isParenInvocation, sourceInfoOpt)
-    case BinOpExpr(left, op, right, sourceInfoOpt)                                      ⇒
+    case BinOpExpr(left, op, right, sourceInfoOpt)                                             ⇒
       BinOpExpr(left.transform(f), op, right.transform(f), sourceInfoOpt)
-    case ChainedOpExpr(left, opRights, sourceInfoOpt)                                   ⇒
+    case ChainedOpExpr(left, opRights, sourceInfoOpt)                                          ⇒
       ChainedOpExpr(left.transform(f), opRights.map { case (op, right) ⇒ op -> right.transform(f) }, sourceInfoOpt)
-    case IfExpr(cond, body, elseOpt, sourceInfoOpt)                                     ⇒
+    case IfExpr(cond, body, elseOpt, sourceInfoOpt)                                            ⇒
       IfExpr(cond.transform(f), body.transform(f), elseOpt.map(_.transform(f)), sourceInfoOpt)
-    case ListExpr(elements, sourceInfoOpt)                                              ⇒
+    case ListExpr(elements, sourceInfoOpt)                                                     ⇒
       ListExpr(elements.map(_.transform(f)), sourceInfoOpt)
-    case FullObjectEntry(field, value, sourceInfoOpt)                                   ⇒
+    case FullObjectEntry(field, value, sourceInfoOpt)                                          ⇒
       FullObjectEntry(field.transform(f), value.transform(f), sourceInfoOpt)
-    case ObjectExpr(entries, sourceInfoOpt)                                             ⇒
+    case ObjectExpr(entries, sourceInfoOpt)                                                    ⇒
       ObjectExpr(entries.map(_.transform(f).asInstanceOf[ObjectEntry]), sourceInfoOpt)
-    case MinusExpr(expr, sourceInfoOpt)                                                 ⇒
+    case MinusExpr(expr, sourceInfoOpt)                                                        ⇒
       MinusExpr(expr.transform(f), sourceInfoOpt)
-    case MishInterpolation(part, sourceInfoOpt)                                         ⇒
+    case MishInterpolation(part, sourceInfoOpt)                                                ⇒
       val newPart = part match {
         case StringPart(s) ⇒ StringPart(s)
         case ExprPart(e)   ⇒ ExprPart(e.transform(f))
       }
       MishInterpolation(newPart, sourceInfoOpt)
-    case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt)        ⇒
+    case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt)               ⇒
       MishExpr(command.transform(f), args.map(_.transform(f)),
         redirects.map(_.transform(f).asInstanceOf[MishRedirect]), captureProcessOutput, sourceInfoOpt)
-    case MishRedirect(op, arg, sourceInfoOpt)                                           ⇒
+    case MishRedirect(op, arg, sourceInfoOpt)                                                  ⇒
       MishRedirect(op, arg.transform(f), sourceInfoOpt)
-    case FunctionDeclaration(docCommentOpt, name, params, body, sourceInfoOpt)          ⇒
+    case FunctionDeclaration(docCommentOpt, name, params, body, sourceInfoOpt)                 ⇒
       FunctionDeclaration(docCommentOpt, name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
-    case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)          ⇒
+    case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)                 ⇒
       ClassDeclaration(docCommentOpt, name, params.transform(f).asInstanceOf[ParamList],
         bodyOpt.map(_.transform(f).asInstanceOf[ClassBody]), sourceInfoOpt)
-    case ClassBody(methods, sourceInfoOpt)                                              ⇒
+    case ClassBody(methods, sourceInfoOpt)                                                     ⇒
       ClassBody(methods.map(_.transform(f).asInstanceOf[FunctionDeclaration]), sourceInfoOpt)
-    case HelpExpr(expr, sourceInfoOpt)                                                  ⇒
+    case HelpExpr(expr, sourceInfoOpt)                                                         ⇒
       HelpExpr(expr.transform(f), sourceInfoOpt)
-    case ExprPart(expr)                                                                 ⇒
+    case ExprPart(expr)                                                                        ⇒
       ExprPart(expr.transform(f))
-    case StringPart(_)                                                                  ⇒
+    case StringPart(_)                                                                         ⇒
       this
-    case FunctionParam(name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt) ⇒
+    case FunctionParam(name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt)        ⇒
       FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, patternOpt, sourceInfoOpt)
-    case Argument.PositionArg(expr, sourceInfoOpt)                                      ⇒
+    case Argument.PositionArg(expr, sourceInfoOpt)                                             ⇒
       Argument.PositionArg(expr.transform(f), sourceInfoOpt)
-    case Argument.ShortFlag(_, _)                                                       ⇒
+    case Argument.ShortFlag(_, _)                                                              ⇒
       this
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt)                               ⇒
+    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt)                                      ⇒
       Argument.LongFlag(flag, valueOpt.map(_.transform(f)), sourceInfoOpt)
-    case ParamList(params)                                                              ⇒
+    case ParamList(params)                                                                     ⇒
       ParamList(params.map(_.transform(f).asInstanceOf[FunctionParam]))
-    case HolePattern(_) | IdentPattern(_, _)                                            ⇒
+    case HolePattern(_) | IdentPattern(_, _)                                                   ⇒
       this
-    case ObjectPatternEntry(field, valuePatternOpt, sourceInfoOpt)                      ⇒
+    case ObjectPatternEntry(field, valuePatternOpt, sourceInfoOpt)                             ⇒
       ObjectPatternEntry(field, valuePatternOpt.map(_.transform(f).asInstanceOf[Pattern]), sourceInfoOpt)
-    case ObjectPattern(entries, sourceInfoOpt)                                          ⇒
+    case ObjectPattern(entries, sourceInfoOpt)                                                 ⇒
       ObjectPattern(entries.map(_.transform(f).asInstanceOf[ObjectPatternEntry]), sourceInfoOpt)
-    case ListPattern(patterns, sourceInfoOpt)                                           ⇒
+    case ListPattern(patterns, sourceInfoOpt)                                                  ⇒
       ListPattern(patterns.map(_.transform(f).asInstanceOf[Pattern]), sourceInfoOpt)
+    case Program(namespaceOpt, body, sourceInfoOpt)                                            ⇒
+      Program(namespaceOpt, body.transform(f), sourceInfoOpt)
   }
 
 

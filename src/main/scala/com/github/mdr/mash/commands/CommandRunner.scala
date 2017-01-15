@@ -47,7 +47,7 @@ class CommandRunner(output: PrintStream,
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords).flatMap(runExpr(_, unit))
+    safeCompile(unit, bareWords = bareWords).flatMap(runProgram(_, unit))
 
   private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
@@ -58,7 +58,7 @@ class CommandRunner(output: PrintStream,
     CommandResult(Some(result), printModelOpt = printModelOpt)
   }
 
-  private def runExpr(expr: AbstractSyntax.Expr, unit: CompilationUnit): Option[MashValue] =
+  private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashValue] =
     try {
       val context = new ExecutionContext(Thread.currentThread)
       Singletons.environment = globals.get(StandardEnvironment.Env) match {
@@ -67,7 +67,7 @@ class CommandRunner(output: PrintStream,
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)
-      val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals)))
+      val result = Evaluator.evaluate(program.body)(EvaluationContext(ScopeStack(globals)))
       Some(result)
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
@@ -80,15 +80,15 @@ class CommandRunner(output: PrintStream,
         None
     }
 
-  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Expr] = {
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Program] = {
     val settings = CompilationSettings(inferTypes = false, bareWords = bareWords)
     Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
         if (printErrors)
           errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
         None
-      case Right(expr) ⇒
-        Some(expr)
+      case Right(program) ⇒
+        Some(program)
     }
   }
 

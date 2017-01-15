@@ -15,12 +15,12 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
   protected implicit class RichString(rawS: String)(implicit config: Config = Config()) {
 
     private val s = rawS.stripMargin
-    
+
     private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
       val settings = CompilationSettings(bareWords = config.bareWords)
       Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {
         case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed: " + message)
-        case Right(expr)                  ⇒ expr
+        case Right(program)               ⇒ program.body
       }
     }
 

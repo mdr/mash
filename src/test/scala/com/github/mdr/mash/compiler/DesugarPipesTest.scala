@@ -25,12 +25,13 @@ class DesugarPipesTest extends FlatSpec with Matchers {
     }
   }
 
-  private def parse(s: String): Expr = {
+  private def parse(s: String): Program = {
     val concreteProgram = MashParser.parseForgiving(s)
-    val abstractExpr = new Abstractifier(Provenance(s, "test")).abstractify(concreteProgram).body
-    ParenRemover.removeParens(abstractExpr)
+    val abstractProgram = new Abstractifier(Provenance(s, "test")).abstractify(concreteProgram)
+    ParenRemover.removeParens(abstractProgram)
   }
 
-  private def removeSourceInfo(e: Expr) = e.transform { case e ⇒ e.withSourceInfoOpt(None) }
+  private def removeSourceInfo(program: Program): Program =
+    program.transform { case e ⇒ e.withSourceInfoOpt(None) }.asInstanceOf[Program]
 
 }

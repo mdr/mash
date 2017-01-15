@@ -8,7 +8,10 @@ object DesugarHoles {
 
   val VariableName = "$hole"
 
-  def desugarHoles(expr: Expr): Expr = addLambdaIfNeeded(expr)
+  def desugarHoles(program: Program): Program =
+    Program(program.namespaceOpt, desugarHoles(program.body), program.sourceInfoOpt)
+
+  private def desugarHoles(expr: Expr): Expr = addLambdaIfNeeded(expr)
 
   private def addLambdaIfNeeded(expr: Expr): Expr = {
     val Result(newExpr, hasHole) = desugarHoles_(expr)
@@ -32,16 +35,16 @@ object DesugarHoles {
     desugarHoles_(argument.expr).map(Argument.PositionArg(_, argument.sourceInfoOpt))
 
   private def desugarHoles_(argument: Argument): Result[Argument] = argument match {
-    case posArg @ Argument.PositionArg(_, _)                ⇒ desugarHoles_(posArg)
+    case posArg@Argument.PositionArg(_, _)                  ⇒ desugarHoles_(posArg)
     case Argument.ShortFlag(_, sourceInfoOpt)               ⇒ Result(argument)
     case Argument.LongFlag(flag, None, sourceInfoOpt)       ⇒ Result(Argument.LongFlag(flag, None, sourceInfoOpt))
     case Argument.LongFlag(flag, Some(expr), sourceInfoOpt) ⇒ desugarHoles_(expr).map(e ⇒ Argument.LongFlag(flag, Some(e), sourceInfoOpt))
   }
 
   private def desugarHoles_(expr: Expr): Result[Expr] = expr match {
-    case Hole(sourceInfoOpt) ⇒
+    case Hole(sourceInfoOpt)                                                                                                           ⇒
       Result(Identifier(VariableName, sourceInfoOpt), hasHole = true)
-    case InterpolatedString(start, parts, end, sourceInfoOpt) ⇒
+    case InterpolatedString(start, parts, end, sourceInfoOpt)                                                                          ⇒
       val newPartsResult: Seq[Result[InterpolationPart]] = parts.map {
         case StringPart(s)  ⇒ Result(StringPart(s))
         case ExprPart(expr) ⇒ desugarHoles_(expr).map(ExprPart)
@@ -49,33 +52,33 @@ object DesugarHoles {
       for {
         newParts ← sequence(newPartsResult)
       } yield InterpolatedString(start, newParts, end, sourceInfoOpt)
-    case LambdaExpr(ParamList(params), body, sourceInfoOpt) ⇒
+    case LambdaExpr(ParamList(params), body, sourceInfoOpt)                                                                            ⇒
       val newParams = ParamList(params.map(desugarHoles))
       Result(LambdaExpr(newParams, addLambdaIfNeeded(body), sourceInfoOpt))
-    case ParenExpr(expr, sourceInfoOpt) ⇒
+    case ParenExpr(expr, sourceInfoOpt)                                                                                                ⇒
       Result(ParenExpr(addLambdaIfNeeded(expr), sourceInfoOpt))
-    case BlockExpr(expr, sourceInfoOpt) ⇒
+    case BlockExpr(expr, sourceInfoOpt)                                                                                                ⇒
       Result(BlockExpr(addLambdaIfNeeded(expr), sourceInfoOpt))
-    case StatementSeq(statements, sourceInfoOpt) ⇒
+    case StatementSeq(statements, sourceInfoOpt)                                                                                       ⇒
       for (newStatements ← sequence(statements.map(desugarHoles_)))
         yield StatementSeq(newStatements, sourceInfoOpt)
-    case PipeExpr(left, right, sourceInfoOpt) ⇒
+    case PipeExpr(left, right, sourceInfoOpt)                                                                                          ⇒
       for (left ← desugarHoles_(left))
         yield PipeExpr(left, addLambdaIfNeeded(right), sourceInfoOpt)
     case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) | ThisExpr(_) ⇒
       Result(expr)
-    case MemberExpr(target, name, isNullSafe, sourceInfoOpt) ⇒
+    case MemberExpr(target, name, isNullSafe, sourceInfoOpt)                                                                           ⇒
       for (newTarget ← desugarHoles_(target))
         yield MemberExpr(newTarget, name, isNullSafe, sourceInfoOpt)
-    case MinusExpr(expr, sourceInfoOpt) ⇒
+    case MinusExpr(expr, sourceInfoOpt)                                                                                                ⇒
       for (newExpr ← desugarHoles_(expr))
         yield MinusExpr(newExpr, sourceInfoOpt)
-    case LookupExpr(expr, index, sourceInfoOpt) ⇒
+    case LookupExpr(expr, index, sourceInfoOpt)                                                                                        ⇒
       for {
         newExpr ← desugarHoles_(expr)
         newIndex ← desugarHoles_(index)
       } yield LookupExpr(newExpr, newIndex, sourceInfoOpt)
-    case InvocationExpr(function, args, isParenInvocation, sourceInfoOpt) ⇒
+    case InvocationExpr(function, args, isParenInvocation, sourceInfoOpt)                                                              ⇒
       if (isParenInvocation)
         for {
           newFunction ← desugarHoles_(function)
@@ -86,10 +89,10 @@ object DesugarHoles {
           newFunction ← desugarHoles_(function)
           newArgs ← sequence(args.map(desugarHoles_))
         } yield InvocationExpr(newFunction, newArgs, isParenInvocation, sourceInfoOpt)
-    case ListExpr(elements, sourceInfoOpt) ⇒
+    case ListExpr(elements, sourceInfoOpt)                                                                                             ⇒
       for (newElements ← sequence(elements.map(desugarHoles_)))
         yield ListExpr(newElements, sourceInfoOpt)
-    case ObjectExpr(entries, sourceInfoOpt) ⇒
+    case ObjectExpr(entries, sourceInfoOpt)                                                                                            ⇒
       def desugarHoles(entry: ObjectEntry): Result[ObjectEntry] = entry match {
         case fullEntry: FullObjectEntry           ⇒
           for {
@@ -100,33 +103,33 @@ object DesugarHoles {
       }
       for (newEntries ← sequence(entries.map(desugarHoles)))
         yield ObjectExpr(newEntries, sourceInfoOpt)
-    case IfExpr(cond, body, elseOpt, sourceInfoOpt) ⇒
+    case IfExpr(cond, body, elseOpt, sourceInfoOpt)                                                                                    ⇒
       for {
         newCond ← desugarHoles_(cond)
         newBody ← desugarHoles_(body)
         newElseOpt ← sequence(elseOpt.map(desugarHoles_))
       } yield IfExpr(newCond, newBody, newElseOpt, sourceInfoOpt)
-    case BinOpExpr(left, op, right, sourceInfoOpt) ⇒
+    case BinOpExpr(left, op, right, sourceInfoOpt)                                                                                     ⇒
       for {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield BinOpExpr(newLeft, op, newRight, sourceInfoOpt)
-    case ChainedOpExpr(left, opRights, sourceInfoOpt) ⇒
+    case ChainedOpExpr(left, opRights, sourceInfoOpt)                                                                                  ⇒
       val newOpRights = for ((op, right) ← opRights) yield op -> desugarHoles_(right)
       for {
         newLeft ← desugarHoles_(left)
         newOpRights ← sequencePairs(for ((op, right) ← opRights) yield op -> desugarHoles_(right))
       } yield ChainedOpExpr(newLeft, newOpRights, sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt) ⇒
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                                                                       ⇒
       for {
         newLeft ← desugarHoles_(left)
         newRight ← desugarHoles_(right)
       } yield AssignmentExpr(newLeft, operatorOpt, newRight, sourceInfoOpt)
-    case PatternAssignmentExpr(pattern, right, sourceInfoOpt) ⇒
+    case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                                                          ⇒
       for {
         newRight ← desugarHoles_(right)
       } yield PatternAssignmentExpr(pattern, newRight, sourceInfoOpt)
-    case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt) ⇒
+    case MishExpr(command, args, redirects, captureProcessOutput, sourceInfoOpt)                                                       ⇒
       def desugarHoles(redirect: MishRedirect): Result[MishRedirect] =
         for (newArg ← desugarHoles_(redirect.arg))
           yield redirect.copy(arg = newArg)
@@ -135,22 +138,22 @@ object DesugarHoles {
         newArgs ← sequence(args.map(desugarHoles_))
         newRedirects ← sequence(redirects.map(desugarHoles))
       } yield MishExpr(newCommand, newArgs, newRedirects, captureProcessOutput, sourceInfoOpt)
-    case MishInterpolation(part, sourceInfoOpt) ⇒
+    case MishInterpolation(part, sourceInfoOpt)                                                                                        ⇒
       val newPartResult = part match {
         case StringPart(s)  ⇒ Result(StringPart(s))
         case ExprPart(expr) ⇒ desugarHoles_(expr).map(ExprPart)
       }
       for (newPart ← newPartResult)
         yield MishInterpolation(newPart, sourceInfoOpt)
-    case FunctionDeclaration(docCommentOpt, name, ParamList(params), body, sourceInfoOpt) ⇒
+    case FunctionDeclaration(docCommentOpt, name, ParamList(params), body, sourceInfoOpt)                                              ⇒
       val newParams = ParamList(params.map(desugarHoles))
       val newBody = addLambdaIfNeeded(body)
       Result(FunctionDeclaration(docCommentOpt, name, newParams, newBody, sourceInfoOpt))
-    case ClassDeclaration(docCommentOpt, name, ParamList(params), bodyOpt, sourceInfoOpt) ⇒
+    case ClassDeclaration(docCommentOpt, name, ParamList(params), bodyOpt, sourceInfoOpt)                                              ⇒
       val newParams = ParamList(params.map(desugarHoles))
       val newBodyOpt = bodyOpt.map(body ⇒ ClassBody(body.methods.map(desugarHoles).map(_.asInstanceOf[FunctionDeclaration])))
       Result(ClassDeclaration(docCommentOpt, name, newParams, newBodyOpt, sourceInfoOpt))
-    case HelpExpr(expr, sourceInfoOpt) ⇒
+    case HelpExpr(expr, sourceInfoOpt)                                                                                                 ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)
   }
@@ -159,8 +162,8 @@ object DesugarHoles {
     param.copy(defaultExprOpt = param.defaultExprOpt.map(addLambdaIfNeeded))
 
   /**
-   * A Result monad so we can ferry the information about the presence or absence of a hole with less plumbing.
-   */
+    * A Result monad so we can ferry the information about the presence or absence of a hole with less plumbing.
+    */
   private case class Result[+T](value: T, hasHole: Boolean = false) {
 
     def map[U](f: T ⇒ U) = Result(f(value), hasHole)
@@ -180,7 +183,7 @@ object DesugarHoles {
   private def sequence[T](results: Seq[Result[T]]): Result[Seq[T]] = results match {
     case Seq() ⇒
       Result(Seq())
-    case xs ⇒
+    case xs    ⇒
       for {
         head ← xs.head
         tail ← sequence(xs.tail)

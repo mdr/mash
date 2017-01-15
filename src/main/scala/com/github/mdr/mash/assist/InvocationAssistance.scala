@@ -16,7 +16,7 @@ object InvocationAssistance {
 
   def getCallingSyntaxOfCurrentInvocation(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[AssistanceState] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
-    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, CompilationSettings(inferTypes = true))
+    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, CompilationSettings(inferTypes = true)).body
     for {
       sourceInfo ← expr.sourceInfoOpt
       invocationExpr ← findInnermostInvocationContaining(expr, tokens, pos)

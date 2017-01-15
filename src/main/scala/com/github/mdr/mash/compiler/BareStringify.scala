@@ -8,9 +8,10 @@ import scala.collection.mutable.ArrayBuffer
 
 object BareStringify {
 
-  def bareStringify(expr: Expr, bindings: Set[String]): Expr = {
+  def bareStringify(program: Program, bindings: Set[String]): Program = {
     val context = new BareStringificationContext
-    context.bareStringify(expr, bindings)
+    val newBody = context.bareStringify(program.body, bindings)
+    program.copy(body = newBody)
   }
 
   def getBareTokens(expr: Expr, bindings: Set[String]): Set[Token] = {

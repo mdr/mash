@@ -11,17 +11,17 @@ import com.github.mdr.mash.runtime.MashObject
 class DebugCommandRunner(output: PrintStream, globals: MashObject) {
 
   def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
+    val settings = CompilationSettings(inferTypes = true, bareWords = bareWords)
     def compile(s: String): Expr =
-      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.immutableFields,
-        CompilationSettings(inferTypes = true, bareWords = bareWords))
+      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.immutableFields, settings).body
     (keyword, args) match {
-      case ("p" | "pretty", actualCmd) ⇒
+      case ("p" | "pretty", actualCmd)     ⇒
         TreePrettyPrinter.printTree(compile(actualCmd))
       case ("e" | "expression", actualCmd) ⇒
         output.println(PrettyPrinter.pretty(compile(actualCmd)))
-      case ("t" | "type", actualCmd) ⇒
+      case ("t" | "type", actualCmd)       ⇒
         output.println(compile(actualCmd).typeOpt)
-      case ("tokens", actualCmd) ⇒
+      case ("tokens", actualCmd)           ⇒
         MashLexer.tokenise(actualCmd, forgiving = true).rawTokens.foreach(output.println)
     }
   }

@@ -20,20 +20,20 @@ class DesugarHolesTest extends FlatSpec with Matchers {
 
     def desugarsTo(actualString: String) {
       "DesugarHoles" should s"desugar holes in '$source'" in {
-        val actualExpr = renameHoleVariable(removeSourceInfo(DesugarHoles.desugarHoles(parse(source))))
-        val expectedExpr = removeSourceInfo(parse(actualString))
+        val actualExpr = renameHoleVariable(removeSourceInfo(DesugarHoles.desugarHoles(parse(source)).body))
+        val expectedExpr = removeSourceInfo(parse(actualString).body)
         actualExpr should equal(expectedExpr)
       }
     }
 
   }
 
-  private def parse(s: String): Expr = {
+  private def parse(s: String): Program = {
     val abstractifier = new Abstractifier(Provenance(s, "test"))
-    abstractifier.abstractify(MashParser.parseForgiving(s)).body
+    abstractifier.abstractify(MashParser.parseForgiving(s))
   }
 
-  private def removeSourceInfo(expr : Expr): Expr = expr.transform { case e ⇒ e.withSourceInfoOpt(None) }
+  private def removeSourceInfo(expr: Expr): Expr = expr.transform { case e ⇒ e.withSourceInfoOpt(None) }
 
   private def renameHoleVariable(e: Expr): Expr = e.transform {
     case Identifier(DesugarHoles.VariableName, _) ⇒
