@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
-    extends Parse(lexerResult, initialForgiving)
+  extends Parse(lexerResult, initialForgiving)
     with InterpolatedStringParse
     with ObjectParse
     with MishParse
@@ -17,11 +17,28 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     with ClassParse
     with InvocationParse {
 
-  def program(): Expr = {
+  def program(): Program = {
+    val namespaceDeclarationOpt =
+      if (NAMESPACE)
+        Some(namespaceDeclaration())
+      else
+        None
     val result = statementSeq()
     if (!EOF && !forgiving)
       errorExpectedToken("end of input")
-    result
+    Program(namespaceDeclarationOpt, result)
+  }
+
+  private def namespaceDeclaration(): NamespaceDeclaration = {
+    val namespace = consumeRequiredToken(NAMESPACE)
+    val firstSegment = consumeRequiredToken(IDENTIFIER)
+    val dotSegments: ArrayBuffer[(Token, Token)] = ArrayBuffer()
+    safeWhile(DOT) {
+      val dot = nextToken()
+      val segment = consumeRequiredToken(IDENTIFIER)
+      dotSegments += ((dot, segment))
+    }
+    NamespaceDeclaration(namespace, firstSegment, dotSegments)
   }
 
   private def statementExpr(): Expr =
@@ -62,7 +79,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       case Some((pat, equals)) ⇒
         val right = pipeExpr()
         PatternAssignmentExpr(pat, equals, right)
-      case None ⇒
+      case None                ⇒
         val left = ifExpr()
         if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
           val equals = nextToken()
@@ -256,9 +273,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       unexpectedToken()
 
   protected def statementSeq(): Expr = speculate(lambdaStart()) match {
-    case Some(start) ⇒ 
+    case Some(start) ⇒
       completeLambdaExpr(start, mayContainStatementSeq = true)
-    case None ⇒
+    case None        ⇒
       var statements = ArrayBuffer[Statement]()
       var continue = true
       safeWhile(continue) {

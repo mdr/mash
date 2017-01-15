@@ -9,20 +9,6 @@ import scala.collection.mutable.ArrayBuffer
 trait ClassParse {
   self: MashParse ⇒
 
-  protected def consumeRequiredToken(tokenType: TokenType): Token =
-    if (tokenType)
-      nextToken()
-    else if (forgiving)
-      syntheticToken(tokenType)
-    else
-      errorExpectedToken(TokenNames.getOrElse(tokenType, tokenType.toString))
-
-  private val TokenNames: Map[TokenType, String] = Map(
-    IDENTIFIER -> "identifier",
-    RBRACE -> "}",
-    CLASS -> "class"
-  )
-
   protected def classDeclaration(): ClassDeclaration = {
     val classToken = consumeRequiredToken(CLASS)
     val name = consumeRequiredToken(IDENTIFIER)

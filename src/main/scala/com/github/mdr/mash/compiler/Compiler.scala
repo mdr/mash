@@ -6,8 +6,6 @@ import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-import scala.collection.mutable
-
 case class CompilationSettings(inferTypes: Boolean = false, bareWords: Boolean = true)
 
 case class CompilationUnit(text: String, name: String = "N/A", interactive: Boolean = false, mish: Boolean = false) {
@@ -19,7 +17,7 @@ case class CompilationUnit(text: String, name: String = "N/A", interactive: Bool
 object Compiler {
 
   /**
-    * Compile the given program into an expression.
+    * Compile the given program.
     */
   def compileForgiving(compilationUnit: CompilationUnit,
                        bindings: Map[String, MashValue],
@@ -34,11 +32,11 @@ object Compiler {
     MashParser.parse(compilationUnit.text, mish = compilationUnit.mish).right.map(concreteExpr ⇒
       compile(concreteExpr, compilationUnit, settings, bindings))
 
-  private def compile(concreteExpr: ConcreteSyntax.Expr,
+  private def compile(concreteProgram: ConcreteSyntax.Program,
                       compilationUnit: CompilationUnit,
                       settings: CompilationSettings,
                       bindings: Map[String, MashValue]): Expr = {
-    val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteExpr)
+    val abstractExpr = new Abstractifier(compilationUnit.provenance).abstractify(concreteProgram.body)
     val withoutHeadlessMembers = AddHolesToHeadlessMembers.addHoles(abstractExpr)
     val withoutHoles = DesugarHoles.desugarHoles(withoutHeadlessMembers)
     val withoutPipes = DesugarPipes.desugarPipes(withoutHoles)

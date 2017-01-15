@@ -77,29 +77,23 @@ case class ScopeStack(scopes: List[Scope]) {
           case None      ⇒
             innermostScope match {
               case blockScope: BlockScope if lookup(name, outerScopes).isDefined ⇒ set(name, value, outerScopes)
-              case _                                                      ⇒ innermostScope.set(name, value)
+              case _                                                             ⇒ innermostScope.set(name, value)
             }
         }
-      case Nil                ⇒
+      case Nil                           ⇒
         throw new AssertionError("Missing global scope")
     }
 
-  def withBlockScope(nameValues: Seq[(String, MashValue)]) = {
-    val scope = BlockScope(makeVariables(nameValues: _*))
-    ScopeStack(scope :: scopes)
-  }
+  private def withScope(scope: Scope) = ScopeStack(scope :: scopes)
 
-  def withFullScope(bindings: Map[String, MashValue]) = {
-    val scope = FullScope(makeVariables(bindings.toSeq: _*))
-    ScopeStack(scope :: scopes)
-  }
+  def withBlockScope(nameValues: Seq[(String, MashValue)]) = withScope(BlockScope(MashObject.of(nameValues)))
 
-  def withFullScope(bindings: Map[String, MashValue], thisValue: MashValue) = {
-    val scope = FullScope(makeVariables(bindings.toSeq: _*), thisOpt = Some(thisValue))
-    ScopeStack(scope :: scopes)
-  }
+  def withFullScope(scopeObject: MashObject) = withScope(FullScope(scopeObject))
 
-  private def makeVariables(pairs: (String, MashValue)*) = MashObject.of(pairs)
+  def withFullScope(bindings: Map[String, MashValue]) = withScope(FullScope(MashObject.of(bindings)))
+
+  def withFullScope(bindings: Map[String, MashValue], thisValue: MashValue) =
+    withScope(FullScope(MashObject.of(bindings), thisOpt = Some(thisValue)))
 
   def bindings: Map[String, MashValue] = bindings(scopes)
 

@@ -61,7 +61,7 @@ object LineBufferRenderer {
     val bindings = globalVariables.keySet.toSet
     val concreteExpr = MashParser.parseForgiving(s, mish = mish)
     val provenance = Provenance("not required", s)
-    val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr)
+    val abstractExpr = new Abstractifier(provenance).abstractify(concreteExpr.body)
     BareStringify.getBareTokens(abstractExpr, bindings)
   }
 
