@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.{ EvaluationContext, ScopeStack }
 import com.github.mdr.mash.inference.{ SimpleEvaluator, Type, TypeInferencer, ValueTypeDetector }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser._
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 import scala.collection.mutable
 
@@ -49,7 +49,8 @@ object Compiler {
         withoutPipes
     val finalExpr = bareStringified
 
-    SimpleEvaluator.evaluate(finalExpr)(EvaluationContext(ScopeStack(mutable.Map(bindings.toSeq: _*))))
+
+    SimpleEvaluator.evaluate(finalExpr)(EvaluationContext(ScopeStack(MashObject.of(bindings))))
 
     if (settings.inferTypes)
       inferTypes(bindings, finalExpr)

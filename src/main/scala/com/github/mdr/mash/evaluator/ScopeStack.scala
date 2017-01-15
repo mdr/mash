@@ -4,7 +4,7 @@ import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 import scala.collection.mutable
 
-sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
+sealed abstract class Scope(val variables: MashObject) {
 
   def get(name: String): Option[MashValue] = variables.get(name) orElse thisGet(name)
 
@@ -14,7 +14,7 @@ sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
       memberValue ← MemberEvaluator.maybeLookup(thisValue, name)
     } yield memberValue
 
-  def set(name: String, value: MashValue) = variables += name -> value
+  def set(name: String, value: MashValue) = variables.set(name, value)
 
   val thisOpt: Option[MashValue]
 
@@ -25,7 +25,7 @@ sealed abstract class Scope(val variables: mutable.Map[String, MashValue]) {
   *
   * e.g. the body of lambdas, or inside a { block }
   */
-case class BlockScope(override val variables: mutable.Map[String, MashValue]) extends Scope(variables) {
+case class BlockScope(override val variables: MashObject) extends Scope(variables) {
   override val thisOpt: Option[MashValue] = None
 }
 
@@ -34,12 +34,12 @@ case class BlockScope(override val variables: mutable.Map[String, MashValue]) ex
   *
   * e.g. the body of def-defined functions
   */
-case class FullScope(override val variables: mutable.Map[String, MashValue],
+case class FullScope(override val variables: MashObject,
                      thisOpt: Option[MashValue] = None) extends Scope(variables)
 
 object ScopeStack {
 
-  def apply(globalVariables: mutable.Map[String, MashValue]): ScopeStack =
+  def apply(globalVariables: MashObject): ScopeStack =
     ScopeStack(List(FullScope(globalVariables)))
 
 }
@@ -99,13 +99,13 @@ case class ScopeStack(scopes: List[Scope]) {
     ScopeStack(scope :: scopes)
   }
 
-  private def makeVariables(pairs: (String, MashValue)*) = mutable.Map[String, MashValue](pairs: _*)
+  private def makeVariables(pairs: (String, MashValue)*) = MashObject.of(pairs)
 
   def bindings: Map[String, MashValue] = bindings(scopes)
 
   private def bindings(scopes: List[Scope]): Map[String, MashValue] = scopes match {
     case Nil           ⇒ Map()
-    case scope :: rest ⇒ bindings(rest) ++ scope.variables
+    case scope :: rest ⇒ bindings(rest) ++ scope.variables.immutableFields
   }
 
 }

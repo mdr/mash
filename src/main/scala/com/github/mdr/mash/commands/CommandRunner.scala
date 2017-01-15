@@ -67,7 +67,7 @@ class CommandRunner(output: PrintStream,
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)
-      val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals.fields)))
+      val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(globals)))
       Some(result)
     } catch {
       case e @ EvaluatorException(msg, stack, cause) ⇒
