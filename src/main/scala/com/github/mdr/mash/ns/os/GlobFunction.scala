@@ -10,7 +10,6 @@ import com.github.mdr.mash.runtime.MashList
 object GlobFunction extends MashFunction("os.glob") {
 
   private val fileSystem = LinuxFileSystem
-  private val envInteractions = LinuxEnvironmentInteractions
 
   object Params {
     val Pattern = Parameter(
@@ -27,7 +26,7 @@ object GlobFunction extends MashFunction("os.glob") {
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(PathSummaryClass))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

@@ -35,6 +35,9 @@ object Main extends App {
       Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
       Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
 
+      val loader = new Loader(terminalWrapper, output, sessionId, globalVariables)
+      loader.load()
+
       val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)
       initScriptRunner.processInitFile()
 
