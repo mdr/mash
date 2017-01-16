@@ -31,7 +31,7 @@ class ReplState(
                  var completionStateOpt: Option[CompletionState] = None,
                  var assistanceStateOpt: Option[AssistanceState] = None,
                  var continue: Boolean = true, // Whether to loop or exit
-                 var globalVariables: MashObject = StandardEnvironment.createGlobalVariables(),
+                 var globalVariables: MashObject,
                  var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
                  var mish: Boolean = false,
                  var yankLastArgStateOpt: Option[YankLastArgState] = None,

@@ -4,6 +4,7 @@ import java.io.{ OutputStream, PrintStream }
 import java.util.UUID
 
 import com.github.mdr.mash.Config
+import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.history.HistoryImpl
@@ -140,8 +141,9 @@ object ReplTest {
 
   def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
     val history = new HistoryImpl(new InMemoryHistoryStorage())
+    val globalVariables = StandardEnvironment.createGlobalVariables()
     new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
-      sessionId = UUID.randomUUID)
+      sessionId = UUID.randomUUID, globalVariables = globalVariables)
   }
 
   implicit class RichRepl(repl: Repl) {

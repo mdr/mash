@@ -1,11 +1,16 @@
 package com.github.mdr.mash
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.util.UUID
 
+import com.github.mdr.mash.compiler.CompilationUnit
+import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
-import com.github.mdr.mash.repl.Repl
+import com.github.mdr.mash.repl.{ Repl, ScriptExecutor }
 import com.github.mdr.mash.repl.history.{ FileBackedHistoryStorage, HistoryImpl }
 import com.github.mdr.mash.terminal.{ JLineTerminalWrapper, TerminalControlImpl, TerminalHelper }
+import org.apache.commons.io.FileUtils
 import sun.misc.{ Signal, SignalHandler }
 
 import scala.collection.JavaConverters._
@@ -23,10 +28,18 @@ object Main extends App {
     val sessionId = UUID.randomUUID
     TerminalHelper.withTerminal { terminal ⇒
       // TODO: obviously this is horrible, will be fixed when DI gets sorted out
+      val output = System.out
+      val terminalWrapper = new JLineTerminalWrapper(terminal)
+      val globalVariables = StandardEnvironment.createGlobalVariables()
       Singletons.terminalControl = new TerminalControlImpl(terminal)
       Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
+      Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
 
-      val repl = new Repl(new JLineTerminalWrapper(terminal), System.out, LinuxFileSystem, LinuxEnvironmentInteractions, history = Singletons.history, sessionId = sessionId)
+      val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)
+      initScriptRunner.processInitFile()
+
+      val repl = new Repl(terminalWrapper, output, LinuxFileSystem, LinuxEnvironmentInteractions,
+        history = Singletons.history, sessionId = sessionId, globalVariables = globalVariables)
       repl.run()
     }
   }
@@ -52,6 +65,7 @@ object Main extends App {
     for (executionContext ← Singletons.executionContextOpt)
       executionContext.interrupt()
   }
+
   private def handleWindowChange(sig: Signal) {
     Singletons.terminalWindowChanged = true
   }

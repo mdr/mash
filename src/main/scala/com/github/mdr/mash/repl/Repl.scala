@@ -14,7 +14,7 @@ import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalK
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.history.History
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
@@ -22,64 +22,29 @@ import org.apache.commons.io.FileUtils
 
 import scala.annotation.tailrec
 
-object Repl {
-
-  val InitFile = "init.mash"
-  val InitPath = Mash.MashDir.resolve(InitFile)
-
-}
-
-class Repl(
-  protected val terminal: Terminal,
-  protected val output: PrintStream,
-  fileSystem: FileSystem,
-  envInteractions: EnvironmentInteractions,
-  protected val history: History,
-  protected val sessionId: UUID)
-    extends NormalActionHandler
+class Repl(protected val terminal: Terminal,
+           protected val output: PrintStream,
+           fileSystem: FileSystem,
+           envInteractions: EnvironmentInteractions,
+           protected val history: History,
+           protected val sessionId: UUID,
+           globalVariables: MashObject)
+  extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with IncrementalSearchActionHandler
     with BrowseCompletionActionHandler
     with ObjectBrowserActionHandler {
 
-  import Repl._
-
   protected val debugLogger = new DebugLogger(sessionId.toString)
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  val state = new ReplState
-  Singletons.scriptExecutor = new ScriptExecutor(output, terminal, sessionId, state.globalVariables)
+  val state = new ReplState(globalVariables = globalVariables)
   protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
 
   def run() {
-    processInitFile()
     if (state.showStartupTips)
       Tips.showTip(output, terminal.info)
     inputLoop()
-  }
-
-  private def getInitScript: Option[CompilationUnit] = {
-    Mash.ensureMashDirExists()
-    if (Files.exists(InitPath))
-      try {
-        val s = FileUtils.readFileToString(InitPath.toFile, StandardCharsets.UTF_8)
-        Some(CompilationUnit(s, name = InitFile, mish = false))
-      } catch {
-        case e: Exception ⇒
-          output.println("Error reading " + InitPath)
-          e.printStackTrace(output)
-          debugLogger.logException(e)
-          None
-      }
-    else
-      None
-  }
-
-  private def processInitFile() {
-    for (initScript ← getInitScript) {
-      val scriptExecutor = new ScriptExecutor(output, terminal, sessionId, state.globalVariables)
-      scriptExecutor.runUnit(initScript)
-    }
   }
 
   def draw() {
@@ -132,13 +97,13 @@ class Repl(
 
   def handleAction(action: InputAction) {
     state.objectBrowserStateStackOpt match {
-      case Some(state) ⇒
-        handleObjectBrowserAction(action, state)
-      case None ⇒
+      case Some(stateStack) ⇒
+        handleObjectBrowserAction(action, stateStack)
+      case None             ⇒
         state.completionStateOpt match {
           case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
           case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
-          case None ⇒
+          case None                                              ⇒
             state.incrementalSearchStateOpt match {
               case Some(searchState) ⇒ handleIncrementalSearchAction(action, searchState)
               case None              ⇒ handleNormalAction(action)
@@ -160,15 +125,15 @@ class Repl(
             InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, newPos, getBindings, mish = true)
           else
             None
-        case _ ⇒
+        case _                            ⇒
           InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getBindings, mish = state.mish)
       }
     state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt
   }
 
   /**
-   * Attempt completions at the current position (doesn't change the state).
-   */
+    * Attempt completions at the current position (doesn't change the state).
+    */
   protected def complete: Option[CompletionResult] = {
     val text = state.lineBuffer.text
     val pos = state.lineBuffer.cursorOffset
@@ -176,12 +141,12 @@ class Repl(
     text match {
       case MishCommand(prefix, mishCmd) ⇒
         val shift = prefix.length // adjust for the prefix
-        val newPos = pos - shift
+      val newPos = pos - shift
         if (newPos >= 0)
           completer.complete(mishCmd, pos = newPos, getBindings, mish = true).map(_.translate(shift))
         else
           None
-      case _ ⇒
+      case _                            ⇒
         completer.complete(text, pos, getBindings, mish = state.mish)
     }
   }
