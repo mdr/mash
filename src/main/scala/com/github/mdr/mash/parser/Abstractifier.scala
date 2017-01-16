@@ -19,9 +19,9 @@ class Abstractifier(provenance: Provenance) {
     Abstract.Program(namespaceOpt, abstractify(program.body), sourceInfo(program))
   }
 
-  private def abstractifyNamespace(namespace: Concrete.Namespace): Abstract.Namespace = {
+  private def abstractifyNamespace(namespace: Concrete.NamespaceDeclaration): Abstract.NamespaceDeclaration = {
     val segments = namespace.firstSegment.text +: namespace.dotSegments.map(_._2.text)
-    Abstract.Namespace(segments, sourceInfo(namespace))
+    Abstract.NamespaceDeclaration(segments, sourceInfo(namespace))
   }
 
   private def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {

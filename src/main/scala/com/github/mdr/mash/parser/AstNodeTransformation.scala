@@ -12,16 +12,16 @@ trait AstNodeTransformation {
 
   private def transformDescendents(f: PartialFunction[AstNode, AstNode]) = this match {
     case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) |
-         HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry | ThisExpr(_) | Namespace(_, _) ⇒
+         HeadlessMemberExpr(_, _, _) | _: ShorthandObjectEntry | ThisExpr(_) | NamespaceDeclaration(_, _) ⇒
       this
-    case InterpolatedString(start, parts, end, sourceInfoOpt)                                  ⇒
+    case InterpolatedString(start, parts, end, sourceInfoOpt)                                             ⇒
       InterpolatedString(start, parts.map {
         case StringPart(s) ⇒ StringPart(s)
         case ExprPart(e)   ⇒ ExprPart(e.transform(f))
       }, end, sourceInfoOpt)
-    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                               ⇒
+    case AssignmentExpr(left, operatorOpt, right, sourceInfoOpt)                                          ⇒
       AssignmentExpr(left.transform(f), operatorOpt, right.transform(f), sourceInfoOpt)
-    case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                  ⇒
+    case PatternAssignmentExpr(pattern, right, sourceInfoOpt)                                             ⇒
       PatternAssignmentExpr(pattern.transform(f).asInstanceOf[Pattern], right.transform(f), sourceInfoOpt)
     case ParenExpr(expr, sourceInfoOpt)                                                        ⇒
       ParenExpr(expr.transform(f), sourceInfoOpt)

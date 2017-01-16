@@ -347,11 +347,11 @@ object ConcreteSyntax {
     lazy val tokens = expr.tokens :+ question
   }
 
-  case class Namespace(namespace: Token, firstSegment: Token, dotSegments: Seq[(Token, Token)]) extends AstNode {
+  case class NamespaceDeclaration(namespace: Token, firstSegment: Token, dotSegments: Seq[(Token, Token)]) extends AstNode {
     lazy val tokens = Seq(namespace, firstSegment)  ++ dotSegments.flatMap { case (dot, segment) ⇒ Seq(dot, segment) }
   }
 
-  case class Program(namespaceOpt: Option[Namespace], body: Expr) extends AstNode {
+  case class Program(namespaceOpt: Option[NamespaceDeclaration], body: Expr) extends AstNode {
     lazy val tokens = namespaceOpt.toSeq.flatMap(_.tokens) ++ body.tokens
   }
 
