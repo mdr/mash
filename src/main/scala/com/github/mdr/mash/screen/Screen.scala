@@ -27,9 +27,9 @@ case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
 
 }
 
-case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
+object Screen {
 
-  private def drawStyledChars(chars: Seq[StyledCharacter]): String = {
+  def drawStyledChars(chars: Seq[StyledCharacter]): String = {
     val sb = new StringBuilder()
     var previousStyleOpt: Option[Style] = None
     for (StyledCharacter(c, style) ← chars) {
@@ -49,6 +49,21 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
     sb.append(Ansi.ansi().reset())
     sb.toString
   }
+
+  private def ansiColour(colour: Colour) = colour match {
+    case Colour.Cyan    ⇒ CYAN
+    case Colour.Blue    ⇒ BLUE
+    case Colour.Green   ⇒ GREEN
+    case Colour.Default ⇒ DEFAULT
+    case Colour.Red     ⇒ RED
+    case Colour.Yellow  ⇒ YELLOW
+    case Colour.Magenta ⇒ MAGENTA
+  }
+
+}
+
+case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
+
 
   /**
    * Advance past the entire screen, leaving it untouched.
@@ -83,7 +98,7 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
             else { // We rewrite the last character to force a wrap
               val lastChars = aboveLine.chars.drop(aboveLine.chars.size - 1)
               drawState.navigateToColumn(aboveLine.chars.size)
-              val drawnChars = drawStyledChars(lastChars)
+              val drawnChars = Screen.drawStyledChars(lastChars)
               drawState.addChars(drawnChars, lastChars.length)
               drawState.funkyWrap()
             }
@@ -96,7 +111,7 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
             drawState.navigateToColumn(commonPrefixLength)
             drawState.eraseLine()
             val remainder = newLine.chars.drop(commonPrefixLength)
-            val drawnChars = drawStyledChars(remainder)
+            val drawnChars = Screen.drawStyledChars(remainder)
             drawState.addChars(drawnChars, remainder.length)
           }
         case (None, Some(previousLine)) ⇒
@@ -112,16 +127,6 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
       drawState.title(title)
     }
     drawState.complete(showCursor = cursorVisible)
-  }
-
-  private def ansiColour(colour: Colour) = colour match {
-    case Colour.Cyan    ⇒ CYAN
-    case Colour.Blue    ⇒ BLUE
-    case Colour.Green   ⇒ GREEN
-    case Colour.Default ⇒ DEFAULT
-    case Colour.Red     ⇒ RED
-    case Colour.Yellow  ⇒ YELLOW
-    case Colour.Magenta ⇒ MAGENTA
   }
 
 }

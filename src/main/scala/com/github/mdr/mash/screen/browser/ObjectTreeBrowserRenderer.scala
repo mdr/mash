@@ -133,7 +133,10 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  private def getPrefixAndConnector(index: Int, nodes: Seq[ObjectTreeNode], connectUp: Boolean, prefix: String): (String, String) = {
+  private def getPrefixAndConnector(index: Int,
+                                    nodes: Seq[ObjectTreeNode],
+                                    connectUp: Boolean,
+                                    prefix: String): (String, String) = {
     val isFirstNode = index == 0
     val isLastNode = index == nodes.length - 1
     if (isFirstNode) {
