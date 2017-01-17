@@ -11,7 +11,7 @@ class ObjectsTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewC
   def printTable(objects: Seq[MashObject]) {
     val creator = new ObjectsTableModelCreator(terminalInfo, showSelections = false, viewConfig)
     val model = creator.create(objects, MashList(objects))
-    val stringifier = new ObjectsTableStringifier(terminalInfo, showSelections = false)
+    val stringifier = new ObjectsTableStringifier(showSelections = false)
     output.println(stringifier.renderTopRow(model))
     output.println(stringifier.renderHeaderRow(model))
     output.println(stringifier.renderBelowHeaderRow(model))

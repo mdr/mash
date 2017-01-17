@@ -22,6 +22,8 @@ trait BoxCharacterSupplier {
 
   val singleHorizontal: String
 
+  val singleHorizontalSingleDown: String
+
   val singleIntersect: String
 
   val doubleVerticalSingleLeft: String
@@ -54,6 +56,8 @@ object UnicodeBoxCharacterSupplier extends BoxCharacterSupplier {
 
   override val singleIntersect = "┼"
 
+  override val singleHorizontalSingleDown = "┬"
+
   override val doubleVerticalSingleLeft = "╢"
 
   override val doubleHorizontalSingleUp = "╧"
@@ -81,6 +85,8 @@ object AsciiBoxCharacterSupplier extends BoxCharacterSupplier {
   override val doubleVerticalSingleRight = "|"
 
   override val singleHorizontal = "-"
+
+  override val singleHorizontalSingleDown = "-"
 
   override val singleIntersect = "+"
 

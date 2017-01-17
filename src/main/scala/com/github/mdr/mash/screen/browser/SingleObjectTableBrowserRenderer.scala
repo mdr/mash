@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.{ ObjectStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.printer.{ SingleObjectTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
@@ -8,11 +8,13 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils._
 
+import scala.collection.mutable.ArrayBuffer
+
 class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectStringifier = new ObjectStringifier(terminalInfo)
+  private val objectStringifier = new SingleObjectTableStringifier(terminalInfo)
 
   private val model = state.model
 
@@ -25,11 +27,45 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     Seq(upperStatusLine) ++ headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
 
-  private def renderHeaderLines: Seq[Line] = {
-    val topRow = objectStringifier.renderTopRow(model)
-    val moreDataItemsAboveWindow = state.firstRow > 0
-    val newTopRow = topRow.when(moreDataItemsAboveWindow, _.updated(topRow.size / 2, '↑'))
-    Seq(newTopRow).map(s ⇒ Line(s.style))
+  private def renderBelowHeaderRow: String = {
+    import boxCharacterSupplier._
+    val sb = new StringBuilder()
+    sb.append(doubleVerticalSingleRight)
+    sb.append(singleHorizontal * model.fieldColumnWidth)
+    sb.append(singleHorizontalSingleDown)
+    sb.append(singleHorizontal * model.valueColumnWidth)
+    sb.append(doubleVerticalSingleLeft)
+    sb.toString
+  }
+
+  private def renderHeaderLines: Seq[Line] = model.classNameOpt match {
+    case Some(className) ⇒
+      val topLine = Line(objectStringifier.renderTopRow(model, break = false).style)
+      val classNameLine = renderClassNameLine(className)
+      val belowHeaderRow = renderBelowHeaderRow
+      val moreDataItemsAboveWindow = state.firstRow > 0
+      val belowHeaderLine = Line(belowHeaderRow.when(moreDataItemsAboveWindow, addUpArrow).style)
+      Seq(topLine, classNameLine, belowHeaderLine)
+    case None            ⇒
+      val topLineChars = objectStringifier.renderTopRow(model)
+      val moreDataItemsAboveWindow = state.firstRow > 0
+      val newTopLineChars = topLineChars.when(moreDataItemsAboveWindow, addUpArrow)
+      Seq(Line(newTopLineChars.style))
+  }
+
+  private def fullRowWidth = model.fieldColumnWidth + model.valueColumnWidth + 1
+
+  def renderClassNameLine(className: String): Line = {
+    def renderColumn(name: String): Seq[StyledCharacter] = {
+      val fit = StringUtils.ellipsisise(StringUtils.centre(name, fullRowWidth), fullRowWidth)
+      fit.style(Style(bold = true, foregroundColour = Colour.Yellow))
+    }
+    val buffer = ArrayBuffer[StyledCharacter]()
+    buffer ++= boxCharacterSupplier.doubleVertical.style
+    buffer ++= renderColumn(className)
+    buffer ++= boxCharacterSupplier.doubleVertical.style
+    val classNameLine = Line(buffer)
+    classNameLine
   }
 
   private def renderDataLines: Seq[Line] = {
@@ -42,10 +78,11 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderRow(renderedField: String, renderedValue: String, isCursorRow: Boolean): Line = {
     val side = boxCharacterSupplier.doubleVertical.style
-    val highlightRow = isCursorRow
-    val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
-    val fieldChars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth).style(Style(inverse = isCursorRow, foregroundColour = Colour.Yellow))
-    val valueChars = StringUtils.fitToWidth(renderedValue, model.valueColumnWidth).style(Style(inverse = isCursorRow))
+    val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = isCursorRow))
+    val fieldStyle = Style(inverse = isCursorRow, foregroundColour = Colour.Yellow)
+    val valueStyle = Style(inverse = isCursorRow)
+    val fieldChars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth).style(fieldStyle)
+    val valueChars = StringUtils.fitToWidth(renderedValue, model.valueColumnWidth).style(valueStyle)
     Line(side ++ fieldChars ++ internalVertical ++ valueChars ++ side)
   }
 
@@ -54,7 +91,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     val lastVisibleRow = state.firstRow + windowSize - 1
     val lastRow = state.size - 1
     val moreDataItemsBelowWindow = lastVisibleRow < lastRow
-    val newBottom = bottomRow.when(moreDataItemsBelowWindow, _.updated(bottomRow.size / 2, '↓'))
+    val newBottom = bottomRow.when(moreDataItemsBelowWindow, addDownArrow)
     Line(newBottom.style)
   }
 
@@ -63,6 +100,11 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     Line(renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree)))
   }
 
-  protected val windowSize = terminalInfo.rows - 4 // an upper status line, one header row, a footer row, a status line
+  private def addUpArrow(s: String): String = setMiddleCharacter(s, '↑')
+  private def addDownArrow(s: String): String = setMiddleCharacter(s, '↓')
 
+  private def setMiddleCharacter(s: String, c: Char): String =
+    if (s.isEmpty) s else s.updated(s.size / 2, c)
+
+  override protected val windowSize: Int = state.windowSize(terminalInfo.rows)
 }

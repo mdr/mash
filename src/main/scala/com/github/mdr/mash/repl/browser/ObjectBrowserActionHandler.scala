@@ -55,7 +55,7 @@ trait ObjectBrowserActionHandler
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
     case obj: MashObject                                       ⇒
-      val model = new ObjectModelCreator(terminal.info, state.viewConfig).create(obj)
+      val model = new SingleObjectTableModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList if xs.forall(_.isInstanceOf[MashObject]) ⇒
       val objects = xs.elements.asInstanceOf[Seq[MashObject]]

@@ -26,6 +26,6 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
     Line(countChars ++ " (".style ++ renderKeyHints(hints) ++ ")".style)
   }
 
-  protected val windowSize = terminalInfo.rows - 2 // two status lines
+  protected val windowSize = state.windowSize(terminalInfo.rows)
 
 }

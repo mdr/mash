@@ -5,15 +5,15 @@ case class ColumnSpec(name: String, weight: Double = 1, isNullaryMethod: Boolean
 object ColumnAllocator {
 
   def allocateColumns(columns: Seq[ColumnSpec], requestedWidths: Map[ColumnSpec, Int], availableWidth: Int): Map[ColumnSpec, Int] = {
-    val totalWeight = columns.map(_.weight).sum
-    var satisfiedAllocations: Map[ColumnSpec, Int] =
+    val satisfiedAllocations: Map[ColumnSpec, Int] =
       for {
-        (c, allocation) ← allocateByWeight(columns, availableWidth)
-        if allocation - requestedWidths(c) >= 0
-      } yield c -> requestedWidths(c)
+        (column, allocated) ← allocateByWeight(columns, availableWidth)
+         requested = requestedWidths(column)
+        if allocated >= requested
+      } yield column -> requested
 
     val remainingWidth = availableWidth - satisfiedAllocations.values.sum
-    val remainingColumns = columns.filterNot(c ⇒ satisfiedAllocations.contains(c))
+    val remainingColumns = columns.filterNot(satisfiedAllocations.contains)
     satisfiedAllocations ++ (
       if (remainingWidth < availableWidth)
         allocateColumns(remainingColumns, requestedWidths, remainingWidth)

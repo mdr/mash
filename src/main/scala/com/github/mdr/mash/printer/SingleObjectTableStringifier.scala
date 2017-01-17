@@ -1,19 +1,19 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.printer.model.ObjectModel
+import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.terminal.TerminalInfo
 
-class ObjectStringifier(terminalInfo: TerminalInfo) {
+class SingleObjectTableStringifier(terminalInfo: TerminalInfo) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
 
   import boxCharacterSupplier._
 
-  def renderTopRow(model: ObjectModel): String =
+  def renderTopRow(model: SingleObjectTableModel, break: Boolean = true): String =
     new StringBuilder()
       .append(doubleTopLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)
-      .append(doubleHorizontalSingleDown)
+      .append(if (break) doubleHorizontalSingleDown else doubleHorizontal)
       .append(doubleHorizontal * model.valueColumnWidth)
       .append(doubleTopRight)
       .toString
@@ -27,7 +27,7 @@ class ObjectStringifier(terminalInfo: TerminalInfo) {
       .append(doubleVertical)
       .toString
 
-  def renderBottomRow(model: ObjectModel): String =
+  def renderBottomRow(model: SingleObjectTableModel): String =
     new StringBuilder()
       .append(doubleBottomLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)

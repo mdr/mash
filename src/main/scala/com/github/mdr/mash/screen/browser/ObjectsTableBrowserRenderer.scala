@@ -16,7 +16,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectTableStringifier = new ObjectsTableStringifier(terminalInfo, showSelections = true)
+  private val objectTableStringifier = new ObjectsTableStringifier(showSelections = true)
 
   protected def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
@@ -118,6 +118,6 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
 
   private def currentRow = state.selectedRow
 
-  protected val windowSize = terminalInfo.rows - 6 // upper status line, three header rows, a footer row, a lower status line
+  protected val windowSize = state.windowSize(terminalInfo.rows)
 
 }

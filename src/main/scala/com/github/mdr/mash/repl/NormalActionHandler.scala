@@ -221,12 +221,12 @@ trait NormalActionHandler {
       val commandNumber = state.commandNumber - 1
       val path = s"${ReplState.Res}$commandNumber"
       val browserState = printModel match {
-        case model: ObjectsTableModel ⇒ ObjectsTableBrowserState(model, path = path)
-        case model: ObjectModel       ⇒ SingleObjectTableBrowserState(model, path = path)
-        case model: ObjectTreeModel   ⇒ ObjectTreeBrowserState.initial(model, path = path)
-        case model: ValueModel        ⇒ new ValueBrowserState(model, path = path)
-        case model: TextLinesModel    ⇒ new TextLinesBrowserState(model, path = path)
-        case _                        ⇒ throw new RuntimeException("Unknown type of print model: " + printModel)
+        case model: ObjectsTableModel      ⇒ ObjectsTableBrowserState(model, path = path)
+        case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
+        case model: ObjectTreeModel        ⇒ ObjectTreeBrowserState.initial(model, path = path)
+        case model: ValueModel             ⇒ new ValueBrowserState(model, path = path)
+        case model: TextLinesModel         ⇒ new TextLinesBrowserState(model, path = path)
+        case _                             ⇒ throw new RuntimeException("Unknown type of print model: " + printModel)
       }
       state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }

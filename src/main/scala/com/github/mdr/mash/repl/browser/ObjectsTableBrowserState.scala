@@ -171,7 +171,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     newState
   }
 
-  private def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
+  def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
   def nextPage(terminalRows: Int): ObjectsTableBrowserState = {
     val newRow = math.min(model.objects.size - 1, selectedRow + windowSize(terminalRows) - 1)

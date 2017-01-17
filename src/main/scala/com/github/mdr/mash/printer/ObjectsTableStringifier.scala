@@ -5,7 +5,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import org.fusesource.jansi.Ansi
 
-class ObjectsTableStringifier(terminalInfo: TerminalInfo, showSelections: Boolean = false) {
+class ObjectsTableStringifier(showSelections: Boolean = false) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   import boxCharacterSupplier._

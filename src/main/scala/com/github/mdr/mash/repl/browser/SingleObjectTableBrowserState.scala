@@ -1,10 +1,10 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.printer.model.ObjectModel
+import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
-case class SingleObjectTableBrowserState(model: ObjectModel,
+case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
                                          selectedRow: Int = 0,
                                          firstRow: Int = 0,
                                          path: String,
@@ -57,7 +57,8 @@ case class SingleObjectTableBrowserState(model: ObjectModel,
     newState
   }
 
-  private def windowSize(terminalRows: Int) = terminalRows - 4 // 1 header row, 1 footer row, 2 status rows
+  // an upper status line, one (or three with a class) header row(s), a footer row, a status line
+  def windowSize(terminalRows: Int) = terminalRows - 3 - (if (model.classNameOpt.isDefined) 3 else 1)
 
   def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
   def acceptExpression: BrowserState = copy(expressionOpt = None)

@@ -66,6 +66,6 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
   def acceptExpression: BrowserState = copy(expressionOpt = None)
 
-  private def windowSize(terminalRows: Int) = terminalRows - 2
+  def windowSize(terminalRows: Int) = terminalRows - 2
 
 }
