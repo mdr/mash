@@ -20,6 +20,16 @@ object Utils {
   def minBy[A, B](xs: Seq[A], f: A ⇒ B)(implicit cmp: Ordering[B]): Option[A] =
     if (xs.isEmpty) None else Some(xs.minBy(f))
 
+  def itemBefore[T](items: Seq[T], item: T): Option[T] =
+    Utils.indexOf(items, item)
+      .collect { case n if n > 0 ⇒ n - 1 }
+      .flatMap(items.lift)
+
+  def indexOf[T](xs: Seq[T], item: T): Option[Int] = xs.indexOf(item) match {
+    case -1 ⇒ None
+    case n  ⇒ Some(n)
+  }
+
   def indexOf(s: String, s2: String): Option[Int] = s.indexOf(s2) match {
     case -1 ⇒ None
     case n  ⇒ Some(n)

@@ -27,8 +27,8 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   }
 
   /**
-   * Find a nearby token to use as the start point for the completion search
-   */
+    * Find a nearby token to use as the start point for the completion search
+    */
   private def findNearbyToken(s: String, pos: Int, parser: CompletionParser): Option[Token] = {
     val tokens = parser.tokenise(s)
     val beforeTokenOpt = tokens.find(_.region.posAfter == pos)
@@ -43,19 +43,19 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
 
   private def completeToken(text: String, pos: Int, parser: CompletionParser)(nearbyToken: Token): Option[CompletionResult] =
     nearbyToken.tokenType match {
-      case TokenType.STRING_LITERAL ⇒
+      case TokenType.STRING_LITERAL                ⇒
         completeStringLiteral(text, nearbyToken, parser)
-      case TokenType.LONG_FLAG ⇒
+      case TokenType.LONG_FLAG                     ⇒
         completeLongFlag(text, nearbyToken, parser)
-      case TokenType.SHORT_FLAG ⇒
+      case TokenType.SHORT_FLAG                    ⇒
         stringCompleter.completeAsString(text, nearbyToken, parser).completionResultOpt
-      case TokenType.MINUS ⇒
+      case TokenType.MINUS                         ⇒
         completeMinus(text, nearbyToken, parser)
-      case TokenType.IDENTIFIER ⇒
+      case TokenType.IDENTIFIER                    ⇒
         completeIdentifier(text, nearbyToken, parser)
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
         completeDot(text, nearbyToken, pos, parser)
-      case _ ⇒
+      case _                                       ⇒
         completeMisc(text, nearbyToken, pos, parser)
     }
 
@@ -84,7 +84,6 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
         None // It would be misleading to try and complete bindings in member position
       else
         BindingCompleter.completeBindings(text, identifier, parser)
-//        BindingCompleter.completeBindings(parser.env, identifier.text, identifier.region)
     val stringBindingResultOpt =
       if (isPathCompletion)
         CompletionResult.merge(asStringResultOpt, bindingResultOpt)
@@ -101,12 +100,17 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, dotToken, pos, parser)
     lazy val asStringResultOpt = stringCompleter.completeAsString(text, dotToken, parser).completionResultOpt
 
+    val tokens = parser.tokenise(text)
+    val nonWhitespaceTokens = tokens.filterNot(token ⇒ token.isComment || token.isWhitespace)
+    val previousTokenOpt = Utils.itemBefore(tokens, dotToken)
+    val previousNonWhitespaceTokenOpt = Utils.itemBefore(nonWhitespaceTokens, dotToken)
+
     val posBefore = dotToken.offset - 1
     val isMemberDot = posBefore >= 0 && !text(posBefore).isWhitespace && text(posBefore) != '.'
 
-    val isAfterStringOrIdent =
-      parser.tokenise(text).find(_.region.posAfter == dotToken.offset).exists(t ⇒ t.isString || t.isIdentifier)
-    if (isMemberDot && !isAfterStringOrIdent)
+    val isImmediatelyAfterStringOrIdent = previousTokenOpt.exists(t ⇒ t.isString || t.isIdentifier)
+    val isAfterPipe = previousNonWhitespaceTokenOpt.exists(t ⇒ t.tokenType == TokenType.PIPE)
+    if (isMemberDot && !isImmediatelyAfterStringOrIdent || isAfterPipe)
       memberResultOpt orElse asStringResultOpt
     else
       asStringResultOpt orElse memberResultOpt

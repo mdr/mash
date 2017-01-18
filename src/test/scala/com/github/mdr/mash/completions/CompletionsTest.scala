@@ -328,6 +328,13 @@ class CompletionsTest extends FlatSpec with Matchers {
   "class Foo wibble { def foo = wibb▶ }" shouldGiveCompletions "wibble"
   "class Foo { def foo wibble = wibb▶ }" shouldGiveCompletions "wibble"
 
+  {
+    implicit val fileSystem = MockFileSystem.of("/.dotfile")
+
+    "42 | .▶" shouldContainCompletion "toString"
+//    "ls | .d▶" shouldContainCompletion "delete"
+  }
+
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
       implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
