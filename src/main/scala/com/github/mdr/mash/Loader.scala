@@ -10,6 +10,7 @@ import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Comp
 import com.github.mdr.mash.evaluator.{ EvaluationContext, ScopeStack, _ }
 import com.github.mdr.mash.functions.Namespace
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.parser.AbstractSyntax.NamespaceDeclaration
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
@@ -56,13 +57,16 @@ class Loader(terminal: Terminal,
     val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
     val compilationUnit = CompilationUnit(s, name = path.toString, mish = false)
     val programOpt = safeCompile(compilationUnit, bareWords = false)
-    programOpt.flatMap { program ⇒
-      runProgram(program, compilationUnit).map { unitScope ⇒
-        val namespace = Namespace(program.namespaceOpt.get.segments)
-        LoadResult(namespace, unitScope)
-      }
-    }
+    for {
+      program ← programOpt
+      namespaceDeclaration ← program.namespaceOpt
+      unitScope ← runProgram(program, compilationUnit)
+      namespace = getNamespace(namespaceDeclaration)
+    } yield LoadResult(namespace, unitScope)
   }
+
+  private def getNamespace(namespaceDeclaration: NamespaceDeclaration): Namespace =
+    Namespace(namespaceDeclaration.segments)
 
   private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashObject] =
     try {
