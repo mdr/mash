@@ -16,19 +16,22 @@ object ValueTypeDetector {
 
   def getType(x: MashValue): Type = new ValueTypeDetector().getType(x)
 
+  private val visitedMap: IdentityHashMap[MashValue, Type] = new IdentityHashMap
+
 }
 
 /** Detect the type of runtime values **/
 class ValueTypeDetector {
+
+  import ValueTypeDetector._
 
   def buildBindings(bindings: Map[String, MashValue]): Map[String, Type] =
     for ((k, v) ← bindings)
       yield k -> getType(v)
 
   private val visitingMap: IdentityHashMap[MashValue, Boolean] = new IdentityHashMap
-  private val visitedMap: IdentityHashMap[MashValue, Type] = new IdentityHashMap
 
-  def getType(x: MashValue): Type =
+  def getType(x: MashValue): Type = ValueTypeDetector.synchronized {
     Option(visitedMap.get(x)).getOrElse {
       if (visitingMap containsKey x)
         Type.Any
@@ -42,6 +45,7 @@ class ValueTypeDetector {
           visitingMap.remove(x)
       }
     }
+  }
 
   def getType_(x: MashValue): Type = x match {
     case MashNull                                                                  ⇒ NullClass
