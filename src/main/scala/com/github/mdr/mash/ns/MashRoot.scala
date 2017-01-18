@@ -157,7 +157,6 @@ object MashRoot {
     "ls" -> ListFilesFunction,
     "filter" -> WhereFunction,
     "filterNot" -> WhereNotFunction,
-    "discardIf" -> WhereNotFunction,
     "dropIf" -> WhereNotFunction,
     "cat" -> ReadLinesFunction,
     "rm" -> DeleteFunction,

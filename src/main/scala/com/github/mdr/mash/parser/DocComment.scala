@@ -14,12 +14,18 @@ object DocCommentParser {
 
   private val ParamRegex = """^\s*@param\s+(\w+)\s+(.*)""".r
 
+  private def parseDescription(lines: Seq[String]) =
+    if (lines forall (_ matches "\\s*"))
+      None
+    else
+      Some(lines mkString "\n")
+
   def parse(s: String): Option[DocComment] = {
     val (paramLines, mainLines) = extractParamLines(splitIntoLines(s) map dropInitialSpace)
     val (summary, descriptionOpt) = mainLines match {
       case first :: rest ⇒
         val summary = first
-        val descriptionOpt = if (rest.nonEmpty) Some(rest.mkString("\n")) else None
+        val descriptionOpt = parseDescription(rest)
         (summary, descriptionOpt)
       case Nil           ⇒
         ("", None)

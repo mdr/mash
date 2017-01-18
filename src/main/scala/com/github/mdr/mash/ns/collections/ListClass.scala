@@ -49,7 +49,6 @@ object ListClass extends MashClass("collections.List") {
     methodise(WhereFunction),
     methodise(WhereNotFunction),
     alias("count", methodise(LengthFunction)),
-    alias("discardIf", methodise(WhereNotFunction)),
     alias("drop", methodise(SkipFunction)),
     alias("dropIf", methodise(WhereNotFunction)),
     alias("dropWhile", methodise(SkipWhileFunction)),

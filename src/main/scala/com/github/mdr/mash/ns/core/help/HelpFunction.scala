@@ -16,6 +16,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       nameOpt = Some("item"),
       summary = "The item to find help for")
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Item))
@@ -35,6 +36,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     case f: MashFunction  ⇒ getHelp(f)
     case bm: BoundMethod  ⇒ getHelp(bm)
     case klass: MashClass ⇒ getHelp(klass)
+    case value            ⇒ getHelp(value.primaryClass)
   }
 
   def getHelp(f: MashFunction): MashObject = {
