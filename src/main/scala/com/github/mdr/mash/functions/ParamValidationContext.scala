@@ -75,12 +75,12 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
       case ParamPattern.Hole              ⇒
       case ParamPattern.Ident(identifier) ⇒
         boundNames += identifier -> value
-      case ParamPattern.List(patterns) ⇒
+      case ParamPattern.List(patterns)    ⇒
         value match {
           case list: MashList ⇒
             for ((elementOpt, elementPattern) ← list.elements.map(Some(_)).padTo(patterns.length, None).zip(patterns))
               bindPattern(elementPattern, elementOpt.getOrElse(MashNull), locationOpt)
-          case _               ⇒
+          case _              ⇒
             throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
         }
 
@@ -136,7 +136,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (boundParams contains param)
-          throw new ArgumentException(s"Argument '${name(param)}' is provided multiple times", errorLocationOpt)
+          throw new ArgumentException(s"${describe(param).capitalize} is provided multiple times", errorLocationOpt)
         else {
           param.nameOpt.foreach(boundNames += _ -> resolve(param, value))
           boundParams += param
@@ -163,16 +163,19 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
         case None            ⇒
           if (param.isVariadic)
             if (param.variadicAtLeastOne)
-              throw new ArgumentException(s"Missing mandatory argument '${name(param)}'")
+              throw new ArgumentException(s"Missing mandatory ${describe(param)}")
             else {
               param.nameOpt.foreach(boundNames += _ -> MashList.empty)
               boundParams += param
             }
           else
-            throw new ArgumentException(s"Missing mandatory argument '${name(param)}'")
+            throw new ArgumentException(s"Missing mandatory ${describe(param)}")
       }
 
-  private def name(param: Parameter): String = param.nameOpt.getOrElse("anon")
+  private def describe(param: Parameter) = param.nameOpt match {
+    case Some(name) ⇒ s"argument '$name'"
+    case None       ⇒ "anonymous argument"
+  }
 
 }
 
