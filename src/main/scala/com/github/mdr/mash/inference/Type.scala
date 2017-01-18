@@ -36,6 +36,7 @@ object Type {
   case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.UserDefinedFunction]) extends Type {
     override def toString = s"${classOf[UserClass].getSimpleName}($name)"
   }
+
   case class UserClassInstance(userClass: UserClass) extends Type {
     override def toString = s"${classOf[UserClassInstance].getSimpleName}(${userClass.name})"
   }
@@ -57,7 +58,10 @@ object Type {
   /**
     * Function defined in Mash
     */
-  case class UserDefinedFunction(params: ParameterModel, body: Expr, bindings: Map[String, Type]) extends Type {
+  case class UserDefinedFunction(nameOpt: Option[String],
+                                 params: ParameterModel,
+                                 body: Expr,
+                                 bindings: Map[String, Type]) extends Type {
     override def toString = s"${classOf[UserDefinedFunction].getSimpleName}(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
   }
 

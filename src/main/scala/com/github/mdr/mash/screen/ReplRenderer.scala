@@ -94,7 +94,7 @@ object ReplRenderer {
   private def renderAssistanceState(assistanceState: AssistanceState, terminalInfo: TerminalInfo): Seq[Line] = {
     val title = assistanceState.title
     val lines = assistanceState.lines
-    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
+    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 6), terminalInfo.columns)
     val innerWidth = boxWidth - 4
     val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
     val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))

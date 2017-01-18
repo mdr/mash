@@ -2,7 +2,7 @@ package com.github.mdr.mash.assist
 
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -31,29 +31,34 @@ object InvocationAssistance {
   }
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(seqType)                  ⇒ assistInvocation(seqType)
-    case Type.BuiltinFunction(f)            ⇒
+    case Type.Seq(seqType)                               ⇒ assistInvocation(seqType)
+    case Type.UserDefinedFunction(nameOpt, params, _, _) ⇒
+      Some(AssistanceState(
+        nameOpt.getOrElse("Anonymous function"),
+        Seq(
+          nameOpt.getOrElse("f") + " " + params.callingSyntax)))
+    case Type.BuiltinFunction(f)          ⇒
       Some(AssistanceState(
         f.name,
         Seq(
           f.summary,
           "",
           callingSyntax(f))))
-    case bm @ Type.BoundBuiltinMethod(t, m) ⇒
+    case bm@Type.BoundBuiltinMethod(t, m) ⇒
       Some(AssistanceState(
         m.name,
         Seq(
           m.summary,
           "",
           "target." + callingSyntax(m))))
-    case _                                  ⇒ None
+    case _                                ⇒ None
   }
 
   def callingSyntax(funOrMethod: Any): String =
     funOrMethod match {
-      case f: MashFunction ⇒ f.name + " " + f.params.callingSyntax
-      case bm: BoundMethod ⇒ bm.method.name + " " + bm.method.params.callingSyntax
-      case m: MashMethod   ⇒ m.name + " " + m.params.callingSyntax
+      case f: MashFunction   ⇒ f.name + " " + f.params.callingSyntax
+      case bm: BoundMethod   ⇒ bm.method.name + " " + bm.method.params.callingSyntax
+      case m: MashMethod     ⇒ m.name + " " + m.params.callingSyntax
     }
 
   private def findInnermostInvocationContaining(expr: Expr, tokens: Seq[Token], pos: Int): Option[Expr] = {
@@ -85,20 +90,20 @@ object InvocationAssistance {
 
   private def getTokensAfterLast(lastToken: Token, remainingTokens: Seq[Token]): Seq[Token] =
     remainingTokens match {
-      case Seq(head, rest @ _*) ⇒
+      case Seq(head, rest@_*) ⇒
         if (head == lastToken)
           rest
         else
           getTokensAfterLast(lastToken, rest)
-      case Seq() ⇒
+      case Seq()              ⇒
         Seq()
     }
 
   private def findRightmostToken(remainingTokens: Seq[Token]): Option[Token] =
     remainingTokens match {
-      case Seq(head, rest @ _*) if head.isWhitespace || head.isComment || head.isEof ⇒
+      case Seq(head, rest@_*) if head.isWhitespace || head.isComment || head.isEof ⇒
         findRightmostToken(rest) orElse Some(head)
-      case _ ⇒
+      case _                                                                       ⇒
         None
     }
 }
