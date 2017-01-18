@@ -433,7 +433,9 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class Program(namespaceOpt: Option[NamespaceDeclaration], body: Expr, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+  case class Program(namespaceOpt: Option[NamespaceDeclaration],
+                     body: Expr,
+                     sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
     def children = namespaceOpt.toSeq :+ body

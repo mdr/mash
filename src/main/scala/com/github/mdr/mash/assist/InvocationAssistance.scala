@@ -14,7 +14,10 @@ import scala.PartialFunction._
 
 object InvocationAssistance {
 
-  def getCallingSyntaxOfCurrentInvocation(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[AssistanceState] = {
+  def getCallingSyntaxOfCurrentInvocation(s: String,
+                                          pos: Int,
+                                          bindings: Map[String, MashValue],
+                                          mish: Boolean): Option[AssistanceState] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
     val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, CompilationSettings(inferTypes = true)).body
     for {
@@ -32,33 +35,39 @@ object InvocationAssistance {
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
     case Type.Seq(seqType)                               ⇒ assistInvocation(seqType)
-    case Type.UserDefinedFunction(nameOpt, params, _, _) ⇒
-      Some(AssistanceState(
-        nameOpt.getOrElse("Anonymous function"),
-        Seq(
-          nameOpt.getOrElse("f") + " " + params.callingSyntax)))
-    case Type.BuiltinFunction(f)          ⇒
+    case Type.BuiltinFunction(f)                         ⇒
       Some(AssistanceState(
         f.name,
         Seq(
           f.summary,
           "",
           callingSyntax(f))))
-    case bm@Type.BoundBuiltinMethod(t, m) ⇒
+    case Type.UserDefinedFunction(nameOpt, params, _, _) ⇒
       Some(AssistanceState(
-        m.name,
+        nameOpt.getOrElse("Anonymous function"),
         Seq(
-          m.summary,
+          nameOpt.getOrElse("f") + " " + params.callingSyntax)))
+    case Type.BoundBuiltinMethod(_, method)              ⇒
+      Some(AssistanceState(
+        method.name,
+        Seq(
+          method.summary,
           "",
-          "target." + callingSyntax(m))))
-    case _                                ⇒ None
+          "target." + callingSyntax(method))))
+    case Type.BoundUserDefinedMethod(_, functionType)    ⇒
+      val Type.UserDefinedFunction(nameOpt, params, _, _) = functionType
+      Some(AssistanceState(
+        nameOpt.getOrElse("Anonymous method"),
+        Seq(
+          "target." + nameOpt.getOrElse("method") + " " + params.callingSyntax)))
+    case _                                               ⇒ None
   }
 
   def callingSyntax(funOrMethod: Any): String =
     funOrMethod match {
-      case f: MashFunction   ⇒ f.name + " " + f.params.callingSyntax
-      case bm: BoundMethod   ⇒ bm.method.name + " " + bm.method.params.callingSyntax
-      case m: MashMethod     ⇒ m.name + " " + m.params.callingSyntax
+      case f: MashFunction ⇒ f.name + " " + f.params.callingSyntax
+      case bm: BoundMethod ⇒ bm.method.name + " " + bm.method.params.callingSyntax
+      case m: MashMethod   ⇒ m.name + " " + m.params.callingSyntax
     }
 
   private def findInnermostInvocationContaining(expr: Expr, tokens: Seq[Token], pos: Int): Option[Expr] = {
@@ -73,7 +82,8 @@ object InvocationAssistance {
 
   private def hasFunctionType(e: Expr): Boolean =
     e.typeOpt.exists(cond(_) {
-      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _) | _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
+      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _)
+           | _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
     })
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =
