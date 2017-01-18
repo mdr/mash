@@ -60,6 +60,8 @@ case class MashObject private (val fields: LinkedHashMap[String, MashValue], val
 
   def get(field: Field): Option[MashValue] = withLock { fields.get(field.name) }
 
+  def hasField(fieldName: String): Boolean = get(fieldName).isDefined
+
   def -(fieldName: String): MashObject = withLock {
     MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
   }

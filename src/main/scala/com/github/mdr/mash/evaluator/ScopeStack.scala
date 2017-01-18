@@ -2,8 +2,6 @@ package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-import scala.collection.mutable
-
 sealed abstract class Scope(val variables: MashObject) {
 
   def get(name: String): Option[MashValue] = variables.get(name) orElse thisGet(name)
@@ -21,11 +19,11 @@ sealed abstract class Scope(val variables: MashObject) {
 }
 
 /**
-  * A block scope lets writes escape out of it, as long as they are already bound.
+  * A leaky scope lets writes escape out of it (as long as they are already bound outside).
   *
   * e.g. the body of lambdas, or inside a { block }
   */
-case class BlockScope(override val variables: MashObject) extends Scope(variables) {
+case class LeakyScope(override val variables: MashObject) extends Scope(variables) {
   override val thisOpt: Option[MashValue] = None
 }
 
@@ -69,24 +67,22 @@ case class ScopeStack(scopes: List[Scope]) {
   private def set(name: String, value: MashValue, scopes: List[Scope]): Unit =
     scopes match {
       case innermostScope :: outerScopes ⇒
-        if (innermostScope.variables.get(name).isDefined)
+        if (innermostScope.variables hasField name)
           innermostScope.set(name, value)
-        else innermostScope.thisOpt.collect { case obj: MashObject if obj.get(name).isDefined ⇒ obj } match {
-          case Some(obj) ⇒
-            obj.set(name, value)
-          case None      ⇒
+        else innermostScope.thisOpt.collect { case obj: MashObject if obj hasField name ⇒ obj } match {
+          case Some(thisObject) ⇒
+            thisObject.set(name, value)
+          case None             ⇒
             innermostScope match {
-              case blockScope: BlockScope if lookup(name, outerScopes).isDefined ⇒ set(name, value, outerScopes)
+              case leakyScope: LeakyScope if lookup(name, outerScopes).isDefined ⇒ set(name, value, outerScopes)
               case _                                                             ⇒ innermostScope.set(name, value)
             }
         }
       case Nil                           ⇒
-        throw new AssertionError("Missing global scope")
+        throw new AssertionError("Missing scope")
     }
 
-  private def withScope(scope: Scope) = ScopeStack(scope :: scopes)
-
-  def withBlockScope(nameValues: Seq[(String, MashValue)]) = withScope(BlockScope(MashObject.of(nameValues)))
+  def withLeakyScope(nameValues: Seq[(String, MashValue)]) = withScope(LeakyScope(MashObject.of(nameValues)))
 
   def withFullScope(scopeObject: MashObject) = withScope(FullScope(scopeObject))
 
@@ -94,6 +90,8 @@ case class ScopeStack(scopes: List[Scope]) {
 
   def withFullScope(bindings: Map[String, MashValue], thisValue: MashValue) =
     withScope(FullScope(MashObject.of(bindings), thisOpt = Some(thisValue)))
+
+  private def withScope(scope: Scope) = ScopeStack(scope :: scopes)
 
   def bindings: Map[String, MashValue] = bindings(scopes)
 

@@ -575,7 +575,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "_ = 10" shouldEvaluateTo 10
   "{ foo } = { foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
 
-  { // bare words
+  {
+    // bare words
     implicit val config = Config(bareWords = true)
 
     "foo" shouldEvaluateTo "'foo'"
@@ -625,13 +626,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Semicolon inference
   """|a = 1
-     |b = a + 1
-     |a + b""" shouldEvaluateTo 3
+    |b = a + 1
+    |a + b""" shouldEvaluateTo 3
 
   """|a = 1
-     |b = a +
-     |  1
-     |a + b""" shouldEvaluateTo 3
+    |b = a +
+    |  1
+    |a + b""" shouldEvaluateTo 3
 
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo 43
@@ -751,6 +752,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "true < true" shouldEvaluateTo false
   "false <= false" shouldEvaluateTo true
   "true <= true" shouldEvaluateTo true
+
+  // Hmm
+  //  "(_ => b = 100); b" shouldEvaluateTo 100
 
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 
