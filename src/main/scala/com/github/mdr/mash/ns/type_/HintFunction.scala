@@ -1,8 +1,8 @@
 package com.github.mdr.mash.ns.type_
 
 import com.github.mdr.mash.evaluator.{ Arguments, MashClass }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel, UserDefinedClass }
+import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
@@ -46,14 +46,15 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
       .flatMap(getType)
 
   private def getType(value: MashValue): Option[Type] = value match {
-    case klass: MashClass    ⇒ Some(Type.Instance(klass))
-    case MashList(listValue) ⇒ getType(listValue).map(_.seq)
-    case obj: MashObject     ⇒
+    case klass: UserDefinedClass ⇒ Some(new ValueTypeDetector().instanceType(klass))
+    case klass: MashClass        ⇒ Some(Type.Instance(klass))
+    case MashList(listValue)     ⇒ getType(listValue).map(_.seq)
+    case obj: MashObject         ⇒
       val fieldTypes =
         for ((fieldName, fieldValue) <- obj.immutableFields)
           yield fieldName -> getType(fieldValue).getOrElse(Type.Instance(AnyClass))
       Some(Type.Object(fieldTypes))
-    case _ ⇒
+    case _                       ⇒
       None
   }
 

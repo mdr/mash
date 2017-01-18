@@ -4,7 +4,7 @@ import java.time.{ Instant, LocalDate }
 import java.util.IdentityHashMap
 
 import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass }
-import com.github.mdr.mash.functions._
+import com.github.mdr.mash.functions.{ UserDefinedClass, _ }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
@@ -73,7 +73,12 @@ class ValueTypeDetector {
     case _                                                                         ⇒ Type.Any
   }
 
-  private def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
+  def instanceType(userDefinedClass: UserDefinedClass): Type.UserClassInstance = {
+    val UserDefinedClass(_, name, params, methods)= userDefinedClass
+    Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
+  }
+
+  def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
     val pairs = methods.map { method ⇒
       method.name -> Type.UserDefinedFunction(method.params, method.body, buildBindings(method.context.scopeStack.bindings))
     }

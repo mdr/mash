@@ -745,5 +745,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(class A { def foo = 42 }) | .new.foo" shouldEvaluateTo 42
   "(def foo = 42) | x => x" shouldEvaluateTo 42
 
+  "false < true" shouldEvaluateTo true
+  "false < false" shouldEvaluateTo false
+  "true < false" shouldEvaluateTo false
+  "true < true" shouldEvaluateTo false
+  "false <= false" shouldEvaluateTo true
+  "true <= true" shouldEvaluateTo true
+
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
+
+
 }

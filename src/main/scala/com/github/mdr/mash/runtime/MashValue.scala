@@ -37,7 +37,7 @@ trait MashValue {
 
   def isFalsey: Boolean = cond(this) {
     case MashBoolean.False | MashNull | MashNumber(0, _) | MashString("", _) | MashList() ⇒ true
-    case MashObject(fields, None) ⇒ fields.isEmpty
+    case MashObject(fields, None)                                                         ⇒ fields.isEmpty
   }
 
   def isNull: Boolean = this == MashNull
@@ -63,6 +63,7 @@ object MashValueOrdering extends Ordering[MashValue] {
 
   def compareOpt(v1: MashValue, v2: MashValue): Option[Int] =
     condOpt((v1, v2)) {
+      case (b1: MashBoolean, b2: MashBoolean)                       ⇒ b1 compareTo b2
       case (n1: MashNumber, n2: MashNumber)                         ⇒ n1 compareTo n2
       case (s1: MashString, s2: MashString)                         ⇒ s1 compareTo s2
       case (MashWrapped(d1: LocalDate), MashWrapped(d2: LocalDate)) ⇒ d1 compareTo d2
@@ -73,9 +74,9 @@ object MashValueOrdering extends Ordering[MashValue] {
     }
 
   def compare(xs: List[MashValue], ys: List[MashValue]): Int = (xs, ys) match {
-    case (Nil, Nil) ⇒ 0
-    case (_, Nil)   ⇒ 1
-    case (Nil, _)   ⇒ -1
+    case (Nil, Nil)               ⇒ 0
+    case (_, Nil)                 ⇒ 1
+    case (Nil, _)                 ⇒ -1
     case (x :: tailX, y :: tailY) ⇒
       val c = compare(x, y)
       if (c == 0)
