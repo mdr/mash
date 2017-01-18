@@ -540,7 +540,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Block expressions
   "{ a = 0; a = a + 1; a }" shouldEvaluateTo 1
-  "{ a = 42 }; a" shouldThrowAnException
+  "{ a = 42 }; a" shouldEvaluateTo 42
 
   // Holes in paren invocation args
   "[{foo: 42}].map(_.foo)" shouldEvaluateTo "[42]"
@@ -753,8 +753,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "false <= false" shouldEvaluateTo true
   "true <= true" shouldEvaluateTo true
 
-  // Hmm
-  //  "(_ => b = 100); b" shouldEvaluateTo 100
+  "(_ => b = 100) 42; b" shouldEvaluateTo 100
 
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 

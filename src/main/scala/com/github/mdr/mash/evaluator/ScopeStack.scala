@@ -19,9 +19,9 @@ sealed abstract class Scope(val variables: MashObject) {
 }
 
 /**
-  * A leaky scope lets writes escape out of it (as long as they are already bound outside).
+  * A leaky scope lets writes escape out of it
   *
-  * e.g. the body of lambdas, or inside a { block }
+  * e.g. the body of lambdas, or inside a { block... }
   */
 case class LeakyScope(override val variables: MashObject) extends Scope(variables) {
   override val thisOpt: Option[MashValue] = None
@@ -30,7 +30,7 @@ case class LeakyScope(override val variables: MashObject) extends Scope(variable
 /**
   * A full scope doesn't let writes escape.
   *
-  * e.g. the body of def-defined functions
+  * e.g. the body of def-defined functions, or a compilation unit
   */
 case class FullScope(override val variables: MashObject,
                      thisOpt: Option[MashValue] = None) extends Scope(variables)
@@ -74,7 +74,7 @@ case class ScopeStack(scopes: List[Scope]) {
             thisObject.set(name, value)
           case None             ⇒
             innermostScope match {
-              case leakyScope: LeakyScope if lookup(name, outerScopes).isDefined ⇒ set(name, value, outerScopes)
+              case leakyScope: LeakyScope                                        ⇒ set(name, value, outerScopes)
               case _                                                             ⇒ innermostScope.set(name, value)
             }
         }
