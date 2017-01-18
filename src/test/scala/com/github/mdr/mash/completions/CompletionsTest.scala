@@ -173,21 +173,21 @@ class CompletionsTest extends FlatSpec with Matchers {
   {
     implicit val filesystem = MockFileSystem.of("/dollar$ign")
 
-    """ dollar▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ dollar\$i▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ dollar\$▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ dollar$▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ "dollar"▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ "dollar\$i"▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ "dollar\$"▶ """ shouldGiveCompletions """dollar\$ign"""
-    """ "dollar$"▶ """ shouldGiveCompletions """dollar\$ign"""
+    """ dollar▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ dollar`$i▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ dollar`$▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ dollar$▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ "dollar"▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ "dollar`$i"▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ "dollar`$"▶ """ shouldGiveCompletions """dollar`$ign"""
+    """ "dollar$"▶ """ shouldGiveCompletions """dollar`$ign"""
   }
 
   {
     implicit val filesystem = MockFileSystem.of("/quotation\"mark")
 
-    """ quotation▶ """ shouldGiveCompletions """quotation\"mark"""
-    """ "quotation▶""" shouldGiveCompletions """quotation\"mark"""
+    """ quotation▶ """ shouldGiveCompletions """quotation`"mark"""
+    """ "quotation▶""" shouldGiveCompletions """quotation`"mark"""
 
     // Would like to get these cases working too:
     //  """ quotation\"mar▶ """ shouldGiveCompletions """quotation\"mark"""

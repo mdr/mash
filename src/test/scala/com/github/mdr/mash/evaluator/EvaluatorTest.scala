@@ -448,17 +448,17 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   """(name => "Hello ${name.reverse}!") "Matt" """ shouldEvaluateTo "'Hello ttaM!'"
   """(name => "Hello ${name | reverse}!") "Matt" """ shouldEvaluateTo "'Hello ttaM!'"
   """ 42 | "$_" """ shouldEvaluateTo "'42'"
-  """ "\"${42}\"" """ shouldEvaluateTo """ '"42"' """
+  """ "`"${42}`"" """ shouldEvaluateTo """ '"42"' """
   """ "'${42}'" """ shouldEvaluateTo """ "'42'" """
   """ "${4}'bar'${2}" """ shouldEvaluateTo """ "4'bar'2" """
 
   // String escapes
-  """ "\$" """ shouldEvaluateTo " '$' "
-  """ "\"" """ shouldEvaluateTo """ '"' """
-  """ '\'' """ shouldEvaluateTo """ "'" """
+  """ "`$" """ shouldEvaluateTo " '$' "
+  """ "`"" """ shouldEvaluateTo """ '"' """
+  """ '`'' """ shouldEvaluateTo """ "'" """
 
   // String literals
-  "\"foo\nbar\".length" shouldEvaluateTo 7
+  """ "foo`nbar".length """ shouldEvaluateTo 7
 
   "true and true and true" shouldEvaluateTo true
   "true or true or true" shouldEvaluateTo true

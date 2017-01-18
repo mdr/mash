@@ -34,10 +34,10 @@ trait StringInterpolationLexer { self: MashLexer ⇒
       token(STRING_END)
     }
     ch match {
-      case '\\' ⇒
+      case '`' ⇒
         nextChar()
         ch match {
-          case '\\' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
+          case '`' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
             nextChar()
             getInterpolatedStringPart()
           case c ⇒
@@ -45,7 +45,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
               nextChar()
               getInterpolatedStringPart()
             } else
-              throw new MashParserException("Invalid string escape \\" + c, currentPointedRegion)
+              throw new MashParserException("Invalid string escape `" + c, currentPointedRegion)
         }
       case '"' ⇒
         nextChar()

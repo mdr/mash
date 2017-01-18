@@ -28,7 +28,7 @@ class QuoteTogglerTest extends FlatSpec with Matchers {
 
   """foo"▶""" =⇒ """"foo"▶"""
 
-  """$▶""" =⇒ """"\$"▶"""
+  """$▶""" =⇒ """"`$"▶"""
 
   "fo▶o" =⇒ """"fo▶o""""
   """foo▶"""" =⇒ """"foo▶""""
@@ -39,7 +39,7 @@ class QuoteTogglerTest extends FlatSpec with Matchers {
 
   """foo "▶""" =⇒ """foo ""▶"""
 
-  """"\$"▶""" =⇒ "$▶"
+  """"`$"▶""" =⇒ "$▶"
 
   implicit class RichString(s: String) {
     def =⇒(expectedStr: String) {

@@ -12,12 +12,12 @@ class MashLexerTest extends FlatSpec with Matchers {
 
   "foo" shouldProduce Seq(IDENTIFIER)
 
-  "\"foo\"" shouldProduce Seq(STRING_LITERAL)
+  """ "foo" """ shouldProduce Seq(STRING_LITERAL)
   "\"\"" shouldProduce Seq(STRING_LITERAL)
   "'foo'" shouldProduce Seq(STRING_LITERAL)
   "\"foo\nbar\"" shouldProduce Seq(STRING_LITERAL)
-  """ "foo\"" """ shouldProduce Seq(STRING_LITERAL)
-  """ "foo\"" 3 """ shouldProduce Seq(STRING_LITERAL, NUMBER_LITERAL)
+  """ "foo`"" """ shouldProduce Seq(STRING_LITERAL)
+  """ "foo`"" 3 """ shouldProduce Seq(STRING_LITERAL, NUMBER_LITERAL)
 
   "1" shouldProduce Seq(NUMBER_LITERAL)
   "1.0" shouldProduce Seq(NUMBER_LITERAL)
@@ -96,7 +96,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   """ "${{}}" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_COMPLEX, LBRACE, RBRACE, RBRACE, STRING_END)
   """ "Hello $user.fullName!" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, DOT, IDENTIFIER, STRING_END)
   """ "$_" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, HOLE, STRING_END)
-  """ "\"$foo\"" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, STRING_END)
+  """ "`"$foo`"" """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, STRING_END)
   """ " $foo
      " """ shouldProduce Seq(STRING_START, STRING_INTERPOLATION_START_SIMPLE, IDENTIFIER, STRING_END)
 

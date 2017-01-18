@@ -34,10 +34,10 @@ trait NormalMashLexer { self: MashLexer ⇒
 
   @tailrec
   protected final def getStringLiteralRest(delimiter: Char): Token = ch match {
-    case '\\' ⇒
+    case '`' ⇒
       nextChar()
       ch match {
-        case '\\' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
+        case '`' | '$' | 'n' | 'r' | 't' | '"' | '\'' | '~' ⇒
           nextChar()
           getStringLiteralRest(delimiter)
         case c ⇒
@@ -45,7 +45,7 @@ trait NormalMashLexer { self: MashLexer ⇒
             nextChar()
             getStringLiteralRest(delimiter)
           } else
-            throw new MashParserException("Invalid string escape \\" + c, currentPointedRegion)
+            throw new MashParserException("Invalid string escape `" + c, currentPointedRegion)
       }
     case `delimiter` ⇒
       nextChar()

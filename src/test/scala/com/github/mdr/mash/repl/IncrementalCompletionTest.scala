@@ -70,7 +70,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""foo\$ba"◀"""))
+    repl.lineBuffer should equal(parseLineBuffer(""""foo`$ba"◀"""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("foo$bar", "foo$baz"))
@@ -100,7 +100,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""oob\$a"◀"""))
+    repl.lineBuffer should equal(parseLineBuffer(""""oob`$a"◀"""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("---foob$ar---", "--goob$ab--"))

@@ -22,12 +22,12 @@ object StringEscapes {
   }
 
   private def escapeChar(c: Char): String = c match {
-    case '$'  ⇒ """\$"""
-    case '"'  ⇒ """\""""
-    case '\\' ⇒ """\\"""
-    case '\r' ⇒ """\r"""
-    case '\n' ⇒ """\n"""
-    case '\t' ⇒ """\t"""
+    case '$'  ⇒ "`$"
+    case '"'  ⇒ "`\""
+    case '`' ⇒ "``"
+    case '\r' ⇒ "`r"
+    case '\n' ⇒ "`n"
+    case '\t' ⇒ "`t"
     case c    ⇒ c + ""
   }
 
@@ -43,13 +43,13 @@ object StringEscapes {
     def recurse(s: List[Char], acc: List[Char] = Nil, processingEscape: Boolean = false): String =
       if (processingEscape)
         s match {
-          case Nil       ⇒ ('\\' :: acc).reverse.mkString
+          case Nil       ⇒ ('`' :: acc).reverse.mkString
           case (c :: cs) ⇒ recurse(cs, unescapeChar(c) :: acc)
         }
       else
         s match {
           case Nil          ⇒ acc.reverse.mkString
-          case ('\\' :: cs) ⇒ recurse(cs, acc, processingEscape = true)
+          case ('`' :: cs) ⇒ recurse(cs, acc, processingEscape = true)
           case (c :: cs)    ⇒ recurse(cs, c :: acc)
         }
     recurse(s.toList)
