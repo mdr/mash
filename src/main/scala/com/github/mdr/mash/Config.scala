@@ -74,7 +74,7 @@ object Config {
   val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips, View.FuzzyTime)
 
   def defaultConfig = {
-    val config = MashObject.empty()
+    val config = MashObject.empty
     def addConfigOption(obj: MashObject, path: Seq[String], value: MashValue) {
       path match {
         case Seq()    ⇒
@@ -84,7 +84,7 @@ object Config {
             case Some(obj: MashObject) ⇒
               obj
             case _ ⇒
-              val newObj = MashObject.empty()
+              val newObj = MashObject.empty
               obj.set(head, newObj)
               newObj
           }

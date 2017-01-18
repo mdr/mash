@@ -20,6 +20,7 @@ object ViewableAsFields {
     def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ field.name -> v }: _*)
   }
   implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(pairs: _*) }
+  implicit def fromPairs(pair: (String, MashValue)): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(pair) }
 
 }
 
@@ -34,7 +35,7 @@ object MashObject {
   def of[T <% ViewableAsFields](fields: T): MashObject =
     new MashObject(fields.fields, None)
 
-  def empty() = of(Seq())
+  def empty = of(Seq())
 
 }
 

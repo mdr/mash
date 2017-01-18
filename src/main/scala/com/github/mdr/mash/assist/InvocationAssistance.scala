@@ -71,9 +71,9 @@ object InvocationAssistance {
     Utils.minBy(enclosingInvocations, size)
   }
 
-  private def hasFunctionType(e: Expr) =
+  private def hasFunctionType(e: Expr): Boolean =
     e.typeOpt.exists(cond(_) {
-      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _) ⇒ true
+      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _) | _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
     })
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =

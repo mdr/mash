@@ -8,14 +8,13 @@ import java.util.UUID
 import com.github.mdr.mash.commands.ErrorPrinter
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.{ EvaluationContext, ScopeStack, _ }
+import com.github.mdr.mash.functions.Namespace
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import org.apache.commons.io.FileUtils
 import org.fusesource.jansi.Ansi
-
-case class Namespace(segments: Seq[String])
 
 case class LoadResult(namespace: Namespace, loadScope: MashObject)
 
@@ -47,7 +46,7 @@ class Loader(terminal: Terminal,
         case Some(subObject: MashObject) ⇒
           populate(subObject, rest, name, value)
         case _                           ⇒
-          obj.set(first, MashObject.empty())
+          obj.set(first, MashObject.empty)
           populate(obj, path, name, value)
       }
 
@@ -70,7 +69,7 @@ class Loader(terminal: Terminal,
       val context = new ExecutionContext(Thread.currentThread)
       Singletons.environment = globalVariables.get(StandardEnvironment.Env) match {
         case Some(obj: MashObject) ⇒ obj
-        case _                     ⇒ MashObject.empty()
+        case _                     ⇒ MashObject.empty
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)
