@@ -38,12 +38,20 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
 
   import HintFunction.Params._
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
-    HintFunction.params
-      .bindTypes(arguments)
-      .getArgument(Hint)
-      .flatMap(_.valueOpt)
-      .flatMap(getType)
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+    val boundTypes = HintFunction.params.bindTypes(arguments)
+    boundTypes.getArgument(Hint).flatMap(getType) orElse boundTypes.getType(Item)
+  }
+
+  private def getType(valueInfo: ValueInfo): Option[Type] =
+    valueInfo.valueOpt.flatMap(getType) orElse
+      valueInfo.typeOpt.flatMap(getType)
+
+  private def getType(type_ : Type): Option[Type] = type_ match {
+    case userClass: Type.UserClass ⇒ Some(Type.UserClassInstance(userClass))
+    case Type.Seq(elementType)     ⇒ Some(getType(elementType).getOrElse(Type.Any).seq)
+    case _                         ⇒ None
+  }
 
   private def getType(value: MashValue): Option[Type] = value match {
     case klass: UserDefinedClass ⇒ Some(new ValueTypeDetector().instanceType(klass))
