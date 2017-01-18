@@ -1,6 +1,5 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.UserClass
@@ -13,10 +12,9 @@ import com.github.mdr.mash.utils.{ Region, StringUtils, Utils }
 
 import scala.PartialFunction.cond
 
-case class MemberCompletionResult(
-                                   prioritiseMembers: Boolean,
-                                   completionResultOpt: Option[CompletionResult],
-                                   spaceBeforeDot: Boolean)
+case class MemberCompletionResult(isMemberExpr: Boolean,
+                                  completionResultOpt: Option[CompletionResult],
+                                  prioritiseMembers: Boolean)
 
 object MemberCompleter {
 
@@ -95,7 +93,7 @@ object MemberCompleter {
 
   private def getMembers(userClass: UserClass): Seq[MemberInfo] = {
     val fieldMembers = userClass.params.params.flatMap(_.nameOpt).map(name ⇒ MemberInfo(name, isField = true))
-    val methodMembers = userClass.methods.map { case (name, method) ⇒ MemberInfo(name, isField = false)}
+    val methodMembers = userClass.methods.map { case (name, method) ⇒ MemberInfo(name, isField = false) }
     val parentClassMembers = getMembers(ObjectClass)
     val members = fieldMembers ++ methodMembers ++ parentClassMembers
     distinct(members)
