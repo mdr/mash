@@ -116,13 +116,25 @@ object Evaluator extends EvaluatorHelper {
     throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
   }
 
-
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
     evaluateIdentifier(identifier.name, sourceLocation(identifier))
 
+  private def attemptFix(name: String, candidates: Seq[String]): Option[String] =
+    if (candidates.isEmpty)
+      None
+    else
+      Some(candidates.minBy(org.apache.commons.lang3.StringUtils.getLevenshteinDistance(name, _)))
+
   private def evaluateIdentifier(name: String, locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
     context.scopeStack.lookup(name).getOrElse {
-      throw new EvaluatorException(s"No binding for '$name'", locationOpt)
+      val bindings = context.scopeStack.bindings
+      attemptFix(name, bindings.keys.toSeq) match {
+        case Some(fixedName) ⇒
+          println(s"Fixing $name to $fixedName")
+          bindings(fixedName)
+        case None            ⇒
+          throw new EvaluatorException(s"No binding for '$name'", locationOpt)
+      }
     }
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
