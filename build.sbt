@@ -10,35 +10,34 @@ packageSummary := "Mash Object Shell"
 
 packageDescription := "An object shell for Unix"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.1"
 
 scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.6" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "junit" % "junit" % "4.12" % Test,
-  
-  "org.pegdown" % "pegdown" % "1.6.0" % Test, // Needed for test reports
-  "com.lihaoyi" % "ammonite-repl" % "0.6.2" % Test cross CrossVersion.full)
+  "com.lihaoyi" % "ammonite" % "0.8.1" % Test cross CrossVersion.full,
+  "org.pegdown" % "pegdown" % "1.6.0" % Test) // Needed for test reports
 
 libraryDependencies ++= Seq(
   "org.fusesource.jansi" % "jansi" % "1.12",
   "commons-io" % "commons-io" % "2.5",
   "org.apache.commons" % "commons-lang3" % "3.5",
-  "com.github.jnr" % "jnr-posix" % "3.0.29",
-  "org.apache.ant" % "ant" % "1.9.7",
+  "com.github.jnr" % "jnr-posix" % "3.0.33",
+  "org.apache.ant" % "ant" % "1.10.0",
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
-  "jline" % "jline" % "2.14.2",
-  "com.ibm.icu" % "icu4j" % "57.1",
+  "jline" % "jline" % "2.14.3",
+  "com.ibm.icu" % "icu4j" % "58.2",
   "com.googlecode.lanterna" % "lanterna" % "3.0.0-beta3",
-  "com.google.code.gson" % "gson" % "2.7",
+  "com.google.code.gson" % "gson" % "2.8.0",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.0.201605250940-rc1",
-  "org.slf4j" % "slf4j-nop" % "1.7.21" /* suppress logging from jgit */,
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.6.0.201612231935-r",
+  "org.slf4j" % "slf4j-nop" % "1.7.22" /* suppress logging from jgit */,
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4",
-  "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.httpcomponents" % "httpclient" % "4.5.2",
   "com.joestelmach" % "natty" % "0.12",
@@ -80,13 +79,12 @@ fork in test := true
 
 testFrameworks := Seq(TestFrameworks.ScalaTest)
 
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT", "-h", "target/report") // T => show reminder of failed tests with short stack trace 
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT", "-h", "target/report") // T => show reminder of failed tests with short stack trace
 
-initialCommands in (Test, console) := "ammonite.repl.Main().run()"
+initialCommands in (Test, console) := "ammonite.Main().run()"
 
 // Packaging
 
 enablePlugins(JavaAppPackaging)
 
 debianPackageDependencies in Debian ++= Seq("default-jre")
-
