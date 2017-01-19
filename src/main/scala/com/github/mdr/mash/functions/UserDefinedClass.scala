@@ -41,4 +41,9 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
+  // Don't want to accidentally compare equal to another class
+  override def equals(that: Any) = PartialFunction.cond(that) { case that: AnyRef ⇒ this eq that }
+
+  override def hashCode = System.identityHashCode(this)
+
 }
