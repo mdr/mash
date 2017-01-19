@@ -759,6 +759,17 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "(_ => b = 100) 42; b" shouldEvaluateTo 100
 
+  """{ a: 1, b: 2 } | select --a
+  'b'""" shouldEvaluateTo "'b'"
+
+  """[] | sort -d
+  100""" shouldEvaluateTo 100
+
+  """{ foo: { bar: 100 } }
+      .foo
+      .bar
+  """ shouldEvaluateTo 100
+
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 
 
