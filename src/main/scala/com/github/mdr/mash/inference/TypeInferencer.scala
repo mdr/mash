@@ -283,17 +283,17 @@ class TypeInferencer {
       case _                                                                   ⇒
         val objectAdditionTypeOpt =
           for {
-            leftFields ← leftTypeOpt.flatMap(fields)
-            rightFields ← rightTypeOpt.flatMap(fields)
+            leftFields ← leftTypeOpt.flatMap(getObjectFields)
+            rightFields ← rightTypeOpt.flatMap(getObjectFields)
           } yield Type.Object(leftFields ++ rightFields)
         objectAdditionTypeOpt orElse Some(Type.Instance(NumberClass))
     }
 
   private object ThingWithFields {
-    def unapply(type_ : Type): Option[Map[String, Type]] = fields(type_)
+    def unapply(type_ : Type): Option[Map[String, Type]] = getObjectFields(type_)
   }
 
-  private def fields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
+  private def getObjectFields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
     case Type.Instance(klass)    ⇒ fields(klass)
     case Type.Object(fields)     ⇒ fields
     case Type.Generic(klass, _*) ⇒ fields(klass)
@@ -473,10 +473,8 @@ class TypeInferencer {
 
       override def params: ParameterModel = userClass.params
 
-      override def typeInferenceStrategy = new TypeInferenceStrategy {
-        override def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
-          Some(UserClassInstance(userClass))
-      }
+      override def typeInferenceStrategy =
+        (inferencer: Inferencer, arguments: TypedArguments) => Some(UserClassInstance(userClass))
     }
 
     Type.BuiltinFunction(FakeFunction)

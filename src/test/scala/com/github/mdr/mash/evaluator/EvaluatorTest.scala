@@ -553,6 +553,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42 } + { bar: 100 }" shouldEvaluateTo "{ foo: 42, bar: 100 }"
   "{ foo: 42 } + { }" shouldEvaluateTo "{ foo: 42 }"
   "{ foo: 42 } + { foo: 100 }" shouldEvaluateTo "{ foo: 100 }"
+  "class Box n; Box 5 + { foo: 42 } | .getClass.name" shouldEvaluateTo "'Box'"
+  "class Box n; { foo: 42 } + Box 5 | .getClass.name" shouldEvaluateTo "'Box'"
+  "class A a; class B b; A 'a' + B 'b' | .getClass.name" shouldEvaluateTo "'B'"
 
   // object field subtraction
   "{ foo: 42, bar: 100 } - 'foo'" shouldEvaluateTo "{ bar: 100 }"
@@ -711,6 +714,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "Object.merge { foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
   "Object.merge { foo: 42 } { bar: 128 }" shouldEvaluateTo "{ foo: 42, bar: 128 }"
   "Object.merge { foo: 42 } { foo: 128 }" shouldEvaluateTo "{ foo: 128 }"
+  "class A a; class B b; class C c; Object.merge [A 1, B 2, C 3] | .getClass.name" shouldEvaluateTo "'C'"
 
   // type.hint
   "type.hint [String] 42" shouldEvaluateTo 42

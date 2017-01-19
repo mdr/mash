@@ -14,13 +14,30 @@ trait ViewableAsFields {
 
 object ViewableAsFields {
 
-  implicit def fromLinkedHashMap(map: LinkedHashMap[String, MashValue]): ViewableAsFields = new ViewableAsFields { def fields = map }
-  implicit def fromMap(map: Map[String, MashValue]): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(map.toSeq: _*) }
-  implicit def fromListMap(map: Map[Field, MashValue]): ViewableAsFields = new ViewableAsFields {
-    def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ field.name -> v }: _*)
-  }
-  implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(pairs: _*) }
-  implicit def fromPairs(pair: (String, MashValue)): ViewableAsFields = new ViewableAsFields { def fields = LinkedHashMap(pair) }
+  implicit def fromLinkedHashMap(map: LinkedHashMap[String, MashValue]): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = map
+    }
+
+  implicit def fromMap(map: Map[String, MashValue]): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap(map.toSeq: _*)
+    }
+
+  implicit def fromListMap(map: Map[Field, MashValue]): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ field.name -> v }: _*)
+    }
+
+  implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap(pairs: _*)
+    }
+
+  implicit def fromPairs(pair: (String, MashValue)): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap(pair)
+    }
 
 }
 
@@ -39,27 +56,40 @@ object MashObject {
 
 }
 
-case class MashObject private (val fields: LinkedHashMap[String, MashValue], val classOpt: Option[MashClass] = None) extends MashValue {
+case class MashObject private(fields: LinkedHashMap[String, MashValue],
+                              classOpt: Option[MashClass] = None) extends MashValue {
 
   for (klass ← classOpt) {
-    val klassFields = klass.fields.map(_.name)
-    val providedFields = fields.keys.toSeq
-    if (klassFields != providedFields)
-      throw new EvaluatorException(s"Invalid fields for class $klass. Expected ${klassFields.mkString("[", ", ", "]")}, but was ${providedFields.mkString("[", ", ", "]")}")
+    val classFields = klass.fields.map(_.name).toSet
+    val providedFields = fields.keySet
+
+    val missingFields = classFields diff providedFields
+    if (missingFields.nonEmpty)
+      throw new EvaluatorException(s"Missing fields for class '$klass': ${missingFields.map(f ⇒ s"'$f'").mkString(", ")}")
   }
 
   def withField(fieldName: String, value: MashValue): MashObject =
     MashObject.of(fields.toSeq :+ (fieldName -> value), classOpt)
 
-  def set(fieldName: String, value: MashValue) = withLock { fields(fieldName) = value }
+  def set(fieldName: String, value: MashValue) = withLock {
+    fields(fieldName) = value
+  }
 
-  def apply(fieldName: String): MashValue = withLock { fields(fieldName) }
+  def apply(fieldName: String): MashValue = withLock {
+    fields(fieldName)
+  }
 
-  def apply(field: Field): MashValue = withLock { fields(field.name) }
+  def apply(field: Field): MashValue = withLock {
+    fields(field.name)
+  }
 
-  def get(fieldName: String): Option[MashValue] = withLock { fields.get(fieldName) }
+  def get(fieldName: String): Option[MashValue] = withLock {
+    fields.get(fieldName)
+  }
 
-  def get(field: Field): Option[MashValue] = withLock { fields.get(field.name) }
+  def get(field: Field): Option[MashValue] = withLock {
+    fields.get(field.name)
+  }
 
   def hasField(fieldName: String): Boolean = get(fieldName).isDefined
 
@@ -68,7 +98,7 @@ case class MashObject private (val fields: LinkedHashMap[String, MashValue], val
   }
 
   def +(that: MashObject): MashObject = withLock {
-    MashObject.of((this.fields ++ that.fields).toSeq, this.classOpt)
+    MashObject.of((this.fields ++ that.fields).toSeq, that.classOpt orElse this.classOpt)
   }
 
   override def toString = asString
@@ -81,11 +111,13 @@ case class MashObject private (val fields: LinkedHashMap[String, MashValue], val
     }
   }
 
-  def immutableFields: ListMap[String, MashValue] = withLock { ListMap(fields.toSeq: _*) }
+  def immutableFields: ListMap[String, MashValue] = withLock {
+    ListMap(fields.toSeq: _*)
+  }
 
   def fieldAs[T: ClassTag](field: Field): T = withLock {
     val klass = implicitly[ClassTag[T]].runtimeClass
-    val value = this(field)
+    val value = this (field)
     if (klass isInstance value)
       value.asInstanceOf[T]
     else
@@ -99,6 +131,8 @@ case class MashObject private (val fields: LinkedHashMap[String, MashValue], val
     }
   }
 
-  override def hashCode = withLock { this.fields.hashCode }
+  override def hashCode = withLock {
+    this.fields.hashCode
+  }
 
 }
