@@ -46,12 +46,14 @@ object Type {
   /**
     * Method defined in mash, bound to a target
     */
-  case class BoundUserDefinedMethod(target: Type, function: UserDefinedFunction) extends Type
+  case class BoundUserDefinedMethod(targetType: Type, function: UserDefinedFunction) extends Type {
+    override def toString = s"${classOf[BoundUserDefinedMethod].getSimpleName}($targetType, $function)"
+  }
 
   /**
     * Built-in (Scala) method
     */
-  case class BoundBuiltinMethod(target: Type, method: MashMethod) extends Type {
+  case class BoundBuiltinMethod(targetType: Type, method: MashMethod) extends Type {
     require(!method.isInstanceOf[UserDefinedMethod])
   }
 
@@ -62,7 +64,7 @@ object Type {
                                  params: ParameterModel,
                                  body: Expr,
                                  bindings: Map[String, Type]) extends Type {
-    override def toString = s"${classOf[UserDefinedFunction].getSimpleName}(${params.params.map(_.nameOpt).mkString(", ")}, $body)"
+    override def toString = s"${classOf[UserDefinedFunction].getSimpleName}($nameOpt)"
   }
 
   /**

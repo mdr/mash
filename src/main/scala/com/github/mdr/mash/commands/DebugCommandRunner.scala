@@ -23,6 +23,8 @@ class DebugCommandRunner(output: PrintStream, globals: MashObject) {
         output.println(compile(actualCmd).typeOpt)
       case ("tokens", actualCmd)           ⇒
         MashLexer.tokenise(actualCmd, forgiving = true).rawTokens.foreach(output.println)
+      case _ ⇒
+        output.println(s"Unknown debug command '$keyword'")
     }
   }
 

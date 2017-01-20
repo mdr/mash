@@ -77,7 +77,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" shouldEvaluateTo true
   "class Box n; Box 42 == { n: 42 }" shouldEvaluateTo false
-  
+
   "(class Box n) == (class Box n)" shouldEvaluateTo false
   "class Box n; Box == Box" shouldEvaluateTo true
 

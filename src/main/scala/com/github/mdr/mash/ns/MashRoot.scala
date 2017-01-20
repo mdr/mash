@@ -71,6 +71,7 @@ object MashRoot {
     SleepFunction,
     TapFunction,
     TimeTakenFunction,
+    TodayFunction,
     TryFunction,
     WhileFunction,
     type_.HintFunction)
