@@ -53,7 +53,7 @@ object FindTypeInferenceStrategy extends TypeInferenceStrategy {
     import FindFunction.Params._
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val predicateExprOpt = argBindings.getArgument(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
+    MapTypeInferenceStrategy.inferMappedType(inferencer, predicateExprOpt, sequenceTypeOpt)
     for {
       sequenceType ← sequenceTypeOpt
       elementType ← condOpt(sequenceType) {

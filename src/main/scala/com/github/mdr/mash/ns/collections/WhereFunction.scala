@@ -56,7 +56,7 @@ object WhereTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = WhereFunction.params.bindTypes(arguments)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val predicateExprOpt = argBindings.getArgument(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, sequenceTypeOpt)
+    MapTypeInferenceStrategy.inferMappedType(inferencer, predicateExprOpt, sequenceTypeOpt)
     sequenceTypeOpt.collect {
       case typ@(Type.Instance(StringClass) | Type.Tagged(StringClass, _) | Type.Seq(_)) ⇒ typ
     }.orElse(Some(Type.Seq(AnyClass)))

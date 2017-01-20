@@ -80,6 +80,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // flatMap
   "[1].flatMap (n => [n.toString])" shouldBeInferredAsHavingType Seq(StringClass)
+  "unknown | flatMap (a => [42])" shouldBeInferredAsHavingType Seq(NumberClass)
 
   "42.toString" shouldBeInferredAsHavingType StringClass
 

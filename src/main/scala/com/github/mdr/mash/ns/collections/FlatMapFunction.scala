@@ -6,8 +6,6 @@ import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashNumber, MashValue }
 
-import scala.PartialFunction.condOpt
-
 object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   object Params {
@@ -37,10 +35,8 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)
     def getItems(value: MashValue) = value match {
-      case MashList(items @ _*) ⇒
-        items
-      case badItem            ⇒
-        throw new EvaluatorException("Invalid item of type " + badItem.typeName)
+      case MashList(items@_*) ⇒ items
+      case badItem            ⇒ throw new EvaluatorException("Invalid item of type " + badItem.typeName)
     }
     val mapped =
       if (withIndex) {
@@ -72,7 +68,8 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   override def summary = "Transform each element of a sequence by a given function, and then flatten"
 
-  override def descriptionOpt = Some("""The given function is applied to each element of the input sequence 
+  override def descriptionOpt = Some(
+    """The given function is applied to each element of the input sequence
   and is expected to yield a sequence for each element. The result is flattened to produce a sequence of transformed 
   output elements.
 
@@ -85,21 +82,16 @@ object FlatMapTypeInferenceStrategy extends TypeInferenceStrategy {
 
   import FlatMapFunction.Params._
 
-    def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = FlatMapFunction.params.bindTypes(arguments)
     val functionOpt = argBindings.getArgument(F)
     val sequenceTypeOpt = argBindings.getType(Sequence)
-    val newElementSeqTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, functionOpt, sequenceTypeOpt)
-    for {
-      sequenceType ← sequenceTypeOpt
-      newSequenceType ← condOpt(sequenceType) {
-        case Type.Seq(_) ⇒
-          newElementSeqTypeOpt match {
-            case Some(Type.Seq(newElementType)) ⇒ newElementType.seq
-            case _                              ⇒ Type.Any.seq
-          }
-      }
-    } yield newSequenceType
+    val newElementSeqTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, functionOpt, sequenceTypeOpt)
+    val newElementType = newElementSeqTypeOpt match {
+      case Some(Type.Seq(newElementType)) ⇒ newElementType
+      case _                              ⇒ Type.Any
+    }
+    Some(newElementType.seq)
   }
 
 }

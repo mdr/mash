@@ -1,7 +1,6 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 /**
@@ -9,7 +8,9 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
   */
 class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
-  def applyFunction(functionType: Type, elementType: Type, functionExprValueOpt: Option[MashValue]): Option[Type] = functionType match {
+  def applyFunction(functionType: Type,
+                    elementType: Type,
+                    functionExprValueOpt: Option[MashValue]): Option[Type] = functionType match {
     case Type.BuiltinFunction(f)                                        ⇒
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
@@ -45,7 +46,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
     case Type.UserDefinedFunction(_, parameterModel, expr, lambdaBindings) ⇒
       val binding1 =
         for {
-          param ← parameterModel.params.lift(0)
+          param ← parameterModel.params.headOption
           name ← param.nameOpt
         } yield name -> element1Type
       val binding2 =

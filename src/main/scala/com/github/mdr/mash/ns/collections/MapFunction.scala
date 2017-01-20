@@ -48,7 +48,7 @@ object MapFunction extends MashFunction("collections.map") {
     inSequence match {
       case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
         mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _ ⇒
+      case _                                                   ⇒
         MashList(mapped)
     }
   }
@@ -68,7 +68,8 @@ object MapFunction extends MashFunction("collections.map") {
 
   override def summary = "Transform each element of a sequence by a given function"
 
-  override def descriptionOpt = Some("""The given function is applied to each element of the input sequence 
+  override def descriptionOpt = Some(
+    """The given function is applied to each element of the input sequence
   to produce a sequence of transformed output elements.
 
 Examples:
@@ -89,7 +90,7 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
       case Some(sequenceType@(Type.Instance(StringClass) | Type.Tagged(StringClass, _))) ⇒ sequenceType
       case _                                                                             ⇒ Type.Any.seq
     }
-    val newElementTypeOpt = inferAppliedType(inferencer, functionOpt, Some(sequenceType))
+    val newElementTypeOpt = inferMappedType(inferencer, functionOpt, Some(sequenceType))
     Some(getResultType(sequenceType, newElementTypeOpt))
   }
 
@@ -104,7 +105,14 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
         (newElementTypeOpt getOrElse Type.Any).seq
     }
 
-  def inferAppliedType(inferencer: Inferencer, functionExprOpt: Option[ValueInfo], sequenceTypeOpt: Option[Type]): Option[Type] =
+  /**
+    * Given a function, and a sequence,
+    *
+    * @return the type of the elements of the sequence after the mapping function has been applied.
+    */
+  def inferMappedType(inferencer: Inferencer,
+                      functionExprOpt: Option[ValueInfo],
+                      sequenceTypeOpt: Option[Type]): Option[Type] =
     for {
       ValueInfo(functionValueOpt, functionTypeOpt) ← functionExprOpt
       functionType ← functionTypeOpt
@@ -112,6 +120,7 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)                                    ⇒ elementType
         case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+        case _                                                        ⇒ Type.Any
       }
       newElementType ← inferencer.applyFunction(functionType, elementType, functionValueOpt)
     } yield newElementType

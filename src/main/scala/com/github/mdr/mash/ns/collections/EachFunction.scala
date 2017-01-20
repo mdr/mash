@@ -55,7 +55,7 @@ object EachTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = EachFunction.params.bindTypes(arguments)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val actionExprOpt = argBindings.getArgument(Action)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, actionExprOpt, sequenceTypeOpt)
+    MapTypeInferenceStrategy.inferMappedType(inferencer, actionExprOpt, sequenceTypeOpt)
     Some(Unit)
   }
 

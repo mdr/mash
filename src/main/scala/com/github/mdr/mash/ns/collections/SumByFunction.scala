@@ -56,7 +56,7 @@ object SumByTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = SumByFunction.params.bindTypes(arguments)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val attributeArg = argBindings.getArgument(Attribute)
-    val inferredTypeOpt = MapTypeInferenceStrategy.inferAppliedType(inferencer, attributeArg, sequenceTypeOpt)
+    val inferredTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, attributeArg, sequenceTypeOpt)
     inferredTypeOpt match {
       case Some(Type.Tagged(NumberClass, _)) ⇒ inferredTypeOpt
       case _                                 ⇒ Some(NumberClass)

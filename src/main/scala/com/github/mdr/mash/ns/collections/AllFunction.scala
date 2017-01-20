@@ -51,7 +51,7 @@ object AllTypeInferenceStrategy extends TypeInferenceStrategy {
     import AllFunction.Params._
     val argBindings = AllFunction.params.bindTypes(arguments)
     val predicateExprOpt = argBindings.getArgument(Predicate)
-    MapTypeInferenceStrategy.inferAppliedType(inferencer, predicateExprOpt, argBindings.getType(Sequence))
+    MapTypeInferenceStrategy.inferMappedType(inferencer, predicateExprOpt, argBindings.getType(Sequence))
     Some(BooleanClass)
   }
 
