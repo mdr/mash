@@ -59,15 +59,7 @@ trait InvocationParse { self: MashParse ⇒
         val arg = pipeExpr()
         args += (comma -> arg)
       }
-      val rparen =
-        if (RPAREN)
-          nextToken()
-        else if (forgiving) {
-          val lastExpr = (firstArg +: args.map(_._2)).last
-          val lastToken = lastExpr.tokens.last
-          syntheticToken(RPAREN, lastToken)
-        } else
-          errorExpectedToken(")")
+      val rparen = consumeRequiredToken(RPAREN)
       ParenInvocationExpr(previousExpr, lparen, Some(ParenInvocationArgs(firstArg, args)), rparen)
     }
   }

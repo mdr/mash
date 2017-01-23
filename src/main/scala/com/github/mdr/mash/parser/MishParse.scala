@@ -38,13 +38,7 @@ trait MishParse { self: MashParse ⇒
   protected def mishInterpolation(): MishInterpolationExpr = {
     val start = nextToken()
     val expr = mishExpr()
-    val rbrace =
-      if (RBRACE)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RBRACE, expr.tokens.last)
-      else
-        errorExpectedToken("}")
+    val rbrace = consumeRequiredToken(RBRACE)
     MishInterpolationExpr(start, expr, rbrace)
   }
 

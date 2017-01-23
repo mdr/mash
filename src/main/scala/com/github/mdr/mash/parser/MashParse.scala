@@ -66,13 +66,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   protected def patternAssignmentExpr(): Expr = {
     val patternEqualsOpt = speculate {
       val pat = pattern()
-      val equals =
-        if (SHORT_EQUALS)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(SHORT_EQUALS)
-        else
-          errorExpectedToken("=")
+      val equals = consumeRequiredToken(SHORT_EQUALS)
       (pat, equals)
     }
     patternEqualsOpt match {
@@ -94,14 +88,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     if (IF) {
       val ifToken = nextToken()
       val cond = orExpr()
-      val thenToken =
-        if (THEN)
-          nextToken()
-        else if (forgiving) {
-          val lastTokenOfCond = cond.tokens.last
-          Token(THEN, lastTokenOfCond.region.posAfter, 0, lastTokenOfCond.source)
-        } else
-          errorExpectedToken("then")
+      val thenToken = consumeRequiredToken(THEN)
       val body = pipeExpr()
       val elseOpt =
         if (ELSE) {
@@ -185,13 +172,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       MinusExpr(minus, expr)
     } else if (DOT || DOT_NULL_SAFE) {
       val dotToken = nextToken()
-      val identifier =
-        if (IDENTIFIER)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(IDENTIFIER, dotToken)
-        else
-          errorExpectedToken("identifier")
+      val identifier = consumeRequiredToken(IDENTIFIER)
       continueSuffixExpr(HeadlessMemberExpr(dotToken, identifier))
     } else
       suffixExpr()
@@ -220,26 +201,14 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
 
   private def memberExpr(previousExpr: Expr): MemberExpr = {
     val dotToken = nextToken()
-    val identifier =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER, dotToken)
-      else
-        errorExpectedToken("identifier")
+    val identifier = consumeRequiredToken(IDENTIFIER)
     MemberExpr(previousExpr, dotToken, identifier)
   }
 
   private def lookupExpr(previousExpr: Expr): LookupExpr = {
     val lsquare = nextToken()
     val indexExpr = pipeExpr()
-    val rsquare =
-      if (RSQUARE)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RSQUARE, indexExpr.tokens.last)
-      else
-        errorExpectedToken("]")
+    val rsquare = consumeRequiredToken(RSQUARE)
     LookupExpr(previousExpr, lsquare, indexExpr, rsquare)
   }
 
@@ -304,26 +273,14 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def blockExpr(): BlockExpr = {
     val lbrace = nextToken()
     val statements = statementSeq()
-    val rbrace =
-      if (RBRACE)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RBRACE)
-      else
-        errorExpectedToken("}")
+    val rbrace = consumeRequiredToken(RBRACE)
     BlockExpr(lbrace, statements, rbrace)
   }
 
   private def parenExpr(): Expr = {
     val lparen = nextToken()
     val expr = statementSeq()
-    val rparen =
-      if (RPAREN)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RPAREN, expr.tokens.lastOption getOrElse lparen)
-      else
-        errorExpectedToken(")")
+    val rparen = consumeRequiredToken(RPAREN)
     ParenExpr(lparen, expr, rparen)
   }
 
@@ -340,15 +297,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
         val element = pipeExpr()
         otherElements += (comma -> element)
       }
-      val rsquare =
-        if (RSQUARE)
-          nextToken()
-        else if (forgiving) {
-          val lastExpr = (firstElement +: otherElements.map(_._2)).last
-          val lastToken = lastExpr.tokens.last
-          syntheticToken(RSQUARE, lastToken)
-        } else
-          errorExpectedToken("]")
+      val rsquare = consumeRequiredToken(RSQUARE)
       ListExpr(lsquare, Some(ListExprContents(firstElement, otherElements)), rsquare)
     }
   }

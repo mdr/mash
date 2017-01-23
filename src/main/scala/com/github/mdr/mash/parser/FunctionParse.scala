@@ -11,21 +11,9 @@ trait FunctionParse {
 
   protected def functionDeclaration(): FunctionDeclaration = {
     val defToken = nextToken()
-    val name =
-      if (IDENTIFIER)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(IDENTIFIER, defToken)
-      else
-        errorExpectedToken("identifier")
+    val name = consumeRequiredToken(IDENTIFIER)
     val params = paramList()
-    val equals =
-      if (SHORT_EQUALS)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(SHORT_EQUALS, params.params.lastOption.map(_.tokens.last).getOrElse(name))
-      else
-        errorExpectedToken("=")
+    val equals = consumeRequiredToken(SHORT_EQUALS)
     val body = pipeExpr()
     FunctionDeclaration(docComment(defToken), defToken, name, params, equals, body)
   }
@@ -70,13 +58,7 @@ trait FunctionParse {
           case _                 ⇒
             param
         }
-      val rparen =
-        if (RPAREN)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(RPAREN)
-        else
-          errorExpectedToken(")")
+      val rparen = consumeRequiredToken(RPAREN)
       ParenParam(lparen, lazyOpt, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
        val pat = pattern()
@@ -118,13 +100,7 @@ trait FunctionParse {
         val entry = parseEntry()
         entries += (comma -> entry)
       }
-      val rbrace =
-        if (RBRACE)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(RBRACE)
-        else
-          errorExpectedToken("]")
+      val rbrace = consumeRequiredToken(RBRACE)
       ObjectPattern(lbrace, Some(ObjectPatternContents(firstEntry, entries)), rbrace)
     }
   }
@@ -152,15 +128,7 @@ trait FunctionParse {
         val item = pattern()
         otherElements += (comma -> item)
       }
-      val rsquare =
-        if (RSQUARE)
-          nextToken()
-        else if (forgiving) {
-          val lastElement = (firstElement +: otherElements.map(_._2)).last
-          val lastToken = lastElement.tokens.last
-          syntheticToken(RSQUARE, lastToken)
-        } else
-          errorExpectedToken("]")
+      val rsquare = consumeRequiredToken(RSQUARE)
       ListPattern(lsquare, Some(ListPatternContents(firstElement, otherElements)), rsquare)
     }
   }
@@ -169,13 +137,7 @@ trait FunctionParse {
 
   protected def lambdaStart(): LambdaStart = {
     val params = paramList()
-    val arrow =
-      if (RIGHT_ARROW)
-        nextToken()
-      else if (forgiving)
-        syntheticToken(RIGHT_ARROW)
-      else
-        errorExpectedToken("=>")
+    val arrow = consumeRequiredToken(RIGHT_ARROW)
     LambdaStart(params, arrow)
   }
 

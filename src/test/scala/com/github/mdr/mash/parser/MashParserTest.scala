@@ -2,6 +2,7 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.parser.ConcreteSyntax._
+import com.github.mdr.mash.utils.Region
 import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
@@ -246,6 +247,10 @@ class MashParserTest extends FlatSpec with Matchers {
 
   "Parsing 'if ('" should "not crash" in {
     parse("if (")
+  }
+
+  "Parsing '(=> 1 +'" should "have a sensible region" in {
+    parse("(=> 1 +").region shouldEqual Region(0, 7)
   }
 
 }

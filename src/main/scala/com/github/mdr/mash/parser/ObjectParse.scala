@@ -22,15 +22,7 @@ trait ObjectParse {
         val entry = objectEntry()
         entries += (comma -> entry)
       }
-      val rbrace =
-        if (RBRACE)
-          nextToken()
-        else if (forgiving) {
-          val lastExpr = (firstEntry +: entries.map(_._2)).last
-          val lastToken = lastExpr.tokens.last
-          syntheticToken(RBRACE, lastToken)
-        } else
-          errorExpectedToken("}")
+      val rbrace = consumeRequiredToken(RBRACE)
       ObjectExpr(lbrace, Some(ObjectExprContents(firstEntry, entries)), rbrace)
     }
   }
@@ -41,13 +33,7 @@ trait ObjectParse {
       ShorthandObjectEntry(field)
     } else {
       val field = suffixExpr()
-      val colon =
-        if (COLON)
-          nextToken()
-        else if (forgiving)
-          syntheticToken(COLON)
-        else
-          errorExpectedToken(":")
+      val colon = consumeRequiredToken(COLON)
       val expr = pipeExpr()
       FullObjectEntry(field, colon, expr)
     }

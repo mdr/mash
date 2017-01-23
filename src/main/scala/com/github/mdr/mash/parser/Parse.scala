@@ -31,7 +31,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   protected def currentToken: Token = {
     val token = currentSequenceToken
     if (shouldInferSemicolon(token))
-      syntheticToken(SEMI, token)
+      syntheticToken(SEMI)
     else
       token
   }
@@ -103,13 +103,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
    * Create a synthetic token of the given type
    */
   protected def syntheticToken(tokenType: TokenType): Token =
-    syntheticToken(tokenType, afterTokenOpt = None)
-
-  /**
-   * Create a synthetic token of the given type, based on the position of the given token
-   */
-  protected def syntheticToken(tokenType: TokenType, afterToken: Token): Token =
-    syntheticToken(tokenType, Some(afterToken))
+    syntheticToken(tokenType, afterTokenOpt = if (pos > 0) Some(getToken(pos - 1)) else None )
 
   private def syntheticToken(tokenType: TokenType, afterTokenOpt: Option[Token]): Token = {
     val offset = afterTokenOpt.map(_.region.posAfter) getOrElse 0
@@ -151,8 +145,15 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private val TokenNames: Map[TokenType, String] = Map(
     IDENTIFIER -> "identifier",
     RBRACE -> "}",
+    RPAREN -> ")",
+    RSQUARE -> "]",
     CLASS -> "class",
-    NAMESPACE -> "namespace"
+    COLON -> ":",
+    THEN -> "then",
+    NAMESPACE -> "namespace",
+    SHORT_EQUALS -> "=",
+    RIGHT_ARROW -> "->",
+    STRING_END -> "end of string"
   )
 
 }
