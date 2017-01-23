@@ -37,7 +37,7 @@ object MapFunction extends MashFunction("collections.map") {
     val inSequence = boundParams(Sequence)
     val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)
-    val mapped =
+    val mapped: Seq[MashValue] =
       if (withIndex) {
         val f = boundParams.validateFunction2(F)
         sequence.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }

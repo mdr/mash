@@ -46,6 +46,8 @@ trait MashValue {
 
   def isAnObject: Boolean = isA(ObjectClass)
 
+  def isAList: Boolean = isA(ListClass)
+
   def isA(klass: MashClass): Boolean =
     (primaryClass isSubClassOf klass) || cond(this) {
       case taggable: TaggableMashValue ⇒ taggable.tagClassOpt.exists(_ isSubClassOf klass)

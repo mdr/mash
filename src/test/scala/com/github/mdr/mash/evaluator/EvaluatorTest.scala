@@ -270,7 +270,16 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // flatMap
   "[1, 2, 3].flatMap (n => [n * 10, n])" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
   "flatMap (n => [n * 10, n]) [1, 2, 3]" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
+  "flatMap (_ + '!') 'abc'" shouldEvaluateTo "'a!b!c!'"
+  "flatMap (.toString) [1, 22, 333]" shouldEvaluateTo "'122333'"
+  "flatMap (c => [c]) 'abc'" shouldEvaluateTo "['a', 'b', 'c']"
+
   "flatMap --withIndex (n i => [n, i]) [1, 2, 3]" shouldEvaluateTo "[1, 0, 2, 1, 3, 2]"
+
+  // flatten
+  "flatten [[], [1], [2, 3]]" shouldEvaluateTo "[1, 2, 3]"
+  "flatten []" shouldEvaluateTo "[]"
+  "flatten ['', 'a', 'bc']" shouldEvaluateTo "'abc'"
 
   // map
   "[1, 2, 3].map (_ * 2)" shouldEvaluateTo "[2, 4, 6]"

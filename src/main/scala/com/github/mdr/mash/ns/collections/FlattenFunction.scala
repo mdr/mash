@@ -22,16 +22,9 @@ object FlattenFunction extends MashFunction("collections.flatten") {
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
+    val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
-    val mapped = sequence.flatMap { item ⇒
-      item match {
-        case MashList(items @ _*) ⇒
-          items
-        case badItem ⇒
-          throw new EvaluatorException("Invalid item of type " + badItem.typeName)
-      }
-    }
-    MashList(mapped)
+    FlatMapFunction.flatten(sequence, inSequence)
   }
 
   override def typeInferenceStrategy = FlattenTypeInferenceStrategy
