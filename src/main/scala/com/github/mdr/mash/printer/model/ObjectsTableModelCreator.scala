@@ -48,7 +48,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
         ColumnSpec(name, _, isNullaryMethod) ← columns
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
         valueOpt = rawValueOpt.map(rawValue ⇒
-          if (isNullaryMethod) Evaluator.immediatelyResolveNullaryFunctions(rawValue, locationOpt = None) else rawValue)
+          if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
       } yield name -> (valueOpt, renderedValue)
     val data = ((for { (k, (_, v)) <- pairs } yield k -> v) :+ (IndexColumnName -> index.toString)).toMap

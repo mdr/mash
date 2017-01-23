@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.collections.{ AnyFunction, _ }
 import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -19,18 +20,46 @@ object StringClass extends MashClass("core.String") {
   private val fileSystem = LinuxFileSystem
 
   override val methods = Seq(
+    ListClass.methodise(AllFunction),
+    ListClass.methodise(AnyFunction),
+    ListClass.methodise(CountMatchesFunction),
+    ListClass.methodise(EachFunction),
+    ListClass.methodise(FlatMapFunction),
+    ListClass.methodise(FindFunction),
+    ListClass.methodise(FirstFunction),
+    ListClass.methodise(GrepFunction),
+    ListClass.methodise(GroupByFunction),
+    ListClass.methodise(IndexOfFunction),
+    ListClass.methodise(IsEmptyFunction),
+    ListClass.methodise(JoinFunction),
+    ListClass.methodise(LastFunction),
+    ListClass.methodise(LengthFunction),
+    ListClass.methodise(MapFunction),
+    ListClass.methodise(MaxByFunction),
+    ListClass.methodise(MaxFunction),
+    ListClass.methodise(MinByFunction),
+    ListClass.methodise(MinFunction),
+    ListClass.methodise(NonEmptyFunction),
+    ListClass.methodise(ReduceFunction),
+    ListClass.methodise(ReverseFunction),
+    ListClass.methodise(SkipFunction),
+    ListClass.methodise(SkipUntilFunction),
+    ListClass.methodise(SkipWhileFunction),
+    ListClass.methodise(SlidingFunction),
+    ListClass.methodise(SortByFunction),
+    ListClass.methodise(SortFunction),
+    ListClass.methodise(SumByFunction),
+    ListClass.methodise(SumFunction),
+    ListClass.methodise(TakeWhileFunction),
+    ListClass.methodise(UniqueFunction),
+    ListClass.methodise(WhereFunction),
+    ListClass.methodise(WhereNotFunction),
     ContainsMethod,
     EndsWithMethod,
-    FirstMethod,
     GlobMethod,
-    IsEmptyMethod,
     MatchesMethod,
-    LengthMethod,
-    LastMethod,
-    NonEmptyMethod,
     RMethod,
     ReplaceMethod,
-    ReverseMethod,
     StartsWithMethod,
     SplitMethod,
     TagMethod,
@@ -42,7 +71,8 @@ object StringClass extends MashClass("core.String") {
     ToUpperMethod,
     TrimMethod,
     UntaggedMethod,
-    MashClass.alias("g", GlobMethod))
+    MashClass.alias("g", GlobMethod),
+    MashClass.alias("count", ListClass.methodise(LengthFunction)))
 
   object ContainsMethod extends MashMethod("contains") {
 
@@ -82,36 +112,6 @@ object StringClass extends MashClass("core.String") {
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(PathSummaryClass))
 
     override def summary = "Return paths matching a glob pattern"
-
-  }
-
-  object IsEmptyMethod extends MashMethod("isEmpty") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
-      MashBoolean(target.asInstanceOf[MashString].s.isEmpty)
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
-
-    override def summary = "Return true if this is the empty string"
-
-  }
-
-  object NonEmptyMethod extends MashMethod("nonEmpty") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
-      MashBoolean(target.asInstanceOf[MashString].s.nonEmpty)
-    }
-
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
-
-    override def summary = "Return true if this is a non-empty string"
 
   }
 
@@ -248,12 +248,8 @@ object StringClass extends MashClass("core.String") {
       MashList(pieces.map(makePiece))
     }
 
-    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
-
-      override def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
-        targetTypeOpt.orElse(Some(Type.Instance(StringClass))).map(_.seq)
-
-    }
+    override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
+      targetTypeOpt orElse Some(Type.Instance(StringClass)) map (_.seq)
 
     override def summary = "Split this string into a sequence of substrings using a separator"
 
@@ -413,77 +409,6 @@ object StringClass extends MashClass("core.String") {
 
   }
 
-  object LastMethod extends MashMethod("last") {
-
-    object Params {
-      val N = Parameter(
-        nameOpt = Some("n"),
-        summary = "Number of characters",
-        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
-    }
-    import Params._
-
-    val params = ParameterModel(Seq(N))
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      val boundParams = params.validate(arguments)
-      val countOpt = MashNull.option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
-      val s = target.asInstanceOf[MashString]
-      countOpt match {
-        case None    ⇒ s.last
-        case Some(n) ⇒ s.modify(_.takeRight(n))
-      }
-    }
-
-    override def summary = "Last character(s) of this string"
-
-    override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy
-
-  }
-
-  object FirstMethod extends MashMethod("first") {
-
-    object Params {
-      val N = Parameter(
-        nameOpt = Some("n"),
-        summary = "Number of characters",
-        defaultValueGeneratorOpt = Some(() ⇒ MashNull))
-    }
-    import Params._
-
-    val params = ParameterModel(Seq(N))
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      val boundParams = params.validate(arguments)
-      val countOpt = MashNull.option(boundParams(N)).map(_.asInstanceOf[MashNumber].asInt.get)
-      val s = target.asInstanceOf[MashString]
-      countOpt match {
-        case None    ⇒ s.first
-        case Some(n) ⇒ s.modify(_.take(n))
-      }
-    }
-
-    override def summary = "First character(s) of the string"
-
-    override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy
-
-  }
-
-  object ReverseMethod extends MashMethod("reverse") {
-
-    val params = ParameterModel()
-
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
-      target.asInstanceOf[MashString].reverse
-    }
-
-    override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy
-
-    override def summary = "Reverse this string"
-
-  }
-
   object StartsWithMethod extends MashMethod("startsWith") {
 
     object Params {
@@ -491,6 +416,7 @@ object StringClass extends MashClass("core.String") {
         nameOpt = Some("prefix"),
         summary = "Prefix to test")
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Prefix))
@@ -515,6 +441,7 @@ object StringClass extends MashClass("core.String") {
         nameOpt = Some("suffix"),
         summary = "Suffix to test")
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Suffix))

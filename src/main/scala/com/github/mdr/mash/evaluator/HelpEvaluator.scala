@@ -17,7 +17,7 @@ object HelpEvaluator {
           case MashList(x, _*) ⇒ getHelpForMember(x, name)
         }.flatten
         lazy val directHelp = {
-          val result = MemberEvaluator.evaluateMemberExpr_(memberExpr, target, immediatelyResolveNullaryWhenVectorising = true).result
+          val result = MemberEvaluator.evaluateMemberExpr(memberExpr, target, invokeNullaryWhenVectorising = true).result
           HelpFunction.getHelp(result).getOrElse(
             throw new EvaluatorException("No help available for value of type " + result.typeName, helpExpr.locationOpt))
         }

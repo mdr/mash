@@ -13,7 +13,7 @@ object InvocationEvaluator extends EvaluatorHelper {
     functionExpr match {
       case memberExpr: MemberExpr ⇒
         val MemberExprEvalResult(result, wasVectorised) = MemberEvaluator.evaluateMemberExpr(memberExpr,
-          immediatelyResolveNullaryWhenVectorising = false)
+          invokeNullaryWhenVectorising = false)
         if (wasVectorised) {
           val functions = result.asInstanceOf[MashList]
           functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
@@ -124,11 +124,11 @@ object InvocationEvaluator extends EvaluatorHelper {
         case xs: MashList ⇒
           xs.map { target ⇒
             val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
-            Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, invocationLocationOpt)
+            Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
           }
         case v ⇒
           val intermediateResult = MemberEvaluator.lookup(v, s, functionLocationOpt)
-          Evaluator.immediatelyResolveNullaryFunctions(intermediateResult, functionLocationOpt)
+          Evaluator.invokeNullaryFunctions(intermediateResult, functionLocationOpt)
       }
     }
 

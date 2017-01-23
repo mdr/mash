@@ -17,6 +17,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(ContainsFunction),
     methodise(CountMatchesFunction),
     methodise(EachFunction),
+    methodise(FlattenFunction),
     methodise(FlatMapFunction),
     methodise(FindFunction),
     methodise(FirstFunction),
@@ -56,7 +57,7 @@ object ListClass extends MashClass("collections.List") {
     alias("filterNot", methodise(WhereNotFunction)),
     alias("keepIf", methodise(WhereFunction)))
 
-  private def methodise(function: MashFunction): MashMethod = new MashMethod(function.nameOpt.get) {
+  def methodise(function: MashFunction): MashMethod = new MashMethod(function.name) {
 
     val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains "sequence"))
 
@@ -65,10 +66,8 @@ object ListClass extends MashClass("collections.List") {
       function.apply(Arguments(arguments.evaluatedArguments :+ targetArg))
     }
 
-    override def typeInferenceStrategy = new MethodTypeInferenceStrategy() {
-      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
-        function.typeInferenceStrategy.inferTypes(inferencer, updateArgs(arguments, targetTypeOpt))
-    }
+    override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
+      function.typeInferenceStrategy.inferTypes(inferencer, updateArgs(arguments, targetTypeOpt))
 
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] =
       function.getCompletionSpecs(argPos, updateArgs(arguments, targetTypeOpt))
@@ -77,8 +76,6 @@ object ListClass extends MashClass("collections.List") {
       val sequenceArg = TypedArgument.PositionArg(ValueInfo(None, targetTypeOpt))
       TypedArguments(arguments.arguments :+ sequenceArg)
     }
-
-    override def flags: Seq[Flag] = params.flags
 
     override def toString = s"methodise($function)"
 

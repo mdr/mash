@@ -21,7 +21,7 @@ object Evaluator extends EvaluatorHelper {
       val simpleResult = simpleEvaluate(expr)
       ExecutionContext.checkInterrupted()
       val finalResult = expr match {
-        case _: Identifier | _: MemberExpr ⇒ immediatelyResolveNullaryFunctions(simpleResult, sourceLocation(expr))
+        case _: Identifier | _: MemberExpr ⇒ invokeNullaryFunctions(simpleResult, sourceLocation(expr))
         case _                             ⇒ simpleResult
       }
       finalResult
@@ -39,10 +39,10 @@ object Evaluator extends EvaluatorHelper {
 
   /**
     * If the given value is a function or bound method that allows nullary invocation, invoke it immediately and
-    * return the result.
+    * return the result; otherwise, return the input value unchanged.
     */
-  def immediatelyResolveNullaryFunctions(v: MashValue, locationOpt: Option[SourceLocation]): MashValue =
-    v match {
+  def invokeNullaryFunctions(value: MashValue, locationOpt: Option[SourceLocation]): MashValue =
+    value match {
       case f: MashFunction if f.allowsNullary                     ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
           f(Arguments())
@@ -51,7 +51,7 @@ object Evaluator extends EvaluatorHelper {
         InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
           method(target, Arguments())
         }
-      case _                                                      ⇒ v
+      case _                                                      ⇒ value
     }
 
   /**
@@ -66,7 +66,7 @@ object Evaluator extends EvaluatorHelper {
       case ParenExpr(body, _)                                        ⇒ evaluate(body)
       case blockExpr: BlockExpr                                      ⇒ evaluateBlockExpr(blockExpr)
       case Literal(v, _)                                             ⇒ v
-      case memberExpr: MemberExpr                                    ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, immediatelyResolveNullaryWhenVectorising = true).result
+      case memberExpr: MemberExpr                                    ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, invokeNullaryWhenVectorising = true).result
       case lookupExpr: LookupExpr                                    ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
       case invocationExpr: InvocationExpr                            ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
       case LambdaExpr(params, body, _)                               ⇒ makeAnonymousFunction(params, body)

@@ -151,6 +151,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1] | all (_)" shouldEvaluateTo true
   "[0] | all (_)" shouldEvaluateTo false
   "'aaa' | all (_ == 'a')" shouldEvaluateTo true
+  "'aaa'.all (_ == 'a')" shouldEvaluateTo true
 
   // any
   "[2, 4, 6] | any (_ > 10)" shouldEvaluateTo false
@@ -159,6 +160,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1] | any (_)" shouldEvaluateTo true
   "[0] | any (_)" shouldEvaluateTo false
   "'abc' | any (_ == 'a')" shouldEvaluateTo true
+  "'abc'.any (_ == 'a')" shouldEvaluateTo true
 
   // contains
   "[1, 2, 3].contains 2" shouldEvaluateTo true
@@ -170,10 +172,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // count 
   "[1, 2, 3, 4, 5].count" shouldEvaluateTo 5
+  "'abc'.count" shouldEvaluateTo 3
 
   // countMatches 
   "[1, 2, 300, 2, 400].countMatches (_ < 100)" shouldEvaluateTo 3
   "'foo' | countMatches (_ == 'o')" shouldEvaluateTo 2
+  "'foo'.countMatches (_ == 'o')" shouldEvaluateTo 2
 
   // deselect
   "{ foo: 42, bar: 1 } | deselect 'foo'" shouldEvaluateTo "{ bar: 1 }"
@@ -182,11 +186,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // each
   "a = 0; [1, 2, 3] | each (a = a + _); a" shouldEvaluateTo 6
   "a = ''; 'foo' | each (a = _ + a); a" shouldEvaluateTo "'oof'"
+  "a = ''; 'foo'.each (a = _ + a); a" shouldEvaluateTo "'oof'"
 
   // find
   "[1, 2, 300, 4, 5] | find (_ > 100)" shouldEvaluateTo 300
   "[1, 2, 3, 4, 5] | find (_ > 100)" shouldEvaluateTo null
   "'xxxaxxx' | find (_ != 'x')" shouldEvaluateTo "'a'"
+  "'xxxaxxx'.find (_ != 'x')" shouldEvaluateTo "'a'"
 
   // first
   "first [0]" shouldEvaluateTo 0
@@ -210,6 +216,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
     "[ { key: 1, count: 2 }, { key: 2, count: 1 }, { key: 3, count: 1 } ] "
   "'foo' | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
+    "[ { key: 'f', count: 1 }, { key: 'o', count: 2 } ] "
+  "'foo'.groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
     "[ { key: 'f', count: 1 }, { key: 'o', count: 2 } ] "
 
   "[null] | groupBy --includeNull (x => x) | select 'key' 'count'" shouldEvaluateTo
@@ -247,14 +255,15 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " join [] " shouldEvaluateTo " '' "
   " join 'abc' " shouldEvaluateTo " 'abc' "
   " join ':' 'abc' " shouldEvaluateTo " 'a:b:c' "
+  " 'abc'.join ':'" shouldEvaluateTo " 'a:b:c' "
 
   // last
   "last [1, 2, 3]" shouldEvaluateTo 3
   "last 2 [1, 2, 3]" shouldEvaluateTo "[2, 3]"
-  " last 'xyz' " shouldEvaluateTo " 'z' "
-  " last 2 'xyz' " shouldEvaluateTo " 'yz' "
-  " 'xyz'.last " shouldEvaluateTo " 'z' "
-  " 'xyz'.last 2 " shouldEvaluateTo " 'yz' "
+  "last 'xyz'" shouldEvaluateTo " 'z' "
+  "last 2 'xyz'" shouldEvaluateTo " 'yz' "
+  "'xyz'.last" shouldEvaluateTo " 'z' "
+  "'xyz'.last 2" shouldEvaluateTo " 'yz' "
   "last []" shouldEvaluateTo null
   "last ''" shouldEvaluateTo null
 
@@ -272,7 +281,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "flatMap (n => [n * 10, n]) [1, 2, 3]" shouldEvaluateTo "[10, 1, 20, 2, 30, 3]"
   "flatMap (_ + '!') 'abc'" shouldEvaluateTo "'a!b!c!'"
   "flatMap (.toString) [1, 22, 333]" shouldEvaluateTo "'122333'"
-  "flatMap (c => [c]) 'abc'" shouldEvaluateTo "['a', 'b', 'c']"
+  "'abc' | flatMap (c => [c])" shouldEvaluateTo "['a', 'b', 'c']"
+  "'abc'.flatMap (c => [c]) " shouldEvaluateTo "['a', 'b', 'c']"
 
   "flatMap --withIndex (n i => [n, i]) [1, 2, 3]" shouldEvaluateTo "[1, 0, 2, 1, 3, 2]"
 
@@ -287,13 +297,16 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "map (_ * 2) --sequence=[1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
   "map --f=(_ * 2) [1, 2, 3]" shouldEvaluateTo "[2, 4, 6]"
   "[1, 2, 3] | map --f=(_ * 2)" shouldEvaluateTo "[2, 4, 6]"
-  "map (_.toUpper) 'foo'" shouldEvaluateTo "'FOO'"
   "'123' | map (_.toNumber)" shouldEvaluateTo "[1, 2, 3]"
   "map --withIndex (n i => n + i) [1, 2, 3]" shouldEvaluateTo "[1, 3, 5]"
+  "'foo' | map (.toUpper)" shouldEvaluateTo "'FOO'"
+  "'foo'.map (.toUpper)" shouldEvaluateTo "'FOO'"
 
   // max
   "max [1, 200, 3]" shouldEvaluateTo 200
+  "[1, 200, 3].max" shouldEvaluateTo 200
   "max 'abc'" shouldEvaluateTo "'c'"
+  "'abc'.max" shouldEvaluateTo "'c'"
   "max 1 2 3" shouldEvaluateTo 3
   "max [2, null, 1]" shouldEvaluateTo 2
 
@@ -301,10 +314,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "maxBy length [ 'a', 'bbb', 'cc'] " shouldEvaluateTo " 'bbb' "
   "maxBy (_) 'abcde'" shouldEvaluateTo "'e'"
   "maxBy 'foo' [{ foo: null }, { foo: 42 }]" shouldEvaluateTo "{ foo: 42 }"
+  "'abcde'.maxBy (_)" shouldEvaluateTo "'e'"
 
   // min
   "min [100, 2, 300]" shouldEvaluateTo 2
+  "[100, 2, 300].min" shouldEvaluateTo 2
   "min 'abc'" shouldEvaluateTo "'a'"
+  "'abc'.min" shouldEvaluateTo "'a'"
   "min 1 2 3" shouldEvaluateTo 1
   "min [2, null, 1]" shouldEvaluateTo 1
 
@@ -327,8 +343,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "not 1" shouldEvaluateTo false
 
   // reverse
-  " reverse 'trebor' " shouldEvaluateTo " 'robert' "
-  " 'trebor'.reverse " shouldEvaluateTo " 'robert' "
+  "reverse 'trebor'" shouldEvaluateTo " 'robert' "
+  "'trebor'.reverse" shouldEvaluateTo " 'robert' "
   "[1, 2, 3].reverse" shouldEvaluateTo "[3, 2, 1]"
 
   // select
@@ -351,22 +367,28 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2] | skip" shouldEvaluateTo "[2]"
   "'abcde' | skip 3" shouldEvaluateTo "'de'"
   "'abcde' | skip" shouldEvaluateTo "'bcde'"
+  "'abcde'.skip 3" shouldEvaluateTo "'de'"
+  "'abcde'.skip" shouldEvaluateTo "'bcde'"
 
   // skipWhile
   "[1, 2, 3, 4, 5, 1] | skipWhile (_ < 3)" shouldEvaluateTo "[3, 4, 5, 1]"
   "'abcdef' | skipWhile (_ < 'd')" shouldEvaluateTo "'def'"
+  "'abcdef'.skipWhile (_ < 'd')" shouldEvaluateTo "'def'"
 
   // skipUntil
   "[1, 2, 3, 4, 5, 1] | skipUntil (_ > 3)" shouldEvaluateTo "[4, 5, 1]"
   "'abcdef' | skipUntil (_ > 'd')" shouldEvaluateTo "'ef'"
+  "'abcdef'.skipUntil (_ > 'd')" shouldEvaluateTo "'ef'"
 
   // sliding
   "[1, 2, 3] | sliding 2" shouldEvaluateTo "[[1, 2], [2, 3]]"
   "'abc' | sliding 2" shouldEvaluateTo "['ab', 'bc']"
+  "'abc'.sliding 2" shouldEvaluateTo "['ab', 'bc']"
 
   // sort
   " ['c', 'a', 'b'].sort " shouldEvaluateTo "['a', 'b', 'c']"
   "'eaebcd' | sort" shouldEvaluateTo "'abcdee'"
+  "'eaebcd'.sort" shouldEvaluateTo "'abcdee'"
   "[1, null, 2].sort" shouldEvaluateTo "[null, 1, 2]"
   "sort [1, 3, 2] --descending" shouldEvaluateTo "[3, 2, 1]"
   "sort ['a1.txt', 'a10.txt', 'a2.txt'] --naturalOrder" shouldEvaluateTo "['a1.txt', 'a2.txt', 'a10.txt']"
@@ -376,6 +398,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // sortBy
   " ['aa', 'b', 'ccc'] | sortBy length " shouldEvaluateTo " ['b', 'aa', 'ccc'] "
   "'123' | sortBy (-_.toNumber)" shouldEvaluateTo "'321'"
+  "'123'.sortBy (-_.toNumber)" shouldEvaluateTo "'321'"
   "[{ foo: 1 }, { foo: null }, { foo: 2 }].sortBy 'foo'" shouldEvaluateTo "[{ foo: null }, { foo: 1 }, { foo: 2 }]"
 
   // sum
@@ -392,17 +415,25 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "sumBy (_.toNumber) '123'" shouldEvaluateTo 6
   "sumBy (_.toNumber) '' []" shouldEvaluateTo "''"
 
+  // takeWhile
+  "[1, 2, 3, 4, 3].takeWhile (_ <= 3)" shouldEvaluateTo "[1, 2, 3]"
+  "[1, 2, 3, 4, 3] | takeWhile (_ <= 3)" shouldEvaluateTo "[1, 2, 3]"
+  "'abcded'.takeWhile (_ <= 'c')" shouldEvaluateTo "'abc'"
+
   // unique
   "unique [1, 2, 3, 2, 1]" shouldEvaluateTo "[1, 2, 3]"
   "unique 'abcba'" shouldEvaluateTo "'abc'"
+  "'abcba'.unique" shouldEvaluateTo "'abc'"
 
   // where
   "[1, 2, 3] | where (_ > 2)" shouldEvaluateTo "[3]"
   "'foobar' | where (_ > 'm')" shouldEvaluateTo "'oor'"
+  "'foobar'.where (_ > 'm')" shouldEvaluateTo "'oor'"
 
   // whereNot
   "[1, 2, 3] | whereNot (_ > 2)" shouldEvaluateTo "[1, 2]"
   "'foobar' | whereNot (_ > 'm')" shouldEvaluateTo "'fba'"
+  "'foobar'.whereNot (_ > 'm')" shouldEvaluateTo "'fba'"
 
   // matches
   " 'foo'.matches 'o' " shouldEvaluateTo true

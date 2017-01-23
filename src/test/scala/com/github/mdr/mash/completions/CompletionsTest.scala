@@ -34,7 +34,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   """ "a string".startsW▶ """ shouldGiveCompletions "startsWith"
 
   "Completions in member position" should "not include binding completions" in {
-    " ''.groupB▶ ".completions should not contain "groupBy"
+    " ''.histor▶ ".completions should not contain "history"
   }
 
   {
@@ -68,8 +68,6 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val filesystem = MockFileSystem.of("/spaces in name")
     "readLines spaces▶" shouldGiveCompletions "spaces in name"
   }
-
-  " ''.groupB▶ " shouldNotContainCompletion "groupBy"
 
   "Completing after a dot after a space" should "prioritise file completions" in {
     implicit val filesystem = MockFileSystem.of("/.dotfile")
