@@ -5,12 +5,13 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.ns.collections.ListClass
-import com.github.mdr.mash.ns.core.{ BoundMethodClass, FunctionClass, ObjectClass }
+import com.github.mdr.mash.ns.core.{ BoundMethodClass, ClassClass, FunctionClass, ObjectClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ ConcreteSyntax, SourceInfo }
+import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.{ Region, StringUtils, Utils }
 
-import scala.PartialFunction.cond
+import scala.PartialFunction._
 
 case class MemberCompletionResult(isMemberExpr: Boolean,
                                   completionResultOpt: Option[CompletionResult],
@@ -29,8 +30,7 @@ object MemberCompleter {
       tokens = sourceInfo.expr.tokens
       identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region == dummyIdentifierRegion)
       memberExpr ← findMemberExpr(expr, identifierToken)
-      targetType ← memberExpr.target.typeOpt
-      members = getMembers(targetType)
+      members ← getMembers(memberExpr)
       completions = members.map(_.asCompletion(isQuoted = false))
       region = Region(dot.region.posAfter, 0)
       result ← CompletionResult.of(completions, region)
@@ -40,13 +40,18 @@ object MemberCompleter {
   def completeString(targetType: Type, prefix: String): Seq[Completion] =
     getMembers(targetType).filter(_.name startsWith prefix).map(_.asCompletion(isQuoted = true))
 
+  private def getMembers(memberExpr: MemberExpr): Option[Seq[MemberInfo]] = {
+    val target = memberExpr.target
+    target.constantValueOpt.flatMap(getValueMembers) orElse target.typeOpt.map(getMembers(_))
+  }
+
   def completeIdentifier(text: String, identifier: Token, parser: CompletionParser): MemberCompletionResult = {
     val memberExprOpt = findMemberExpr(text, identifier, parser)
     val completionResultOpt =
       for {
         memberExpr ← memberExprOpt
         targetType ← memberExpr.target.typeOpt
-        members = getMembers(targetType)
+        members ← getMembers(memberExpr)
         completions = members.filter(_.name startsWith identifier.text).map(_.asCompletion(isQuoted = false))
         result ← CompletionResult.of(completions, identifier.region)
       } yield result
@@ -99,7 +104,19 @@ object MemberCompleter {
     distinct(members)
   }
 
-  private def getMembers(t: Type, canVectorise: Boolean = true): Seq[MemberInfo] = t match {
+  private def getValueMembers(klass: MashClass): Seq[MemberInfo] = {
+    val staticMethodMembers = klass.staticMethods.map(method ⇒
+      MemberInfo(method.name, descriptionOpt = Some(method.summary), isField = false))
+    distinct(staticMethodMembers ++ getMembers(ClassClass))
+  }
+
+  private def getValueMembers(value: MashValue): Option[Seq[MemberInfo]] =
+    condOpt(value) {
+      case klass: MashClass ⇒ getValueMembers(klass)
+    }
+
+  private def getMembers(type_ : Type,
+                         canVectorise: Boolean = true): Seq[MemberInfo] = type_ match {
     case Type.Instance(klass)              ⇒ getMembers(klass)
     case Type.UserClassInstance(userClass) ⇒ getMembers(userClass)
     case Type.Tagged(baseClass, tagClass)  ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
@@ -120,28 +137,5 @@ object MemberCompleter {
   }
 
   private def distinct(members: Seq[MemberInfo]) = Utils.distinctBy[MemberInfo, String](members, _.name)
-
-}
-
-case class MemberInfo(name: String,
-                      isField: Boolean,
-                      descriptionOpt: Option[String] = None,
-                      classOpt: Option[MashClass] = None,
-                      isVectorised: Boolean = false) {
-
-  def isMethod = !isField
-
-  private def description: String = {
-    val vecPrefix = if (isVectorised) "vectorised, " else ""
-    val fieldOrMethod = if (isField) "field" else "method"
-    val classOrigin = classOpt.flatMap(_.nameOpt).map(" in " + _).getOrElse("")
-    val desc = descriptionOpt.getOrElse("")
-    s"$desc ($vecPrefix$fieldOrMethod$classOrigin)"
-  }
-
-  private def completionType: CompletionType = if (isField) CompletionType.Field else CompletionType.Method
-
-  def asCompletion(isQuoted: Boolean) =
-    Completion(name, isQuoted = isQuoted, typeOpt = Some(completionType), descriptionOpt = Some(description))
 
 }

@@ -32,7 +32,6 @@ object Type {
     override def toString = klass.toString
   }
 
-
   case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.UserDefinedFunction]) extends Type {
     override def toString = s"${classOf[UserClass].getSimpleName}($name)"
   }

@@ -330,8 +330,12 @@ class CompletionsTest extends FlatSpec with Matchers {
     implicit val fileSystem = MockFileSystem.of("/.dotfile")
 
     "42 | .▶" shouldContainCompletion "toString"
-//    "ls | .d▶" shouldContainCompletion "delete"
+    // "ls | .d▶" shouldContainCompletion "delete"
   }
+
+  "Object.▶" shouldContainCompletion "merge"
+  "Object.m▶" shouldContainCompletion "merge"
+  "Object.p▶" shouldContainCompletion "parent"
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
