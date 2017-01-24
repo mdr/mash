@@ -6,8 +6,8 @@ import com.github.mdr.mash.ns.core.StringClass
 object HeaderClass extends MashClass("http.Header") {
 
   object Fields {
-    lazy val Name = Field("name", "Header field name", StringClass)
-    lazy val Value = Field("body", "Header field value", StringClass)
+    lazy val Name = Field("name", Some("Header field name"), StringClass)
+    lazy val Value = Field("body", Some("Header field value"), StringClass)
   }
 
   import Fields._

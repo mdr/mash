@@ -7,10 +7,10 @@ import com.github.mdr.mash.ns.core.BooleanClass
 object ViewClass extends MashClass("view.View") {
 
   object Fields {
-    val Data = Field("data", "Data to display", Type.Any)
-    val DisableCustomViews = Field("disableCustomViews", "If true, disable custom views for this data", Type.Instance(BooleanClass))
-    val UseBrowser = Field("useBrowser", "If true, always use the object browser where possible", Type.Instance(BooleanClass))
-    val UseTree = Field("useTree", "If true, always use the tree object browser where possible", Type.Instance(BooleanClass))
+    val Data = Field("data", Some("Data to display"), Type.Any)
+    val DisableCustomViews = Field("disableCustomViews", Some("If true, disable custom views for this data"), BooleanClass)
+    val UseBrowser = Field("useBrowser", Some("If true, always use the object browser where possible"), BooleanClass)
+    val UseTree = Field("useTree", Some("If true, always use the tree object browser where possible"), BooleanClass)
   }
 
   import Fields._

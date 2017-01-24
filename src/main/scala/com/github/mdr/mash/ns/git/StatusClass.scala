@@ -10,17 +10,17 @@ import com.github.mdr.mash.runtime._
 object StatusClass extends MashClass("git.Status") {
 
   object Fields {
-    val Branch = Field("branch", "Current branch", Type.Tagged(StringClass, LocalBranchNameClass))
-    val UpstreamBranch = Field("upstreamBranch", "The name of the upstream branch (if any, else null)", StringClass)
-    val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", NumberClass)
-    val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", NumberClass)
-    val Added = Field("added", "New files that have been staged", Seq(PathClass))
-    val Changed = Field("changed", "Changed files that have been staged", Seq(PathClass))
-    val Missing = Field("missing", "Files that have been deleted, but not staged", Seq(PathClass))
-    val Modified = Field("modified", "Modified files that have not been staged", Seq(PathClass))
-    val Removed = Field("removed", "Files that have been deleted and staged", Seq(PathClass))
-    val Untracked = Field("untracked", "Untracked files", Seq(PathClass))
-    val Conflicting = Field("conflicting", "Conflicting files", Seq(PathClass))
+    val Branch = Field("branch", Some("Current branch"), StringClass taggedWith LocalBranchNameClass)
+    val UpstreamBranch = Field("upstreamBranch", Some("The name of the upstream branch (if any, else null)"), StringClass)
+    val AheadCount = Field("aheadCount", Some("Number of commits that the local branch is ahead of the remote-tracking branch"), NumberClass)
+    val BehindCount = Field("behindCount", Some("Number of commits that the local branch is behind the remote-tracking branch"), NumberClass)
+    val Added = Field("added", Some("New files that have been staged"), Seq(PathClass))
+    val Changed = Field("changed", Some("Changed files that have been staged"), Seq(PathClass))
+    val Missing = Field("missing", Some("Files that have been deleted, but not staged"), Seq(PathClass))
+    val Modified = Field("modified", Some("Modified files that have not been staged"), Seq(PathClass))
+    val Removed = Field("removed", Some("Files that have been deleted and staged"), Seq(PathClass))
+    val Untracked = Field("untracked", Some("Untracked files"), Seq(PathClass))
+    val Conflicting = Field("conflicting", Some("Conflicting files"), Seq(PathClass))
   }
 
   import Fields._

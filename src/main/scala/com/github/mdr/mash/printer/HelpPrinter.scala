@@ -51,7 +51,7 @@ class HelpPrinter(output: PrintStream) {
   def printFieldHelp(obj: MashObject) {
     val fieldHelp = FieldHelpClass.Wrapper(obj)
     output.println(bold("FIELD"))
-    output.println(indentSpace + bold(fieldHelp.name) + " - " + fieldHelp.summary)
+    output.println(indentSpace + bold(fieldHelp.name) + fieldHelp.summary.fold("")(" - " + _))
     output.println()
     output.println(bold("CLASS"))
     output.println(indentSpace + fieldHelp.klass)
@@ -95,30 +95,32 @@ class HelpPrinter(output: PrintStream) {
     import ClassHelpClass.Fields._
     output.println(bold("NAME"))
     output.println(indentSpace + bold(obj(FullyQualifiedName)) + " - " + obj(Summary))
-    output.println()
     for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
+      output.println()
       output.println(bold("DESCRIPTION"))
       output.println(shiftLeftMargin(description.s, indent))
-      output.println()
     }
     for (parent ← MashNull.option(obj(Parent)).map(_.asInstanceOf[MashString])) {
+      output.println()
       output.println(bold("PARENT"))
       output.println(indentSpace + obj(Parent))
-      output.println()
     }
     val fields = obj(Fields).asInstanceOf[MashList]
     if (fields.nonEmpty) {
+      output.println()
       output.println(bold("FIELDS"))
       for (field ← fields) {
         val fieldObject = field.asInstanceOf[MashObject]
         output.print(indentSpace)
         output.print(fieldMethodStyle(fieldObject(FieldHelpClass.Fields.Name)))
-        output.print(" - " + fieldObject(FieldHelpClass.Fields.Summary))
+        for (summary ← MashNull.option(fieldObject(FieldHelpClass.Fields.Summary)))
+          output.print(" - " + summary)
         output.println()
       }
     }
     val methods = obj(Methods).asInstanceOf[MashList].elements
     if (methods.nonEmpty) {
+      output.println()
       output.println(bold("METHODS"))
       for (method ← methods) {
         val methodObject = method.asInstanceOf[MashObject]

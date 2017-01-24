@@ -6,8 +6,8 @@ import com.github.mdr.mash.inference.Type
 object FieldAndValueClass extends MashClass("core.FieldAndValue") {
 
   object Fields {
-    val Name = Field("name", "Field name", StringClass)
-    val Value = Field("value", "Field value", Type.Any)
+    val Name = Field("name", Some("Field name"), StringClass)
+    val Value = Field("value", Some("Field value"), Type.Any)
 
   }
 

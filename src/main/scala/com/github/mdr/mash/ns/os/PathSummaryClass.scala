@@ -15,14 +15,13 @@ import scala.collection.immutable.ListMap
 object PathSummaryClass extends MashClass("os.PathSummary") {
 
   object Fields {
-    import com.github.mdr.mash.inference.Type._
-    val Path = Field("path", "Path", Tagged(StringClass, PathClass))
-    val Type = Field("type", "Type (file, dir, link)", Tagged(StringClass, FileTypeClass))
-    val Size = Field("size", "Size in bytes", Tagged(NumberClass, BytesClass))
-    val Owner = Field("owner", "User owner", Tagged(StringClass, UsernameClass))
-    val Group = Field("group", "Group owner", Tagged(StringClass, GroupClass))
-    val Permissions = Field("permissions", "Read/write/execute permissions", Instance(PermissionsClass))
-    val LastModified = Field("lastModified", "Last time path was modified", Instance(DateTimeClass))
+    val Path = Field("path", Some("Path"), StringClass taggedWith PathClass)
+    val Type = Field("type", Some("Type (file, dir, link)"), StringClass taggedWith FileTypeClass)
+    val Size = Field("size", Some("Size in bytes"), NumberClass taggedWith BytesClass)
+    val Owner = Field("owner", Some("User owner"), StringClass taggedWith UsernameClass)
+    val Group = Field("group", Some("Group owner"), StringClass taggedWith GroupClass)
+    val Permissions = Field("permissions", Some("Read/write/execute permissions"), PermissionsClass)
+    val LastModified = Field("lastModified", Some("Last time path was modified"), DateTimeClass)
   }
 
   override lazy val fields = {

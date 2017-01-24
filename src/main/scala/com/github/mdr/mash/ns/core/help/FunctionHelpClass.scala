@@ -6,13 +6,13 @@ import com.github.mdr.mash.ns.core.StringClass
 object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   object Fields {
-    val Name = Field("name", "Function name", StringClass)
-    val FullyQualifiedName = Field("fullyQualifiedName", "Fully-qualified name of the function", StringClass)
-    val Summary = Field("summary", "Summary of what the function does", StringClass)
-    val CallingSyntax = Field("callingSyntax", "Calling syntax", StringClass)
-    val Description = Field("description", "Description of the function", StringClass)
-    val Parameters = Field("parameters", "Parameters of the function", Seq(ParameterHelpClass))
-    val Class = Field("class", "If a method, the class it belongs to (else null)", StringClass)
+    val Name = Field("name", Some("Function name"), StringClass)
+    val FullyQualifiedName = Field("fullyQualifiedName", Some("Fully-qualified name of the function"), StringClass)
+    val Summary = Field("summary", Some("Summary of what the function does"), StringClass)
+    val CallingSyntax = Field("callingSyntax", Some("Calling syntax"), StringClass)
+    val Description = Field("description", Some("Description of the function"), StringClass)
+    val Parameters = Field("parameters", Some("Parameters of the function"), Seq(ParameterHelpClass))
+    val Class = Field("class", Some("If a method, the class it belongs to (else null)"), StringClass)
   }
 
   import Fields._

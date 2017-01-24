@@ -12,7 +12,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
 
   override val fields = params.params.map { param ⇒
     val fieldName = param.nameOpt.getOrElse("anon")
-    Field(fieldName, s"Field '$fieldName'", AnyClass)
+    Field(fieldName, param.descriptionOpt, AnyClass)
   }
 
   override val staticMethods = Seq(

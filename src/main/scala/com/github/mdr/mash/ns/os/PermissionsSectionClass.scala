@@ -11,9 +11,9 @@ import scala.collection.immutable.ListMap
 object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
 
   object Fields {
-    val CanRead = Field("canRead", "Can read", Type.Instance(BooleanClass))
-    val CanWrite = Field("canWrite", "Can write", Type.Instance(BooleanClass))
-    val CanExecute = Field("canExecute", "Can execute", Type.Instance(BooleanClass))
+    val CanRead = Field("canRead", Some("Can read"), BooleanClass)
+    val CanWrite = Field("canWrite", Some("Can write"), BooleanClass)
+    val CanExecute = Field("canExecute", Some("Can execute"), BooleanClass)
   }
 
   import Fields._

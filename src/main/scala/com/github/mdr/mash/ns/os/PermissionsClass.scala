@@ -10,9 +10,9 @@ import scala.collection.immutable.ListMap
 object PermissionsClass extends MashClass("os.Permissions") {
 
   object Fields {
-    val Owner = Field("owner", "Owner permissions", Type.Instance(PermissionsSectionClass))
-    val Group = Field("group", "Group permissions", Type.Instance(PermissionsSectionClass))
-    val Others = Field("others", "Others permissions", Type.Instance(PermissionsSectionClass))
+    val Owner = Field("owner", Some("Owner permissions"), PermissionsSectionClass)
+    val Group = Field("group", Some("Group permissions"), PermissionsSectionClass)
+    val Others = Field("others", Some("Others permissions"), PermissionsSectionClass)
   }
 
   import Fields._

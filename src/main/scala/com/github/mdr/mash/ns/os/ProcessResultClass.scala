@@ -15,10 +15,10 @@ import scala.collection.immutable.ListMap
 object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object Fields {
-    val ExitStatus = Field("exitStatus", "Exit status of process", NumberClass)
-    val Stdout = Field("stdout", "Captured stdout", StringClass)
-    val Started = Field("started", "Time process began running", DateTimeClass)
-    val Finished = Field("finished", "Time process finished", DateTimeClass)
+    val ExitStatus = Field("exitStatus", Some("Exit status of process"), NumberClass)
+    val Stdout = Field("stdout", Some("Captured stdout"), StringClass)
+    val Started = Field("started", Some("Time process began running"), DateTimeClass)
+    val Finished = Field("finished", Some("Time process finished"), DateTimeClass)
   }
 
   import Fields._

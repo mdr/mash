@@ -15,13 +15,13 @@ object ProcessClass extends MashClass("os.Process") {
   private val processInteractions = LinuxProcessInteractions
 
   object Fields {
-    val Pid = Field("pid", "Id of process", Type.Tagged(NumberClass, PidClass))
-    val ParentPid = Field("parentPid", "Id of parent process", Type.Tagged(NumberClass, PidClass))
-    val Name = Field("name", "Name", Type.Instance(StringClass))
-    val Command = Field("command", "Command", Type.Instance(StringClass))
-    val Owner = Field("owner", "Owner", Type.Tagged(StringClass, UsernameClass))
-    val ResidentSize = Field("residentSize", "Resident set size (RSS) in bytes", Type.Tagged(NumberClass, BytesClass))
-    val VirtualSize = Field("virtualSize", "Virtual memory size (VSZ) in bytes", Type.Tagged(NumberClass, BytesClass))
+    val Pid = Field("pid", Some("Id of process"), NumberClass taggedWith PidClass)
+    val ParentPid = Field("parentPid", Some("Id of parent process"), NumberClass taggedWith PidClass)
+    val Name = Field("name", Some("Name"), StringClass)
+    val Command = Field("command", Some("Command"), StringClass)
+    val Owner = Field("owner", Some("Owner"), StringClass taggedWith UsernameClass)
+    val ResidentSize = Field("residentSize", Some("Resident set size (RSS) in bytes"), NumberClass taggedWith BytesClass)
+    val VirtualSize = Field("virtualSize", Some("Virtual memory size (VSZ) in bytes"), NumberClass taggedWith BytesClass)
   }
 
   import Fields._
@@ -114,7 +114,7 @@ object ProcessClass extends MashClass("os.Process") {
       MashList(children.map(makeProcess))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(ProcessClass)))
+    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(ProcessClass))
 
     override def summary = "Children of this process"
 

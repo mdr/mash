@@ -7,12 +7,12 @@ import com.github.mdr.mash.ns.core.NumberClass
 object StatsClass extends MashClass("maths.Stats") {
 
   object Fields {
-    val Min = Field("min", "Smallest value in data set", NumberClass)
-    val Max = Field("max", "Largest value in data set", NumberClass)
-    val Mean = Field("mean", "Average value in the data set", NumberClass)
-    val StandardDeviation = Field("standardDeviation", "Standard deviation", NumberClass)
-    val Median = Field("median", "Median value of the data set", NumberClass)
-    val Count = Field("count", "Number of elements in the data set", NumberClass)
+    val Min = Field("min", Some("Smallest value in data set"), NumberClass)
+    val Max = Field("max", Some("Largest value in data set"), NumberClass)
+    val Mean = Field("mean", Some("Average value in the data set"), NumberClass)
+    val StandardDeviation = Field("standardDeviation", Some("Standard deviation"), NumberClass)
+    val Median = Field("median", Some("Median value of the data set"), NumberClass)
+    val Count = Field("count", Some("Number of elements in the data set"), NumberClass)
   }
 
   import Fields._

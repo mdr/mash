@@ -14,11 +14,11 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
   private val userInteractions = UserInteractions.default
 
   object Fields {
-    val Name = Field("name", "Name of user", Type.Tagged(StringClass, UsernameClass))
-    val Uid = Field("uid", "Id of user (UID)", Type.Tagged(StringClass, UidClass))
-    val PrimaryGroup = Field("primaryGroup", "Primary group to which the user belongs", Type.Tagged(StringClass, GroupClass))
-    val Home = Field("home", "Home directory of this user", StringClass taggedWith PathClass)
-    val Shell = Field("shell", "Shell used by this user", StringClass taggedWith PathClass)
+    val Name = Field("name", Some("Name of user"), StringClass taggedWith UsernameClass)
+    val Uid = Field("uid", Some("Id of user (UID)"), StringClass taggedWith UidClass)
+    val PrimaryGroup = Field("primaryGroup", Some("Primary group to which the user belongs"), StringClass taggedWith GroupClass)
+    val Home = Field("home", Some("Home directory of this user"), StringClass taggedWith PathClass)
+    val Shell = Field("shell", Some("Shell used by this user"), StringClass taggedWith PathClass)
   }
 
   import Fields._

@@ -12,9 +12,9 @@ import com.github.mdr.mash.runtime._
 object TimedResultClass extends MashClass("core.TimedResult") {
 
   object Fields {
-    val Result = Field("result", "Result of the piece of code executed", Type.Any)
-    val Started = Field("started", "Time execution started", DateTimeClass)
-    val Duration_ = Field("duration", "Duration of execution", NumberClass taggedWith MillisecondsClass)
+    val Result = Field("result", Some("Result of the piece of code executed"), Type.Any)
+    val Started = Field("started", Some("Time execution started"), DateTimeClass)
+    val Duration_ = Field("duration", Some("Duration of execution"), NumberClass taggedWith MillisecondsClass)
   }
 
   import Fields._

@@ -12,8 +12,8 @@ object MashClass {
   val ConstructorMethodName = "new"
 
   /**
-   * Create an alias to a method
-   */
+    * Create an alias to a method
+    */
   def alias(name: String, method: MashMethod): MashMethod = new MashMethod(name) {
 
     val params = method.params
@@ -67,7 +67,7 @@ abstract class MashClass(val nameOpt: Option[String],
   def summary: String
 
   def descriptionOpt: Option[String] = None
-  
+
   def isSubClassOf(otherClass: MashClass): Boolean =
     this == otherClass || this.parentOpt.exists(_ isSubClassOf otherClass)
 
@@ -75,8 +75,7 @@ abstract class MashClass(val nameOpt: Option[String],
 
 }
 
-case class Field(
-  name: String,
-  summary: String,
-  fieldType: Type,
-  descriptionOpt: Option[String] = None)
+case class Field(name: String,
+                 summaryOpt: Option[String] = None,
+                 fieldType: Type,
+                 descriptionOpt: Option[String] = None)

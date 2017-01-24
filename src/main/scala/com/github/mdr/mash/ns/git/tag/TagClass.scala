@@ -10,8 +10,8 @@ import com.github.mdr.mash.runtime.{ MashObject, MashString, MashUnit, MashValue
 object TagClass extends MashClass("git.tag.Tag") {
 
   object Fields {
-    val Name = Field("name", "Name of the tag", Type.Tagged(StringClass, TagNameClass))
-    val Commit = Field("commit", "The commit the tag is pointing to", Type.Tagged(StringClass, CommitHashClass))
+    val Name = Field("name", Some("Name of the tag"), StringClass taggedWith TagNameClass)
+    val Commit = Field("commit", Some("The commit the tag is pointing to"), StringClass taggedWith CommitHashClass)
   }
 
   import Fields._

@@ -7,8 +7,8 @@ import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 object IdentityClass extends MashClass("git.Identity") {
 
   object Fields {
-    val Name = Field("author", "Name", StringClass)
-    val Email = Field("email", "Email address", StringClass)
+    val Name = Field("author", Some("Name"), StringClass)
+    val Email = Field("email", Some("Email address"), StringClass)
   }
   import Fields._
 

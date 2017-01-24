@@ -62,8 +62,8 @@ object MatchClass extends MashClass("core.Match") {
   }
 
   override val fields = Seq(
-    Field(Fields.Matched, "The matched region of text", Type.Instance(StringClass)),
-    Field(Fields.Groups, "Type (file, dir, link)", Type.Seq(Type.Instance(StringClass))))
+    Field(Fields.Matched, Some("The matched region of text"), StringClass),
+    Field(Fields.Groups, Some("Type (file, dir, link)"), Seq(StringClass)))
 
   override def summary = "A match from a regular expression search"
 

@@ -21,13 +21,13 @@ import scala.collection.immutable.ListMap
 object CommitClass extends MashClass("git.Commit") {
 
   object Fields {
-    val Hash = Field("hash", "Commit hash", Type.Tagged(StringClass, CommitHashClass))
-    val CommitTime = Field("commitTime", "Commit time", DateTimeClass)
-    val Author = Field("author", "Author of the commit", IdentityClass)
-    val Committer = Field("committer", "Committer of the commit", IdentityClass)
-    val Summary = Field("summary", "Summary message of the commit", StringClass)
-    val Message = Field("message", "Commit message", StringClass)
-    val Parents = Field("parents", "Parents of this commit", Seq(CommitHashClass))
+    val Hash = Field("hash", Some("Commit hash"), StringClass taggedWith CommitHashClass)
+    val CommitTime = Field("commitTime", Some("Commit time"), DateTimeClass)
+    val Author = Field("author", Some("Author of the commit"), IdentityClass)
+    val Committer = Field("committer", Some("Committer of the commit"), IdentityClass)
+    val Summary = Field("summary", Some("Summary message of the commit"), StringClass)
+    val Message = Field("message", Some("Commit message"), StringClass)
+    val Parents = Field("parents", Some("Parents of this commit"), Seq(CommitHashClass))
   }
   import Fields._
 

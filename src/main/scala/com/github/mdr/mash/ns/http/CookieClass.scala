@@ -6,8 +6,8 @@ import com.github.mdr.mash.ns.core.StringClass
 object CookieClass extends MashClass("http.Cookie") {
 
   object Fields {
-    lazy val Name = Field("name", "Header field name", StringClass)
-    lazy val Value = Field("body", "Header field value", StringClass)
+    lazy val Name = Field("name", Some("Cookie name"), StringClass)
+    lazy val Value = Field("body", Some("Cookie value"), StringClass)
   }
 
   import Fields._

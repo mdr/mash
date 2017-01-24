@@ -15,9 +15,9 @@ import scala.collection.JavaConverters._
 object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object Fields {
-    val Remote = Field("remote", "Name of the remote this branch is in", Type.Tagged(StringClass, RemoteNameClass))
-    val Name = Field("name", "Name of the remote this branch is in", StringClass)
-    val Commit = Field("commit", "The commit the branch is pointing to", Type.Tagged(StringClass, CommitHashClass))
+    val Remote = Field("remote", Some("Name of the remote this branch is in"), StringClass taggedWith RemoteNameClass)
+    val Name = Field("name", Some("Name of the remote this branch is in"), StringClass)
+    val Commit = Field("commit", Some("The commit the branch is pointing to"), StringClass taggedWith CommitHashClass)
   }
 
   import Fields._

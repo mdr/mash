@@ -8,9 +8,9 @@ import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
 object FetchBranchUpdateClass extends MashClass("git.FetchBranchUpdate") {
 
   object Fields {
-    val RemoteBranch = Field("branch", "Remote branch", Type.Tagged(StringClass, RemoteBranchNameClass))
-    val OldCommit = Field("oldCommit", "Old commit prior to the fetch", Type.Tagged(StringClass, CommitHashClass))
-    val NewCommit = Field("newCommit", "New commit prior to the fetch", Type.Tagged(StringClass, CommitHashClass))
+    val RemoteBranch = Field("branch", Some("Remote branch"), StringClass taggedWith RemoteBranchNameClass)
+    val OldCommit = Field("oldCommit", Some("Old commit prior to the fetch"), StringClass taggedWith CommitHashClass)
+    val NewCommit = Field("newCommit", Some("New commit prior to the fetch"), StringClass taggedWith CommitHashClass)
   }
   import Fields._
 

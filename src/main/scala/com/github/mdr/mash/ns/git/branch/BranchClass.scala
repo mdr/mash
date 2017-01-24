@@ -14,11 +14,11 @@ import scala.collection.JavaConverters._
 object BranchClass extends MashClass("git.branch.Branch") {
 
   object Fields {
-    val Name = Field("name", "Name of the branch", Type.Tagged(StringClass, LocalBranchNameClass))
-    val Commit = Field("commit", "The commit the branch is pointing to", Type.Tagged(StringClass, CommitHashClass))
-    val UpstreamBranch = Field("upstreamBranch", "The upstream branch this branch is tracking, if any, else null", Type.Tagged(StringClass, RemoteBranchNameClass))
-    val AheadCount = Field("aheadCount", "Number of commits that the local branch is ahead of the remote-tracking branch", NumberClass)
-    val BehindCount = Field("behindCount", "Number of commits that the local branch is behind the remote-tracking branch", NumberClass)
+    val Name = Field("name", Some("Name of the branch"), StringClass taggedWith LocalBranchNameClass)
+    val Commit = Field("commit", Some("The commit the branch is pointing to"), StringClass taggedWith CommitHashClass)
+    val UpstreamBranch = Field("upstreamBranch", Some("The upstream branch this branch is tracking, if any, else null"), StringClass taggedWith RemoteBranchNameClass)
+    val AheadCount = Field("aheadCount", Some("Number of commits that the local branch is ahead of the remote-tracking branch"), NumberClass)
+    val BehindCount = Field("behindCount", Some("Number of commits that the local branch is behind the remote-tracking branch"), NumberClass)
   }
 
   import Fields._

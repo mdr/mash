@@ -26,7 +26,9 @@ object Type {
 
   case class Seq(t: Type) extends Type
 
-  case class Tagged(baseClass: MashClass, tagClass: MashClass) extends Type
+  case class Tagged(baseClass: MashClass, tagClass: MashClass) extends Type {
+    require(baseClass == StringClass || baseClass == NumberClass)
+  }
 
   case class Instance(klass: MashClass) extends Type {
     override def toString = klass.toString

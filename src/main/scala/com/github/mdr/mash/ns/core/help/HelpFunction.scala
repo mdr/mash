@@ -76,7 +76,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(field.name),
         Class -> MashString(klass.fullyQualifiedName.toString),
-        Summary -> MashString(field.summary),
+        Summary -> field.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         Description -> field.descriptionOpt.map(MashString(_)).getOrElse(MashNull)),
       FieldHelpClass)
   }

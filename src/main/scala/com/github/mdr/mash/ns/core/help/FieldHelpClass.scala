@@ -8,10 +8,10 @@ import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
   object Fields {
-    val Name = Field("name", "Field name", Type.Instance(StringClass))
-    val Class = Field("class", "Class this field belongs to", Type.Instance(StringClass))
-    val Summary = Field("summary", "Summary of what the function does", Type.Instance(StringClass))
-    val Description = Field("description", "Description of the function", Type.Instance(StringClass))
+    val Name = Field("name", Some("Field name"), StringClass)
+    val Class = Field("class", Some("Class this field belongs to"), StringClass)
+    val Summary = Field("summary", Some("Summary of what the function does"), StringClass)
+    val Description = Field("description", Some("Description of the function"), StringClass)
   }
 
   import Fields._
@@ -20,7 +20,7 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
     val obj = any.asInstanceOf[MashObject]
     def name = obj(Name).asInstanceOf[MashString].s
     def klass = obj(Class).asInstanceOf[MashString].s
-    def summary = obj(Summary).asInstanceOf[MashString].s
+    def summary = MashNull.option(obj(Summary)).map(_.asInstanceOf[MashString].s)
     def descriptionOpt = MashNull.option(obj(Description)).map(_.asInstanceOf[MashString].s)
   }
 

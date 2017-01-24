@@ -60,7 +60,7 @@ object PidClass extends MashClass("os.Pid") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass.fieldsMap(field.name).fieldType)
 
-    override def summary = field.summary
+    override def summary = field.summaryOpt.getOrElse("")
 
     override def descriptionOpt = field.descriptionOpt
 

@@ -11,10 +11,10 @@ import com.github.mdr.mash.runtime._
 object ResponseClass extends MashClass("http.Response") {
 
   object Fields {
-    lazy val Status = Field("status", "Status code", NumberClass)
-    lazy val Body = Field("body", "Body of the response", StringClass)
-    lazy val Headers = Field("headers", "Response headers", Seq(HeaderClass))
-    lazy val Cookies = Field("cookies", "Response cookies", Seq(CookieClass))
+    lazy val Status = Field("status", Some("Status code"), NumberClass)
+    lazy val Body = Field("body", Some("Body of the response"), StringClass)
+    lazy val Headers = Field("headers", Some("Response headers"), Seq(HeaderClass))
+    lazy val Cookies = Field("cookies", Some("Response cookies"), Seq(CookieClass))
   }
 
   import Fields._

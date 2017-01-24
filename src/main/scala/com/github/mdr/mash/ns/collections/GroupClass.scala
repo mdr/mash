@@ -9,8 +9,8 @@ import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashObject, MashValue
 object GroupClass extends MashClass("collections.Group") {
 
   object Fields {
-    val Key = Field("key", "Key that each element of the group shares", Type.Instance(StringClass))
-    val Values = Field("values", "Values of the group", Type.Seq(Type.Any))
+    val Key = Field("key", Some("Key that each element of the group shares"), StringClass)
+    val Values = Field("values", Some("Values of the group"), Type.Any.seq)
   }
   import Fields._
 
