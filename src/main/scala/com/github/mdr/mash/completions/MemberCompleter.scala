@@ -100,8 +100,12 @@ object MemberCompleter {
     val fieldMembers = userClass.params.params.flatMap(_.nameOpt).map(name ⇒ MemberInfo(name, isField = true))
     val methodMembers = userClass.methods.map { case (name, method) ⇒ MemberInfo(name, isField = false) }
     val parentClassMembers = getMembers(ObjectClass)
-    val members = fieldMembers ++ methodMembers ++ parentClassMembers
-    distinct(members)
+    distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
+  }
+
+  private def getStaticMembers(userClass: UserClass): Seq[MemberInfo] = {
+    val staticMethodMembers = Seq(MemberInfo("new", isField = false))
+    distinct(staticMethodMembers ++ getMembers(ClassClass))
   }
 
   private def getValueMembers(klass: MashClass): Seq[MemberInfo] = {
@@ -119,6 +123,7 @@ object MemberCompleter {
                          canVectorise: Boolean = true): Seq[MemberInfo] = type_ match {
     case Type.Instance(klass)              ⇒ getMembers(klass)
     case Type.UserClassInstance(userClass) ⇒ getMembers(userClass)
+    case userClass: Type.UserClass         ⇒ getStaticMembers(userClass)
     case Type.Tagged(baseClass, tagClass)  ⇒ distinct(getMembers(tagClass) ++ getMembers(baseClass))
     case Type.Generic(klass, _*)           ⇒ getMembers(klass)
     case Type.BuiltinFunction(_)           ⇒ getMembers(FunctionClass)

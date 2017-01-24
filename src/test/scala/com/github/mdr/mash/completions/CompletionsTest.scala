@@ -333,9 +333,13 @@ class CompletionsTest extends FlatSpec with Matchers {
     // "ls | .d▶" shouldContainCompletion "delete"
   }
 
-  "Object.▶" shouldContainCompletion "merge"
-  "Object.m▶" shouldContainCompletion "merge"
-  "Object.p▶" shouldContainCompletion "parent"
+  "Object.▶" shouldContainCompletions ("merge", "parent")
+  "Object.merg▶" shouldContainCompletion "merge"
+  "Object.paren▶" shouldContainCompletion "parent"
+
+  "class Rect w h; Rect.▶" shouldContainCompletions ("new", "parent")
+  "class Rect w h; Rect.ne▶" shouldContainCompletion "new"
+  "class Rect w h; Rect.paren▶" shouldContainCompletion "parent"
 
   private implicit class RichString(s: String)(
       implicit val fileSystem: FileSystem = new MockFileSystem,
@@ -352,6 +356,12 @@ class CompletionsTest extends FlatSpec with Matchers {
     def shouldContainCompletion(expectedCompletion: String) {
       "Completer" should s"offer completions for '$s' including: $expectedCompletion" in {
         completions should contain(expectedCompletion)
+      }
+    }
+
+    def shouldContainCompletions(expectedCompletions: String*) {
+      "Completer" should s"offer completions for '$s' including: ${expectedCompletions.mkString(",")}" in {
+        completions should contain allElementsOf(expectedCompletions)
       }
     }
 
