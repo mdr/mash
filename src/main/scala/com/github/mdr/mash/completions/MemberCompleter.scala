@@ -5,10 +5,10 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.ns.collections.ListClass
-import com.github.mdr.mash.ns.core.{ BoundMethodClass, ClassClass, FunctionClass, ObjectClass }
+import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ ConcreteSyntax, SourceInfo }
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.utils.{ Region, StringUtils, Utils }
 
 import scala.PartialFunction._
@@ -92,8 +92,7 @@ object MemberCompleter {
     val methodMembers = klass.methods.map(m ⇒
       MemberInfo(m.name, classOpt = Some(klass), descriptionOpt = Some(m.summary), isField = false))
     val parentClassMembers = klass.parentOpt.toSeq.flatMap(parentClass ⇒ getMembers(parentClass))
-    val members = fieldMembers ++ methodMembers ++ parentClassMembers
-    distinct(members)
+    distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
   }
 
   private def getMembers(userClass: UserClass): Seq[MemberInfo] = {
@@ -114,9 +113,20 @@ object MemberCompleter {
     distinct(staticMethodMembers ++ getMembers(ClassClass))
   }
 
+  private def getValueMembers(obj: MashObject): Seq[MemberInfo] =
+    obj.classOpt match {
+      case Some(klass) ⇒
+        val extraFieldMembers = obj.fields.keys.toSeq.filterNot(klass.fieldsMap.contains).map(MemberInfo(_, isField = true))
+        distinct(extraFieldMembers ++ getMembers(klass))
+      case None        ⇒
+        val fieldMembers = obj.fields.keys.toSeq.map(MemberInfo(_, isField = true))
+        distinct(fieldMembers ++ getMembers(ObjectClass))
+    }
+
   private def getValueMembers(value: MashValue): Option[Seq[MemberInfo]] =
     condOpt(value) {
       case klass: MashClass ⇒ getValueMembers(klass)
+      case obj: MashObject  ⇒ getValueMembers(obj)
     }
 
   private def getMembers(type_ : Type,

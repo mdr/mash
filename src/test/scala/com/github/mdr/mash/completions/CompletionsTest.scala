@@ -2,11 +2,14 @@ package com.github.mdr.mash.completions
 
 import java.nio.file.Paths
 
-import com.github.mdr.mash.evaluator.{ Environment, StandardEnvironment }
+import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem, MockEnvironmentInteractions, MockFileSystem }
+import com.github.mdr.mash.parser.AbstractSyntax.Expr
+import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.repl.LineBufferTestHelper
-import com.github.mdr.mash.runtime.{ MashObject, MashString }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import org.apache.commons.lang3.SystemUtils
 import org.scalatest._
 
@@ -23,13 +26,13 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "{ foo: 42 }.fo▶" shouldGiveCompletions "foo"
 
-  "{ bar: 1, baz: 2, buzz: 3 }.ba▶" shouldGiveCompletions ("bar", "baz")
+  "{ bar: 1, baz: 2, buzz: 3 }.ba▶" shouldGiveCompletions("bar", "baz")
 
   "{ foo: 1 } | _.▶" shouldContainCompletion "foo"
 
   "[ { foo: 1 } ] | map (_.▶)" shouldContainCompletion "foo"
 
-  "[ { revert: 1 } ].rever▶" shouldGiveCompletions ("reverse", "revert")
+  "[ { revert: 1 } ].rever▶" shouldGiveCompletions("reverse", "revert")
 
   """ "a string".startsW▶ """ shouldGiveCompletions "startsWith"
 
@@ -79,9 +82,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     "readLines.▶".completions should contain theSameElementsAs Seq("readLines.txt")
   }
 
-  ".▶" shouldGiveCompletions ("../", "./")
-  "cd .▶" shouldGiveCompletions ("../", "./")
-   "cd ..▶" shouldGiveCompletions "../"
+  ".▶" shouldGiveCompletions("../", "./")
+  "cd .▶" shouldGiveCompletions("../", "./")
+  "cd ..▶" shouldGiveCompletions "../"
 
   "def foo (n = ls.permiss▶)" shouldGiveCompletions "permissions"
   "(n = ls.permiss▶) => 42" shouldGiveCompletions "permissions"
@@ -94,7 +97,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   {
     implicit val filesystem = MockFileSystem.of("/readme.txt")
 
-    "read▶" shouldGiveCompletions ("readLines", "readme.txt")
+    "read▶" shouldGiveCompletions("readLines", "readme.txt")
     "readme.t▶" shouldGiveCompletions "readme.txt"
     """ "readme.t▶" """ shouldGiveCompletions "readme.txt"
     """ "readme".t▶ """ shouldGiveCompletions "readme.txt"
@@ -128,7 +131,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   // Flags
   "pwd.children --recur▶" shouldGiveCompletions "--recursive"
   "select --add▶" shouldGiveCompletions "--add"
-  "select --▶" shouldGiveCompletions ("--add", "--target")
+  "select --▶" shouldGiveCompletions("--add", "--target")
   "cd -▶" shouldGiveCompletions "--directory"
   "ls -▶" shouldContainCompletion "-a"
   "'dir' | ls -▶" shouldContainCompletion "-a"
@@ -246,8 +249,8 @@ class CompletionsTest extends FlatSpec with Matchers {
       "abc123xyz" -> File(),
       "foobar123baz" -> File()))
 
-    "123▶" shouldGiveCompletions ("abc123xyz", "foobar123baz")
-    "1▶" shouldGiveCompletions ("abc123xyz", "foobar123baz")
+    "123▶" shouldGiveCompletions("abc123xyz", "foobar123baz")
+    "1▶" shouldGiveCompletions("abc123xyz", "foobar123baz")
   }
 
   {
@@ -280,7 +283,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   {
     implicit val fileSystem = MockFileSystem.of("/file")
 
-    "ls -r▶" shouldGiveCompletions ()
+    "ls -r▶" shouldGiveCompletions()
   }
 
   "{ foobar: 42 } | .foo▶" shouldGiveCompletions "foobar"
@@ -288,17 +291,17 @@ class CompletionsTest extends FlatSpec with Matchers {
   {
     implicit val fileSystem = MockFileSystem.of("/.dotfiles/.bashrc")
 
-    """ls ".dotfiles/."▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
-    """ls ".dotfiles/".▶""" shouldGiveCompletions (".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
+    """ls ".dotfiles/."▶""" shouldGiveCompletions(".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
+    """ls ".dotfiles/".▶""" shouldGiveCompletions(".dotfiles/../", ".dotfiles/./", ".dotfiles/.bashrc")
   }
 
   if (!SystemUtils.IS_OS_MAC_OSX) {
     """ "${user.fullNam▶} """ shouldGiveCompletions "fullName"
     """ "$user.fullNam▶ """ shouldGiveCompletions "fullName"
   }
-  
+
   " [{ foo: true }] | find fo▶" shouldGiveCompletions "foo"
-  
+
   " { ls.fir▶ : 42 }" shouldGiveCompletions "first"
 
   "(foo bar => foo.perm▶) --bar=100 --foo=ls.first" shouldGiveCompletions "permissions"
@@ -333,18 +336,39 @@ class CompletionsTest extends FlatSpec with Matchers {
     // "ls | .d▶" shouldContainCompletion "delete"
   }
 
-  "Object.▶" shouldContainCompletions ("merge", "parent")
+  "Object.▶" shouldContainCompletions("merge", "parent")
   "Object.merg▶" shouldContainCompletion "merge"
   "Object.paren▶" shouldContainCompletion "parent"
 
-  "class Rect w h; Rect.▶" shouldContainCompletions ("new", "parent")
+  "class Rect w h; Rect.▶" shouldContainCompletions("new", "parent")
   "class Rect w h; Rect.ne▶" shouldContainCompletion "new"
   "class Rect w h; Rect.paren▶" shouldContainCompletion "parent"
 
+  havingFirstRun("fieldAndValue = { foo: 42 }.fields.first; fieldAndValue.extraField = 100") { implicit env ⇒
+    "fieldAndValue.extraFiel▶" shouldContainCompletion "extraField"
+  }
+
+  havingFirstRun("class Point x y; p = Point 3 4; p.extraField = 100") { implicit env ⇒
+    "p.extraFiel▶" shouldContainCompletion "extraField"
+  }
+
+  private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
+    val settings = CompilationSettings(bareWords = false)
+    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings, settings).body
+  }
+
+  private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
+    implicit val environment = StandardEnvironment.create
+    val expr = compile(s, environment.valuesMap)
+    implicit val context = EvaluationContext(ScopeStack(environment.globalVariables))
+    Evaluator.evaluate(expr)
+    f(environment)
+  }
+
   private implicit class RichString(s: String)(
-      implicit val fileSystem: FileSystem = new MockFileSystem,
-      implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
-      implicit val environment: Environment = StandardEnvironment.create) {
+    implicit val fileSystem: FileSystem = new MockFileSystem,
+    implicit val envInteractions: EnvironmentInteractions = MockEnvironmentInteractions(),
+    implicit val environment: Environment = StandardEnvironment.create) {
 
     def shouldGiveCompletions(expectedCompletions: String*) {
       val expectedDescription = expectedCompletions.mkString(", ")
@@ -361,7 +385,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     def shouldContainCompletions(expectedCompletions: String*) {
       "Completer" should s"offer completions for '$s' including: ${expectedCompletions.mkString(",")}" in {
-        completions should contain allElementsOf(expectedCompletions)
+        completions should contain allElementsOf (expectedCompletions)
       }
     }
 

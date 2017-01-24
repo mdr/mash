@@ -813,8 +813,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
       .bar
   """ shouldEvaluateTo 100
 
-
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
-
 
 }
