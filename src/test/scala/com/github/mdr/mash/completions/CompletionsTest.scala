@@ -7,7 +7,6 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
-import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.repl.LineBufferTestHelper
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import org.apache.commons.lang3.SystemUtils
@@ -352,6 +351,9 @@ class CompletionsTest extends FlatSpec with Matchers {
     "p.extraFiel▶" shouldContainCompletion "extraField"
   }
 
+  "def foo bar = (ba▶" shouldContainCompletion "bar"
+//  "def foo bar = (▶" shouldContainCompletion "bar"
+
   private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
     val settings = CompilationSettings(bareWords = false)
     Compiler.compileForgiving(CompilationUnit(s), bindings = bindings, settings).body
@@ -385,7 +387,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
     def shouldContainCompletions(expectedCompletions: String*) {
       "Completer" should s"offer completions for '$s' including: ${expectedCompletions.mkString(",")}" in {
-        completions should contain allElementsOf (expectedCompletions)
+        completions should contain allElementsOf expectedCompletions
       }
     }
 
@@ -400,7 +402,8 @@ class CompletionsTest extends FlatSpec with Matchers {
     def fullCompletions: Seq[Completion] = {
       val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)
       val completer = new Completer(fileSystem, envInteractions)
-      completer.complete(lineBuffer.text, lineBuffer.cursorOffset, environment.bindings, mish = false).map(_.completions).getOrElse(Seq())
+      val completionResultOpt = completer.complete(lineBuffer.text, lineBuffer.cursorOffset, environment.bindings, mish = false)
+      completionResultOpt.map(_.completions).getOrElse(Seq())
     }
 
   }

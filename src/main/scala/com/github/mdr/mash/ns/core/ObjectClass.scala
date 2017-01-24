@@ -259,7 +259,7 @@ object ObjectClass extends MashClass("core.Object") {
       completionSpecOpt.toSeq
     }
 
-    def getFields(typ_ : Type): Seq[String] = typ_ match {
+    def getFields(type_ : Type): Seq[String] = type_ match {
       case Type.Object(fields)  ⇒ fields.keys.toSeq
       case Type.Instance(klass) ⇒ klass.fields.map(_.name)
       case _                    ⇒ Seq()

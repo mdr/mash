@@ -33,7 +33,7 @@ class BareStringificationContext {
       else {
         for {
           sourceInfo ← sourceInfoOpt
-          token ← sourceInfo.expr.tokens
+          token ← sourceInfo.node.tokens
         } bareWords += token
         StringLiteral(name, QuotationType.Double, sourceInfoOpt = sourceInfoOpt)
       }

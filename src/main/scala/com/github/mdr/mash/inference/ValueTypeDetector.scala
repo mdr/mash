@@ -38,9 +38,9 @@ class ValueTypeDetector {
       else {
         visitingMap.put(x, true)
         try {
-          val typ_ = getType_(x)
-          visitedMap.put(x, typ_)
-          typ_
+          val type_ = getType_(x)
+          visitedMap.put(x, type_)
+          type_
         } finally
           visitingMap.remove(x)
       }

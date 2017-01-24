@@ -4,6 +4,7 @@ import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashValue, MashValueOrdering }
+import com.github.mdr.mash.utils.Utils._
 import net.greypanther.natsort.SimpleNaturalComparator
 
 object SortFunction extends MashFunction("collections.sort") {
@@ -60,11 +61,8 @@ object SortFunction extends MashFunction("collections.sort") {
         sequence.sortWith(NaturalOrdering.lt)
       else
         sequence.sortWith(MashValueOrderingWithNullBottom.lt)
-    val newSequence =
-      if (descending)
-        sorted.reverse
-      else
-        sorted
+
+    val newSequence = sorted.when(descending, _.reverse)
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
@@ -73,7 +71,8 @@ object SortFunction extends MashFunction("collections.sort") {
   override def summary = "Sort the elements of a sequence"
 
   override def descriptionOpt = Some("""Examples:
-  sort [3, 1, 2]              # [1, 2, 3]
-  sort --descending [3, 1, 2] # [3, 2, 1]""")
+  sort [3, 1, 2]                                      # [1, 2, 3]
+  sort --descending [3, 1, 2]                         # [3, 2, 1]
+  sort --naturalOrder ["a2.txt", "a10.txt", "a1.txt"] # ["a1.txt", "a2.txt", "a10.txt"] """)
 
 }

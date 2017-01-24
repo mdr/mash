@@ -27,7 +27,7 @@ object MemberCompleter {
     val expr = parser.parse(replacedText)
     for {
       sourceInfo ← expr.sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
+      tokens = sourceInfo.node.tokens
       identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region == dummyIdentifierRegion)
       memberExpr ← findMemberExpr(expr, identifierToken)
       members ← getMembers(memberExpr)
@@ -66,7 +66,7 @@ object MemberCompleter {
 
   private def spaceBeforeDot(memberExpr: MemberExpr): Boolean =
     memberExpr.sourceInfoOpt.exists { sourceInfo ⇒
-      cond(sourceInfo.expr) {
+      cond(sourceInfo.node) {
         case ConcreteSyntax.MemberExpr(before, dot, after) ⇒
           dot.offset > 0 && dot.source.charAt(dot.offset - 1).isWhitespace
       }
@@ -76,7 +76,7 @@ object MemberCompleter {
     val expr = parser.parse(text)
     for {
       sourceInfo ← expr.sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
+      tokens = sourceInfo.node.tokens
       memberExpr ← findMemberExpr(expr, identifier)
     } yield memberExpr
   }

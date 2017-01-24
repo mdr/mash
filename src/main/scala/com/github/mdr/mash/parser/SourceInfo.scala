@@ -2,9 +2,9 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.evaluator.SourceLocation
 
-case class SourceInfo(provenance: Provenance, expr: ConcreteSyntax.AstNode) {
+case class SourceInfo(provenance: Provenance, node: ConcreteSyntax.AstNode) {
 
-  def location = SourceLocation(provenance, expr.pointedRegion)
+  def location = SourceLocation(provenance, node.pointedRegion)
 
 }
 

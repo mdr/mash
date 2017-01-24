@@ -15,7 +15,7 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
     val expr = parser.parse(text)
     for {
       sourceInfo ← parser.parse(text).sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
+      tokens = sourceInfo.node.tokens
       literalToken ← tokens.find(_.region == stringRegion)
       InvocationInfo(invocationExpr, argPos) ← InvocationFinder.findInvocationWithLiteralArg(expr, literalToken)
       completionSpecs ← getCompletionSpecs(invocationExpr, argPos)

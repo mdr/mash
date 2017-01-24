@@ -76,7 +76,7 @@ object InvocationAssistance {
       case e: Expr if e.preInvocationTypeOpt.isDefined && expandedRegionContains(e, tokens, pos) ⇒ e
       case e: Expr if hasFunctionType(e) && expandedRegionContains(e, tokens, pos)               ⇒ e
     }
-    def size(expr: Expr): Int = expr.sourceInfoOpt.map(_.expr.region.length).getOrElse(Integer.MAX_VALUE)
+    def size(expr: Expr): Int = expr.sourceInfoOpt.map(_.node.region.length).getOrElse(Integer.MAX_VALUE)
     Utils.minBy(enclosingInvocations, size)
   }
 
@@ -87,7 +87,7 @@ object InvocationAssistance {
     })
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =
-    expr.sourceInfoOpt.exists(info ⇒ rightExpandedRegion(info.expr, tokens) contains pos)
+    expr.sourceInfoOpt.exists(info ⇒ rightExpandedRegion(info.node, tokens) contains pos)
 
   private def rightExpandedRegion(expr: ConcreteSyntax.AstNode, tokens: Seq[Token]): Region = {
     val rightmostTokenOpt = expr.tokens.lastOption.map { lastToken ⇒

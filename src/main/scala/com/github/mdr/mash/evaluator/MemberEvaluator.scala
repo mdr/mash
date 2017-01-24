@@ -33,7 +33,7 @@ object MemberEvaluator extends EvaluatorHelper {
                          invokeNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
-    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.expr) {
+    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.node) {
       case ConcreteSyntax.MemberExpr(_, _, nameToken) ⇒
         SourceLocation(info.provenance, PointedRegion(nameToken.offset, nameToken.region))
     })

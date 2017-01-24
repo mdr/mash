@@ -42,7 +42,7 @@ object FlagCompleter {
     val expr = parser.parse(textWithDummyFlag)
     for {
       sourceInfo ← expr.sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
+      tokens = sourceInfo.node.tokens
       flagToken ← tokens.find(t ⇒ t.isFlag && t.region.overlaps(minusToken.region))
       InvocationInfo(invocationExpr, _) ← InvocationFinder.findInvocationWithFlagArg(expr, flagToken)
       functionType ← invocationExpr.function.typeOpt

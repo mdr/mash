@@ -99,8 +99,8 @@ class TypeInferencer {
     (for {
       param ← params.params
       paramTypeOpt = param.defaultExprOpt.flatMap(inferType(_, bindings))
-      (name, typ_) ← TypeParamValidationContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
-    } yield name -> typ_).toMap
+      (name, type_) ← TypeParamValidationContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
+    } yield name -> type_).toMap
 
   private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
     val preliminaryBindings = inferType(functionDecl.params, bindings)
@@ -238,8 +238,8 @@ class TypeInferencer {
           inferType(fieldExpr, bindings)
           for {
             label ← getFieldName(fieldExpr)
-            typ_ = inferType(valueExpr, bindings).getOrElse(Type.Any)
-          } yield label -> typ_
+            type_ = inferType(valueExpr, bindings).getOrElse(Type.Any)
+          } yield label -> type_
         case ShorthandObjectEntry(field, _)           ⇒
           Seq(field -> inferType(field, bindings, immediateExec = true).getOrElse(Type.Any))
       }
@@ -312,13 +312,13 @@ class TypeInferencer {
     }
 
   private object StringLike {
-    def unapply(typ_ : Type): Option[Type] = condOpt(typ_) {
-      case Type.Tagged(StringClass, _) | Type.Instance(StringClass) ⇒ typ_
+    def unapply(type_ : Type): Option[Type] = condOpt(type_) {
+      case Type.Tagged(StringClass, _) | Type.Instance(StringClass) ⇒ type_
     }
   }
 
   private object NumberLike {
-    def unapply(typ_ : Type): Option[Option[MashClass]] = condOpt(typ_) {
+    def unapply(type_ : Type): Option[Option[MashClass]] = condOpt(type_) {
       case Type.Tagged(NumberClass, klass) ⇒ Some(klass)
       case Type.Instance(NumberClass)      ⇒ None
     }

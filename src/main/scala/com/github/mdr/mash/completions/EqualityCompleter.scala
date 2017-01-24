@@ -13,7 +13,7 @@ object EqualityCompleter {
     val expr = parser.parse(text)
     for {
       sourceInfo ← expr.sourceInfoOpt
-      tokens = sourceInfo.expr.tokens
+      tokens = sourceInfo.node.tokens
       literalToken ← tokens.find(_.region == stringRegion)
       equalityType ← EqualityFinder.findEqualityExprWithLiteralArg(expr, literalToken)
       completions ← getEqualityCompletions(equalityType, literalToken)
