@@ -50,7 +50,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     object Params {
       lazy val Switch = Parameter(
         nameOpt = Some("switch"),
-        summary = "Switch to the new branch after creating it (default false)",
+        summaryOpt = Some("Switch to the new branch after creating it (default false)"),
         shortFlagOpt = Some('s'),
         isFlag = true,
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),

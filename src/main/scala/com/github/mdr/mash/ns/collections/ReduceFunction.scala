@@ -12,14 +12,14 @@ object ReduceFunction extends MashFunction("collections.reduce") {
   object Params {
     val Accumulator = Parameter(
       nameOpt = Some("accumulator"),
-      summary = "Function to accumulate values")
+      summaryOpt = Some("Function to accumulate values"))
     val Initial = Parameter(
       nameOpt = Some("initial"),
-      summary = "Initial value",
+      summaryOpt = Some("Initial value"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of items to reduce",
+      summaryOpt = Some("Sequence of items to reduce"),
       isLast = true)
   }
   import Params._

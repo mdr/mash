@@ -10,10 +10,10 @@ object SkipWhileFunction extends MashFunction("collections.skipWhile") {
   object Params {
     val Predicate = Parameter(
       nameOpt = Some("predicate"),
-      summary = "Predicate used to test elements of the sequence")
+      summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence to skip values from",
+      summaryOpt = Some("Sequence to skip values from"),
       isLast = true)
   }
   import Params._

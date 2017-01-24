@@ -16,10 +16,10 @@ object CloneFunction extends MashFunction("git.clone") {
   object Params {
     val Repository = Parameter(
       nameOpt = Some("repository"),
-      summary = "Repository URL to clone")
+      summaryOpt = Some("Repository URL to clone"))
     val Directory = Parameter(
       nameOpt = Some("directory"),
-      summary = "Name to give to new repository directory",
+      summaryOpt = Some("Name to give to new repository directory"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
   }
   import Params._

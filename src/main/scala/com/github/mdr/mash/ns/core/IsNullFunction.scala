@@ -9,7 +9,7 @@ object IsNullFunction extends MashFunction("core.isNull") {
   object Params {
     val Value = Parameter(
       nameOpt = Some("value"),
-      summary = "Value to test for nullness")
+      summaryOpt = Some("Value to test for nullness"))
   }
   import Params._
 

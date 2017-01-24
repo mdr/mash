@@ -17,7 +17,7 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
     val Value = Parameter(
       nameOpt = Some("value"),
-      summary = "Value to convert to a JSON string")
+      summaryOpt = Some("Value to convert to a JSON string"))
 
   }
   import Params._

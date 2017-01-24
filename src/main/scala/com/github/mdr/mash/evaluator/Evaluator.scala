@@ -185,8 +185,7 @@ object Evaluator extends EvaluatorHelper {
         paramComment ← docComment.getParamComment(name)
       } yield paramComment.summary
 
-    val summary = docSummaryOpt orElse nameOpt.map(name ⇒ s"Parameter '$name'") getOrElse "Anonymous parameter"
-    Parameter(nameOpt, summary, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
+    Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
   }
 

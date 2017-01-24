@@ -12,7 +12,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of sequences to flatten",
+      summaryOpt = Some("Sequence of sequences to flatten"),
       isLast = true)
   }
 

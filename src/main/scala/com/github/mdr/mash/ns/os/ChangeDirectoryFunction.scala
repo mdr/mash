@@ -23,7 +23,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
   object Params {
     val Directory = Parameter(
       nameOpt = Some("directory"),
-      summary = "Directory to change into; defaults to the current user's home directory.",
+      summaryOpt = Some("Directory to change into; defaults to the current user's home directory."),
       defaultValueGeneratorOpt = Some(() ⇒ home))
   }
   import Params._

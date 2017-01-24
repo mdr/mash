@@ -14,17 +14,17 @@ object MapFunction extends MashFunction("collections.map") {
   object Params {
     val F = Parameter(
       nameOpt = Some("f"),
-      summary = "Function used to transform elements of the sequence")
+      summaryOpt = Some("Function used to transform elements of the sequence"))
     val WithIndex = Parameter(
       nameOpt = Some("withIndex"),
       shortFlagOpt = Some('i'),
-      summary = "Pass index into the function as well as the item",
+      summaryOpt = Some("Pass index into the function as well as the item"),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence to map over",
+      summaryOpt = Some("Sequence to map over"),
       isLast = true)
   }
 

@@ -12,7 +12,7 @@ object BrowserFunction extends MashFunction("view.browser") {
   object Params {
     val Data = Parameter(
       nameOpt = Some("data"),
-      summary = "Data to view")
+      summaryOpt = Some("Data to view"))
   }
   import Params._
 

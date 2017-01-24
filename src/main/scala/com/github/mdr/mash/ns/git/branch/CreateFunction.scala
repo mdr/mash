@@ -16,19 +16,19 @@ object CreateFunction extends MashFunction("git.branch.create") {
   object Params {
     lazy val Branch: Parameter = Parameter(
       nameOpt = Some("branch"),
-      summary = "Name to give the new local branch",
+      summaryOpt = Some("Name to give the new local branch"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull),
       descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.nameOpt}' is provided"))
     lazy val Switch = Parameter(
       nameOpt = Some("switch"),
-      summary = "Switch to the new branch after creating it (default false)",
+      summaryOpt = Some("Switch to the new branch after creating it (default false)"),
       shortFlagOpt = Some('s'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     lazy val FromRemote = Parameter(
       nameOpt = Some("fromRemote"),
-      summary = "Create the new branch as a local tracking branch of the given remote branch",
+      summaryOpt = Some("Create the new branch as a local tracking branch of the given remote branch"),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
   }

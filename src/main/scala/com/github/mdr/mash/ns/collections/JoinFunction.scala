@@ -11,11 +11,11 @@ object JoinFunction extends MashFunction("collections.join") {
   object Params {
     val Separator = Parameter(
       nameOpt = Some("separator"),
-      summary = """String used to separate elements in the result string; defaults to """"",
+      summaryOpt = Some("""String used to separate elements in the result string; defaults to """""),
       defaultValueGeneratorOpt = Some(() ⇒ MashString("")))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence to combine into a string",
+      summaryOpt = Some("Sequence to combine into a string"),
       isLast = true)
   }
   import Params._

@@ -26,7 +26,7 @@ object ObjectClass extends MashClass("core.Object") {
     object Params {
       val Objects = Parameter(
         nameOpt = Some("objects"),
-        summary = "Objects to merge",
+        summaryOpt = Some("Objects to merge"),
         isVariadic = true,
         variadicAtLeastOne = true)
     }
@@ -58,10 +58,10 @@ object ObjectClass extends MashClass("core.Object") {
     object Params {
       val FieldName = Parameter(
         nameOpt = Some("fieldName"),
-        summary = "Field name to hoist")
+        summaryOpt = Some("Field name to hoist"))
       val Prefix = Parameter(
         nameOpt = Some("prefix"),
-        summary = "Add this prefix to hoisted field names",
+        summaryOpt = Some("Add this prefix to hoisted field names"),
         defaultValueGeneratorOpt = Some(() ⇒ MashNull),
         isFlag = true,
         flagValueNameOpt = Some("prefix"))
@@ -184,7 +184,7 @@ object ObjectClass extends MashClass("core.Object") {
     object Params {
       val Name = Parameter(
         nameOpt = Some("name"),
-        summary = "Field name")
+        summaryOpt = Some("Field name"))
     }
 
     import Params._
@@ -208,10 +208,10 @@ object ObjectClass extends MashClass("core.Object") {
     object Params {
       val Name = Parameter(
         nameOpt = Some("name"),
-        summary = "Field name")
+        summaryOpt = Some("Field name"))
       val Default = Parameter(
         nameOpt = Some("default"),
-        summary = "Default to use if no field with that name present in object (default null)",
+        summaryOpt = Some("Default to use if no field with that name present in object (default null)"),
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
 
@@ -272,10 +272,10 @@ object ObjectClass extends MashClass("core.Object") {
     object Params {
       val Name = Parameter(
         nameOpt = Some("name"),
-        summary = "Field name")
+        summaryOpt = Some("Field name"))
       val Value = Parameter(
         nameOpt = Some("value"),
-        summary = "Field value")
+        summaryOpt = Some("Field value"))
     }
 
     import Params._

@@ -15,7 +15,7 @@ object GetFunction extends MashFunction("git.branch.get") {
   object Params {
     val Branch = Parameter(
       nameOpt = Some("branch"),
-      summary = "Local branch to get")
+      summaryOpt = Some("Local branch to get"))
   }
   import Params._
 

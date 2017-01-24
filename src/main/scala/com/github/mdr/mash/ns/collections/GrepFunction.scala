@@ -12,14 +12,14 @@ object GrepFunction extends MashFunction("collections.grep") {
   object Params {
     val Query = Parameter(
       nameOpt = Some("query"),
-      summary = "Query to find in the given sequence")
+      summaryOpt = Some("Query to find in the given sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence to find values in",
+      summaryOpt = Some("Sequence to find values in"),
       isLast = true)
     val IgnoreCase = Parameter(
       nameOpt = Some("ignoreCase"),
-      summary = "Perform a case-insensitive match",
+      summaryOpt = Some("Perform a case-insensitive match"),
       shortFlagOpt = Some('i'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
@@ -27,7 +27,7 @@ object GrepFunction extends MashFunction("collections.grep") {
     val Regex = Parameter(
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
-      summary = "Interpret query as a regular expression; otherwise, interpret query as the literal string (default false)",
+      summaryOpt = Some("Interpret query as a regular expression; otherwise, interpret query as the literal string (default false)"),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)

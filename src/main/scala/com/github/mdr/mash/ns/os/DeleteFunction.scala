@@ -14,7 +14,7 @@ object DeleteFunction extends MashFunction("os.delete") {
   object Params {
     val Paths = Parameter(
       nameOpt = Some("paths"),
-      summary = "Paths to delete",
+      summaryOpt = Some("Paths to delete"),
       isVariadic = true,
       variadicAtLeastOne = true)
   }

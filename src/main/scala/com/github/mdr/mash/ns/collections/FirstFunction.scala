@@ -13,11 +13,11 @@ object FirstFunction extends MashFunction("collections.first") {
   object Params {
     val N: Parameter = Parameter(
       nameOpt = Some("n"),
-      summary = "Number of elements",
+      summaryOpt = Some("Number of elements"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence to find the first value(s) of",
+      summaryOpt = Some("Sequence to find the first value(s) of"),
       isLast = true)
   }
   import Params._

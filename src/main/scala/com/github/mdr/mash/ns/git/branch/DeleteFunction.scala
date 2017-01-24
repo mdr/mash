@@ -12,7 +12,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   object Params {
     val Branches = Parameter(
       nameOpt = Some("branches"),
-      summary = "Local branches to delete",
+      summaryOpt = Some("Local branches to delete"),
       isVariadic = true,
       variadicAtLeastOne = true)
   }

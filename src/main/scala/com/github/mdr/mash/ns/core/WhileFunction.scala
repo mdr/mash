@@ -11,11 +11,11 @@ object WhileFunction extends MashFunction("core.while") {
   object Params {
     val Condition = Parameter(
       nameOpt = Some("condition"),
-      summary = "Condition of the while loop",
+      summaryOpt = Some("Condition of the while loop"),
       isLazy = true)
     val Block = Parameter(
       nameOpt = Some("block"),
-      summary = "Code to execute",
+      summaryOpt = Some("Code to execute"),
       isLazy = true)
   }
 

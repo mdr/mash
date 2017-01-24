@@ -20,7 +20,7 @@ object FromFileFunction extends MashFunction("json.fromFile") {
   object Params {
     val File = Parameter(
       nameOpt = Some("file"),
-      summary = "File from which to read lines")
+      summaryOpt = Some("File from which to read lines"))
   }
   import Params._
 

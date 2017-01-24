@@ -16,14 +16,14 @@ object PushFunction extends MashFunction("git.push") {
   object Params {
     val SetUpstream = Parameter(
       nameOpt = Some("setUpstream"),
-      summary = "Add upstream tracking branch (default false)",
+      summaryOpt = Some("Add upstream tracking branch (default false)"),
       shortFlagOpt = Some('u'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Force = Parameter(
       nameOpt = Some("force"),
-      summary = "Force push (default false)",
+      summaryOpt = Some("Force push (default false)"),
       shortFlagOpt = Some('f'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
@@ -32,11 +32,11 @@ object PushFunction extends MashFunction("git.push") {
       nameOpt = Some("remote"),
       isFlag = true,
       isFlagValueMandatory = true,
-      summary = "Remote to push to",
+      summaryOpt = Some("Remote to push to"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Branches = Parameter(
       nameOpt = Some("branches"),
-      summary = "Local branch to push",
+      summaryOpt = Some("Local branch to push"),
       isVariadic = true)
   }
   import Params._

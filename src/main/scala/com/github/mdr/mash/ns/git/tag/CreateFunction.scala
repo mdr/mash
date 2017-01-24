@@ -11,7 +11,7 @@ object CreateFunction extends MashFunction("git.tag.create") {
   object Params {
     lazy val Name: Parameter = Parameter(
       nameOpt = Some("name"),
-      summary = "Name to give the tag")
+      summaryOpt = Some("Name to give the tag"))
   }
 
   import Params._

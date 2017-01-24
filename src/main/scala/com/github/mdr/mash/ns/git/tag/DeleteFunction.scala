@@ -13,7 +13,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
   object Params {
     val Tags = Parameter(
       nameOpt = Some("tags"),
-      summary = "Tags to delete",
+      summaryOpt = Some("Tags to delete"),
       isVariadic = true,
       variadicAtLeastOne = true)
   }

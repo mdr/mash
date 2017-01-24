@@ -16,10 +16,10 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
   object Params {
     val Discriminator = Parameter(
       nameOpt = Some("discriminator"),
-      summary = "Function to apply to elements of the sequence to determine a key")
+      summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
     val Total = Parameter(
       nameOpt = Some("total"),
-      summary = "Include a total group containing all the results",
+      summaryOpt = Some("Include a total group containing all the results"),
       shortFlagOpt = Some('t'),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
@@ -30,7 +30,7 @@ If a non-boolean argument is given, that is used as the key for the additional g
 Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
     val IncludeNull = Parameter(
       nameOpt = Some("includeNull"),
-      summary = "Include groups that have null keys",
+      summaryOpt = Some("Include groups that have null keys"),
       shortFlagOpt = Some('n'),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
@@ -40,7 +40,7 @@ If false (the default), exclude a group with a null key.
 If a non-boolean argument is given, that will be used as the key for the null group instead of null."""))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence from which to form groups",
+      summaryOpt = Some("Sequence from which to form groups"),
       isLast = true)
   }
 

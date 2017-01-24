@@ -11,10 +11,10 @@ object AllFunction extends MashFunction("collections.all") {
   object Params {
     val Predicate = Parameter(
       nameOpt = Some("predicate"),
-      summary = "Predicate used to test elements of the sequence")
+      summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of elements to test",
+      summaryOpt = Some("Sequence of elements to test"),
       isLast = true)
   }
 

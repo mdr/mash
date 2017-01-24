@@ -11,11 +11,11 @@ object SumFunction extends MashFunction("collections.sum") {
   object Params {
     val EmptyValue = Parameter(
       nameOpt = Some("emptyValue"),
-      summary = "Value used as the sum of an empty list (default 0)",
+      summaryOpt = Some("Value used as the sum of an empty list (default 0)"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of items to sum",
+      summaryOpt = Some("Sequence of items to sum"),
       isLast = true)
   }
   import Params._

@@ -10,11 +10,11 @@ object TryFunction extends MashFunction("core.try") {
   object Params {
     val Body = Parameter(
       nameOpt = Some("body"),
-      summary = "Code to execute",
+      summaryOpt = Some("Code to execute"),
       isLazy = true)
     val Catch = Parameter(
       nameOpt = Some("catch"),
-      summary = "Code to execute if an exception is thrown in the body",
+      summaryOpt = Some("Code to execute if an exception is thrown in the body"),
       isLazy = true)
   }
 

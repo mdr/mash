@@ -14,13 +14,13 @@ object MoveFunction extends MashFunction("os.move") {
   object Params {
     val Paths = Parameter(
       nameOpt = Some("paths"),
-      summary = "Paths to move",
+      summaryOpt = Some("Paths to move"),
       descriptionOpt = Some("At least one path must provided."),
       isVariadic = true,
       variadicAtLeastOne = true)
     val Destination = Parameter(
       nameOpt = Some("destination"),
-      summary = "Location to move to",
+      summaryOpt = Some("Location to move to"),
       isLast = true)
   }
   import Params._

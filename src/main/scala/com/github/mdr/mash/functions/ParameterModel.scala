@@ -29,7 +29,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def validate(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
     new ParamValidationContext(this, arguments, ignoreAdditionalParameters).validate()
 
-  def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summary, param.shortFlagOpt.map(_.toString), param.nameOpt))
+  def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summaryOpt.getOrElse("TODO"), param.shortFlagOpt.map(_.toString), param.nameOpt))
 
   def allowsNullary: Boolean = params.forall(p ⇒ (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined)
 

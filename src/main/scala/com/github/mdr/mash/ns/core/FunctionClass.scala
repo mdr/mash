@@ -31,11 +31,11 @@ object FunctionClass extends MashClass("core.Function") {
     object Params {
       val Args = Parameter(
         nameOpt = Some("args"),
-        summary = "Positional arguments for this function",
+        summaryOpt = Some("Positional arguments for this function"),
         defaultValueGeneratorOpt = Option(() ⇒ MashList.empty))
       val NamedArgs = Parameter(
         nameOpt = Some("namedArgs"),
-        summary = "Named arguments for this function",
+        summaryOpt = Some("Named arguments for this function"),
         defaultValueGeneratorOpt = Option(() ⇒ MashObject.empty))
     }
 

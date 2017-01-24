@@ -16,7 +16,7 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
   object Params {
     val Branch = Parameter(
       nameOpt = Some("branch"),
-      summary = "Name of a local branch to switch to")
+      summaryOpt = Some("Name of a local branch to switch to"))
   }
   import Params._
 

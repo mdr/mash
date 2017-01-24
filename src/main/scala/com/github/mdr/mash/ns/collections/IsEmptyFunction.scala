@@ -11,7 +11,7 @@ object IsEmptyFunction extends MashFunction("collections.isEmpty") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of elements to test")
+      summaryOpt = Some("Sequence of elements to test"))
   }
 
   import Params._

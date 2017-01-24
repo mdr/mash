@@ -14,7 +14,7 @@ object SleepFunction extends MashFunction("time.sleep") {
   object Params {
     val Duration = Parameter(
       nameOpt = Some("duration"),
-      summary = "Duration to sleep (default millisecond)")
+      summaryOpt = Some("Duration to sleep (default millisecond)"))
   }
 
   import Params._

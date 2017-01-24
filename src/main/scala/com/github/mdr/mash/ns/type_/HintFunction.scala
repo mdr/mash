@@ -13,10 +13,10 @@ object HintFunction extends MashFunction("type.hint") {
   object Params {
     val Hint = Parameter(
       nameOpt = Some("hint"),
-      summary = "Hint")
+      summaryOpt = Some("Hint"))
     val Item = Parameter(
       nameOpt = Some("item"),
-      summary = "Item to apply a type hint to")
+      summaryOpt = Some("Item to apply a type hint to"))
   }
 
   import Params._

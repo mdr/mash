@@ -12,7 +12,7 @@ object ParseIso8601Function extends MashFunction("time.parseIso8601") {
   object Params {
     val Date = Parameter(
       nameOpt = Some("date"),
-      summary = "Date in ISO-8601 format")
+      summaryOpt = Some("Date in ISO-8601 format"))
   }
   import Params._
 

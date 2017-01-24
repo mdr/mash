@@ -79,7 +79,7 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val Substring = Parameter(
         nameOpt = Some("substring"),
-        summary = "Substring to match")
+        summaryOpt = Some("Substring to match"))
     }
 
     import Params._
@@ -180,10 +180,10 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val _Pattern = Parameter(
         nameOpt = Some("pattern"),
-        summary = "Regular expression pattern")
+        summaryOpt = Some("Regular expression pattern"))
       val IgnoreCase = Parameter(
         nameOpt = Some("ignoreCase"),
-        summary = "Perform a case-insensitive match",
+        summaryOpt = Some("Perform a case-insensitive match"),
         shortFlagOpt = Some('i'),
         isFlag = true,
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
@@ -215,13 +215,13 @@ object StringClass extends MashClass("core.String") {
       val Regex = Parameter(
         nameOpt = Some("regex"),
         shortFlagOpt = Some('r'),
-        summary = "Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)",
+        summaryOpt = Some("Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)"),
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isFlag = true,
         isBooleanFlag = true)
       val Separator = Parameter(
         nameOpt = Some("separator"),
-        summary = "Separator to split string on; if not provided, the default is to split on whitespace",
+        summaryOpt = Some("Separator to split string on; if not provided, the default is to split on whitespace"),
         defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     }
 
@@ -260,14 +260,14 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val Target = Parameter(
         nameOpt = Some("target"),
-        summary = "String to replace")
+        summaryOpt = Some("String to replace"))
       val Replacement = Parameter(
         nameOpt = Some("replacement"),
-        summary = "Replacement string")
+        summaryOpt = Some("Replacement string"))
       val Regex = Parameter(
         nameOpt = Some("regex"),
         shortFlagOpt = Some('r'),
-        summary = "Interpret target as a regular expression",
+        summaryOpt = Some("Interpret target as a regular expression"),
         defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
         isFlag = true,
         isBooleanFlag = true)
@@ -414,7 +414,7 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val Prefix = Parameter(
         nameOpt = Some("prefix"),
-        summary = "Prefix to test")
+        summaryOpt = Some("Prefix to test"))
     }
 
     import Params._
@@ -439,7 +439,7 @@ object StringClass extends MashClass("core.String") {
     object Params {
       val Suffix = Parameter(
         nameOpt = Some("suffix"),
-        summary = "Suffix to test")
+        summaryOpt = Some("Suffix to test"))
     }
 
     import Params._

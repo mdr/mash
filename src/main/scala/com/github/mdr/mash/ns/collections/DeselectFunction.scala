@@ -15,12 +15,12 @@ object DeselectFunction extends MashFunction("collections.deselect") {
   object Params {
     val Fields = Parameter(
       nameOpt = Some("fields"),
-      summary = "Fields from the object",
+      summaryOpt = Some("Fields from the object"),
       isVariadic = true,
       variadicAtLeastOne = true)
     val Target = Parameter(
       nameOpt = Some("target"),
-      summary = "Object or sequence of objects to remove fields from",
+      summaryOpt = Some("Object or sequence of objects to remove fields from"),
       isLast = true)
   }
 

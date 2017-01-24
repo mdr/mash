@@ -18,11 +18,11 @@ object SelectFunction extends MashFunction("collections.select") {
   object Params {
     val Target = Parameter(
       nameOpt = Some("target"),
-      summary = "Either an object or sequence of objects to select fields from",
+      summaryOpt = Some("Either an object or sequence of objects to select fields from"),
       isLast = true)
     val Add = Parameter(
       nameOpt = Some("add"),
-      summary = "Add the fields to the existing set of members, rather than replacing",
+      summaryOpt = Some("Add the fields to the existing set of members, rather than replacing"),
       shortFlagOpt = Some(AddShortFlag),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true)

@@ -14,7 +14,7 @@ object StatsFunction extends MashFunction("maths.stats") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summary = "Sequence of numbers on which to compute statistics")
+      summaryOpt = Some("Sequence of numbers on which to compute statistics"))
   }
   import Params._
 

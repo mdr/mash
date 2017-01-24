@@ -18,20 +18,20 @@ object PostFunction extends MashFunction("http.post") {
   object Params {
     val Url = Parameter(
       nameOpt = Some("url"),
-      summary = "URL to send request to")
+      summaryOpt = Some("URL to send request to"))
     val Body = Parameter(
       nameOpt = Some("body"),
-      summary = "Body of request",
+      summaryOpt = Some("Body of request"),
       defaultValueGeneratorOpt = Some(() ⇒ MashString("")))
     val BasicAuth = Parameter(
       nameOpt = Some("basicAuth"),
-      summary = "Basic authentication",
+      summaryOpt = Some("Basic authentication"),
       descriptionOpt = Some("Must either be a String of the form 'username:password', or an object of the form { username: 'username', password: 'password' }"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNull),
       isFlag=true)
     val Headers = Parameter(
       nameOpt = Some("headers"),
-      summary = "Headers to add to request",
+      summaryOpt = Some("Headers to add to request"),
       descriptionOpt = Some(
         """Headers can be provided either as an object or a list. Examples:
 --headers={ header1: value }
@@ -41,7 +41,7 @@ object PostFunction extends MashFunction("http.post") {
       defaultValueGeneratorOpt = Some(() ⇒ MashNull))
     val Json = Parameter(
       nameOpt = Some("json"),
-      summary = "Whether to send the body as JSON (default false)",
+      summaryOpt = Some("Whether to send the body as JSON (default false)"),
       shortFlagOpt = Some('j'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),

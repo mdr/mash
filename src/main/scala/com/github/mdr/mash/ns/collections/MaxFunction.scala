@@ -13,7 +13,7 @@ object MaxFunction extends MashFunction("collections.max") {
   object Params {
     val Items = Parameter(
       nameOpt = Some("items"),
-      summary = "Items to find the maximum of",
+      summaryOpt = Some("Items to find the maximum of"),
       descriptionOpt = Some("""If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
 If multiple arguments are provided, the largest argument is returned."""),
       isVariadic = true)

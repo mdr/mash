@@ -18,7 +18,7 @@ object ListFilesFunction extends MashFunction("os.listFiles") {
   object Params {
     val Paths = Parameter(
       nameOpt = Some("paths"),
-      summary = "Paths to list files",
+      summaryOpt = Some("Paths to list files"),
       isVariadic = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashList.of(asPathString(""))),
       descriptionOpt = Some(s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects. 
@@ -28,21 +28,21 @@ If a given path is a directory, its children will be included, unless the
 If no paths are provided, the default is the current working directory."""))
     val All = Parameter(
       nameOpt = Some("all"),
-      summary = "Include files starting with a dot (default false)",
+      summaryOpt = Some("Include files starting with a dot (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Recursive = Parameter(
       nameOpt = Some("recursive"),
-      summary = "Recursively retrieve results from directories (default false)",
+      summaryOpt = Some("Recursively retrieve results from directories (default false)"),
       shortFlagOpt = Some('r'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Directory = Parameter(
       nameOpt = Some("directory"),
-      summary = "List directories themselves, not their contents (default false)",
+      summaryOpt = Some("List directories themselves, not their contents (default false)"),
       shortFlagOpt = Some('d'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),

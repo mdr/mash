@@ -85,7 +85,8 @@ class HelpPrinter(output: PrintStream) {
     }
     val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else MashNull.option(param(Name)).getOrElse("anon")))
     val shortFlagDescription = paramNameStyle(MashNull.option(param(ShortFlag)).map(f ⇒ s" | -$f").getOrElse(""))
-    output.println(paramName + shortFlagDescription + qualifierString + " - " + param(Summary))
+    val summaryOpt = MashNull.option(param(Summary))
+    output.println(paramName + shortFlagDescription + qualifierString + summaryOpt.fold("")(" - " + _))
     for (description ← MashNull.option(param(Description)).map(_.asInstanceOf[MashString]))
       output.println(shiftLeftMargin(description.s, indent * 2))
     output.println()

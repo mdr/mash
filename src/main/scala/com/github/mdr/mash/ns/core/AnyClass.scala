@@ -63,7 +63,7 @@ object AnyClass extends MashClass("core.Any") {
     object Params {
       val Class = Parameter(
         nameOpt = Some("class"),
-        summary = "Class to check")
+        summaryOpt = Some("Class to check"))
     }
     import Params._
 
@@ -139,7 +139,7 @@ object AnyClass extends MashClass("core.Any") {
     object Params {
       val Sequence = Parameter(
         nameOpt = Some("sequence"),
-        summary = "Sequence to check if element is contained in")
+        summaryOpt = Some("Sequence to check if element is contained in"))
     }
     import Params._
 

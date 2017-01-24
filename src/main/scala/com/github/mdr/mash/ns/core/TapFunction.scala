@@ -10,10 +10,10 @@ object TapFunction extends MashFunction("core.tap") {
   object Params {
   val F = Parameter(
       nameOpt = Some("f"),
-      summary = "Function to apply to the item")
+      summaryOpt = Some("Function to apply to the item"))
     val Value = Parameter(
       nameOpt = Some("value"),
-      summary = "Value to tap")
+      summaryOpt = Some("Value to tap"))
   }
   import Params._
 

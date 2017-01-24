@@ -17,7 +17,7 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
   object Params {
     val Block = Parameter(
       nameOpt = Some("block"),
-      summary = "Code to execute",
+      summaryOpt = Some("Code to execute"),
       isLazy = true)
   }
   import Params._

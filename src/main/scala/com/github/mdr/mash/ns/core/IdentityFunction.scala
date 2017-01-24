@@ -10,7 +10,7 @@ object IdentityFunction extends MashFunction("core.identity") {
   object Params {
     val Item = Parameter(
       nameOpt = Some("item"),
-      summary = "Item to return")
+      summaryOpt = Some("Item to return"))
   }
   import Params._
 

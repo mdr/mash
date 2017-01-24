@@ -14,7 +14,7 @@ object EvalFunction extends MashFunction("mash.eval") {
   object Params {
     val Mash = Parameter(
       nameOpt = Some("mash"),
-      summary = "Mash code")
+      summaryOpt = Some("Mash code"))
   }
   import Params._
 

@@ -17,7 +17,7 @@ object RegexClass extends MashClass("core.Regex") {
     object Params {
       val String = Parameter(
         nameOpt = Some("string"),
-        summary = "String to search within for matches")
+        summaryOpt = Some("String to search within for matches"))
     }
 
     private val String = "string"

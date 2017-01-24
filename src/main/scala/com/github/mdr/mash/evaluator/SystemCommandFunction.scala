@@ -12,7 +12,7 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
   object Params {
     val Args = Parameter(
       nameOpt = Some("args"),
-      summary = "Arguments",
+      summaryOpt = Some("Arguments"),
       isVariadic = true)
   }
   import Params._

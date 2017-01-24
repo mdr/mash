@@ -42,10 +42,10 @@ object NumberClass extends MashClass("core.Number") {
     object Params {
       val End = Parameter(
         nameOpt = Some("end"),
-        summary = "Final number in sequence (inclusive)")
+        summaryOpt = Some("Final number in sequence (inclusive)"))
       val Step = Parameter(
         nameOpt = Some("step"),
-        summary = "The number to increase by for each step of the sequence (default 1)",
+        summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
         defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
     }
     import Params._
@@ -72,10 +72,10 @@ object NumberClass extends MashClass("core.Number") {
     object Params {
       val End = Parameter(
         nameOpt = Some("end"),
-        summary = "Final number in sequence (exclusive)")
+        summaryOpt = Some("Final number in sequence (exclusive)"))
       val Step = Parameter(
         nameOpt = Some("step"),
-        summary = "The number to increase by for each step of the sequence (default 1)",
+        summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
         defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
     }
     import Params._
@@ -102,7 +102,7 @@ object NumberClass extends MashClass("core.Number") {
     object Params {
       val Block = Parameter(
         nameOpt = Some("block"),
-        summary = "Code to execute",
+        summaryOpt = Some("Code to execute"),
         isLazy = true)
     }
     import Params._

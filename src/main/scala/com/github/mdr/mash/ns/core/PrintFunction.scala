@@ -14,7 +14,7 @@ object PrintFunction extends MashFunction("core.print") {
   object Params {
     val Item = Parameter(
       nameOpt = Some("item"),
-      summary = "Item to negate")
+      summaryOpt = Some("Item to negate"))
   }
   import Params._
 

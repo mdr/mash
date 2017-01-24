@@ -15,7 +15,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
   object Params {
     val Dir = Parameter(
       nameOpt = Some("dir"),
-      summary = "Directory to test")
+      summaryOpt = Some("Directory to test"))
   }
   import Params._
 

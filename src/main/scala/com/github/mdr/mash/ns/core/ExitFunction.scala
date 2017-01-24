@@ -10,7 +10,7 @@ object ExitFunction extends MashFunction("core.exit") {
   object Params {
     val Status = Parameter(
       nameOpt = Some("status"),
-      summary = "Exit status (default 0)",
+      summaryOpt = Some("Exit status (default 0)"),
       defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
   }
   import Params._

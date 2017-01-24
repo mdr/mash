@@ -14,17 +14,17 @@ object CommitFunction extends MashFunction("git.commit") {
   object Params {
     val Message = Parameter(
       nameOpt = Some("message"),
-      summary = "Message")
+      summaryOpt = Some("Message"))
     val All = Parameter(
       nameOpt = Some("all"),
-      summary = "Automatically stage files that have been modified and deleted, but new files are not affected (default false)",
+      summaryOpt = Some("Automatically stage files that have been modified and deleted, but new files are not affected (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
     val Amend = Parameter(
       nameOpt = Some("amend"),
-      summary = "Replace the tip of the current branch by creating a new commit (default false)",
+      summaryOpt = Some("Replace the tip of the current branch by creating a new commit (default false)"),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)

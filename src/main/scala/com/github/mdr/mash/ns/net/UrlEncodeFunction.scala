@@ -13,7 +13,7 @@ object UrlEncodeFunction extends MashFunction("net.urlEncode") {
   object Params {
     val S = Parameter(
       nameOpt = Some("s"),
-      summary = "String to URl encode")
+      summaryOpt = Some("String to URl encode"))
   }
   import Params._
 
