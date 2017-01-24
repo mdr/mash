@@ -86,6 +86,6 @@ object PostFunction extends MashFunction("http.post") {
   
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
 
-  override def summary = "Make an HTTP POST request"
+  override def summaryOpt = Some("Make an HTTP POST request")
 
 }

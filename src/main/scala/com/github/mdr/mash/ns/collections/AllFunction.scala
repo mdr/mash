@@ -34,7 +34,7 @@ object AllFunction extends MashFunction("collections.all") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Check whether a predicate holds for every element in a sequence"
+  override def summaryOpt = Some("Check whether a predicate holds for every element in a sequence")
 
   override def descriptionOpt = Some("""Returns true if the given predicate returns a truthy result for every element in the given sequence; false otherwise.
     

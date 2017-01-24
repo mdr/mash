@@ -23,6 +23,6 @@ object PullFunction extends MashFunction("git.pull") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(FetchBranchUpdateClass))
 
-  override def summary = "Fetch from and integrate with another repository or a local branch"
+  override def summaryOpt = Some("Fetch from and integrate with another repository or a local branch")
 
 }

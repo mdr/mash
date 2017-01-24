@@ -29,7 +29,7 @@ object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
       PermissionsSectionClass)
   }
 
-  override def summary = "File permissions for particular class of user (owner, group or other)"
+  override def summaryOpt = Some("File permissions for particular class of user (owner, group or other)")
 
 }
 

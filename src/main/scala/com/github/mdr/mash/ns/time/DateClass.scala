@@ -5,7 +5,7 @@ import com.github.mdr.mash.ns.core.AnyClass
 
 object DateClass extends MashClass("time.Date") {
 
-  override def summary = "A date"
+  override def summaryOpt = Some("A date")
 
   override def parentOpt = Some(AnyClass)
 

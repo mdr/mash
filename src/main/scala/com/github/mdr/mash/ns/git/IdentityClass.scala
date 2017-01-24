@@ -17,7 +17,7 @@ object IdentityClass extends MashClass("git.Identity") {
   override lazy val methods = Seq(
     ToStringMethod)
 
-  def summary = "A combination of a person identity and time in Git"
+  override def summaryOpt = Some("A combination of a person identity and time in Git")
 
   case class Wrapper(target: MashValue) {
     def name: MashString = target.asInstanceOf[MashObject](Name).asInstanceOf[MashString]

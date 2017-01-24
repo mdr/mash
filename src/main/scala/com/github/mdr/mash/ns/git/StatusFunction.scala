@@ -71,6 +71,6 @@ object StatusFunction extends MashFunction("git.status") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StatusClass)
 
-  override def summary = "Return the working tree status"
+  override def summaryOpt = Some("Return the working tree status")
 
 }

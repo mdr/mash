@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
-  def summary = "A git local branch name"
+  override def summaryOpt = Some("A git local branch name")
 
   val lifter = new MemberLifter(getBranchInfo)
 
@@ -40,7 +40,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
-    override def summary = "Get information about the local branch with this name"
+    override def summaryOpt = Some("Get information about the local branch with this name")
 
   }
 

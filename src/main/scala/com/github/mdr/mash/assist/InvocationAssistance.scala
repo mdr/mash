@@ -38,8 +38,7 @@ object InvocationAssistance {
     case Type.BuiltinFunction(f)                         ⇒
       Some(AssistanceState(
         f.name,
-        Seq(
-          f.summary,
+        f.summaryOpt.toSeq ++ Seq(
           "",
           callingSyntax(f))))
     case Type.UserDefinedFunction(nameOpt, params, _, _) ⇒
@@ -50,8 +49,7 @@ object InvocationAssistance {
     case Type.BoundBuiltinMethod(_, method)              ⇒
       Some(AssistanceState(
         method.name,
-        Seq(
-          method.summary,
+        method.summaryOpt.toSeq ++ Seq(
           "",
           "target." + callingSyntax(method))))
     case Type.BoundUserDefinedMethod(_, functionType)    ⇒

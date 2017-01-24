@@ -88,7 +88,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BranchClass)
 
-  override def summary = "Create a new local branch"
+  override def summaryOpt = Some("Create a new local branch")
 
   override def descriptionOpt = Some(s"""If '${Params.FromRemote.nameOpt}' is provided, '${Params.Branch.nameOpt}' can be omitted, with the same name used locally.""")
 }

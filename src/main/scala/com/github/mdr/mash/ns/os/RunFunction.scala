@@ -46,6 +46,6 @@ object RunFunction extends MashFunction("os.run") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Run a system command"
+  override def summaryOpt = Some("Run a system command")
 
 }

@@ -43,6 +43,6 @@ object PathClassRenameByMethod extends MashMethod("renameBy") {
     }
   }
 
-  override def summary = "Rename this path using a function to transform the name"
+  override def summaryOpt = Some("Rename this path using a function to transform the name")
 
 }

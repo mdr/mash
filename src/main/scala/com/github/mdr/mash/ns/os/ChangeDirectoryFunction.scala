@@ -56,7 +56,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.Directory)
 
-  override def summary = "Change the current working directory"
+  override def summaryOpt = Some("Change the current working directory")
 
   override def descriptionOpt = Some("""Examples:
    cd "/tmp"

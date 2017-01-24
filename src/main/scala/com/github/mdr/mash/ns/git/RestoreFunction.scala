@@ -58,6 +58,6 @@ object RestoreFunction extends MashFunction("git.restore") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Restore modified or deleted files in the working directory"
+  override def summaryOpt = Some("Restore modified or deleted files in the working directory")
 
 }

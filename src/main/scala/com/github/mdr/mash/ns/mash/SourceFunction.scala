@@ -35,6 +35,6 @@ object SourceFunction extends MashFunction("mash.source") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Read the given mash source file and execute its contents"
+  override def summaryOpt = Some("Read the given mash source file and execute its contents")
 
 }

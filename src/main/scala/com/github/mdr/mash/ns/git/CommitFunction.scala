@@ -46,6 +46,6 @@ object CommitFunction extends MashFunction("git.commit") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Record changes to the repository"
+  override def summaryOpt = Some("Record changes to the repository")
 
 }

@@ -36,7 +36,7 @@ object ReadLinesFunction extends MashFunction("os.readLines") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Read lines from a file"
+  override def summaryOpt = Some("Read lines from a file")
 
   override def descriptionOpt = Some("""Returns a sequence of lines read from the given file.
 The default character encoding and line separator are used.""")

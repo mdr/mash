@@ -34,7 +34,7 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Take elements from the start of a sequence while a predicate holds"
+  override def summaryOpt = Some("Take elements from the start of a sequence while a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
   takeWhile (_ < 3) [1, 2, 3, 2, 1] # [1, 2]""")

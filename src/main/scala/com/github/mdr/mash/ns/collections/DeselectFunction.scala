@@ -60,6 +60,6 @@ object DeselectFunction extends MashFunction("collections.deselect") {
     completionSpecOpt.toSeq
   }
 
-  override def summary = "Remove fields from an object or sequence of objects"
+  override def summaryOpt = Some("Remove fields from an object or sequence of objects")
 
 }

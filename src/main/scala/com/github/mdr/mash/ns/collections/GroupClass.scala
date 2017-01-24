@@ -37,10 +37,10 @@ object GroupClass extends MashClass("collections.Group") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
-    def summary = "The number of values in this group"
+    override def summaryOpt = Some("The number of values in this group")
 
   }
 
-  override def summary = "A group of values with a common key, as produced by the groupBy function"
+  override def summaryOpt = Some("A group of values with a common key, as produced by the groupBy function")
 
 }

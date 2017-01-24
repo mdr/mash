@@ -18,6 +18,6 @@ object InitFunction extends MashFunction("git.init") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Create an empty Git repository"
+  override def summaryOpt = Some("Create an empty Git repository")
 
 }

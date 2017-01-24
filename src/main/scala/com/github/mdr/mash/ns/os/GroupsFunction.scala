@@ -20,6 +20,6 @@ object GroupsFunction extends MashFunction("os.groups") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(GroupInfoClass)))
 
-  override def summary = "User groups on the system"
+  override def summaryOpt = Some("User groups on the system")
 
 }

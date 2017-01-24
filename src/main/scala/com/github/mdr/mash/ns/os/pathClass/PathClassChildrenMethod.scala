@@ -32,6 +32,6 @@ object PathClassChildrenMethod extends MashMethod("children") {
     }
   }
 
-  override def summary = "The children of this path"
+  override def summaryOpt = Some("The children of this path")
 
 }

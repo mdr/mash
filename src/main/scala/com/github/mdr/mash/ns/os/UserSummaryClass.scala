@@ -56,7 +56,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = "Full name of this user"
+    override def summaryOpt = Some("Full name of this user")
 
   }
 
@@ -75,7 +75,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, GroupClass)))
 
-    override def summary = "Groups this user is a member of"
+    override def summaryOpt = Some("Groups this user is a member of")
 
   }
 
@@ -98,7 +98,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
       UserSummaryClass)
   }
 
-  override def summary = "A user"
+  override def summaryOpt = Some("A user")
 
 }
 

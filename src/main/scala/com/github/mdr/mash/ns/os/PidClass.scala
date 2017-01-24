@@ -40,7 +40,7 @@ object PidClass extends MashClass("os.Pid") {
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
 
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
 
@@ -60,7 +60,7 @@ object PidClass extends MashClass("os.Pid") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass.fieldsMap(field.name).fieldType)
 
-    override def summary = field.summaryOpt.getOrElse("")
+    override def summaryOpt = field.summaryOpt
 
     override def descriptionOpt = field.descriptionOpt
 
@@ -79,7 +79,7 @@ object PidClass extends MashClass("os.Pid") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)
 
-    override def summary = "Get information about the process with this pid"
+    override def summaryOpt = Some("Get information about the process with this pid")
 
   }
 
@@ -89,7 +89,7 @@ object PidClass extends MashClass("os.Pid") {
   override def enumerationValues: Option[Seq[String]] =
     Some(processInteractions.getProcesses.map(_.pid).map(_.toString))
 
-  override def summary = "Tag class for process ID (PID)"
+  override def summaryOpt = Some("Tag class for process ID (PID)")
 
   override def parentOpt = Some(AnyClass)
 

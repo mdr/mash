@@ -73,7 +73,7 @@ The default signal is TERM."""))
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Send a signal to a process"
+  override def summaryOpt = Some("Send a signal to a process")
 
   override def descriptionOpt = Some("""Examples:
   ps | where (_.name.matches "java") | kill # Kill all Java processes

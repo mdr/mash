@@ -18,6 +18,6 @@ object FetchBranchUpdateClass extends MashClass("git.FetchBranchUpdate") {
 
   override lazy val methods = Seq()
 
-  def summary = "A branch update after a fetch"
+  override def summaryOpt = Some("A branch update after a fetch")
 
 }

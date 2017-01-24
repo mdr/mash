@@ -46,6 +46,6 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Switch to a local branch"
+  override def summaryOpt = Some("Switch to a local branch")
 
 }

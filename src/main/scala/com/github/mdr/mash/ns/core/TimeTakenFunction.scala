@@ -42,7 +42,7 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
 
   override def typeInferenceStrategy = TimeTakenTypeInferenceStrategy
 
-  override def summary = "Measure how long it takes to execute a piece of code"
+  override def summaryOpt = Some("Measure how long it takes to execute a piece of code")
 
   override def descriptionOpt = Some("""Examples:
    timeTaken (ls --recursive) | .duration # 854

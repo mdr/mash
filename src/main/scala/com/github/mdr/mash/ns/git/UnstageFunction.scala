@@ -58,6 +58,6 @@ object UnstageFunction extends MashFunction("git.unstage") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Unstage files"
+  override def summaryOpt = Some("Unstage files")
 
 }

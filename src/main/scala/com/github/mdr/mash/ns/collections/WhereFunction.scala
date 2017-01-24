@@ -41,7 +41,7 @@ object WhereFunction extends MashFunction("collections.where") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Find all the elements in the sequence for which a predicate holds"
+  override def summaryOpt = Some("Find all the elements in the sequence for which a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
   where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]""")

@@ -40,6 +40,6 @@ object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(RemoteBranchClass))
 
-  override def summary = "List remote branches in the repository"
+  override def summaryOpt = Some("List remote branches in the repository")
 
 }

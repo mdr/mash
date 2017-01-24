@@ -41,6 +41,6 @@ object SleepFunction extends MashFunction("time.sleep") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Sleep for the given duration"
+  override def summaryOpt = Some("Sleep for the given duration")
 
 }

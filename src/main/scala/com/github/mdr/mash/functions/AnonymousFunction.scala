@@ -12,6 +12,6 @@ case class AnonymousFunction(params: ParameterModel, body: Expr, context: Evalua
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 
-  override def summary = "anonymous function"
+  override def summaryOpt = Some("anonymous function")
 
 }

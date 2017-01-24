@@ -23,6 +23,6 @@ object CreateFunction extends MashFunction("git.stash.create") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Stash changes in the working directory"
+  override def summaryOpt = Some("Stash changes in the working directory")
 
 }

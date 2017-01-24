@@ -29,7 +29,7 @@ object GidClass extends MashClass("os.Gid") {
 
     override def typeInferenceStrategy = GroupClass.UsersMethod.typeInferenceStrategy
 
-    override def summary = GroupClass.UsersMethod.summary
+    override def summaryOpt = GroupClass.UsersMethod.summaryOpt
 
   }
 
@@ -48,11 +48,11 @@ object GidClass extends MashClass("os.Gid") {
     override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, UsernameClass)))
 
-    override def summary = "Name of the group with this id"
+    override def summaryOpt = Some("Name of the group with this id")
 
   }
 
-  override def summary = "Tag class for a group ID (GID)"
+  override def summaryOpt = Some("Tag class for a group ID (GID)")
 
   override def parentOpt = Some(AnyClass)
 

@@ -23,6 +23,6 @@ object PathClassInfoMethod extends MashMethod("info") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(PathSummaryClass)
 
-  override def summary = "Get PathSummary object for this path"
+  override def summaryOpt = Some("Get PathSummary object for this path")
 
 }

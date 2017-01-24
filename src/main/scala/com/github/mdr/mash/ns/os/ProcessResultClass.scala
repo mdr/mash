@@ -25,7 +25,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   override val fields = Seq(ExitStatus, Stdout, Started, Finished)
 
-  def summary = "The result of running a process"
+  override def summaryOpt = Some("The result of running a process")
 
   override val methods = Seq(
     DurationMethod,
@@ -74,7 +74,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "True if the status had a zero exit code"
+    override def summaryOpt = Some("True if the status had a zero exit code")
 
   }
 
@@ -89,7 +89,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "True if the status had a non-zero exit code"
+    override def summaryOpt = Some("True if the status had a non-zero exit code")
 
   }
 
@@ -104,7 +104,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
 
-    override def summary = "The standard output of the process as as sequence of lines"
+    override def summaryOpt = Some("The standard output of the process as as sequence of lines")
 
   }
 
@@ -119,7 +119,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = "The first line of the standard output of the process (or empty, if no output)"
+    override def summaryOpt = Some("The first line of the standard output of the process (or empty, if no output)")
 
   }
 
@@ -132,7 +132,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashNumber(Wrapper(target).line.toDouble)
     }
 
-    override def summary = "Parse the stdout of the process as a number"
+    override def summaryOpt = Some("Parse the stdout of the process as a number")
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
@@ -147,7 +147,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashString(Wrapper(target).line, PathClass)
     }
 
-    override def summary = "Tag the stdout as a path"
+    override def summaryOpt = Some("Tag the stdout as a path")
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
@@ -177,7 +177,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass taggedWith MillisecondsClass)
 
-    override def summary = "How long the process ran for, in milliseconds"
+    override def summaryOpt = Some("How long the process ran for, in milliseconds")
 
   }
 

@@ -28,7 +28,7 @@ object GroupClass extends MashClass("os.Group") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, GidClass))
 
-    override def summary = "Id of this group (GID)"
+    override def summaryOpt = Some("Id of this group (GID)")
 
   }
 
@@ -59,13 +59,13 @@ object GroupClass extends MashClass("os.Group") {
     override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, UsernameClass)))
 
-    override def summary = "Users within this group"
+    override def summaryOpt = Some("Users within this group")
 
   }
 
   override def enumerationValues: Option[Seq[String]] = Some(userInteractions.groupEntries.map(_.group).sorted)
 
-  override def summary = "A tag class for user group names"
+  override def summaryOpt = Some("A tag class for user group names")
 
   override def parentOpt = Some(AnyClass)
 

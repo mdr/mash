@@ -35,7 +35,7 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
 
-  override def summary = "Skip elements from the start of a sequence"
+  override def summaryOpt = Some("Skip elements from the start of a sequence")
 
   override def descriptionOpt = Some("""If there are fewer elements in the sequence than are requested to 
     skip, the empty sequence is returned.

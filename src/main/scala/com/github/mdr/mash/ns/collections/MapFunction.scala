@@ -66,7 +66,7 @@ object MapFunction extends MashFunction("collections.map") {
     specOpt.toSeq
   }
 
-  override def summary = "Transform each element of a sequence by a given function"
+  override def summaryOpt = Some("Transform each element of a sequence by a given function")
 
   override def descriptionOpt = Some(
     """The given function is applied to each element of the input sequence

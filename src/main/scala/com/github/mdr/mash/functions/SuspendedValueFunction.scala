@@ -12,6 +12,6 @@ case class SuspendedValueFunction(suspendedValue: SuspendedMashValue) extends Ma
     suspendedValue.resolve()
   }
 
-  override def summary = s"Lazily computed argument"
+  override def summaryOpt = Some("Lazily computed argument")
 
 }

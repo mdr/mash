@@ -35,7 +35,7 @@ object UsernameClass extends MashClass("os.Username") {
     override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(UserSummaryClass.fieldsMap(field.name).fieldType)
 
-    override def summary = field.summaryOpt.getOrElse("")
+    override def summaryOpt = field.summaryOpt
 
     override def descriptionOpt = field.descriptionOpt
 
@@ -57,7 +57,7 @@ object UsernameClass extends MashClass("os.Username") {
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
 
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
 
@@ -76,13 +76,13 @@ object UsernameClass extends MashClass("os.Username") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UserSummaryClass)
 
-    override def summary = "Fetch information about the user with this username"
+    override def summaryOpt = Some("Fetch information about the user with this username")
 
   }
 
   override def enumerationValues: Option[Seq[String]] = Some(userInteractions.passwdEntries.map(_.username).sorted)
 
-  override def summary = "A username"
+  override def summaryOpt = Some("A username")
 
   override def parentOpt = Some(AnyClass)
 

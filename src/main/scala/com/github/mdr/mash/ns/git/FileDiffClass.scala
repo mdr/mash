@@ -17,6 +17,6 @@ object FileDiffClass extends MashClass("git.FileDiff") {
 
   override lazy val methods = Seq()
 
-  def summary = "Summary of a change to a file"
+  override def summaryOpt = Some("Summary of a change to a file")
 
 }

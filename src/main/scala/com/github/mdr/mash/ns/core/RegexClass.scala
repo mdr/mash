@@ -45,10 +45,10 @@ object RegexClass extends MashClass("core.Regex") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(MatchClass)
 
-    override def summary = "Find the first match of the regex in the given string, or else null"
+    override def summaryOpt = Some("Find the first match of the regex in the given string, or else null")
   }
 
-  override def summary = "A regular expression"
+  override def summaryOpt = Some("A regular expression")
 
   override def parentOpt = Some(AnyClass)
 
@@ -65,6 +65,6 @@ object MatchClass extends MashClass("core.Match") {
     Field(Fields.Matched, Some("The matched region of text"), StringClass),
     Field(Fields.Groups, Some("Type (file, dir, link)"), Seq(StringClass)))
 
-  override def summary = "A match from a regular expression search"
+  override def summaryOpt = Some("A match from a regular expression search")
 
 }

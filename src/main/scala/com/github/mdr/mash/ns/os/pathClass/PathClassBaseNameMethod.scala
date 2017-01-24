@@ -19,6 +19,6 @@ object PathClassBaseNameMethod extends MashMethod("baseName") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-  override def summary = "Name without extension"
+  override def summaryOpt = Some("Name without extension")
 
 }

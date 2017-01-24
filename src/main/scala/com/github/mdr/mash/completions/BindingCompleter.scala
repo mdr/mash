@@ -38,14 +38,14 @@ object BindingCompleter {
   }
 
   private def completionTypeAndDescription(value: MashValue): (CompletionType, Option[String]) = value match {
-    case mf: MashFunction ⇒ (CompletionType.Function, Some(mf.summary))
-    case bf: BoundMethod  ⇒ (CompletionType.Method, Some(bf.method.summary))
+    case mf: MashFunction ⇒ (CompletionType.Function, mf.summaryOpt)
+    case bf: BoundMethod  ⇒ (CompletionType.Method, bf.method.summaryOpt)
     case x                ⇒ (CompletionType.Binding, Some(ToStringifier.safeStringify(x)))
   }
 
   private def completionTypeAndDescription(type_ : Type): (CompletionType, Option[String]) = type_ match {
-    case Type.BoundBuiltinMethod(_, method) ⇒ (CompletionType.Method, Some(method.summary))
-    case Type.BuiltinFunction(fun)          ⇒ (CompletionType.Function, Some(fun.summary))
+    case Type.BoundBuiltinMethod(_, method) ⇒ (CompletionType.Method, method.summaryOpt)
+    case Type.BuiltinFunction(fun)          ⇒ (CompletionType.Function, fun.summaryOpt)
     case x                                  ⇒ (CompletionType.Binding, None)
   }
 

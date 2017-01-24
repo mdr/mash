@@ -37,5 +37,5 @@ object GetFunction extends MashFunction("git.branch.get") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BranchClass)
 
-  override def summary = "Get a local branch by name"
+  override def summaryOpt = Some("Get a local branch by name")
 }

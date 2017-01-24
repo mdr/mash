@@ -60,7 +60,7 @@ object MoveFunction extends MashFunction("os.move") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Move files or directories to a new location"
+  override def summaryOpt = Some("Move files or directories to a new location")
 
   override def descriptionOpt = Some("""If multiple paths are provided, the destination must be a directory.""")
 

@@ -47,6 +47,6 @@ object DeleteFunction extends MashFunction("http.delete") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
 
-  override def summary = "Make an HTTP DELETE request"
+  override def summaryOpt = Some("Make an HTTP DELETE request")
 
 }

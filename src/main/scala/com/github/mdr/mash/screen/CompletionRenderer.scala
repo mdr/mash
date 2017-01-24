@@ -23,7 +23,7 @@ object CompletionRenderer {
     }.getOrElse(CompletionRenderResult(Seq(), 0))
 
   private def getCompletionColour(completionTypeOpt: Option[CompletionType]): Colour =
-    completionTypeOpt.map {
+    completionTypeOpt.collect {
       case CompletionType.Directory ⇒ Colour.Magenta
       case CompletionType.File      ⇒ Colour.Yellow
       case CompletionType.Flag      ⇒ Colour.Cyan

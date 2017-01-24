@@ -32,7 +32,7 @@ object UidClass extends MashClass("os.Uid") {
     override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(UserSummaryClass.fieldsMap(field.name).fieldType)
 
-    override def summary = s"Access '${field.name}' property of this user"
+    override def summaryOpt = Some(s"Access '${field.name}' property of this user")
 
     override def descriptionOpt = field.descriptionOpt
 
@@ -54,7 +54,7 @@ object UidClass extends MashClass("os.Uid") {
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
 
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
 
@@ -73,11 +73,11 @@ object UidClass extends MashClass("os.Uid") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UserSummaryClass)
 
-    override def summary = "Fetch information about the user with this uid"
+    override def summaryOpt = Some("Fetch information about the user with this uid")
 
   }
 
-  override def summary = "Tag class for user ID (UID)"
+  override def summaryOpt = Some("Tag class for user ID (UID)")
 
   override def parentOpt = Some(AnyClass)
 

@@ -22,6 +22,6 @@ object PathClassExistsMethod extends MashMethod("exists") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-  override def summary = "Whether or not an item exists at this location"
+  override def summaryOpt = Some("Whether or not an item exists at this location")
 
 }

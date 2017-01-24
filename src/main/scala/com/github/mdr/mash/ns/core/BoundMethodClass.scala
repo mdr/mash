@@ -42,7 +42,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       boundMethod.method.apply(boundMethod.target, methodArguments)
     }
 
-    override def summary = "Invoke this method with the given arguments"
+    override def summaryOpt = Some("Invoke this method with the given arguments")
 
   }
 
@@ -57,7 +57,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(FunctionHelpClass)
 
-    override def summary = "Help documentation for this method"
+    override def summaryOpt = Some("Help documentation for this method")
 
   }
 
@@ -77,14 +77,14 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
         }
     }
 
-    override def summary = "Target of this bound method"
+    override def summaryOpt = Some("Target of this bound method")
 
     override def descriptionOpt = Some("""Examples:
 [1, 2, 3].sortBy.target # [1, 2, 3]""")
 
   }
 
-  override def summary = "A method bound to a target"
+  override def summaryOpt = Some("A method bound to a target")
 
   override def parentOpt = Some(AnyClass)
 

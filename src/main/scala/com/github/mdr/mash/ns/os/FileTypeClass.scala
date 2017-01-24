@@ -17,7 +17,7 @@ object FileTypeClass extends MashClass("os.FileType") {
   override def enumerationValues: Option[Seq[String]] =
     Some(Seq(Dir, File, Link, Other))
 
-  override def summary = "Type of filesystem object"
+  override def summaryOpt = Some("Type of filesystem object")
 
   override def parentOpt = Some(AnyClass)
 

@@ -23,6 +23,6 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Apply stashed changes to the current working directory"
+  override def summaryOpt = Some("Apply stashed changes to the current working directory")
 
 }

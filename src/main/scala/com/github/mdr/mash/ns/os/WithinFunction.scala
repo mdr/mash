@@ -46,7 +46,7 @@ object WithinFunction extends MashFunction("os.within") {
       case Directory ⇒ CompletionSpec.Directory
     }
 
-  override def summary = "Temporarily change the current working directory to execute a task, then change back"
+  override def summaryOpt = Some("Temporarily change the current working directory to execute a task, then change back")
 
   override def descriptionOpt = Some("""Examples:
    within "~/project" git.log""")

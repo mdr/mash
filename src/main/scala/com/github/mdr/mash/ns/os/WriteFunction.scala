@@ -54,7 +54,7 @@ Otherwise, write the item as a string."""))
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     Seq(CompletionSpec.File)
 
-  override def summary = "Write an object or sequence of objects to a file as a string"
+  override def summaryOpt = Some("Write an object or sequence of objects to a file as a string")
 
   override def descriptionOpt = Some("""The default encoding is used to convert the strings to bytes. 
 If multiple lines are written, the default line separator is used.""")

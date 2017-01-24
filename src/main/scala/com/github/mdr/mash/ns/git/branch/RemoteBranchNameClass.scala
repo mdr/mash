@@ -47,11 +47,11 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
-    override def summary = "Get information about the local branch with this name"
+    override def summaryOpt = Some("Get information about the local branch with this name")
 
   }
 
-  def summary = "A git remote branch name"
+  override def summaryOpt = Some("A git remote branch name")
 
   override def parentOpt = Some(AnyClass)
 

@@ -10,7 +10,7 @@ object SignalClass extends MashClass("os.Signal") {
 
   val Signals = Signal.values.toSeq.map(_.name.drop(3))
 
-  override def summary = "A signal"
+  override def summaryOpt = Some("A signal")
 
   override def parentOpt = Some(AnyClass)
 

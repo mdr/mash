@@ -25,6 +25,6 @@ object PathClassCdMethod extends MashMethod("cd") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-  override def summary = "Change directory to this path"
+  override def summaryOpt = Some("Change directory to this path")
 
 }

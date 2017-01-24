@@ -15,6 +15,6 @@ object FieldAndValueClass extends MashClass("core.FieldAndValue") {
 
   override val fields = Seq(Name, Value)
 
-  override def summary = "A field and its value"
+  override def summaryOpt = Some("A field and its value")
 
 }

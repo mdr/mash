@@ -21,7 +21,7 @@ object TimedResultClass extends MashClass("core.TimedResult") {
 
   override val fields = Seq(Result, Started, Duration_)
 
-  override def summary = "The result of a timed execution"
+  override def summaryOpt = Some("The result of a timed execution")
 
   override val methods = Seq(FinishedMethod)
 
@@ -48,7 +48,7 @@ object TimedResultClass extends MashClass("core.TimedResult") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
-    override def summary = "How long the process ran for, in milliseconds"
+    override def summaryOpt = Some("How long the process ran for, in milliseconds")
 
   }
 

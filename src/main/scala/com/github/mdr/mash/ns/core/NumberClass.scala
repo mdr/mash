@@ -63,7 +63,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
 
-    override def summary = "Return a list of values from this number to the given end value (inclusive)"
+    override def summaryOpt = Some("Return a list of values from this number to the given end value (inclusive)")
 
   }
 
@@ -93,7 +93,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
 
-    override def summary = "Return a list of values from this number to the given end value (exclusive)"
+    override def summaryOpt = Some("Return a list of values from this number to the given end value (exclusive)")
 
   }
 
@@ -129,7 +129,7 @@ object NumberClass extends MashClass("core.Number") {
 
     }
 
-    override def summary = "Run the given argument this amount of times"
+    override def summaryOpt = Some("Run the given argument this amount of times")
 
   }
 
@@ -148,7 +148,7 @@ object NumberClass extends MashClass("core.Number") {
         targetTypeOpt
     }
 
-    override def summary = "Convert number to an integer (rounding towards zero)"
+    override def summaryOpt = Some("Convert number to an integer (rounding towards zero)")
 
   }
 
@@ -163,7 +163,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
-    override def summary = "This number's tagged type if any, else null"
+    override def summaryOpt = Some("This number's tagged type if any, else null")
 
   }
 
@@ -178,7 +178,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
 
-    override def summary = "This number without any tag class"
+    override def summaryOpt = Some("This number without any tag class")
   }
 
   object BytesMethod extends MashMethod("bytes") {
@@ -192,7 +192,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
 
-    override def summary = "This number of bytes"
+    override def summaryOpt = Some("This number of bytes")
   }
 
   object KbMethod extends MashMethod("kb") {
@@ -207,7 +207,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
 
-    override def summary = "This number of kilobytes"
+    override def summaryOpt = Some("This number of kilobytes")
   }
 
   object MbMethod extends MashMethod("mb") {
@@ -222,7 +222,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
 
-    override def summary = "This number of megabytes"
+    override def summaryOpt = Some("This number of megabytes")
   }
 
   object GbMethod extends MashMethod("gb") {
@@ -237,7 +237,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
 
-    override def summary = "This number of gigabytes"
+    override def summaryOpt = Some("This number of gigabytes")
 
   }
 
@@ -252,7 +252,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, klass))
 
-    override def summary = "This number of " + name
+    override def summaryOpt = Some("This number of " + name)
 
   }
 
@@ -279,11 +279,11 @@ object NumberClass extends MashClass("core.Number") {
         targetTypeOpt
     }
 
-    override def summary = "Negate this number"
+    override def summaryOpt = Some("Negate this number")
 
   }
 
-  def summary = "A number"
+  override def summaryOpt = Some("A number")
 
   def taggedWith(klass: MashClass) = Type.Tagged(this, klass)
 

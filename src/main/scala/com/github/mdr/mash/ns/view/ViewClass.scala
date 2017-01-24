@@ -17,5 +17,5 @@ object ViewClass extends MashClass("view.View") {
 
   override lazy val fields = Seq(Data, DisableCustomViews, UseBrowser, UseTree)
 
-  def summary = "Instructions on how to display data in Mash's output system"
+  override def summaryOpt = Some("Instructions on how to display data in Mash's output system")
 }

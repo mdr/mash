@@ -29,6 +29,6 @@ object LookupFunction extends MashFunction("dns.lookup") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(StringClass))
 
-  override def summary = "Look up the IP addresses of the given host"
+  override def summaryOpt = Some("Look up the IP addresses of the given host")
 
 }

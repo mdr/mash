@@ -23,7 +23,7 @@ object IdentityFunction extends MashFunction("core.identity") {
 
   override def typeInferenceStrategy = IdentityTypeInferenceStrategy
 
-  override def summary = "Return the argument unchanged"
+  override def summaryOpt = Some("Return the argument unchanged")
 
   override def descriptionOpt = Some("""Examples:
   identity 42 # 42""")

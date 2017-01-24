@@ -19,6 +19,6 @@ object ProcessesFunction extends MashFunction("os.processes") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(ProcessClass)))
 
-  override def summary = "List processes"
+  override def summaryOpt = Some("List processes")
 
 }

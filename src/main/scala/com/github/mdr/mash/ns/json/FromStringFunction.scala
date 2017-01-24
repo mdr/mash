@@ -24,5 +24,5 @@ object FromStringFunction extends MashFunction("json.fromString") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
 
-  override def summary = "Read the given string and parse it as JSON"
+  override def summaryOpt = Some("Read the given string and parse it as JSON")
 }

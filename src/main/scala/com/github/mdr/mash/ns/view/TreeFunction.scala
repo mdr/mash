@@ -31,6 +31,6 @@ object TreeFunction extends MashFunction("view.tree") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
 
-  override def summary = "View data in the object tree browser, where possible"
+  override def summaryOpt = Some("View data in the object tree browser, where possible")
 
 }

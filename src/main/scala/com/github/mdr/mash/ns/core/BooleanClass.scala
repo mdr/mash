@@ -21,7 +21,7 @@ object BooleanClass extends MashClass("core.Boolean") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "Negate this boolean"
+    override def summaryOpt = Some("Negate this boolean")
 
     override def descriptionOpt = Some("""Examples:
     true.negate  # false
@@ -31,5 +31,5 @@ object BooleanClass extends MashClass("core.Boolean") {
 
   override def parentOpt = Some(AnyClass)
   
-  override def summary = "Boolean values true and false"
+  override def summaryOpt = Some("Boolean values true and false")
 }

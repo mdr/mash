@@ -37,7 +37,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Any)
 
-    override def summary = "Parse response body as JSON"
+    override def summaryOpt = Some("Parse response body as JSON")
 
   }
   
@@ -53,10 +53,10 @@ object ResponseClass extends MashClass("http.Response") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "True if the HTTP request succeeded (status code 2xx)"
+    override def summaryOpt = Some("True if the HTTP request succeeded (status code 2xx)")
 
   }
   
-  override def summary = "An HTTP response"
+  override def summaryOpt = Some("An HTTP response")
 
 }

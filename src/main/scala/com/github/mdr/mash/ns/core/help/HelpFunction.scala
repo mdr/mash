@@ -30,7 +30,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   override def typeInferenceStrategy = HelpTypeInferenceStrategy
 
-  override def summary = "Find help for the given function, method, field or class"
+  override def summaryOpt = Some("Find help for the given function, method, field or class")
 
   def getHelp(item: MashValue): Option[MashObject] = condOpt(item) {
     case f: MashFunction  ⇒ getHelp(f)
@@ -45,7 +45,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(f.name),
         FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
-        Summary -> MashString(f.summary),
+        Summary -> f.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
         Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parameters -> MashList(f.params.params.map(getHelp)),
@@ -62,7 +62,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(m.name),
         FullyQualifiedName -> MashString(m.name),
-        Summary -> MashString(m.summary),
+        Summary -> m.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
         Description -> m.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parameters -> MashList(m.params.params.map(getHelp)),
@@ -105,7 +105,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(klass.name),
         FullyQualifiedName -> MashString(klass.fullyQualifiedName.toString),
-        Summary -> MashString(klass.summary),
+        Summary -> klass.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         Description -> klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull),
         Fields -> MashList(fields),

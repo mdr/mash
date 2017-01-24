@@ -50,5 +50,5 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Delete a local branch"
+  override def summaryOpt = Some("Delete a local branch")
 }

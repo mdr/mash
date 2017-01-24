@@ -50,6 +50,6 @@ object PathClassRenameToMethod extends MashMethod("renameTo") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
-  override def summary = "Rename the file or directory at this path"
+  override def summaryOpt = Some("Rename the file or directory at this path")
 
 }

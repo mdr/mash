@@ -23,7 +23,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(FunctionHelpClass)
 
-    override def summary = "Help documentation for this function"
+    override def summaryOpt = Some("Help documentation for this function")
   }
 
   object InvokeMethod extends MashMethod("invoke") {
@@ -54,11 +54,11 @@ object FunctionClass extends MashClass("core.Function") {
       target.asInstanceOf[MashFunction].apply(functionArguments)
     }
 
-    override def summary = "Invoke this function with the given arguments"
+    override def summaryOpt = Some("Invoke this function with the given arguments")
 
   }
 
-  override def summary = "A function"
+  override def summaryOpt = Some("A function")
 
   override def parentOpt = Some(AnyClass)
 

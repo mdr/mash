@@ -41,7 +41,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Sum the elements of a sequence using an attribute"
+  override def summaryOpt = Some("Sum the elements of a sequence using an attribute")
 
   override def descriptionOpt = Some("""Examples:
   sumBy length ["foo", "bar", "baz"] # 9""")

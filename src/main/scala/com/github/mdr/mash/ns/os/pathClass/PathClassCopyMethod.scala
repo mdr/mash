@@ -39,6 +39,6 @@ object PathClassCopyMethod extends MashMethod("copy") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-  override def summary = "Copy this file or directory to another location"
+  override def summaryOpt = Some("Copy this file or directory to another location")
 
 }

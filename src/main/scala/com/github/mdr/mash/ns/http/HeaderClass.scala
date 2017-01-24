@@ -14,5 +14,5 @@ object HeaderClass extends MashClass("http.Header") {
 
   override val fields = Seq(Name, Value)
 
-  override def summary = "An HTTP header"
+  override def summaryOpt = Some("An HTTP header")
 }

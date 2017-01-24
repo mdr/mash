@@ -12,7 +12,7 @@ object HostClass extends MashClass("net.Host") {
 
   override val methods = Seq(IpAddressesMethod)
 
-  override def summary: String = "Host"
+  override def summaryOpt = Some("Host")
 
   object IpAddressesMethod extends MashMethod("ipAddresses") {
 
@@ -27,7 +27,7 @@ object HostClass extends MashClass("net.Host") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(StringClass))
 
-    override def summary = "Look up the IP addresses of the given host"
+    override def summaryOpt = Some("Look up the IP addresses of the given host")
 
     def asMashString(address: InetAddress) = MashString(address.getHostAddress)
 

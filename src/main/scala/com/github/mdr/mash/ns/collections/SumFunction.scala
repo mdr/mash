@@ -33,7 +33,7 @@ object SumFunction extends MashFunction("collections.sum") {
 
   override def typeInferenceStrategy = SumTypeInferenceStrategy
 
-  override def summary = "Sum all the elements of a sequence"
+  override def summaryOpt = Some("Sum all the elements of a sequence")
 
   override def descriptionOpt = Some("""Add all the elements in the sequence together, as if they were combined with the '+' operator.
 

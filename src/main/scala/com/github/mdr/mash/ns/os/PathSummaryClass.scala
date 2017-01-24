@@ -53,7 +53,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
 
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
 
@@ -79,6 +79,6 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
       PathSummaryClass)
   }
 
-  override def summary = "Information about a filesystem path"
+  override def summaryOpt = Some("Information about a filesystem path")
 
 }

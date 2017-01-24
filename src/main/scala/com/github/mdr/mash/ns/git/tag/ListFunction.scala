@@ -46,5 +46,5 @@ object ListFunction extends MashFunction("git.tag.list") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(TagClass))
 
-  override def summary: String = "Get a list of tags"
+  override def summaryOpt = Some("Get a list of tags")
 }

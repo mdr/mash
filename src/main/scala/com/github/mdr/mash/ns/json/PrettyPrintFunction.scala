@@ -63,6 +63,6 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
 
-  override def summary = "Convert the given value to a pretty-printed JSON string"
+  override def summaryOpt = Some("Convert the given value to a pretty-printed JSON string")
 }
 

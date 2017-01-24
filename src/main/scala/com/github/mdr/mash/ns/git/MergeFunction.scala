@@ -58,6 +58,6 @@ object MergeFunction extends MashFunction("git.merge") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Merge another commit into this branch"
+  override def summaryOpt = Some("Merge another commit into this branch")
 
 }

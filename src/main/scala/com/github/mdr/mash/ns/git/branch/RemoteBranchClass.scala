@@ -24,7 +24,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   override lazy val fields = Seq(Remote, Name, Commit)
 
-  def summary = "A remote git branch"
+  override def summaryOpt = Some("A remote git branch")
 
   override lazy val methods = Seq(
     CreateLocalMethod,
@@ -80,7 +80,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
 
-    override def summary = "Create a local branch tracking this remote branch"
+    override def summaryOpt = Some("Create a local branch tracking this remote branch")
   }
 
   object DeleteMethod extends MashMethod("delete") {
@@ -99,7 +99,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Delete this remote branch"
+    override def summaryOpt = Some("Delete this remote branch")
 
   }
 
@@ -126,7 +126,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(CommitClass))
 
-    override def summary = "Return a list of commits from this branch"
+    override def summaryOpt = Some("Return a list of commits from this branch")
 
   }
 
@@ -147,7 +147,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = "Full name of the remote branch, e.g. origin/master"
+    override def summaryOpt = Some("Full name of the remote branch, e.g. origin/master")
 
   }
 

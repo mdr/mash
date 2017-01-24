@@ -32,5 +32,5 @@ object UrlFunction extends MashFunction("net.url") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith UrlClass)
 
-  override def summary = "Interpret the given value as a URL"
+  override def summaryOpt = Some("Interpret the given value as a URL")
 }

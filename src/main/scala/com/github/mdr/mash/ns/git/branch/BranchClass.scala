@@ -25,7 +25,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
   override lazy val fields = Seq(Name, Commit, UpstreamBranch, AheadCount, BehindCount)
 
-  def summary = "A git branch"
+  override def summaryOpt = Some("A git branch")
 
   override lazy val methods = Seq(
     DeleteMethod,
@@ -58,7 +58,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Delete this branch"
+    override def summaryOpt = Some("Delete this branch")
 
   }
 
@@ -85,7 +85,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(CommitClass))
 
-    override def summary = "Return a list of commits from this branch"
+    override def summaryOpt = Some("Return a list of commits from this branch")
 
   }
 
@@ -115,7 +115,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Push this branch"
+    override def summaryOpt = Some("Push this branch")
 
   }
 
@@ -134,7 +134,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Switch to this branch"
+    override def summaryOpt = Some("Switch to this branch")
 
   }
 
@@ -157,7 +157,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Update this branch to point to a given commit"
+    override def summaryOpt = Some("Update this branch to point to a given commit")
 
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       params.bindTypes(arguments).paramAt(argPos).toSeq.collect {

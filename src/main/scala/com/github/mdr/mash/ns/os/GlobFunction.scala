@@ -30,6 +30,6 @@ object GlobFunction extends MashFunction("os.glob") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Return files matching a glob pattern"
+  override def summaryOpt = Some("Return files matching a glob pattern")
 
 }

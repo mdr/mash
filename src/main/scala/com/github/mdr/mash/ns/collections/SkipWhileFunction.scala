@@ -34,7 +34,7 @@ object SkipWhileFunction extends MashFunction("collections.skipWhile") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Skip elements from the start of a sequence while a predicate holds"
+  override def summaryOpt = Some("Skip elements from the start of a sequence while a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
   skipWhile (_ < 3) [1, 2, 3, 2, 1] # [3, 2, 1]""")

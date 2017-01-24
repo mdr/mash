@@ -59,7 +59,7 @@ object ChildrenFunction extends MashFunction("os.children") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Return the children of a directory"
+  override def summaryOpt = Some("Return the children of a directory")
 
   override def descriptionOpt = Some("""Return sequence of PathSummary objects representing the children of the given path.
 If no path is supplied, the current directory is used as the default.""")

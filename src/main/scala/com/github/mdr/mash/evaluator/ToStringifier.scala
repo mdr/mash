@@ -21,7 +21,7 @@ abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod
 
   override def typeInferenceStrategy = AnyClass.ToStringMethod.typeInferenceStrategy
 
-  override def summary = AnyClass.ToStringMethod.summary
+  override def summaryOpt = AnyClass.ToStringMethod.summaryOpt
 
 }
 

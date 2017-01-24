@@ -68,7 +68,7 @@ object SortFunction extends MashFunction("collections.sort") {
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
 
-  override def summary = "Sort the elements of a sequence"
+  override def summaryOpt = Some("Sort the elements of a sequence")
 
   override def descriptionOpt = Some("""Examples:
   sort [3, 1, 2]                                      # [1, 2, 3]

@@ -23,7 +23,7 @@ object NotFunction extends MashFunction("core.not") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
 
-  override def summary = "Logically negate the given item"
+  override def summaryOpt = Some("Logically negate the given item")
 
   override def descriptionOpt = Some("""The given argument is interpreted as truthy or falsey, then negated.
 

@@ -57,5 +57,5 @@ object FromFileFunction extends MashFunction("json.fromFile") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Read the given file and parse it as JSON"
+  override def summaryOpt = Some("Read the given file and parse it as JSON")
 }

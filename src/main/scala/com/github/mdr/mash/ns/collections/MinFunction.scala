@@ -26,7 +26,7 @@ If multiple arguments are provided, the smallest argument is returned."""),
 
   override def typeInferenceStrategy = MaxTypeInferenceStrategy
 
-  override def summary = "Find the smallest element of a sequence"
+  override def summaryOpt = Some("Find the smallest element of a sequence")
 
   override def descriptionOpt = Some("""Examples:
   min [1, 2, 3] # 1

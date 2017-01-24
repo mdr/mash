@@ -46,7 +46,7 @@ object FirstFunction extends MashFunction("collections.first") {
 
   override def typeInferenceStrategy = FirstTypeInferenceStrategy
 
-  override def summary = "Find the first element(s) of a sequence"
+  override def summaryOpt = Some("Find the first element(s) of a sequence")
 
   override def descriptionOpt = Some(s"""If a count ${N.nameOpt} is provided, the first ${N.nameOpt} items of the sequence will be returned.
 If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.

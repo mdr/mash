@@ -69,6 +69,6 @@ If the destination is not a directory, only a single source path may be provided
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "Copy files and directories"
+  override def summaryOpt = Some("Copy files and directories")
 
 }

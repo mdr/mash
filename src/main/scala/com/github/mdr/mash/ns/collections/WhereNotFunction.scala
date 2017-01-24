@@ -25,7 +25,7 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Find all the elements in the sequence for which a predicate does not hold"
+  override def summaryOpt = Some("Find all the elements in the sequence for which a predicate does not hold")
 
   override def descriptionOpt = Some("""Examples:
   whereNot (_ > 1) [1, 2, 3, 2, 1] # [1, 2, 2, 1]""")

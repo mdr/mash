@@ -74,6 +74,6 @@ object LogFunction extends MashFunction("git.log") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def summary = "Return a sequence of commit objects from the current Git repository"
+  override def summaryOpt = Some("Return a sequence of commit objects from the current Git repository")
 
 }

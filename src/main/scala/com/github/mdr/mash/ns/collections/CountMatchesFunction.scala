@@ -34,7 +34,7 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Count how many times a predicate holds within a sequence"
+  override def summaryOpt = Some("Count how many times a predicate holds within a sequence")
 
   override def descriptionOpt = Some("""Examples:
   countMatches (_ > 3) [1, 2, 3, 4, 5] # 2""")

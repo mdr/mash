@@ -73,6 +73,6 @@ object StageFunction extends MashFunction("git.stage") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Stage files"
+  override def summaryOpt = Some("Stage files")
 
 }

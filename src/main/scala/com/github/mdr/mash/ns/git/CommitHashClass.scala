@@ -23,7 +23,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     lifter.liftMethod(CommitClass.ParentMethod),
     InfoMethod)
 
-  def summary = "A git commit SHA-1 hash"
+  override def summaryOpt = Some("A git commit SHA-1 hash")
 
   object InfoMethod extends MashMethod("info") {
 
@@ -37,7 +37,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(CommitClass)
 
-    override def summary = "Get information about the commit with this hash"
+    override def summaryOpt = Some("Get information about the commit with this hash")
 
   }
 

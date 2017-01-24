@@ -29,7 +29,7 @@ abstract class MashFunction(
 
   def getCompletionSpecs(argPos: Int, arguments: TypedArguments): Seq[CompletionSpec] = Seq()
 
-  def summary: String
+  def summaryOpt: Option[String]
 
   def descriptionOpt: Option[String] = None
 

@@ -77,7 +77,7 @@ object PushFunction extends MashFunction("git.push") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Update remote refs along with associated objects"
+  override def summaryOpt = Some("Update remote refs along with associated objects")
 
   def getRemotes: Seq[String] =
     GitHelper.withRepository { repo ⇒

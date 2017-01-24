@@ -50,5 +50,5 @@ object StatsFunction extends MashFunction("maths.stats") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StatsClass)
 
-  override def summary = "Compute standard statistics (mean, standard deviation etc) on a collection of numbers"
+  override def summaryOpt = Some("Compute standard statistics (mean, standard deviation etc) on a collection of numbers")
 }

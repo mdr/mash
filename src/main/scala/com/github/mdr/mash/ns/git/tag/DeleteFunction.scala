@@ -52,5 +52,5 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Delete a tag"
+  override def summaryOpt = Some("Delete a tag")
 }

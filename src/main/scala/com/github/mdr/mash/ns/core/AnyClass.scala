@@ -27,7 +27,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(target.isNull)
     }
 
-    override def summary = "Check whether or not the given value is null"
+    override def summaryOpt = Some("Check whether or not the given value is null")
 
     override def descriptionOpt = Some("""Examples:
   null.isNull # true
@@ -46,7 +46,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(target.isTruthy)
     }
 
-    override def summary = "Check whether or not the given value is truthy"
+    override def summaryOpt = Some("Check whether or not the given value is truthy")
 
     override def descriptionOpt = Some("""Examples:
   true.isTruthy  # true
@@ -77,7 +77,7 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = BooleanClass
 
-    override def summary = "Return true if and only if this value is an instance of the given class"
+    override def summaryOpt = Some("Return true if and only if this value is an instance of the given class")
 
     override def descriptionOpt = Some("""Examples:
   42.isA Number  # true
@@ -95,7 +95,7 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
 
-    override def summary = "The class of this object"
+    override def summaryOpt = Some("The class of this object")
 
   }
 
@@ -125,7 +125,7 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
 
-    override def summary = "Represent this object as a string"
+    override def summaryOpt = Some("Represent this object as a string")
 
     override def descriptionOpt = Some("""Examples:
   42.toString   # "42"
@@ -153,7 +153,7 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "Check whether this element is contained in a sequence"
+    override def summaryOpt = Some("Check whether this element is contained in a sequence")
 
     override def descriptionOpt = Some("""Examples:
   2.in [1, 2, 3] # true
@@ -165,6 +165,6 @@ object AnyClass extends MashClass("core.Any") {
 
   override def parentOpt: Option[MashClass] = None
 
-  override def summary = "The root class of all Mash values"
+  override def summaryOpt = Some("The root class of all Mash values")
 
 }

@@ -17,7 +17,7 @@ case class UserDefinedFunction(docCommentOpt: Option[DocComment],
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 
-  override def summary = docCommentOpt.map(_.summary) getOrElse s"User-defined function '$name'"
+  override def summaryOpt = docCommentOpt.map(_.summary)
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 

@@ -87,7 +87,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     specOpt.toSeq
   }
 
-  override def summary = "Transform each element of a sequence by a given function, and then flatten"
+  override def summaryOpt = Some("Transform each element of a sequence by a given function, and then flatten")
 
   override def descriptionOpt = Some(
     """The given function is applied to each element of the input sequence

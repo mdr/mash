@@ -52,7 +52,7 @@ object SortByFunction extends MashFunction("collections.sortBy") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Sort the elements of a sequence by an attribute"
+  override def summaryOpt = Some("Sort the elements of a sequence by an attribute")
 
   override def descriptionOpt = Some("""Examples:
   sortBy length ["aa", "b", "ccc"]              # ["b", "aa", "ccc"] 

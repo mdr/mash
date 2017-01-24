@@ -28,7 +28,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
 
-  override def summary = "Reverse a sequence"
+  override def summaryOpt = Some("Reverse a sequence")
 
   override def descriptionOpt = Some("""Examples:
   reverse [1, 2, 3] # [3, 2, 1]

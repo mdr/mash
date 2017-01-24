@@ -26,6 +26,6 @@ object CurrentFunction extends MashFunction("git.branch.current") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BranchClass)
 
-  override def summary = "The current branch"
+  override def summaryOpt = Some("The current branch")
 
 }

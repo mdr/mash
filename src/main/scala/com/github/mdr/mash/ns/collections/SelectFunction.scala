@@ -94,7 +94,7 @@ object SelectFunction extends MashFunction("collections.select") {
     else
       Seq()
 
-  override def summary = "Select members of an object or sequence of objects"
+  override def summaryOpt = Some("Select members of an object or sequence of objects")
 
   override def descriptionOpt = Some("""If the input is a sequence, the selection is applied to every element and a 
   sequence of new objects is returned.

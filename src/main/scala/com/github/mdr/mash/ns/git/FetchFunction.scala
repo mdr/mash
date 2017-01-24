@@ -41,6 +41,6 @@ object FetchFunction extends MashFunction("git.fetch") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(FetchBranchUpdateClass))
 
-  override def summary = "Download objects and refs from another repository."
+  override def summaryOpt = Some("Download objects and refs from another repository.")
 
 }

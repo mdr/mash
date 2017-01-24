@@ -39,7 +39,7 @@ object CommitClass extends MashClass("git.Commit") {
     ParentMethod,
     ToStringMethod)
 
-  def summary = "A git commit object"
+  override def summaryOpt = Some("A git commit object")
 
   case class Wrapper(target: MashValue) {
 
@@ -75,7 +75,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
 
-    override def summary = "Return the first parent, if there is one, else null"
+    override def summaryOpt = Some("Return the first parent, if there is one, else null")
 
   }
 
@@ -131,7 +131,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(FileDiffClass))
 
-    override def summary = "Return the difference between the first parent of this commit, and this commit"
+    override def summaryOpt = Some("Return the difference between the first parent of this commit, and this commit")
 
   }
 
@@ -169,6 +169,6 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def summary = "Return true if this is an ancestor of the given commit"
+  override def summaryOpt = Some("Return true if this is an ancestor of the given commit")
 
 }

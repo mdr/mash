@@ -35,6 +35,6 @@ object AddFunction extends MashFunction("git.add") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Record changes to the repository"
+  override def summaryOpt = Some("Record changes to the repository")
 
 }

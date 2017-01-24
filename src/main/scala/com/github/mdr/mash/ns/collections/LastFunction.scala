@@ -39,7 +39,7 @@ object LastFunction extends MashFunction("collections.last") {
 
   override def typeInferenceStrategy = FirstTypeInferenceStrategy
 
-  override def summary = "Find the last element(s) of a sequence"
+  override def summaryOpt = Some("Find the last element(s) of a sequence")
 
   override def descriptionOpt = Some(s"""If a count ${N.nameOpt} is provided, the last ${N.nameOpt} items of the sequence will be returned.
 If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.

@@ -14,6 +14,6 @@ object CookieClass extends MashClass("http.Cookie") {
 
   override val fields = Seq(Name, Value)
 
-  override def summary = "An HTTP cookie"
+  override def summaryOpt = Some("An HTTP cookie")
 
 }

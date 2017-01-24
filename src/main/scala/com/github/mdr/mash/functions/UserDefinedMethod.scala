@@ -19,7 +19,7 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
     Evaluator.evaluate(body)(methodBodyEvalContext)
   }
 
-  override def summary = docCommentOpt.map(_.summary) getOrElse s"Method '$name'"
+  override def summaryOpt = docCommentOpt.map(_.summary)
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 

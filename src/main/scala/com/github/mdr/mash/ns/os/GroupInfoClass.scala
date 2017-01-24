@@ -32,6 +32,6 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
       GroupInfoClass)
   }
 
-  override def summary = "A user group"
+  override def summaryOpt = Some("A user group")
 
 }

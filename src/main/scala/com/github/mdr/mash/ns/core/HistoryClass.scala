@@ -21,6 +21,6 @@ object HistoryClass extends MashClass("core.History") {
 
   override val fields = Seq(Session, CommandNumber, Timestamp, Command, Mish, Result, WorkingDirectory)
 
-  override def summary = "A record in Mash command history"
+  override def summaryOpt = Some("A record in Mash command history")
 
 }

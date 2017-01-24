@@ -29,7 +29,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
 
   override def typeInferenceStrategy = FlattenTypeInferenceStrategy
 
-  override def summary = "Flatten a sequence of sequences"
+  override def summaryOpt = Some("Flatten a sequence of sequences")
 
 }
 

@@ -23,6 +23,6 @@ object PathClassAbsoluteMethod extends MashMethod("absolute") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
-  override def summary = "The absolute path to this location"
+  override def summaryOpt = Some("The absolute path to this location")
 
 }

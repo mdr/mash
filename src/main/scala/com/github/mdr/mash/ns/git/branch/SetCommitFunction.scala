@@ -47,5 +47,5 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
 
-  override def summary = "Update a branch to point to a different commit"
+  override def summaryOpt = Some("Update a branch to point to a different commit")
 }

@@ -101,7 +101,7 @@ object InvocationEvaluator extends EvaluatorHelper {
         }
     }
 
-    override def summary = "Boolean as a function"
+    override def summaryOpt = Some("Boolean as a function")
 
   }
 
@@ -132,7 +132,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       }
     }
 
-    override def summary = "String as a function"
+    override def summaryOpt = Some("String as a function")
 
   }
 

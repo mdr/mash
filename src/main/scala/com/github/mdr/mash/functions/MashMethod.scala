@@ -21,7 +21,7 @@ abstract class MashMethod(val name: String) {
 
   def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] = Seq()
 
-  def summary: String
+  def summaryOpt: Option[String]
 
   def descriptionOpt: Option[String] = None
 

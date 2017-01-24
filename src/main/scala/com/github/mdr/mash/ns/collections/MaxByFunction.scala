@@ -47,7 +47,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Find the largest element of a sequence by an attribute"
+  override def summaryOpt = Some("Find the largest element of a sequence by an attribute")
 
   override def descriptionOpt = Some("""The given function is applied to each element of the input sequence 
   to compute a value, and the element with the largest value is returned. 

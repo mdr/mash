@@ -41,6 +41,6 @@ object TryFunction extends MashFunction("core.try") {
 
   }
 
-  override def summary = "Execute the given code, catching any exceptions"
+  override def summaryOpt = Some("Execute the given code, catching any exceptions")
 
 }

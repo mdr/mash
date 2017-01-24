@@ -21,6 +21,6 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
 
   override val fields = Seq(Name, Summary, Description, ShortFlag, IsFlagParameter, IsOptional, IsLast, IsLazy, IsVariadic)
 
-  override def summary = "Help documentation for parameters"
+  override def summaryOpt = Some("Help documentation for parameters")
 
 }

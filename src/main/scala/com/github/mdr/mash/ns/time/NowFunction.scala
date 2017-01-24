@@ -20,6 +20,6 @@ object NowFunction extends MashFunction("time.now") {
 
   override def typeInferenceStrategy = DateTimeClass
 
-  override def summary = "The current date and time"
+  override def summaryOpt = Some("The current date and time")
 
 }

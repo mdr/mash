@@ -29,6 +29,6 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
 
-  override def summary = "Return true if a directory is within a Git repository"
+  override def summaryOpt = Some("Return true if a directory is within a Git repository")
 
 }

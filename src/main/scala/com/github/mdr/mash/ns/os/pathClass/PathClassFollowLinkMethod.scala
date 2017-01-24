@@ -22,6 +22,6 @@ object PathClassFollowLinkMethod extends MashMethod("followLink") {
 
   override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
 
-  override def summary = "Follow this symbolic link"
+  override def summaryOpt = Some("Follow this symbolic link")
 
 }

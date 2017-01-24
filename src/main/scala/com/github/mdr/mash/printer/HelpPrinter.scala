@@ -23,7 +23,8 @@ class HelpPrinter(output: PrintStream) {
   def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
     output.println(bold("NAME"))
-    output.println(indentSpace + bold(obj(FullyQualifiedName)) + " - " + obj(Summary))
+    val summaryOpt = MashNull.option(obj(Summary))
+    output.println(indentSpace + bold(obj(FullyQualifiedName)) + summaryOpt.fold("")(" - " + _))
     output.println()
     val classOpt = MashNull.option(obj(Class)).map(_.asInstanceOf[MashString].s)
     for (klass ← classOpt) {
@@ -51,7 +52,7 @@ class HelpPrinter(output: PrintStream) {
   def printFieldHelp(obj: MashObject) {
     val fieldHelp = FieldHelpClass.Wrapper(obj)
     output.println(bold("FIELD"))
-    output.println(indentSpace + bold(fieldHelp.name) + fieldHelp.summary.fold("")(" - " + _))
+    output.println(indentSpace + bold(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _))
     output.println()
     output.println(bold("CLASS"))
     output.println(indentSpace + fieldHelp.klass)
@@ -94,7 +95,8 @@ class HelpPrinter(output: PrintStream) {
     def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     import ClassHelpClass.Fields._
     output.println(bold("NAME"))
-    output.println(indentSpace + bold(obj(FullyQualifiedName)) + " - " + obj(Summary))
+    val summaryOpt = MashNull.option(obj(Summary))
+    output.println(indentSpace + bold(obj(FullyQualifiedName)) + summaryOpt.fold("")(" - " + _))
     for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println()
       output.println(bold("DESCRIPTION"))
@@ -126,7 +128,8 @@ class HelpPrinter(output: PrintStream) {
         val methodObject = method.asInstanceOf[MashObject]
         output.print(indentSpace)
         output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name)))
-        output.print(" - " + methodObject(FieldHelpClass.Fields.Summary))
+        for (summary ← MashNull.option(methodObject(FieldHelpClass.Fields.Summary)))
+          output.print(" - " + summary)
         output.println()
       }
     }

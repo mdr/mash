@@ -469,7 +469,7 @@ class TypeInferencer {
 
       override def apply(arguments: Arguments): MashValue = ??? // Never executes
 
-      override def summary: String = s"Constructor for ${userClass.name}"
+      override def summaryOpt = Some(s"Constructor for ${userClass.name}")
 
       override def params: ParameterModel = userClass.params
 

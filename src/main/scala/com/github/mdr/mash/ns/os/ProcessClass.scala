@@ -75,7 +75,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Kill this process"
+    override def summaryOpt = Some("Kill this process")
 
     override def descriptionOpt = Some("""Examples:
   process.kill "HUP" # Send the HUP signal the the process""")
@@ -99,7 +99,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)
 
-    override def summary = "The parent process"
+    override def summaryOpt = Some("The parent process")
 
   }
 
@@ -116,10 +116,10 @@ object ProcessClass extends MashClass("os.Process") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(ProcessClass))
 
-    override def summary = "Children of this process"
+    override def summaryOpt = Some("Children of this process")
 
   }
 
-  override def summary = "A process"
+  override def summaryOpt = Some("A process")
 
 }

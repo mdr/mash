@@ -23,7 +23,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(NumberClass)
 
-  override def summary = "Parse the given string as a number"
+  override def summaryOpt = Some("Parse the given string as a number")
 
   override def descriptionOpt = Some("""Examples:
   parseNumber "42" # 42""")

@@ -30,5 +30,5 @@ object CreateFunction extends MashFunction("git.tag.create") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(TagClass)
 
-  override def summary: String = "Create a Git tag"
+  override def summaryOpt = Some("Create a Git tag")
 }

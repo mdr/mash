@@ -12,7 +12,7 @@ object UrlClass extends MashClass("net.Url") {
 
   override val methods = Seq(HostMethod)
 
-  override def summary: String = "Tag class for a URL"
+  override def summaryOpt = Some("Tag class for a URL")
 
   object HostMethod extends MashMethod("host") {
 
@@ -26,7 +26,7 @@ object UrlClass extends MashClass("net.Url") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith HostClass)
 
-    override def summary = "Return the host component of this URL (may be null)"
+    override def summaryOpt = Some("Return the host component of this URL (may be null)")
   }
 
   override def parentOpt = Some(AnyClass)

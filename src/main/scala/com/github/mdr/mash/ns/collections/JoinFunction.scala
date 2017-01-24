@@ -32,7 +32,7 @@ object JoinFunction extends MashFunction("collections.join") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
 
-  override def summary = "Combine the elements of a sequence into a string using a separator"
+  override def summaryOpt = Some("Combine the elements of a sequence into a string using a separator")
 
   override def descriptionOpt = Some("""Each element of the sequence will be converted into a string and joined with the given separator.
 

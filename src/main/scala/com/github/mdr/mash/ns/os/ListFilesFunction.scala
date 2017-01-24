@@ -72,7 +72,7 @@ If no paths are provided, the default is the current working directory."""))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summary = "List files"
+  override def summaryOpt = Some("List files")
 
   override def descriptionOpt = Some(s"""List files and directories, returning a sequence of ${PathSummaryClass.fullyQualifiedName} objects. 
 If no paths are supplied, the current directory is used as the default.""")

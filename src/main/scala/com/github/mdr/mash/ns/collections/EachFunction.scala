@@ -44,7 +44,7 @@ object EachFunction extends MashFunction("collections.each") {
 
   override def typeInferenceStrategy = EachTypeInferenceStrategy
 
-  override def summary = "Perform an action for each element in a sequence"
+  override def summaryOpt = Some("Perform an action for each element in a sequence")
 
 }
 

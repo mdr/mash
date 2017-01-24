@@ -19,6 +19,6 @@ object StatsClass extends MashClass("maths.Stats") {
 
   override val fields = Seq(Min, Max, Mean, StandardDeviation, Median, Count)
 
-  override def summary = "Statistics for a data set"
+  override def summaryOpt = Some("Statistics for a data set")
 
 }

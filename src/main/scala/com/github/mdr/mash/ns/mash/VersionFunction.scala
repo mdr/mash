@@ -17,6 +17,6 @@ object VersionFunction extends MashFunction("mash.version") {
 
   override def typeInferenceStrategy = StringClass
 
-  override def summary = "Return the version of Mash"
+  override def summaryOpt = Some("Return the version of Mash")
 
 }

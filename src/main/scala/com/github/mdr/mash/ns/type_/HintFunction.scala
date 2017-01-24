@@ -30,7 +30,7 @@ object HintFunction extends MashFunction("type.hint") {
 
   override def typeInferenceStrategy = HintTypeInferenceStrategy
 
-  override def summary = "Hint that the argument is a list"
+  override def summaryOpt = Some("Hint that the argument is a list")
 
 }
 

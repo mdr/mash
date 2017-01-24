@@ -96,7 +96,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summary = "Group together the elements of a sequence sharing a common key"
+  override def summaryOpt = Some("Group together the elements of a sequence sharing a common key")
 
   override def descriptionOpt = Some("""Returns a sequence of Group objects, where each group contains 
 a subset of the sequence  sharing the same key, as determined by the given 

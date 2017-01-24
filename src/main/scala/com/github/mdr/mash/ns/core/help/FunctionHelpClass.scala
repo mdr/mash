@@ -19,6 +19,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   override val fields = Seq(Name, FullyQualifiedName, Summary, CallingSyntax, Description, Parameters, Class)
 
-  override def summary = "Help documentation for a function"
+  override def summaryOpt = Some("Help documentation for a function")
 
 }

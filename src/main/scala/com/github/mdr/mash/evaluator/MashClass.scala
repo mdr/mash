@@ -26,7 +26,7 @@ object MashClass {
     override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
       method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
 
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
 
@@ -64,7 +64,7 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def enumerationValues: Option[Seq[String]] = None
 
-  def summary: String
+  def summaryOpt: Option[String]
 
   def descriptionOpt: Option[String] = None
 

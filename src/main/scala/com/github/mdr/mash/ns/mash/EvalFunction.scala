@@ -28,6 +28,6 @@ object EvalFunction extends MashFunction("mash.eval") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
 
-  override def summary = "Execute the given string as a Mash expression"
+  override def summaryOpt = Some("Execute the given string as a Mash expression")
 
 }

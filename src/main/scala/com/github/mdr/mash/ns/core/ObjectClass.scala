@@ -4,7 +4,6 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, MashClass }
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.parser.AbstractSyntax.StringLiteral
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -50,7 +49,7 @@ object ObjectClass extends MashClass("core.Object") {
       objects.reduceOption(_ + _) getOrElse MashObject.empty
     }
 
-    override def summary: String = "Merge objects together"
+    override def summaryOpt = Some("Merge objects together")
 
   }
 
@@ -139,7 +138,7 @@ object ObjectClass extends MashClass("core.Object") {
       completionSpecOpt.toSeq
     }
 
-    override def summary = "Hoist the fields of a subobject up into this object"
+    override def summaryOpt = Some("Hoist the fields of a subobject up into this object")
 
     override def descriptionOpt = Some(
       """Examples:
@@ -177,7 +176,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(FieldAndValueClass))
 
-    override def summary = "Return the fields of this object"
+    override def summaryOpt = Some("Return the fields of this object")
   }
 
   object HasFieldMethod extends MashMethod("hasField") {
@@ -201,7 +200,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
 
-    override def summary = "Return true if this object contains the given field"
+    override def summaryOpt = Some("Return true if this object contains the given field")
   }
 
   object GetMethod extends MashMethod("get") {
@@ -265,7 +264,7 @@ object ObjectClass extends MashClass("core.Object") {
       case _                    ⇒ Seq()
     }
 
-    override def summary = "Get the value of the given field, else use a default (null by default)"
+    override def summaryOpt = Some("Get the value of the given field, else use a default (null by default)")
   }
 
   object WithFieldMethod extends MashMethod("withField") {
@@ -313,10 +312,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def typeInferenceStrategy = WithFieldMethodTypeInferenceStrategy
 
-    override def summary = "Return a copy of this object with the given field added or updated with the given value."
+    override def summaryOpt = Some("Return a copy of this object with the given field added or updated with the given value.")
   }
 
-  override def summary = "The class of all objects"
+  override def summaryOpt = Some("The class of all objects")
 
   override def parentOpt = Some(AnyClass)
 

@@ -32,7 +32,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     override def typeInferenceStrategy = NumberClass
 
-    override def summary = "Date portion of this date and time"
+    override def summaryOpt = Some("Date portion of this date and time")
 
   }
 
@@ -48,7 +48,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     override def typeInferenceStrategy = StringClass
 
-    override def summary = "Render as human-friendly relative time, e.g. 1 day ago, 3 months from now, etc"
+    override def summaryOpt = Some("Render as human-friendly relative time, e.g. 1 day ago, 3 months from now, etc")
 
   }
 
@@ -66,11 +66,11 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     override def typeInferenceStrategy = DateClass
 
-    override def summary = "Date portion of this date and time"
+    override def summaryOpt = Some("Date portion of this date and time")
 
   }
 
-  override def summary = "An instant in time"
+  override def summaryOpt = Some("An instant in time")
 
   override def parentOpt = Some(AnyClass)
 

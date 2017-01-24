@@ -28,6 +28,6 @@ object PermissionsClass extends MashClass("os.Permissions") {
       PermissionsClass)
   }
 
-  override def summary = "File permissions"
+  override def summaryOpt = Some("File permissions")
 
 }

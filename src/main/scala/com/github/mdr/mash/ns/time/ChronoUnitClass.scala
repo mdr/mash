@@ -35,7 +35,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
 
-    override def summary = "Sleep for this many " + unit.name.toLowerCase
+    override def summaryOpt = Some("Sleep for this many " + unit.name.toLowerCase)
 
   }
 
@@ -52,7 +52,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
-    override def summary = "Point in time this many " + unit.name.toLowerCase + " ago"
+    override def summaryOpt = Some("Point in time this many " + unit.name.toLowerCase + " ago")
 
   }
 
@@ -69,11 +69,11 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
 
-    override def summary = "Point in time this many " + unit.name.toLowerCase + " from now"
+    override def summaryOpt = Some("Point in time this many " + unit.name.toLowerCase + " from now")
 
   }
 
-  override def summary = "A tag class for a number of " + unit.name.toLowerCase
+  override def summaryOpt = Some("A tag class for a number of " + unit.name.toLowerCase)
 
   def temporalAmount(n: Int): TemporalAmount
 

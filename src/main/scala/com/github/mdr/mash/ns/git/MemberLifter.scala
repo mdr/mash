@@ -21,7 +21,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
     override def typeInferenceStrategy =
       ConstantMethodTypeInferenceStrategy(field.fieldType)
 
-    override def summary = field.summaryOpt.getOrElse("")
+    override def summaryOpt = field.summaryOpt
 
     override def descriptionOpt = field.descriptionOpt
 
@@ -38,7 +38,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
     }
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
-    override def summary = method.summary
+    override def summaryOpt = method.summaryOpt
     override def descriptionOpt = method.descriptionOpt
 
   }

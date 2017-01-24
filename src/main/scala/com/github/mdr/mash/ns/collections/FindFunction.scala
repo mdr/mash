@@ -35,7 +35,7 @@ object FindFunction extends MashFunction("collections.find") {
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy
 
-  override def summary = "Find an element in the sequence for which a predicate holds"
+  override def summaryOpt = Some("Find an element in the sequence for which a predicate holds")
 
   override def descriptionOpt = Some("""Returns the first element of the sequence for which the predicate returns a truthy value.
 null is returned if no matching element is found.

@@ -67,7 +67,7 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
 
-  override def summary = "Find all the elements in the sequence which match the given query somewhere in its String representation"
+  override def summaryOpt = Some("Find all the elements in the sequence which match the given query somewhere in its String representation")
 
   override def descriptionOpt = Some("""Examples:
   grep "b" ["apple", "book", "car"] # ["book"]""")

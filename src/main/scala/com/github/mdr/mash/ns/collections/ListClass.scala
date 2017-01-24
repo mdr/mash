@@ -79,13 +79,13 @@ object ListClass extends MashClass("collections.List") {
 
     override def toString = s"methodise($function)"
 
-    override def summary = function.summary
+    override def summaryOpt = function.summaryOpt
 
     override def descriptionOpt = function.descriptionOpt
 
   }
 
-  override def summary = "A sequence of objects"
+  override def summaryOpt = Some("A sequence of objects")
 
   override def parentOpt = Some(AnyClass)
 

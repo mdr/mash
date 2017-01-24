@@ -44,6 +44,6 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(BranchClass))
 
-  override def summary = "List branches in the repository"
+  override def summaryOpt = Some("List branches in the repository")
 
 }

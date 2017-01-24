@@ -32,7 +32,7 @@ object IndexOfFunction extends MashFunction("collections.indexOf") {
 
   override def typeInferenceStrategy = NumberClass
 
-  override def summary = "Return the index of the first occurrence of the given element, if any, else null"
+  override def summaryOpt = Some("Return the index of the first occurrence of the given element, if any, else null")
 
   override def descriptionOpt = Some("""Examples:
   indexOf 2 [1, 2, 3] # 1

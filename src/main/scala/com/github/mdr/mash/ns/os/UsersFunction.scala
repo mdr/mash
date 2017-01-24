@@ -19,6 +19,6 @@ object UsersFunction extends MashFunction("os.users") {
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(UserSummaryClass)))
 
-  override def summary = "The users on the system"
+  override def summaryOpt = Some("The users on the system")
 
 }

@@ -30,6 +30,6 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
     MashUnit
   }
 
-  override def summary = s"Call the system command '$command'"
+  override def summaryOpt = Some(s"Call the system command '$command'")
 
 }

@@ -43,7 +43,7 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   override def typeInferenceStrategy = MaxTypeInferenceStrategy
 
-  override def summary = "Find the largest element of a sequence"
+  override def summaryOpt = Some("Find the largest element of a sequence")
 
   override def descriptionOpt = Some("""Examples:
   max [1, 2, 3] # 3
