@@ -11,23 +11,23 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private val tokens = lexerResult.tokens.toArray
 
   /**
-   * Index of the token currently being examined
-   */
+    * Index of the token currently being examined
+    */
   private var pos = 0
 
   /**
-   * Whether we are currently forgiving; we might temporarily stop being forgiving to do speculative parsing.
-   */
+    * Whether we are currently forgiving; we might temporarily stop being forgiving to do speculative parsing.
+    */
   protected var forgiving: Boolean = initialForgiving
 
   /**
-   * Indicate that a synthetic inferred semi was just inferred
-   */
+    * Indicate that a synthetic inferred semi was just inferred
+    */
   private var inferredSemi: Boolean = false
 
   /**
-   * Return the current token. If it's past the end of the token sequence, then return the last token (EOF).
-   */
+    * Return the current token. If it's past the end of the token sequence, then return the last token (EOF).
+    */
   protected def currentToken: Token = {
     val token = currentSequenceToken
     if (shouldInferSemicolon(token))
@@ -51,14 +51,30 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   private def currentTokenType = currentToken.tokenType
 
-  protected def lookahead(n: Int): TokenType = getToken(pos + n).tokenType
+  /**
+    * Lookahead in the token stream.
+    */
+  protected def lookahead(n: Int): TokenType = {
+    require(n >= 0)
+    // Step forward through the token stream to make use of the semicolon inference logic, then rewind
+    val oldPos = pos
+    val oldInferredSemi = inferredSemi
+    try {
+      for (_ ← 1 to n) nextToken()
+      nextToken().tokenType
+    } finally {
+      pos = oldPos
+      inferredSemi = oldInferredSemi
+    }
+  }
 
   protected def currentLocation = PointedRegion(currentToken.offset, currentToken.region)
 
   /**
-   *  Consume the current token, and advance to the next.
-   *  @return the token before advancing
-   */
+    * Consume the current token, and advance to the next.
+    *
+    * @return the token before advancing
+    */
   protected def nextToken(): Token = {
     val token = currentSequenceToken
     if (shouldInferSemicolon(token)) {
@@ -72,17 +88,17 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   /**
-   * We're testing token types a lot, a bit of shorthand helps.
-   */
+    * We're testing token types a lot, a bit of shorthand helps.
+    */
   protected implicit def tokenType2Boolean(tokenType: TokenType): Boolean = currentTokenType == tokenType
 
   protected def errorExpectedToken(expected: String) =
     throw new MashParserException(s"Expected '$expected', but instead found '${currentToken.text}'", currentLocation)
 
   /**
-   * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
-   * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
-   */
+    * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
+    * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
+    */
   protected def speculate[T](p: ⇒ T): Option[T] = {
     val oldPos = pos
     val oldInferredSemi = inferredSemi
@@ -100,10 +116,10 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   /**
-   * Create a synthetic token of the given type
-   */
+    * Create a synthetic token of the given type
+    */
   protected def syntheticToken(tokenType: TokenType): Token =
-    syntheticToken(tokenType, afterTokenOpt = if (pos > 0) Some(getToken(pos - 1)) else None )
+    syntheticToken(tokenType, afterTokenOpt = if (pos > 0) Some(getToken(pos - 1)) else None)
 
   private def syntheticToken(tokenType: TokenType, afterTokenOpt: Option[Token]): Token = {
     val offset = afterTokenOpt.map(_.region.posAfter) getOrElse 0
@@ -112,8 +128,8 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   /**
-   * While loop that errors if it's not making progress
-   */
+    * While loop that errors if it's not making progress
+    */
   protected def safeWhile(cond: ⇒ Boolean)(body: ⇒ Any) {
     var oldPos = pos
     var noAdvanceCount = 0
