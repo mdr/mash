@@ -450,7 +450,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "42.in [1, 2, 3]" shouldEvaluateTo false
   "2.in [1, 2, 3]" shouldEvaluateTo true
 
-  // toString
+  // .toString
   "null.toString" shouldEvaluateTo " 'null' "
   "2.toString" shouldEvaluateTo " '2' "
   "().toString" shouldEvaluateTo "''"
@@ -459,11 +459,20 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   """ "foo".toString.tag """ shouldEvaluateTo """ "foo".tag """
   "{ foo: 42 }" shouldEvaluateTo "{ foo: 42 }"
 
-  // split
+  // .split
   "'foo bar baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo  bar     baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:baz'.split ':'" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:'.split ':'" shouldEvaluateTo "['foo', 'bar', '']"
+
+  // String.lines
+  "'foo`nbar`r`nbaz buzz'.lines" shouldEvaluateTo "['foo', 'bar', 'baz buzz']"
+  "''.lines" shouldEvaluateTo "[]"
+  "'foo'.lines" shouldEvaluateTo "['foo']"
+  "'foo`n'.lines" shouldEvaluateTo "['foo']"
+  "'`nfoo'.lines" shouldEvaluateTo "['', 'foo']"
+  "'foo`n`nbar'.lines" shouldEvaluateTo "['foo', '', 'bar']"
+  "'`n`n'.lines" shouldEvaluateTo "['', '']"
 
   // String concat
   " 'foo' + 42 " shouldEvaluateTo " 'foo42' "

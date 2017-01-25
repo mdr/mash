@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Add String.lines
 * git.remotes
 * Add most List methods to String, treating strings as collections of strings
 * Add time.today function

@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.Utils._
 import com.joestelmach.natty.Parser
 
 import scala.collection.JavaConverters._
@@ -57,6 +58,7 @@ object StringClass extends MashClass("core.String") {
     ContainsMethod,
     EndsWithMethod,
     GlobMethod,
+    LinesMethod,
     MatchesMethod,
     RMethod,
     ReplaceMethod,
@@ -209,6 +211,31 @@ object StringClass extends MashClass("core.String") {
 
   }
 
+  object LinesMethod extends MashMethod("lines") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashList = {
+      params.validate(arguments)
+      val targetString = target.asInstanceOf[MashString]
+      if (targetString.isEmpty)
+        MashList.empty
+      else
+        split(targetString)
+    }
+
+    private def split(string: MashString): MashList = {
+      val s = string.s
+      val pieces = string.s.split("\r?\n", -1).when(s endsWith "\n", _.init)
+      MashList(pieces.map(MashString(_, string.tagClassOpt)))
+    }
+
+    override def typeInferenceStrategy = SplitMethod.typeInferenceStrategy
+
+    override def summaryOpt = Some("Split this string into a sequence of lines")
+
+  }
+
   object SplitMethod extends MashMethod("split") {
 
     object Params {
@@ -227,25 +254,23 @@ object StringClass extends MashClass("core.String") {
 
     import Params._
 
-    val params = ParameterModel(Seq(
-      Regex,
-      Separator))
+    val params = ParameterModel(Seq(Regex, Separator))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
       val separator = boundParams(Separator) match {
-        case MashNull                 ⇒
-          "\\s+"
-        case MashString(separator, _) ⇒
-          if (regex) separator else Pattern.quote(separator)
-        case x                        ⇒
-          boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
+        case MashNull                 ⇒ "\\s+"
+        case MashString(separator, _) ⇒ if (regex) separator else Pattern.quote(separator)
+        case x                        ⇒ boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
       }
-      val pieces = targetString.s.split(separator, -1)
-      def makePiece(s: String) = MashString(s, targetString.tagClassOpt)
-      MashList(pieces.map(makePiece))
+      split(targetString, separator)
+    }
+
+    private def split(string: MashString, separator: String): MashList = {
+      val pieces = string.s.split(separator, -1)
+      MashList(pieces.map(MashString(_, string.tagClassOpt)))
     }
 
     override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
