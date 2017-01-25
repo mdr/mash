@@ -25,17 +25,17 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
         None
     val result = statementSeq()
     if (!EOF && !forgiving)
-      errorExpectedToken("end of input")
+      errorExpectedToken(Some("program"), "end of input")
     Program(namespaceDeclarationOpt, result)
   }
 
   private def namespaceDeclaration(): NamespaceDeclaration = {
-    val namespace = consumeRequiredToken(NAMESPACE)
-    val firstSegment = consumeRequiredToken(IDENTIFIER)
+    val namespace = consumeRequiredToken("namespace", NAMESPACE)
+    val firstSegment = consumeRequiredToken("namespace", IDENTIFIER)
     val dotSegments: ArrayBuffer[(Token, Token)] = ArrayBuffer()
     safeWhile(DOT) {
       val dot = nextToken()
-      val segment = consumeRequiredToken(IDENTIFIER)
+      val segment = consumeRequiredToken("namespace", IDENTIFIER)
       dotSegments += ((dot, segment))
     }
     NamespaceDeclaration(namespace, firstSegment, dotSegments)
@@ -66,7 +66,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   protected def patternAssignmentExpr(): Expr = {
     val patternEqualsOpt = speculate {
       val pat = pattern()
-      val equals = consumeRequiredToken(SHORT_EQUALS)
+      val equals = consumeRequiredToken("assignment", SHORT_EQUALS)
       (pat, equals)
     }
     patternEqualsOpt match {
@@ -88,7 +88,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     if (IF) {
       val ifToken = nextToken()
       val cond = orExpr()
-      val thenToken = consumeRequiredToken(THEN)
+      val thenToken = consumeRequiredToken("if expression", THEN)
       val body = pipeExpr()
       val elseOpt =
         if (ELSE) {
@@ -172,7 +172,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       MinusExpr(minus, expr)
     } else if (DOT || DOT_NULL_SAFE) {
       val dotToken = nextToken()
-      val identifier = consumeRequiredToken(IDENTIFIER)
+      val identifier = consumeRequiredToken("member expression", IDENTIFIER)
       continueSuffixExpr(HeadlessMemberExpr(dotToken, identifier))
     } else
       suffixExpr()
@@ -201,14 +201,14 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
 
   private def memberExpr(previousExpr: Expr): MemberExpr = {
     val dotToken = nextToken()
-    val identifier = consumeRequiredToken(IDENTIFIER)
+    val identifier = consumeRequiredToken("member expression", IDENTIFIER)
     MemberExpr(previousExpr, dotToken, identifier)
   }
 
   private def lookupExpr(previousExpr: Expr): LookupExpr = {
     val lsquare = nextToken()
     val indexExpr = pipeExpr()
-    val rsquare = consumeRequiredToken(RSQUARE)
+    val rsquare = consumeRequiredToken("lookup expression", RSQUARE)
     LookupExpr(previousExpr, lsquare, indexExpr, rsquare)
   }
 
@@ -273,7 +273,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def blockExpr(): BlockExpr = {
     val lbrace = nextToken()
     val statements = statementSeq()
-    val rbrace = consumeRequiredToken(RBRACE)
+    val rbrace = consumeRequiredToken("block", RBRACE)
     BlockExpr(lbrace, statements, rbrace)
   }
 
@@ -297,7 +297,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
         val element = pipeExpr()
         otherElements += (comma -> element)
       }
-      val rsquare = consumeRequiredToken(RSQUARE)
+      val rsquare = consumeRequiredToken("list", RSQUARE)
       ListExpr(lsquare, Some(ListExprContents(firstElement, otherElements)), rsquare)
     }
   }

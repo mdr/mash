@@ -11,9 +11,9 @@ trait FunctionParse {
 
   protected def functionDeclaration(): FunctionDeclaration = {
     val defToken = nextToken()
-    val name = consumeRequiredToken(IDENTIFIER)
+    val name = consumeRequiredToken("function", IDENTIFIER)
     val params = paramList()
-    val equals = consumeRequiredToken(SHORT_EQUALS)
+    val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val body = pipeExpr()
     FunctionDeclaration(docComment(defToken), defToken, name, params, equals, body)
   }
@@ -58,7 +58,7 @@ trait FunctionParse {
           case _                 ⇒
             param
         }
-      val rparen = consumeRequiredToken(RPAREN)
+      val rparen = consumeRequiredToken("parameter", RPAREN)
       ParenParam(lparen, lazyOpt, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
        val pat = pattern()
@@ -72,7 +72,7 @@ trait FunctionParse {
     else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else
-      errorExpectedToken("identifier")
+      errorExpectedToken(Some("parameter"), "identifier")
 
   private def objectPattern(): ObjectPattern = {
     val lbrace = nextToken()
@@ -100,7 +100,7 @@ trait FunctionParse {
         val entry = parseEntry()
         entries += (comma -> entry)
       }
-      val rbrace = consumeRequiredToken(RBRACE)
+      val rbrace = consumeRequiredToken("object pattern", RBRACE)
       ObjectPattern(lbrace, Some(ObjectPatternContents(firstEntry, entries)), rbrace)
     }
   }
@@ -128,7 +128,7 @@ trait FunctionParse {
         val item = pattern()
         otherElements += (comma -> item)
       }
-      val rsquare = consumeRequiredToken(RSQUARE)
+      val rsquare = consumeRequiredToken("list pattern", RSQUARE)
       ListPattern(lsquare, Some(ListPatternContents(firstElement, otherElements)), rsquare)
     }
   }
@@ -137,7 +137,7 @@ trait FunctionParse {
 
   protected def lambdaStart(): LambdaStart = {
     val params = paramList()
-    val arrow = consumeRequiredToken(RIGHT_ARROW)
+    val arrow = consumeRequiredToken("lambda", RIGHT_ARROW)
     LambdaStart(params, arrow)
   }
 

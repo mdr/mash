@@ -10,8 +10,8 @@ trait ClassParse {
   self: MashParse ⇒
 
   protected def classDeclaration(): ClassDeclaration = {
-    val classToken = consumeRequiredToken(CLASS)
-    val name = consumeRequiredToken(IDENTIFIER)
+    val classToken = consumeRequiredToken("class", CLASS)
+    val name = consumeRequiredToken("class", IDENTIFIER)
     val params = classParamList()
     val bodyOpt =
       if (LBRACE) {
@@ -22,7 +22,7 @@ trait ClassParse {
           val semiOpt = if (SEMI) Some(nextToken()) else None
           methods += Method(methodDecl, semiOpt)
         }
-        val rbrace = consumeRequiredToken(RBRACE)
+        val rbrace = consumeRequiredToken("class", RBRACE)
         Some(ClassBody(lbrace, methods, rbrace))
       } else
         None

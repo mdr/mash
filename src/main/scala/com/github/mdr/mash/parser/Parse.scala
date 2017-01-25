@@ -92,8 +92,14 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     */
   protected implicit def tokenType2Boolean(tokenType: TokenType): Boolean = currentTokenType == tokenType
 
-  protected def errorExpectedToken(expected: String) =
-    throw new MashParserException(s"Expected '$expected', but instead found '${currentToken.text}'", currentLocation)
+  protected def errorExpectedToken(contextOpt: Option[String], expected: String) = {
+    val actual = if (currentToken.text.isEmpty) describeToken(currentToken.tokenType) else currentToken.text
+    val message = contextOpt match {
+      case Some(context) ⇒ s"While parsing $context, expected '$expected', but instead found '$actual'"
+      case None ⇒ s"Expected '$expected', but instead found '$actual'"
+    }
+    throw new MashParserException(message, currentLocation)
+  }
 
   /**
     * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
@@ -150,13 +156,21 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     else
       throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
 
-  protected def consumeRequiredToken(tokenType: TokenType): Token =
+  protected def consumeRequiredToken(contextOpt: Option[String], tokenType: TokenType): Token =
     if (tokenType)
       nextToken()
     else if (forgiving)
       syntheticToken(tokenType)
     else
-      errorExpectedToken(TokenNames.getOrElse(tokenType, tokenType.toString))
+      errorExpectedToken(contextOpt, describeToken(tokenType))
+
+  protected def consumeRequiredToken(context: String, tokenType: TokenType): Token =
+    consumeRequiredToken(Some(context), tokenType)
+
+  protected def consumeRequiredToken(tokenType: TokenType): Token =
+    consumeRequiredToken(None, tokenType)
+
+  protected def describeToken(tokenType: TokenType) = TokenNames.getOrElse(tokenType, tokenType.toString)
 
   private val TokenNames: Map[TokenType, String] = Map(
     IDENTIFIER -> "identifier",

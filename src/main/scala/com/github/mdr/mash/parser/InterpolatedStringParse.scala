@@ -13,7 +13,7 @@ trait InterpolatedStringParse { self: MashParse ⇒
     safeWhile(STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE) {
       parts += interpolationPart()
     }
-    val end = consumeRequiredToken(STRING_END)
+    val end = consumeRequiredToken("interpolated string", STRING_END)
     InterpolatedString(stringStart, parts, end)
   }
 
@@ -33,10 +33,10 @@ trait InterpolatedStringParse { self: MashParse ⇒
       else if (IDENTIFIER)
         Identifier(nextToken())
       else
-        errorExpectedToken("identifier or _") // shouldn't happen
+        errorExpectedToken(Some("interpolation"), "identifier or _") // shouldn't happen
     safeWhile(DOT) {
       val dot = nextToken()
-      val ident = consumeRequiredToken(IDENTIFIER)
+      val ident = consumeRequiredToken("interpolation", IDENTIFIER)
       expr = MemberExpr(expr, dot, ident)
     }
     SimpleInterpolation(start, expr)
@@ -45,7 +45,7 @@ trait InterpolatedStringParse { self: MashParse ⇒
   private def complexInterpolation(): ComplexInterpolation = {
     val interpolationStart = nextToken()
     val interpolatedExpr = pipeExpr()
-    val rbrace = consumeRequiredToken(RBRACE)
+    val rbrace = consumeRequiredToken("interpolation", RBRACE)
     ComplexInterpolation(interpolationStart, interpolatedExpr, rbrace)
   }
 

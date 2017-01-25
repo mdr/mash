@@ -22,7 +22,7 @@ trait ObjectParse {
         val entry = objectEntry()
         entries += (comma -> entry)
       }
-      val rbrace = consumeRequiredToken(RBRACE)
+      val rbrace = consumeRequiredToken("object", RBRACE)
       ObjectExpr(lbrace, Some(ObjectExprContents(firstEntry, entries)), rbrace)
     }
   }
@@ -33,7 +33,7 @@ trait ObjectParse {
       ShorthandObjectEntry(field)
     } else {
       val field = suffixExpr()
-      val colon = consumeRequiredToken(COLON)
+      val colon = consumeRequiredToken("object", COLON)
       val expr = pipeExpr()
       FullObjectEntry(field, colon, expr)
     }
