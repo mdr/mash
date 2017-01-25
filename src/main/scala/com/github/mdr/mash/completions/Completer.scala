@@ -56,7 +56,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
         completeDot(text, nearbyToken, pos, parser)
       case _                                       ⇒
-        completeMisc(text, nearbyToken, pos, parser)
+        completeMisc(text, nearbyToken, pos, parser, bindings)
     }
 
   private def completeStringLiteral(text: String, stringLiteral: Token, parser: CompletionParser): Option[CompletionResult] =
@@ -116,11 +116,11 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
       asStringResultOpt orElse memberResultOpt
   }
 
-  private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
+  private def completeMisc(text: String, nearbyToken: Token, pos: Int, parser: CompletionParser, bindings: Map[String, MashValue]): Option[CompletionResult] = {
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, nearbyToken.region, parser) orElse
         stringCompleter.completeAsString(text, Region(pos, 0), parser)
-    val bindingResultOpt = BindingCompleter.completeBindings(parser.env, prefix = "", Region(pos, 0))
+    val bindingResultOpt = BindingCompleter.completeBindings(text, bindings, pos, parser)
     // Path completions should merge with binding completions, other types of string completions should take priority
     // over binding completions:
     if (isPathCompletion)

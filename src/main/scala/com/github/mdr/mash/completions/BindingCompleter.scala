@@ -7,19 +7,23 @@ import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.{ AbstractSyntax, ConcreteSyntax }
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.{ Region, StringUtils }
 
 object BindingCompleter {
 
+  /**
+    * Complete bindings at the given identifier.
+    */
   def completeBindings(programText: String,
                        identifierToken: Token,
                        parser: CompletionParser,
-                       bindings: Map[String, MashValue]): Option[CompletionResult] = {
+                       bindings: Map[String, MashValue],
+                       filterToMatchIdentifierPrefix: Boolean = true): Option[CompletionResult] = {
     val completions =
       for {
         expr ← findIdentifierExpr(programText, identifierToken, parser).toSeq
         (name, completion) ← getTypeBindingCompletions(expr) ++ getBindingCompletions(bindings)
-        if name startsWith identifierToken.text
+        if name.startsWith(identifierToken.text) || !filterToMatchIdentifierPrefix
       } yield completion
     CompletionResult.of(completions, identifierToken.region)
   }
@@ -37,13 +41,20 @@ object BindingCompleter {
       case expr: Expr if expr.sourceInfoOpt.map(_.node) contains ConcreteSyntax.Identifier(identifierToken) ⇒ expr
     }
 
-  def completeBindings(bindings: Map[String, MashValue], prefix: String, region: Region): Option[CompletionResult] = {
-    val completions =
-      for {
-        (name, completion) ← getBindingCompletions(bindings).toSeq
-        if name startsWith prefix
-      } yield completion
-    CompletionResult.of(completions, region)
+  /**
+    * Complete bindings at the given position (using a dummy identifier)
+    */
+  def completeBindings(programText: String,
+                       bindings: Map[String, MashValue],
+                       pos: Int,
+                       parser: CompletionParser): Option[CompletionResult] = {
+    val textWithDummyIdentifier = StringUtils.insert(programText, pos, " dummy ")
+    val tokens = parser.tokenise(textWithDummyIdentifier)
+    val dummyTokenStart = pos + 1
+    for {
+      identifierToken ← tokens.find(_.region contains dummyTokenStart)
+      completionResult ← completeBindings(textWithDummyIdentifier, identifierToken, parser, bindings, filterToMatchIdentifierPrefix = false)
+    } yield completionResult.copy(replacementLocation = Region(pos, 0))
   }
 
   private def getCompletion(name: String, value: MashValue): Completion = value match {

@@ -352,7 +352,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   "def foo bar = (ba▶" shouldContainCompletion "bar"
-//  "def foo bar = (▶" shouldContainCompletion "bar"
+  "def foo bar = (▶" shouldContainCompletion "bar"
 
   private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
     val settings = CompilationSettings(bareWords = false)

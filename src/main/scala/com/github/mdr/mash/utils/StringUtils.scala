@@ -61,6 +61,9 @@ object StringUtils {
   def replace(s: String, region: Region, replacement: String): String =
     new StringBuilder(s).replace(region.offset, region.posAfter, replacement).toString
 
+  def insert(s: String, pos: Int, insertion: String): String =
+    new StringBuilder(s).insert(pos, insertion).toString
+
   /**
     * Pad or truncate the given string to ensure it is exactly the given width in length.
     */
