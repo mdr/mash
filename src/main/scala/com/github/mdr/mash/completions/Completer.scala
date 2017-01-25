@@ -23,7 +23,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
 
   def complete(s: String, pos: Int, bindings: Map[String, MashValue], mish: Boolean): Option[CompletionResult] = {
     val parser = new CompletionParser(bindings, mish)
-    findNearbyToken(s, pos, parser).flatMap(completeToken(s, pos, parser)).map(_.sorted)
+    findNearbyToken(s, pos, parser).flatMap(completeToken(s, pos, parser, bindings)).map(_.sorted)
   }
 
   /**
@@ -41,7 +41,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     })
   }
 
-  private def completeToken(text: String, pos: Int, parser: CompletionParser)(nearbyToken: Token): Option[CompletionResult] =
+  private def completeToken(text: String, pos: Int, parser: CompletionParser, bindings: Map[String, MashValue])(nearbyToken: Token): Option[CompletionResult] =
     nearbyToken.tokenType match {
       case TokenType.STRING_LITERAL                ⇒
         completeStringLiteral(text, nearbyToken, parser)
@@ -52,7 +52,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
       case TokenType.MINUS                         ⇒
         completeMinus(text, nearbyToken, parser)
       case TokenType.IDENTIFIER                    ⇒
-        completeIdentifier(text, nearbyToken, parser)
+        completeIdentifier(text, nearbyToken, parser, bindings)
       case TokenType.DOT | TokenType.DOT_NULL_SAFE ⇒
         completeDot(text, nearbyToken, pos, parser)
       case _                                       ⇒
@@ -74,7 +74,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
     CompletionResult.merge(asStringResultOpt, flagResultOpt)
   }
 
-  private def completeIdentifier(text: String, identifier: Token, parser: CompletionParser): Option[CompletionResult] = {
+  private def completeIdentifier(text: String, identifier: Token, parser: CompletionParser, bindings: Map[String, MashValue]): Option[CompletionResult] = {
     val StringCompletionResult(isPathCompletion, asStringResultOpt) =
       stringCompleter.completeAsString(text, identifier, parser)
     val MemberCompletionResult(isMemberExpr, memberResultOpt, prioritiseMembers) =
@@ -83,7 +83,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
       if (isMemberExpr)
         None // It would be misleading to try and complete bindings in member position
       else
-        BindingCompleter.completeBindings(text, identifier, parser)
+        BindingCompleter.completeBindings(text, identifier, parser, bindings)
     val stringBindingResultOpt =
       if (isPathCompletion)
         CompletionResult.merge(asStringResultOpt, bindingResultOpt)

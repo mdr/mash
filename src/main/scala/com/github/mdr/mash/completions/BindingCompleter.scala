@@ -11,16 +11,26 @@ import com.github.mdr.mash.utils.Region
 
 object BindingCompleter {
 
-  def completeBindings(programText: String, identifierToken: Token, parser: CompletionParser): Option[CompletionResult] = {
+  def completeBindings(programText: String,
+                       identifierToken: Token,
+                       parser: CompletionParser,
+                       bindings: Map[String, MashValue]): Option[CompletionResult] = {
     val completions =
       for {
         expr ← findIdentifierExpr(programText, identifierToken, parser).toSeq
-        (name, type_) ← expr.typeBindings.toSeq
+        (name, completion) ← getTypeBindingCompletions(expr) ++ getBindingCompletions(bindings)
         if name startsWith identifierToken.text
-        (completionType, descriptionOpt) = completionTypeAndDescription(type_)
-      } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = descriptionOpt)
+      } yield completion
     CompletionResult.of(completions, identifierToken.region)
   }
+
+  private def getTypeBindingCompletions(expr: Expr): Map[String, Completion] =
+    for ((name, type_) ← expr.typeBindings)
+      yield name -> getCompletion(name, type_)
+
+  private def getBindingCompletions(bindings: Map[String, MashValue]): Map[String, Completion] =
+    for ((name, value) ← bindings)
+      yield name -> getCompletion(name, value)
 
   private def findIdentifierExpr(programText: String, identifierToken: Token, parser: CompletionParser): Option[AbstractSyntax.Expr] =
     parser.parse(programText).find {
@@ -30,23 +40,28 @@ object BindingCompleter {
   def completeBindings(bindings: Map[String, MashValue], prefix: String, region: Region): Option[CompletionResult] = {
     val completions =
       for {
-        (name, value) ← bindings.toSeq
+        (name, completion) ← getBindingCompletions(bindings).toSeq
         if name startsWith prefix
-        (completionType, descriptionOpt) = completionTypeAndDescription(value)
-      } yield Completion(name, typeOpt = Some(completionType), descriptionOpt = descriptionOpt)
+      } yield completion
     CompletionResult.of(completions, region)
   }
 
-  private def completionTypeAndDescription(value: MashValue): (CompletionType, Option[String]) = value match {
-    case mf: MashFunction ⇒ (CompletionType.Function, mf.summaryOpt)
-    case bf: BoundMethod  ⇒ (CompletionType.Method, bf.method.summaryOpt)
-    case x                ⇒ (CompletionType.Binding, Some(ToStringifier.safeStringify(x)))
+  private def getCompletion(name: String, value: MashValue): Completion = value match {
+    case mf: MashFunction ⇒
+      Completion(name, typeOpt = Some(CompletionType.Function), descriptionOpt = mf.summaryOpt)
+    case bf: BoundMethod  ⇒
+      Completion(name, typeOpt = Some(CompletionType.Method), descriptionOpt = bf.method.summaryOpt)
+    case _                ⇒
+      Completion(name, typeOpt = Some(CompletionType.Binding), descriptionOpt = Some(ToStringifier.safeStringify(value)))
   }
 
-  private def completionTypeAndDescription(type_ : Type): (CompletionType, Option[String]) = type_ match {
-    case Type.BoundBuiltinMethod(_, method) ⇒ (CompletionType.Method, method.summaryOpt)
-    case Type.BuiltinFunction(fun)          ⇒ (CompletionType.Function, fun.summaryOpt)
-    case x                                  ⇒ (CompletionType.Binding, None)
+  private def getCompletion(name: String, type_ : Type): Completion = type_ match {
+    case Type.BoundBuiltinMethod(_, method) ⇒
+      Completion(name, typeOpt = Some(CompletionType.Method), descriptionOpt = method.summaryOpt)
+    case Type.BuiltinFunction(fun)          ⇒
+      Completion(name, typeOpt = Some(CompletionType.Function), descriptionOpt = fun.summaryOpt)
+    case _                                  ⇒
+      Completion(name, typeOpt = Some(CompletionType.Binding))
   }
 
 }
