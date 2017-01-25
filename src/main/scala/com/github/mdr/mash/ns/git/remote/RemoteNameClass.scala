@@ -1,5 +1,5 @@
 
-package com.github.mdr.mash.ns.git.branch
+package com.github.mdr.mash.ns.git.remote
 
 import com.github.mdr.mash.evaluator.MashClass
 import com.github.mdr.mash.ns.core.AnyClass

@@ -7,6 +7,8 @@ import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.core.thread.{ InBackgroundFunction, ParallelMapFunction }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction ⇒ _, _ }
+import com.github.mdr.mash.ns.git.tag
+import com.github.mdr.mash.ns.git.remote
 import com.github.mdr.mash.ns.maths.StatsClass
 import com.github.mdr.mash.ns.os.{ WithinFunction, GroupClass ⇒ _, _ }
 import com.github.mdr.mash.ns.time._
@@ -196,7 +198,10 @@ object MashRoot {
     LocalBranchNameClass,
     RemoteBranchClass,
     RemoteBranchNameClass,
-    RemoteNameClass,
+    tag.TagClass,
+    tag.TagNameClass,
+    remote.RemoteClass,
+    remote.RemoteNameClass,
     //
     FileTypeClass,
     GidClass,

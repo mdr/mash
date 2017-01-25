@@ -5,6 +5,7 @@ import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.git._
+import com.github.mdr.mash.ns.git.remote.RemoteNameClass
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.Git
