@@ -2,10 +2,12 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ Flag, MashFunction, MashMethod }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ TypedArguments, _ }
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashList, MashNull, MashValue }
+
+import scala.PartialFunction._
 
 object ListClass extends MashClass("collections.List") {
 
@@ -55,7 +57,38 @@ object ListClass extends MashClass("collections.List") {
     alias("dropWhile", methodise(SkipWhileFunction)),
     alias("filter", methodise(WhereFunction)),
     alias("filterNot", methodise(WhereNotFunction)),
-    alias("keepIf", methodise(WhereFunction)))
+    alias("keepIf", methodise(WhereFunction)),
+    IntersectMethod)
+
+  object IntersectMethod extends MashMethod("intersect") {
+
+    object Params {
+      val Sequence = Parameter(
+        nameOpt = Some("sequence"),
+        summaryOpt = Some("Other sequence to intersect with this"))
+    }
+    import Params._
+
+    override val params = ParameterModel(Seq(Sequence))
+
+    def apply(target: MashValue, arguments: Arguments): MashList = {
+      val boundParams = params.validate(arguments)
+      val sequence = MashList(boundParams.validateSequence(Sequence))
+      target.asInstanceOf[MashList] intersect sequence
+    }
+
+    override def summaryOpt: Option[String] = Some("Compute the multiset intersection between this and another sequence")
+
+    object IntersectMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        val argBindings = params.bindTypes(arguments)
+        targetTypeOpt orElse argBindings.getArgument(Sequence).flatMap(_.typeOpt)
+      }
+    }
+
+    override def typeInferenceStrategy = IntersectMethodTypeInferenceStrategy
+  }
 
   def methodise(function: MashFunction): MashMethod = new MashMethod(function.name) {
 

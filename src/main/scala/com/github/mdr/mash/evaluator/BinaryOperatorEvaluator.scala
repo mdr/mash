@@ -102,6 +102,8 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
         MashNumber(millis, Some(MillisecondsClass))
       case (left: MashObject, right: MashString) ⇒
         left - right.s
+      case (left: MashList, right: MashList) ⇒
+        left.diff(right)
       case _ ⇒
         throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }

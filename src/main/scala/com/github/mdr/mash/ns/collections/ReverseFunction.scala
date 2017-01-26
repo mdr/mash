@@ -10,8 +10,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to reverse"),
-      isLast = true)
+      summaryOpt = Some("Sequence to reverse"))
   }
   import Params._
 

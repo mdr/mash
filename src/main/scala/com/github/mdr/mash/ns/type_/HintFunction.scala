@@ -6,8 +6,6 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
-import scala.PartialFunction.condOpt
-
 object HintFunction extends MashFunction("type.hint") {
 
   object Params {

@@ -333,6 +333,8 @@ class TypeInferencer {
           case StringLiteral(fieldName, _, false, _) ⇒ Some(Type.Object(leftFields - fieldName))
           case _                                     ⇒ None
         }
+      case (Some(Type.Seq(elementType)), _)                         ⇒ leftTypeOpt
+      case (_, Some(Type.Seq(elementType)))                         ⇒ rightTypeOpt
       case _                                                        ⇒ Some(Type.Instance(NumberClass))
     }
 

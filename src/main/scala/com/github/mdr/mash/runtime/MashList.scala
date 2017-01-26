@@ -46,6 +46,10 @@ class MashList(val elements: ArrayBuffer[MashValue]) extends MashValue with Comp
 
   def *(n: Int) = withLock { new MashList(ArrayBuffer((1 to n).flatMap(_ ⇒ elements): _*)) }
 
+  def diff(that: MashList): MashList = withLock { new MashList(this.elements diff that.elements) }
+
+  def intersect(that: MashList): MashList = withLock { new MashList(this.elements intersect that.elements) }
+
   override def equals(x: Any) = withLock {
     x match {
       case that: MashList ⇒ this.elements == that.elements

@@ -1,6 +1,9 @@
 v0.0.5 (..)
 -----------
 
+* Bracket matching
+* List.intersect
+* List subtraction
 * Add Path.write (same functionality as os.write)
 * Add os.createTemp(dir|file)
 * Add String.lines

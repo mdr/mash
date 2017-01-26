@@ -55,6 +55,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // subtraction
   "2 - 1" shouldBeInferredAsHavingType NumberClass
   "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberClass))
+  "[1, 2, 3] - [2]" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // Multiplication
   "2 * 2" shouldBeInferredAsHavingType NumberClass
@@ -326,6 +327,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "class Bob { def n = 42 }; 1 | type.hint Bob | .n" shouldBeInferredAsHavingType NumberClass
   "class Bob { def n = 42 }; 1 | type.hint [Bob] | .n" shouldBeInferredAsHavingType Seq(NumberClass)
+
+  "[1, 2, 3].intersect [3, 4]" shouldBeInferredAsHavingType Seq(NumberClass)
 
   private implicit class RichString(s: String) {
 

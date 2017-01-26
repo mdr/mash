@@ -18,19 +18,24 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
   def renderObjectBrowser: Screen = {
     val lines = renderLines.map(_.truncate(terminalInfo.columns))
     val title = "mash " + fileSystem.pwd.toString
-    val (cursorPos, cursorVisible) = state.expressionOpt match {
+    val (cursorPos, cursorVisible) = renderCursor
+    Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
+  }
+
+  private def renderCursor: (Point, Boolean) =
+    state.expressionOpt match {
       case Some(expression) ⇒ Point(0, expression.length + state.path.length) -> true
       case _                ⇒ Point(0, 0) -> false
     }
-    Screen(lines, cursorPos = cursorPos, cursorVisible = cursorVisible, title = title)
-  }
 
   protected def renderUpperStatusLine: Line = {
     val fullExpression = state.expressionOpt match {
       case Some(expression) ⇒ state.path + expression
       case None             ⇒ state.path
     }
-    Line(LineBufferRenderer.renderChars(fullExpression, mishByDefault = false, globalVariables = mutable.Map(), bareWords = false))
+    val cursorOffset = renderCursor._1.column
+    Line(LineBufferRenderer.renderChars(fullExpression, cursorOffset, mishByDefault = false,
+      globalVariables = mutable.Map(), bareWords = false))
   }
 
 }

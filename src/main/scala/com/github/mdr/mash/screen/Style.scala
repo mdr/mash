@@ -30,4 +30,10 @@ case class Style(
   bold: Boolean = false,
   inverse: Boolean = false)
 
-case class StyledCharacter(c: Char, style: Style = Style())
+case class StyledCharacter(c: Char, style: Style = Style()) {
+
+  def withStyle(style: Style) = copy(style = style)
+
+  def updateStyle(f: Style ⇒ Style) = withStyle(f(style))
+
+}

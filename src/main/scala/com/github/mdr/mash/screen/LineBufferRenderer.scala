@@ -2,6 +2,7 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.commands.{ MishCommand, SuffixMishCommand }
 import com.github.mdr.mash.compiler.BareStringify
+import com.github.mdr.mash.editor.BracketMatcher
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
@@ -23,9 +24,9 @@ object LineBufferRenderer {
   def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
-    val unwrappedLines = renderLineBufferChars(lineBuffer.text, prompt, state.mish, state.globalVariables.fields,
-      state.bareWords)
     val cursorPos = lineBuffer.cursorPos
+    val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prompt, state.mish, state.globalVariables.fields,
+      state.bareWords)
 
     def wrap(line: Line): Seq[Line] = {
       val groups = line.chars.grouped(terminalInfo.columns).toSeq
@@ -66,11 +67,12 @@ object LineBufferRenderer {
   }
 
   private def renderLineBufferChars(rawChars: String,
+                                    cursorOffset: Int,
                                     prompt: Seq[StyledCharacter],
                                     mishByDefault: Boolean,
                                     globalVariables: mutable.Map[String, MashValue],
                                     bareWords: Boolean): Seq[Line] = {
-    val styledChars = renderChars(rawChars, mishByDefault, globalVariables, bareWords)
+    val styledChars = renderChars(rawChars, cursorOffset, mishByDefault, globalVariables, bareWords)
     val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
     val lineRegions = new LineInfo(rawChars).lineRegions
     lineRegions.zipWithIndex.map {
@@ -79,16 +81,21 @@ object LineBufferRenderer {
     }
   }
 
-  def renderChars(rawChars: String, mishByDefault: Boolean, globalVariables: mutable.Map[String, MashValue], bareWords: Boolean): Seq[StyledCharacter] = {
+  def renderChars(rawChars: String,
+                  cursorOffset: Int,
+                  mishByDefault: Boolean,
+                  globalVariables: mutable.Map[String, MashValue],
+                  bareWords: Boolean): Seq[StyledCharacter] = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokens(s: String, mish: Boolean) = {
       val bareTokens = getBareTokens(s, mishByDefault, globalVariables)
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
-      (tokens, bareTokens)
+      val matchingBracketOffsetOpt = BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish)
+      (tokens, bareTokens, matchingBracketOffsetOpt)
     }
 
-    val (tokens, bareTokens) =
+    val (tokens, bareTokens, matchingBracketOffsetOpt) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
           getTokens(mishCmd, mish = true)
@@ -105,8 +112,18 @@ object LineBufferRenderer {
         else
           getTokenStyle(token)
 
-      if (!token.isEof)
-        styledChars ++= token.text.style(style)
+      if (!token.isEof) {
+        val initialTokenChars = token.text.style(style)
+        val finalTokenChars = matchingBracketOffsetOpt match {
+          case Some(offset) if token.region contains offset ⇒
+            val posWithinToken = offset - token.offset
+            val newChar = initialTokenChars(posWithinToken).updateStyle(_.copy(foregroundColour = Colour.Cyan, inverse = true))
+            initialTokenChars.updated(posWithinToken, newChar)
+          case _ ⇒
+            initialTokenChars
+        }
+        styledChars ++= finalTokenChars
+      }
     }
 
     rawChars match {
