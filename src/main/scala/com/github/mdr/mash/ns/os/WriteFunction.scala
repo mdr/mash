@@ -1,12 +1,13 @@
 package com.github.mdr.mash.ns.os
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashUnit }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashUnit, MashValue }
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConverters._
@@ -37,16 +38,21 @@ Otherwise, write the item as a string."""))
   def apply(arguments: Arguments): MashUnit = {
     val boundParams = params.validate(arguments)
     val append = boundParams(Append).isTruthy
-    val file = boundParams.validatePath(File).toFile
+    val path = boundParams.validatePath(File)
     val data = boundParams(Data)
+    write(path, data, append)
+    MashUnit
+  }
+
+  def write(path: Path, data: MashValue, append: Boolean): Unit = {
+    val file = path.toFile
     data match {
       case xs: MashList ⇒
         val lines = xs.elements.map(ToStringifier.stringify)
         FileUtils.writeLines(file, lines.asJava, append)
-      case x ⇒
+      case x            ⇒
         FileUtils.write(file, ToStringifier.stringify(x), StandardCharsets.UTF_8, append)
     }
-    MashUnit
   }
 
   override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)

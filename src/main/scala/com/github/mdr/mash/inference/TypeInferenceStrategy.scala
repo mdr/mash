@@ -9,6 +9,9 @@ object TypeInferenceStrategy {
   implicit def constantTypeInferenceStrategy[T](klass: MashClass): ConstantTypeInferenceStrategy =
     ConstantTypeInferenceStrategy(Type.Instance(klass))
 
+  implicit def constantTypeInferenceStrategy[T](type_ : Type): ConstantTypeInferenceStrategy =
+    ConstantTypeInferenceStrategy(type_)
+
 }
 
 /**

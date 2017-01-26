@@ -1,7 +1,8 @@
 v0.0.5 (..)
 -----------
 
-* os.createTemp(dir|file)
+* Add Path.write (same functionality as os.write)
+* Add os.createTemp(dir|file)
 * Add String.lines
 * git.remotes
 * Add most List methods to String, treating strings as collections of strings

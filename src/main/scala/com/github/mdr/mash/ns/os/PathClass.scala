@@ -49,6 +49,7 @@ object PathClass extends MashClass("os.Path") {
     PathClassSegmentsMethod,
     PathClassSizeMethod,
     PathClassTypeMethod,
+    PathClassWriteMethod,
     MashClass.alias("rm", PathClassDeleteMethod))
 
   object PathClassReadLinesMethod extends MashMethod("readLines") {

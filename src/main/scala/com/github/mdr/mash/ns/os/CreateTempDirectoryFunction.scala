@@ -19,7 +19,7 @@ object CreateTempDirectoryFunction extends MashFunction("os.createTempDirectory"
     asPathString(path)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Create a new temporary directory")
 
