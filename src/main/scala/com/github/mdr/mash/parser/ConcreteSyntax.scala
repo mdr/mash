@@ -70,7 +70,7 @@ object ConcreteSyntax {
 
   case class InterpolatedString(start: Token, parts: Seq[InterpolationPart], end: Token) extends Expr {
     lazy val tokens = start +: parts.flatMap(_.tokens) :+ end
-    def children = Seq()
+    def children = parts
   }
 
   case class Hole(token: Token) extends Expr {

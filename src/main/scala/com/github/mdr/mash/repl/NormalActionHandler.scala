@@ -179,6 +179,7 @@ trait NormalActionHandler {
   protected def updateScreenAfterAccept() {
     state.completionStateOpt = None
     state.assistanceStateOpt = None
+    state.updateLineBuffer(_.moveCursorToEnd) // To make sure we don't highlight any matching brackets
     draw()
 
     for (renderResult ← previousReplRenderResultOpt) {
