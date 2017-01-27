@@ -2,7 +2,7 @@ package com.github.mdr.mash.repl.history
 
 import java.nio.file.Path
 
-import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
+import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.runtime.MashValue
 
 trait History {
@@ -12,7 +12,7 @@ trait History {
   def resetHistoryPosition(): Unit
 
   def forgetInProgressCommand(): Unit
-  
+
   def goForwards(): Option[String]
 
   def goBackwards(inProgressCommand: String): Option[String]
@@ -25,12 +25,16 @@ trait History {
   def getLastArg(lastArgIndex: Int): Option[String] =
     getHistory.toStream.flatMap(getLastArg(_)).drop(lastArgIndex).headOption
 
-  private def getLastArg(historyEntry: HistoryEntry): Option[String] = {
-    val tokens = MashLexer.tokenise(historyEntry.command, forgiving = true, mish = historyEntry.mish).tokens
-    tokens.filter { token ⇒
-      val tokenType = token.tokenType
-      tokenType.isIdentifier || tokenType.isKeyword || tokenType.isLiteral || tokenType == TokenType.MISH_WORD
-    }.lastOption.map(_.text)
+  private def getLastArg(historyEntry: HistoryEntry): Option[String] =
+    MashLexer.tokenise(historyEntry.command, forgiving = true, mish = historyEntry.mish)
+      .tokens
+      .filter(isLastArgCandidate)
+      .lastOption
+      .map(_.text)
+
+  private def isLastArgCandidate(token: Token): Boolean = {
+    val tokenType = token.tokenType
+    tokenType.isIdentifier || tokenType.isKeyword || tokenType.isLiteral || tokenType == TokenType.MISH_WORD
   }
 
   /**
