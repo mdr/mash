@@ -185,8 +185,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "['foo bar', 'baz'].split" shouldBeInferredAsHavingType Seq(Seq(StringClass))
   "['foo:bar', 'baz'].split ':'" shouldBeInferredAsHavingType Seq(Seq(StringClass))
 
+  "'foo:bar:baz'.split ':'" shouldBeInferredAsHavingType Seq(StringClass)
+  "'foo:bar:baz' | split ':'" shouldBeInferredAsHavingType Seq(StringClass)
+
   // .lines
-  "'string'.lines" shouldBeInferredAsHavingType (Seq(StringClass))
+  "'string'.lines" shouldBeInferredAsHavingType Seq(StringClass)
 
   // groupBy and Group
   " [ {foo: 42} ] | groupBy 'foo' " shouldBeInferredAsHavingType Seq(Generic(collections.GroupClass, NumberClass, Object(ListMap("foo" -> NumberClass))))

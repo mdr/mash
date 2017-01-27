@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.regex.Pattern
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.collections.{ AnyFunction, _ }
 import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
@@ -260,15 +260,11 @@ object StringClass extends MashClass("core.String") {
       val boundParams = params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
-      val separator = boundParams(Separator) match {
-        case MashNull                 ⇒ "\\s+"
-        case MashString(separator, _) ⇒ if (regex) separator else Pattern.quote(separator)
-        case x                        ⇒ boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
-      }
+      val separator = getSeparator(boundParams, Separator, regex)
       split(targetString, separator)
     }
 
-    private def split(string: MashString, separator: String): MashList = {
+    def split(string: MashString, separator: String): MashList = {
       val pieces = string.s.split(separator, -1)
       MashList(pieces.map(MashString(_, string.tagClassOpt)))
     }
@@ -278,7 +274,14 @@ object StringClass extends MashClass("core.String") {
 
     override def summaryOpt = Some("Split this string into a sequence of substrings using a separator")
 
+    def getSeparator(boundParams: BoundParams, param: Parameter, regex: Boolean): String =
+      boundParams(Separator) match {
+        case MashNull                 ⇒ "\\s+"
+        case MashString(separator, _) ⇒ if (regex) separator else Pattern.quote(separator)
+        case x                        ⇒ boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
+      }
   }
+
 
   object ReplaceMethod extends MashMethod("replace") {
 

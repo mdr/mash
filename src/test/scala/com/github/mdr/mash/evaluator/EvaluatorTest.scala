@@ -463,6 +463,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'foo bar baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo  bar     baz'.split" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:baz'.split ':'" shouldEvaluateTo "['foo', 'bar', 'baz']"
+  "'foo:bar:baz' | split ':'" shouldEvaluateTo "['foo', 'bar', 'baz']"
   "'foo:bar:'.split ':'" shouldEvaluateTo "['foo', 'bar', '']"
 
   // String.lines

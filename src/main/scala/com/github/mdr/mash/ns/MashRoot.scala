@@ -71,6 +71,7 @@ object MashRoot {
     PrintFunction,
     RunFunction,
     SleepFunction,
+    SplitFunction,
     TapFunction,
     TimeTakenFunction,
     TodayFunction,

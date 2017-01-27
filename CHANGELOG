@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* core.split
 * Bracket matching
 * List.intersect
 * List subtraction
