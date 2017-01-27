@@ -19,7 +19,7 @@ object PathClassExtensionMethod extends MashMethod("extension") {
       MashNull
   }
 
-  override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+  override def typeInferenceStrategy = StringClass
 
   override def summaryOpt = Some("File extension, if any, else null")
 

@@ -51,7 +51,7 @@ object ResponseClass extends MashClass("http.Response") {
       MashBoolean(200 <= code && code <= 299)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("True if the HTTP request succeeded (status code 2xx)")
 

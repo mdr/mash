@@ -71,7 +71,7 @@ object UidClass extends MashClass("os.Uid") {
       UserSummaryClass.fromPasswdEntry(passwdEntry)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UserSummaryClass)
+    override def typeInferenceStrategy = UserSummaryClass
 
     override def summaryOpt = Some("Fetch information about the user with this uid")
 

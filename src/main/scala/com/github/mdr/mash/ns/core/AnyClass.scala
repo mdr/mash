@@ -93,7 +93,7 @@ object AnyClass extends MashClass("core.Any") {
 
     def apply(target: MashValue, arguments: Arguments): MashClass = target.primaryClass
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
+    override def typeInferenceStrategy = ClassClass
 
     override def summaryOpt = Some("The class of this object")
 
@@ -123,7 +123,7 @@ object AnyClass extends MashClass("core.Any") {
       case _                         ⇒ "???"
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+    override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("Represent this object as a string")
 
@@ -151,7 +151,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(sequence.contains(target))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check whether this element is contained in a sequence")
 

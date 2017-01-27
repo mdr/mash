@@ -23,7 +23,7 @@ object ClassClass extends MashClass("core.Class") {
       MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+    override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("The fully-qualified name of this class")
 
@@ -38,7 +38,7 @@ object ClassClass extends MashClass("core.Class") {
       MashString(target.asInstanceOf[MashClass].name)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+    override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("The name of this class")
 
@@ -53,7 +53,7 @@ object ClassClass extends MashClass("core.Class") {
       target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
+    override def typeInferenceStrategy = ClassClass
 
     override def summaryOpt = Some("The parent of this class, if any, else null")
 
@@ -68,7 +68,7 @@ object ClassClass extends MashClass("core.Class") {
       HelpFunction.getHelp(target.asInstanceOf[MashClass])
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassHelpClass)
+    override def typeInferenceStrategy = ClassHelpClass
 
     override def summaryOpt = Some("Help documentation for this class")
   }

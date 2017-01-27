@@ -95,7 +95,7 @@ object StringClass extends MashClass("core.String") {
       MashBoolean(s contains pattern)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Test whether this string contains the given substring")
 
@@ -111,7 +111,7 @@ object StringClass extends MashClass("core.String") {
       MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(PathSummaryClass))
+    override def typeInferenceStrategy = Seq(PathSummaryClass)
 
     override def summaryOpt = Some("Return paths matching a glob pattern")
 
@@ -143,7 +143,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].copy(tagClassOpt = Some(RegexClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, RegexClass))
+    override def typeInferenceStrategy = Type.Tagged(StringClass, RegexClass)
 
     override def summaryOpt = Some("This string as a regular expression")
 
@@ -158,7 +158,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].tagClassOpt.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
+    override def typeInferenceStrategy = ClassClass
 
     override def summaryOpt = Some("This string's tagged type, if any")
   }
@@ -172,7 +172,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].copy(tagClassOpt = None)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+    override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("This string without any tag class")
   }
@@ -205,7 +205,7 @@ object StringClass extends MashClass("core.String") {
       MashBoolean(Pattern.compile(pattern, flags).matcher(s).find)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Test whether this string contains a match within it to a given regular expression")
 
@@ -333,7 +333,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].length
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
+    override def typeInferenceStrategy = NumberClass
 
     override def summaryOpt = Some("Length of this string")
 
@@ -380,7 +380,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summaryOpt = Some("Parse this string as a number")
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
+    override def typeInferenceStrategy = NumberClass
 
   }
 
@@ -400,7 +400,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summaryOpt = Some("Parse this string as a DateTime")
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
+    override def typeInferenceStrategy = DateTimeClass
 
   }
 
@@ -418,7 +418,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summaryOpt = Some("Parse this string as a Date")
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateClass)
+    override def typeInferenceStrategy = DateClass
 
   }
 
@@ -433,7 +433,7 @@ object StringClass extends MashClass("core.String") {
 
     override def summaryOpt = Some("Tag this string as a path")
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   }
 
@@ -456,7 +456,7 @@ object StringClass extends MashClass("core.String") {
       MashBoolean(s.startsWith(pattern))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check if this string starts with another")
 
@@ -481,7 +481,7 @@ object StringClass extends MashClass("core.String") {
       MashBoolean(s.reverse.startsWith(pattern.reverse))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check if this string ends with another")
 

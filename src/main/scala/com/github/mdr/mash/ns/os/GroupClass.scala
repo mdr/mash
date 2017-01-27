@@ -26,7 +26,7 @@ object GroupClass extends MashClass("os.Group") {
       groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, GidClass)).getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, GidClass))
+    override def typeInferenceStrategy = Type.Tagged(NumberClass, GidClass)
 
     override def summaryOpt = Some("Id of this group (GID)")
 
@@ -57,7 +57,7 @@ object GroupClass extends MashClass("os.Group") {
     }
 
     override def typeInferenceStrategy =
-      ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Tagged(StringClass, UsernameClass)))
+      Type.Seq(Type.Tagged(StringClass, UsernameClass))
 
     override def summaryOpt = Some("Users within this group")
 

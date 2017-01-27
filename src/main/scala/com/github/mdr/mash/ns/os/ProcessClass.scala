@@ -97,7 +97,7 @@ object ProcessClass extends MashClass("os.Process") {
       parentProcessOpt.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessClass)
+    override def typeInferenceStrategy = ProcessClass
 
     override def summaryOpt = Some("The parent process")
 
@@ -114,7 +114,7 @@ object ProcessClass extends MashClass("os.Process") {
       MashList(children.map(makeProcess))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(ProcessClass))
+    override def typeInferenceStrategy = Type.Seq(ProcessClass)
 
     override def summaryOpt = Some("Children of this process")
 

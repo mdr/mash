@@ -79,7 +79,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
+    override def typeInferenceStrategy = BranchClass
 
     override def summaryOpt = Some("Create a local branch tracking this remote branch")
   }
@@ -125,7 +125,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(CommitClass))
+    override def typeInferenceStrategy = Seq(CommitClass)
 
     override def summaryOpt = Some("Return a list of commits from this branch")
 
@@ -146,7 +146,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       Wrapper(target).fullName
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass)
+    override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("Full name of the remote branch, e.g. origin/master")
 

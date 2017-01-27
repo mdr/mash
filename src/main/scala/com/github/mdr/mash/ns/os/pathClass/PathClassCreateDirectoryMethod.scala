@@ -25,7 +25,7 @@ object PathClassCreateDirectoryMethod extends MashMethod("createDirectory") {
     asPathString(resultPath)
   }
 
-  override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Create directory at this path")
 

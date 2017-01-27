@@ -43,7 +43,7 @@ object RegexClass extends MashClass("core.Regex") {
       }.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(MatchClass)
+    override def typeInferenceStrategy = MatchClass
 
     override def summaryOpt = Some("Find the first match of the regex in the given string, or else null")
   }

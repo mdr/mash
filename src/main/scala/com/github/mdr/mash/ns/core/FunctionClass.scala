@@ -21,7 +21,7 @@ object FunctionClass extends MashClass("core.Function") {
       HelpFunction.getHelp(target.asInstanceOf[MashFunction])
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(FunctionHelpClass)
+    override def typeInferenceStrategy = FunctionHelpClass
 
     override def summaryOpt = Some("Help documentation for this function")
   }

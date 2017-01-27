@@ -61,7 +61,7 @@ object NumberClass extends MashClass("core.Number") {
       MashList(start.to(end, step).map(MashNumber(_)))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
+    override def typeInferenceStrategy = Seq(NumberClass)
 
     override def summaryOpt = Some("Return a list of values from this number to the given end value (inclusive)")
 
@@ -91,7 +91,7 @@ object NumberClass extends MashClass("core.Number") {
       MashList(start.until(end, step).map(MashNumber(_)))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(NumberClass))
+    override def typeInferenceStrategy = Seq(NumberClass)
 
     override def summaryOpt = Some("Return a list of values from this number to the given end value (exclusive)")
 
@@ -161,7 +161,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].tagClassOpt.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ClassClass)
+    override def typeInferenceStrategy = ClassClass
 
     override def summaryOpt = Some("This number's tagged type if any, else null")
 
@@ -176,7 +176,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].copy(tagClassOpt = None)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
+    override def typeInferenceStrategy = NumberClass
 
     override def summaryOpt = Some("This number without any tag class")
   }
@@ -190,7 +190,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].copy(tagClassOpt = Some(BytesClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
+    override def typeInferenceStrategy = Type.Tagged(NumberClass, BytesClass)
 
     override def summaryOpt = Some("This number of bytes")
   }
@@ -205,7 +205,7 @@ object NumberClass extends MashClass("core.Number") {
       MashNumber(n.n * 1024, BytesClass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
+    override def typeInferenceStrategy = Type.Tagged(NumberClass, BytesClass)
 
     override def summaryOpt = Some("This number of kilobytes")
   }
@@ -220,7 +220,7 @@ object NumberClass extends MashClass("core.Number") {
       MashNumber(n.n * 1024 * 1024, BytesClass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
+    override def typeInferenceStrategy = Type.Tagged(NumberClass, BytesClass)
 
     override def summaryOpt = Some("This number of megabytes")
   }
@@ -235,7 +235,7 @@ object NumberClass extends MashClass("core.Number") {
       MashNumber(n.n * 1024 * 1024 * 1024, BytesClass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, BytesClass))
+    override def typeInferenceStrategy = Type.Tagged(NumberClass, BytesClass)
 
     override def summaryOpt = Some("This number of gigabytes")
 

@@ -38,7 +38,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
       getBranchInfo(branchName)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BranchClass)
+    override def typeInferenceStrategy = BranchClass
 
     override def summaryOpt = Some("Get information about the local branch with this name")
 

@@ -24,7 +24,7 @@ object UrlClass extends MashClass("net.Url") {
       Option(uri.getHost).map(MashString(_, HostClass)) getOrElse MashNull
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith HostClass)
+    override def typeInferenceStrategy = StringClass taggedWith HostClass
 
     override def summaryOpt = Some("Return the host component of this URL (may be null)")
   }

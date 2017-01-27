@@ -174,7 +174,7 @@ object ObjectClass extends MashClass("core.Object") {
       MashList(obj.fields.toSeq.map((asObject _).tupled))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(FieldAndValueClass))
+    override def typeInferenceStrategy = Seq(FieldAndValueClass)
 
     override def summaryOpt = Some("Return the fields of this object")
   }
@@ -198,7 +198,7 @@ object ObjectClass extends MashClass("core.Object") {
       MashBoolean(obj.fields.contains(field))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Return true if this object contains the given field")
   }

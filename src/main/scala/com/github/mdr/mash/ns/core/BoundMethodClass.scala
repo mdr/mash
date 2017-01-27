@@ -55,7 +55,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       HelpFunction.getHelp(target.asInstanceOf[BoundMethod])
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(FunctionHelpClass)
+    override def typeInferenceStrategy = FunctionHelpClass
 
     override def summaryOpt = Some("Help documentation for this method")
 

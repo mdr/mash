@@ -62,7 +62,7 @@ object PathClass extends MashClass("os.Path") {
       ReadLinesFunction.readLines(path)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
+    override def typeInferenceStrategy = Type.Seq(Type.Instance(StringClass))
 
     override def summaryOpt = Some("Read lines from the file")
 
@@ -94,7 +94,7 @@ The default character encoding and line separator are used.""")
       ProcessResultClass.fromResult(result)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(ProcessResultClass)
+    override def typeInferenceStrategy = ProcessResultClass
 
     override def summaryOpt = Some("Execute the command at the given path, with the given arguments")
 
@@ -112,7 +112,7 @@ The default character encoding and line separator are used.""")
       asPathString(fileSystem.pwd.resolve(path).toRealPath())
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
     override def summaryOpt = Some("The absolute path to this location")
 
@@ -131,7 +131,7 @@ The default character encoding and line separator are used.""")
         asPathString(parent)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
     override def summaryOpt = Some("The parent of this path")
   }
@@ -160,7 +160,7 @@ The default character encoding and line separator are used.""")
       asPathString(destination.resolve(source.getFileName))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
     override def summaryOpt = Some("Copy this path into another location")
 
@@ -194,7 +194,7 @@ The default character encoding and line separator are used.""")
       asPathString(destination.resolve(source.getFileName))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
     override def summaryOpt = Some("Move this path into the given directory")
 
@@ -232,7 +232,7 @@ The default character encoding and line separator are used.""")
       asPathString(interpretAsPath(target).getFileName)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith PathClass)
+    override def typeInferenceStrategy = StringClass taggedWith PathClass
 
     override def summaryOpt = Some("Name (last segment) of this path")
 
@@ -247,7 +247,7 @@ The default character encoding and line separator are used.""")
       MashBoolean(Files.isDirectory(interpretAsPath(target)))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check if path is a directory")
 
@@ -265,7 +265,7 @@ The default character encoding and line separator are used.""")
       MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check if path is an empty directory")
 
@@ -280,7 +280,7 @@ The default character encoding and line separator are used.""")
       MashBoolean(Files.isRegularFile(interpretAsPath(target)))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+    override def typeInferenceStrategy = BooleanClass
 
     override def summaryOpt = Some("Check if path is a directory")
 
@@ -297,7 +297,7 @@ The default character encoding and line separator are used.""")
       MashWrapped(fileSystem.getPathSummary(interpretAsPath(target)).lastModified)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
+    override def typeInferenceStrategy = DateTimeClass
 
     override def summaryOpt = Some("Last time path was modified")
 
@@ -315,7 +315,7 @@ The default character encoding and line separator are used.""")
       MashString(summary.owner, Some(UsernameClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith UsernameClass)
+    override def typeInferenceStrategy = StringClass taggedWith UsernameClass
 
     override def summaryOpt = Some("Owner of this path")
 
@@ -333,7 +333,7 @@ The default character encoding and line separator are used.""")
       MashString(summary.group, Some(GroupClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith GroupClass)
+    override def typeInferenceStrategy = StringClass taggedWith GroupClass
 
     override def summaryOpt = Some("Group owner of this path")
 
@@ -352,7 +352,7 @@ The default character encoding and line separator are used.""")
       PermissionsClass.asMashObject(permissions)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(PermissionsClass)
+    override def typeInferenceStrategy = PermissionsClass
 
     override def summaryOpt = Some("Permissions for this path")
 
@@ -370,7 +370,7 @@ The default character encoding and line separator are used.""")
       MashNumber(summary.size, Some(BytesClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass taggedWith BytesClass)
+    override def typeInferenceStrategy = NumberClass taggedWith BytesClass
 
     override def summaryOpt = Some("Size of the file at this path")
 
@@ -388,7 +388,7 @@ The default character encoding and line separator are used.""")
       MashString(summary.fileType, Some(FileTypeClass))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(StringClass taggedWith FileTypeClass)
+    override def typeInferenceStrategy = StringClass taggedWith FileTypeClass
 
     override def summaryOpt = Some("Type of object at this path (file, directory etc)")
 
@@ -404,7 +404,7 @@ The default character encoding and line separator are used.""")
       MashList(segments.map(asPathString))
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(StringClass))
+    override def typeInferenceStrategy = Seq(StringClass)
 
     override def summaryOpt = Some("A sequence of the segments of this path (the parts of the path separated by /)")
 

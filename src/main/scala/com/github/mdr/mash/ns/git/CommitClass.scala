@@ -73,7 +73,7 @@ object CommitClass extends MashClass("git.Commit") {
       Wrapper(target).parentOpt.getOrElse(MashNull)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(StringClass, CommitHashClass))
+    override def typeInferenceStrategy = Type.Tagged(StringClass, CommitHashClass)
 
     override def summaryOpt = Some("Return the first parent, if there is one, else null")
 
@@ -129,7 +129,7 @@ object CommitClass extends MashClass("git.Commit") {
         FileDiffClass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(FileDiffClass))
+    override def typeInferenceStrategy = Seq(FileDiffClass)
 
     override def summaryOpt = Some("Return the difference between the first parent of this commit, and this commit")
 
@@ -162,7 +162,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
     }
   }
 
-  override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(BooleanClass)
+  override def typeInferenceStrategy = BooleanClass
 
   override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
     params.bindTypes(arguments).paramAt(argPos).toSeq.collect {

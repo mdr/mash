@@ -35,7 +35,7 @@ object GroupClass extends MashClass("collections.Group") {
       MashNumber(Wrapper(target).values.length)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(NumberClass)
+    override def typeInferenceStrategy = NumberClass
 
     override def summaryOpt = Some("The number of values in this group")
 

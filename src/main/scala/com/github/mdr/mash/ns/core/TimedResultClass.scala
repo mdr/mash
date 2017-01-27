@@ -46,7 +46,7 @@ object TimedResultClass extends MashClass("core.TimedResult") {
       MashWrapped(started plusMillis wrapper.duration)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(DateTimeClass)
+    override def typeInferenceStrategy = DateTimeClass
 
     override def summaryOpt = Some("How long the process ran for, in milliseconds")
 

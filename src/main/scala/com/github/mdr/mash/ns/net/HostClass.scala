@@ -25,7 +25,7 @@ object HostClass extends MashClass("net.Host") {
       MashList(addresses)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Seq(StringClass))
+    override def typeInferenceStrategy = Type.Seq(StringClass)
 
     override def summaryOpt = Some("Look up the IP addresses of the given host")
 

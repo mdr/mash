@@ -83,7 +83,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       }
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Seq(CommitClass))
+    override def typeInferenceStrategy = Seq(CommitClass)
 
     override def summaryOpt = Some("Return a list of commits from this branch")
 

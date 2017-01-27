@@ -8,6 +8,12 @@ object MethodTypeInferenceStrategy {
   implicit def constantTypeInferenceStrategy[T](klass: MashClass): ConstantMethodTypeInferenceStrategy =
     ConstantMethodTypeInferenceStrategy(Type.Instance(klass))
 
+  implicit def constantTypeInferenceStrategy[T](type_ : Type): ConstantMethodTypeInferenceStrategy =
+    ConstantMethodTypeInferenceStrategy(type_)
+
+  implicit def constantTypeInferenceStrategy[T](classSeq: Seq[MashClass]): ConstantMethodTypeInferenceStrategy =
+    ConstantMethodTypeInferenceStrategy(Type.Seq(classSeq.head))
+
 }
 
 trait MethodTypeInferenceStrategy {

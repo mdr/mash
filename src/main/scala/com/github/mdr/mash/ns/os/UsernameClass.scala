@@ -74,7 +74,7 @@ object UsernameClass extends MashClass("os.Username") {
       UserSummaryClass.fromPasswdEntry(passwdEntry)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(UserSummaryClass)
+    override def typeInferenceStrategy = UserSummaryClass
 
     override def summaryOpt = Some("Fetch information about the user with this username")
 
