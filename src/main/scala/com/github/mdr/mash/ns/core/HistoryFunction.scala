@@ -21,7 +21,7 @@ object HistoryFunction extends MashFunction("os.history") {
   }
 
   private def asObject(entry: HistoryEntry): MashObject = {
-    import HistoryClass.Fields._
+    import HistoryEntryClass.Fields._
     MashObject.of(
       ListMap(
         Session -> entry.sessionIdOpt.map(id ⇒ MashString(id.toString)).getOrElse(MashNull),
@@ -31,10 +31,10 @@ object HistoryFunction extends MashFunction("os.history") {
         Mish -> MashBoolean(entry.mish),
         Result -> entry.resultOpt.getOrElse(MashNull),
         WorkingDirectory -> entry.workingDirectoryOpt.map(FunctionHelpers.asPathString).getOrElse(MashNull)),
-      HistoryClass)
+      HistoryEntryClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(HistoryClass))
+  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(HistoryEntryClass))
 
   override def summaryOpt = Some("Return the command history as a sequence of History objects")
 

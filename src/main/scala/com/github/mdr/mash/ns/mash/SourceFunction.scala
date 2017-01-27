@@ -31,8 +31,6 @@ object SourceFunction extends MashFunction("mash.source") {
     scriptExecutor.runUnit(CompilationUnit(s, name = path.toString, mish = false))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
-
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
   override def summaryOpt = Some("Read the given mash source file and execute its contents")

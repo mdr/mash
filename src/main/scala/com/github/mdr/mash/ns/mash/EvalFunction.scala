@@ -4,7 +4,7 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type }
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.MashValue
 
 object EvalFunction extends MashFunction("mash.eval") {
@@ -25,8 +25,6 @@ object EvalFunction extends MashFunction("mash.eval") {
     val mash = boundParams.validateString(Mash).s
     scriptExecutor.runUnit(CompilationUnit(mash, "eval", mish = false))
   }
-
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
 
   override def summaryOpt = Some("Execute the given string as a Mash expression")
 

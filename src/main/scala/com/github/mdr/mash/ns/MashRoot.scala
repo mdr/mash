@@ -182,7 +182,7 @@ object MashRoot {
     FieldHelpClass,
     FunctionHelpClass,
     ParameterHelpClass,
-    HistoryClass,
+    HistoryEntryClass,
     NullClass,
     NumberClass,
     ObjectClass,
