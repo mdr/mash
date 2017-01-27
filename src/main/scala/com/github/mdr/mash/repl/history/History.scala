@@ -41,12 +41,12 @@ trait History {
     getHistory.map(_.command).filter(_.contains(searchString))
 
   def getLastArg(lastArgIndex: Int): Option[String] =
-    getHistory.map(_.command).flatMap(getLastArg(_)).drop(lastArgIndex).headOption
+    getHistory.toStream.flatMap(getLastArg(_)).drop(lastArgIndex).headOption
 
-  private def getLastArg(s: String): Option[String] = {
-    val tokens = MashLexer.tokenise(s, forgiving = true, mish = false).tokens
-    tokens.filter { t ⇒
-      val tokenType = t.tokenType
+  private def getLastArg(historyEntry: HistoryEntry): Option[String] = {
+    val tokens = MashLexer.tokenise(historyEntry.command, forgiving = true, mish = historyEntry.mish).tokens
+    tokens.filter { token ⇒
+      val tokenType = token.tokenType
       tokenType.isIdentifier || tokenType.isKeyword || tokenType.isLiteral || tokenType == TokenType.MISH_WORD
     }.lastOption.map(_.text)
   }
