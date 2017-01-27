@@ -44,7 +44,7 @@ object ListFunction extends MashFunction("git.tag.list") {
 
   private def getTagName(ref: Ref): String = ref.getName.replaceAll("^refs/tags/", "")
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(TagClass))
+  override def typeInferenceStrategy = Seq(TagClass)
 
   override def summaryOpt = Some("Get a list of tags")
 }

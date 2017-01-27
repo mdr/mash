@@ -30,7 +30,7 @@ object UrlFunction extends MashFunction("net.url") {
     MashString(s, UrlClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith UrlClass)
+  override def typeInferenceStrategy = StringClass taggedWith UrlClass
 
   override def summaryOpt = Some("Interpret the given value as a URL")
 }

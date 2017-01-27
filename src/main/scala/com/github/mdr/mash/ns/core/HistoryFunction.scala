@@ -34,7 +34,7 @@ object HistoryFunction extends MashFunction("os.history") {
       HistoryEntryClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(HistoryEntryClass))
+  override def typeInferenceStrategy = Seq(HistoryEntryClass)
 
   override def summaryOpt = Some("Return the command history as a sequence of History objects")
 

@@ -19,7 +19,7 @@ object HomeFunction extends MashFunction("os.home") {
     asPathString(environmentInteractions.home)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Return the current user's home directory")
 

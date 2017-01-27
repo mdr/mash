@@ -43,7 +43,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
     }
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Create a new directory")
 

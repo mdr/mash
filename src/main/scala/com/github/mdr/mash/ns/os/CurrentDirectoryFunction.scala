@@ -19,7 +19,7 @@ object CurrentDirectoryFunction extends MashFunction("os.currentDirectory") {
     asPathString(fileSystem.pwd)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Return the current working directory")
 

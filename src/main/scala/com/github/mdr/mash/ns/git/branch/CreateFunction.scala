@@ -86,7 +86,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
       case _: Exception ⇒ Seq()
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BranchClass)
+  override def typeInferenceStrategy = BranchClass
 
   override def summaryOpt = Some("Create a new local branch")
 

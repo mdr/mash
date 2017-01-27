@@ -29,7 +29,7 @@ object RawFunction extends MashFunction("view.raw") {
       UseTree -> MashBoolean.False), ViewClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
+  override def typeInferenceStrategy = ViewClass
 
   override def summaryOpt = Some("View an object without custom formatting")
 

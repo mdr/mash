@@ -24,7 +24,7 @@ object ParseIso8601Function extends MashFunction("time.parseIso8601") {
     MashWrapped(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(date)))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(DateTimeClass)
+  override def typeInferenceStrategy = DateTimeClass
 
   override def summaryOpt = Some("Parse the given string as a date/time in ISO-8601 format")
 

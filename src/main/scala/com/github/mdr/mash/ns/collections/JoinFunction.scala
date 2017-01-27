@@ -30,7 +30,7 @@ object JoinFunction extends MashFunction("collections.join") {
     MashString(chunks.mkString(separator))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
+  override def typeInferenceStrategy = StringClass
 
   override def summaryOpt = Some("Combine the elements of a sequence into a string using a separator")
 

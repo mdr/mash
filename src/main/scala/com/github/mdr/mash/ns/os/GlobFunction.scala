@@ -26,7 +26,7 @@ object GlobFunction extends MashFunction("os.glob") {
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(PathSummaryClass))
+  override def typeInferenceStrategy = Seq(PathSummaryClass)
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

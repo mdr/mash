@@ -18,7 +18,7 @@ object GroupsFunction extends MashFunction("os.groups") {
     MashList(userInteractions.groupEntries.map(GroupInfoClass.makeGroupInfo(_, passwdEntries)))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(GroupInfoClass)))
+  override def typeInferenceStrategy = Type.Seq(Type.Instance(GroupInfoClass))
 
   override def summaryOpt = Some("User groups on the system")
 

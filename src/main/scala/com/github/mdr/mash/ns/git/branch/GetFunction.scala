@@ -35,7 +35,7 @@ object GetFunction extends MashFunction("git.branch.get") {
       case Branch ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BranchClass)
+  override def typeInferenceStrategy = BranchClass
 
   override def summaryOpt = Some("Get a local branch by name")
 }

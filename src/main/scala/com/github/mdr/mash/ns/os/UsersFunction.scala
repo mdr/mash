@@ -17,7 +17,7 @@ object UsersFunction extends MashFunction("os.users") {
     MashList(userInteractions.passwdEntries.map(UserSummaryClass.fromPasswdEntry))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(UserSummaryClass)))
+  override def typeInferenceStrategy = Type.Seq(Type.Instance(UserSummaryClass))
 
   override def summaryOpt = Some("The users on the system")
 

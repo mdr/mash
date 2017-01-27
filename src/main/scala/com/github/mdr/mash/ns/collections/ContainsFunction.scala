@@ -28,7 +28,7 @@ object ContainsFunction extends MashFunction("collections.contains") {
     MashBoolean(sequence.contains(element))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(BooleanClass)
+  override def typeInferenceStrategy = BooleanClass
 
   override def summaryOpt = Some("Check whether a sequence contains an element")
 

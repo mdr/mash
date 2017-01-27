@@ -20,7 +20,7 @@ object UserFunction extends MashFunction("os.user") {
     UserSummaryClass.fromPasswdEntry(passwdEntry)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(UserSummaryClass)
+  override def typeInferenceStrategy = UserSummaryClass
 
   override def summaryOpt = Some("The current user")
 

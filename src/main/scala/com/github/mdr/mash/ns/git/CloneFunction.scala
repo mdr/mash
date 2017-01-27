@@ -44,7 +44,7 @@ object CloneFunction extends MashFunction("git.clone") {
     FunctionHelpers.asPathString(path)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass taggedWith PathClass)
+  override def typeInferenceStrategy = StringClass taggedWith PathClass
 
   override def summaryOpt = Some("Clone a Git repository into a new directory.")
 

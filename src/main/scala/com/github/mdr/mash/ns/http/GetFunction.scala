@@ -79,7 +79,7 @@ object GetFunction extends MashFunction("http.get") {
       Value -> MashString(header.getValue)), HeaderClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
+  override def typeInferenceStrategy = ResponseClass
 
   override def summaryOpt = Some("Make an HTTP GET request")
 

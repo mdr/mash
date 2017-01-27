@@ -45,7 +45,7 @@ object DeleteFunction extends MashFunction("http.delete") {
     GetFunction.asMashObject(response, cookieStore)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
+  override def typeInferenceStrategy = ResponseClass
 
   override def summaryOpt = Some("Make an HTTP DELETE request")
 

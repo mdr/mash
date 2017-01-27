@@ -39,7 +39,7 @@ object FetchFunction extends MashFunction("git.fetch") {
   private def asCommitHash(id: ObjectId): MashValue =
     if (id == ObjectId.zeroId) MashNull else MashString(id.name, CommitHashClass)
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(FetchBranchUpdateClass))
+  override def typeInferenceStrategy = Seq(FetchBranchUpdateClass)
 
   override def summaryOpt = Some("Download objects and refs from another repository.")
 

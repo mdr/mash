@@ -68,7 +68,7 @@ If no paths are provided, the default is the current working directory."""))
     MashList(paths.flatMap(listPath))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(PathSummaryClass))
+  override def typeInferenceStrategy = Seq(PathSummaryClass)
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

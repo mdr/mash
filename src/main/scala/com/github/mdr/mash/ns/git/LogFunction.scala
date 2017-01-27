@@ -67,7 +67,7 @@ object LogFunction extends MashFunction("git.log") {
       IdentityClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Seq(CommitClass))
+  override def typeInferenceStrategy = Seq(CommitClass)
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     params.bindTypes(arguments).paramAt(argPos).toSeq.collect {

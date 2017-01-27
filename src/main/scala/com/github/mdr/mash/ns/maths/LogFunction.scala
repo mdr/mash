@@ -32,7 +32,7 @@ object LogFunction extends MashFunction("maths.log") {
     })
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(NumberClass)
+  override def typeInferenceStrategy = NumberClass
 
   override def summaryOpt = Some("Calculate the logarithm of a given value")
 }

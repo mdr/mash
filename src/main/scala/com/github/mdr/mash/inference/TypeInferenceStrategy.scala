@@ -12,6 +12,9 @@ object TypeInferenceStrategy {
   implicit def constantTypeInferenceStrategy[T](type_ : Type): ConstantTypeInferenceStrategy =
     ConstantTypeInferenceStrategy(type_)
 
+  implicit def constantTypeInferenceStrategy[T](classSeq: Seq[MashClass]): ConstantTypeInferenceStrategy =
+    ConstantTypeInferenceStrategy(Type.Seq(classSeq.head))
+
 }
 
 /**

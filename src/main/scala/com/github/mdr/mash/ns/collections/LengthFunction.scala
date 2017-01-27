@@ -23,7 +23,7 @@ object LengthFunction extends MashFunction("collections.length") {
     MashNumber(sequence.length)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(NumberClass)
+  override def typeInferenceStrategy = NumberClass
 
   override def summaryOpt = Some("Find the length of a sequence")
 

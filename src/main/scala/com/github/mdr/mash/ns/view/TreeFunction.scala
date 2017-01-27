@@ -29,7 +29,7 @@ object TreeFunction extends MashFunction("view.tree") {
       UseTree -> MashBoolean.True), ViewClass)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ViewClass)
+  override def typeInferenceStrategy = ViewClass
 
   override def summaryOpt = Some("View data in the object tree browser, where possible")
 

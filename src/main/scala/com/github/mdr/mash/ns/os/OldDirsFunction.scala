@@ -18,7 +18,7 @@ object OldDirsFunction extends MashFunction("os.oldDirs") {
     MashList(workingDirectoryStack.oldDirs.map(FunctionHelpers.asPathString))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(StringClass taggedWith PathClass))
+  override def typeInferenceStrategy = Type.Seq(StringClass taggedWith PathClass)
 
   override def summaryOpt = Some("Previous working directories")
 

@@ -25,7 +25,7 @@ object UrlEncodeFunction extends MashFunction("net.urlEncode") {
     MashString(URLEncoder.encode(s, "utf-8"))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
+  override def typeInferenceStrategy = StringClass
 
   override def summaryOpt = Some("Url Encode the given value")
 }

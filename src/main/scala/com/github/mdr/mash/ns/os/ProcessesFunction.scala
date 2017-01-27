@@ -17,7 +17,7 @@ object ProcessesFunction extends MashFunction("os.processes") {
     MashList(processInteractions.getProcesses.map(ProcessClass.makeProcess))
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(ProcessClass)))
+  override def typeInferenceStrategy = Type.Seq(Type.Instance(ProcessClass))
 
   override def summaryOpt = Some("List processes")
 

@@ -55,7 +55,7 @@ object ChildrenFunction extends MashFunction("os.children") {
     paths.map(PathSummaryClass.asMashObject)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(PathSummaryClass)))
+  override def typeInferenceStrategy = Type.Seq(Type.Instance(PathSummaryClass))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

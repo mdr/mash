@@ -32,7 +32,7 @@ object ReadLinesFunction extends MashFunction("os.readLines") {
   def readLines(path: Path): MashList =
     MashList(fileSystem.readLines(path).map(MashString(_)))
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Seq(Type.Instance(StringClass)))
+  override def typeInferenceStrategy = Type.Seq(Type.Instance(StringClass))
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

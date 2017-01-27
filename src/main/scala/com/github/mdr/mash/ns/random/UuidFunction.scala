@@ -17,7 +17,7 @@ object UuidFunction extends MashFunction("random.uuid") {
     MashString(UUID.randomUUID.toString)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(StringClass)
+  override def typeInferenceStrategy = StringClass
 
   override def summaryOpt = Some("A random UUID")
 

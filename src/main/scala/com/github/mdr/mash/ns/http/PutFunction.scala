@@ -56,7 +56,7 @@ object PutFunction extends MashFunction("http.put") {
     request.setEntity(entity)
   }
   
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(ResponseClass)
+  override def typeInferenceStrategy = ResponseClass
 
   override def summaryOpt = Some("Make an HTTP PUT request")
 
