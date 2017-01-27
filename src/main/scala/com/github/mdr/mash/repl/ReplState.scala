@@ -2,14 +2,13 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, ObjectsTableBrowserState }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region
 
-case class YankLastArgState(count: Int, region: Region)
+case class InsertLastArgState(count: Int, region: Region)
 
 object ReplState {
 
@@ -25,24 +24,23 @@ object ReplState {
 
 }
 
-class ReplState(
-                 var lineBuffer: LineBuffer = LineBuffer.Empty,
-                 var commandNumber: Int = 0,
-                 var completionStateOpt: Option[CompletionState] = None,
-                 var assistanceStateOpt: Option[AssistanceState] = None,
-                 var continue: Boolean = true, // Whether to loop or exit
-                 var globalVariables: MashObject,
-                 var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
-                 var mish: Boolean = false,
-                 var yankLastArgStateOpt: Option[YankLastArgState] = None,
-                 var objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
+class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
+                var commandNumber: Int = 0,
+                var completionStateOpt: Option[CompletionState] = None,
+                var assistanceStateOpt: Option[AssistanceState] = None,
+                var continue: Boolean = true, // Whether to loop or exit
+                var globalVariables: MashObject,
+                var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
+                var mish: Boolean = false,
+                var insertLastArgStateOpt: Option[InsertLastArgState] = None,
+                var objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
 
   def reset() {
     lineBuffer = LineBuffer.Empty
     completionStateOpt = None
     assistanceStateOpt = None
     incrementalSearchStateOpt = None
-    yankLastArgStateOpt = None
+    insertLastArgStateOpt = None
   }
 
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer) {
@@ -57,7 +55,7 @@ class ReplState(
           case s if s.expressionOpt.isDefined                            ⇒ ReplMode.ObjectBrowser.ExpressionInput
           case _                                                         ⇒ ReplMode.ObjectBrowser
         }
-      case None ⇒
+      case None        ⇒
         completionStateOpt match {
           case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
           case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions

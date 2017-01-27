@@ -34,8 +34,7 @@ object NoTypeInferenceStrategy extends TypeInferenceStrategy {
 
 case class ConstantTypeInferenceStrategy(typ: Type) extends TypeInferenceStrategy {
 
-  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
-    Some(typ)
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = Some(typ)
 
 }
 

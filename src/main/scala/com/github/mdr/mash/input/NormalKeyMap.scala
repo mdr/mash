@@ -34,7 +34,7 @@ object NormalKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('r'), control = true) -> IncrementalHistorySearch,
   KeyPress(Key.PageUp) -> NormalActions.PageUp,
   KeyPress(Key.PageDown) -> NormalActions.PageDown,
-  KeyPress(BasicKey('.'), alt = true) -> YankLastArg,
+  KeyPress(BasicKey('.'), alt = true) -> InsertLastArg,
   KeyPress(BasicKey(','), alt = true) -> ToggleMish,
   KeyPress(BasicKey('q'), control = true) -> ToggleQuote,
   KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))

@@ -52,7 +52,7 @@ trait NormalActionHandler {
       }
       case SelfInsert(s)            ⇒ handleSelfInsert(s)
       case AssistInvocation         ⇒ handleAssistInvocation()
-      case YankLastArg              ⇒ handleYankLastArg()
+      case InsertLastArg            ⇒ handleInsertLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
       case ToggleMish               ⇒ handleToggleMish()
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
@@ -61,8 +61,8 @@ trait NormalActionHandler {
     }
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
-    if (action != YankLastArg && action != ClearScreen)
-      state.yankLastArgStateOpt = None
+    if (action != InsertLastArg && action != ClearScreen)
+      state.insertLastArgStateOpt = None
   }
 
   private def handleBrowseLastResult() {
@@ -136,17 +136,17 @@ trait NormalActionHandler {
         state.lineBuffer.insertCharacters("!", 0)
   }
 
-  private def handleYankLastArg(): Unit = resetHistoryIfTextChanges {
-    val (argIndex, oldRegion) = state.yankLastArgStateOpt match {
-      case Some(YankLastArgState(n, region)) ⇒ (n + 1, region)
-      case None                              ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))
+  private def handleInsertLastArg(): Unit = resetHistoryIfTextChanges {
+    val (argIndex, oldRegion) = state.insertLastArgStateOpt match {
+      case Some(InsertLastArgState(n, region)) ⇒ (n + 1, region)
+      case None                                ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))
     }
     history.getLastArg(argIndex) match {
       case Some(newArg) ⇒
         val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
         state.lineBuffer = LineBuffer(newText, newRegion.posAfter)
-        state.yankLastArgStateOpt = Some(YankLastArgState(argIndex, newRegion))
+        state.insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))
       case None         ⇒
     }
   }
