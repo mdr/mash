@@ -784,6 +784,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Point x y { def sum = x + y }; Point 3 4 | .sum" shouldEvaluateTo 7
   "class Point x y { def sum = this.x + this.y }; Point 3 4 | .sum" shouldEvaluateTo 7
   "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo 49
+
   "class Box x { def update x = this.x = x }; b = Box 0; b.update 10; b.x" shouldEvaluateTo 10
   """class Outer o1 {
        def outer o2 = {
@@ -795,6 +796,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
      }
      Outer 3 | .outer 4
   """ shouldEvaluateTo "10"
+
   "class Thing x { def x = 100 }; Thing 42 | .x" shouldEvaluateTo 42
   "class Thing { def x = 100; def y = { x = 42; x } }; Thing.new.y" shouldEvaluateTo 42
   "class Thing; Thing.new.getClass.name" shouldEvaluateTo "'Thing'"
@@ -846,5 +848,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class A { @private def a = 42; def b = this['a'].invoke }; A.new.b" shouldEvaluateTo 42
 
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
+
+  "def makeFact = { def fact n = if (n <= 1) then n else n * fact (n - 1) }; (makeFact) 5" shouldEvaluateTo 120
 
 }

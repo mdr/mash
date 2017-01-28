@@ -103,8 +103,8 @@ class TypeInferencer {
     } yield name -> type_).toMap
 
   private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
-    val preliminaryBindings = inferType(functionDecl.params, bindings)
-    inferType(functionDecl.body, bindings ++ preliminaryBindings)
+    val preliminaryBodyBindings = inferType(functionDecl.params, bindings)
+    inferType(functionDecl.body, bindings ++ preliminaryBodyBindings)
     Some(getFunctionType(functionDecl, bindings))
   }
 
