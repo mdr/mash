@@ -123,11 +123,11 @@ object InvocationEvaluator extends EvaluatorHelper {
       boundParams(Target) match {
         case xs: MashList ⇒
           xs.map { target ⇒
-            val intermediateResult = MemberEvaluator.lookup(target, s, functionLocationOpt)
+            val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
             Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
           }
         case v ⇒
-          val intermediateResult = MemberEvaluator.lookup(v, s, functionLocationOpt)
+          val intermediateResult = MemberEvaluator.lookup(v, s, locationOpt = functionLocationOpt)
           Evaluator.invokeNullaryFunctions(intermediateResult, functionLocationOpt)
       }
     }

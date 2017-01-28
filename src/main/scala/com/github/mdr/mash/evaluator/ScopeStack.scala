@@ -9,7 +9,7 @@ sealed abstract class Scope(val variables: MashObject) {
   def thisGet(name: String): Option[MashValue] =
     for {
       thisValue ← thisOpt
-      memberValue ← MemberEvaluator.maybeLookup(thisValue, name)
+      memberValue ← MemberEvaluator.maybeLookup(thisValue, name, includePrivate = true)
     } yield memberValue
 
   def set(name: String, value: MashValue) = variables.set(name, value)
@@ -74,8 +74,8 @@ case class ScopeStack(scopes: List[Scope]) {
             thisObject.set(name, value)
           case None             ⇒
             innermostScope match {
-              case leakyScope: LeakyScope                                        ⇒ set(name, value, outerScopes)
-              case _                                                             ⇒ innermostScope.set(name, value)
+              case leakyScope: LeakyScope ⇒ set(name, value, outerScopes)
+              case _                      ⇒ innermostScope.set(name, value)
             }
         }
       case Nil                           ⇒

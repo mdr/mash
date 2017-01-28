@@ -34,7 +34,9 @@ object Type {
     override def toString = klass.toString
   }
 
-  case class UserClass(name: String, params: ParameterModel, methods: ListMap[String, Type.UserDefinedFunction]) extends Type {
+  case class UserClass(name: String,
+                       params: ParameterModel,
+                       methods: ListMap[String, Type.UserDefinedFunction]) extends Type {
     override def toString = s"${classOf[UserClass].getSimpleName}($name)"
   }
 
@@ -61,11 +63,13 @@ object Type {
   /**
     * Function defined in Mash
     */
-  case class UserDefinedFunction(nameOpt: Option[String],
+  case class UserDefinedFunction(isPrivate: Boolean,
+                                 nameOpt: Option[String],
                                  params: ParameterModel,
                                  body: Expr,
                                  bindings: Map[String, Type]) extends Type {
     override def toString = s"${classOf[UserDefinedFunction].getSimpleName}($nameOpt)"
+    def isPublic = !isPrivate
   }
 
   /**

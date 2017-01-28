@@ -8,7 +8,7 @@ import scala.annotation._
 object NormalMashLexer {
 
   private final val LookupStartTokens: Set[TokenType] =
-    Set(IDENTIFIER, HOLE, RPAREN, RSQUARE, RBRACE, STRING_LITERAL, NUMBER_LITERAL, NULL)
+    Set(IDENTIFIER, HOLE, RPAREN, RSQUARE, RBRACE, STRING_LITERAL, NUMBER_LITERAL, NULL, THIS)
 
   private final val Keywords: Map[String, TokenType] = Map(
     "_" -> HOLE,

@@ -2,7 +2,7 @@ package com.github.mdr.mash.assist
 
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.BoundMethod
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -41,7 +41,7 @@ object InvocationAssistance {
         f.summaryOpt.toSeq ++ Seq(
           "",
           callingSyntax(f))))
-    case Type.UserDefinedFunction(nameOpt, params, _, _) ⇒
+    case Type.UserDefinedFunction(_ ,nameOpt, params, _, _) ⇒
       Some(AssistanceState(
         nameOpt.getOrElse("Anonymous function"),
         Seq(
@@ -53,7 +53,7 @@ object InvocationAssistance {
           "",
           "target." + callingSyntax(method))))
     case Type.BoundUserDefinedMethod(_, functionType)    ⇒
-      val Type.UserDefinedFunction(nameOpt, params, _, _) = functionType
+      val Type.UserDefinedFunction(_, nameOpt, params, _, _) = functionType
       Some(AssistanceState(
         nameOpt.getOrElse("Anonymous method"),
         Seq(

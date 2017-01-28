@@ -25,11 +25,13 @@ object MemberEvaluator extends EvaluatorHelper {
   def evaluateMemberExpr(memberExpr: MemberExpr,
                          invokeNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val target = Evaluator.evaluate(memberExpr.target)
-    evaluateMemberExpr(memberExpr, target, invokeNullaryWhenVectorising)
+    val thisTarget = memberExpr.target.isInstanceOf[ThisExpr]
+    evaluateMemberExpr(memberExpr, target, thisTarget, invokeNullaryWhenVectorising)
   }
 
   def evaluateMemberExpr(memberExpr: AbstractMemberExpr,
                          target: MashValue,
+                         thisTarget: Boolean,
                          invokeNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
@@ -37,7 +39,7 @@ object MemberEvaluator extends EvaluatorHelper {
       MemberExprEvalResult(MashNull, wasVectorised = false)
     else {
       val locationOpt = getLocation(memberExpr)
-      val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(result ⇒
+      val scalarLookup = MemberEvaluator.maybeLookup(target, name, includePrivate = thisTarget).map(result ⇒
         MemberExprEvalResult(result, wasVectorised = false))
       def vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, invokeNullaryWhenVectorising, locationOpt)
         .map(result ⇒ MemberExprEvalResult(result, wasVectorised = true))
@@ -75,11 +77,11 @@ object MemberEvaluator extends EvaluatorHelper {
         None
     }
 
-  private def lookupMethod(target: MashValue, klass: MashClass, name: String): Option[BoundMethod] = {
+  private def lookupMethod(target: MashValue, klass: MashClass, name: String, includePrivate: Boolean = false): Option[BoundMethod] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
-        if !method.isPrivate
+        if method.isPublic || includePrivate
       } yield BoundMethod(target, method, klass)
     def parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
     directResultOpt orElse parentResultOpt
@@ -88,8 +90,8 @@ object MemberEvaluator extends EvaluatorHelper {
   def lookup(target: MashValue, field: Field): MashValue =
     lookup(target, field.name)
 
-  def lookup(target: MashValue, name: String, locationOpt: Option[SourceLocation] = None): MashValue =
-    maybeLookup(target, name).getOrElse(
+  def lookup(target: MashValue, name: String, includePrivate: Boolean = false, locationOpt: Option[SourceLocation] = None): MashValue =
+    maybeLookup(target, name, includePrivate).getOrElse(
       throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
 
   def hasMember(target: MashValue, name: String): Boolean =
@@ -98,7 +100,7 @@ object MemberEvaluator extends EvaluatorHelper {
   /**
     * @return a bound method, a static method, or a field value corresponding to the given name in the target
     */
-  def maybeLookup(target: MashValue, name: String): Option[MashValue] =
+  def maybeLookup(target: MashValue, name: String, includePrivate: Boolean = false): Option[MashValue] =
     target match {
       case MashNumber(n, tagClassOpt)     ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
       case MashString(s, tagClassOpt)     ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
@@ -111,7 +113,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case klass: MashClass               ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
       case dt@MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date@MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
-      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name)
+      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate)
       case _                              ⇒ None
     }
 

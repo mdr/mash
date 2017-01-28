@@ -97,7 +97,7 @@ object MemberCompleter {
 
   private def getMembers(userClass: UserClass): Seq[MemberInfo] = {
     val fieldMembers = userClass.params.params.flatMap(_.nameOpt).map(name ⇒ MemberInfo(name, isField = true))
-    val methodMembers = userClass.methods.map { case (name, method) ⇒ MemberInfo(name, isField = false) }
+    val methodMembers = userClass.methods.collect { case (name, method) if method.isPublic ⇒ MemberInfo(name, isField = false) }
     val parentClassMembers = getMembers(ObjectClass)
     distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
   }

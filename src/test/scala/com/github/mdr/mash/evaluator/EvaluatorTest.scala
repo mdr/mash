@@ -829,6 +829,17 @@ class EvaluatorTest extends AbstractEvaluatorTest {
       .bar
   """ shouldEvaluateTo 100
 
+  // private visibility
+  "class A { @private def a = 42 }; A.new.a" shouldThrowAnException
+
+  "class A { @private def a = 42 }; A.new['a']" shouldThrowAnException
+
+  "class A { @private def a = 42 }; 'a' A.new" shouldThrowAnException
+
+  "class A { @private def a = 42; def b = a }; A.new.b" shouldEvaluateTo 42
+  "class A { @private def a = 42; def b = this.a }; A.new.b" shouldEvaluateTo 42
+  "class A { @private def a = 42; def b = this['a'].invoke }; A.new.b" shouldEvaluateTo 42
+
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 
 }

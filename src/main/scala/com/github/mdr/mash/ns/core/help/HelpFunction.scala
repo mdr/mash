@@ -100,7 +100,7 @@ object HelpFunction extends MashFunction("core.help.help") {
   def getHelp(klass: MashClass): MashObject = {
     import ClassHelpClass.Fields._
     val fields = klass.fields.map(getHelp(_, klass))
-    val methods = klass.methods.sortBy(_.name).filterNot(_.isPrivate).map(getHelp(_, klass))
+    val methods = klass.methods.sortBy(_.name).filter(_.isPublic).map(getHelp(_, klass))
     MashObject.of(
       ListMap(
         Name -> MashString(klass.name),
@@ -121,8 +121,8 @@ object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = HelpFunction.params.bindTypes(arguments)
     import HelpFunction.Params._
     argBindings.getType(Item).collect {
-      case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _) | Type.BoundBuiltinMethod(_, _) ⇒ FunctionHelpClass
-      case Type.Instance(ClassClass)                                                                      ⇒ ClassHelpClass
+      case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _, _) | Type.BoundBuiltinMethod(_, _) ⇒ FunctionHelpClass
+      case Type.Instance(ClassClass)                                                                         ⇒ ClassHelpClass
     }
 
   }

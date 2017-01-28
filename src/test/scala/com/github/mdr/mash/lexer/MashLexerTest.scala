@@ -63,22 +63,16 @@ class MashLexerTest extends FlatSpec with Matchers {
 
   "{ } :" shouldProduce Seq(LBRACE, RBRACE, COLON)
 
+  // LSQUARE versus LSQUARE_LOOKUP
   "first [1]" shouldProduce Seq(IDENTIFIER, LSQUARE, NUMBER_LITERAL, RSQUARE)
-
   "first[1]" shouldProduce Seq(IDENTIFIER, LSQUARE_LOOKUP, NUMBER_LITERAL, RSQUARE)
-
   "_[1]" shouldProduce Seq(HOLE, LSQUARE_LOOKUP, NUMBER_LITERAL, RSQUARE)
-
+  "this[1]" shouldProduce Seq(THIS, LSQUARE_LOOKUP, NUMBER_LITERAL, RSQUARE)
   "3[" shouldProduce Seq(NUMBER_LITERAL, LSQUARE_LOOKUP)
-
   "\"foo\"[" shouldProduce Seq(STRING_LITERAL, LSQUARE_LOOKUP)
-
   "null[" shouldProduce Seq(NULL, LSQUARE_LOOKUP)
-
   ")[" shouldProduce Seq(RPAREN, LSQUARE_LOOKUP)
-
   "][" shouldProduce Seq(RSQUARE, LSQUARE_LOOKUP)
-
   "}[" shouldProduce Seq(RBRACE, LSQUARE_LOOKUP)
 
   "?." shouldProduce Seq(DOT_NULL_SAFE)
