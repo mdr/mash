@@ -33,13 +33,10 @@ object MemberEvaluator extends EvaluatorHelper {
                          invokeNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val name = memberExpr.name
     val isNullSafe = memberExpr.isNullSafe
-    val locationOpt = memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.node) {
-      case ConcreteSyntax.MemberExpr(_, _, nameToken) ⇒
-        SourceLocation(info.provenance, PointedRegion(nameToken.offset, nameToken.region))
-    })
     if (target == MashNull && isNullSafe)
       MemberExprEvalResult(MashNull, wasVectorised = false)
     else {
+      val locationOpt = getLocation(memberExpr)
       val scalarLookup = MemberEvaluator.maybeLookup(target, name).map(result ⇒
         MemberExprEvalResult(result, wasVectorised = false))
       def vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, invokeNullaryWhenVectorising, locationOpt)
@@ -48,6 +45,13 @@ object MemberEvaluator extends EvaluatorHelper {
         vectorisedLookup getOrElse
         (throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
     }
+  }
+
+  def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] = {
+    memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.node) {
+      case ConcreteSyntax.MemberExpr(_, _, nameToken) ⇒
+        SourceLocation(info.provenance, PointedRegion(nameToken.offset, nameToken.region))
+    })
   }
 
   private def vectorisedMemberLookup(target: MashValue,
@@ -75,6 +79,7 @@ object MemberEvaluator extends EvaluatorHelper {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
+        if !method.isPrivate
       } yield BoundMethod(target, method, klass)
     def parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
     directResultOpt orElse parentResultOpt

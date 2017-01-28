@@ -25,4 +25,5 @@ abstract class MashMethod(val name: String) {
 
   def descriptionOpt: Option[String] = None
 
+  def isPrivate: Boolean = false
 }

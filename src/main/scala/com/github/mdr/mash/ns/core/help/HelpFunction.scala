@@ -100,7 +100,7 @@ object HelpFunction extends MashFunction("core.help.help") {
   def getHelp(klass: MashClass): MashObject = {
     import ClassHelpClass.Fields._
     val fields = klass.fields.map(getHelp(_, klass))
-    val methods = klass.methods.sortBy(_.name).map(getHelp(_, klass))
+    val methods = klass.methods.sortBy(_.name).filterNot(_.isPrivate).map(getHelp(_, klass))
     MashObject.of(
       ListMap(
         Name -> MashString(klass.name),

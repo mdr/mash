@@ -1,9 +1,10 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ DocComment ⇒ LexerDocComment, LexerResult, Token, TokenType }
+import com.github.mdr.mash.lexer.{ LexerResult, Token, TokenType, DocComment ⇒ LexerDocComment }
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.utils.PointedRegion
 
+import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
@@ -136,11 +137,12 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   /**
     * While loop that errors if it's not making progress
     */
-  protected def safeWhile(cond: ⇒ Boolean)(body: ⇒ Any) {
+  protected def safeWhile[T](cond: ⇒ Boolean)(body: ⇒ T): Seq[T] = {
+    val results = ArrayBuffer[T]()
     var oldPos = pos
     var noAdvanceCount = 0
     while (cond) {
-      body
+      results += body
       if (oldPos == pos)
         noAdvanceCount += 1
       else
@@ -148,6 +150,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       assert(noAdvanceCount < 10, "Infinite loop detected parsing at position " + pos + ", current token is " + currentToken)
       oldPos = pos
     }
+    results
   }
 
   protected def unexpectedToken() =
@@ -166,9 +169,6 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   protected def consumeRequiredToken(context: String, tokenType: TokenType): Token =
     consumeRequiredToken(Some(context), tokenType)
-
-  protected def consumeRequiredToken(tokenType: TokenType): Token =
-    consumeRequiredToken(None, tokenType)
 
   protected def describeToken(tokenType: TokenType) = TokenNames.getOrElse(tokenType, tokenType.toString)
 

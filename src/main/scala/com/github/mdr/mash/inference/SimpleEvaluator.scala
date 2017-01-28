@@ -72,7 +72,7 @@ object SimpleEvaluator {
         case _                  ⇒
       }
       None
-    case FunctionDeclaration(_, _, params, body, _)       ⇒
+    case FunctionDeclaration(_, _, _, params, body, _)       ⇒
       evaluate(body)
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None

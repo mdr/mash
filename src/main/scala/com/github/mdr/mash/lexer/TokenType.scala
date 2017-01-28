@@ -84,4 +84,5 @@ object TokenType {
   case object CLASS extends TokenType
   case object THIS extends TokenType
   case object NAMESPACE extends TokenType
+  case object AT extends TokenType // @
 }

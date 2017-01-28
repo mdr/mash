@@ -155,9 +155,10 @@ object Evaluator extends EvaluatorHelper {
     val params = parameterModel(paramList, Some(context))
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
-      val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
+      val FunctionDeclaration(attributes, docCommentOpt, functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
-      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context)
+      val isPrivate = attributes.exists(_.name == "private")
+      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate)
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
@@ -167,7 +168,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
-    val FunctionDeclaration(docCommentOpt, functionName, paramList, body, _) = decl
+    val FunctionDeclaration(_, docCommentOpt, functionName, paramList, body, _) = decl
     val params = parameterModel(paramList, Some(context), docCommentOpt)
     UserDefinedFunction(docCommentOpt, functionName, params, body, context)
   }
@@ -234,7 +235,7 @@ object Evaluator extends EvaluatorHelper {
     chunks.reduce(_ + _)
   }
 
-  private def makeAnonymousFunction(paramList: ParamList, body: Expr)(implicit context: EvaluationContext): AnonymousFunction =
+  private def makeAnonymousFunction(paramList: ParamList, body: Expr)(implicit context: EvaluationContext) =
     AnonymousFunction(parameterModel(paramList, Some(context)), body, context)
 
   private def evaluateIfExpr(ifExpr: IfExpr)(implicit context: EvaluationContext) = {
@@ -242,10 +243,8 @@ object Evaluator extends EvaluatorHelper {
     val result = evaluate(cond)
     if (result.isTruthy)
       evaluate(body)
-    else elseOpt match {
-      case None           ⇒ MashUnit
-      case Some(elseBody) ⇒ evaluate(elseBody)
-    }
+    else
+      elseOpt.map(evaluate).getOrElse(MashUnit)
   }
 
 }

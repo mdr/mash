@@ -42,7 +42,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   }
 
   private def statementExpr(): Expr =
-    if (DEF)
+    if (DEF || AT)
       functionDeclaration()
     else if (CLASS)
       classDeclaration()
@@ -280,7 +280,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def parenExpr(): Expr = {
     val lparen = nextToken()
     val expr = statementSeq()
-    val rparen = consumeRequiredToken(RPAREN)
+    val rparen = consumeRequiredToken("parenthesis expression", RPAREN)
     ParenExpr(lparen, expr, rparen)
   }
 

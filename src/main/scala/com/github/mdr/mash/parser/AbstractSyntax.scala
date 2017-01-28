@@ -12,7 +12,7 @@ import com.github.mdr.mash.runtime._
 object AbstractSyntax {
 
   sealed trait AstNode extends AstNodeTransformation {
-    
+
     val sourceInfoOpt: Option[SourceInfo]
 
     def locationOpt: Option[SourceLocation] = sourceInfoOpt.map(_.location)
@@ -376,7 +376,14 @@ object AbstractSyntax {
     def boundNames = params.flatMap(_.boundNames)
   }
 
-  case class FunctionDeclaration(docCommentOpt: Option[DocComment],
+  case class Attribute(name: String, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+
+    def children = Seq()
+  }
+
+  case class FunctionDeclaration(attributes: Seq[Attribute],
+                                 docCommentOpt: Option[DocComment],
                                  name: String,
                                  params: ParamList,
                                  body: Expr,
@@ -440,4 +447,5 @@ object AbstractSyntax {
 
     def children = namespaceOpt.toSeq :+ body
   }
+
 }

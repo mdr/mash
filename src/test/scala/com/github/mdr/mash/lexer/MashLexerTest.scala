@@ -41,6 +41,7 @@ class MashLexerTest extends FlatSpec with Matchers {
   "a<b<=c" shouldProduce Seq(IDENTIFIER, LESS_THAN, IDENTIFIER, LESS_THAN_EQUALS, IDENTIFIER)
   "a>b>=c" shouldProduce Seq(IDENTIFIER, GREATER_THAN, IDENTIFIER, GREATER_THAN_EQUALS, IDENTIFIER)
 
+  "@" shouldProduce Seq(AT)
   "_" shouldProduce Seq(HOLE)
   "_a" shouldProduce Seq(IDENTIFIER)
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" shouldProduce Seq(IDENTIFIER)

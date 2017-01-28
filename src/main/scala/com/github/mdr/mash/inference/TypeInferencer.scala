@@ -146,14 +146,14 @@ class TypeInferencer {
   }
 
   private def getFunctionType(functionDeclaration: FunctionDeclaration, bindings: Map[String, Type]): Type.UserDefinedFunction = {
-    val FunctionDeclaration(_, name, paramList, body, _) = functionDeclaration
+    val FunctionDeclaration(_, _, name, paramList, body, _) = functionDeclaration
     Type.UserDefinedFunction(Some(name), Evaluator.parameterModel(paramList), body, bindings)
   }
 
   private def getUserClassType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Type.UserClass = {
     val ClassDeclaration(_, className, paramList, bodyOpt, _) = classDeclaration
     val methods = bodyOpt.toSeq.flatMap(_.methods).map { decl ⇒
-      val FunctionDeclaration(_, functionName, functionParamList, body, _) = decl
+      val FunctionDeclaration(_, _, functionName, functionParamList, body, _) = decl
       val functionParams = Evaluator.parameterModel(functionParamList)
       val methodType = Type.UserDefinedFunction(Some(functionName), functionParams, body, bindings)
       functionName -> methodType
@@ -430,7 +430,7 @@ class TypeInferencer {
       klass.parentOpt.flatMap(superClass ⇒ memberLookup(targetType, superClass, name))
 
   private def getMethodType(targetType: Type, method: MashMethod) = method match {
-    case UserDefinedMethod(_, name, params, _, body, context) ⇒
+    case UserDefinedMethod(_, name, params, _, body, context, _) ⇒
       val bindings = new ValueTypeDetector().buildBindings(context.scopeStack.bindings)
       val functionType = Type.UserDefinedFunction(Some(name), params, body, bindings)
       Type.BoundUserDefinedMethod(targetType, functionType)
@@ -469,7 +469,8 @@ class TypeInferencer {
 
     object FakeFunction extends MashFunction(MashClass.ConstructorMethodName) {
 
-      override def apply(arguments: Arguments): MashValue = ??? // Never executes
+      override def apply(arguments: Arguments): MashValue =
+        throw new AssertionError("Fake function cannot be executed")
 
       override def summaryOpt = Some(s"Constructor for ${userClass.name}")
 

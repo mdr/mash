@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* @private attribute
 * HistoryEntry.reexecute
 * core.split
 * Bracket matching

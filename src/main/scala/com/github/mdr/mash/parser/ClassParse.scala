@@ -17,7 +17,7 @@ trait ClassParse {
       if (LBRACE) {
         val lbrace = nextToken()
         val methods: ArrayBuffer[Method] = ArrayBuffer()
-        while (DEF) {
+        while (tokenCanStartAMethod) {
           val methodDecl = functionDeclaration()
           val semiOpt = if (SEMI) Some(nextToken()) else None
           methods += Method(methodDecl, semiOpt)
@@ -28,5 +28,7 @@ trait ClassParse {
         None
     ClassDeclaration(docComment(classToken), classToken, name, params, bodyOpt)
   }
+
+  private def tokenCanStartAMethod: Boolean = DEF || AT
 
 }

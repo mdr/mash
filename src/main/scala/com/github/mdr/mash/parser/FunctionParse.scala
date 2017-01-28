@@ -9,13 +9,25 @@ import scala.collection.mutable.ArrayBuffer
 trait FunctionParse {
   self: MashParse ⇒
 
+  private def attribute(): Attribute = {
+    val atToken = nextToken()
+    val name = consumeRequiredToken("attribute", IDENTIFIER)
+    Attribute(atToken, name)
+  }
+
+  private def attributes(): Attributes = {
+    val attributes = safeWhile(AT) { attribute() }
+    Attributes(attributes)
+  }
+
   protected def functionDeclaration(): FunctionDeclaration = {
-    val defToken = nextToken()
+    val attributesOpt = if (AT) Some(attributes()) else None
+    val defToken = consumeRequiredToken("function", DEF)
     val name = consumeRequiredToken("function", IDENTIFIER)
     val params = paramList()
     val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val body = pipeExpr()
-    FunctionDeclaration(docComment(defToken), defToken, name, params, equals, body)
+    FunctionDeclaration(attributesOpt, docComment(defToken), defToken, name, params, equals, body)
   }
 
   protected def paramList(): ParamList = {
@@ -35,7 +47,7 @@ trait FunctionParse {
   }
 
   protected def parameter(withinParen: Boolean = false): Param =
-     if (IDENTIFIER) {
+    if (IDENTIFIER) {
       val ident = nextToken()
       if (ELLIPSIS) {
         val ellipsis = nextToken()
@@ -61,14 +73,14 @@ trait FunctionParse {
       val rparen = consumeRequiredToken("parameter", RPAREN)
       ParenParam(lparen, lazyOpt, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
-       val pat = pattern()
-       if (SHORT_EQUALS && withinParen) {
-         val equals = nextToken()
-         val defaultExpr = pipeExpr()
-         DefaultParam(pat, equals, defaultExpr)
-       } else
-         PatternParam(pat)
-     }
+      val pat = pattern()
+      if (SHORT_EQUALS && withinParen) {
+        val equals = nextToken()
+        val defaultExpr = pipeExpr()
+        DefaultParam(pat, equals, defaultExpr)
+      } else
+        PatternParam(pat)
+    }
     else if (forgiving)
       SimpleParam(syntheticToken(IDENTIFIER))
     else

@@ -307,6 +307,9 @@ trait NormalMashLexer { self: MashLexer ⇒
     case ':' ⇒
       nextChar()
       token(COLON)
+    case '@' ⇒
+      nextChar()
+      token(AT)
     case _ if afterEof ⇒
       token(EOF)
     case _ ⇒
