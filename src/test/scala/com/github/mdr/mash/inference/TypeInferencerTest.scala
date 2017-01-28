@@ -307,6 +307,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Foo { def bar m = 10 }; Foo 5 | .bar 10" shouldBeInferredAsHavingType NumberClass
   "class Foo { def bar m = m }; Foo 5 | .bar 10" shouldBeInferredAsHavingType NumberClass
   "class Foo { def bar m = m }; [Foo.new, Foo.new].bar 42" shouldBeInferredAsHavingType Seq(NumberClass)
+  // "class Foo { def a = 10; def b = a }; Foo.new.b" shouldBeInferredAsHavingType NumberClass
 
   // this
   "class A { def method1 = this; def method2 = 10 }; A.new.method1.method2" shouldBeInferredAsHavingType NumberClass

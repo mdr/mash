@@ -806,6 +806,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" shouldEvaluateTo 100
   "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" shouldEvaluateTo 100
 
+  "class Foo { def getFields = fields }; Foo.new.getFields" shouldEvaluateTo "[]"
+  "class Foo { def getFields = fields }; Foo.new.fields" shouldEvaluateTo "[]"
+
   "(class A { def foo = 42 }) | .new.foo" shouldEvaluateTo 42
   "(def foo = 42) | x => x" shouldEvaluateTo 42
 
@@ -835,6 +838,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class A { @private def a = 42 }; A.new['a']" shouldThrowAnException
 
   "class A { @private def a = 42 }; 'a' A.new" shouldThrowAnException
+
+  "class A { @private def a = 42 }; [A.new].a" shouldThrowAnException
 
   "class A { @private def a = 42; def b = a }; A.new.b" shouldEvaluateTo 42
   "class A { @private def a = 42; def b = this.a }; A.new.b" shouldEvaluateTo 42

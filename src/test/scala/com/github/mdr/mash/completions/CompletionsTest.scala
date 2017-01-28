@@ -327,6 +327,12 @@ class CompletionsTest extends FlatSpec with Matchers {
   "class Foo { def foobar n = n.▶ }" shouldContainCompletion "toString"
   "class Foo wibble { def foo = wibb▶ }" shouldGiveCompletions "wibble"
   "class Foo { def foo wibble = wibb▶ }" shouldGiveCompletions "wibble"
+  "class A { def method = 42; def anotherMethod = metho▶ }" shouldContainCompletion "method"
+  // "class A foo bar { def method = fiel▶ }" shouldContainCompletion "field"
+
+  havingFirstRun("class A { @private def privateMethod = 42 }") { implicit env ⇒
+    "A.new.privateMetho▶" shouldNotContainCompletion "privateMethod"
+  }
 
   {
     implicit val fileSystem = MockFileSystem.of("/.dotfile")
@@ -353,10 +359,6 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "def foo bar = (ba▶" shouldContainCompletion "bar"
   "def foo bar = (▶" shouldContainCompletion "bar"
-
-  havingFirstRun("class A { @private def privateMethod = 42 }") { implicit env ⇒
-    "A.new.privateMetho▶" shouldNotContainCompletion "privateMethod"
-  }
 
   private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
     val settings = CompilationSettings(bareWords = false)
