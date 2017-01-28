@@ -329,7 +329,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   "class Foo { def foo wibble = wibb▶ }" shouldGiveCompletions "wibble"
   "class A { def method = 42; def anotherMethod = metho▶ }" shouldContainCompletion "method"
   "class A { def method = 42; def anotherMethod = this.metho▶ }" shouldContainCompletion "method"
-  //  "class A foo bar { def method = fiel▶ }" shouldContainCompletion "fields"
+  "class A foo bar { def method = fiel▶ }" shouldContainCompletion "fields"
   "class A foo bar { def method = this.fiel▶ }" shouldContainCompletion "fields"
 
   havingFirstRun("class A { @private def privateMethod = 42 }") { implicit env ⇒

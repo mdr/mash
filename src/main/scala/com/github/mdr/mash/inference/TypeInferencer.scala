@@ -112,10 +112,14 @@ class TypeInferencer {
     val fieldBindings = inferType(classDeclaration.params, bindings)
     val methods = classDeclaration.bodyOpt.toSeq.flatMap(_.methods)
     val classType = getUserClassType(classDeclaration, bindings)
+    val thisType = UserClassInstance(classType)
+    val parentClassMethodBindings =
+      for (method <- ObjectClass.methods) yield method.name -> Type.BoundBuiltinMethod(thisType, method)
     val initialClassBindings =
       bindings ++
+        parentClassMethodBindings ++
         fieldBindings ++
-        Seq(ThisName -> UserClassInstance(classType))
+        Seq(ThisName -> thisType)
     val methodBindings =
       for (method ← methods)
         yield method.name -> inferType(method, initialClassBindings).getOrElse(Type.Any)
