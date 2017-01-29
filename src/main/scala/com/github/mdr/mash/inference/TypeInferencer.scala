@@ -114,7 +114,8 @@ class TypeInferencer {
     val classType = getUserClassType(classDeclaration, bindings)
     val thisType = UserClassInstance(classType)
     val parentClassMethodBindings =
-      for (method <- ObjectClass.methods) yield method.name -> Type.BoundBuiltinMethod(thisType, method)
+      for (method <- ObjectClass.methods)
+        yield method.name -> Type.BoundBuiltinMethod(thisType, method)
     val initialClassBindings =
       bindings ++
         parentClassMethodBindings ++
@@ -523,8 +524,11 @@ class TypeInferencer {
 
   private def memberLookup(userClassInstance: Type.UserClassInstance, name: String): Option[Type] = {
     val Type.UserClassInstance(Type.UserClass(_, params, methods)) = userClassInstance
-    params.params.find(_.nameOpt contains name).map(_ ⇒ Type.Instance(AnyClass)) orElse
-      methods.get(name).map(Type.BoundUserDefinedMethod(userClassInstance, _)) orElse
+
+    val fieldLookup = params.params.find(_.nameOpt contains name).map(_ ⇒ Type.Instance(AnyClass))
+    val methodLookup = methods.get(name).map(Type.BoundUserDefinedMethod(userClassInstance, _))
+    fieldLookup orElse
+      methodLookup orElse
       memberLookup(userClassInstance, ObjectClass, name)
   }
 
