@@ -61,6 +61,7 @@ object MashRoot {
     IdentityFunction,
     InBackgroundFunction,
     IsNullFunction,
+    FromMillisSinceEpoch,
     HelpFunction,
     HistoryFunction,
     NotFunction,

@@ -87,7 +87,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   }
 
   def validatePaths(param: Parameter): Seq[Path] = {
-    val arg = this (param)
+    val arg = this(param)
     catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(arg) getOrElse (
       throw new ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as path.", locationOpt(param)))
   }

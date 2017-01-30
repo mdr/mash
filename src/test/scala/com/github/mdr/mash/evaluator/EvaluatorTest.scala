@@ -577,6 +577,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "3.14.toInt" shouldEvaluateTo 3
   "(-3.14).toInt" shouldEvaluateTo -3
+  "1485187640884.6155.toInt" shouldEvaluateTo "1485187640884"
 
   """ "foo" { foo: 42 } { foo: 42 }  """ shouldThrowAnException
 
@@ -785,7 +786,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Point x y { def sum = this.x + this.y }; Point 3 4 | .sum" shouldEvaluateTo 7
   "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" shouldEvaluateTo 49
 
-  "class Box x { def update x = this.x = x }; b = Box 0; b.update 10; b.x" shouldEvaluateTo 10
+  "class Box n { def update n = this.n = n }; b = Box 0; b.update 10; b.n" shouldEvaluateTo 10
+  "class Box n { def increment = n += 1 }; box = Box 10; box.increment; box.n" shouldEvaluateTo 11
+  "class Box n { def increment = this['n'] += 1 }; box = Box 10; box.increment; box.n" shouldEvaluateTo 11
+
   """class Outer o1 {
        def outer o2 = {
          class Inner i1 {

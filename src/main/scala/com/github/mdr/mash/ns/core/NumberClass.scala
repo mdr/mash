@@ -140,7 +140,7 @@ object NumberClass extends MashClass("core.Number") {
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
       params.validate(arguments)
-      target.asInstanceOf[MashNumber].modify(_.toInt)
+      target.asInstanceOf[MashNumber].modify(n ⇒ if (n < 0) math.ceil(n) else math.floor(n))
     }
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {

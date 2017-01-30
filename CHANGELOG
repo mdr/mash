@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* time.fromMillisSinceEpoch
 * Add diskSpace / df command
 * @private attribute
 * HistoryEntry.reexecute
