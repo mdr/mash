@@ -17,16 +17,26 @@ object MaxFunction extends MashFunction("collections.max") {
       descriptionOpt = Some("""If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
 If multiple arguments are provided, the largest argument is returned."""),
       isVariadic = true)
+    val Default = Parameter(
+      nameOpt = Some("default"),
+      summaryOpt = Some("Default value to return, if the items are empty"),
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      isFlag = true,
+      isFlagValueMandatory = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Seq(Items))
+  val params = ParameterModel(Seq(Items, Default))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
+    val default = boundParams(Default)
     val sequence = getSequence(boundParams, Items)
-    sequence.filterNot(_ == MashNull).max(MashValueOrdering)
+    if (sequence.isEmpty)
+      default
+    else
+      sequence.filterNot(_ == MashNull).max(MashValueOrdering)
   }
 
   def getSequence(boundParams: BoundParams, itemsParam: Parameter) =
@@ -46,8 +56,9 @@ If multiple arguments are provided, the largest argument is returned."""),
   override def summaryOpt = Some("Find the largest element of a sequence")
 
   override def descriptionOpt = Some("""Examples:
-  max [1, 2, 3] # 3
-  max 1 2 3     # 3""")
+  max [1, 2, 3]      # 3
+  max 1 2 3          # 3
+  max [] --default=0 # 0""")
 
 }
 

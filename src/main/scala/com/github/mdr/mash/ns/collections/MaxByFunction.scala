@@ -15,15 +15,22 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
     val Attribute = Parameter(
       nameOpt = Some("attribute"),
       summaryOpt = Some("Function to extract a value to compare elements"))
+    val Default = Parameter(
+      nameOpt = Some("default"),
+      summaryOpt = Some("Default value to return, if the items are empty"),
+      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      isFlag = true,
+      isFlagValueMandatory = true)
   }
   import Params._
 
-  val params = ParameterModel(Seq(Attribute, Sequence))
+  val params = ParameterModel(Seq(Attribute, Sequence, Default))
 
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
+    val default = boundParams(Default)
 
     var maxValue: MashValue = null
     var maxElem: MashValue = null
@@ -38,8 +45,9 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
         }
     }
     if (first)
-      boundParams.throwInvalidArgument(Sequence, "Cannot find maximum of an empty sequence")
-    maxElem
+      default
+    else
+      maxElem
   }
 
   override def typeInferenceStrategy = FindTypeInferenceStrategy
