@@ -18,7 +18,6 @@ object NormalMashLexer {
     "else" -> ELSE,
     "false" -> FALSE,
     "if" -> IF,
-    "lazy" -> LAZY,
     "namespace" -> NAMESPACE,
     "null" -> NULL,
     "or" -> OR,

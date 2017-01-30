@@ -30,7 +30,7 @@ object BracketMatcher {
     def unapply(expr: AstNode): Option[(Token, Token)] = condOpt(expr) {
       case ParenExpr(left, _, right)              ⇒ (left, right)
       case ParenInvocationExpr(_, left, _, right) ⇒ (left, right)
-      case ParenParam(left, _, _, right)          ⇒ (left, right)
+      case ParenParam(left, _, _, _, right)       ⇒ (left, right)
       case LookupExpr(_, left, _, right)          ⇒ (left, right)
       case ListExpr(left, _, right)               ⇒ (left, right)
       case ListPattern(left, _, right)            ⇒ (left, right)

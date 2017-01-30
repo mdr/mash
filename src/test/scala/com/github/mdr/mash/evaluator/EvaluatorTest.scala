@@ -728,9 +728,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = 0; (a += 1) | 5.times" shouldEvaluateTo "[1, 2, 3, 4, 5]"
 
   // Lazy arguments
-  "a = 0; def twice (lazy block) = { block; block }; twice (a += 1); a" shouldEvaluateTo 2
-  "a = 0; def twice (lazy block) = { block; block }; twice --block=(a += 1); a" shouldEvaluateTo 2
-  "a = 0; ((lazy block) => { block; block }) (a += 1); a" shouldEvaluateTo 2
+  "a = 0; def twice (@lazy block) = { block; block }; twice (a += 1); a" shouldEvaluateTo 2
+  "a = 0; def twice (@lazy block) = { block; block }; twice --block=(a += 1); a" shouldEvaluateTo 2
+  "a = 0; ((@lazy block) => { block; block }) (a += 1); a" shouldEvaluateTo 2
 
   "def foo n = n += _; f = foo 1; f 2; f 3" shouldEvaluateTo 6
 

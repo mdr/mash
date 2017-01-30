@@ -56,7 +56,7 @@ trait FunctionParse {
         SimpleParam(ident)
     } else if (LPAREN && !withinParen) {
       val lparen = nextToken()
-      val lazyOpt = if (LAZY) Some(nextToken()) else None
+      val attributesOpt = if (AT) Some(attributes()) else None
       val param = parameter(withinParen = true)
       val actualParam =
         param match {
@@ -71,7 +71,7 @@ trait FunctionParse {
             param
         }
       val rparen = consumeRequiredToken("parameter", RPAREN)
-      ParenParam(lparen, lazyOpt, actualParam, rparen)
+      ParenParam(lparen, attributesOpt, None, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
       val pat = pattern()
       if (SHORT_EQUALS && withinParen) {

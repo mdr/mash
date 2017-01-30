@@ -104,7 +104,7 @@ class Abstractifier(provenance: Provenance) {
     attributes.attributes.map(attr ⇒ Abstract.Attribute(attr.name.text, sourceInfo(attr)))
 
   private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
-    val Concrete.ClassDeclaration(_, _, name, params, bodyOpt) = decl
+    val Concrete.ClassDeclaration(_, _, name, params, _) = decl
     val abstractParams = abstractifyParamList(params)
     val abstractBodyOpt = decl.bodyOpt.map(abstractifyClassBody)
     val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
@@ -116,16 +116,17 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
     case Concrete.SimpleParam(name)                     ⇒
-      Abstract.FunctionParam(Some(name.text), sourceInfoOpt = sourceInfo(param))
+      Abstract.FunctionParam(Seq(), Some(name.text), sourceInfoOpt = sourceInfo(param))
     case Concrete.VariadicParam(name, _)                ⇒
-      Abstract.FunctionParam(Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
-    case Concrete.ParenParam(_, lazyOpt, childParam, _) ⇒
-      abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined)
+      Abstract.FunctionParam(Seq(), Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
+    case Concrete.ParenParam(_, attributesOpt, lazyOpt, childParam, _) ⇒
+      val attributes = attributesOpt.map(abstractifyAttributes(_)).getOrElse(Seq())
+      abstractifyParam(childParam).copy(isLazy = lazyOpt.isDefined, attributes = attributes)
     case Concrete.DefaultParam(pattern, _, defaultExpr) ⇒
-      Abstract.FunctionParam(pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)),
+      Abstract.FunctionParam(Seq(), pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)),
         sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
     case Concrete.PatternParam(pattern)                 ⇒
-      Abstract.FunctionParam(None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
+      Abstract.FunctionParam(Seq(), None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }
 
   private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {

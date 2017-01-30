@@ -176,7 +176,9 @@ object Evaluator extends EvaluatorHelper {
   def makeParameter(param: FunctionParam,
                     evaluationContextOpt: Option[EvaluationContext] = None,
                     docCommentOpt: Option[DocComment] = None): Parameter = {
-    val FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, patternOpt, _) = param
+    val FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, _, patternOpt, _) = param
+    val isLazy = param.isLazy || attributes.exists(_.name == Attributes.Lazy)
+    val isLast = param.isLazy || attributes.exists(_.name == Attributes.Last)
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒
       defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val docSummaryOpt =
@@ -187,7 +189,7 @@ object Evaluator extends EvaluatorHelper {
       } yield paramComment.summary
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
+      isVariadic = isVariadic, isLast = isLast, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =

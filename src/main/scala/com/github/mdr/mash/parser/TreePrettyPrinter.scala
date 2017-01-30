@@ -130,13 +130,14 @@ object TreePrettyPrinter {
         for (param ← params.params)
           printTree(param, depth + 1)
         printTree(body, depth + 1)
-      case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
+      case FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
         var descr = nameOpt.getOrElse("_")
         if (isVariadic)
           descr += "..."
         if (isLazy)
           descr = "lazy " + descr 
         println("  " * depth + descr)
+        println("  " * (depth + 1) + "attrs: " + attributes.map(_.name).mkString(", "))
         for (defaultExpr ← defaultExprOpt)
           printTree(defaultExpr, depth + 2)
       case HelpExpr(subExpr, _) ⇒

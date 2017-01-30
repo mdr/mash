@@ -82,8 +82,10 @@ object PrettyPrinter {
       val attributeString = attributes.map("@" + _.name + " ").mkString
       val preparams = if (params.params.isEmpty) "" else " "
       attributeString + "def " + name + preparams + params.params.map(pretty).mkString(" ") + " = " + pretty(body)
-    case FunctionParam(nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
-      var descr = nameOpt.getOrElse("_")
+    case FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
+      val attributeString = attributes.map("@" + _.name + " ").mkString
+      var descr = attributeString
+      descr += nameOpt.getOrElse("_")
       if (isVariadic)
         descr += "..."
       if (isLazy)

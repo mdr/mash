@@ -402,8 +402,12 @@ object ConcreteSyntax {
     def children = Seq(pattern)
   }
 
-  case class ParenParam(lparen: Token, lazyOpt: Option[Token], param: Param, rparen: Token) extends Param {
-    lazy val tokens = lparen +: (lazyOpt.toSeq ++ param.tokens) :+ rparen
+  case class ParenParam(lparen: Token,
+                        attributesOpt: Option[Attributes],
+                        lazyOpt: Option[Token],
+                        param: Param,
+                        rparen: Token) extends Param {
+    lazy val tokens = lparen +: (attributesOpt.toSeq.flatMap(_.tokens) ++ lazyOpt.toSeq ++ param.tokens) :+ rparen
 
     def children = Seq(param)
   }

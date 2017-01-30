@@ -79,8 +79,8 @@ trait AstNodeTransformation {
       ExprPart(expr.transform(f))
     case StringPart(_)                                                                     ⇒
       this
-    case FunctionParam(name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt)    ⇒
-      FunctionParam(name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, patternOpt, sourceInfoOpt)
+    case FunctionParam(attributes, name, isVariadic, defaultOpt, isLazy, patternOpt, sourceInfoOpt)    ⇒
+      FunctionParam(attributes, name, isVariadic, defaultOpt.map(_.transform(f)), isLazy, patternOpt, sourceInfoOpt)
     case Argument.PositionArg(expr, sourceInfoOpt)                                         ⇒
       Argument.PositionArg(expr.transform(f), sourceInfoOpt)
     case Argument.ShortFlag(_, _)                                                          ⇒

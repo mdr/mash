@@ -352,7 +352,8 @@ object AbstractSyntax {
     def children = Seq(arg)
   }
 
-  case class FunctionParam(nameOpt: Option[String],
+  case class FunctionParam(attributes: Seq[Attribute] = Seq(),
+                           nameOpt: Option[String],
                            isVariadic: Boolean = false,
                            defaultExprOpt: Option[Expr] = None,
                            isLazy: Boolean = false,
