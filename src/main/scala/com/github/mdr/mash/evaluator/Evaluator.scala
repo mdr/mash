@@ -176,9 +176,7 @@ object Evaluator extends EvaluatorHelper {
   def makeParameter(param: FunctionParam,
                     evaluationContextOpt: Option[EvaluationContext] = None,
                     docCommentOpt: Option[DocComment] = None): Parameter = {
-    val FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, _, patternOpt, _) = param
-    val isLazy = param.isLazy || attributes.exists(_.name == Attributes.Lazy)
-    val isLast = param.isLazy || attributes.exists(_.name == Attributes.Last)
+    val FunctionParam(_, nameOpt, isVariadic, defaultExprOpt, patternOpt, _) = param
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒
       defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val docSummaryOpt =
@@ -189,7 +187,8 @@ object Evaluator extends EvaluatorHelper {
       } yield paramComment.summary
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isLast = isLast, isLazy = isLazy, patternOpt = patternOpt.map(makeParamPattern))
+      isVariadic = isVariadic, isFlag = param.isFlag, isLast = param.isLast, isLazy = param.isLazy,
+      patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =
@@ -216,9 +215,6 @@ object Evaluator extends EvaluatorHelper {
     val params = paramList.params
     if (params.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")
-    val variadicIndex = params.indexWhere(_.isVariadic)
-    if (variadicIndex >= 0 && variadicIndex < params.size - 1)
-      throw new EvaluatorException("A variadic parameter must be the last positional parameter")
     for ((name, params) ← params.groupBy(_.nameOpt).collect { case (Some(name), ps) if ps.length > 1 ⇒ name -> ps }.headOption)
       throw new EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
   }

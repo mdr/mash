@@ -1,6 +1,6 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.evaluator.SourceLocation
+import com.github.mdr.mash.evaluator.{ Attributes, SourceLocation }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime._
 
@@ -356,7 +356,6 @@ object AbstractSyntax {
                            nameOpt: Option[String],
                            isVariadic: Boolean = false,
                            defaultExprOpt: Option[Expr] = None,
-                           isLazy: Boolean = false,
                            patternOpt: Option[Pattern] = None,
                            sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
@@ -364,6 +363,13 @@ object AbstractSyntax {
     def children = defaultExprOpt.toSeq
 
     def boundNames: Seq[String] = nameOpt.toSeq ++ patternOpt.toSeq.flatMap(_.boundNames)
+
+    def isLazy = attributes.exists(_.name == Attributes.Lazy)
+
+    def isLast = attributes.exists(_.name == Attributes.Last)
+
+    def isFlag = attributes.exists(_.name == Attributes.Flag)
+
   }
 
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {

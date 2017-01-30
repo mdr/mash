@@ -856,4 +856,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "def makeFact = { def fact n = if (n <= 1) then n else n * fact (n - 1) }; (makeFact) 5" shouldEvaluateTo 120
 
+  // @last
+  "def foo n... (@last m) = m; foo 1 2 3" shouldEvaluateTo 3
+  "def foo n... (@last m) = m; foo 3" shouldEvaluateTo 3
+  "def foo (n = 10) (@last m) = m; foo 3" shouldEvaluateTo 3
+
+  // @flag
+  "def foo (@flag m = 10) n = m + n; foo 3" shouldEvaluateTo 13
+  "def foo (@flag m) n = m + n; foo 3 --m=20" shouldEvaluateTo 23
 }

@@ -71,7 +71,7 @@ trait FunctionParse {
             param
         }
       val rparen = consumeRequiredToken("parameter", RPAREN)
-      ParenParam(lparen, attributesOpt, None, actualParam, rparen)
+      ParenParam(lparen, attributesOpt, actualParam, rparen)
     } else if (LBRACE || LSQUARE || HOLE) {
       val pat = pattern()
       if (SHORT_EQUALS && withinParen) {

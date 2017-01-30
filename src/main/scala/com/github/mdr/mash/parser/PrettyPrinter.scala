@@ -15,37 +15,37 @@ object PrettyPrinter {
     * Pretty-print the expression
     */
   def pretty(node: AstNode): String = node match {
-    case IfExpr(cond, body, elseOpt, sourceInfoOpt)                       ⇒ "if " + pretty(cond) + " then " + pretty(body) + elseOpt.map(elseBody ⇒ " " + pretty(elseBody)).getOrElse("")
-    case StringLiteral(s, _, _, _)                                        ⇒ '"' + s + '"' // TOOD: more faithful representation
-    case Literal(n: MashNumber, _)                                        ⇒ NumberUtils.prettyString(n.n)
-    case Literal(x, _)                                                    ⇒ x + ""
-    case InterpolatedString(start, parts, end, _)                         ⇒
+    case IfExpr(cond, body, elseOpt, sourceInfoOpt)                            ⇒ "if " + pretty(cond) + " then " + pretty(body) + elseOpt.map(elseBody ⇒ " " + pretty(elseBody)).getOrElse("")
+    case StringLiteral(s, _, _, _)                                             ⇒ '"' + s + '"' // TOOD: more faithful representation
+    case Literal(n: MashNumber, _)                                             ⇒ NumberUtils.prettyString(n.n)
+    case Literal(x, _)                                                         ⇒ x + ""
+    case InterpolatedString(start, parts, end, _)                              ⇒
       val chunks = parts.map {
         case StringPart(s)  ⇒ s
         case ExprPart(expr) ⇒ pretty(expr)
       }
       "\"" + start + chunks.mkString + end + "\""
-    case Identifier(n, _)                                                 ⇒ n.toString
-    case MishFunction(w, _)                                               ⇒ "!" + w.toString
-    case Hole(_)                                                          ⇒ "_"
-    case MinusExpr(subExpr, _)                                            ⇒ "-" + parens(pretty(subExpr))
-    case MemberExpr(left, member, isNullSafe, _)                          ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isNullSafe) "?." else ".") + member
-    case HeadlessMemberExpr(member, isNullSafe, _)                        ⇒ (if (isNullSafe) "?." else ".") + member
-    case LookupExpr(expr, index, _)                                       ⇒ parens(pretty(expr), simpleOmitParens(expr)) + "[" + pretty(index) + "]"
-    case PipeExpr(left, right, _)                                         ⇒ "(" + pretty(left) + ") | (" + pretty(right) + ")"
-    case ParenExpr(body, _)                                               ⇒ "(" + pretty(body) + ")"
-    case BlockExpr(body, _)                                               ⇒ "{" + pretty(body) + "}"
-    case StatementSeq(statements, _)                                      ⇒ statements.map(pretty).mkString("{ ", "; ", " }")
-    case LambdaExpr(v, body, _)                                           ⇒ v.params.map(_.nameOpt.getOrElse("_")).mkString(" ") + " => " + pretty(body)
-    case BinOpExpr(left, op, right, _)                                    ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
-    case ListExpr(elements, _)                                            ⇒ elements.mkString("[", ", ", "]")
-    case MishExpr(command, args, redirects, _, _)                         ⇒ pretty(command) + " " + args.map(pretty)
-    case ObjectExpr(entries, _)                                           ⇒
+    case Identifier(n, _)                                                      ⇒ n.toString
+    case MishFunction(w, _)                                                    ⇒ "!" + w.toString
+    case Hole(_)                                                               ⇒ "_"
+    case MinusExpr(subExpr, _)                                                 ⇒ "-" + parens(pretty(subExpr))
+    case MemberExpr(left, member, isNullSafe, _)                               ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isNullSafe) "?." else ".") + member
+    case HeadlessMemberExpr(member, isNullSafe, _)                             ⇒ (if (isNullSafe) "?." else ".") + member
+    case LookupExpr(expr, index, _)                                            ⇒ parens(pretty(expr), simpleOmitParens(expr)) + "[" + pretty(index) + "]"
+    case PipeExpr(left, right, _)                                              ⇒ "(" + pretty(left) + ") | (" + pretty(right) + ")"
+    case ParenExpr(body, _)                                                    ⇒ "(" + pretty(body) + ")"
+    case BlockExpr(body, _)                                                    ⇒ "{" + pretty(body) + "}"
+    case StatementSeq(statements, _)                                           ⇒ statements.map(pretty).mkString("{ ", "; ", " }")
+    case LambdaExpr(v, body, _)                                                ⇒ v.params.map(_.nameOpt.getOrElse("_")).mkString(" ") + " => " + pretty(body)
+    case BinOpExpr(left, op, right, _)                                         ⇒ parens(pretty(left), simpleOmitParens(left)) + " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
+    case ListExpr(elements, _)                                                 ⇒ elements.mkString("[", ", ", "]")
+    case MishExpr(command, args, redirects, _, _)                              ⇒ pretty(command) + " " + args.map(pretty)
+    case ObjectExpr(entries, _)                                                ⇒
       entries.map {
         case FullObjectEntry(field, value, _) ⇒ s"${pretty(field)}: ${pretty(value)}"
         case ShorthandObjectEntry(field, _)   ⇒ field
       }.mkString("{ ", ", ", " }")
-    case AssignmentExpr(left, operatorOpt, right, _)               ⇒
+    case AssignmentExpr(left, operatorOpt, right, _)                           ⇒
       val operatorSymbol = operatorOpt match {
         case Some(BinaryOperator.Plus)     ⇒ "+="
         case Some(BinaryOperator.Minus)    ⇒ "-="
@@ -54,17 +54,17 @@ object PrettyPrinter {
         case _                             ⇒ "="
       }
       parens(pretty(left), simpleOmitParens(left)) + " " + operatorSymbol + " " + parens(pretty(right), simpleOmitParens(right))
-    case PatternAssignmentExpr(pattern, right, _)                         ⇒
+    case PatternAssignmentExpr(pattern, right, _)                              ⇒
       s"$pattern = ${parens(pretty(right), simpleOmitParens(right))}"
-    case ObjectPattern(fieldNames, _)                                     ⇒
+    case ObjectPattern(fieldNames, _)                                          ⇒
       fieldNames.mkString("{ ", ", ", " }")
-    case ChainedOpExpr(left, opRights, _)                                 ⇒
+    case ChainedOpExpr(left, opRights, _)                                      ⇒
       parens(pretty(left), simpleOmitParens(left)) +
         opRights.map {
           case (op, right) ⇒
             " " + pretty(op) + " " + parens(pretty(right), simpleOmitParens(right))
         }.mkString
-    case InvocationExpr(function, args, _, _)                             ⇒
+    case InvocationExpr(function, args, _, _)                                  ⇒
       parens(pretty(function), simpleOmitParens(function)) + " " + args.map {
         case Argument.PositionArg(e, _)           ⇒
           parens(pretty(e), simpleOmitParens(e))
@@ -73,30 +73,28 @@ object PrettyPrinter {
         case Argument.LongFlag(flag, valueOpt, _) ⇒
           "--" + flag + valueOpt.map(value ⇒ "=" + parens(pretty(value), simpleOmitParens(value))).getOrElse("")
       }.mkString(" ")
-    case MishInterpolation(part, _)                                       ⇒
+    case MishInterpolation(part, _)                                            ⇒
       part match {
         case StringPart(s)  ⇒ s
         case ExprPart(expr) ⇒ pretty(expr)
       }
-    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, _)                       ⇒
+    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, _) ⇒
       val attributeString = attributes.map("@" + _.name + " ").mkString
       val preparams = if (params.params.isEmpty) "" else " "
       attributeString + "def " + name + preparams + params.params.map(pretty).mkString(" ") + " = " + pretty(body)
-    case FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, isLazy, _, _) ⇒
+    case FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, _, _)  ⇒
       val attributeString = attributes.map("@" + _.name + " ").mkString
       var descr = attributeString
       descr += nameOpt.getOrElse("_")
       if (isVariadic)
         descr += "..."
-      if (isLazy)
-        descr = "lazy " + descr
       for (defaultExpr ← defaultExprOpt)
         descr += " = " + pretty(defaultExpr)
-      if (isLazy || defaultExprOpt.isDefined)
+      if (defaultExprOpt.isDefined || attributeString.nonEmpty)
         descr = s"($descr)"
       descr
-    case HelpExpr(subExpr, _)                                             ⇒ pretty(subExpr) + "?"
-    case _                                                                ⇒ ""
+    case HelpExpr(subExpr, _)                                                  ⇒ pretty(subExpr) + "?"
+    case _                                                                     ⇒ ""
   }
 
   private def pretty(op: BinaryOperator): String = op match {
