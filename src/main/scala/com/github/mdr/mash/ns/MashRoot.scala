@@ -104,7 +104,7 @@ object MashRoot {
     WriteFunction,
     ProcessesFunction) ++ (
       if (SystemUtils.IS_OS_MAC_OSX)
-        Seq()
+        Seq(DiskSpaceFunction)
       else
         Seq(
           GroupsFunction,
@@ -168,7 +168,11 @@ object MashRoot {
     "rm" -> DeleteFunction,
     "man" -> HelpFunction,
     "mkdir" -> CreateDirectoryFunction,
-    "pwd" -> CurrentDirectoryFunction)
+    "pwd" -> CurrentDirectoryFunction) ++
+    (if (SystemUtils.IS_OS_MAC_OSX)
+      Map("df" -> DiskSpaceFunction)
+    else
+      Map())
 
   val AllClasses: Seq[MashClass] = Seq(
     GroupClass,

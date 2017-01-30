@@ -9,6 +9,7 @@ import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessResult
+import com.github.mdr.mash.utils.StringUtils
 
 import scala.collection.immutable.ListMap
 
@@ -99,10 +100,11 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
-      MashList(Wrapper(target).stdout.split("\n").map(MashString(_)))
+      val stdout = Wrapper(target).stdout
+      MashList(StringUtils.splitIntoLines(stdout).map(MashString(_)))
     }
 
-    override def typeInferenceStrategy = Type.Seq(Type.Instance(StringClass))
+    override def typeInferenceStrategy = Seq(StringClass)
 
     override def summaryOpt = Some("The standard output of the process as as sequence of lines")
 

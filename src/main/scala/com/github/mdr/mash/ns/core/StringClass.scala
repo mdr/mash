@@ -10,7 +10,8 @@ import com.github.mdr.mash.ns.collections.{ AnyFunction, _ }
 import com.github.mdr.mash.ns.os.{ PathClass, PathSummaryClass }
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.runtime.{ MashString, _ }
+import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils._
 import com.joestelmach.natty.Parser
 
@@ -218,16 +219,8 @@ object StringClass extends MashClass("core.String") {
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
       val targetString = target.asInstanceOf[MashString]
-      if (targetString.isEmpty)
-        MashList.empty
-      else
-        split(targetString)
-    }
-
-    private def split(string: MashString): MashList = {
-      val s = string.s
-      val pieces = string.s.split("\r?\n", -1).when(s endsWith "\n", _.init)
-      MashList(pieces.map(MashString(_, string.tagClassOpt)))
+      val pieces = StringUtils.splitIntoLines(targetString.s)
+      MashList(pieces.map(MashString(_, targetString.tagClassOpt)))
     }
 
     override def typeInferenceStrategy = SplitMethod.typeInferenceStrategy

@@ -1,5 +1,7 @@
 package com.github.mdr.mash.utils
 
+import com.github.mdr.mash.utils.Utils._
+
 object StringUtils {
 
   /**
@@ -77,4 +79,11 @@ object StringUtils {
     * Remove initial whitespace
     */
   def ltrim(s: String) = s.replaceAll("^\\s+", "")
+
+  def splitIntoLines(s: String): Seq[String] =
+    if (s.isEmpty)
+      Seq()
+    else
+      s.split("\r?\n", -1).when(s endsWith "\n", _.init)
+
 }

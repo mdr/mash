@@ -15,6 +15,7 @@ object MashNumber {
       case n: Float  ⇒ MashNumber(n.toDouble, tagClassOpt)
       case n: Int    ⇒ MashNumber(n.toDouble, tagClassOpt)
       case n: Long   ⇒ MashNumber(n.toDouble, tagClassOpt)
+      case _         ⇒ throw new IllegalArgumentException("Unexpected number type: " + n)
     }
 
   def min(n1: MashNumber, n2: MashNumber): MashNumber =
