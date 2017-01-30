@@ -157,7 +157,7 @@ object Evaluator extends EvaluatorHelper {
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(attributes, docCommentOpt, functionName, paramList, body, _) = decl
       val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
-      val isPrivate = attributes.exists(_.name == "private")
+      val isPrivate = attributes.exists(_.name == Attributes.Private)
       UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate)
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)

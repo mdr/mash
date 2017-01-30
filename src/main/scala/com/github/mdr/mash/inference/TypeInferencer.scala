@@ -160,7 +160,7 @@ class TypeInferencer {
   private def getFunctionType(functionDeclaration: FunctionDeclaration,
                               bindings: Map[String, Type]): Type.UserDefinedFunction = {
     val FunctionDeclaration(attributes, _, name, paramList, body, _) = functionDeclaration
-    val isPrivate = attributes.exists(_.name == "private")
+    val isPrivate = attributes.exists(_.name == Attributes.Private)
     Type.UserDefinedFunction(isPrivate, Some(name), Evaluator.parameterModel(paramList), body, bindings)
   }
 
@@ -170,28 +170,13 @@ class TypeInferencer {
     val methods = bodyOpt.toSeq.flatMap(_.methods).map { decl ⇒
       val FunctionDeclaration(attributes, _, functionName, functionParamList, body, _) = decl
       val functionParams = Evaluator.parameterModel(functionParamList)
-      val isPrivate = attributes.exists(_.name == "private")
+      val isPrivate = attributes.exists(_.name == Attributes.Private)
       val methodType = Type.UserDefinedFunction(isPrivate, Some(functionName), functionParams, body, bindings)
       functionName -> methodType
     }
     val classParams = Evaluator.parameterModel(paramList)
     Type.UserClass(className, classParams, ListMap(methods: _*))
   }
-
-  // Preliminary typing pass -- might be updated to be more precise once we know argument types
-  private def getPreliminaryBindings(params: ParamList): Map[String, Type] =
-    params.params.flatMap(getParamPreliminaryBindings).toMap
-
-  private def getParamPreliminaryBindings(param: FunctionParam): Map[String, Type] =
-    (param match {
-      case FunctionParam(Some(name), _, _, _, _, _)       ⇒
-        Seq(name -> Type.Any)
-      case FunctionParam(None, _, _, _, Some(pattern), _) ⇒
-        for (name <- pattern.boundNames)
-          yield name -> Type.Any
-      case _                                              ⇒
-        Seq()
-    }).toMap
 
   private def inferType(assignmentExpr: AssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
     val AssignmentExpr(left, operatorOpt, right, _) = assignmentExpr
