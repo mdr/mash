@@ -61,11 +61,11 @@ trait FunctionParse {
       val param = parameter(withinParen = true)
       val actualParam =
         param match {
-          case PatternParam(pattern, None) ⇒
+          case patternParam @ PatternParam(pattern, None, None) ⇒
             if (SHORT_EQUALS) {
               val equals = nextToken()
               val defaultExpr = pipeExpr()
-              DefaultParam(pattern, equals, defaultExpr)
+              patternParam.copy(equalsDefaultOpt = Some((equals, defaultExpr)))
             } else
               param
           case _                 ⇒
@@ -73,15 +73,8 @@ trait FunctionParse {
         }
       val rparen = consumeRequiredToken("parameter", RPAREN)
       ParenParam(lparen, attributesOpt, actualParam, rparen)
-    } else if (LBRACE || LSQUARE || HOLE) {
-      val pat = pattern()
-      if (SHORT_EQUALS && withinParen) {
-        val equals = nextToken()
-        val defaultExpr = pipeExpr()
-        DefaultParam(pat, equals, defaultExpr)
-      } else
-        PatternParam(pat)
-    }
+    } else if (LBRACE || LSQUARE || HOLE)
+      PatternParam(pattern())
     else if (forgiving)
       PatternParam(IdentPattern(syntheticToken(IDENTIFIER)))
     else
