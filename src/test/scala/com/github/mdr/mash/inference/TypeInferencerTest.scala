@@ -252,8 +252,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // Object.get
   "{ foo: 42 }.get 'foo'" shouldBeInferredAsHavingType NumberClass
 
-  // lazy parameters
+  // @lazy parameters
   "((@lazy block) => block) 42" shouldBeInferredAsHavingType NumberClass
+
+  // @last parameters
+  "def foo a... (@last b) = b; foo 42" shouldBeInferredAsHavingType NumberClass
+
+  // @flag parameters
+  "def foo (@flag a) b = a; foo [] --a=10" shouldBeInferredAsHavingType NumberClass
 
   // Number.times
   "5.times { print 'Hi' }" shouldBeInferredAsHavingType Seq(Unit)
