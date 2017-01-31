@@ -55,7 +55,7 @@ trait InvocationParse { self: MashParse ⇒
       val args = safeWhile(COMMA) {
         val comma = nextToken()
         val arg = pipeExpr()
-        (comma -> arg)
+        comma -> arg
       }
       val rparen = consumeRequiredToken("invocation", RPAREN)
       ParenInvocationExpr(previousExpr, lparen, Some(ParenInvocationArgs(firstArg, args)), rparen)

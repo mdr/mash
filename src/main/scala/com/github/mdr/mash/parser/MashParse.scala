@@ -18,11 +18,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     with InvocationParse {
 
   def program(): Program = {
-    val namespaceDeclarationOpt =
-      if (NAMESPACE)
-        Some(namespaceDeclaration())
-      else
-        None
+    val namespaceDeclarationOpt = if (NAMESPACE) Some(namespaceDeclaration()) else None
     val result = statementSeq()
     if (!EOF && !forgiving)
       errorExpectedToken(Some("program"), "end of input")

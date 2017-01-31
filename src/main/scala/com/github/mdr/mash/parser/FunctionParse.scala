@@ -15,12 +15,7 @@ trait FunctionParse {
     Attribute(atToken, name)
   }
 
-  private def attributes(): Attributes = {
-    val attributes = safeWhile(AT) {
-      attribute()
-    }
-    Attributes(attributes)
-  }
+  private def attributes() = Attributes(safeWhile(AT)(attribute()))
 
   protected def functionDeclaration(): FunctionDeclaration = {
     val attributesOpt = if (AT) Some(attributes()) else None
@@ -77,30 +72,31 @@ trait FunctionParse {
       SimpleParam(IdentPattern(ident))
     }
 
+  private def objectPatternEntry(): ObjectPatternEntry = {
+    if (IDENTIFIER) {
+      val field = nextToken()
+      if (COLON) {
+        val colon = nextToken()
+        val valuePattern = pattern()
+        FullObjectPatternEntry(field, colon, valuePattern)
+      } else
+        ShorthandObjectPatternEntry(field)
+    }
+    else
+      ShorthandObjectPatternEntry(syntheticToken(IDENTIFIER))
+  }
+
   private def objectPattern(): ObjectPattern = {
     val lbrace = nextToken()
     if (RBRACE) {
       val rbrace = nextToken()
       ObjectPattern(lbrace, None, rbrace)
     } else {
-      def parseEntry(): ObjectPatternEntry = {
-        if (IDENTIFIER) {
-          val field = nextToken()
-          if (COLON) {
-            val colon = nextToken()
-            val valuePattern = pattern()
-            FullObjectPatternEntry(field, colon, valuePattern)
-          } else
-            ShorthandObjectPatternEntry(field)
-        }
-        else
-          ShorthandObjectPatternEntry(syntheticToken(IDENTIFIER))
-      }
-      val firstEntry = parseEntry()
+      val firstEntry = objectPatternEntry()
       val entries = safeWhile(COMMA) {
         val comma = nextToken()
-        val entry = parseEntry()
-        (comma -> entry)
+        val entry = objectPatternEntry()
+        comma -> entry
       }
       val rbrace = consumeRequiredToken("object pattern", RBRACE)
       ObjectPattern(lbrace, Some(ObjectPatternContents(firstEntry, entries)), rbrace)
@@ -127,7 +123,7 @@ trait FunctionParse {
       val otherElements = safeWhile(COMMA) {
         val comma = nextToken()
         val item = pattern()
-        (comma -> item)
+        comma -> item
       }
       val rsquare = consumeRequiredToken("list pattern", RSQUARE)
       ListPattern(lsquare, Some(ListPatternContents(firstElement, otherElements)), rsquare)
