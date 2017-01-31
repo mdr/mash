@@ -14,22 +14,47 @@ permalink: /quick-reference-guide/
 * Numbers: `42`, `0.5`
 * Null: `null`
 * Sequences: `[1, 2, 3]`
-* Objects: `{ foo: 42, bar: 42 }`
-* Strings: `'basic string'`, `"rich string"`
 
-The double-quoted rich strings are recommended for most interactive uses,
-and provide the following additional features over single-quoted basic strings:
+### String literals
+* Basic strings: `'basic string'`
+* Rich strings: `"rich string"`
+
+Rich strings are recommended for most interactive uses, and provide the following additional features
+compared to basic strings:
 
 * Variable interpolation: `"The current directory is $pwd, and the parent directory is $pwd.parent"`
 * Full expression interpolation: `"The current directory backwards is: ${pwd | reverse}"`
-* An initial tilde (`~`) is replaced with the current user's home directory
+* An initial tilde character (`~`) is expanded to the current user's home directory
 * Tagged as `os.Path`, which provides methods for path manipulation: e.g. `"foo.txt".lastModified`
 
-Both single- and double-quoted strings can span multiple lines; any newline characters they are retained
+Both single- and double-quoted strings can span multiple lines; any newline characters are retained
 literally in the string value.
+
+String escapes sequences start with the backtick character `` ` ``:
+
+* `` `n `` - newline
+* `` `r `` - carriage return
+* `` `t `` - tab
+* `` `$ `` - `$`
+* `` `' `` - `'`
+* `` `" `` - `"`
 
 If *bare words* are enabled (using configuration property `language.bareWords`), then any
 unbound identifier is automatically promoted to a string tagged with `os.Path`.
+
+### Object literals
+
+* Basic object literal: `{ foo: 42, bar: 42 }`.
+
+An arbitrary expression can appear as a field name, but an identifier must be enclosed in parens for this to work:
+
+    fieldName = "foo"
+    { (fieldName): 42 } # => { foo: 42 }
+
+If a variable is in scope, it can be used to name a field and provide the value in one shot:
+
+    value = "foo"
+    { value } # => { value: "foo" }
 
 ### Conditionals, truthiness, and/or
 * Conditional expression: `if` .. `then` .. `else` ..
@@ -50,7 +75,7 @@ For example:
 
     true and true # true
     dir.exists or dir.mkdir
-	dir.exists and dir.cd
+    dir.exists and dir.cd
 
 `not` is a standard library function.
 
@@ -85,7 +110,7 @@ Default arguments:
 
 Lazy arguments:
 
-    def someFunc (lazy block) = ...
+    def someFunc (@lazy block) = ...
 
 Functions can be nested:
 
