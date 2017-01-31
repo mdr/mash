@@ -97,7 +97,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     val actual = if (currentToken.text.isEmpty) describeToken(currentToken.tokenType) else currentToken.text
     val message = contextOpt match {
       case Some(context) ⇒ s"While parsing $context, expected '$expected', but instead found '$actual'"
-      case None ⇒ s"Expected '$expected', but instead found '$actual'"
+      case None          ⇒ s"Expected '$expected', but instead found '$actual'"
     }
     throw new MashParserException(message, currentLocation)
   }
@@ -170,6 +170,9 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   protected def consumeRequiredToken(context: String, tokenType: TokenType): Token =
     consumeRequiredToken(Some(context), tokenType)
 
+  /**
+    * Consume a token of the given type and return it, if possible, else None
+    */
   protected def consumeOptionalToken(tokenType: TokenType): Option[Token] =
     if (tokenType)
       Some(nextToken())
