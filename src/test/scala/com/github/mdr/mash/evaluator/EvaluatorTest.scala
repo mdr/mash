@@ -873,6 +873,16 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def foo n... (@last m) = m; foo 3" shouldEvaluateTo 3
   "def foo (n = 10) (@last m) = m; foo 3" shouldEvaluateTo 3
 
+  "def fun first (@last second = 10) = { first, second }; fun 1 2" shouldEvaluateTo "{ first: 1, second: 2 }"
+  "def fun first (@last second = 10) = { first, second }; fun --first=1" shouldEvaluateTo "{ first: 1, second: 10 }"
+  "def fun first (@last second = 10) = { first, second }; fun 1" shouldThrowAnException
+
+  "def fun args... (@last arg = 10) = { args, arg }; fun" shouldEvaluateTo "{ args: [], arg: 10 }"
+  "def fun args... (@last arg = 10) = { args, arg }; fun 1" shouldEvaluateTo "{ args: [], arg: 1 }"
+  "def fun args... (@last arg = 10) = { args, arg }; fun 1 2" shouldEvaluateTo "{ args: [1], arg: 2 }"
+  "def fun args... (@last arg = 10) = { args, arg }; fun --arg=20" shouldEvaluateTo "{ args: [], arg: 20 }"
+  "def fun args... (@last arg = 10) = { args, arg }; fun 1 --arg=20" shouldEvaluateTo "{ args: [1], arg: 20 }"
+
   // @flag
   "def foo (@flag m = 10) n = m + n; foo 3" shouldEvaluateTo 13
   "def foo (@flag m) n = m + n; foo 3 --m=20" shouldEvaluateTo 23
