@@ -170,6 +170,12 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   protected def consumeRequiredToken(context: String, tokenType: TokenType): Token =
     consumeRequiredToken(Some(context), tokenType)
 
+  protected def consumeOptionalToken(tokenType: TokenType): Option[Token] =
+    if (tokenType)
+      Some(nextToken())
+    else
+      None
+
   protected def describeToken(tokenType: TokenType) = TokenNames.getOrElse(tokenType, tokenType.toString)
 
   private val TokenNames: Map[TokenType, String] = Map(

@@ -16,7 +16,9 @@ trait FunctionParse {
   }
 
   private def attributes(): Attributes = {
-    val attributes = safeWhile(AT) { attribute() }
+    val attributes = safeWhile(AT) {
+      attribute()
+    }
     Attributes(attributes)
   }
 
@@ -46,34 +48,30 @@ trait FunctionParse {
     ParamList(params)
   }
 
-  protected def parameter(withinParen: Boolean = false): Param =
+  private def parenParam(): ParenParam = {
+    val lparen = consumeRequiredToken("parameter", LPAREN)
+    val attributesOpt = if (AT) Some(attributes()) else None
+    val pat = pattern()
+    val equalsDefaultOpt =
+      if (SHORT_EQUALS) {
+        val equals = nextToken()
+        val defaultExpr = pipeExpr()
+        Some((equals, defaultExpr))
+      } else
+        None
+    val rparen = consumeRequiredToken("parameter", RPAREN)
+    ParenParam(lparen, attributesOpt, PatternParam(pat, equalsDefaultOpt = equalsDefaultOpt), rparen)
+  }
+
+
+  protected def parameter(): Param =
     if (IDENTIFIER) {
       val ident = nextToken()
-      val ellipsisOpt =
-        if (ELLIPSIS)
-          Some(nextToken())
-        else
-          None
+      val ellipsisOpt = consumeOptionalToken(ELLIPSIS)
       PatternParam(IdentPattern(ident), ellipsisOpt)
-    } else if (LPAREN && !withinParen) {
-      val lparen = nextToken()
-      val attributesOpt = if (AT) Some(attributes()) else None
-      val param = parameter(withinParen = true)
-      val actualParam =
-        param match {
-          case patternParam @ PatternParam(pattern, None, None) ⇒
-            if (SHORT_EQUALS) {
-              val equals = nextToken()
-              val defaultExpr = pipeExpr()
-              patternParam.copy(equalsDefaultOpt = Some((equals, defaultExpr)))
-            } else
-              param
-          case _                 ⇒
-            param
-        }
-      val rparen = consumeRequiredToken("parameter", RPAREN)
-      ParenParam(lparen, attributesOpt, actualParam, rparen)
-    } else if (LBRACE || LSQUARE || HOLE)
+    } else if (LPAREN)
+      parenParam()
+    else if (LBRACE || LSQUARE || HOLE)
       PatternParam(pattern())
     else if (forgiving)
       PatternParam(IdentPattern(syntheticToken(IDENTIFIER)))
