@@ -60,7 +60,7 @@ trait FunctionParse {
       } else
         None
     val rparen = consumeRequiredToken("parameter", RPAREN)
-    ParenParam(lparen, attributesOpt, PatternParam(pat, equalsDefaultOpt = equalsDefaultOpt), rparen)
+    ParenParam(lparen, attributesOpt, PatternParam(pat), equalsDefaultOpt, rparen)
   }
 
 

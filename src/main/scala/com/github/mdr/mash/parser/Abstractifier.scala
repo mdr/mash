@@ -115,14 +115,13 @@ class Abstractifier(provenance: Provenance) {
     Abstract.ClassBody(body.methods.map(method ⇒ abstractifyFunctionDeclaration(method.methodDeclaration)))
 
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
-    case Concrete.ParenParam(_, attributesOpt, childParam, _) ⇒
+    case Concrete.ParenParam(_, attributesOpt, childParam, equalsDefaultOpt, _) ⇒
       val attributes = attributesOpt.map(abstractifyAttributes(_)).getOrElse(Seq())
-      abstractifyParam(childParam).copy(attributes = attributes)
-    case Concrete.PatternParam(pattern, ellipsisOpt, equalsDefaultOpt)                 ⇒
       val defaultExprOpt = equalsDefaultOpt.map { case (_, defaultExpr) ⇒ abstractify(defaultExpr) }
+      abstractifyParam(childParam).copy(attributes = attributes, defaultExprOpt = defaultExprOpt)
+    case Concrete.PatternParam(pattern, ellipsisOpt)                 ⇒
       Abstract.FunctionParam(Seq(), pattern.nameOpt, sourceInfoOpt = sourceInfo(pattern),
-        patternOpt = Some(abstractifyPattern(pattern)), isVariadic = ellipsisOpt.isDefined,
-        defaultExprOpt = defaultExprOpt)
+        patternOpt = Some(abstractifyPattern(pattern)), isVariadic = ellipsisOpt.isDefined)
   }
 
   private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {
