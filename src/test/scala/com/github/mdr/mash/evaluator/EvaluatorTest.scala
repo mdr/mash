@@ -886,4 +886,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // @flag
   "def foo (@flag m = 10) n = m + n; foo 3" shouldEvaluateTo 13
   "def foo (@flag m) n = m + n; foo 3 --m=20" shouldEvaluateTo 23
+  "def twice (@lazy @flag body) = (body; body); a = 0; twice --body=(a += 1); a" shouldEvaluateTo 2
+  "def twice (@lazy @flag body) = (body; body); a = 0; twice (a += 1); a" shouldThrowAnException
+
 }
