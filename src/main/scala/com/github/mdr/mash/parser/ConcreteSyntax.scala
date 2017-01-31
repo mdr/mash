@@ -390,8 +390,8 @@ object ConcreteSyntax {
 
   sealed trait Param extends AstNode
 
-  case class PatternParam(pattern: Pattern) extends Param {
-    lazy val tokens = pattern.tokens
+  case class PatternParam(pattern: Pattern, ellipsisOpt: Option[Token] = None) extends Param {
+    lazy val tokens = pattern.tokens ++ ellipsisOpt
 
     def children = Seq(pattern)
   }
@@ -403,12 +403,6 @@ object ConcreteSyntax {
     lazy val tokens = lparen +: (attributesOpt.toSeq.flatMap(_.tokens) ++ param.tokens) :+ rparen
 
     def children = Seq(param)
-  }
-
-  case class VariadicParam(name: Token, ellipsis: Token) extends Param {
-    lazy val tokens = Seq(name, ellipsis)
-
-    def children = Seq()
   }
 
   case class DefaultParam(pattern: Pattern, equals: Token, defaultExpr: Expr) extends Param {
