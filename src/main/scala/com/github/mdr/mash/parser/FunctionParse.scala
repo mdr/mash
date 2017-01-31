@@ -33,9 +33,8 @@ trait FunctionParse {
   }
 
   protected def paramList(): ParamList = {
-    val params = ArrayBuffer[Param]()
-    safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
-      params += parameter()
+    val params = safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
+      parameter()
     }
     ParamList(params)
   }
@@ -98,11 +97,10 @@ trait FunctionParse {
           ShorthandObjectPatternEntry(syntheticToken(IDENTIFIER))
       }
       val firstEntry = parseEntry()
-      val entries = ArrayBuffer[(Token, ObjectPatternEntry)]()
-      safeWhile(COMMA) {
+      val entries = safeWhile(COMMA) {
         val comma = nextToken()
         val entry = parseEntry()
-        entries += (comma -> entry)
+        (comma -> entry)
       }
       val rbrace = consumeRequiredToken("object pattern", RBRACE)
       ObjectPattern(lbrace, Some(ObjectPatternContents(firstEntry, entries)), rbrace)
@@ -126,11 +124,10 @@ trait FunctionParse {
       ListPattern(lsquare, None, rsquare)
     } else {
       val firstElement = pattern()
-      val otherElements = ArrayBuffer[(Token, Pattern)]()
-      safeWhile(COMMA) {
+      val otherElements = safeWhile(COMMA) {
         val comma = nextToken()
         val item = pattern()
-        otherElements += (comma -> item)
+        (comma -> item)
       }
       val rsquare = consumeRequiredToken("list pattern", RSQUARE)
       ListPattern(lsquare, Some(ListPatternContents(firstElement, otherElements)), rsquare)

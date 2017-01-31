@@ -9,9 +9,8 @@ trait MishParse { self: MashParse ⇒
 
   def mishExpr(): MishExpr = {
     val command = mishItem()
-    val args = ArrayBuffer[MishItem]()
-    safeWhile(MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX || LESS_THAN || GREATER_THAN) {
-      args += mishItem()
+    val args = safeWhile(MISH_WORD || STRING_LITERAL || STRING_START || STRING_INTERPOLATION_START_SIMPLE || STRING_INTERPOLATION_START_COMPLEX || LESS_THAN || GREATER_THAN) {
+      mishItem()
     }
     MishExpr(command, args)
   }

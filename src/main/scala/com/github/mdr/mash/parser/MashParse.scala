@@ -32,11 +32,10 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   private def namespaceDeclaration(): NamespaceDeclaration = {
     val namespace = consumeRequiredToken("namespace", NAMESPACE)
     val firstSegment = consumeRequiredToken("namespace", IDENTIFIER)
-    val dotSegments: ArrayBuffer[(Token, Token)] = ArrayBuffer()
-    safeWhile(DOT) {
+    val dotSegments = safeWhile(DOT) {
       val dot = nextToken()
       val segment = consumeRequiredToken("namespace", IDENTIFIER)
-      dotSegments += ((dot, segment))
+      (dot, segment)
     }
     NamespaceDeclaration(namespace, firstSegment, dotSegments)
   }
@@ -132,12 +131,12 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       val op = nextToken()
       val right = additiveExpr()
       if (continueChaining(op)) {
-        val opExprs = ArrayBuffer(op -> right)
-        safeWhile(continueChaining(op)) {
-          val op2 = nextToken()
-          val right2 = additiveExpr()
-          opExprs += (op2 -> right2)
-        }
+        val opExprs = Seq(op -> right) ++
+          safeWhile(continueChaining(op)) {
+            val op2 = nextToken()
+            val right2 = additiveExpr()
+            op2 -> right2
+          }
         ChainedOpExpr(expr, opExprs)
       } else
         BinOpExpr(expr, op, right)
@@ -291,12 +290,12 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       ListExpr(lsquare, None, rsquare)
     } else {
       val firstElement = pipeExpr()
-      val otherElements = ArrayBuffer[(Token, Expr)]()
-      safeWhile(COMMA) {
-        val comma = nextToken()
-        val element = pipeExpr()
-        otherElements += (comma -> element)
-      }
+      val otherElements =
+        safeWhile(COMMA) {
+          val comma = nextToken()
+          val element = pipeExpr()
+          comma -> element
+        }
       val rsquare = consumeRequiredToken("list", RSQUARE)
       ListExpr(lsquare, Some(ListExprContents(firstElement, otherElements)), rsquare)
     }

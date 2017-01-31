@@ -10,12 +10,11 @@ trait InvocationParse { self: MashParse ⇒
 
   protected def invocationExpr(): Expr = {
     val expr = prefixExpr()
-    val args = ListBuffer[AstNode]()
-    safeWhile(!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
+    val args = safeWhile(!(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
       RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS
       || DIVIDE_EQUALS || TILDE || DEF || AT || CLASS || STRING_END || ELLIPSIS)) {
-      args += arg()
+      arg()
     }
     if (args.isEmpty)
       expr
@@ -53,11 +52,10 @@ trait InvocationParse { self: MashParse ⇒
       ParenInvocationExpr(previousExpr, lparen, None, rparen)
     } else {
       val firstArg = pipeExpr()
-      val args = ArrayBuffer[(Token, Expr)]()
-      safeWhile(COMMA) {
+      val args = safeWhile(COMMA) {
         val comma = nextToken()
         val arg = pipeExpr()
-        args += (comma -> arg)
+        (comma -> arg)
       }
       val rparen = consumeRequiredToken("invocation", RPAREN)
       ParenInvocationExpr(previousExpr, lparen, Some(ParenInvocationArgs(firstArg, args)), rparen)

@@ -16,11 +16,10 @@ trait ObjectParse {
       ObjectExpr(lbrace, None, rbrace)
     } else {
       val firstEntry = objectEntry()
-      val entries = ArrayBuffer[(Token, ObjectEntry)]()
-      safeWhile(COMMA) {
+      val entries = safeWhile(COMMA) {
         val comma = nextToken()
         val entry = objectEntry()
-        entries += (comma -> entry)
+        comma -> entry
       }
       val rbrace = consumeRequiredToken("object", RBRACE)
       ObjectExpr(lbrace, Some(ObjectExprContents(firstEntry, entries)), rbrace)

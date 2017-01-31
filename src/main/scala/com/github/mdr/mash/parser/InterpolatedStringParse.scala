@@ -9,9 +9,8 @@ trait InterpolatedStringParse { self: MashParse ⇒
 
   protected def interpolatedString(): InterpolatedString = {
     val stringStart = nextToken()
-    val parts = ArrayBuffer[InterpolationPart]()
-    safeWhile(STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE) {
-      parts += interpolationPart()
+    val parts = safeWhile(STRING_MIDDLE || STRING_INTERPOLATION_START_COMPLEX || STRING_INTERPOLATION_START_SIMPLE) {
+      interpolationPart()
     }
     val end = consumeRequiredToken("interpolated string", STRING_END)
     InterpolatedString(stringStart, parts, end)
@@ -34,7 +33,7 @@ trait InterpolatedStringParse { self: MashParse ⇒
         Identifier(nextToken())
       else
         errorExpectedToken(Some("interpolation"), "identifier or _") // shouldn't happen
-    safeWhile(DOT) {
+    safeWhile(DOT) { // DOT_NULL_SAFE?
       val dot = nextToken()
       val ident = consumeRequiredToken("interpolation", IDENTIFIER)
       expr = MemberExpr(expr, dot, ident)
