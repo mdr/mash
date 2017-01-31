@@ -37,7 +37,7 @@ class MashParserTest extends FlatSpec with Matchers {
     val Seq(x, arrow, x2, pipe, a, eof) = MashLexer.tokenise(s).tokens
     // x ⇒ (x | a)
     parse(s) should equal(
-      LambdaExpr(ParamList(Seq(SimpleParam(x))), arrow,
+      LambdaExpr(ParamList(Seq(PatternParam(IdentPattern(x)))), arrow,
         PipeExpr(
           Identifier(x2),
           pipe,
@@ -50,10 +50,10 @@ class MashParserTest extends FlatSpec with Matchers {
     // (x ⇒ y ⇒ y) | length
     parse(s) should equal(
       LambdaExpr(
-        ParamList(Seq(SimpleParam(x))),
+        ParamList(Seq(PatternParam(IdentPattern(x)))),
         arr,
         LambdaExpr(
-          ParamList(Seq(SimpleParam(y))),
+          ParamList(Seq(PatternParam(IdentPattern(y)))),
           arr2,
           PipeExpr(
             Identifier(y2),
@@ -70,7 +70,7 @@ class MashParserTest extends FlatSpec with Matchers {
         PipeExpr(
           Identifier(a),
           pipe,
-          LambdaExpr(ParamList(Seq(SimpleParam(x))), arrow,
+          LambdaExpr(ParamList(Seq(PatternParam(IdentPattern(x)))), arrow,
             Identifier(x2))),
         pipe2,
         Identifier(b)))
@@ -86,8 +86,8 @@ class MashParserTest extends FlatSpec with Matchers {
         PipeExpr(
           Identifier(a),
           pipe,
-          LambdaExpr(ParamList(Seq(SimpleParam(x))), arr,
-            LambdaExpr(ParamList(Seq(SimpleParam(y))), arr2,
+          LambdaExpr(ParamList(Seq(PatternParam(IdentPattern(x)))), arr,
+            LambdaExpr(ParamList(Seq(PatternParam(IdentPattern(y)))), arr2,
               Identifier(y2)))),
         pipe2,
         Identifier(b)))

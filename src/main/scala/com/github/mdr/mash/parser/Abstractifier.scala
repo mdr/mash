@@ -115,8 +115,6 @@ class Abstractifier(provenance: Provenance) {
     Abstract.ClassBody(body.methods.map(method ⇒ abstractifyFunctionDeclaration(method.methodDeclaration)))
 
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
-    case Concrete.SimpleParam(name)                     ⇒
-      Abstract.FunctionParam(Seq(), Some(name.text), sourceInfoOpt = sourceInfo(param))
     case Concrete.VariadicParam(name, _)                ⇒
       Abstract.FunctionParam(Seq(), Some(name.text), isVariadic = true, sourceInfoOpt = sourceInfo(param))
     case Concrete.ParenParam(_, attributesOpt, childParam, _) ⇒
@@ -126,7 +124,7 @@ class Abstractifier(provenance: Provenance) {
       Abstract.FunctionParam(Seq(), pattern.nameOpt, defaultExprOpt = Some(abstractify(defaultExpr)),
         sourceInfoOpt = sourceInfo(param), patternOpt = Some(abstractifyPattern(pattern)))
     case Concrete.PatternParam(pattern)                 ⇒
-      Abstract.FunctionParam(Seq(), None, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
+      Abstract.FunctionParam(Seq(), pattern.nameOpt, sourceInfoOpt = sourceInfo(pattern), patternOpt = Some(abstractifyPattern(pattern)))
   }
 
   private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {

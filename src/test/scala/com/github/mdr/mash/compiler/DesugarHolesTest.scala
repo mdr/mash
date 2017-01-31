@@ -38,8 +38,8 @@ class DesugarHolesTest extends FlatSpec with Matchers {
   private def renameHoleVariable(e: Expr): Expr = e.transform {
     case Identifier(DesugarHoles.VariableName, _) ⇒
       Identifier("x", None)
-    case LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some(DesugarHoles.VariableName), isVariadic, defaultExprOpt, patternOpt, _))), body, _) ⇒
-      LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some("x"), isVariadic, defaultExprOpt, patternOpt, None))), body, None)
+    case LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some(DesugarHoles.VariableName), isVariadic, defaultExprOpt, patternOpt, source))), body, _) ⇒
+      LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some("x"), isVariadic, defaultExprOpt, Some(IdentPattern("x")), None))), body, None)
   }
 
 }

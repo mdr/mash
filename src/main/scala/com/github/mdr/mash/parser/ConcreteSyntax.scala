@@ -390,12 +390,6 @@ object ConcreteSyntax {
 
   sealed trait Param extends AstNode
 
-  case class SimpleParam(name: Token) extends Param {
-    lazy val tokens = Seq(name)
-
-    def children = Seq()
-  }
-
   case class PatternParam(pattern: Pattern) extends Param {
     lazy val tokens = pattern.tokens
 

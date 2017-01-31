@@ -53,18 +53,18 @@ trait FunctionParse {
         val ellipsis = nextToken()
         VariadicParam(ident, ellipsis)
       } else
-        SimpleParam(ident)
+        PatternParam(IdentPattern(ident))
     } else if (LPAREN && !withinParen) {
       val lparen = nextToken()
       val attributesOpt = if (AT) Some(attributes()) else None
       val param = parameter(withinParen = true)
       val actualParam =
         param match {
-          case SimpleParam(name) ⇒
+          case PatternParam(pattern) ⇒
             if (SHORT_EQUALS) {
               val equals = nextToken()
               val defaultExpr = pipeExpr()
-              DefaultParam(IdentPattern(name), equals, defaultExpr)
+              DefaultParam(pattern, equals, defaultExpr)
             } else
               param
           case _                 ⇒
@@ -82,7 +82,7 @@ trait FunctionParse {
         PatternParam(pat)
     }
     else if (forgiving)
-      SimpleParam(syntheticToken(IDENTIFIER))
+      PatternParam(IdentPattern(syntheticToken(IDENTIFIER)))
     else
       errorExpectedToken(Some("parameter"), "identifier")
 

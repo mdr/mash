@@ -67,10 +67,13 @@ trait AstNodeTransformation {
     case MishRedirect(op, arg, sourceInfoOpt)                                              ⇒
       MishRedirect(op, arg.transform(f), sourceInfoOpt)
     case FunctionDeclaration(attributes, docCommentOpt, name, params, body, sourceInfoOpt) ⇒
-      FunctionDeclaration(attributes, docCommentOpt, name, params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
+      val transformedAttributes = attributes.map(_.transform(f).asInstanceOf[Attribute])
+      val transformedParams = params.transform(f).asInstanceOf[ParamList]
+      FunctionDeclaration(transformedAttributes, docCommentOpt, name, transformedParams, body.transform(f), sourceInfoOpt)
     case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)             ⇒
-      ClassDeclaration(docCommentOpt, name, params.transform(f).asInstanceOf[ParamList],
-        bodyOpt.map(_.transform(f).asInstanceOf[ClassBody]), sourceInfoOpt)
+      val transformedParams = params.transform(f).asInstanceOf[ParamList]
+      val transformedBodyOpt = bodyOpt.map(_.transform(f).asInstanceOf[ClassBody])
+      ClassDeclaration(docCommentOpt, name, transformedParams, transformedBodyOpt, sourceInfoOpt)
     case ClassBody(methods, sourceInfoOpt)                                                 ⇒
       ClassBody(methods.map(_.transform(f).asInstanceOf[FunctionDeclaration]), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                     ⇒
@@ -80,7 +83,9 @@ trait AstNodeTransformation {
     case StringPart(_)                                                                     ⇒
       this
     case FunctionParam(attributes, name, isVariadic, defaultOpt, patternOpt, sourceInfoOpt)    ⇒
-      FunctionParam(attributes, name, isVariadic, defaultOpt.map(_.transform(f)), patternOpt, sourceInfoOpt)
+      val transformedAttributes = attributes.map(_.transform(f).asInstanceOf[Attribute])
+      val transformedPattern = patternOpt.map(_.transform(f).asInstanceOf[Pattern])
+      FunctionParam(transformedAttributes, name, isVariadic, defaultOpt.map(_.transform(f)), transformedPattern, sourceInfoOpt)
     case Argument.PositionArg(expr, sourceInfoOpt)                                         ⇒
       Argument.PositionArg(expr.transform(f), sourceInfoOpt)
     case Argument.ShortFlag(_, _)                                                          ⇒

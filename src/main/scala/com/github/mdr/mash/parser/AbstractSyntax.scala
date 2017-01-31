@@ -77,7 +77,7 @@ object AbstractSyntax {
   case class ObjectPattern(entries: Seq[ObjectPatternEntry], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
-    def children = entries.flatMap(_.children)
+    def children = entries
 
     def boundNames: Seq[String] = entries.flatMap(_.boundNames)
   }
@@ -85,7 +85,7 @@ object AbstractSyntax {
   case class ListPattern(patterns: Seq[Pattern], sourceInfoOpt: Option[SourceInfo] = None) extends Pattern {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
-    def children = patterns.flatMap(_.children)
+    def children = patterns
 
     def boundNames: Seq[String] = patterns.flatMap(_.boundNames)
   }
@@ -360,9 +360,9 @@ object AbstractSyntax {
                            sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
-    def children = defaultExprOpt.toSeq
+    def children = attributes ++ defaultExprOpt ++ patternOpt
 
-    def boundNames: Seq[String] = nameOpt.toSeq ++ patternOpt.toSeq.flatMap(_.boundNames)
+    def boundNames: Seq[String] = (nameOpt.toSeq ++ patternOpt.toSeq.flatMap(_.boundNames)).distinct
 
     def isLazy = attributes.exists(_.name == Attributes.Lazy)
 
