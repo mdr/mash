@@ -93,7 +93,7 @@ class Abstractifier(provenance: Provenance) {
     }
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
-    val Concrete.FunctionDeclaration(attributesOpt ,_, _, name, params, _, body) = decl
+    val Concrete.FunctionDeclaration(attributesOpt, _, _, name, params, _, body) = decl
     val abstractParams = abstractifyParamList(params)
     val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
     val attributes = attributesOpt.map(abstractifyAttributes).getOrElse(Seq())
@@ -115,13 +115,13 @@ class Abstractifier(provenance: Provenance) {
     Abstract.ClassBody(body.methods.map(method ⇒ abstractifyFunctionDeclaration(method.methodDeclaration)))
 
   private def abstractifyParam(param: Concrete.Param): Abstract.FunctionParam = param match {
+    case Concrete.SimpleParam(pattern, ellipsisOpt)                             ⇒
+      Abstract.FunctionParam(Seq(), pattern.nameOpt, sourceInfoOpt = sourceInfo(pattern),
+        patternOpt = Some(abstractifyPattern(pattern)), isVariadic = ellipsisOpt.isDefined)
     case Concrete.ParenParam(_, attributesOpt, childParam, equalsDefaultOpt, _) ⇒
       val attributes = attributesOpt.map(abstractifyAttributes(_)).getOrElse(Seq())
       val defaultExprOpt = equalsDefaultOpt.map { case (_, defaultExpr) ⇒ abstractify(defaultExpr) }
       abstractifyParam(childParam).copy(attributes = attributes, defaultExprOpt = defaultExprOpt)
-    case Concrete.PatternParam(pattern, ellipsisOpt)                 ⇒
-      Abstract.FunctionParam(Seq(), pattern.nameOpt, sourceInfoOpt = sourceInfo(pattern),
-        patternOpt = Some(abstractifyPattern(pattern)), isVariadic = ellipsisOpt.isDefined)
   }
 
   private def abstractifyObjectPatternEntry(entry: Concrete.ObjectPatternEntry): Abstract.ObjectPatternEntry = entry match {

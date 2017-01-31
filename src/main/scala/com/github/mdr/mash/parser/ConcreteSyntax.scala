@@ -390,8 +390,8 @@ object ConcreteSyntax {
 
   sealed trait Param extends AstNode
 
-  case class PatternParam(pattern: Pattern,
-                          ellipsisOpt: Option[Token] = None) extends Param {
+  case class SimpleParam(pattern: Pattern,
+                         ellipsisOpt: Option[Token] = None) extends Param {
 
     lazy val tokens = pattern.tokens ++ ellipsisOpt
 
@@ -400,7 +400,7 @@ object ConcreteSyntax {
 
   case class ParenParam(lparen: Token,
                         attributesOpt: Option[Attributes],
-                        param: Param,
+                        param: SimpleParam,
                         equalsDefaultOpt: Option[(Token, Expr)] = None,
                         rparen: Token) extends Param {
 

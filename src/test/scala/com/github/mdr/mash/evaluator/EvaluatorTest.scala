@@ -572,6 +572,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def mkList n... = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
   "def mkList n... = n; mkList" shouldEvaluateTo "[]"
   "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" shouldEvaluateTo "[4, 5, 1, 2, 3]"
+  "def mkList (n...) = n; mkList 1 2 3" shouldEvaluateTo "[1, 2, 3]"
 
   "a = ['aa', 'bbb', 'c'].sortBy; a length" shouldEvaluateTo "['c', 'aa', 'bbb']"
 
@@ -711,6 +712,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo 101
   "def fun ({ foo } = { foo: 42 }) = foo + 1; fun" shouldEvaluateTo 43
   "def fun ({ foo } = { foo: 42 }) = foo + 1; fun { foo: 100 }" shouldEvaluateTo 101
+  "def mkList (xs... = [1, 2, 3]) = xs; mkList" shouldEvaluateTo "[1, 2, 3]"
+  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[]" shouldEvaluateTo "[]"
+  "def mkList (xs... = null) = xs; mkList" shouldEvaluateTo "null"
 
   // holes
   "def baz = 128 + _; (baz) 72" shouldEvaluateTo 200

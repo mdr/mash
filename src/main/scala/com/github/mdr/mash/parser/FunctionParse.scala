@@ -41,9 +41,8 @@ trait FunctionParse {
   }
 
   protected def classParamList(): ParamList = {
-    val params = ArrayBuffer[Param]()
-    safeWhile(IDENTIFIER || LPAREN || LSQUARE || HOLE) {
-      params += parameter()
+    val params = safeWhile(IDENTIFIER || LPAREN || LSQUARE || HOLE) {
+      parameter()
     }
     ParamList(params)
   }
@@ -52,6 +51,8 @@ trait FunctionParse {
     val lparen = consumeRequiredToken("parameter", LPAREN)
     val attributesOpt = if (AT) Some(attributes()) else None
     val pat = pattern()
+    val ellipsisOpt = consumeOptionalToken(ELLIPSIS)
+    val childParam = SimpleParam(pat, ellipsisOpt)
     val equalsDefaultOpt =
       if (SHORT_EQUALS) {
         val equals = nextToken()
@@ -60,23 +61,22 @@ trait FunctionParse {
       } else
         None
     val rparen = consumeRequiredToken("parameter", RPAREN)
-    ParenParam(lparen, attributesOpt, PatternParam(pat), equalsDefaultOpt, rparen)
+    ParenParam(lparen, attributesOpt, childParam, equalsDefaultOpt, rparen)
   }
-
 
   protected def parameter(): Param =
     if (IDENTIFIER) {
       val ident = nextToken()
       val ellipsisOpt = consumeOptionalToken(ELLIPSIS)
-      PatternParam(IdentPattern(ident), ellipsisOpt)
+      SimpleParam(IdentPattern(ident), ellipsisOpt)
     } else if (LPAREN)
       parenParam()
     else if (LBRACE || LSQUARE || HOLE)
-      PatternParam(pattern())
-    else if (forgiving)
-      PatternParam(IdentPattern(syntheticToken(IDENTIFIER)))
-    else
-      errorExpectedToken(Some("parameter"), "identifier")
+      SimpleParam(pattern())
+    else {
+      val ident = consumeRequiredToken("parameter", IDENTIFIER)
+      SimpleParam(IdentPattern(ident))
+    }
 
   private def objectPattern(): ObjectPattern = {
     val lbrace = nextToken()
