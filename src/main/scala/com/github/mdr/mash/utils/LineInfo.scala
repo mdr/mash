@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 class LineInfo(s: String) {
 
-  private val lineStarts = findLineStarts(0, Seq(0))
+  private val lineStarts: Seq[Int] = findLineStarts(0, Seq(0))
 
   val lines: Seq[String] = s.split("""\r?\n""", -1)
 
@@ -21,9 +21,9 @@ class LineInfo(s: String) {
     else
       findLineStarts(pos + 1, if (s(pos) == '\n') lineStarts :+ (pos + 1) else lineStarts)
 
-  def lineStart(line: Int) = lineStarts(line)
+  def lineStart(line: Int): Int = lineStarts(line)
 
-  def lineEnd(line: Int) = if (line >= lines.size - 1) s.length else lineStarts(line + 1)
+  def lineEnd(line: Int): Int = if (line >= lines.size - 1) s.length else lineStarts(line + 1)
 
   def lineRegion(line: Int): Region = {
     val offset = lineStarts(line)

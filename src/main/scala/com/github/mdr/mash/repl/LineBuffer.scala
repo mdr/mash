@@ -98,12 +98,24 @@ case class LineBuffer(text: String, cursorOffset: Int) {
     else
       delete(cursorOffset)
 
-  def moveCursorToStart: LineBuffer = withCursorColumn(0)
+  def moveCursorToStartOfBuffer: LineBuffer = withCursorOffset(0)
 
-  def moveCursorToEnd: LineBuffer = {
+  def moveCursorToStartOfLine: LineBuffer = withCursorColumn(0)
+
+  def moveCursorToEndOfBuffer: LineBuffer = withCursorOffset(text.length)
+
+  def moveCursorToEndOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
     withCursorColumn(line.size)
   }
+
+  private def isAtStartOfLine: Boolean = lineInfo.lineStart(cursorPos.row) == cursorOffset
+
+  private def isAtEndOfLine: Boolean = lineInfo.lineEnd(cursorPos.row) - 1 == cursorOffset
+
+  def moveCursorToStart = if (isAtStartOfLine) moveCursorToStartOfBuffer else moveCursorToStartOfLine
+
+  def moveCursorToEnd = if (isAtEndOfLine) moveCursorToEndOfBuffer else moveCursorToEndOfLine
 
   def up: LineBuffer =
     cursorPos.row match {

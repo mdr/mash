@@ -107,6 +107,49 @@ class LineBufferTest extends FlatSpec with Matchers {
       lineBuffer("abc▶def"))
   }
 
+  it should "let you move to the beginning of the line" in {
+    lineBuffer("abc▶").moveCursorToStartOfLine should equal(lineBuffer("▶abc"))
+    lineBuffer("abc▶def").moveCursorToStartOfLine should equal(lineBuffer("▶abcdef"))
+    lineBuffer("▶abc").moveCursorToStartOfLine should equal(lineBuffer("▶abc"))
+    lineBuffer("▶").moveCursorToStartOfLine should equal(lineBuffer("▶"))
+
+    lineBuffer("""abc
+                 |def▶""".stripMargin).moveCursorToStartOfLine should equal(
+      lineBuffer("""abc
+                   |▶def""".stripMargin))
+  }
+
+  it should "let you move to the end of the line" in {
+    lineBuffer("abc▶").moveCursorToEndOfLine should equal(lineBuffer("abc▶"))
+    lineBuffer("abc▶def").moveCursorToEndOfLine should equal(lineBuffer("abcdef▶"))
+    lineBuffer("▶abc").moveCursorToEndOfLine should equal(lineBuffer("abc▶"))
+    lineBuffer("▶").moveCursorToEndOfLine should equal(lineBuffer("▶"))
+
+    lineBuffer("""abc
+                 |▶def""".stripMargin).moveCursorToEndOfLine should equal(
+      lineBuffer("""abc
+                   |def▶""".stripMargin))
+  }
+
+  it should "let you move to the beginning of the buffer if at the beginning of a line, else the start of the line" in {
+    lineBuffer("""abc
+                 |▶def""".stripMargin).moveCursorToStart should equal(
+      lineBuffer("""▶abc
+                   |def""".stripMargin))
+
+    lineBuffer("""abc
+                 |d▶ef""".stripMargin).moveCursorToStart should equal(
+      lineBuffer("""abc
+                   |▶def""".stripMargin))
+  }
+
+  it should "let you move to the end of the buffer if at the end of a line, else the end of the line" in {
+    lineBuffer("""ab▶c
+                 |def""".stripMargin).moveCursorToEnd should equal(
+      lineBuffer("""abc▶
+                   |def""".stripMargin))
+  }
+
   private def lineBuffer(s: String) = LineBufferTestHelper.parseLineBuffer(s.stripMargin)
 
 }
