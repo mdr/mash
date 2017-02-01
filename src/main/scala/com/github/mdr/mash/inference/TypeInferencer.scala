@@ -224,12 +224,7 @@ class TypeInferencer {
     bindings.get(identifier.name).when(immediateExec, inferImmediateExec(_, Some(identifier)))
 
   private def inferType(name: String, bindings: Map[String, Type], immediateExec: Boolean): Option[Type] =
-    bindings.get(name).flatMap {
-      case typ@Type.BuiltinFunction(f) if f.allowsNullary && immediateExec ⇒
-        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), TypedArguments())
-      case x                                                               ⇒
-        Some(x)
-    }
+    bindings.get(name).when(immediateExec, inferImmediateExec(_))
 
   private def inferType(objectExpr: ObjectExpr, bindings: Map[String, Type]): Option[Type] = {
     val ObjectExpr(entries, _) = objectExpr
@@ -525,7 +520,7 @@ class TypeInferencer {
   /**
     * Infer the type of an immediately-invoked nullary expression
     */
-  private def inferImmediateExec(intermediateTypeOpt: Option[Type], exprOpt: Option[Expr]): Option[Type] =
+  private def inferImmediateExec(intermediateTypeOpt: Option[Type], exprOpt: Option[Expr] = None): Option[Type] =
     intermediateTypeOpt match {
       case Some(Type.BuiltinFunction(f)) if f.allowsNullary                                             ⇒
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)

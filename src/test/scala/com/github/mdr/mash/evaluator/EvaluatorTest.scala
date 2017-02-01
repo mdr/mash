@@ -703,6 +703,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ 'foo': 42 }.foo" shouldEvaluateTo 42
   "{ ('foo' + 'bar'): 42 }" shouldEvaluateTo "{ foobar: 42 }"
   "foo = 42; bar = 128; { foo, bar }" shouldEvaluateTo "{ foo: 42, bar: 128 }"
+  "def pi = 3.14; { pi }" shouldEvaluateTo "{ pi: 3.14 }"
 
   // Semicolon inference
   """|a = 1

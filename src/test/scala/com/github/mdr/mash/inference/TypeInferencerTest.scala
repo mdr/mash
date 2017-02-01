@@ -25,9 +25,11 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "42" shouldBeInferredAsHavingType NumberClass
 
+  // Object literals
   "{ foo: 42 }.foo" shouldBeInferredAsHavingType NumberClass
   "{ foo: 42 }" shouldBeInferredAsHavingType obj("foo" -> NumberClass)
   "foo = 42; { foo }" shouldBeInferredAsHavingType obj("foo" -> NumberClass)
+  "def foo = 42; { foo }" shouldBeInferredAsHavingType obj("foo" -> NumberClass)
   "{ bar: '{ foo : 42 }' | json.fromString | .foo }" shouldBeInferredAsHavingType obj("bar" -> AnyClass)
 
   "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberClass

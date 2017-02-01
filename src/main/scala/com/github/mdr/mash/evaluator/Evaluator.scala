@@ -102,7 +102,10 @@ object Evaluator extends EvaluatorHelper {
       }
     val fields = objectExpr.fields.map {
       case FullObjectEntry(field, value, _)           ⇒ getFieldName(field) -> evaluate(value)
-      case ShorthandObjectEntry(field, sourceInfoOpt) ⇒ field -> evaluateIdentifier(field, sourceInfoOpt.map(_.location))
+      case entry @ ShorthandObjectEntry(field, sourceInfoOpt) ⇒
+        val evaluatedIdentifier = evaluateIdentifier(field, sourceInfoOpt.map(_.location))
+        val finalResult = invokeNullaryFunctions(evaluatedIdentifier, sourceLocation(entry))
+        field -> finalResult
     }
     MashObject.of(fields)
   }
@@ -115,7 +118,6 @@ object Evaluator extends EvaluatorHelper {
   def evaluateThisExpr(thisExpr: ThisExpr)(implicit context: EvaluationContext): MashValue = context.scopeStack.thisOpt.getOrElse {
     throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
   }
-
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
     evaluateIdentifier(identifier.name, sourceLocation(identifier))
