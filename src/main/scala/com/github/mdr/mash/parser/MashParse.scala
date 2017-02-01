@@ -267,7 +267,9 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
 
   private def blockExpr(): BlockExpr = {
     val lbrace = nextToken()
-    val statements = statementSeq()
+    val statements = semisAllowed {
+      statementSeq()
+    }
     val rbrace = consumeRequiredToken("block", RBRACE)
     BlockExpr(lbrace, statements, rbrace)
   }

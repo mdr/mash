@@ -20,8 +20,9 @@ trait FunctionParse {
   protected def functionDeclaration(): FunctionDeclaration = {
     val attributesOpt = if (AT) Some(attributes()) else None
     val defToken = consumeRequiredToken("function", DEF)
-    val name = consumeRequiredToken("function", IDENTIFIER)
-    val params = paramList()
+    val (name, params) = noSemis {
+      consumeRequiredToken("function", IDENTIFIER) -> paramList()
+    }
     val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val body = pipeExpr()
     FunctionDeclaration(attributesOpt, docComment(defToken), defToken, name, params, equals, body)

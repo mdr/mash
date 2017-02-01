@@ -27,6 +27,11 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private var inferredSemi: Boolean = false
 
   /**
+    * Indicate that semicolons can be inferred in this region.
+    */
+  private var withinSemiInferrableRegion = true
+
+  /**
     * Return the current token. If it's past the end of the token sequence, then return the last token (EOF).
     */
   protected def currentToken: Token = {
@@ -46,7 +51,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   private def currentSequenceToken: Token = getToken(pos)
 
   private def shouldInferSemicolon(token: Token): Boolean =
-    lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
+    withinSemiInferrableRegion && lexerResult.inferredSemicolonCandidates.contains(token) && !inferredSemi
 
   protected def docComment(token: Token): Option[LexerDocComment] = lexerResult.docComments.get(token)
 
@@ -60,12 +65,14 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     // Step forward through the token stream to make use of the semicolon inference logic, then rewind
     val oldPos = pos
     val oldInferredSemi = inferredSemi
+    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
     try {
       for (_ ← 1 to n) nextToken()
       nextToken().tokenType
     } finally {
       pos = oldPos
       inferredSemi = oldInferredSemi
+      withinSemiInferrableRegion = oldWithinSemiInferrableRegion
     }
   }
 
@@ -103,12 +110,37 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   /**
+    * Indicate that any parsing done during the given thunk should not include inferred SEMIs.
+    */
+  protected def noSemis[T](p: ⇒ T): T = {
+    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
+    withinSemiInferrableRegion = false
+    try
+      p
+    finally
+      withinSemiInferrableRegion = oldWithinSemiInferrableRegion
+  }
+
+  /**
+    * Indicate that any parsing done during the given thunk should include inferred SEMIs.
+    */
+  protected def semisAllowed[T](p: ⇒ T): T = {
+    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
+    withinSemiInferrableRegion = true
+    try
+      p
+    finally
+      withinSemiInferrableRegion = oldWithinSemiInferrableRegion
+  }
+
+  /**
     * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
     * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
     */
   protected def speculate[T](p: ⇒ T): Option[T] = {
     val oldPos = pos
     val oldInferredSemi = inferredSemi
+    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
     val oldForgiving = forgiving
     forgiving = false
     try
@@ -117,6 +149,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       case _: MashParserException ⇒
         pos = oldPos
         inferredSemi = oldInferredSemi
+        withinSemiInferrableRegion = oldWithinSemiInferrableRegion
         None
     } finally
       forgiving = oldForgiving

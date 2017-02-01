@@ -706,14 +706,27 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def pi = 3.14; { pi }" shouldEvaluateTo "{ pi: 3.14 }"
 
   // Semicolon inference
-  """|a = 1
+  """a = 1
     |b = a + 1
     |a + b""" shouldEvaluateTo 3
 
-  """|a = 1
+  """a = 1
     |b = a +
     |  1
     |a + b""" shouldEvaluateTo 3
+
+  """def foo (arg1 = 10)
+    |        (arg2 = 20) = 42
+    |foo
+  """ shouldEvaluateTo 42
+
+  """def foo (arg1 = {
+    |           a = 10
+    |           b = 20
+    |           a + b
+    |        }) = arg1
+    |foo
+  """ shouldEvaluateTo 30
 
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo 43
