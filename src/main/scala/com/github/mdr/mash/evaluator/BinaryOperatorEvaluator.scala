@@ -58,54 +58,60 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     (left, right) match {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
-      case _ ⇒
+      case _                                     ⇒
         throw new EvaluatorException(s"Could not $name, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
 
   private def multiply(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]) = (left, right) match {
     case (left: MashString, right: MashNumber) if right.isInt ⇒ left * right.asInt.get
-    case (left: MashNumber, right: MashString) if left.isInt ⇒ right * left.asInt.get
-    case (left: MashList, right: MashNumber) if right.isInt ⇒ left * right.asInt.get
-    case (left: MashNumber, right: MashList) if left.isInt ⇒ right * left.asInt.get
-    case (left: MashNumber, right: MashNumber) ⇒ left * right
-    case _ ⇒ throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+    case (left: MashNumber, right: MashString) if left.isInt  ⇒ right * left.asInt.get
+    case (left: MashList, right: MashNumber) if right.isInt   ⇒ left * right.asInt.get
+    case (left: MashNumber, right: MashList) if left.isInt    ⇒ right * left.asInt.get
+    case (left: MashNumber, right: MashNumber)                ⇒ left * right
+    case _                                                    ⇒ throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   private implicit class RichInstant(instant: Instant) {
     def +(duration: TemporalAmount): Instant = instant.plus(duration)
+
     def -(duration: TemporalAmount): Instant = instant.minus(duration)
   }
 
   def add(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue = (left, right) match {
-    case (xs: MashList, ys: MashList)          ⇒ xs ++ ys
-    case (s: MashString, right)                ⇒ s + right
-    case (left, s: MashString)                 ⇒ s.rplus(left)
-    case (left: MashNumber, right: MashNumber) ⇒ left + right
-    case (left: MashObject, right: MashObject) ⇒ left + right
+    case (xs: MashList, ys: MashList)                                                 ⇒ xs ++ ys
+    case (s: MashString, right)                                                       ⇒ s + right
+    case (left, s: MashString)                                                        ⇒ s.rplus(left)
+    case (left: MashNumber, right: MashNumber)                                        ⇒ left + right
+    case (left: MashObject, right: MashObject)                                        ⇒ left + right
     case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
-    case _ ⇒
+    case _                                                                            ⇒
       throw new EvaluatorException(s"Could not add, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue =
     (left, right) match {
-      case (left: MashNumber, right: MashNumber) ⇒
+      case (left: MashNumber, right: MashNumber)                                        ⇒
         left - right
       case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
         MashWrapped(instant - klass.temporalAmount(n.toInt))
-      case (MashWrapped(instant1: Instant), MashWrapped(instant2: Instant)) ⇒
+      case (MashWrapped(instant1: Instant), MashWrapped(instant2: Instant))             ⇒
         val duration = Duration.between(instant2, instant1)
         val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
         MashNumber(millis, Some(MillisecondsClass))
-      case (left: MashObject, right: MashString) ⇒
+      case (left: MashObject, right: MashString)                                        ⇒
         left - right.s
-      case (left: MashList, right: MashList) ⇒
+      case (left: MashList, right: MashList)                                            ⇒
         left.diff(right)
-      case _ ⇒
+      case (left: MashObject, right: MashList)                                          ⇒
+        left - right.elements.map {
+          case MashString(s, _) ⇒ s
+          case element          ⇒ throw new EvaluatorException(s"Cannot subtract a value of type ${element.typeName} from an object", locationOpt)
+        }
+      case _                                                                            ⇒
         throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
-  
+
 }

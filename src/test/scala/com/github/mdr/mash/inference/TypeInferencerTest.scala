@@ -26,9 +26,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "42" shouldBeInferredAsHavingType NumberClass
 
   "{ foo: 42 }.foo" shouldBeInferredAsHavingType NumberClass
-  "{ foo: 42 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
-  "foo = 42; { foo }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass))
-  "{ bar: '{ foo : 42 }' | json.fromString | .foo }" shouldBeInferredAsHavingType Object(Map("bar" -> AnyClass))
+  "{ foo: 42 }" shouldBeInferredAsHavingType obj("foo" -> NumberClass)
+  "foo = 42; { foo }" shouldBeInferredAsHavingType obj("foo" -> NumberClass)
+  "{ bar: '{ foo : 42 }' | json.fromString | .foo }" shouldBeInferredAsHavingType obj("bar" -> AnyClass)
 
   "[{ foo: 42 }] | map (_.foo) | first" shouldBeInferredAsHavingType NumberClass
 
@@ -50,11 +50,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   " 'foo'.untagged + 'bar'.untagged" shouldBeInferredAsHavingType StringClass
   "42 + 24" shouldBeInferredAsHavingType NumberClass
   "[1] + [2]" shouldBeInferredAsHavingType Seq(NumberClass)
-  "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass, "bar" -> NumberClass))
+  "{ foo: 42 } + { bar: 100 }" shouldBeInferredAsHavingType obj("foo" -> NumberClass, "bar" -> NumberClass)
 
   // subtraction
   "2 - 1" shouldBeInferredAsHavingType NumberClass
-  "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType Object(Map("bar" -> NumberClass))
+  "{ foo: 42, bar: 100 } - 'foo'" shouldBeInferredAsHavingType obj("bar" -> NumberClass)
+  "{ foo: 42, bar: 100, baz: 128 } - ['foo', 'baz']" shouldBeInferredAsHavingType obj("bar" -> NumberClass)
+  // "field = 'foo'; { foo: 42, bar: 100 } - field" shouldBeInferredAsHavingType obj("bar" -> NumberClass)
+
   "[1, 2, 3] - [2]" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // Multiplication
@@ -246,7 +249,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3] | reduce (x y => x + [y]) []" shouldBeInferredAsHavingType Seq(NumberClass)
 
   // Object.withField
-  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType Object(Map("foo" -> NumberClass, "bar" -> NumberClass))
+  "{ foo: 42 }.withField 'bar' 256" shouldBeInferredAsHavingType obj("foo" -> NumberClass, "bar" -> NumberClass)
   "ls.first.withField 'bar' 256" shouldBeInferredAsHavingType PathSummaryClass
 
   // Object.get
@@ -270,7 +273,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // .hoist
   "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" shouldBeInferredAsHavingType
-    Object(Map("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass))
+    obj("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass)
 
   // statements
   "a = 42; a" shouldBeInferredAsHavingType NumberClass
@@ -292,9 +295,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
         "name" -> StringClass,
         "addresses" ->
           Seq(
-            Object(Map(
+            obj(
               "houseNumber" -> StringClass,
-              "postcode" -> StringClass)))))
+              "postcode" -> StringClass))))
 
   "42.isNull" shouldBeInferredAsHavingType BooleanClass
   "42.isTruthy" shouldBeInferredAsHavingType BooleanClass

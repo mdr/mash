@@ -625,6 +625,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42, bar: 100 } - 'foo'" shouldEvaluateTo "{ bar: 100 }"
   "{ foo: 42 } - 'bar'" shouldEvaluateTo "{ foo: 42 }"
 
+  "{ foo: 42 } - []" shouldEvaluateTo "{ foo: 42 }"
+  "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo']" shouldEvaluateTo "{ bar: 2 }"
+  "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo', 'notInObject']" shouldEvaluateTo "{ bar: 2 }"
+
   // list subtraction
   "[1, 2, 3, 4] - [2, 4]" shouldEvaluateTo "[1, 3]"
   "[1, 2, 3, 4] - []" shouldEvaluateTo "[1, 2, 3, 4]"

@@ -97,6 +97,13 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
     MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
   }
 
+  def -(fieldNames: Seq[String]): MashObject = withLock {
+    var result = this
+    for (fieldName ← fieldNames)
+      result -= fieldName
+    result
+  }
+
   def +(that: MashObject): MashObject = withLock {
     MashObject.of((this.fields ++ that.fields).toSeq, that.classOpt orElse this.classOpt)
   }

@@ -44,6 +44,8 @@ object Type {
     override def toString = s"${classOf[UserClassInstance].getSimpleName}(${userClass.name})"
   }
 
+  def obj(knownFields: (String, Type)*): Object = Object(knownFields.toMap)
+
   case class Object(knownFields: Map[String, Type]) extends Type
 
   /**

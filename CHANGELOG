@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Object subtraction with a list of field names
 * @namedParam parameters collect all named arguments
 * max/min/maxBy/minBy support --default argument if run on empty sequence
 * @last, @flag and @lazy attributes (instead of lazy keyword)

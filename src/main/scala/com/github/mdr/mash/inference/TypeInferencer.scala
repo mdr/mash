@@ -11,7 +11,7 @@ import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ FunctionDeclaration, _ }
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
-import com.github.mdr.mash.runtime.{ MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
@@ -327,16 +327,21 @@ class TypeInferencer {
 
   private def inferTypeSubtract(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type], right: Expr): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Tagged(NumberClass, _)), _)                   ⇒ leftTypeOpt
-      case (_, Some(Type.Tagged(NumberClass, _)))                   ⇒ rightTypeOpt
-      case (Some(ThingWithFields(leftFields)), Some(StringLike(_))) ⇒
-        right match {
-          case StringLiteral(fieldName, _, false, _) ⇒ Some(Type.Object(leftFields - fieldName))
-          case _                                     ⇒ None
+      case (Some(Type.Tagged(NumberClass, _)), _)                             ⇒ leftTypeOpt
+      case (_, Some(Type.Tagged(NumberClass, _)))                             ⇒ rightTypeOpt
+      case (Some(ThingWithFields(leftFields)), Some(StringLike(_)))           ⇒
+        right.constantValueOpt collect {
+          case MashString(fieldName, _) ⇒ Type.Object(leftFields - fieldName)
         }
-      case (Some(Type.Seq(elementType)), _)                         ⇒ leftTypeOpt
-      case (_, Some(Type.Seq(elementType)))                         ⇒ rightTypeOpt
-      case _                                                        ⇒ Some(Type.Instance(NumberClass))
+      case (Some(ThingWithFields(leftFields)), Some(Type.Seq(_))) ⇒
+        right.constantValueOpt collect {
+          case xs: MashList ⇒
+            val removedFields = xs.elements.collect { case MashString(s, _) ⇒ s }.toSet
+            Type.Object(leftFields.filterKeys(k ⇒ !removedFields.contains(k)))
+        }
+      case (Some(Type.Seq(elementType)), _)                                   ⇒ leftTypeOpt
+      case (_, Some(Type.Seq(elementType)))                                   ⇒ rightTypeOpt
+      case _                                                                  ⇒ Some(NumberClass)
     }
 
   private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type], right: Expr): Option[Type] = {
