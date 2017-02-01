@@ -1,6 +1,7 @@
 package com.github.mdr.mash.compiler
 
 import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.ns.core.{ AnyClass, ObjectClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
 
@@ -85,8 +86,12 @@ class BareStringificationContext {
     case ObjectExpr(entries, sourceInfoOpt)                                                                                   ⇒
       val newEntries =
         entries.map {
-          case FullObjectEntry(label, value, sourceInfoOpt) ⇒ FullObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
-          case ShorthandObjectEntry(field, sourceInfoOpt)   ⇒ ShorthandObjectEntry(field, sourceInfoOpt)
+          case FullObjectEntry(ident @ Identifier(label, _), value, sourceInfoOpt) ⇒
+            FullObjectEntry(ident, bareStringify(value, bindings), sourceInfoOpt)
+          case FullObjectEntry(label, value, sourceInfoOpt) ⇒
+            FullObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
+          case ShorthandObjectEntry(field, sourceInfoOpt)   ⇒
+            ShorthandObjectEntry(field, sourceInfoOpt)
         }
       ObjectExpr(newEntries, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt)                                                                                       ⇒
@@ -110,7 +115,7 @@ class BareStringificationContext {
       MishInterpolation(newPart, sourceInfoOpt)
     case LambdaExpr(params, body, sourceInfoOpt)                                                                              ⇒
       LambdaExpr(bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
-    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, sourceInfoOpt)                                                ⇒
+    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, sourceInfoOpt)                                    ⇒
       FunctionDeclaration(attributes, docCommentOpt, name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
     case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)                                                ⇒
       ClassDeclaration(docCommentOpt, name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings ++ params.boundNames)), sourceInfoOpt)
@@ -125,12 +130,10 @@ class BareStringificationContext {
     ParamList(params.params.map(bareStringify(_, bindings)))
 
   private def bareStringify(body: ClassBody, bindings: Set[String]): ClassBody = {
-    var methods = ArrayBuffer[FunctionDeclaration]()
-    var latestBindings = bindings
-    for (method ← body.methods) {
-      methods += bareStringify(method, latestBindings).asInstanceOf[FunctionDeclaration]
-      latestBindings += method.name
-    }
+    val methodNames = body.methods.map(_.name).toSet
+    val parentMethodNames = ObjectClass.methods.map(_.name).toSet ++ AnyClass.methods.map(_.name).toSet
+    val bodyBindings = bindings ++ methodNames ++ parentMethodNames
+    val methods = body.methods.map(method ⇒ bareStringify(method, bodyBindings).asInstanceOf[FunctionDeclaration])
     ClassBody(methods, body.sourceInfoOpt)
   }
 
@@ -138,7 +141,7 @@ class BareStringificationContext {
     left.findAll {
       case AssignmentExpr(left@Identifier(name, _), _, _, _) ⇒ Seq(name)
       case PatternAssignmentExpr(pattern, _, _)              ⇒ pattern.boundNames
-      case FunctionDeclaration(_, _, name, _, _, _)             ⇒ Seq(name)
+      case FunctionDeclaration(_, _, name, _, _, _)          ⇒ Seq(name)
       case ClassDeclaration(_, name, _, _, _)                ⇒ Seq(name)
     }.flatten
 }

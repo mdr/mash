@@ -831,6 +831,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "class Foo { def getFields = fields }; Foo.new.getFields" shouldEvaluateTo "[]"
   "class Foo { def getFields = fields }; Foo.new.fields" shouldEvaluateTo "[]"
+  "class Foo { def getFields = toString }; Foo.new.getFields" shouldEvaluateTo "'{ Foo | }'"
 
   "(class A { def foo = 42 }) | .new.foo" shouldEvaluateTo 42
   "(def foo = 42) | x => x" shouldEvaluateTo 42

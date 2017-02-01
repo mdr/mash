@@ -112,9 +112,10 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
 
   def asString = withLock {
     ToStringifier.visit(this, "{…}") {
-      val fieldString = fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
-      val classString = classOpt.map(c ⇒ s"$c | ").getOrElse("")
-      s"{ $classString$fieldString }"
+      val fieldString = if (fields.isEmpty) "" else fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
+      val classString = classOpt.map(klass ⇒ s"$klass | ").getOrElse("")
+      val contents = s"$classString$fieldString"
+      if (contents.isEmpty) "{}" else s"{ $contents }"
     }
   }
 
