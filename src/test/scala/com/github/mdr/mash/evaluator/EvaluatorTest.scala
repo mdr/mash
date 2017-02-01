@@ -443,6 +443,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'foobar' | whereNot (_ > 'm')" shouldEvaluateTo "'fba'"
   "'foobar'.whereNot (_ > 'm')" shouldEvaluateTo "'fba'"
 
+  // zip
+  "zip [1, 2, 3] [4, 5]" shouldEvaluateTo "[[1, 4], [2, 5]]"
+
   // matches
   " 'foo'.matches 'o' " shouldEvaluateTo true
   " 'foo'.matches 'x' " shouldEvaluateTo false

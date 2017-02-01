@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* zip function
 * Shortcuts to jump to start/end of multiline buffer
 * Object subtraction with a list of field names
 * @namedParam parameters collect all named arguments

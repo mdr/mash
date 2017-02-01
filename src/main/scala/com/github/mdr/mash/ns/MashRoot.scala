@@ -150,7 +150,8 @@ object MashRoot {
     TakeWhileFunction,
     UniqueFunction,
     WhereFunction,
-    WhereNotFunction)
+    WhereNotFunction,
+    ZipFunction)
 
   val Aliases = Map(
     "mv" -> MoveFunction,

@@ -15,7 +15,7 @@ object TreePrettyPrinter {
     val typeOpt = condOpt(node) {
       case expr: Expr ⇒ expr.typeOpt
     }
-    val typeDescription = typeOpt.map(" [" + _ + "]").getOrElse("")
+    val typeDescription = typeOpt.map(" [" + _ + "]") getOrElse ""
     node match {
       case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | Hole(_) | MishFunction(_, _) ⇒
         println(PrettyPrinter.pretty(node) + typeDescription)
