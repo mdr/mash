@@ -96,21 +96,34 @@ Multiple parameters are supported:
 
     def add x y = x + y
 
-Zero parameters:
+Functions without parameters:
 
     def greet = print "Hello"
 
-Variadic parameters:
+A variadic parameter can take zero or many positional arguments:
 
-    def printAll words... = words | each print
+    $ def printAll words... = words | each print
+    $ printAll "foo" "bar" "baz"
+    foo
+    bar
+    baz
 
-Default arguments:
+Defaults values can be provided for when a parameter is omitted:
 
-    def someFunc (n = 42) = ....
+    def someFunc (n = 4) = n * n
+    someFunc # => 16
 
-Lazy arguments:
+Lazy arguments defer the evaluation of the argument until it is referenced in the body of the function:
 
-    def someFunc (@lazy block) = ...
+    $ def doTwice (@lazy block) = (block; block)
+    $ doTwice (print "Hi")
+    Hi
+    Hi
+
+Last parameters consume the last positional argument, useful for making functions fit better into pipe syntax:
+
+    def preprend items... (@last list) = items + list
+    [3, 4] | prepend 1 2 # => [1, 2, 3, 4]
 
 Functions can be nested:
 
@@ -135,12 +148,15 @@ Alternative parenthesis-based function call syntax:
 
 ### Nullary functions
 
-Some functions can be called with no arguments. For example, `ls` or `now`. If such a nullary function is referenced either using an identifier, or by a member expression (e.g. `git.status`), then it is immediately invoked.
+Some functions and methods can be called with no arguments. For example, `ls` or `now`. If such a *nullary function* is referenced either using an identifier, or by a member expression (e.g. `git.status`), then it is immediately invoked.
 
-If you need to obtain a reference to a nullary function or method itself, you can use a lookup expression.
+If you need to obtain a reference to a nullary function or method itself, without immediately invoking it, you can use
+ a lookup expression. For example,
 
     git["status"]
     time["now"]
+
+A function or method is considered nullary if every parameter is either optional or variadic.
 
 ### Anonymous functions and holes
 
