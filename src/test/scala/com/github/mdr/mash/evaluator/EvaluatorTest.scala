@@ -728,6 +728,23 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |foo
   """ shouldEvaluateTo 30
 
+  """class A (arg1 = 10)
+    |        (arg2 = 20) { def a = arg1 + arg2 }
+    |A.new.a
+  """ shouldEvaluateTo 30
+
+  """class A (arg1 = 10)
+    |        (arg2 = 20) {
+    |  def a = arg1 + arg2
+    |  def b = a
+    |}
+    |A.new.b
+  """ shouldEvaluateTo 30
+
+  """class A
+    |A.new.getClass.name
+  """ shouldEvaluateTo "'A'"
+
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo 43
   "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo 101

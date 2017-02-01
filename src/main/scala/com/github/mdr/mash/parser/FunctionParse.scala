@@ -20,25 +20,30 @@ trait FunctionParse {
   protected def functionDeclaration(): FunctionDeclaration = {
     val attributesOpt = if (AT) Some(attributes()) else None
     val defToken = consumeRequiredToken("function", DEF)
-    val (name, params) = noSemis {
-      consumeRequiredToken("function", IDENTIFIER) -> paramList()
-    }
+    val name = consumeRequiredToken("function", IDENTIFIER)
+    val params = paramList()
     val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val body = pipeExpr()
     FunctionDeclaration(attributesOpt, docComment(defToken), defToken, name, params, equals, body)
   }
 
   protected def paramList(): ParamList = {
-    val params = safeWhile(IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE) {
-      parameter()
-    }
+    def isParamStart = IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE
+    val params =
+      if (isParamStart)
+        parameter() +: noSemis(safeWhile(isParamStart)(parameter()))
+      else
+        Seq()
     ParamList(params)
   }
 
   protected def classParamList(): ParamList = {
-    val params = safeWhile(IDENTIFIER || LPAREN || LSQUARE || HOLE) {
-      parameter()
-    }
+    def isParamStart = IDENTIFIER || LPAREN || LSQUARE || HOLE
+    val params =
+      if (isParamStart)
+        parameter() +: noSemis(safeWhile(isParamStart)(parameter()))
+      else
+        Seq()
     ParamList(params)
   }
 

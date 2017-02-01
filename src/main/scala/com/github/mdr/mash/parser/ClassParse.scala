@@ -19,16 +19,14 @@ trait ClassParse {
 
   private def classBody(): ClassBody = {
     val lbrace = nextToken()
-    val methods: ArrayBuffer[Method] = ArrayBuffer()
-    while (tokenCanStartAMethod) {
+    val methods = semisAllowed(safeWhile(DEF || AT) {
       val methodDecl = functionDeclaration()
       val semiOpt = consumeOptionalToken(SEMI)
-      methods += Method(methodDecl, semiOpt)
-    }
+      Method(methodDecl, semiOpt)
+    })
     val rbrace = consumeRequiredToken("class", RBRACE)
     ClassBody(lbrace, methods, rbrace)
   }
 
-  private def tokenCanStartAMethod: Boolean = DEF || AT
 
 }
