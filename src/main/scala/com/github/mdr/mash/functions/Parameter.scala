@@ -10,11 +10,12 @@ case class Parameter(nameOpt: Option[String],
                      isVariadic: Boolean = false, // Is a variadic parameter (can be bound to 0-to-many arguments)
                      variadicAtLeastOne: Boolean = false, // As a variadic parameter, must it have at least one argument?
                      isFlag: Boolean = false, // If true, can only be called in flag mode, not positional
-                     isBooleanFlag: Boolean = false, // If true, flag represents a boolean value
-                     isFlagValueMandatory: Boolean = false, // If true, flag must have a value
+                     isBooleanFlag: Boolean = false, // If true, flag represents a boolean value (only affects calling syntax generation)
+                     isFlagValueMandatory: Boolean = false, // If true, flag must have a value (only affects calling syntax generation)
                      flagValueNameOpt: Option[String] = None, // Name of flag value (used in generating calling summary)
                      isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list
                      isLazy: Boolean = false, // if true, don't evaluate argument
+                     isNamedArgsParam: Boolean = false, // If true, receive a list of the named arguments
                      patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 

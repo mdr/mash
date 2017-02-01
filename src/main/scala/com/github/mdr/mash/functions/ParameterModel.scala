@@ -12,7 +12,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   val variadicParamOpt: Option[Parameter] = params.find(_.isVariadic)
 
-  val (flagParams, positionalParams) = params.partition(_.isFlag)
+  val positionalParams = params.filterNot(p ⇒ p.isFlag || p.isNamedArgsParam)
 
   // Lookup parameter by name or short flag (if it has one)
   val paramByName: Map[String, Parameter] = {
@@ -31,7 +31,10 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   def flags: Seq[Flag] = params.map(param ⇒ Flag(param.summaryOpt.getOrElse("TODO"), param.shortFlagOpt.map(_.toString), param.nameOpt))
 
-  def allowsNullary: Boolean = params.forall(p ⇒ (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined)
+  def allowsNullary: Boolean = params.forall(p ⇒ allowsNullary(p))
+
+  private def allowsNullary(p: Parameter): Boolean =
+    (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined || p.isNamedArgsParam
 
   def callingSyntax: String = {
     val positionalParams =

@@ -1,16 +1,12 @@
 package com.github.mdr.mash
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.util.UUID
 
-import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
-import com.github.mdr.mash.repl.{ Repl, ScriptExecutor }
 import com.github.mdr.mash.repl.history.{ FileBackedHistoryStorage, HistoryImpl }
+import com.github.mdr.mash.repl.{ Repl, ScriptExecutor }
 import com.github.mdr.mash.terminal.{ JLineTerminalWrapper, TerminalControlImpl, TerminalHelper }
-import org.apache.commons.io.FileUtils
 import sun.misc.{ Signal, SignalHandler }
 
 import scala.collection.JavaConverters._

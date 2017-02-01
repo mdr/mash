@@ -188,7 +188,7 @@ object Evaluator extends EvaluatorHelper {
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
       isVariadic = isVariadic, isFlag = param.isFlag, isLast = param.isLast, isLazy = param.isLazy,
-      patternOpt = patternOpt.map(makeParamPattern))
+      isNamedArgsParam =  param.isNamedArgsParam, patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =

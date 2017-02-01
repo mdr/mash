@@ -889,4 +889,15 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def twice (@lazy @flag body) = (body; body); a = 0; twice --body=(a += 1); a" shouldEvaluateTo 2
   "def twice (@lazy @flag body) = (body; body); a = 0; twice (a += 1); a" shouldThrowAnException
 
+  // @namedArgs
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo=1" shouldEvaluateTo "{ foo: 1 }"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo" shouldEvaluateTo "{ foo: true }"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --namedArgs=1" shouldEvaluateTo "{ namedArgs: 1}"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -a" shouldEvaluateTo "{ a: true }"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -abc" shouldEvaluateTo "{ a: true, b: true, c: true }"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject" shouldEvaluateTo "{}"
+  "def makeObject (@namedArgs namedArgs) (@flag otherArg) = { namedArgs, otherArg }; makeObject --otherArg=10" shouldEvaluateTo
+    "{ namedArgs: { otherArg: 10 }, otherArg: 10 }"
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
+
 }

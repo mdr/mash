@@ -12,6 +12,7 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
   private var lastParameterConsumed = false
 
   def validate(): BoundParams = {
+    handleNamedArgsParams()
     handleLastArg()
     handlePositionalArgs()
     handleFlagArgs()
@@ -21,6 +22,22 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
 
   private def addArgumentToParameter(parameter: Parameter, argNode: Argument) {
     parameterToArguments += parameter -> (parameterToArguments.getOrElse(parameter, Seq()) :+ argNode)
+  }
+
+  private def handleNamedArgsParams(): Unit = {
+    lazy val namedArguments = MashObject.of(arguments.evaluatedArguments.flatMap {
+      case EvaluatedArgument.LongFlag(flag, valueOpt, _) ⇒ Seq(flag -> valueOpt.map(_.resolve()).getOrElse(MashBoolean.True))
+      case EvaluatedArgument.ShortFlag(flags, _)         ⇒ flags.map(c ⇒ c.toString -> MashBoolean.True)
+      case EvaluatedArgument.PositionArg(_, _)           ⇒ Seq()
+    })
+    val argumentNodes = arguments.evaluatedArguments
+      .filterNot(_.isInstanceOf[EvaluatedArgument.PositionArg])
+      .flatMap(_.argumentNodeOpt)
+    for (param ← params.params if param.isNamedArgsParam) {
+      param.nameOpt.foreach(boundNames += _ -> namedArguments)
+      boundParams += param
+      parameterToArguments += (param -> argumentNodes)
+    }
   }
 
   private def handleLastArg() =
@@ -92,6 +109,8 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     else
       suspendedValue.resolve()
 
+  private def hasNamedArgsParam = params.params.exists(_.isNamedArgsParam)
+
   private def handleExcessArguments(positionArgs: Seq[EvaluatedArgument.PositionArg], regularParams: Seq[Parameter]) =
     if (positionArgs.size > regularParams.size)
       params.variadicParamOpt match {
@@ -109,7 +128,8 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           if (!ignoreAdditionalParameters) {
             val firstExcessArgument = arguments.positionArgs.drop(maxPositionArgs).head
             val locationOpt = getLocation(firstExcessArgument)
-            throw new ArgumentException(s"Too many arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed", locationOpt)
+            val message = s"Too many positional arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed"
+            throw new ArgumentException(message, locationOpt)
           }
       }
 
@@ -135,17 +155,18 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
     lazy val errorLocationOpt = argNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
-        if (boundParams contains param)
-          throw new ArgumentException(s"${describe(param).capitalize} is provided multiple times", errorLocationOpt)
-        else {
-          param.nameOpt.foreach(boundNames += _ -> resolve(param, value))
-          boundParams += param
+        if (!param.isNamedArgsParam)
+          if (boundParams contains param)
+            throw new ArgumentException(s"${describe(param).capitalize} is provided multiple times", errorLocationOpt)
+          else {
+            param.nameOpt.foreach(boundNames += _ -> resolve(param, value))
+            boundParams += param
 
-          for (argNode ← argNodeOpt)
-            addArgumentToParameter(param, argNode)
-        }
+            for (argNode ← argNodeOpt)
+              addArgumentToParameter(param, argNode)
+          }
       case None        ⇒
-        if (!ignoreAdditionalParameters)
+        if (!ignoreAdditionalParameters && !hasNamedArgsParam)
           throw new ArgumentException(s"Unexpected named argument '$paramName'", errorLocationOpt)
     }
   }

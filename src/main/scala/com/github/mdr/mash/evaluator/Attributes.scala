@@ -6,5 +6,7 @@ object Attributes {
   val Last = "last"
   val Flag = "flag"
   val Lazy = "lazy"
+  val Args = "args"
+  val NamedArgs = "namedArgs"
 
 }

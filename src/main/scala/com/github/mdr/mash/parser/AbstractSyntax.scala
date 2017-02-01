@@ -370,6 +370,8 @@ object AbstractSyntax {
 
     def isFlag = attributes.exists(_.name == Attributes.Flag)
 
+    def isNamedArgsParam = attributes.exists(_.name == Attributes.NamedArgs)
+
   }
 
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {
