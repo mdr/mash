@@ -4,8 +4,6 @@ import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
 
-import scala.collection.mutable.ArrayBuffer
-
 trait FunctionParse {
   self: MashParse ⇒
 
@@ -24,7 +22,7 @@ trait FunctionParse {
     val params = paramList()
     val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val body = pipeExpr()
-    FunctionDeclaration(attributesOpt, docComment(defToken), defToken, name, params, equals, body)
+    FunctionDeclaration(docComment(defToken), attributesOpt, defToken, name, params, equals, body)
   }
 
   protected def paramList(): ParamList = {

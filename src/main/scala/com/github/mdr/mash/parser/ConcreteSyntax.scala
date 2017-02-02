@@ -450,17 +450,17 @@ object ConcreteSyntax {
     def children = attributes
   }
 
-  case class FunctionDeclaration(attributesOpt: Option[Attributes],
-                                 docCommentOpt: Option[LexerDocComment],
+  case class FunctionDeclaration(docCommentOpt: Option[LexerDocComment],
+                                 attributesOpt: Option[Attributes],
                                  defToken: Token,
                                  name: Token,
                                  params: ParamList,
                                  equals: Token,
                                  body: Expr) extends Expr {
 
-    lazy val tokens = Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
+    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
 
-    def children = Seq(params, body)
+    def children = attributesOpt.toSeq ++ Seq(params, body)
 
   }
 
