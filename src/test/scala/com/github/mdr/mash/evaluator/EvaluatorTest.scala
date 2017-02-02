@@ -729,12 +729,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   """ shouldEvaluateTo 30
 
   """class A (arg1 = 10)
-    |        (arg2 = 20) { def a = arg1 + arg2 }
-    |A.new.a
-  """ shouldEvaluateTo 30
+    |A.new.arg1
+  """ shouldEvaluateTo 10
 
-  """class A (arg1 = 10)
-    |        (arg2 = 20) {
+  """class A (arg1 = 10) (arg2 = 20) {
     |  def a = arg1 + arg2
     |  def b = a
     |}

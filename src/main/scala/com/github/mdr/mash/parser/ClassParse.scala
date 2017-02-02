@@ -17,6 +17,12 @@ trait ClassParse {
     ClassDeclaration(docComment(classToken), classToken, name, params, bodyOpt)
   }
 
+  protected def classParamList(): ParamList = {
+    def isParamStart = IDENTIFIER || LPAREN || LSQUARE || HOLE
+    val params = safeWhile(isParamStart)(parameter())
+    ParamList(params)
+  }
+
   private def classBody(): ClassBody = {
     val lbrace = nextToken()
     val methods = semisAllowed(safeWhile(DEF || AT) {

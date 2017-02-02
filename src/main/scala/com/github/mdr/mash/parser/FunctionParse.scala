@@ -37,16 +37,6 @@ trait FunctionParse {
     ParamList(params)
   }
 
-  protected def classParamList(): ParamList = {
-    def isParamStart = IDENTIFIER || LPAREN || LSQUARE || HOLE
-    val params =
-      if (isParamStart)
-        parameter() +: noSemis(safeWhile(isParamStart)(parameter()))
-      else
-        Seq()
-    ParamList(params)
-  }
-
   private def parenParam(): ParenParam = {
     val lparen = consumeRequiredToken("parameter", LPAREN)
     val attributesOpt = if (AT) Some(attributes()) else None
