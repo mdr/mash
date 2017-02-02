@@ -273,6 +273,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "timeTaken ls" shouldBeInferredAsHavingType Generic(TimedResultClass, Seq(PathSummaryClass))
   "timeTaken ls | .result" shouldBeInferredAsHavingType Seq(PathSummaryClass)
 
+  // zip
+  "zip [1] [2]" shouldBeInferredAsHavingType Seq(Seq(NumberClass))
+
   // .hoist
   "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" shouldBeInferredAsHavingType
     obj("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass)

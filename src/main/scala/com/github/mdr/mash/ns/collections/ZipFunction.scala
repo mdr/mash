@@ -2,6 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.runtime.MashList
 
 object ZipFunction extends MashFunction("collections.zip") {
@@ -14,6 +15,7 @@ object ZipFunction extends MashFunction("collections.zip") {
       nameOpt = Some("sequence2"),
       summaryOpt = Some("Second sequence"))
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Sequence1, Sequence2))
@@ -26,7 +28,20 @@ object ZipFunction extends MashFunction("collections.zip") {
 
   override def summaryOpt = Some("Zip two sequences")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   zip [1, 2, 3] [4, 5] # [[1, 4], [2, 5]]""")
+
+  override object typeInferenceStrategy extends TypeInferenceStrategy {
+
+    override def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+      val argBindings = params.bindTypes(arguments)
+      val element1TypeOpt = argBindings.getType(Sequence1).collect { case Type.Seq(elementType) ⇒ elementType }
+      val element2TypeOpt = argBindings.getType(Sequence2).collect { case Type.Seq(elementType) ⇒ elementType }
+      val pairType = element1TypeOpt orElse element2TypeOpt getOrElse Type.Any
+      Some(pairType.seq.seq)
+    }
+
+  }
 
 }
