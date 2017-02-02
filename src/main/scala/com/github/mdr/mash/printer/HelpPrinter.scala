@@ -4,6 +4,7 @@ import java.io.PrintStream
 import java.util.regex.Pattern
 
 import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
 import org.fusesource.jansi.Ansi
@@ -83,7 +84,8 @@ class HelpPrinter(output: PrintStream) {
       case Seq() ⇒ ""
       case _     ⇒ qualifiers.mkString(" [", ", ", "]")
     }
-    val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else MashNull.option(param(Name)).getOrElse("anon")))
+    val name = MashNull.option(param(Name)) getOrElse Parameter.AnonymousParamName
+    val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else name))
     val shortFlagDescription = paramNameStyle(MashNull.option(param(ShortFlag)).map(f ⇒ s" | -$f").getOrElse(""))
     val summaryOpt = MashNull.option(param(Summary))
     output.println(paramName + shortFlagDescription + qualifierString + summaryOpt.fold("")(" - " + _))

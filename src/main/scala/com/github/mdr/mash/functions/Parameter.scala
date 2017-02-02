@@ -2,6 +2,12 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.runtime.MashValue
 
+object Parameter {
+
+  val AnonymousParamName = "anonymousParam"
+
+}
+
 case class Parameter(nameOpt: Option[String],
                      summaryOpt: Option[String], // One-liner description of the parameter
                      descriptionOpt: Option[String] = None, // Rest of the docs
@@ -23,7 +29,7 @@ case class Parameter(nameOpt: Option[String],
 
   def isMandatory = !isOptional
 
-  override def toString = nameOpt.getOrElse("anon")
+  override def toString = nameOpt getOrElse Parameter.AnonymousParamName
 
   def boundNames: Seq[String] = nameOpt.map(Seq(_)).getOrElse(patternOpt.toSeq.flatMap(_.boundNames))
 }

@@ -1,5 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
+import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
@@ -85,7 +86,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     import ParameterHelpClass.Fields._
     MashObject.of(
       ListMap(
-        Name -> param.nameOpt.map(MashString(_)).getOrElse(MashNull),
+        Name -> getName(param),
         Summary -> param.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         Description -> param.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).getOrElse(MashNull),
@@ -97,10 +98,16 @@ object HelpFunction extends MashFunction("core.help.help") {
       ParameterHelpClass)
   }
 
+  private def getName(param: Parameter): MashValue =
+    param.nameOpt
+      .filterNot(_ == DesugarHoles.VariableName)
+      .map(MashString(_))
+      .getOrElse(MashNull)
+
   def getHelp(klass: MashClass): MashObject = {
     import ClassHelpClass.Fields._
     val fields = klass.fields.map(getHelp(_, klass))
-    val methods = klass.methods.sortBy(_.name).filter(_.isPublic).map(getHelp(_, klass))
+    val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getHelp(_, klass))
     MashObject.of(
       ListMap(
         Name -> MashString(klass.name),

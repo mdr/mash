@@ -1,5 +1,6 @@
 package com.github.mdr.mash.functions
 
+import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.inference.TypedArguments
 
@@ -39,7 +40,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def callingSyntax: String = {
     val positionalParams =
       for (param ← params.filterNot(_.isFlag)) yield {
-        val name = param.nameOpt.getOrElse("anon")
+        val paramName = param.nameOpt getOrElse Parameter.AnonymousParamName
+        val name = if (paramName == DesugarHoles.VariableName) Parameter.AnonymousParamName else paramName
         if (param.isVariadic)
           if (param.variadicAtLeastOne)
             s"<$name>+..."
@@ -52,7 +54,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
       }
     val flagParams =
       for (param ← params.filter(_.isFlag)) yield {
-        val name = param.nameOpt.getOrElse("anon")
+        val name = param.nameOpt getOrElse Parameter.AnonymousParamName
         val flagValueName = param.flagValueNameOpt.getOrElse("value")
         val flagValueSuffix =
           if (param.isBooleanFlag)

@@ -34,6 +34,10 @@ object InvocationAssistance {
     case _                          ⇒ (expr.preInvocationTypeOpt orElse expr.typeOpt, None)
   }
 
+  private def assistInvocation(function: MashValue): Option[AssistanceState] = function match {
+    case _ ⇒ None
+  }
+
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
     case Type.Seq(elementType)                              ⇒ assistInvocation(elementType)
     case Type.BuiltinFunction(f)                            ⇒

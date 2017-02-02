@@ -21,7 +21,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     throw new ArgumentException(fullMessage, locationOpt(param))
   }
 
-  private def name(param: Parameter): String = param.nameOpt.getOrElse("anon")
+  private def name(param: Parameter): String = param.nameOpt getOrElse Parameter.AnonymousParamName
 
   private def mergeLocation(location1: SourceLocation, location2: SourceLocation): SourceLocation =
     SourceLocation(location1.provenance, location1.pointedRegion merge location2.pointedRegion)

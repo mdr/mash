@@ -11,7 +11,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
                             override val methods: Seq[UserDefinedMethod]) extends MashClass(nameOpt = Some(name)) {
 
   override val fields = params.params.map { param ⇒
-    val fieldName = param.nameOpt.getOrElse("anon")
+    val fieldName = param.nameOpt getOrElse "anonymousField"
     Field(fieldName, param.descriptionOpt, AnyClass)
   }
 
