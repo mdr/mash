@@ -16,13 +16,17 @@ trait FunctionParse {
   private def attributes() = Attributes(safeWhile(AT)(attribute()))
 
   protected def functionDeclaration(): FunctionDeclaration = {
-    val attributesOpt = if (AT) Some(attributes()) else None
-    val defToken = consumeRequiredToken("function", DEF)
-    val name = consumeRequiredToken("function", IDENTIFIER)
-    val params = paramList()
-    val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
+    val firstToken = currentToken
+    val (attributesOpt, defToken, name, params, equals) = noSemis {
+      val attributesOpt = if (AT) Some(attributes()) else None
+      val defToken = consumeRequiredToken("function", DEF)
+      val name = consumeRequiredToken("function", IDENTIFIER)
+      val params = paramList()
+      val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
+      (attributesOpt, defToken, name, params, equals)
+    }
     val body = pipeExpr()
-    FunctionDeclaration(docComment(defToken), attributesOpt, defToken, name, params, equals, body)
+    FunctionDeclaration(docComment(firstToken), attributesOpt, defToken, name, params, equals, body)
   }
 
   protected def paramList(): ParamList = {
@@ -132,7 +136,9 @@ trait FunctionParse {
     LambdaStart(params, arrow)
   }
 
-  protected def completeLambdaExpr(lambdaStart: LambdaStart, mayContainPipe: Boolean = false, mayContainStatementSeq: Boolean = false): Expr = {
+  protected def completeLambdaExpr(lambdaStart: LambdaStart,
+                                   mayContainPipe: Boolean = false,
+                                   mayContainStatementSeq: Boolean = false): Expr = {
     val body =
       if (mayContainStatementSeq) statementSeq()
       else if (mayContainPipe) pipeExpr()

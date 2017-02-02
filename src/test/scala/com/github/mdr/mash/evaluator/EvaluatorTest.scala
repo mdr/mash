@@ -901,6 +901,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class A { @private def a = 42; def b = this.a }; A.new.b" shouldEvaluateTo 42
   "class A { @private def a = 42; def b = this['a'].invoke }; A.new.b" shouldEvaluateTo 42
 
+  // attributes
+  """@attribute
+    |def foo = 42
+    |foo
+  """.stripMargin shouldEvaluateTo "42"
+
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 
   "def makeFact = { def fact n = if (n <= 1) then n else n * fact (n - 1) }; (makeFact) 5" shouldEvaluateTo 120
@@ -936,5 +942,16 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def makeObject (@namedArgs namedArgs) (@flag otherArg) = { namedArgs, otherArg }; makeObject --otherArg=10" shouldEvaluateTo
     "{ namedArgs: { otherArg: 10 }, otherArg: 10 }"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
+
+  // doc comments
+  """# Square a number
+    |def square n = n * n
+    |square.help.summary
+  """.stripMargin shouldEvaluateTo "'Square a number'"
+
+  """# Square a number
+    |@private def square n = n * n
+    |square.help.summary
+  """.stripMargin shouldEvaluateTo "'Square a number'"
 
 }
