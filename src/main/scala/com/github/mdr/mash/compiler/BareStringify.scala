@@ -86,11 +86,11 @@ class BareStringificationContext {
     case ObjectExpr(entries, sourceInfoOpt)                                                                                   ⇒
       val newEntries =
         entries.map {
-          case FullObjectEntry(ident @ Identifier(label, _), value, sourceInfoOpt) ⇒
+          case FullObjectEntry(ident@Identifier(label, _), value, sourceInfoOpt) ⇒
             FullObjectEntry(ident, bareStringify(value, bindings), sourceInfoOpt)
-          case FullObjectEntry(label, value, sourceInfoOpt) ⇒
+          case FullObjectEntry(label, value, sourceInfoOpt)                      ⇒
             FullObjectEntry(bareStringify(label, bindings), bareStringify(value, bindings), sourceInfoOpt)
-          case ShorthandObjectEntry(field, sourceInfoOpt)   ⇒
+          case ShorthandObjectEntry(field, sourceInfoOpt)                        ⇒
             ShorthandObjectEntry(field, sourceInfoOpt)
         }
       ObjectExpr(newEntries, sourceInfoOpt)
@@ -106,7 +106,8 @@ class BareStringificationContext {
       val newRedirects = redirects.map {
         case MishRedirect(op, arg, sourceInfoOpt) ⇒ MishRedirect(op, bareStringify(arg, bindings), sourceInfoOpt)
       }
-      MishExpr(bareStringify(command, bindings), args.map(bareStringify(_, bindings)), newRedirects, captureProcessOutput, sourceInfoOpt)
+      val newArgs = args.map(bareStringify(_, bindings))
+      MishExpr(bareStringify(command, bindings), newArgs, newRedirects, captureProcessOutput, sourceInfoOpt)
     case MishInterpolation(part, sourceInfoOpt)                                                                               ⇒
       val newPart = part match {
         case StringPart(s)  ⇒ StringPart(s)
@@ -115,10 +116,12 @@ class BareStringificationContext {
       MishInterpolation(newPart, sourceInfoOpt)
     case LambdaExpr(params, body, sourceInfoOpt)                                                                              ⇒
       LambdaExpr(bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames), sourceInfoOpt)
-    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, sourceInfoOpt)                                    ⇒
-      FunctionDeclaration(attributes, docCommentOpt, name, bareStringify(params, bindings), bareStringify(body, bindings ++ params.boundNames + name), sourceInfoOpt)
-    case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)                                                ⇒
-      ClassDeclaration(docCommentOpt, name, bareStringify(params, bindings), bodyOpt.map(bareStringify(_, bindings ++ params.boundNames)), sourceInfoOpt)
+    case FunctionDeclaration(docCommentOpt, attributes, name, params, body, sourceInfoOpt)                                   ⇒
+      val newBody = bareStringify(body, bindings ++ params.boundNames + name)
+      FunctionDeclaration(docCommentOpt, attributes, name, bareStringify(params, bindings), newBody, sourceInfoOpt)
+    case ClassDeclaration(docCommentOpt, attributes, name, params, bodyOpt, sourceInfoOpt)                                    ⇒
+      val newBody = bodyOpt.map(bareStringify(_, bindings ++ params.boundNames))
+      ClassDeclaration(docCommentOpt, attributes, name, bareStringify(params, bindings), newBody, sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                                                        ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
   }
@@ -142,6 +145,6 @@ class BareStringificationContext {
       case AssignmentExpr(left@Identifier(name, _), _, _, _) ⇒ Seq(name)
       case PatternAssignmentExpr(pattern, _, _)              ⇒ pattern.boundNames
       case FunctionDeclaration(_, _, name, _, _, _)          ⇒ Seq(name)
-      case ClassDeclaration(_, name, _, _, _)                ⇒ Seq(name)
+      case ClassDeclaration(_, _, name, _, _, _)             ⇒ Seq(name)
     }.flatten
 }

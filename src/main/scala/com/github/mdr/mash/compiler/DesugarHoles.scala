@@ -145,14 +145,14 @@ object DesugarHoles {
       }
       for (newPart ← newPartResult)
         yield MishInterpolation(newPart, sourceInfoOpt)
-    case FunctionDeclaration(attributes, docCommentOpt, name, ParamList(params), body, sourceInfoOpt)                                              ⇒
+    case FunctionDeclaration(attributes, docCommentOpt, name, ParamList(params), body, sourceInfoOpt)                                  ⇒
       val newParams = ParamList(params.map(desugarHoles))
       val newBody = addLambdaIfNeeded(body)
       Result(FunctionDeclaration(attributes, docCommentOpt, name, newParams, newBody, sourceInfoOpt))
-    case ClassDeclaration(docCommentOpt, name, ParamList(params), bodyOpt, sourceInfoOpt)                                              ⇒
+    case ClassDeclaration(docCommentOpt, attributes, name, ParamList(params), bodyOpt, sourceInfoOpt)                                  ⇒
       val newParams = ParamList(params.map(desugarHoles))
       val newBodyOpt = bodyOpt.map(body ⇒ ClassBody(body.methods.map(desugarHoles).map(_.asInstanceOf[FunctionDeclaration])))
-      Result(ClassDeclaration(docCommentOpt, name, newParams, newBodyOpt, sourceInfoOpt))
+      Result(ClassDeclaration(docCommentOpt, attributes, name, newParams, newBodyOpt, sourceInfoOpt))
     case HelpExpr(expr, sourceInfoOpt)                                                                                                 ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)

@@ -2,7 +2,7 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
-import com.github.mdr.mash.parser.AbstractSyntax.Argument
+import com.github.mdr.mash.parser.AbstractSyntax.{ Argument, Attribute }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 
 import scala.PartialFunction.condOpt
@@ -94,9 +94,9 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(attributesOpt, _, _, name, params, _, body) = decl
-    val abstractParams = abstractifyParamList(params)
-    val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
+    val docCommentOpt = decl.docCommentOpt.flatMap(comment ⇒ DocCommentParser.parse(comment.text))
     val attributes = attributesOpt.map(abstractifyAttributes).getOrElse(Seq())
+    val abstractParams = abstractifyParamList(params)
     Abstract.FunctionDeclaration(docCommentOpt, attributes, name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
@@ -105,10 +105,12 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
     val Concrete.ClassDeclaration(_, _, name, params, _) = decl
+    val docCommentOpt = decl.docCommentOpt.flatMap(comment ⇒ DocCommentParser.parse(comment.text))
+    //    val attributes = attributesOpt.map(abstractifyAttributes).getOrElse(Seq())
+    val attributes: Seq[Attribute] = Seq()
     val abstractParams = abstractifyParamList(params)
     val abstractBodyOpt = decl.bodyOpt.map(abstractifyClassBody)
-    val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
-    Abstract.ClassDeclaration(docCommentOpt, name.text, abstractParams, abstractBodyOpt, sourceInfo(decl))
+    Abstract.ClassDeclaration(docCommentOpt, attributes, name.text, abstractParams, abstractBodyOpt, sourceInfo(decl))
   }
 
   private def abstractifyClassBody(body: Concrete.ClassBody): Abstract.ClassBody =

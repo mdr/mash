@@ -153,7 +153,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): UserDefinedClass = {
-    val ClassDeclaration(docCommentOpt, className, paramList, bodyOpt, _) = decl
+    val ClassDeclaration(docCommentOpt, _, className, paramList, bodyOpt, _) = decl
     val params = parameterModel(paramList, Some(context))
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {

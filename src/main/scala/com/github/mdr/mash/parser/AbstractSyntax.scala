@@ -403,6 +403,7 @@ object AbstractSyntax {
   }
 
   case class ClassDeclaration(docCommentOpt: Option[DocComment],
+                              attributes: Seq[Attribute],
                               name: String,
                               params: ParamList,
                               bodyOpt: Option[ClassBody],

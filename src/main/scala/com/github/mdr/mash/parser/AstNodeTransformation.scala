@@ -70,10 +70,11 @@ trait AstNodeTransformation {
       val transformedAttributes = attributes.map(_.transform(f).asInstanceOf[Attribute])
       val transformedParams = params.transform(f).asInstanceOf[ParamList]
       FunctionDeclaration(docCommentOpt, transformedAttributes, name, transformedParams, body.transform(f), sourceInfoOpt)
-    case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)             ⇒
+    case ClassDeclaration(docCommentOpt, attributes, name, params, bodyOpt, sourceInfoOpt)             ⇒
+      val transformedAttributes = attributes.map(_.transform(f).asInstanceOf[Attribute])
       val transformedParams = params.transform(f).asInstanceOf[ParamList]
       val transformedBodyOpt = bodyOpt.map(_.transform(f).asInstanceOf[ClassBody])
-      ClassDeclaration(docCommentOpt, name, transformedParams, transformedBodyOpt, sourceInfoOpt)
+      ClassDeclaration(docCommentOpt, transformedAttributes, name, transformedParams, transformedBodyOpt, sourceInfoOpt)
     case ClassBody(methods, sourceInfoOpt)                                                 ⇒
       ClassBody(methods.map(_.transform(f).asInstanceOf[FunctionDeclaration]), sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                     ⇒

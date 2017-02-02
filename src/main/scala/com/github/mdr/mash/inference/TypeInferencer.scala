@@ -165,7 +165,7 @@ class TypeInferencer {
   }
 
   private def getUserClassType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Type.UserClass = {
-    val ClassDeclaration(_, className, paramList, bodyOpt, _) = classDeclaration
+    val ClassDeclaration(_, _, className, paramList, bodyOpt, _) = classDeclaration
 
     val methods = bodyOpt.toSeq.flatMap(_.methods).map { decl ⇒
       val FunctionDeclaration(docCommentOpt, attributes, functionName, functionParamList, body, _) = decl
