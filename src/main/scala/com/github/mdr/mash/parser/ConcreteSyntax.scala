@@ -417,13 +417,15 @@ object ConcreteSyntax {
   }
 
   case class ClassDeclaration(docCommentOpt: Option[LexerDocComment],
+                              attributesOpt: Option[Attributes],
                               classToken: Token,
                               name: Token,
                               params: ParamList,
                               bodyOpt: Option[ClassBody]) extends Expr {
-    lazy val tokens = Seq(classToken, name) ++ params.tokens ++ bodyOpt.toSeq.flatMap(_.tokens)
+    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(classToken, name) ++ params.tokens ++
+      bodyOpt.toSeq.flatMap(_.tokens)
 
-    def children = params +: bodyOpt.toSeq
+    def children = attributesOpt.toSeq ++ Seq(params) ++ bodyOpt.toSeq
   }
 
   case class ClassBody(lbrace: Token, methods: Seq[Method], rbrace: Token) extends AstNode {
@@ -458,7 +460,8 @@ object ConcreteSyntax {
                                  equals: Token,
                                  body: Expr) extends Expr {
 
-    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++ body.tokens
+    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++
+      body.tokens
 
     def children = attributesOpt.toSeq ++ Seq(params, body)
 
