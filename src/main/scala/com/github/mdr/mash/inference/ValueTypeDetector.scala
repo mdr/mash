@@ -49,10 +49,10 @@ class ValueTypeDetector {
 
   def getType_(x: MashValue): Type = x match {
     case MashNull                                                                                ⇒ NullClass
-    case AnonymousFunction(parameterModel, body, context)                                        ⇒ Type.UserDefinedFunction(isPrivate = false, None, parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case UserDefinedFunction(_, name, parameterModel, body, context)                             ⇒ Type.UserDefinedFunction(isPrivate = false, Some(name), parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case AnonymousFunction(parameterModel, body, context)                                        ⇒ Type.UserDefinedFunction(docCommentOpt = None, isPrivate = false, None, parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(docCommentOpt, name, parameterModel, body, context)                 ⇒ Type.UserDefinedFunction(docCommentOpt, isPrivate = false, Some(name), parameterModel, body, buildBindings(context.scopeStack.bindings))
     case f: MashFunction                                                                         ⇒ Type.BuiltinFunction(f)
-    case BoundMethod(target, UserDefinedMethod(_, name, params, _, body, context, isPrivate), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(isPrivate, Some(name), params, body, buildBindings(context.scopeStack.bindings)))
+    case BoundMethod(target, UserDefinedMethod(docCommentOpt, name, params, _, body, context, isPrivate), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(name), params, body, buildBindings(context.scopeStack.bindings)))
     case BoundMethod(target, method, _)                                                          ⇒ Type.BoundBuiltinMethod(getType(target), method)
     case MashString(_, None)                                                                     ⇒ StringClass
     case MashString(_, Some(tagClass))                                                           ⇒ StringClass taggedWith tagClass
@@ -81,7 +81,8 @@ class ValueTypeDetector {
   def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
     val pairs = methods.map { method ⇒
       val bindings = buildBindings(method.context.scopeStack.bindings)
-      val functionType = Type.UserDefinedFunction(method.isPrivate, Some(method.name), method.params, method.body, bindings)
+      val functionType = Type.UserDefinedFunction(method.docCommentOpt, method.isPrivate, Some(method.name),
+        method.params, method.body, bindings)
       method.name -> functionType
     }
     ListMap(pairs: _*)

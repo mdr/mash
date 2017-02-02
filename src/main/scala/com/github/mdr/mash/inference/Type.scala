@@ -5,6 +5,7 @@ import com.github.mdr.mash.functions.{ UserDefinedFunction ⇒ UDF, _ }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.parser.DocComment
 
 import scala.collection.immutable.ListMap
 import scala.language.implicitConversions
@@ -65,7 +66,8 @@ object Type {
   /**
     * Function defined in Mash
     */
-  case class UserDefinedFunction(isPrivate: Boolean,
+  case class UserDefinedFunction(docCommentOpt: Option[DocComment],
+                                 isPrivate: Boolean,
                                  nameOpt: Option[String],
                                  params: ParameterModel,
                                  body: Expr,

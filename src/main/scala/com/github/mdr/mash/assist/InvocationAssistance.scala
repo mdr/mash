@@ -39,31 +39,31 @@ object InvocationAssistance {
   }
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(elementType)                              ⇒ assistInvocation(elementType)
-    case Type.BuiltinFunction(f)                            ⇒
+    case Type.Seq(elementType)                                             ⇒ assistInvocation(elementType)
+    case Type.BuiltinFunction(f)                                           ⇒
       Some(AssistanceState(
         f.name,
         f.summaryOpt.toSeq ++ Seq(
           "",
           callingSyntax(f))))
-    case Type.UserDefinedFunction(_, nameOpt, params, _, _) ⇒
+    case Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) ⇒
       Some(AssistanceState(
         nameOpt.getOrElse("Anonymous function"),
-        Seq(
+        docCommentOpt.map(_.summary).toSeq ++ Seq(
           nameOpt.getOrElse("f") + " " + params.callingSyntax)))
-    case Type.BoundBuiltinMethod(_, method)                 ⇒
+    case Type.BoundBuiltinMethod(_, method)                                ⇒
       Some(AssistanceState(
         method.name,
         method.summaryOpt.toSeq ++ Seq(
           "",
           "target." + callingSyntax(method))))
-    case Type.BoundUserDefinedMethod(_, functionType)       ⇒
-      val Type.UserDefinedFunction(_, nameOpt, params, _, _) = functionType
+    case Type.BoundUserDefinedMethod(_, functionType)                      ⇒
+      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = functionType
       Some(AssistanceState(
         nameOpt.getOrElse("Anonymous method"),
-        Seq(
+        docCommentOpt.map(_.summary).toSeq ++ Seq(
           "target." + nameOpt.getOrElse("method") + " " + params.callingSyntax)))
-    case _                                                  ⇒ None
+    case _                                                                 ⇒ None
   }
 
   def callingSyntax(funOrMethod: Any): String =

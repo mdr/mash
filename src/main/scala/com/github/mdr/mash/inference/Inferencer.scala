@@ -19,7 +19,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))
-    case Type.UserDefinedFunction(_, _, parameterModel, expr, lambdaBindings) ⇒
+    case Type.UserDefinedFunction(_, _, _, parameterModel, expr, lambdaBindings) ⇒
       parameterModel.params.headOption.flatMap { param ⇒
         typeInferencer.inferType(expr, lambdaBindings ++ bindings ++ param.nameOpt.map(_ -> elementType))
       }
@@ -43,7 +43,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       val strategy = method.typeInferenceStrategy
       val args = Seq(positionArg(element1Type), positionArg(element2Type))
       strategy.inferTypes(this, Some(targetType), TypedArguments(args))
-    case Type.UserDefinedFunction(_, _, parameterModel, expr, lambdaBindings) ⇒
+    case Type.UserDefinedFunction(_, _, _, parameterModel, expr, lambdaBindings) ⇒
       val binding1 =
         for {
           param ← parameterModel.params.headOption
