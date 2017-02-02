@@ -123,7 +123,7 @@ object TreePrettyPrinter {
         printTree(command, depth + 1)
         for (arg ← args)
           printTree(arg, depth + 1)
-      case FunctionDeclaration(attributes, _, name, params, body, _) ⇒
+      case FunctionDeclaration(_, attributes, name, params, body, _) ⇒
         println("FunctionDeclaration" + typeDescription)
         println("  " * (depth + 1) + "attrs: " + attributes.map(_.name).mkString(", "))
         println("  " * (depth + 1) + name)

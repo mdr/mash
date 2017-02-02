@@ -97,7 +97,7 @@ class Abstractifier(provenance: Provenance) {
     val abstractParams = abstractifyParamList(params)
     val docCommentOpt = decl.docCommentOpt.flatMap(dc ⇒ DocCommentParser.parse(dc.text))
     val attributes = attributesOpt.map(abstractifyAttributes).getOrElse(Seq())
-    Abstract.FunctionDeclaration(attributes, docCommentOpt, name.text, abstractParams, abstractify(body), sourceInfo(decl))
+    Abstract.FunctionDeclaration(docCommentOpt, attributes, name.text, abstractParams, abstractify(body), sourceInfo(decl))
   }
 
   private def abstractifyAttributes(attributes: Concrete.Attributes): Seq[Abstract.Attribute] =

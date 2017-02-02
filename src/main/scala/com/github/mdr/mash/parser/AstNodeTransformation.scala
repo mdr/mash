@@ -66,10 +66,10 @@ trait AstNodeTransformation {
         redirects.map(_.transform(f).asInstanceOf[MishRedirect]), captureProcessOutput, sourceInfoOpt)
     case MishRedirect(op, arg, sourceInfoOpt)                                              ⇒
       MishRedirect(op, arg.transform(f), sourceInfoOpt)
-    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, sourceInfoOpt) ⇒
+    case FunctionDeclaration(docCommentOpt, attributes, name, params, body, sourceInfoOpt) ⇒
       val transformedAttributes = attributes.map(_.transform(f).asInstanceOf[Attribute])
       val transformedParams = params.transform(f).asInstanceOf[ParamList]
-      FunctionDeclaration(transformedAttributes, docCommentOpt, name, transformedParams, body.transform(f), sourceInfoOpt)
+      FunctionDeclaration(docCommentOpt, transformedAttributes, name, transformedParams, body.transform(f), sourceInfoOpt)
     case ClassDeclaration(docCommentOpt, name, params, bodyOpt, sourceInfoOpt)             ⇒
       val transformedParams = params.transform(f).asInstanceOf[ParamList]
       val transformedBodyOpt = bodyOpt.map(_.transform(f).asInstanceOf[ClassBody])

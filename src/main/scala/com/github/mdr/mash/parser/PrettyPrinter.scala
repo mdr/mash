@@ -78,7 +78,7 @@ object PrettyPrinter {
         case StringPart(s)  ⇒ s
         case ExprPart(expr) ⇒ pretty(expr)
       }
-    case FunctionDeclaration(attributes, docCommentOpt, name, params, body, _) ⇒
+    case FunctionDeclaration(docCommentOpt, attributes, name, params, body, _) ⇒
       val attributeString = attributes.map("@" + _.name + " ").mkString
       val preparams = if (params.params.isEmpty) "" else " "
       attributeString + "def " + name + preparams + params.params.map(pretty).mkString(" ") + " = " + pretty(body)

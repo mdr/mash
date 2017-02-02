@@ -159,7 +159,7 @@ class TypeInferencer {
 
   private def getFunctionType(functionDeclaration: FunctionDeclaration,
                               bindings: Map[String, Type]): Type.UserDefinedFunction = {
-    val FunctionDeclaration(attributes, _, name, paramList, body, _) = functionDeclaration
+    val FunctionDeclaration(_, attributes, name, paramList, body, _) = functionDeclaration
     val isPrivate = attributes.exists(_.name == Attributes.Private)
     Type.UserDefinedFunction(isPrivate, Some(name), Evaluator.parameterModel(paramList), body, bindings)
   }
@@ -168,7 +168,7 @@ class TypeInferencer {
     val ClassDeclaration(_, className, paramList, bodyOpt, _) = classDeclaration
 
     val methods = bodyOpt.toSeq.flatMap(_.methods).map { decl ⇒
-      val FunctionDeclaration(attributes, _, functionName, functionParamList, body, _) = decl
+      val FunctionDeclaration(_, attributes, functionName, functionParamList, body, _) = decl
       val functionParams = Evaluator.parameterModel(functionParamList)
       val isPrivate = attributes.exists(_.name == Attributes.Private)
       val methodType = Type.UserDefinedFunction(isPrivate, Some(functionName), functionParams, body, bindings)

@@ -391,8 +391,8 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class FunctionDeclaration(attributes: Seq[Attribute],
-                                 docCommentOpt: Option[DocComment],
+  case class FunctionDeclaration(docCommentOpt: Option[DocComment],
+                                 attributes: Seq[Attribute],
                                  name: String,
                                  params: ParamList,
                                  body: Expr,
