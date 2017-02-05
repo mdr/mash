@@ -743,6 +743,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |A.new.getClass.name
   """ shouldEvaluateTo "'A'"
 
+  """@attribute
+    |class A {
+    |  @attribute
+    |  def a = 42
+    |}
+    |A.new.a
+  """ shouldEvaluateTo 42
+
   // Default arguments
   "def foo (x = 42) = x + 1; foo" shouldEvaluateTo 43
   "def foo (x = 42) = x + 1; foo 100" shouldEvaluateTo 101

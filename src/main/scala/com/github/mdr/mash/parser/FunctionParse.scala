@@ -13,19 +13,15 @@ trait FunctionParse {
     Attribute(atToken, name)
   }
 
-  private def attributes() = Attributes(safeWhile(AT)(attribute()))
+  protected def attributes() = Attributes(safeWhile(AT)(attribute()))
 
-  protected def functionDeclaration(): FunctionDeclaration = {
-    val firstToken = currentToken
-    val (attributesOpt, defToken, name, params, equals) = noSemis {
-      val attributesOpt = if (AT) Some(attributes()) else None
-      val defToken = consumeRequiredToken("function", DEF)
-      val name = consumeRequiredToken("function", IDENTIFIER)
-      val params = paramList()
-      val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
-      (attributesOpt, defToken, name, params, equals)
-    }
-    val body = pipeExpr()
+  protected def functionDeclaration(attributesOpt: Option[Attributes] = None): FunctionDeclaration = noSemis {
+    val defToken = consumeRequiredToken("function", DEF)
+    val name = consumeRequiredToken("function", IDENTIFIER)
+    val params = paramList()
+    val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
+    val firstToken = attributesOpt.flatMap(_.tokens.headOption) getOrElse defToken
+    val body = semisAllowed { pipeExpr() }
     FunctionDeclaration(docComment(firstToken), attributesOpt, defToken, name, params, equals, body)
   }
 

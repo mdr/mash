@@ -133,6 +133,8 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       withinSemiInferrableRegion = oldWithinSemiInferrableRegion
   }
 
+  protected def areSemisAllowed: Boolean = withinSemiInferrableRegion
+
   /**
     * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
     * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.

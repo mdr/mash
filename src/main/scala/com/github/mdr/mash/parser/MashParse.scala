@@ -37,7 +37,15 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
   }
 
   private def statementExpr(): Expr =
-    if (DEF || AT)
+    if (AT) {
+      noSemis {
+        val attrs = attributes()
+        if (CLASS)
+          classDeclaration(Some(attrs))
+        else // DEF
+          functionDeclaration(Some(attrs))
+      }
+    } else if (DEF)
       functionDeclaration()
     else if (CLASS)
       classDeclaration()
