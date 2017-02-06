@@ -72,10 +72,17 @@ object InvocationAssistance {
     val enclosingInvocations = program.findAll {
       case expr: InvocationExpr if expandedRegionContains(expr, tokens, pos)                              ⇒ expr
       case expr: Expr if expr.preInvocationTypeOpt.isDefined && expandedRegionContains(expr, tokens, pos) ⇒ expr
+      case expr: Expr if hasFunctionType(expr) && expandedRegionContains(expr, tokens, pos)               ⇒ expr
     }
     def size(expr: Expr): Int = expr.sourceInfoOpt.map(_.node.region.length).getOrElse(Integer.MAX_VALUE)
     Utils.minBy(enclosingInvocations, size)
   }
+
+  private def hasFunctionType(e: Expr): Boolean =
+    e.typeOpt.exists(cond(_) {
+      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _)
+           | _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
+    })
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =
     expr.sourceInfoOpt.exists(info ⇒ rightExpandedRegion(info.node, tokens) contains pos)
