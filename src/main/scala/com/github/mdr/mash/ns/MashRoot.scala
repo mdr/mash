@@ -82,6 +82,7 @@ object MashRoot {
 
   private val MathsFunctions = Seq(
     maths.LogFunction,
+    maths.SquareRootFunction,
     maths.StatsFunction)
 
   private val OsFunctions = Seq(
