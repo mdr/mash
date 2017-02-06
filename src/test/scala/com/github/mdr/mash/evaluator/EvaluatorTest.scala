@@ -693,6 +693,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{}.withField 'foo' 42" shouldEvaluateTo "{ foo: 42 }"
   "{ foo: 42 }.withField 'bar' 256" shouldEvaluateTo "{ foo: 42, bar: 256 }"
   "{ foo: 42 }.withField 'foo' 256" shouldEvaluateTo "{ foo: 256 }"
+  "{ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }.withField 'c' 100 | .fields[2].name" shouldEvaluateTo "'c'"
 
   // Object.get
   "{ foo: 42 }.get 'foo'" shouldEvaluateTo 42
