@@ -42,6 +42,7 @@ object PathClass extends MashClass("os.Path") {
     PathClassOwnerMethod,
     PathClassParentMethod,
     PathClassPermissionsMethod,
+    PathClassReadMethod,
     PathClassReadLinesMethod,
     PathClassRenameByMethod,
     PathClassRenameToMethod,
@@ -62,12 +63,32 @@ object PathClass extends MashClass("os.Path") {
       ReadLinesFunction.readLines(path)
     }
 
-    override def typeInferenceStrategy = Type.Seq(Type.Instance(StringClass))
+    override def typeInferenceStrategy = Type.Seq(StringClass)
 
-    override def summaryOpt = Some("Read lines from the file")
+    override def summaryOpt = Some("Read lines from this file")
 
-    override def descriptionOpt = Some("""Returns a sequence of lines read from the given file.
+    override def descriptionOpt = Some("""Returns a sequence of lines read from this file.
 The default character encoding and line separator are used.""")
+
+  }
+
+  object PathClassReadMethod extends MashMethod("read") {
+    private val fileSystem = LinuxFileSystem
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, arguments: Arguments): MashString = {
+      params.validate(arguments)
+      val path = interpretAsPath(target)
+      MashString(fileSystem.read(path))
+    }
+
+    override def typeInferenceStrategy = StringClass
+
+    override def summaryOpt = Some("Read the contents of this file as a string")
+
+    override def descriptionOpt = Some("""Returns a string with the contents of this file.
+The default character encoding is used.""")
 
   }
 

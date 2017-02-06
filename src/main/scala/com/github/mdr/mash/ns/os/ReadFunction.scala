@@ -10,35 +10,32 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashList, MashString }
 
-object ReadLinesFunction extends MashFunction("os.readLines") {
+object ReadFunction extends MashFunction("os.read") {
 
   private val fileSystem = LinuxFileSystem
 
   object Params {
     val File = Parameter(
       nameOpt = Some("file"),
-      summaryOpt = Some("File from which to read lines"))
+      summaryOpt = Some("File from which to read text"))
   }
   import Params._
 
   val params = ParameterModel(Seq(File))
 
-  def apply(arguments: Arguments): MashList = {
+  def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(File)
-    readLines(path)
+    MashString(fileSystem.read(path))
   }
 
-  def readLines(path: Path): MashList =
-    MashList(fileSystem.readLines(path).map(MashString(_)))
-
-  override def typeInferenceStrategy = Type.Seq(StringClass)
+  override def typeInferenceStrategy = StringClass
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def summaryOpt = Some("Read lines from a file")
+  override def summaryOpt = Some("Read the contents of a file as a string")
 
-  override def descriptionOpt = Some("""Returns a sequence of lines read from the given file.
-The default character encoding and line separator are used.""")
+  override def descriptionOpt = Some("""Returns a string with the contents of the given file.
+The default character encoding is used.""")
 
 }

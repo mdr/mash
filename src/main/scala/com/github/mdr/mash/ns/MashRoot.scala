@@ -100,6 +100,7 @@ object MashRoot {
     ListFilesFunction,
     MoveFunction,
     OldDirsFunction,
+    ReadFunction,
     ReadLinesFunction,
     UpFunction,
     WithinFunction,

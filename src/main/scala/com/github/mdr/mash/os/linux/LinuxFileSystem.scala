@@ -138,6 +138,8 @@ object LinuxFileSystem extends FileSystem {
 
   override def readLines(path: Path): Seq[String] = FileUtils.readLines(path.toFile, StandardCharsets.UTF_8).asScala
 
+  override def read(path: Path): String = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
+
   override def exists(path: Path): Boolean = Files.exists(path)
 
   override def isDirectory(path: Path): Boolean = Files.isDirectory(path)
