@@ -15,6 +15,7 @@ object ObjectClass extends MashClass("core.Object") {
     MergeFunction)
 
   override val methods = Seq(
+    BlessMethod,
     FieldsMethod,
     GetMethod,
     HasFieldMethod,
@@ -157,6 +158,31 @@ object ObjectClass extends MashClass("core.Object") {
   }
       """)
 
+  }
+
+  object BlessMethod extends MashMethod("bless") {
+
+    object Params {
+      val Class = Parameter(
+        nameOpt = Some("class"),
+        summaryOpt = Some("Class to associate with this object"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Class))
+
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+      val obj = target.asInstanceOf[MashObject]
+      val boundParams = params.validate(arguments)
+      val klass = boundParams(Class) match {
+        case klass: MashClass ⇒ klass
+        case value ⇒ boundParams.throwInvalidArgument(Class, s"Must be a class, but was a ${value.typeName}")
+      }
+      obj.withClass(klass)
+    }
+
+    override def summaryOpt: Option[String] = Some("Give this object the given class")
   }
 
   object FieldsMethod extends MashMethod("fields") {

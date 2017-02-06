@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Object.bless
 * zip function
 * Shortcuts to jump to start/end of multiline buffer
 * Object subtraction with a list of field names
