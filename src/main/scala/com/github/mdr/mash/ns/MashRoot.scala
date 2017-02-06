@@ -198,6 +198,7 @@ object MashRoot {
     UnitClass,
     StatsClass,
     TimedResultClass,
+    FieldAndValueClass,
     // git
     CommitClass,
     CommitHashClass,

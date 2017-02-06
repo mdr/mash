@@ -962,4 +962,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |square.help.summary
   """.stripMargin shouldEvaluateTo "'Square a number'"
 
+  // .bless
+  "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" shouldEvaluateTo 6
+
 }

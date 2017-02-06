@@ -348,6 +348,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[1, 2, 3].intersect [3, 4]" shouldBeInferredAsHavingType Seq(NumberClass)
 
+  // .bless
+  "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

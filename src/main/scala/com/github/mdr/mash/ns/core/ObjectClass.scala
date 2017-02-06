@@ -182,6 +182,17 @@ object ObjectClass extends MashClass("core.Object") {
       obj.withClass(klass)
     }
 
+    override object typeInferenceStrategy extends MethodTypeInferenceStrategy {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        val argBindings = params.bindTypes(arguments)
+        val userClassOpt = argBindings.getType(Class) collect { case userClass: Type.UserClass ⇒ Type.UserClassInstance(userClass) }
+        val builtinClassOpt = argBindings.getArgument(Class).flatMap(_.valueOpt) collect {
+          case klass: MashClass ⇒ Type.Instance(klass)
+        }
+        userClassOpt orElse builtinClassOpt
+      }
+    }
+
     override def summaryOpt: Option[String] = Some("Give this object the given class")
   }
 
