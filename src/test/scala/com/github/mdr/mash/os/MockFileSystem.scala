@@ -105,6 +105,8 @@ class MockFileSystem(
 
   override def readLines(path: Path): Seq[String] = Seq()
 
+  override def read(path: Path): String = ???
+
   override def exists(path: Path): Boolean = ???
 
   override def isDirectory(path: Path): Boolean = ???
