@@ -212,6 +212,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "['apple', 'ball', 'cup'] | grep -r '(a|b)'" shouldEvaluateTo "['apple', 'ball']"
   "['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'" shouldEvaluateTo "['APPLE', 'ball']"
   "'foo`nbar`nbaz' | grep 'b'" shouldEvaluateTo "['bar', 'baz']"
+  "'foo`nbar`nbaz'.grep 'b'" shouldEvaluateTo "['bar', 'baz']"
 
   // groupBy 
   "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
