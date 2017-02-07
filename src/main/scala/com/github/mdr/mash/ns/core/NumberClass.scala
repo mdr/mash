@@ -8,8 +8,6 @@ import com.github.mdr.mash.runtime._
 
 object NumberClass extends MashClass("core.Number") {
 
-  import MashClass.alias
-
   override val methods = Seq(
     BytesMethod,
     DaysMethod,
@@ -28,14 +26,7 @@ object NumberClass extends MashClass("core.Number") {
     ToMethod,
     UntaggedMethod,
     UntilMethod,
-    WeeksMethod,
-    alias("day", DaysMethod),
-    alias("hour", HoursMethod),
-    alias("millisecond", MillisecondsMethod),
-    alias("minute", MinutesMethod),
-    alias("month", MonthsMethod),
-    alias("second", SecondsMethod),
-    alias("week", WeeksMethod))
+    WeeksMethod)
 
   object ToMethod extends MashMethod("to") {
 
@@ -243,6 +234,8 @@ object NumberClass extends MashClass("core.Number") {
 
   abstract class ChronoUnitMethod(name: String, klass: MashClass) extends MashMethod(name) {
 
+    override def aliases = Seq(name.init)
+
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
@@ -274,7 +267,7 @@ object NumberClass extends MashClass("core.Number") {
       n.negate
     }
 
-    override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+    override object typeInferenceStrategy extends MethodTypeInferenceStrategy {
       def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
         targetTypeOpt
     }

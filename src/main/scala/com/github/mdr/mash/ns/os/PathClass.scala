@@ -50,8 +50,7 @@ object PathClass extends MashClass("os.Path") {
     PathClassSegmentsMethod,
     PathClassSizeMethod,
     PathClassTypeMethod,
-    PathClassWriteMethod,
-    MashClass.alias("rm", PathClassDeleteMethod))
+    PathClassWriteMethod)
 
   object PathClassReadLinesMethod extends MashMethod("readLines") {
 
@@ -225,6 +224,8 @@ The default character encoding is used.""")
   }
 
   object PathClassDeleteMethod extends MashMethod("delete") {
+
+    override def aliases = Seq("rm")
 
     val params = ParameterModel()
 

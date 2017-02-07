@@ -28,4 +28,8 @@ abstract class MashMethod(val name: String) {
   def isPrivate: Boolean = false
 
   def isPublic: Boolean = !isPrivate
+
+  def aliases: Seq[String] = Seq()
+
+  def names: Seq[String] = name +: aliases
 }

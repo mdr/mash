@@ -22,7 +22,6 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
     lifter.liftMethod(RemoteBranchClass.CreateLocalMethod),
     lifter.liftMethod(RemoteBranchClass.IsAncestorOfMethod),
     lifter.liftMethod(RemoteBranchClass.DeleteMethod),
-    MashClass.alias("isMergedInto", lifter.liftMethod(RemoteBranchClass.IsAncestorOfMethod)),
     lifter.liftMethod(RemoteBranchClass.LogMethod),
     InfoMethod)
 

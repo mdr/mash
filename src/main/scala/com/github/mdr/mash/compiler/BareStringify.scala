@@ -134,7 +134,7 @@ class BareStringificationContext {
 
   private def bareStringify(body: ClassBody, bindings: Set[String]): ClassBody = {
     val methodNames = body.methods.map(_.name).toSet
-    val parentMethodNames = ObjectClass.methods.map(_.name).toSet ++ AnyClass.methods.map(_.name).toSet
+    val parentMethodNames = ObjectClass.methodNames.toSet ++ AnyClass.methodNames.toSet
     val bodyBindings = bindings ++ methodNames ++ parentMethodNames
     val methods = body.methods.map(method ⇒ bareStringify(method, bodyBindings).asInstanceOf[FunctionDeclaration])
     ClassBody(methods, body.sourceInfoOpt)

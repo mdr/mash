@@ -5,13 +5,9 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ TypedArguments, _ }
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.runtime.{ MashList, MashNull, MashValue }
-
-import scala.PartialFunction._
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
 object ListClass extends MashClass("collections.List") {
-
-  import MashClass.alias
 
   override val methods = Seq(
     methodise(AllFunction),
@@ -29,7 +25,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(IsEmptyFunction),
     methodise(JoinFunction),
     methodise(LastFunction),
-    methodise(LengthFunction),
+    methodise(LengthFunction, Seq("count")),
     methodise(MapFunction),
     methodise(MaxByFunction),
     methodise(MaxFunction),
@@ -49,15 +45,8 @@ object ListClass extends MashClass("collections.List") {
     methodise(SumFunction),
     methodise(TakeWhileFunction),
     methodise(UniqueFunction),
-    methodise(WhereFunction),
-    methodise(WhereNotFunction),
-    alias("count", methodise(LengthFunction)),
-    alias("drop", methodise(SkipFunction)),
-    alias("dropIf", methodise(WhereNotFunction)),
-    alias("dropWhile", methodise(SkipWhileFunction)),
-    alias("filter", methodise(WhereFunction)),
-    alias("filterNot", methodise(WhereNotFunction)),
-    alias("keepIf", methodise(WhereFunction)),
+    methodise(WhereFunction, Seq("filter")),
+    methodise(WhereNotFunction, Seq("filterNot")),
     IntersectMethod)
 
   object IntersectMethod extends MashMethod("intersect") {
@@ -90,7 +79,9 @@ object ListClass extends MashClass("collections.List") {
     override def typeInferenceStrategy = IntersectMethodTypeInferenceStrategy
   }
 
-  def methodise(function: MashFunction): MashMethod = new MashMethod(function.name) {
+  def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod = new MashMethod(function.name) {
+
+    override def aliases = methodAliases
 
     val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains "sequence"))
 

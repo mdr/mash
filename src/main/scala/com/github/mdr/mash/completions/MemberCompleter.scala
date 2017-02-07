@@ -89,8 +89,8 @@ object MemberCompleter {
   private def getMembers(klass: MashClass): Seq[MemberInfo] = {
     val fieldMembers = klass.fields.map(f ⇒
       MemberInfo(f.name, classOpt = Some(klass), descriptionOpt = f.summaryOpt, isField = true))
-    val methodMembers = klass.methods.map(m ⇒
-      MemberInfo(m.name, classOpt = Some(klass), descriptionOpt = m.summaryOpt, isField = false))
+    val methodMembers = klass.methods.flatMap(m ⇒
+      m.names.map(name ⇒ MemberInfo(name, classOpt = Some(klass), descriptionOpt = m.summaryOpt, isField = false)))
     val parentClassMembers = klass.parentOpt.toSeq.flatMap(parentClass ⇒ getMembers(parentClass))
     distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
   }

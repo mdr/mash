@@ -34,7 +34,7 @@ object StringClass extends MashClass("core.String") {
     ListClass.methodise(IsEmptyFunction),
     ListClass.methodise(JoinFunction),
     ListClass.methodise(LastFunction),
-    ListClass.methodise(LengthFunction),
+    ListClass.methodise(LengthFunction, Seq("count")),
     ListClass.methodise(MapFunction),
     ListClass.methodise(MaxByFunction),
     ListClass.methodise(MaxFunction),
@@ -61,7 +61,7 @@ object StringClass extends MashClass("core.String") {
     GrepMethod,
     LinesMethod,
     MatchesMethod,
-    RMethod,
+    RegexMethod,
     ReplaceMethod,
     StartsWithMethod,
     SplitMethod,
@@ -73,9 +73,7 @@ object StringClass extends MashClass("core.String") {
     ToPathMethod,
     ToUpperMethod,
     TrimMethod,
-    UntaggedMethod,
-    MashClass.alias("g", GlobMethod),
-    MashClass.alias("count", ListClass.methodise(LengthFunction)))
+    UntaggedMethod)
 
   object ContainsMethod extends MashMethod("contains") {
 
@@ -103,6 +101,8 @@ object StringClass extends MashClass("core.String") {
   }
 
   object GlobMethod extends MashMethod("glob") {
+
+    override def aliases = Seq("g")
 
     val params = ParameterModel()
 
@@ -135,7 +135,9 @@ object StringClass extends MashClass("core.String") {
 
   }
 
-  object RMethod extends MashMethod("r") {
+  object RegexMethod extends MashMethod("regex") {
+
+    override def aliases = Seq("r")
 
     val params = ParameterModel()
 
@@ -144,7 +146,7 @@ object StringClass extends MashClass("core.String") {
       target.asInstanceOf[MashString].copy(tagClassOpt = Some(RegexClass))
     }
 
-    override def typeInferenceStrategy = Type.Tagged(StringClass, RegexClass)
+    override def typeInferenceStrategy = StringClass taggedWith RegexClass
 
     override def summaryOpt = Some("This string as a regular expression")
 

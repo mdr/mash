@@ -19,7 +19,6 @@ object CommitHashClass extends MashClass("git.CommitHash") {
     lifter.liftField(CommitClass.Fields.Parents),
     lifter.liftMethod(CommitClass.DiffMethod),
     lifter.liftMethod(CommitClass.IsAncestorOfMethod),
-    MashClass.alias("isMergedInto", lifter.liftMethod(CommitClass.IsAncestorOfMethod)),
     lifter.liftMethod(CommitClass.ParentMethod),
     InfoMethod)
 

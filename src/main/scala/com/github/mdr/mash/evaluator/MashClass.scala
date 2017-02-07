@@ -11,27 +11,6 @@ object MashClass {
 
   val ConstructorMethodName = "new"
 
-  /**
-    * Create an alias to a method
-    */
-  def alias(name: String, method: MashMethod): MashMethod = new MashMethod(name) {
-
-    val params = method.params
-
-    def apply(target: MashValue, arguments: Arguments): MashValue =
-      method.apply(target, arguments)
-
-    override def typeInferenceStrategy = method.typeInferenceStrategy
-
-    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
-      method.getCompletionSpecs(argPos, targetTypeOpt, arguments)
-
-    override def summaryOpt = method.summaryOpt
-
-    override def descriptionOpt = method.descriptionOpt
-
-  }
-
 }
 
 abstract class MashClass(val nameOpt: Option[String],
@@ -40,8 +19,6 @@ abstract class MashClass(val nameOpt: Option[String],
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
   def fields: Seq[Field] = Seq()
-
-  def getField(fieldName: String): Option[Field] = fields.find(_.name == fieldName)
 
   lazy val fieldsMap: ListMap[String, Field] = {
     val pairs = for (field ← fields) yield field.name -> field
@@ -52,11 +29,15 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def staticMethods: Seq[MashFunction] = Seq()
 
-  def getMethod(name: String) = methods.find(_.name == name)
+  def getField(fieldName: String): Option[Field] = fields.find(_.name == fieldName)
 
-  lazy val memberNames: Seq[String] = fields.map(_.name) ++ methods.map(_.name)
+  def getMethod(name: String) = methods.find(method ⇒ method.name == name || method.aliases.contains(name))
 
   def getStaticMethod(name: String): Option[MashFunction] = staticMethods.find(_.name == name)
+
+  def methodNames = methods.flatMap(_.names)
+
+  lazy val memberNames: Seq[String] = (fields.map(_.name) ++ methods.flatMap(_.names)).distinct
 
   override def toString = fullyQualifiedName.toString
 

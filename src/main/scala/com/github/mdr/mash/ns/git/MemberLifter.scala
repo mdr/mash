@@ -29,6 +29,8 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
   def liftMethod(method: MashMethod) = new MashMethod(method.name) {
 
+    override def aliases = method.aliases
+
     val params = method.params
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
