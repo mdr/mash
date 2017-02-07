@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
 
-case class EvaluationContext(scopeStack: ScopeStack)
+case class EvaluationContext(scopeStack: ScopeStack, namespaceOpt: Option[Namespace] = None)
 
 object Evaluator extends EvaluatorHelper {
 
@@ -164,7 +164,7 @@ object Evaluator extends EvaluatorHelper {
     }
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
-    val klass = UserDefinedClass(docCommentOpt, className, params, methods)
+    val klass = UserDefinedClass(docCommentOpt, className, context.namespaceOpt, params, methods)
     context.scopeStack.set(className, klass)
     klass
   }

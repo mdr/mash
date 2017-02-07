@@ -7,6 +7,7 @@ import com.github.mdr.mash.runtime.MashObject
 
 case class UserDefinedClass(docCommentOpt: Option[DocComment],
                             override val name: String,
+                            override val namespaceOpt: Option[Namespace],
                             params: ParameterModel,
                             override val methods: Seq[UserDefinedMethod]) extends MashClass(nameOpt = Some(name)) {
 

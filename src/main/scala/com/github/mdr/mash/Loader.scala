@@ -79,7 +79,8 @@ class Loader(terminal: Terminal,
       ExecutionContext.set(context)
       val unitScope = MashObject.empty
       val scopeStack = ScopeStack(globalVariables).withFullScope(unitScope)
-      Evaluator.evaluate(program.body)(EvaluationContext(scopeStack))
+      val namespaceOpt = program.namespaceOpt.map(getNamespace)
+      Evaluator.evaluate(program.body)(EvaluationContext(scopeStack, namespaceOpt))
       Some(unitScope)
     } catch {
       case e@EvaluatorException(msg, stack, cause) ⇒
