@@ -132,7 +132,7 @@ object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
     import HelpFunction.Params._
     argBindings.getType(Item).collect {
       case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _, _, _) | Type.BoundBuiltinMethod(_, _) ⇒ FunctionHelpClass
-      case Type.Instance(ClassClass)                                                                         ⇒ ClassHelpClass
+      case Type.Instance(ClassClass)                                                                            ⇒ ClassHelpClass
     }
 
   }

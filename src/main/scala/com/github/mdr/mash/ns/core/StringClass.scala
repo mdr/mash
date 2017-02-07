@@ -12,7 +12,6 @@ import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashString, _ }
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils._
 import com.joestelmach.natty.Parser
 
 import scala.collection.JavaConverters._
@@ -124,9 +123,7 @@ object StringClass extends MashClass("core.String") {
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
       params.validate(arguments)
-      val boundParams = params.validate(arguments)
-      val s = target.asInstanceOf[MashString]
-      s.modify(_.trim)
+      target.asInstanceOf[MashString].modify(_.trim)
     }
 
     override def typeInferenceStrategy = SameStringMethodTypeInferenceStrategy

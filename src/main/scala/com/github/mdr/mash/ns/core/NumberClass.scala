@@ -243,7 +243,7 @@ object NumberClass extends MashClass("core.Number") {
       target.asInstanceOf[MashNumber].withTag(klass)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Tagged(NumberClass, klass))
+    override def typeInferenceStrategy = NumberClass taggedWith klass
 
     override def summaryOpt = Some("This number of " + name)
 
