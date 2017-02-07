@@ -90,7 +90,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "42.toString" shouldBeInferredAsHavingType StringClass
 
-  "ls.first.children" shouldBeInferredAsHavingType Seq(Instance(PathSummaryClass))
+  "ls.first.children" shouldBeInferredAsHavingType Seq(PathSummaryClass)
 
   "[]" shouldBeInferredAsHavingType Seq(Any)
 
@@ -140,7 +140,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "'foo' | where (_ > 'm')" shouldBeInferredAsHavingType StringClass
   "'[1, 2, 3]' | json.fromString | where (_ > 2)"  shouldBeInferredAsHavingType Seq(AnyClass)
 
-  "null" shouldBeInferredAsHavingType Instance(NullClass)
+  "null" shouldBeInferredAsHavingType NullClass
 
   // sum
   " [1.bytes] | sum " shouldBeInferredAsHavingType Tagged(NumberClass, BytesClass)
@@ -229,10 +229,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // target
   "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberClass)
 
-  "!!{nano}" shouldBeInferredAsHavingType Instance(UnitClass)
-  "!{which ls}" shouldBeInferredAsHavingType Instance(ProcessResultClass)
+  "!!{nano}" shouldBeInferredAsHavingType UnitClass
+  "!{which ls}" shouldBeInferredAsHavingType ProcessResultClass
 
-  "git.status" shouldBeInferredAsHavingType Instance(StatusClass)
+  "git.status" shouldBeInferredAsHavingType StatusClass
   "git['status']" shouldBeInferredAsHavingType BuiltinFunction(StatusFunction)
   "[1, 2, 3]['reverse']" shouldBeInferredAsHavingType BoundBuiltinMethod(Seq(NumberClass), ListClass.methods.find(_.name == "reverse").get)
   "[1, 2, 3].reverse" shouldBeInferredAsHavingType Seq(NumberClass)
