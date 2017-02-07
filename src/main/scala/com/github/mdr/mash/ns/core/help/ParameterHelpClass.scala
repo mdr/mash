@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
 
 object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
@@ -20,6 +20,8 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
   import Fields._
 
   override val fields = Seq(Name, Summary, Description, ShortFlag, IsFlagParameter, IsOptional, IsLast, IsLazy, IsVariadic)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("Help documentation for parameters")
 

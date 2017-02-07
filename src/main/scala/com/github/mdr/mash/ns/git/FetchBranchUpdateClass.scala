@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
@@ -17,6 +17,8 @@ object FetchBranchUpdateClass extends MashClass("git.FetchBranchUpdate") {
   override lazy val fields = Seq(RemoteBranch, OldCommit, NewCommit)
 
   override lazy val methods = Seq()
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("A branch update after a fetch")
 

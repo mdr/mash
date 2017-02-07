@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.StringClass
 
 object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
@@ -18,6 +18,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
   import Fields._
 
   override val fields = Seq(Name, FullyQualifiedName, Summary, CallingSyntax, Description, Parameters, Class)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("Help documentation for a function")
 

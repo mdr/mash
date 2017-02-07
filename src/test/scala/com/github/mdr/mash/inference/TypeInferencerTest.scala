@@ -313,7 +313,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "(x => x).isNull" shouldBeInferredAsHavingType BooleanClass
 
   // static
-  "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeFunction)
+  "Object.merge" shouldBeInferredAsHavingType Type.BuiltinFunction(ObjectClass.MergeStaticMethod)
 
   // classes
   "class Foo { def bar = 10 }; Foo.new.bar" shouldBeInferredAsHavingType NumberClass
@@ -351,6 +351,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // .bless
   "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" shouldBeInferredAsHavingType NumberClass
+  "{ name: 'name', value: 42 }.bless core.FieldAndValue" shouldBeInferredAsHavingType FieldAndValueClass
 
   private implicit class RichString(s: String) {
 

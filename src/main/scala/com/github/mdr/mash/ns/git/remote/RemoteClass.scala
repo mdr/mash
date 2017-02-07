@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git.remote
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 
@@ -15,6 +15,8 @@ object RemoteClass extends MashClass("git.remote.Remote") {
   import Fields._
 
   override lazy val fields = Seq(Name, FetchUrls, PushUrls)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("A Git remote")
 

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.http
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.StringClass
 
 object CookieClass extends MashClass("http.Cookie") {
@@ -13,6 +13,8 @@ object CookieClass extends MashClass("http.Cookie") {
   import Fields._
 
   override val fields = Seq(Name, Value)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("An HTTP cookie")
 

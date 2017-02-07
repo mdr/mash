@@ -33,6 +33,8 @@ object ProcessClass extends MashClass("os.Process") {
     KillMethod,
     ParentMethod)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   case class Wrapper(target: MashValue) {
 
     private val obj = target.asInstanceOf[MashObject]

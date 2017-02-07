@@ -212,6 +212,28 @@ object StringClass extends MashClass("core.String") {
 
   }
 
+  object GrepMethod extends MashMethod("grep") {
+    import GrepFunction.Params._
+
+    val params = ParameterModel(Seq(Query, IgnoreCase, Regex))
+
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+      val boundParams = params.validate(arguments)
+      val ignoreCase = boundParams(IgnoreCase).isTruthy
+      val regex = boundParams(Regex).isTruthy
+      val query = ToStringifier.stringify(boundParams(Query))
+      val items = GrepFunction.getItems(target.asInstanceOf[MashString])
+      GrepFunction.runGrep(items, query, ignoreCase, regex)
+    }
+
+    override object typeInferenceStrategy extends MethodTypeInferenceStrategy {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
+        targetTypeOpt.map(_.seq)
+    }
+
+    override def summaryOpt: Option[String] = Some("Find all the elements in the lines of this String which match the given query")
+  }
+
   object LinesMethod extends MashMethod("lines") {
 
     val params = ParameterModel()

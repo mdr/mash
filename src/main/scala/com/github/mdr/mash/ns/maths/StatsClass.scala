@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.maths
 
-import com.github.mdr.mash.evaluator.MashClass
-import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.NumberClass
 
 object StatsClass extends MashClass("maths.Stats") {
@@ -18,6 +17,8 @@ object StatsClass extends MashClass("maths.Stats") {
   import Fields._
 
   override val fields = Seq(Min, Max, Mean, StandardDeviation, Median, Count)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("Statistics for a data set")
 

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException, Field, MashClass }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.os.PathClass
@@ -29,6 +29,8 @@ object HistoryEntryClass extends MashClass("core.HistoryEntry") {
 
   override val methods = Seq(
     ReexecuteMethod)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   object ReexecuteMethod extends MashMethod("reexecute") {
 

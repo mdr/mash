@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import java.time.{ Duration, Instant }
 
-import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
@@ -37,6 +37,8 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     ToNumberMethod,
     ToPathMethod,
     ToStringMethod)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   def fromResult(processResult: ProcessResult): MashObject = {
     import ProcessResultClass.Fields._

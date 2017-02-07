@@ -20,6 +20,8 @@ object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
 
   override val fields = Seq(CanRead, CanWrite, CanExecute)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   def asMashObject(section: PermissionsSection): MashObject = {
     val PermissionsSection(canRead, canWrite, canExecute) = section
     MashObject.of(ListMap(

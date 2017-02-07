@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.view
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.BooleanClass
 
@@ -16,6 +16,8 @@ object ViewClass extends MashClass("view.View") {
   import Fields._
 
   override lazy val fields = Seq(Data, DisableCustomViews, UseBrowser, UseTree)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("Instructions on how to display data in Mash's output system")
 }

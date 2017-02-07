@@ -36,6 +36,8 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     LogMethod,
     ToStringMethod)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   case class Wrapper(target: MashValue) {
 
     def name = target.asInstanceOf[MashObject](Fields.Name).asInstanceOf[MashString]

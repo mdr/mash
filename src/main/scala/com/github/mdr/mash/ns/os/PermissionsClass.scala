@@ -19,6 +19,8 @@ object PermissionsClass extends MashClass("os.Permissions") {
 
   override val fields = Seq(Owner, Group, Others)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   def asMashObject(permissions: Permissions): MashObject = {
     val Permissions(owner, others, group) = permissions
     MashObject.of(ListMap(

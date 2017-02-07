@@ -35,6 +35,8 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     ToStringMethod +: liftedMethods
   }
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   private case class Wrapper(value: MashValue) {
     private val obj = value.asInstanceOf[MashObject]
     

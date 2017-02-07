@@ -12,7 +12,7 @@ import scala.collection.immutable.ListMap
 object ObjectClass extends MashClass("core.Object") {
 
   override val staticMethods = Seq(
-    MergeFunction)
+    MergeStaticMethod)
 
   override val methods = Seq(
     BlessMethod,
@@ -22,7 +22,7 @@ object ObjectClass extends MashClass("core.Object") {
     HoistMethod,
     WithFieldMethod)
 
-  object MergeFunction extends MashFunction("merge") {
+  object MergeStaticMethod extends MashFunction("merge") {
 
     object Params {
       val Objects = Parameter(

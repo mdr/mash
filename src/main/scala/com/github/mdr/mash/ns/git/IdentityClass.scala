@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Field, MashClass }
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
@@ -17,6 +17,8 @@ object IdentityClass extends MashClass("git.Identity") {
   override lazy val methods = Seq(
     ToStringMethod)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   override def summaryOpt = Some("A combination of a person identity and time in Git")
 
   case class Wrapper(target: MashValue) {
@@ -32,7 +34,5 @@ object IdentityClass extends MashClass("git.Identity") {
     }
 
   }
-
-  override def parentOpt = Some(AnyClass)
 
 }

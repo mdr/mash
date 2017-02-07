@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.http
 
-import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.inference.Type.classToType
@@ -24,6 +24,8 @@ object ResponseClass extends MashClass("http.Response") {
   override val methods = Seq(
     JsonMethod,
     SucceededMethod)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   object JsonMethod extends MashMethod("json") {
 

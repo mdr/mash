@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
 import com.github.mdr.mash.os.{ GroupEntry, PasswdEntry, UserInteractions }
@@ -21,6 +21,8 @@ object GroupInfoClass extends MashClass("os.GroupInfo") {
   import Fields._
 
   override val fields = Seq(Name, Gid, Users)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   def makeGroupInfo(groupEntry: GroupEntry, passwdEntries: Seq[PasswdEntry]): MashObject = {
     val users = GroupClass.UsersMethod.getUsers(groupEntry)

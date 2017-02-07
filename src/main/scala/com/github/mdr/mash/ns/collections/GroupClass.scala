@@ -18,6 +18,8 @@ object GroupClass extends MashClass("collections.Group") {
 
   override val methods = Seq(CountMethod)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   private case class Wrapper(target: MashValue) {
 
     private val obj = target.asInstanceOf[MashObject]

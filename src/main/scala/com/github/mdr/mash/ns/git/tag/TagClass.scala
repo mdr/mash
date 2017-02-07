@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git.tag
 
-import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.StringClass
@@ -17,6 +17,8 @@ object TagClass extends MashClass("git.tag.Tag") {
   import Fields._
 
   override lazy val fields = Seq(Name, Commit)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   case class Wrapper(target: MashValue) {
 

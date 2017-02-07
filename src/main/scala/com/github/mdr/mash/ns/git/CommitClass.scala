@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
@@ -38,6 +38,8 @@ object CommitClass extends MashClass("git.Commit") {
     IsAncestorOfMethod,
     ParentMethod,
     ToStringMethod)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   override def summaryOpt = Some("A git commit object")
 

@@ -6,7 +6,7 @@ import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
-import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashString, MashValue }
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.StringUtils
 
 object GrepFunction extends MashFunction("collections.grep") {
@@ -46,14 +46,19 @@ object GrepFunction extends MashFunction("collections.grep") {
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
     val items = getInputItems(boundParams)
-    MashList(items.filter(matches(_, query, ignoreCase, regex)))
+    runGrep(items, query, ignoreCase, regex)
   }
+
+  def getItems(s: MashString) = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
+
+  def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean): MashList =
+    MashList(items.filter(matches(_, query, ignoreCase, regex)))
 
   private def getInputItems(boundParams: BoundParams): Seq[MashValue] =
     boundParams(Input) match {
-      case MashString(s, tagClassOpt) ⇒ StringUtils.splitIntoLines(s).map(MashString(_, tagClassOpt))
-      case xs: MashList               ⇒ xs.elements
-      case input                      ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was '${input.typeName}'")
+      case s: MashString ⇒ getItems(s)
+      case xs: MashList  ⇒ xs.elements
+      case input         ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was '${input.typeName}'")
     }
 
   private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean): Boolean = {

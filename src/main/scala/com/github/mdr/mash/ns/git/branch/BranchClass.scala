@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Arguments, Field, MashClass }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
@@ -36,6 +36,8 @@ object BranchClass extends MashClass("git.branch.Branch") {
     SetCommitMethod,
     SwitchMethod,
     ToStringMethod)
+
+  override val staticMethods = Seq(NewStaticMethod(this))
 
   case class Wrapper(target: MashValue) {
 

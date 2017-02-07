@@ -29,6 +29,8 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     FullNameMethod,
     GroupsMethod)
 
+  override val staticMethods = Seq(NewStaticMethod(this))
+
   case class Wrapper(target: MashValue) {
 
     private val user = target.asInstanceOf[MashObject]

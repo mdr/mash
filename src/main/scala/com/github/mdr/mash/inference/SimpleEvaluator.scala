@@ -31,8 +31,13 @@ object SimpleEvaluator {
       evaluate(subExpr)
       None
     case memberExpr: MemberExpr                        ⇒
-      evaluate(memberExpr.target)
-      None
+      val MemberExpr(target, name, _, _) = memberExpr
+      // We just check for field lookups
+      for {
+        targetValue ← evaluate(target)
+        targetObject ← targetValue.asObject
+        fieldValue ← targetObject.get(name)
+      } yield fieldValue
     case lookupExpr: LookupExpr                        ⇒
       evaluate(lookupExpr.index)
       evaluate(lookupExpr.target)
