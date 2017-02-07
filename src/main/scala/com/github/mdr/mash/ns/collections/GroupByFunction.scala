@@ -24,7 +24,8 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
-      descriptionOpt = Some(s"""If true, include an additional group containing all the elements.
+      descriptionOpt = Some(
+        s"""If true, include an additional group containing all the elements.
 If false (the default), this group is not included.
 If a non-boolean argument is given, that is used as the key for the additional group.
 Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
@@ -35,7 +36,8 @@ Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
-      descriptionOpt = Some("""If true, include a group with null keys, if any elements exist for such a group.
+      descriptionOpt = Some(
+        """If true, include a group with null keys, if any elements exist for such a group.
 If false (the default), exclude a group with a null key.
 If a non-boolean argument is given, that will be used as the key for the null group instead of null."""))
     val Sequence = Parameter(
@@ -98,10 +100,11 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   override def summaryOpt = Some("Group together the elements of a sequence sharing a common key")
 
-  override def descriptionOpt = Some("""Returns a sequence of Group objects, where each group contains 
+  override def descriptionOpt = Some(
+    """Returns a sequence of Group objects, where each group contains
 a subset of the sequence  sharing the same key, as determined by the given 
 discriminator function.
-    
+
 Example:
   groupBy first ["foo", "bar", "baz"]
   ╔═══╤═════╤════════╗
@@ -124,8 +127,8 @@ object GroupByTypeInferenceStrategy extends TypeInferenceStrategy {
       keyType ← MapTypeInferenceStrategy.inferMappedType(inferencer, discriminatorExprOpt, sequenceTypeOpt)
       sequenceType ← sequenceTypeOpt
       valuesType ← condOpt(sequenceType) {
-        case Type.Seq(elementType)                                    ⇒ elementType
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+        case Type.Seq(elementType)      ⇒ elementType
+        case Type.Patterns.AnyString(_) ⇒ sequenceType
       }
     } yield Type.Seq(Type.Generic(GroupClass, keyType, valuesType))
   }

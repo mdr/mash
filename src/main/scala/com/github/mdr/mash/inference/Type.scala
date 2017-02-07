@@ -18,6 +18,17 @@ sealed trait Type {
 
 object Type {
 
+  object Patterns {
+
+    object AnyString {
+      def unapply(x: Any): Option[Type] = PartialFunction.condOpt(x) {
+        case Type.Instance(StringClass)            ⇒ Type.Instance(StringClass)
+        case Type.Tagged(StringClass, tagClassOpt) ⇒ Type.Tagged(StringClass, tagClassOpt)
+      }
+    }
+
+  }
+
   val Any = Instance(AnyClass)
 
   /**
@@ -73,6 +84,7 @@ object Type {
                                  body: Expr,
                                  bindings: Map[String, Type]) extends Type {
     override def toString = s"${classOf[UserDefinedFunction].getSimpleName}($nameOpt)"
+
     def isPublic = !isPrivate
   }
 

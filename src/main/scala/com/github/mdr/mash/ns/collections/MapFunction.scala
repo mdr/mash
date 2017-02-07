@@ -86,9 +86,9 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
     val functionOpt = argBindings.getArgument(F)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val sequenceType = sequenceTypeOpt match {
-      case Some(Type.Seq(elementType))                                                   ⇒ elementType.seq
-      case Some(sequenceType@(Type.Instance(StringClass) | Type.Tagged(StringClass, _))) ⇒ sequenceType
-      case _                                                                             ⇒ Type.Any.seq
+      case Some(Type.Seq(elementType))               ⇒ elementType.seq
+      case Some(Type.Patterns.AnyString(stringType)) ⇒ stringType
+      case _                                         ⇒ Type.Any.seq
     }
     val newElementTypeOpt = inferMappedType(inferencer, functionOpt, Some(sequenceType))
     Some(getResultType(sequenceType, newElementTypeOpt))
@@ -96,12 +96,12 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
 
   private def getResultType(sequenceType: Type, newElementTypeOpt: Option[Type]): Type =
     sequenceType match {
-      case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒
+      case Type.Patterns.AnyString(_) ⇒
         newElementTypeOpt match {
-          case None | Some(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ sequenceType
-          case Some(newElementType)                                                  ⇒ Type.Seq(newElementType)
+          case None | Some(Type.Patterns.AnyString(_)) ⇒ sequenceType
+          case Some(newElementType)                    ⇒ Type.Seq(newElementType)
         }
-      case _                                                        ⇒
+      case _                          ⇒
         (newElementTypeOpt getOrElse Type.Any).seq
     }
 
@@ -118,9 +118,9 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
       functionType ← functionTypeOpt
       sequenceType = sequenceTypeOpt getOrElse Type.Any.seq
       elementType ← condOpt(sequenceType) {
-        case Type.Seq(elementType)                                    ⇒ elementType
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
-        case _                                                        ⇒ Type.Any
+        case Type.Seq(elementType)               ⇒ elementType
+        case Type.Patterns.AnyString(stringType) ⇒ stringType
+        case _                                   ⇒ Type.Any
       }
       newElementType ← inferencer.applyFunction(functionType, elementType, functionValueOpt)
     } yield newElementType

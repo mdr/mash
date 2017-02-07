@@ -372,7 +372,7 @@ class TypeInferencer {
                                   typedArgs: TypedArguments,
                                   function: Expr,
                                   bindings: Map[String, Type]): Option[Type] = functionType match {
-    case Type.Instance(StringClass) | Type.Tagged(StringClass, _)                                                         ⇒
+    case Type.Patterns.AnyString(_)                                                                                       ⇒
       for {
         arg ← typedArgs.positionArgs.headOption
         MashString(s, _) ← function.constantValueOpt
@@ -522,22 +522,22 @@ class TypeInferencer {
     */
   private def inferImmediateExec(intermediateTypeOpt: Option[Type], exprOpt: Option[Expr] = None): Option[Type] =
     intermediateTypeOpt match {
-      case Some(Type.BuiltinFunction(f)) if f.allowsNullary                                             ⇒
+      case Some(Type.BuiltinFunction(f)) if f.allowsNullary                                                ⇒
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), TypedArguments())
-      case Some(Type.BoundBuiltinMethod(targetType, method)) if method.allowsNullary                    ⇒
+      case Some(Type.BoundBuiltinMethod(targetType, method)) if method.allowsNullary                       ⇒
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         method.typeInferenceStrategy.inferTypes(new Inferencer(this, Map()), Some(targetType), TypedArguments())
       case Some(Type.UserDefinedFunction(_, _, _, params, body, functionBindings)) if params.allowsNullary ⇒
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, functionBindings ++ argBindings)
-      case Some(Type.BoundUserDefinedMethod(targetType, function)) if function.params.allowsNullary     ⇒
+      case Some(Type.BoundUserDefinedMethod(targetType, function)) if function.params.allowsNullary        ⇒
         val Type.UserDefinedFunction(_, _, _, params, body, methodBindings) = function
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))
-      case x                                                                                            ⇒
+      case x                                                                                               ⇒
         x
     }
 

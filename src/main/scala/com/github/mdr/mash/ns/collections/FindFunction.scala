@@ -19,6 +19,7 @@ object FindFunction extends MashFunction("collections.find") {
       summaryOpt = Some("Sequence to search"),
       isLast = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Predicate, Sequence))
@@ -37,9 +38,10 @@ object FindFunction extends MashFunction("collections.find") {
 
   override def summaryOpt = Some("Find an element in the sequence for which a predicate holds")
 
-  override def descriptionOpt = Some("""Returns the first element of the sequence for which the predicate returns a truthy value.
+  override def descriptionOpt = Some(
+    """Returns the first element of the sequence for which the predicate returns a truthy value.
 null is returned if no matching element is found.
-    
+
 Examples:
   find (_ > 10) [1, 20, 3]  # 20
   find (_ > 100) [1, 2, 3]  # null""")
@@ -57,8 +59,8 @@ object FindTypeInferenceStrategy extends TypeInferenceStrategy {
     for {
       sequenceType ← sequenceTypeOpt
       elementType ← condOpt(sequenceType) {
-        case Type.Seq(elementType)                                    ⇒ elementType
-        case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+        case Type.Seq(elementType)      ⇒ elementType
+        case Type.Patterns.AnyString(_) ⇒ sequenceType
       }
     } yield elementType
   }

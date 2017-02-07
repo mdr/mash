@@ -20,6 +20,7 @@ object FirstFunction extends MashFunction("collections.first") {
       summaryOpt = Some("Sequence to find the first value(s) of"),
       isLast = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(N, Sequence))
@@ -34,11 +35,11 @@ object FirstFunction extends MashFunction("collections.first") {
           case s: MashString ⇒ s.modify(_.take(count))
           case xs: MashList  ⇒ xs.take(count)
         }
-      case None ⇒
+      case None        ⇒
         sequence match {
           case s: MashString ⇒
             if (s.isEmpty) MashNull else s.first
-          case xs: MashList ⇒
+          case xs: MashList  ⇒
             if (xs.isEmpty) MashNull else xs.head
         }
     }
@@ -48,7 +49,8 @@ object FirstFunction extends MashFunction("collections.first") {
 
   override def summaryOpt = Some("Find the first element(s) of a sequence")
 
-  override def descriptionOpt = Some(s"""If a count ${N.nameOpt} is provided, the first ${N.nameOpt} items of the sequence will be returned.
+  override def descriptionOpt = Some(
+    s"""If a count ${N.nameOpt} is provided, the first ${N.nameOpt} items of the sequence will be returned.
 If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.
 If a count ${N.nameOpt} is omitted, then the first item of the sequence is returned, if nonempty, else null.
 
@@ -71,8 +73,8 @@ object FirstTypeInferenceStrategy extends TypeInferenceStrategy {
       for {
         sequenceType ← argBindings.getType(Sequence)
         elementType ← condOpt(sequenceType) {
-          case Type.Seq(elementType)                                    ⇒ elementType
-          case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ sequenceType
+          case Type.Seq(elementType)      ⇒ elementType
+          case Type.Patterns.AnyString(_) ⇒ sequenceType
         }
       } yield elementType
   }

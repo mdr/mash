@@ -14,7 +14,8 @@ object MaxFunction extends MashFunction("collections.max") {
     val Items = Parameter(
       nameOpt = Some("items"),
       summaryOpt = Some("Items to find the maximum of"),
-      descriptionOpt = Some("""If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
+      descriptionOpt = Some(
+        """If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
 If multiple arguments are provided, the largest argument is returned."""),
       isVariadic = true)
     val Default = Parameter(
@@ -41,13 +42,13 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   def getSequence(boundParams: BoundParams, itemsParam: Parameter) =
     boundParams.validateSequence(itemsParam) match {
-      case Seq() ⇒
+      case Seq()                                  ⇒
         throw new EvaluatorException("Must provide at least one argument")
-      case Seq(seq @ (_: MashString | _: MashList)) ⇒
+      case Seq(seq@(_: MashString | _: MashList)) ⇒
         FunctionHelpers.interpretAsSequence(seq)
-      case Seq(other) ⇒
+      case Seq(other)                             ⇒
         boundParams.throwInvalidArgument(Items, "A single argument must be a sequence")
-      case items ⇒
+      case items                                  ⇒
         items
     }
 
@@ -55,7 +56,8 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   override def summaryOpt = Some("Find the largest element of a sequence")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   max [1, 2, 3]      # 3
   max 1 2 3          # 3
   max [] --default=0 # 0""")
@@ -71,8 +73,8 @@ object MaxTypeInferenceStrategy extends TypeInferenceStrategy {
       for {
         inputType ← argBindings.getType(Items).collect { case Type.Seq(inputType) ⇒ inputType }
         elementType ← condOpt(inputType) {
-          case Type.Seq(elementType)                                    ⇒ elementType
-          case Type.Instance(StringClass) | Type.Tagged(StringClass, _) ⇒ inputType
+          case Type.Seq(elementType)               ⇒ elementType
+          case Type.Patterns.AnyString(stringType) ⇒ stringType
         }
       } yield elementType
     else
