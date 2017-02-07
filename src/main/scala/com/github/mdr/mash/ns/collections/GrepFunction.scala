@@ -5,17 +5,19 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashString, MashValue }
+import com.github.mdr.mash.utils.StringUtils
 
 object GrepFunction extends MashFunction("collections.grep") {
 
   object Params {
     val Query = Parameter(
       nameOpt = Some("query"),
-      summaryOpt = Some("Query to find in the given sequence"))
-    val Sequence = Parameter(
-      nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find values in"),
+      summaryOpt = Some("Query to find in the given input"))
+    val Input = Parameter(
+      nameOpt = Some("input"),
+      summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."),
       isLast = true)
     val IgnoreCase = Parameter(
       nameOpt = Some("ignoreCase"),
@@ -33,20 +35,26 @@ object GrepFunction extends MashFunction("collections.grep") {
       isBooleanFlag = true)
 
   }
+
   import Params._
 
-  val params = ParameterModel(Seq(Query, Sequence, IgnoreCase, Regex))
+  val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex))
 
-  def apply(arguments: Arguments): MashValue = {
+  def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
-    val inSequence = boundParams(Sequence)
-    val sequence = boundParams.validateSequence(Sequence)
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
-    val newSequence = sequence.filter(matches(_, query, ignoreCase, regex))
-    reassembleSequence(inSequence, newSequence)
+    val items = getInputItems(boundParams)
+    MashList(items.filter(matches(_, query, ignoreCase, regex)))
   }
+
+  private def getInputItems(boundParams: BoundParams): Seq[MashValue] =
+    boundParams(Input) match {
+      case MashString(s, tagClassOpt) ⇒ StringUtils.splitIntoLines(s).map(MashString(_, tagClassOpt))
+      case xs: MashList               ⇒ xs.elements
+      case input                      ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was '${input.typeName}'")
+    }
 
   private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean): Boolean = {
     val valueString = ToStringifier.stringify(value)
@@ -59,17 +67,23 @@ object GrepFunction extends MashFunction("collections.grep") {
       valueString contains query
   }
 
-  def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =
-    inSequence match {
-      case MashString(_, tagOpt) ⇒ newSequence.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                     ⇒ MashList(newSequence)
+  override object typeInferenceStrategy extends TypeInferenceStrategy {
+
+    def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+      val inputTypeOpt = params.bindTypes(arguments).getType(Input)
+      val preciseTypeOpt = inputTypeOpt.collect {
+        case Type.Seq(elementType)                                        ⇒ Type.Seq(elementType)
+        case s@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ Type.Seq(s)
+      }
+      preciseTypeOpt orElse Some(Type.Seq(AnyClass))
     }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  }
 
-  override def summaryOpt = Some("Find all the elements in the sequence which match the given query somewhere in its String representation")
+  override def summaryOpt = Some("Find all the elements in the input which match the given query somewhere in its String representation")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   grep "b" ["apple", "book", "car"] # ["book"]""")
 
 }

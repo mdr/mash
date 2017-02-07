@@ -211,6 +211,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "['foo', 'bar', 'BAZ'] | grep -i 'b'" shouldEvaluateTo "['bar', 'BAZ']"
   "['apple', 'ball', 'cup'] | grep -r '(a|b)'" shouldEvaluateTo "['apple', 'ball']"
   "['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'" shouldEvaluateTo "['APPLE', 'ball']"
+  "'foo`nbar`nbaz' | grep 'b'" shouldEvaluateTo "['bar', 'baz']"
 
   // groupBy 
   "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" shouldEvaluateTo
@@ -810,6 +811,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // scope
   "a = 0; while (a < 10) { a = a + 1 }; a" shouldEvaluateTo 10
+  "42 | a = _; a" shouldEvaluateTo 42
 
   // Patterns
   "{ foo: 42, bar: 128 } | { foo } => foo + 1" shouldEvaluateTo 43

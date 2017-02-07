@@ -104,6 +104,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // grep
   "[1, 2, 3] | grep 2" shouldBeInferredAsHavingType Seq(NumberClass)
+  "'foo`nbar' | grep 'b'" shouldBeInferredAsHavingType Seq(StringClass)
 
   // last
   "last [1, 2, 3]" shouldBeInferredAsHavingType NumberClass
