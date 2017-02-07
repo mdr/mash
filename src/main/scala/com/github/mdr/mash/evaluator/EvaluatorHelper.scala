@@ -5,8 +5,7 @@ import com.github.mdr.mash.runtime.MashValue
 
 trait EvaluatorHelper {
 
-  protected def sourceLocation(expr: AstNode)(implicit context: EvaluationContext): Option[SourceLocation] =
-    expr.locationOpt
+  protected def sourceLocation(node: AstNode): Option[SourceLocation] = node.locationOpt
 
   protected def addLocationToExceptionIfMissing[T <: MashValue](locationOpt: Option[SourceLocation])(p: ⇒ T): T =
     try

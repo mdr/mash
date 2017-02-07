@@ -38,7 +38,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       EvaluatedArgument.LongFlag(flag, suspendedValueOpt, Some(arg))
   }
 
-  private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr)(implicit context: EvaluationContext): MashValue =
+  private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
     callFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
 
   def callFunction(function: MashValue,
