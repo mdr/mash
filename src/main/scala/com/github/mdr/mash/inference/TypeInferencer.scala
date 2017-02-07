@@ -10,7 +10,7 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ FunctionDeclaration, _ }
-import com.github.mdr.mash.parser.{ BinaryOperator, DocCommentParser, QuotationType }
+import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
@@ -134,7 +134,10 @@ class TypeInferencer {
 
   private def inferType(helpExpr: HelpExpr, bindings: Map[String, Type]): Option[Type] =
     inferType(helpExpr.expr, bindings, immediateExec = false) collect {
-      case Type.BuiltinFunction(_) ⇒ FunctionHelpClass
+      case Type.BuiltinFunction(_)        ⇒ FunctionHelpClass
+      case Type.BoundBuiltinMethod(_, _)  ⇒ FunctionHelpClass
+      case _: Type.UserDefinedFunction    ⇒ FunctionHelpClass
+      case _: Type.BoundUserDefinedMethod ⇒ FunctionHelpClass
     }
 
   private def inferType(statementSeq: StatementSeq, bindings: Map[String, Type]): Option[Type] = {

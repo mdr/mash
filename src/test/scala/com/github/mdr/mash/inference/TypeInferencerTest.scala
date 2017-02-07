@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.core.help._
+import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, _ }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.time._
@@ -217,11 +217,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{}.toString" shouldBeInferredAsHavingType StringClass
 
   // help
-  "ls?" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
-  "help readLines" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
-  "help [].maxBy" shouldBeInferredAsHavingType Instance(FunctionHelpClass)
-  "help 42.getClass" shouldBeInferredAsHavingType Instance(ClassHelpClass)
+  "ls?" shouldBeInferredAsHavingType FunctionHelpClass
+  "help readLines" shouldBeInferredAsHavingType FunctionHelpClass
+  "help [].maxBy" shouldBeInferredAsHavingType FunctionHelpClass
+  "help 42.getClass" shouldBeInferredAsHavingType ClassHelpClass
   "ls? .parameters" shouldBeInferredAsHavingType Seq(ParameterHelpClass)
+  "'foo'.regex?" shouldBeInferredAsHavingType FunctionHelpClass
+  "def foo = 42; foo?" shouldBeInferredAsHavingType FunctionHelpClass
+  "class A { def a = 42 }; A.new.a?" shouldBeInferredAsHavingType FunctionHelpClass
 
   // target
   "[1].sumBy.target" shouldBeInferredAsHavingType Seq(NumberClass)

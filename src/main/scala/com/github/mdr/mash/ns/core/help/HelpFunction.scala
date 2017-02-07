@@ -5,6 +5,7 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.ClassClass
+import com.github.mdr.mash.ns.core.help.ClassHelpClass.Fields._
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -46,6 +47,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(f.name),
         FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
+        Aliases -> MashList.empty,
         Summary -> f.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
         Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
@@ -63,6 +65,7 @@ object HelpFunction extends MashFunction("core.help.help") {
       ListMap(
         Name -> MashString(m.name),
         FullyQualifiedName -> MashString(m.name),
+        Aliases -> MashList(m.aliases.map(MashString(_))),
         Summary -> m.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
         Description -> m.descriptionOpt.map(MashString(_)).getOrElse(MashNull),

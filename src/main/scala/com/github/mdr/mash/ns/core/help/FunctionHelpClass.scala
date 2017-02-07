@@ -8,6 +8,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
   object Fields {
     val Name = Field("name", Some("Function name"), StringClass)
     val FullyQualifiedName = Field("fullyQualifiedName", Some("Fully-qualified name of the function"), StringClass)
+    val Aliases = Field("aliases", Some("Aliases of the method"), Seq(StringClass))
     val Summary = Field("summary", Some("Summary of what the function does"), StringClass)
     val CallingSyntax = Field("callingSyntax", Some("Calling syntax"), StringClass)
     val Description = Field("description", Some("Description of the function"), StringClass)
@@ -17,7 +18,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   import Fields._
 
-  override val fields = Seq(Name, FullyQualifiedName, Summary, CallingSyntax, Description, Parameters, Class)
+  override val fields = Seq(Name, FullyQualifiedName, Aliases, Summary, CallingSyntax, Description, Parameters, Class)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
