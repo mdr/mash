@@ -2,7 +2,7 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
-import com.github.mdr.mash.parser.AbstractSyntax.{ Argument, Attribute }
+import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 
 import scala.PartialFunction.condOpt
@@ -101,7 +101,14 @@ class Abstractifier(provenance: Provenance) {
   }
 
   private def abstractifyAttributes(attributes: Concrete.Attributes): Seq[Abstract.Attribute] =
-    attributes.attributes.map(attr ⇒ Abstract.Attribute(attr.name.text, sourceInfo(attr)))
+    attributes.attributes.map {
+      case attr@Concrete.SimpleAttribute(_, name)                 ⇒
+        Abstract.Attribute(name.text, None, sourceInfo(attr))
+      case attr@Concrete.ArgumentAttribute(_, _, name, arguments, _) ⇒
+        val args = arguments.map(abstractifyArg)
+        val argsOpt = if (args.isEmpty) None else Some(args)
+        Abstract.Attribute(name.text, argsOpt, sourceInfo(attr))
+    }
 
   private def abstractifyClassDeclaration(decl: Concrete.ClassDeclaration): Abstract.ClassDeclaration = {
     val Concrete.ClassDeclaration(_, attributesOpt, _, name, params, _) = decl
@@ -252,19 +259,21 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyInvocation(invocationExpr: Concrete.InvocationExpr): Abstract.InvocationExpr = {
     val Concrete.InvocationExpr(function, args) = invocationExpr
-    val abstractArgs: Seq[Argument] = args map {
-      case arg@Concrete.ShortArg(flag)                  ⇒
-        Argument.ShortFlag(flag.text.drop(1).map(_.toString), sourceInfo(arg))
-      case arg@Concrete.LongArg(flag, None)             ⇒
-        Argument.LongFlag(flag.text.drop(2), None, sourceInfo(arg))
-      case arg@Concrete.LongArg(flag, Some((_, value))) ⇒
-        Argument.LongFlag(flag.text.drop(2), Some(abstractify(value)), sourceInfo(arg))
-      case e: Concrete.Expr                             ⇒
-        Argument.PositionArg(abstractify(e), sourceInfo(e))
-      case x                                            ⇒
-        throw new RuntimeException("Unexpected argument: " + x)
-    }
+    val abstractArgs: Seq[Argument] = args.map(abstractifyArg)
     Abstract.InvocationExpr(abstractify(function), abstractArgs, isParenInvocation = false, sourceInfo(invocationExpr))
+  }
+
+  private def abstractifyArg(arg: Concrete.AstNode): Argument = arg match {
+    case arg@Concrete.ShortArg(flag)                  ⇒
+      Argument.ShortFlag(flag.text.drop(1).map(_.toString), sourceInfo(arg))
+    case arg@Concrete.LongArg(flag, None)             ⇒
+      Argument.LongFlag(flag.text.drop(2), None, sourceInfo(arg))
+    case arg@Concrete.LongArg(flag, Some((_, value))) ⇒
+      Argument.LongFlag(flag.text.drop(2), Some(abstractify(value)), sourceInfo(arg))
+    case e: Concrete.Expr                             ⇒
+      Argument.PositionArg(abstractify(e), sourceInfo(e))
+    case x                                            ⇒
+      throw new RuntimeException("Unexpected argument: " + x)
   }
 
   private def abstractifyChainedComparison(chainedExpr: Concrete.ChainedOpExpr): Abstract.Expr = {

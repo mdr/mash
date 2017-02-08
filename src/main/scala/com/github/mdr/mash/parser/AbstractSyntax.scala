@@ -385,10 +385,12 @@ object AbstractSyntax {
     def boundNames = params.flatMap(_.boundNames)
   }
 
-  case class Attribute(name: String, sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
+  case class Attribute(name: String,
+                       argumentsOpt: Option[Seq[Argument]] = None,
+                       sourceInfoOpt: Option[SourceInfo] = None) extends AstNode {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
-    def children = Seq()
+    def children = argumentsOpt.toSeq.flatten
   }
 
   case class FunctionDeclaration(docCommentOpt: Option[DocComment],

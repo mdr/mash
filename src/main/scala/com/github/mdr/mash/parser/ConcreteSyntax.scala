@@ -440,10 +440,17 @@ object ConcreteSyntax {
     def children = Seq(methodDeclaration)
   }
 
-  case class Attribute(at: Token, name: Token) extends AstNode {
+  sealed trait Attribute extends AstNode
+
+  case class SimpleAttribute(at: Token, name: Token) extends Attribute {
     lazy val tokens = Seq(at, name)
 
     def children = Seq()
+  }
+
+  case class ArgumentAttribute(at: Token, lparen: Token, name: Token, arguments: Seq[AstNode], rparen: Token) extends Attribute {
+    lazy val tokens = Seq(at, lparen, name) ++ arguments.flatMap(_.tokens) ++ Seq(rparen)
+    def children = arguments
   }
 
   case class Attributes(attributes: Seq[Attribute]) extends AstNode {

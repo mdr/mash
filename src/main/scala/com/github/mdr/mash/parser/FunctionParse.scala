@@ -8,9 +8,17 @@ trait FunctionParse {
   self: MashParse ⇒
 
   private def attribute(): Attribute = {
-    val atToken = nextToken()
-    val name = consumeRequiredToken("attribute", IDENTIFIER)
-    Attribute(atToken, name)
+    val atToken = consumeRequiredToken("attribute", AT)
+    if (LPAREN) {
+      val lparen = nextToken()
+      val name = consumeRequiredToken("attribute", IDENTIFIER)
+      val args = arguments()
+      val rparen = consumeRequiredToken("attribute", RPAREN)
+      ArgumentAttribute(lparen, atToken, name, args, rparen)
+    } else {
+      val name = consumeRequiredToken("attribute", IDENTIFIER)
+      SimpleAttribute(atToken, name)
+    }
   }
 
   protected def attributes() = Attributes(safeWhile(AT)(attribute()))

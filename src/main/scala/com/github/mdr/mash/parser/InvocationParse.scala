@@ -1,10 +1,7 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.Token
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
-
-import scala.collection.mutable.{ ArrayBuffer, ListBuffer }
 
 trait InvocationParse { self: MashParse ⇒
 
@@ -16,12 +13,14 @@ trait InvocationParse { self: MashParse ⇒
 
   protected def invocationExpr(): Expr = {
     val expr = prefixExpr()
-    val args = safeWhile(canStartArg)(arg())
+    val args = arguments()
     if (args.isEmpty)
       expr
     else
       InvocationExpr(expr, args)
   }
+
+  protected def arguments(): Seq[AstNode] = safeWhile(canStartArg)(arg())
 
   private def longArg(): AstNode = {
     val flagToken = nextToken()
