@@ -944,6 +944,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def twice (@lazy @flag body) = (body; body); a = 0; twice --body=(a += 1); a" shouldEvaluateTo 2
   "def twice (@lazy @flag body) = (body; body); a = 0; twice (a += 1); a" shouldThrowAnException
 
+  // @shortFlag
+  """def doSomething (@flag @(shortFlag 'd') dryRun = false) =
+    |  if dryRun then 'Dry run' else 'For reals'
+    |doSomething -d
+    |""".stripMargin shouldEvaluateTo "'Dry run'"
+  
   // @namedArgs
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo=1" shouldEvaluateTo "{ foo: 1 }"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo" shouldEvaluateTo "{ foo: true }"

@@ -9,5 +9,6 @@ object Attributes {
   val Lazy = "lazy"
   val Args = "args"
   val NamedArgs = "namedArgs"
+  val ShortFlag = "shortFlag"
 
 }

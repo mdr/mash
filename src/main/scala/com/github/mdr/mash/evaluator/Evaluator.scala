@@ -200,12 +200,25 @@ object Evaluator extends EvaluatorHelper {
         EvaluatedAttribute(attribute.name, argumentsOpt)
     }
 
+  private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute]): Option[Character] = {
+    val ShortFlag = Parameter(Some("shortName"))
+    val params = ParameterModel(Seq(ShortFlag))
+    for {
+      attribute ← evaluatedAttributes.find(_.name == Attributes.ShortFlag)
+      arguments = attribute.argumentsOpt getOrElse Seq()
+      boundParams = params.validate(Arguments(arguments))
+      name = boundParams.validateString(ShortFlag).s
+    } yield
+      if (name.length == 1) name.head
+      else boundParams.throwInvalidArgument(ShortFlag, s"Short flag must be a single character, but was '$name'")
+  }
+
   def makeParameter(param: FunctionParam,
                     evaluationContextOpt: Option[EvaluationContext] = None,
                     docCommentOpt: Option[DocComment] = None): Parameter = {
     val FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, patternOpt, _) = param
-    evaluationContextOpt map {
-      implicit evaluationContextOpt ⇒ evaluateAttributes(attributes)
+    val shortFlagOpt = evaluationContextOpt.flatMap { implicit evaluationContextOpt ⇒
+      getShortFlag(evaluateAttributes(attributes))
     }
     val isLazy = attributes.exists(_.name == Attributes.Lazy)
     val isLast = attributes.exists(_.name == Attributes.Last)
@@ -221,9 +234,9 @@ object Evaluator extends EvaluatorHelper {
         paramComment ← docComment.getParamComment(name)
       } yield paramComment.summary
 
-    Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isFlag = isFlag, isLast = isLast, isLazy = isLazy,
-      isNamedArgsParam = isNamedArgsParam, patternOpt = patternOpt.map(makeParamPattern))
+    Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt, shortFlagOpt = shortFlagOpt,
+      isVariadic = isVariadic, isFlag = isFlag, isLast = isLast, isLazy = isLazy, isNamedArgsParam = isNamedArgsParam,
+      patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =
