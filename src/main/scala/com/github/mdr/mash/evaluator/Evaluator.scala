@@ -152,6 +152,7 @@ object Evaluator extends EvaluatorHelper {
     function
   }
 
+
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): UserDefinedClass = {
     val ClassDeclaration(docCommentOpt, _, className, paramList, bodyOpt, _) = decl
     val params = parameterModel(paramList, Some(context))
@@ -159,18 +160,10 @@ object Evaluator extends EvaluatorHelper {
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl
       val evaluatedAttributes = evaluateAttributes(attributes)
-      val Name = Parameter(Some("name"))
-      val params: ParameterModel = ParameterModel(Seq(Name))
-      val aliasOpt =
-        for {
-          attribute ← evaluatedAttributes.find(_.name == Attributes.Alias)
-          arguments ← attribute.argumentsOpt
-          boundParams = params.validate(Arguments(arguments))
-          alias = boundParams.validateString(Name)
-        } yield alias.s
+      val aliases = getAliases(evaluatedAttributes).distinct
       val isPrivate = evaluatedAttributes.exists(_.name == Attributes.Private)
       val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
-      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate, aliasOpt)
+      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate, aliases)
     }
 
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
@@ -178,6 +171,17 @@ object Evaluator extends EvaluatorHelper {
     val klass = UserDefinedClass(docCommentOpt, className, context.namespaceOpt, params, methods)
     context.scopeStack.set(className, klass)
     klass
+  }
+
+  private def getAliases(evaluatedAttributes: Seq[EvaluatedAttribute]): Seq[String] = {
+    val Name = Parameter(Some("name"))
+    val params = ParameterModel(Seq(Name))
+    for {
+      attribute ← evaluatedAttributes.filter(_.name == Attributes.Alias)
+      arguments = attribute.argumentsOpt getOrElse Seq()
+      boundParams = params.validate(Arguments(arguments))
+      alias = boundParams.validateString(Name).s
+    } yield alias
   }
 
   protected case class EvaluatedAttribute(name: String, argumentsOpt: Option[Seq[EvaluatedArgument]])

@@ -985,4 +985,13 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" shouldEvaluateTo 6
 
+  // @alias
+//  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" shouldEvaluateTo 42
+
+  // defs, classes as expressions
+  "[def foo = 42].first.invoke" shouldEvaluateTo 42
+  "{ foo: def foo = 42 }.foo" shouldEvaluateTo 42
+  "[@attribute def foo = 42].first.invoke" shouldEvaluateTo 42
+  "[class Bob].first.new.getClass.name" shouldEvaluateTo "'Bob'"
+
 }

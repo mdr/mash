@@ -33,7 +33,7 @@ trait ObjectParse {
     } else {
       val field = suffixExpr()
       val colon = consumeRequiredToken("object", COLON)
-      val expr = pipeExpr()
+      val expr = statementExpr()
       FullObjectEntry(field, colon, expr)
     }
 

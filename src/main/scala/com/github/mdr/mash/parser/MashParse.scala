@@ -36,7 +36,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     NamespaceDeclaration(namespace, firstSegment, dotSegments)
   }
 
-  private def statementExpr(): Expr =
+  protected def statementExpr(): Expr =
     if (AT) {
       noSemis {
         val attrs = attributes()
@@ -295,11 +295,11 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       val rsquare = nextToken()
       ListExpr(lsquare, None, rsquare)
     } else {
-      val firstElement = pipeExpr()
+      val firstElement = statementExpr()
       val otherElements =
         safeWhile(COMMA) {
           val comma = nextToken()
-          val element = pipeExpr()
+          val element = statementExpr()
           comma -> element
         }
       val rsquare = consumeRequiredToken("list", RSQUARE)
