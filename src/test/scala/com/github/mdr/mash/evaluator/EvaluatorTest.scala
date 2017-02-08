@@ -966,6 +966,22 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |square.help.summary
   """.stripMargin shouldEvaluateTo "'Square a number'"
 
+  """class A {
+    |  # Do something
+    |  @attribute
+    |  def method = 42
+    |}
+    |A.new.method? | .summary
+  """.stripMargin shouldEvaluateTo "'Do something'"
+
+  """class A {
+    |  # Do something
+    |  @(attribute "with argument")
+    |  def method = 42
+    |}
+    |A.new.method? | .summary
+  """.stripMargin shouldEvaluateTo "'Do something'"
+
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" shouldEvaluateTo 6
 

@@ -101,8 +101,8 @@ object Evaluator extends EvaluatorHelper {
           }
       }
     val fields = objectExpr.fields.map {
-      case FullObjectEntry(field, value, _)           ⇒ getFieldName(field) -> evaluate(value)
-      case entry @ ShorthandObjectEntry(field, sourceInfoOpt) ⇒
+      case FullObjectEntry(field, value, _)                 ⇒ getFieldName(field) -> evaluate(value)
+      case entry@ShorthandObjectEntry(field, sourceInfoOpt) ⇒
         val evaluatedIdentifier = evaluateIdentifier(field, sourceInfoOpt.map(_.location))
         val finalResult = invokeNullaryFunctions(evaluatedIdentifier, sourceLocation(entry))
         field -> finalResult
@@ -158,10 +158,21 @@ object Evaluator extends EvaluatorHelper {
 
     def makeMethod(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedMethod = {
       val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl
+      val evaluatedAttributes = evaluateAttributes(attributes)
+      val Name = Parameter(Some("name"))
+      val params: ParameterModel = ParameterModel(Seq(Name))
+      val aliasOpt =
+        for {
+          attribute ← evaluatedAttributes.find(_.name == Attributes.Alias)
+          arguments ← attribute.argumentsOpt
+          boundParams = params.validate(Arguments(arguments))
+          alias = boundParams.validateString(Name)
+        } yield alias.s
+      val isPrivate = evaluatedAttributes.exists(_.name == Attributes.Private)
       val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
-      val isPrivate = attributes.exists(_.name == Attributes.Private)
-      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate)
+      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate, aliasOpt)
     }
+
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)
 
     val klass = UserDefinedClass(docCommentOpt, className, context.namespaceOpt, params, methods)
@@ -169,16 +180,34 @@ object Evaluator extends EvaluatorHelper {
     klass
   }
 
+  protected case class EvaluatedAttribute(name: String, argumentsOpt: Option[Seq[EvaluatedArgument]])
+
   private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
-    val FunctionDeclaration(docCommentOpt, _, functionName, paramList, body, _) = decl
+    val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl
+    evaluateAttributes(attributes)
     val params = parameterModel(paramList, Some(context), docCommentOpt)
     UserDefinedFunction(docCommentOpt, functionName, params, body, context)
   }
 
+  protected def evaluateAttributes(attributes: Seq[Attribute])(implicit context: EvaluationContext): Seq[EvaluatedAttribute] =
+    attributes.map {
+      attribute ⇒
+        val argumentsOpt = attribute.argumentsOpt.map(arguments ⇒ arguments.map(InvocationEvaluator.evaluateArgument))
+        EvaluatedAttribute(attribute.name, argumentsOpt)
+    }
+
   def makeParameter(param: FunctionParam,
                     evaluationContextOpt: Option[EvaluationContext] = None,
                     docCommentOpt: Option[DocComment] = None): Parameter = {
-    val FunctionParam(_, nameOpt, isVariadic, defaultExprOpt, patternOpt, _) = param
+    val FunctionParam(attributes, nameOpt, isVariadic, defaultExprOpt, patternOpt, _) = param
+    evaluationContextOpt map {
+      implicit evaluationContextOpt ⇒ evaluateAttributes(attributes)
+    }
+    val isLazy = attributes.exists(_.name == Attributes.Lazy)
+    val isLast = attributes.exists(_.name == Attributes.Last)
+    val isFlag = attributes.exists(_.name == Attributes.Flag)
+    val isNamedArgsParam = attributes.exists(_.name == Attributes.NamedArgs)
+
     val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒
       defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
     val docSummaryOpt =
@@ -189,8 +218,8 @@ object Evaluator extends EvaluatorHelper {
       } yield paramComment.summary
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt,
-      isVariadic = isVariadic, isFlag = param.isFlag, isLast = param.isLast, isLazy = param.isLazy,
-      isNamedArgsParam =  param.isNamedArgsParam, patternOpt = patternOpt.map(makeParamPattern))
+      isVariadic = isVariadic, isFlag = isFlag, isLast = isLast, isLazy = isLazy,
+      isNamedArgsParam = isNamedArgsParam, patternOpt = patternOpt.map(makeParamPattern))
   }
 
   private def makeParamEntry(entry: ObjectPatternEntry): ParamPattern.ObjectEntry =
@@ -217,7 +246,9 @@ object Evaluator extends EvaluatorHelper {
     val params = paramList.params
     if (params.count(_.isVariadic) > 1)
       throw new EvaluatorException("Multiple variadic parameters are not allowed")
-    for ((name, params) ← params.groupBy(_.nameOpt).collect { case (Some(name), ps) if ps.length > 1 ⇒ name -> ps }.headOption)
+    for ((name, params) ← params.groupBy(_.nameOpt).collect {
+      case (Some(name), ps) if ps.length > 1 ⇒ name -> ps
+    }.headOption)
       throw new EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
   }
 

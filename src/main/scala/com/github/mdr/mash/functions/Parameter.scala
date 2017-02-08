@@ -9,7 +9,7 @@ object Parameter {
 }
 
 case class Parameter(nameOpt: Option[String],
-                     summaryOpt: Option[String], // One-liner description of the parameter
+                     summaryOpt: Option[String] = None, // One-liner description of the parameter
                      descriptionOpt: Option[String] = None, // Rest of the docs
                      shortFlagOpt: Option[Character] = None, // Single character version of the flag
                      defaultValueGeneratorOpt: Option[() ⇒ MashValue] = None, // Default value if none provided

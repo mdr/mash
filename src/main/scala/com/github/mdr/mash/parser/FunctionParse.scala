@@ -14,7 +14,7 @@ trait FunctionParse {
       val name = consumeRequiredToken("attribute", IDENTIFIER)
       val args = arguments()
       val rparen = consumeRequiredToken("attribute", RPAREN)
-      ArgumentAttribute(lparen, atToken, name, args, rparen)
+      ArgumentAttribute(atToken, lparen, name, args, rparen)
     } else {
       val name = consumeRequiredToken("attribute", IDENTIFIER)
       SimpleAttribute(atToken, name)

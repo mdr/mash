@@ -48,29 +48,36 @@ class ValueTypeDetector {
   }
 
   def getType_(x: MashValue): Type = x match {
-    case MashNull                                                                                            ⇒ NullClass
-    case AnonymousFunction(parameterModel, body, context)                                                    ⇒ Type.UserDefinedFunction(docCommentOpt = None, isPrivate = false, None, parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case UserDefinedFunction(docCommentOpt, name, parameterModel, body, context)                             ⇒ Type.UserDefinedFunction(docCommentOpt, isPrivate = false, Some(name), parameterModel, body, buildBindings(context.scopeStack.bindings))
-    case f: MashFunction                                                                                     ⇒ Type.BuiltinFunction(f)
-    case BoundMethod(target, UserDefinedMethod(docCommentOpt, name, params, _, body, context, isPrivate), _) ⇒ Type.BoundUserDefinedMethod(getType(target), Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(name), params, body, buildBindings(context.scopeStack.bindings)))
-    case BoundMethod(target, method, _)                                                                      ⇒ Type.BoundBuiltinMethod(getType(target), method)
-    case MashString(_, None)                                                                                 ⇒ StringClass
-    case MashString(_, Some(tagClass))                                                                       ⇒ StringClass taggedWith tagClass
-    case MashNumber(_, None)                                                                                 ⇒ NumberClass
-    case MashNumber(_, Some(tagClass))                                                                       ⇒ NumberClass taggedWith tagClass
-    case _: MashBoolean                                                                                      ⇒ BooleanClass
-    case MashWrapped(_: Instant)                                                                             ⇒ DateTimeClass
-    case MashWrapped(_: LocalDate)                                                                           ⇒ DateClass
-    case UserDefinedClass(_, name, _, params, methods)                                                       ⇒ Type.UserClass(name, params, getMethodTypes(methods))
-    case _: MashClass                                                                                        ⇒ ClassClass
-    case MashUnit                                                                                            ⇒ Unit
-    case xs: MashList                                                                                        ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
-    case obj@MashObject(_, None)                                                                             ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
-    case obj@MashObject(_, Some(GroupClass))                                                                 ⇒ getTypeOfGroup(obj)
-    case obj@MashObject(_, Some(TimedResultClass))                                                           ⇒ getTypeOfTimedResult(obj)
-    case MashObject(_, Some(UserDefinedClass(_, name, _, params, methods)))                                  ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
-    case MashObject(_, Some(klass))                                                                          ⇒ klass
-    case _                                                                                                   ⇒ Type.Any
+    case MashNull                                                                ⇒ NullClass
+    case AnonymousFunction(parameterModel, body, context)                        ⇒ Type.UserDefinedFunction(docCommentOpt = None, isPrivate = false, None, parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case UserDefinedFunction(docCommentOpt, name, parameterModel, body, context) ⇒ Type.UserDefinedFunction(docCommentOpt, isPrivate = false, Some(name), parameterModel, body, buildBindings(context.scopeStack.bindings))
+    case f: MashFunction                                                         ⇒ Type.BuiltinFunction(f)
+    case BoundMethod(target, method: UserDefinedMethod, _)                       ⇒ getBoundMethodType(target, method)
+    case BoundMethod(target, method, _)                                          ⇒ Type.BoundBuiltinMethod(getType(target), method)
+    case MashString(_, None)                                                     ⇒ StringClass
+    case MashString(_, Some(tagClass))                                           ⇒ StringClass taggedWith tagClass
+    case MashNumber(_, None)                                                     ⇒ NumberClass
+    case MashNumber(_, Some(tagClass))                                           ⇒ NumberClass taggedWith tagClass
+    case _: MashBoolean                                                          ⇒ BooleanClass
+    case MashWrapped(_: Instant)                                                 ⇒ DateTimeClass
+    case MashWrapped(_: LocalDate)                                               ⇒ DateClass
+    case UserDefinedClass(_, name, _, params, methods)                           ⇒ Type.UserClass(name, params, getMethodTypes(methods))
+    case _: MashClass                                                            ⇒ ClassClass
+    case MashUnit                                                                ⇒ Unit
+    case xs: MashList                                                            ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
+    case obj@MashObject(_, None)                                                 ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
+    case obj@MashObject(_, Some(GroupClass))                                     ⇒ getTypeOfGroup(obj)
+    case obj@MashObject(_, Some(TimedResultClass))                               ⇒ getTypeOfTimedResult(obj)
+    case MashObject(_, Some(UserDefinedClass(_, name, _, params, methods)))      ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
+    case MashObject(_, Some(klass))                                              ⇒ klass
+    case _                                                                       ⇒ Type.Any
+  }
+
+  private def getBoundMethodType(target: MashValue, method: UserDefinedMethod) = {
+    val UserDefinedMethod(docCommentOpt, name, params, _, body, context, isPrivate, _) = method
+    val bindings = buildBindings(context.scopeStack.bindings)
+    val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(name), params, body, bindings)
+    Type.BoundUserDefinedMethod(getType(target), methodType)
   }
 
   def instanceType(userDefinedClass: UserDefinedClass): Type.UserClassInstance = {

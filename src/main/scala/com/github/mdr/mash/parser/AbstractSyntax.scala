@@ -364,14 +364,6 @@ object AbstractSyntax {
 
     def boundNames: Seq[String] = (nameOpt.toSeq ++ patternOpt.toSeq.flatMap(_.boundNames)).distinct
 
-    def isLazy = attributes.exists(_.name == Attributes.Lazy)
-
-    def isLast = attributes.exists(_.name == Attributes.Last)
-
-    def isFlag = attributes.exists(_.name == Attributes.Flag)
-
-    def isNamedArgsParam = attributes.exists(_.name == Attributes.NamedArgs)
-
   }
 
   case class ParamList(params: Seq[FunctionParam]) extends AstNode {

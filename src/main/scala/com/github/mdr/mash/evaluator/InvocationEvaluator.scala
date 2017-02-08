@@ -25,7 +25,7 @@ object InvocationEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
+  def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
     case Argument.PositionArg(expr, sourceInfoOpt) ⇒
       val suspendedValue = SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
       EvaluatedArgument.PositionArg(suspendedValue, Some(arg))

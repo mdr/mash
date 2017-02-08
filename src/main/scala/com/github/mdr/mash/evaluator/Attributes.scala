@@ -2,6 +2,7 @@ package com.github.mdr.mash.evaluator
 
 object Attributes {
 
+  val Alias = "alias"
   val Private = "private"
   val Last = "last"
   val Flag = "flag"

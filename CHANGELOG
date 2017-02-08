@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* Support attributes with arguments; @alias attribute for methods
 * os.read/Path.read
 * maths.squareRoot
 * Object.bless

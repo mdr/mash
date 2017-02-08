@@ -11,7 +11,10 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
                              paramList: ParamList,
                              body: Expr,
                              context: EvaluationContext,
-                             override val isPrivate: Boolean) extends MashMethod(methodName) {
+                             override val isPrivate: Boolean,
+                             aliasOpt: Option[String]) extends MashMethod(methodName) {
+
+  override def aliases = aliasOpt.toSeq
 
   override def apply(target: MashValue, arguments: Arguments): MashValue = {
     val parameterEvalContext = Some(context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target)))
