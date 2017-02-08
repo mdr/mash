@@ -14,14 +14,14 @@ permalink: /installation/
 
 ### Ubuntu
 
-Install the [deb package](https://github.com/mdr/mash/releases/download/v0.0.4/mash_0.0.4_all.deb)
+Install the [deb package](https://github.com/mdr/mash/releases/download/v0.0.5/mash_0.0.5_all.deb)
 
 ### Other
 
 Prerequisites: Java 8
 
-Download: [mash-0.0.4.jar](https://github.com/mdr/mash/releases/download/v0.0.4/mash-0.0.4.jar)
+Download: [mash-0.0.5.jar](https://github.com/mdr/mash/releases/download/v0.0.5/mash-0.0.5.jar)
 
 Run:
 
-    java -jar mash-0.0.4.jar
+    java -jar mash-0.0.5.jar
