@@ -949,7 +949,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |  if dryRun then 'Dry run' else 'For reals'
     |doSomething -d
     |""".stripMargin shouldEvaluateTo "'Dry run'"
-  
+
   // @namedArgs
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo=1" shouldEvaluateTo "{ foo: 1 }"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo" shouldEvaluateTo "{ foo: true }"

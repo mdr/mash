@@ -20,8 +20,8 @@ object MashRoot {
   lazy val AllFunctions = StandardFunctions ++ OtherFunctions
 
   /**
-   * Functions to be imported into the default namespace
-   */
+    * Functions to be imported into the default namespace
+    */
   lazy val StandardFunctions = CoreFunctions ++ OsFunctions ++ CollectionsFunctions
 
   lazy val StandardClasses = Seq(
@@ -106,13 +106,13 @@ object MashRoot {
     WithinFunction,
     WriteFunction,
     ProcessesFunction) ++ (
-      if (SystemUtils.IS_OS_MAC_OSX)
-        Seq(DiskSpaceFunction)
-      else
-        Seq(
-          GroupsFunction,
-          UserFunction,
-          UsersFunction))
+    if (SystemUtils.IS_OS_MAC_OSX)
+      Seq(DiskSpaceFunction)
+    else
+      Seq(
+        GroupsFunction,
+        UserFunction,
+        UsersFunction))
 
   private val CollectionsFunctions = Seq(
     AllFunction,
@@ -174,7 +174,8 @@ object MashRoot {
     "mkdir" -> CreateDirectoryFunction,
     "pwd" -> CurrentDirectoryFunction) ++
     (if (SystemUtils.IS_OS_MAC_OSX)
-      Map("df" -> DiskSpaceFunction)
+      Map("df" -> DiskSpaceFunction,
+        "open" -> OpenFunction)
     else
       Map())
 
