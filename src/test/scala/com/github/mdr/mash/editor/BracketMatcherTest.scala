@@ -14,6 +14,9 @@ class BracketMatcherTest extends FlatSpec with Matchers {
   "def square ▶(n) = n * n" shouldMatch "def square (n)◀ = n * n"
   "def square (n)◀ = n * n" shouldMatch "def square ▶(n) = n * n"
 
+  "@▶(attribute 10) class X" shouldMatch "@(attribute 10)◀ class X"
+  "@(attribute 10)◀ class X" shouldMatch "@▶(attribute 10) class X"
+
   "xs▶[0]" shouldMatch "xs[0]◀"
   "xs[0]◀" shouldMatch "xs▶[0]"
 
