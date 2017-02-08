@@ -174,7 +174,9 @@ object MashRoot {
     "mkdir" -> CreateDirectoryFunction,
     "pwd" -> CurrentDirectoryFunction) ++
     (if (SystemUtils.IS_OS_MAC_OSX)
-      Map("df" -> DiskSpaceFunction,
+      Map(
+        "clipboard" -> ClipboardFunction,
+        "df" -> DiskSpaceFunction,
         "open" -> OpenFunction)
     else
       Map())

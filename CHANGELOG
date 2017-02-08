@@ -1,6 +1,7 @@
 v0.0.5 (..)
 -----------
 
+* os.open, os.clipboard
 * Support @shortFlag parameter attribute
 * Support attributes with arguments; @alias attribute for methods
 * os.read/Path.read
