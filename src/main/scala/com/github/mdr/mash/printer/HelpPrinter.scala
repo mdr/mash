@@ -3,7 +3,6 @@ package com.github.mdr.mash.printer
 import java.io.PrintStream
 
 import com.github.mdr.mash.classes.Field
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
@@ -24,33 +23,30 @@ class HelpPrinter(output: PrintStream) {
 
   def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
-    val classOpt = MashNull.option(obj(Class)).map(_.asInstanceOf[MashString].s)
-    output.println(bold(if (classOpt.isDefined) "METHOD" else "FUNCTION"))
-    val summaryOpt = MashNull.option(obj(Summary))
-    val name = ToStringifier.stringify(obj(FullyQualifiedName))
-    val aliases = obj(Aliases).asInstanceOf[MashList].elements.map(ToStringifier.stringify)
-    val names = (name +: aliases).map(bold(_)).mkString(", ")
-    output.println(indentSpace + bold(names) + summaryOpt.fold("")(" - " + _))
-
+    val help = new FunctionHelpClass.Wrapper(obj)
+    output.println(bold(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
+    val name = help.fullyQualifiedName
+    val names = (name +: help.aliases).map(bold(_)).mkString(", ")
+    output.println(indentSpace + bold(names) + help.summaryOpt.fold("")(" - " + _))
     output.println()
-    for (klass ← classOpt) {
+    for (klass ← help.classOpt) {
       output.println(bold("CLASS"))
       output.println(indentSpace + klass)
       output.println()
     }
     output.println(bold("CALLING SYNTAX"))
-    val maybeTarget = if (classOpt.isDefined) "target." else ""
+    val maybeTarget = if (help.classOpt.isDefined) "target." else ""
     output.println(indentSpace + maybeTarget + obj(CallingSyntax))
     output.println()
-    val parameters = obj(Parameters).asInstanceOf[MashList].elements
+    val parameters = help.parameters
     if (parameters.nonEmpty) {
       output.println(bold("PARAMETERS"))
       for (param ← parameters)
         printParameterHelp(param.asInstanceOf[MashObject])
     }
-    for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
+    for (description ← help.descriptionOpt) {
       output.println(bold("DESCRIPTION"))
-      output.println(indent(description.s, indentAmount))
+      output.println(indent(description, indentAmount))
       output.println()
     }
   }
