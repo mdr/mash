@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.classes.{ BoundMethod, UserDefinedClass }
+import com.github.mdr.mash.classes.{ BoundMethod, UserDefinedClass, UserDefinedMethod }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions

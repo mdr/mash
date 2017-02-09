@@ -2,7 +2,7 @@ package com.github.mdr.mash.inference
 
 import java.{ util ⇒ ju }
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ MashClass, UserDefinedMethod }
 import com.github.mdr.mash.evaluator.{ SystemCommandFunction, _ }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.Type.UserClassInstance

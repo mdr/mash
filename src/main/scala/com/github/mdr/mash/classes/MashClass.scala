@@ -55,8 +55,3 @@ abstract class MashClass(val nameOpt: Option[String],
   def withGenerics(types: Type*): Type.Generic = Type.Generic(this, types: _*)
 
 }
-
-case class Field(name: String,
-                 summaryOpt: Option[String] = None,
-                 fieldType: Type,
-                 descriptionOpt: Option[String] = None)

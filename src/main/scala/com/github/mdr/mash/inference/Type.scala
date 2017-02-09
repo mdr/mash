@@ -1,6 +1,6 @@
 package com.github.mdr.mash.inference
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ MashClass, UserDefinedMethod }
 import com.github.mdr.mash.functions.{ UserDefinedFunction ⇒ UDF, _ }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.PathClass
