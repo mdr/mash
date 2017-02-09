@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
-import com.github.mdr.mash.evaluator.NewStaticMethod
+import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
 

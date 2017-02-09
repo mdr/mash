@@ -1,7 +1,7 @@
-package com.github.mdr.mash.functions
+package com.github.mdr.mash.classes
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.functions.{ MashFunction, Namespace, ParameterModel, UserDefinedMethod }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashObject

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
-import com.github.mdr.mash.evaluator.NewStaticMethod
+import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
 
 object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {

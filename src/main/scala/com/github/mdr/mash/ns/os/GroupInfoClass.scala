@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
-import com.github.mdr.mash.evaluator.NewStaticMethod
+import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
 import com.github.mdr.mash.os.{ GroupEntry, PasswdEntry, UserInteractions }
