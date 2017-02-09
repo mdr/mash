@@ -1,12 +1,12 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-import java.util.regex.Pattern
 
-import com.github.mdr.mash.evaluator.Field
+import com.github.mdr.mash.evaluator.{ Field, ToStringifier }
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.StringUtils.indent
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
 
@@ -15,19 +15,23 @@ import org.fusesource.jansi.Ansi.Color
  */
 class HelpPrinter(output: PrintStream) {
 
-  private val indent = 8
+  private val indentAmount = 8
 
-  private val indentSpace = " " * indent
+  private val indentSpace = " " * indentAmount
 
   def bold(s: Any) = Ansi.ansi().bold().a("" + s).boldOff().toString
 
   def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
-    output.println(bold("NAME"))
-    val summaryOpt = MashNull.option(obj(Summary))
-    output.println(indentSpace + bold(obj(FullyQualifiedName)) + summaryOpt.fold("")(" - " + _))
-    output.println()
     val classOpt = MashNull.option(obj(Class)).map(_.asInstanceOf[MashString].s)
+    output.println(bold(if (classOpt.isDefined) "METHOD" else "FUNCTION"))
+    val summaryOpt = MashNull.option(obj(Summary))
+    val name = ToStringifier.stringify(obj(FullyQualifiedName))
+    val aliases = obj(Aliases).asInstanceOf[MashList].elements.map(ToStringifier.stringify)
+    val names = (name +: aliases).map(bold(_)).mkString(", ")
+    output.println(indentSpace + bold(names) + summaryOpt.fold("")(" - " + _))
+
+    output.println()
     for (klass ← classOpt) {
       output.println(bold("CLASS"))
       output.println(indentSpace + klass)
@@ -45,7 +49,7 @@ class HelpPrinter(output: PrintStream) {
     }
     for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println(bold("DESCRIPTION"))
-      output.println(shiftLeftMargin(description.s, indent))
+      output.println(indent(description.s, indentAmount))
       output.println()
     }
   }
@@ -60,7 +64,7 @@ class HelpPrinter(output: PrintStream) {
     output.println()
     for (description ← fieldHelp.descriptionOpt) {
       output.println(bold("DESCRIPTION"))
-      output.println(shiftLeftMargin(description, indent))
+      output.println(indent(description, indentAmount))
       output.println()
     }
   }
@@ -90,20 +94,20 @@ class HelpPrinter(output: PrintStream) {
     val summaryOpt = MashNull.option(param(Summary))
     output.println(paramName + shortFlagDescription + qualifierString + summaryOpt.fold("")(" - " + _))
     for (description ← MashNull.option(param(Description)).map(_.asInstanceOf[MashString]))
-      output.println(shiftLeftMargin(description.s, indent * 2))
+      output.println(indent(description.s, indentAmount * 2))
     output.println()
   }
 
   def printClassHelp(obj: MashObject) {
     def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     import ClassHelpClass.Fields._
-    output.println(bold("NAME"))
+    output.println(bold("CLASS"))
     val summaryOpt = MashNull.option(obj(Summary))
     output.println(indentSpace + bold(obj(FullyQualifiedName)) + summaryOpt.fold("")(" - " + _))
     for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println()
       output.println(bold("DESCRIPTION"))
-      output.println(shiftLeftMargin(description.s, indent))
+      output.println(indent(description.s, indentAmount))
     }
     for (parent ← MashNull.option(obj(Parent)).map(_.asInstanceOf[MashString])) {
       output.println()
@@ -138,8 +142,5 @@ class HelpPrinter(output: PrintStream) {
     }
 
   }
-
-  private def shiftLeftMargin(s: String, indent: Int) =
-    Pattern.compile("^", Pattern.MULTILINE).matcher(s).replaceAll(" " * indent)
 
 }

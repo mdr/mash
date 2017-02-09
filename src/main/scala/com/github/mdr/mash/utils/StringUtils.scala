@@ -1,5 +1,7 @@
 package com.github.mdr.mash.utils
 
+import java.util.regex.Pattern
+
 import com.github.mdr.mash.utils.Utils._
 
 object StringUtils {
@@ -85,5 +87,12 @@ object StringUtils {
       Seq()
     else
       s.split("\r?\n", -1).when(s endsWith "\n", _.init)
+
+  private val LineStartPattern = Pattern.compile("^", Pattern.MULTILINE)
+
+  /**
+    * Indent every line of the given string by the given number of spaces
+    */
+  def indent(s: String, spaces: Int): String = LineStartPattern.matcher(s).replaceAll(" " * spaces)
 
 }
