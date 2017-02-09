@@ -921,7 +921,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // "class Foo ({ wibble }); Foo { wibble: 42 } | .wibble" shouldEvaluateTo 42
 
+  // Recursion
   "def makeFact = { def fact n = if (n <= 1) then n else n * fact (n - 1) }; (makeFact) 5" shouldEvaluateTo 120
+  """def mutu m = {
+    |  def foo n = if n == 0 then 0 else bar (n - 1)
+    |  def bar n = if n == 0 then 1 else foo (n - 1)
+    |  foo m
+    |}
+    |mutu 3""" shouldEvaluateTo 1
 
   // @last
   "def foo n... (@last m) = m; foo 1 2 3" shouldEvaluateTo 3
