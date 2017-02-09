@@ -107,7 +107,9 @@ object MashRoot {
     WriteFunction,
     ProcessesFunction) ++ (
     if (SystemUtils.IS_OS_MAC_OSX)
-      Seq(DiskSpaceFunction)
+      Seq(ClipboardFunction,
+        DiskSpaceFunction,
+        OpenFunction)
     else
       Seq(
         GroupsFunction,
@@ -175,9 +177,7 @@ object MashRoot {
     "pwd" -> CurrentDirectoryFunction) ++
     (if (SystemUtils.IS_OS_MAC_OSX)
       Map(
-        "clipboard" -> ClipboardFunction,
-        "df" -> DiskSpaceFunction,
-        "open" -> OpenFunction)
+        "df" -> DiskSpaceFunction)
     else
       Map())
 
