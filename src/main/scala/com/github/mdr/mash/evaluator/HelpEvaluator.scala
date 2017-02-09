@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.ns.core.help.HelpFunction
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._

@@ -2,7 +2,7 @@ package com.github.mdr.mash.functions
 
 import java.nio.file.Path
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime._

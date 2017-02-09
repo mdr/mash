@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 
 import java.time.{ Instant, LocalDate }
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.assist
 
+import com.github.mdr.mash.classes.BoundMethod
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
-import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.{ MashLexer, Token }

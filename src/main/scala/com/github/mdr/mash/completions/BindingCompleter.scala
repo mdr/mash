@@ -1,6 +1,7 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.evaluator.{ BoundMethod, ToStringifier }
+import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token

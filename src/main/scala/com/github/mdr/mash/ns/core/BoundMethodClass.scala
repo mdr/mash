@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }

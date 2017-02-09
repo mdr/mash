@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 import com.github.mdr.mash.functions.{ ArgumentException, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.parser.AbstractSyntax._

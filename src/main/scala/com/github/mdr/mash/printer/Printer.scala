@@ -5,8 +5,8 @@ import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.{ DateTimeFormatter, FormatStyle }
 import java.util.Date
 
-import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.evaluator.{ BoundMethod, ToStringifier }
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, HelpFunction }
