@@ -21,6 +21,7 @@ object ObjectClass extends MashClass("core.Object") {
     GetMethod,
     HasFieldMethod,
     HoistMethod,
+    UnblessMethod,
     WithFieldMethod)
 
   object MergeStaticMethod extends MashFunction("merge") {
@@ -173,12 +174,12 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel(Seq(Class))
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, arguments: Arguments): MashObject = {
       val obj = target.asInstanceOf[MashObject]
       val boundParams = params.validate(arguments)
       val klass = boundParams(Class) match {
         case klass: MashClass ⇒ klass
-        case value ⇒ boundParams.throwInvalidArgument(Class, s"Must be a class, but was a ${value.typeName}")
+        case value            ⇒ boundParams.throwInvalidArgument(Class, s"Must be a class, but was a ${value.typeName}")
       }
       obj.withClass(klass)
     }
@@ -195,6 +196,35 @@ object ObjectClass extends MashClass("core.Object") {
     }
 
     override def summaryOpt: Option[String] = Some("Give this object the given class")
+  }
+
+  object UnblessMethod extends MashMethod("unbless") {
+
+    val params = ParameterModel()
+
+    override def apply(target: MashValue, arguments: Arguments): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      params.validate(arguments)
+      obj.withoutClass
+    }
+
+    override object typeInferenceStrategy extends MethodTypeInferenceStrategy {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+        targetTypeOpt collect {
+          case Type.Instance(klass)              ⇒
+            Type.Object(klass.fields.map(f ⇒ f.name -> f.fieldType).toMap)
+          case Type.UserClassInstance(userClass) ⇒
+            val pairs =
+              for {
+                param ← userClass.params.params
+                name ← param.nameOpt
+              } yield name -> Type.Any
+            Type.Object(pairs.toMap)
+        }
+      }
+    }
+
+    override def summaryOpt: Option[String] = Some("This object without any associated class")
   }
 
   object FieldsMethod extends MashMethod("fields") {

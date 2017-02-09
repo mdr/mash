@@ -991,6 +991,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" shouldEvaluateTo 6
 
+  // .unbless
+  "class Thing; Thing.new.unbless.getClass" shouldEvaluateTo "Object"
+
   // @alias
 //  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" shouldEvaluateTo 42
 

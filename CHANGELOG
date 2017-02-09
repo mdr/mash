@@ -1,6 +1,9 @@
 v0.0.6 (..)
 -----------
 
+* Object.unbless
+* Include aliases in method help
+
 v0.0.5 (8/February/2017)
 ------------------------
 

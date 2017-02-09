@@ -356,6 +356,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" shouldBeInferredAsHavingType NumberClass
   "{ name: 'name', value: 42 }.bless core.FieldAndValue" shouldBeInferredAsHavingType FieldAndValueClass
 
+  // .unbless
+   "class Point x y; Point 3 4 | .unbless" shouldBeInferredAsHavingType obj("x" -> Any, "y" -> Any)
+  "{ foo: 42 }.fields.first.unbless" shouldBeInferredAsHavingType obj("name" -> StringClass, "value" -> Any)
+
   // @alias
   // "class A { @(alias 'a') def aardvark = 42 }; A.new.a" shouldBeInferredAsHavingType NumberClass
 

@@ -74,6 +74,8 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
 
   def withClass(klass: MashClass): MashObject = MashObject.of(fields, Some(klass))
 
+  def withoutClass: MashObject = MashObject.of(fields)
+
   def set(fieldName: String, value: MashValue) = withLock {
     fields(fieldName) = value
   }
