@@ -1,6 +1,7 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.evaluator.{ Field, MemberEvaluator }
+import com.github.mdr.mash.classes.Field
+import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
 

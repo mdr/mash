@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.view
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.NewStaticMethod
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.BooleanClass
 

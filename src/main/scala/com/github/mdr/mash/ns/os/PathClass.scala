@@ -2,8 +2,9 @@ package com.github.mdr.mash.ns.os
 
 import java.nio.file.{ Files, Path }
 
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException, MashClass }
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }

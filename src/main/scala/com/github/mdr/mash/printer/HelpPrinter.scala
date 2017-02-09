@@ -2,7 +2,8 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
-import com.github.mdr.mash.evaluator.{ Field, ToStringifier }
+import com.github.mdr.mash.classes.Field
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._

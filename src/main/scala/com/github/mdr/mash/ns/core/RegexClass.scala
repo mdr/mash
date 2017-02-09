@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.runtime._

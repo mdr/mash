@@ -2,10 +2,11 @@ package com.github.mdr.mash.evaluator
 
 import java.time.{ Instant, LocalDate }
 
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.time.{ DateTimeClass, DateClass }
+import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.runtime._

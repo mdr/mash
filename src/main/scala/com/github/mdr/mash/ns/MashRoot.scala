@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns
 
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help._

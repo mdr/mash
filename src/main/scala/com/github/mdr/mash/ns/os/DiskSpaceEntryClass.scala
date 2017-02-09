@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.ns.core.{ BytesClass, NumberClass, StringClass }
 
 object DiskSpaceEntryClass extends MashClass("os.DiskSpaceEntry") {

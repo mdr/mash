@@ -1,7 +1,8 @@
 package com.github.mdr.mash.inference
 
+import com.github.mdr.mash.classes.MashClass
+
 import scala.language.implicitConversions
-import com.github.mdr.mash.evaluator.MashClass
 
 object MethodTypeInferenceStrategy {
 

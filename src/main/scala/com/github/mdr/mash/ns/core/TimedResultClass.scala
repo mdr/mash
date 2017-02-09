@@ -2,7 +2,8 @@ package com.github.mdr.mash.ns.core
 
 import java.time.Instant
 
-import com.github.mdr.mash.evaluator.{ Arguments, Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ Arguments, NewStaticMethod }
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.inference.Type.classToType

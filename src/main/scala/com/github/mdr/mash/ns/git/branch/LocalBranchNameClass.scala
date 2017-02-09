@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException, MashClass }
+import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.AnyClass

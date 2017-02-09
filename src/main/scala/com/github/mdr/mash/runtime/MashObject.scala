@@ -1,7 +1,8 @@
 package com.github.mdr.mash.runtime
 
 import com.github.mdr.mash.GlobalInterpreterLock.withLock
-import com.github.mdr.mash.evaluator.{ EvaluatorException, Field, MashClass, ToStringifier }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ EvaluatorException, ToStringifier }
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap

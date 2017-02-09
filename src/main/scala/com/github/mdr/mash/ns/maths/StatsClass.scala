@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.maths
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.NewStaticMethod
 import com.github.mdr.mash.ns.core.NumberClass
 
 object StatsClass extends MashClass("maths.Stats") {

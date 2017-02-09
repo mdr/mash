@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.time
 import java.time._
 import java.time.temporal.{ ChronoUnit, TemporalAmount }
 
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy

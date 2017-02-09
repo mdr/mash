@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }

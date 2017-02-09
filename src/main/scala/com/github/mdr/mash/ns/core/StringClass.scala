@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.core
 import java.time.Instant
 import java.util.regex.Pattern
 
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._

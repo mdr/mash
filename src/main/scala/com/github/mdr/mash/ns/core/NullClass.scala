@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.classes.MashClass
 
 object NullClass extends MashClass("core.Null") {
 

@@ -1,5 +1,6 @@
 package com.github.mdr.mash.ns.git
 
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }

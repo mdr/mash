@@ -1,5 +1,6 @@
 package com.github.mdr.mash.evaluator
 
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.{ MashCallable, MashMethod }
 import com.github.mdr.mash.runtime.MashValue
 

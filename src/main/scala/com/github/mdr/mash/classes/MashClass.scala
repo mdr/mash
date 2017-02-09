@@ -1,7 +1,7 @@
-package com.github.mdr.mash.evaluator
+package com.github.mdr.mash.classes
 
 import com.github.mdr.mash.functions.{ HasName, MashFunction, MashMethod, Namespace }
-import com.github.mdr.mash.inference.{ Type, TypedArguments }
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime.MashValue
 

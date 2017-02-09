@@ -1,6 +1,6 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.lexer.Token

@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.{ AbstractToStringMethod, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 

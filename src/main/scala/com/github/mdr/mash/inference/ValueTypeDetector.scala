@@ -3,7 +3,8 @@ package com.github.mdr.mash.inference
 import java.time.{ Instant, LocalDate }
 import java.util.IdentityHashMap
 
-import com.github.mdr.mash.evaluator.{ BoundMethod, MashClass }
+import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.evaluator.BoundMethod
 import com.github.mdr.mash.functions.{ UserDefinedClass, _ }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.core._

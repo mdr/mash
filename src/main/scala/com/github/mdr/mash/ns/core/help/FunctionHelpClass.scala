@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.evaluator.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.NewStaticMethod
 import com.github.mdr.mash.ns.core.StringClass
 
 object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {

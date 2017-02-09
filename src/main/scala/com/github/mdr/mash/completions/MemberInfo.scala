@@ -1,6 +1,6 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.classes.MashClass
 
 case class MemberInfo(name: String,
                       isField: Boolean,

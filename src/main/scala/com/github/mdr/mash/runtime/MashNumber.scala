@@ -1,6 +1,6 @@
 package com.github.mdr.mash.runtime
 
-import com.github.mdr.mash.evaluator.MashClass
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.utils.NumberUtils
 
 import scala.PartialFunction.cond

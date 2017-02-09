@@ -1,5 +1,6 @@
 package com.github.mdr.mash.ns.collections
 
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference._
