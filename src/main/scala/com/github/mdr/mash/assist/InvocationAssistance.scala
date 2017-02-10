@@ -15,18 +15,26 @@ import scala.PartialFunction._
 
 object InvocationAssistance {
 
-  def getCallingSyntaxOfCurrentInvocation(s: String,
-                                          pos: Int,
-                                          bindings: Map[String, MashValue],
-                                          mish: Boolean): Option[AssistanceState] = {
+  def getCallingSyntaxOfNearestFunction(s: String,
+                                        pos: Int,
+                                        bindings: Map[String, MashValue],
+                                        mish: Boolean): Option[AssistanceState] =
+    for {
+      functionType ← getTypeOfNearestFunction(s, pos, bindings, mish)
+      assistanceState ← assistInvocation(functionType)
+    } yield assistanceState
+
+  def getTypeOfNearestFunction(s: String,
+                               pos: Int,
+                               bindings: Map[String, MashValue],
+                               mish: Boolean): Option[Type] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
     val settings = CompilationSettings(inferTypes = true)
     val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, settings)
     for {
       invocationExpr ← findInnermostInvocationContaining(expr, tokens, pos)
       functionType ← getFunctionType(invocationExpr)
-      assistanceState ← assistInvocation(functionType)
-    } yield assistanceState
+    } yield functionType
   }
 
   private def getFunctionType(expr: Expr): Option[Type] = expr match {
@@ -78,7 +86,7 @@ object InvocationAssistance {
       case expr: Expr if hasFunctionType(expr) && expandedRegionContains(expr, tokens, pos)               ⇒ expr
     }
     def size(expr: Expr): Int = expr.sourceInfoOpt.map(_.node.region.length).getOrElse(Integer.MAX_VALUE)
-    Utils.minBy(enclosingInvocations, size)
+    minBy(enclosingInvocations, size)
   }
 
   private def hasFunctionType(e: Expr): Boolean =
@@ -98,6 +106,7 @@ object InvocationAssistance {
       val tokensAfterLast = getTokensAfterLast(lastToken, allTokens)
       findRightmostToken(tokensAfterLast).getOrElse(lastToken)
     }
+    // Grow EOF tokens to pick up cursors at the end of the buffer, which is one more than the size of the buffer contents.
     def getRegion(token: Token) = token.region.when(token.isEof, _ grow 1)
     rightmostTokenOpt.map(getRegion) getOrElse Region(0, 0) merge node.region
   }
@@ -108,6 +117,6 @@ object InvocationAssistance {
       .getOrElse(Seq())
 
   private def findRightmostToken(remainingTokens: Seq[Token]): Option[Token] =
-    remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).headOption
+    remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
 
 }

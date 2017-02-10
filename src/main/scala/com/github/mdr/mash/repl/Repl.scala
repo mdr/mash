@@ -122,11 +122,11 @@ class Repl(protected val terminal: Terminal,
         case MishCommand(prefix, mishCmd) ⇒
           val newPos = pos - prefix.length // adjust for the prefix
           if (newPos >= 0)
-            InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, newPos, getBindings, mish = true)
+            InvocationAssistance.getCallingSyntaxOfNearestFunction(text, newPos, getBindings, mish = true)
           else
             None
         case _                            ⇒
-          InvocationAssistance.getCallingSyntaxOfCurrentInvocation(text, pos, getBindings, mish = state.mish)
+          InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, getBindings, mish = state.mish)
       }
     state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt
   }
