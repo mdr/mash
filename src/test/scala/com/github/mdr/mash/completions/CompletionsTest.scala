@@ -134,6 +134,9 @@ class CompletionsTest extends FlatSpec with Matchers {
   "cd -▶" shouldGiveCompletions "--directory"
   "ls -▶" shouldContainCompletion "-a"
   "'dir' | ls -▶" shouldContainCompletion "-a"
+  "def fun foobar = 42; fun --fooba▶" shouldContainCompletion "--foobar"
+  "def fun (@(shortFlag 'f') foobar) = 42; fun -▶" shouldContainCompletion "-f"
+  "class A { def meth foobar = 42 }; A.new.meth --fooba▶" shouldContainCompletion "--foobar"
 
   {
     implicit val filesystem = MockFileSystem.of("/-")
