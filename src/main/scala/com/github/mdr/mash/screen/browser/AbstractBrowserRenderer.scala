@@ -2,10 +2,9 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.{ Line, LineBufferRenderer, Point, Screen }
 import com.github.mdr.mash.terminal.TerminalInfo
-
-import scala.collection.mutable
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: TerminalInfo) {
 
@@ -35,7 +34,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
     }
     val cursorOffset = renderCursor._1.column
     Line(LineBufferRenderer.renderChars(fullExpression, cursorOffset, mishByDefault = false,
-      globalVariables = mutable.Map(), bareWords = false))
+      globalVariables = MashObject.empty, bareWords = false))
   }
 
 }

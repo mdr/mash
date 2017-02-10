@@ -8,7 +8,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.repl.ReplState
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.LineInfo
@@ -25,7 +25,7 @@ object LineBufferRenderer {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
     val cursorPos = lineBuffer.cursorPos
-    val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prompt, state.mish, state.globalVariables.fields,
+    val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prompt, state.mish, state.globalVariables,
       state.bareWords)
 
     def wrap(line: Line): Seq[Line] = {
@@ -58,8 +58,8 @@ object LineBufferRenderer {
     numStyled ++ pwdStyled ++ promptCharStyled
   }
 
-  private def getBareTokens(s: String, mish: Boolean, globalVariables: mutable.Map[String, MashValue]): Set[Token] = {
-    val bindings = globalVariables.keySet.toSet
+  private def getBareTokens(s: String, mish: Boolean, globalVariables: MashObject): Set[Token] = {
+    val bindings = globalVariables.immutableFields.keySet
     val concreteProgram = MashParser.parseForgiving(s, mish = mish)
     val provenance = Provenance("not required", s)
     val abstractExpr = new Abstractifier(provenance).abstractify(concreteProgram).body
@@ -70,7 +70,7 @@ object LineBufferRenderer {
                                     cursorOffset: Int,
                                     prompt: Seq[StyledCharacter],
                                     mishByDefault: Boolean,
-                                    globalVariables: mutable.Map[String, MashValue],
+                                    globalVariables: MashObject,
                                     bareWords: Boolean): Seq[Line] = {
     val styledChars = renderChars(rawChars, cursorOffset, mishByDefault, globalVariables, bareWords)
     val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
@@ -86,7 +86,7 @@ object LineBufferRenderer {
   def renderChars(rawChars: String,
                   cursorOffset: Int,
                   mishByDefault: Boolean,
-                  globalVariables: mutable.Map[String, MashValue],
+                  globalVariables: MashObject,
                   bareWords: Boolean): Seq[StyledCharacter] = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
