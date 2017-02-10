@@ -20,7 +20,8 @@ object InvocationAssistance {
                                           bindings: Map[String, MashValue],
                                           mish: Boolean): Option[AssistanceState] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
-    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, CompilationSettings(inferTypes = true))
+    val settings = CompilationSettings(inferTypes = true)
+    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, settings)
     for {
       invocationExpr ← findInnermostInvocationContaining(expr, tokens, pos)
       functionType ← getFunctionType(invocationExpr)
@@ -34,7 +35,8 @@ object InvocationAssistance {
   }
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(elementType)                                             ⇒ assistInvocation(elementType)
+    case Type.Seq(elementType)                                             ⇒
+      assistInvocation(elementType)
     case Type.BuiltinFunction(f)                                           ⇒
       Some(AssistanceState(
         f.name,
@@ -52,13 +54,14 @@ object InvocationAssistance {
         method.summaryOpt.toSeq ++ Seq(
           "",
           "target." + callingSyntax(method))))
-    case Type.BoundUserDefinedMethod(_, functionType)                      ⇒
-      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = functionType
+    case Type.BoundUserDefinedMethod(_, method)                            ⇒
+      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
       Some(AssistanceState(
         nameOpt.getOrElse("Anonymous method"),
         docCommentOpt.map(_.summary).toSeq ++ Seq(
           "target." + nameOpt.getOrElse("method") + " " + params.callingSyntax)))
-    case _                                                                 ⇒ None
+    case _                                                                 ⇒
+      None
   }
 
   private def callingSyntax(funOrMethod: Any): String =

@@ -63,8 +63,8 @@ object Type {
   /**
     * Method defined in mash, bound to a target
     */
-  case class BoundUserDefinedMethod(targetType: Type, function: UserDefinedFunction) extends Type {
-    override def toString = s"${classOf[BoundUserDefinedMethod].getSimpleName}($targetType, $function)"
+  case class BoundUserDefinedMethod(targetType: Type, method: UserDefinedFunction) extends Type {
+    override def toString = s"${classOf[BoundUserDefinedMethod].getSimpleName}($targetType, $method)"
   }
 
   /**
