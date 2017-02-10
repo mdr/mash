@@ -18,10 +18,13 @@ class BareStringifyTest extends FlatSpec with Matchers {
   "class A { def foo = toString }" ==> "class A { def foo = toString }"
   "class A { def foo = bar; def bar = 42 }" ==> "class A { def foo = bar; def bar = 42 }"
 
+  "def doSomething (@flag @(shortFlag d) dryRun = false) = 42" ==>
+    """def doSomething (@flag @(shortFlag "d") dryRun = false) = 42"""
+
   private implicit class RichString(input: String)(implicit val bindings: Set[String] = Set()) {
 
     def ==>(expected: String): Unit = {
-      s"Identifying rich strings in '$input'" should "result in '$expected'" in {
+      s"Identifying rich strings in '$input'" should s"result in '$expected'" in {
         val inputProgram = compile(input)
         val actualProgram = removeSourceInfo(bareStringify(inputProgram, bindings))
         val expectedProgram = removeSourceInfo(compile(expected))
