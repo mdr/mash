@@ -66,10 +66,11 @@ object FlagCompleter {
   }
 
   private def getFlags(functionType: Type): Option[Seq[Flag]] = condOpt(functionType) {
-    case Type.BuiltinFunction(f)             ⇒ f.flags
-    case Type.BoundBuiltinMethod(_, m)       ⇒ m.flags
-    case udf: Type.UserDefinedFunction       ⇒ udf.params.flags
-    case Type.BoundUserDefinedMethod(_, udf) ⇒ udf.params.flags
+    case Type.BuiltinFunction(function)         ⇒ function.flags
+    case Type.BoundBuiltinMethod(_, method)     ⇒ method.flags
+    case userFunction: Type.UserDefinedFunction ⇒ userFunction.params.flags
+    case Type.BoundUserDefinedMethod(_, method) ⇒ method.params.flags
+    case userClass: Type.UserClass              ⇒ userClass.params.flags
   }
 
 }
