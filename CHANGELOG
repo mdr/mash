@@ -1,6 +1,7 @@
 v0.0.6 (..)
 -----------
 
+* Add xml.fromFile
 * Object.unbless
 * Include aliases in method help
 

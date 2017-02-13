@@ -6,6 +6,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
 import com.google.gson._
@@ -15,12 +16,10 @@ import scala.collection.JavaConverters._
 
 object FromFileFunction extends MashFunction("json.fromFile") {
 
-  private val filesystem = LinuxFileSystem
-
   object Params {
     val File = Parameter(
       nameOpt = Some("file"),
-      summaryOpt = Some("File from which to read lines"))
+      summaryOpt = Some("File from which to read JSON"))
   }
   import Params._
 
@@ -53,7 +52,7 @@ object FromFileFunction extends MashFunction("json.fromFile") {
       MashObject.of(fields)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
+  override def typeInferenceStrategy = AnyClass
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
