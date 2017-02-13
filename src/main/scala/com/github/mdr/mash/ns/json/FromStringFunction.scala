@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.json
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type }
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.MashValue
 
 object FromStringFunction extends MashFunction("json.fromString") {
@@ -22,7 +22,7 @@ object FromStringFunction extends MashFunction("json.fromString") {
     FromFileFunction.parseJson(s)
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Type.Any)
+  override def typeInferenceStrategy = AnyClass
 
   override def summaryOpt = Some("Read the given string and parse it as JSON")
 }

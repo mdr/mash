@@ -41,7 +41,7 @@ object MashRoot {
     GitNamespace.GitFunctions ++
       MathsFunctions ++
       Seq(BrowserFunction, RawFunction, TreeFunction) ++
-      Seq(xml.FromFileFunction) ++
+      Seq(xml.FromFileFunction, xml.FromStringFunction) ++
       Seq(json.FromFileFunction, json.FromStringFunction, json.PrettyPrintFunction) ++
       Seq(
         dns.LookupFunction,

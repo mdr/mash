@@ -1010,4 +1010,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[@attribute def foo = 42].first.invoke" shouldEvaluateTo 42
   "[class Bob].first.new.getClass.name" shouldEvaluateTo "'Bob'"
 
+  // xml.fromString
+  "xml.fromString '<foo>bar</foo>'" shouldEvaluateTo "{ foo: 'bar' }"
+
 }

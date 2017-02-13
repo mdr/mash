@@ -27,10 +27,15 @@ object FromFileFunction extends MashFunction("xml.fromFile") {
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.validate(arguments)
     val path = boundParams.validatePath(File)
-    val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
-    val jsonText = XML.toJSONObject(s).toString(4)
+    val xml = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
+    fromString(xml)
+  }
+
+  def fromString(xml: String): MashValue = {
+    val jsonText = XML.toJSONObject(xml).toString(2)
     json.FromFileFunction.parseJson(jsonText)
   }
+
 
   override def typeInferenceStrategy = ObjectClass
 

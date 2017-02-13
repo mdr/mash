@@ -2,14 +2,10 @@ package com.github.mdr.mash.ns.http
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
-import org.apache.http.HttpEntityEnclosingRequest
-import org.apache.http.client.methods.{ HttpDelete, HttpPut }
-import org.apache.http.entity.{ ContentType, StringEntity }
+import org.apache.http.client.methods.HttpDelete
 import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 object DeleteFunction extends MashFunction("http.delete") {
