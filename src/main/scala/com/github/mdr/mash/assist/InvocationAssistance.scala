@@ -1,8 +1,7 @@
 package com.github.mdr.mash.assist
 
-import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -10,8 +9,6 @@ import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Region, Utils }
-
-import scala.PartialFunction._
 
 object InvocationAssistance {
 
@@ -42,43 +39,6 @@ object InvocationAssistance {
     case _                          ⇒ expr.preInvocationTypeOpt orElse expr.typeOpt
   }
 
-  private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(elementType)                                             ⇒
-      assistInvocation(elementType)
-    case Type.BuiltinFunction(f)                                           ⇒
-      Some(AssistanceState(
-        f.name,
-        f.summaryOpt.toSeq ++ Seq(
-          "",
-          callingSyntax(f))))
-    case Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) ⇒
-      Some(AssistanceState(
-        nameOpt.getOrElse("Anonymous function"),
-        docCommentOpt.map(_.summary).toSeq ++ Seq(
-          nameOpt.getOrElse("f") + " " + params.callingSyntax)))
-    case Type.BoundBuiltinMethod(_, method)                                ⇒
-      Some(AssistanceState(
-        method.name,
-        method.summaryOpt.toSeq ++ Seq(
-          "",
-          "target." + callingSyntax(method))))
-    case Type.BoundUserDefinedMethod(_, method)                            ⇒
-      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
-      Some(AssistanceState(
-        nameOpt.getOrElse("Anonymous method"),
-        docCommentOpt.map(_.summary).toSeq ++ Seq(
-          "target." + nameOpt.getOrElse("method") + " " + params.callingSyntax)))
-    case _                                                                 ⇒
-      None
-  }
-
-  private def callingSyntax(funOrMethod: Any): String =
-    funOrMethod match {
-      case f: MashFunction ⇒ f.name + " " + f.params.callingSyntax
-      case bm: BoundMethod ⇒ bm.method.name + " " + bm.method.params.callingSyntax
-      case m: MashMethod   ⇒ m.name + " " + m.params.callingSyntax
-    }
-
   private def findInnermostInvocationContaining(program: AstNode, tokens: Seq[Token], pos: Int): Option[Expr] = {
     val enclosingInvocations = program.findAll {
       case expr: InvocationExpr if expandedRegionContains(expr, tokens, pos)                              ⇒ expr
@@ -90,10 +50,10 @@ object InvocationAssistance {
   }
 
   private def hasFunctionType(e: Expr): Boolean =
-    e.typeOpt.exists(cond(_) {
-      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _)
-           | _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
-    })
+    e.typeOpt.collect {
+      case Type.BuiltinFunction(_) | Type.BoundBuiltinMethod(_, _)      ⇒ true
+      case _: Type.UserDefinedFunction | _: Type.BoundUserDefinedMethod ⇒ true
+    }.isDefined
 
   private def expandedRegionContains(expr: Expr, tokens: Seq[Token], pos: Int): Boolean =
     expr.sourceInfoOpt.exists(info ⇒ rightExpandedRegion(info.node, tokens) contains pos)
@@ -118,5 +78,40 @@ object InvocationAssistance {
 
   private def findRightmostToken(remainingTokens: Seq[Token]): Option[Token] =
     remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
+
+  private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
+    case Type.Seq(elementType)                                             ⇒
+      assistInvocation(elementType)
+    case Type.BuiltinFunction(f)                                           ⇒
+      Some(AssistanceState(
+        f.name,
+        f.summaryOpt.toSeq ++ Seq(
+          s"${f.name} ${f.params.callingSyntax}")))
+    case Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) ⇒
+      Some(AssistanceState(
+        nameOpt.getOrElse("Anonymous function"),
+        docCommentOpt.map(_.summary).toSeq ++ Seq(
+          s"${nameOpt getOrElse "f"} ${params.callingSyntax}")))
+    case Type.BoundBuiltinMethod(_, method)                                ⇒
+      Some(AssistanceState(
+        method.name,
+        method.summaryOpt.toSeq ++ Seq(
+          s"target.${method.name} ${method.params.callingSyntax}")))
+    case Type.BoundUserDefinedMethod(_, method)                            ⇒
+      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
+      Some(AssistanceState(
+        nameOpt.getOrElse("Anonymous method"),
+        docCommentOpt.map(_.summary).toSeq ++ Seq(
+          s"target.${nameOpt getOrElse "method"} ${params.callingSyntax}")))
+    case userClass: Type.UserClass                                         ⇒
+      Some(AssistanceState(
+        MashClass.ConstructorMethodName,
+        Seq(
+          s"Construct a new ${userClass.name}",
+          s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}")))
+    // TODO: Handle .new calls on builtin classes
+    case _ ⇒
+      None
+  }
 
 }

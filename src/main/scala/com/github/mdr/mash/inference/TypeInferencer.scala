@@ -477,7 +477,7 @@ class TypeInferencer {
       override def apply(arguments: Arguments): MashValue =
         throw new AssertionError("Fake function cannot be executed")
 
-      override def summaryOpt = Some(s"Constructor for ${userClass.name}")
+      override def summaryOpt = Some(s"Construct a new ${userClass.name}")
 
       override def params: ParameterModel = userClass.params
 

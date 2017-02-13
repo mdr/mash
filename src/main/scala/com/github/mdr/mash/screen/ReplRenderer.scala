@@ -96,12 +96,17 @@ object ReplRenderer {
     val lines = assistanceState.lines
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 6), terminalInfo.columns)
     val innerWidth = boxWidth - 4
-    val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
+    val displayTitle = StringUtils.ellipsisise(title, innerWidth)
     val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
-    val topLine = Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style)
+    val styledTitle = displayTitle.style(TitleStyle)
+    val topLine = Line("┌─ ".style ++ styledTitle ++ (" " + "─" * (innerWidth - displayTitle.length - 2) + "─┐").style)
+
     val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
+
     val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").style))
     topLine +: contentLines :+ bottomLine
   }
+
+  private val TitleStyle = Style(bold = true, foregroundColour = Colour.Yellow)
 
 }
