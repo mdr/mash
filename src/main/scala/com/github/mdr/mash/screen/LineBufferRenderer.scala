@@ -8,12 +8,11 @@ import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.repl.ReplState
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.LineInfo
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 object LineBufferRenderer {
@@ -29,7 +28,7 @@ object LineBufferRenderer {
       state.bareWords)
 
     def wrap(line: Line): Seq[Line] = {
-      val groups = line.chars.grouped(terminalInfo.columns).toSeq
+      val groups = line.string.grouped(terminalInfo.columns).toSeq
       for {
         (group, index) ← groups.zipWithIndex
         endsInNewline = index == groups.size - 1
@@ -42,7 +41,7 @@ object LineBufferRenderer {
     LinesAndCursorPos(wrappedLines, Point(row, column))
   }
 
-  private def getPrompt(commandNumber: Int, mishByDefault: Boolean): Seq[StyledCharacter] = {
+  private def getPrompt(commandNumber: Int, mishByDefault: Boolean): StyledString = {
     val num = s"[$commandNumber] "
     val numStyle = Style(foregroundColour = Colour.Yellow)
     val numStyled = num.style(numStyle)
@@ -55,7 +54,7 @@ object LineBufferRenderer {
     val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
     val promptCharStyled = s" $promptChar ".style(promptCharStyle)
 
-    numStyled ++ pwdStyled ++ promptCharStyled
+    numStyled + pwdStyled + promptCharStyled
   }
 
   private def getBareTokens(s: String, mish: Boolean, globalVariables: MashObject): Set[Token] = {
@@ -68,16 +67,16 @@ object LineBufferRenderer {
 
   private def renderLineBufferChars(rawChars: String,
                                     cursorOffset: Int,
-                                    prompt: Seq[StyledCharacter],
+                                    prompt: StyledString,
                                     mishByDefault: Boolean,
                                     globalVariables: MashObject,
                                     bareWords: Boolean): Seq[Line] = {
-    val styledChars = renderChars(rawChars, cursorOffset, mishByDefault, globalVariables, bareWords)
+    val styledString = renderChars(rawChars, cursorOffset, mishByDefault, globalVariables, bareWords)
     val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
     val lineRegions = new LineInfo(rawChars).lineRegions
     lineRegions.zipWithIndex.map {
-      case (region, 0) ⇒ Line(prompt ++ region.of(styledChars))
-      case (region, _) ⇒ Line(continuationPrefix.style ++ region.of(styledChars))
+      case (region, 0) ⇒ Line(prompt + region.of(styledString.chars))
+      case (region, _) ⇒ Line(continuationPrefix.style + region.of(styledString.chars))
     }
   }
 
@@ -87,7 +86,7 @@ object LineBufferRenderer {
                   cursorOffset: Int,
                   mishByDefault: Boolean,
                   globalVariables: MashObject,
-                  bareWords: Boolean): Seq[StyledCharacter] = {
+                  bareWords: Boolean): StyledString = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
@@ -109,20 +108,20 @@ object LineBufferRenderer {
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokens, matchingBracketOffsetOpt, bareWords)
+      styledChars ++= renderToken(token, bareTokens, matchingBracketOffsetOpt, bareWords).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
-        styledChars ++= suffix.style(Style(bold = true))
+        styledChars ++= suffix.style(Style(bold = true)).chars
       case _                                  ⇒
     }
-    styledChars
+    StyledString(styledChars)
   }
 
   private def renderToken(token: Token,
                           bareTokens: Set[Token],
                           matchingBracketOffsetOpt: Option[Int],
-                          bareWords: Boolean): Seq[StyledCharacter] = {
+                          bareWords: Boolean): StyledString = {
     val style =
       if (bareTokens contains token)
         if (bareWords) getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = Colour.Red)

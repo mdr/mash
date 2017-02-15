@@ -5,7 +5,7 @@ import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.repl.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.{ StringUtils, Utils }
+import com.github.mdr.mash.utils.StringUtils
 
 import scala.PartialFunction._
 
@@ -48,7 +48,7 @@ object CompletionRenderer {
     val numberOfCompletionColumns = math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
     val columnWidth = math.min(terminalWidth, longestCompletionLength)
 
-    def renderCompletion(completion: Completion, index: Int): Seq[StyledCharacter] = {
+    def renderCompletion(completion: Completion, index: Int): StyledString = {
       val Completion(displayText, _, _, completionTypeOpt, _, location) = completion
       val truncatedText = StringUtils.ellipsisise(displayText, columnWidth)
       val active = cond(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion == index }
@@ -70,14 +70,14 @@ object CompletionRenderer {
       val paddingStyle = Style(foregroundColour = colour, inverse = active)
       val paddingStyled = padding.style(paddingStyle)
 
-      commonPrefixStyled ++ beforeStyled ++ commonFragmentStyled ++ afterStyled ++ paddingStyled
+      commonPrefixStyled + beforeStyled + commonFragmentStyled + afterStyled + paddingStyled
     }
 
     val allLines =
       for {
         completionRow ← completions.zipWithIndex.grouped(numberOfCompletionColumns).toSeq
         styledChars = completionRow.map { case (completion, index) ⇒ renderCompletion(completion, index) }
-        charsWithGaps = Utils.intercalate(styledChars, columnGap.style)
+        charsWithGaps = StyledString.mkString(styledChars, columnGap.style)
       } yield Line(charsWithGaps, endsInNewline = true)
 
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)

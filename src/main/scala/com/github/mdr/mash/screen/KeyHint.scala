@@ -1,6 +1,5 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.utils.Utils
 import com.github.mdr.mash.screen.Style.StylableString
 
 object KeyHint {
@@ -24,10 +23,12 @@ object KeyHint {
   val CaseSensitive = KeyHint("^t", "case sensitive")
   val CaseInsensitive = KeyHint("^t", "ignore case")
 
-  def renderKeyHints(hints: Seq[KeyHint]): Seq[StyledCharacter] = {
-    def renderHint(hint: KeyHint) = hint.key.style(Style(inverse = true, foregroundColour = Colour.Cyan)) ++ " ".style ++ hint.description.style
-    Utils.intercalate(hints.map(renderHint), ", ".style)
+  def renderKeyHints(hints: Seq[KeyHint]): StyledString = {
+    def renderHint(hint: KeyHint) = hint.key.style(hintStyle) + " ".style + hint.description.style
+    StyledString.mkString(hints.map(renderHint), ", ".style)
   }
+
+  val hintStyle = Style(inverse = true, foregroundColour = Colour.Cyan)
 
 }
 

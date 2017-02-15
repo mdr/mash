@@ -63,10 +63,10 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel, terminalInf
     val fit = StringUtils.ellipsisise(StringUtils.centre(className, fullRowWidth), fullRowWidth)
     val renderedClassName = fit.style(classNameStyle)
     val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= boxCharacterSupplier.doubleVertical.style
-    buffer ++= renderedClassName
-    buffer ++= boxCharacterSupplier.doubleVertical.style
-    Line(buffer)
+    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
+    buffer ++= renderedClassName.chars
+    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
+    Line(StyledString(buffer))
   }
 
   /**
@@ -98,7 +98,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel, terminalInf
     val internalVertical = boxCharacterSupplier.singleVertical.style(internalRowStyle(isCursorRow))
     val fieldChars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth).style(fieldStyle(isCursorRow))
     val valueChars = StringUtils.fitToWidth(renderedValue, model.valueColumnWidth).style(internalRowStyle(isCursorRow))
-    Line(side ++ fieldChars ++ internalVertical ++ valueChars ++ side)
+    Line(side + fieldChars + internalVertical + valueChars + side)
   }
 
   /**

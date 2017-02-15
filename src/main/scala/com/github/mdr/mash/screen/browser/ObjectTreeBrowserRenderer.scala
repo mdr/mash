@@ -22,21 +22,21 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
 
     private val lines: ArrayBuffer[Line] = ArrayBuffer()
 
-    private var line: Seq[StyledCharacter] = Seq()
+    private var line: StyledString = StyledString.empty
 
     def println(): Unit = {
       lines += Line(line)
-      line = Seq()
+      line = StyledString.empty
     }
 
     def println(s: String): Unit = {
-      line ++= s.style
+      line += s.style
       println()
     }
 
     def print(s: String, highlighted: Boolean = false, yellow: Boolean = false): Unit = {
       val foregroundColour = if (yellow) Colour.Yellow else Colour.Default
-      line ++= s.style(Style(inverse = highlighted, foregroundColour = foregroundColour))
+      line += s.style(Style(inverse = highlighted, foregroundColour = foregroundColour))
     }
 
     def getLines = lines :+ Line(line)

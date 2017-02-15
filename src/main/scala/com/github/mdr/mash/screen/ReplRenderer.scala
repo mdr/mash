@@ -80,10 +80,10 @@ object ReplRenderer {
     }
 
   private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
-    val prefixChars: Seq[StyledCharacter] = "Incremental history search: ".style
-    val searchChars: Seq[StyledCharacter] = searchState.searchString.style(Style(foregroundColour = Colour.Cyan))
-    val chars = (prefixChars ++ searchChars).take(terminalInfo.columns)
-    val line = Line((prefixChars ++ searchChars).take(terminalInfo.columns))
+    val prefixChars: StyledString = "Incremental history search: ".style
+    val searchChars: StyledString = searchState.searchString.style(Style(foregroundColour = Colour.Cyan))
+    val chars = (prefixChars + searchChars).take(terminalInfo.columns)
+    val line = Line((prefixChars + searchChars).take(terminalInfo.columns))
     val cursorPos = Point(0, chars.size)
     LinesAndCursorPos(Seq(line), cursorPos)
   }
@@ -99,7 +99,7 @@ object ReplRenderer {
     val displayTitle = StringUtils.ellipsisise(title, innerWidth)
     val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
     val styledTitle = displayTitle.style(TitleStyle)
-    val topLine = Line("┌─ ".style ++ styledTitle ++ (" " + "─" * (innerWidth - displayTitle.length - 2) + "─┐").style)
+    val topLine = Line("┌─ ".style + styledTitle + (" " + "─" * (innerWidth - displayTitle.length - 2) + "─┐").style)
 
     val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
 

@@ -14,14 +14,14 @@ case class Point(row: Int, column: Int) {
 
 }
 
-case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
+case class Line(string: StyledString, endsInNewline: Boolean = true) {
 
   def truncate(n: Int) =
-    if (chars.size > n)
+    if (string.size > n)
       if (n > 0)
-        copy(chars.take(n - 1) ++ "…".style(chars(n - 1).style))
+        copy(string.take(n - 1) + "…".style(string(n - 1).style))
       else
-        copy(Seq())
+        copy(StyledString.empty)
     else
       this
 
@@ -29,10 +29,10 @@ case class Line(chars: Seq[StyledCharacter], endsInNewline: Boolean = true) {
 
 object Screen {
 
-  def drawStyledChars(chars: Seq[StyledCharacter]): String = {
+  def drawStyledChars(string: StyledString): String = {
     val sb = new StringBuilder()
     var previousStyleOpt: Option[Style] = None
-    for (StyledCharacter(c, style) ← chars) {
+    for (StyledCharacter(c, style) ← string.chars) {
       val ansi = Ansi.ansi()
       if (previousStyleOpt != Some(style)) {
         ansi.reset()
@@ -96,21 +96,21 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
             if (aboveLine.endsInNewline)
               drawState.crlf()
             else { // We rewrite the last character to force a wrap
-              val lastChars = aboveLine.chars.drop(aboveLine.chars.size - 1)
-              drawState.navigateToColumn(aboveLine.chars.size)
+              val lastChars = aboveLine.string.drop(aboveLine.string.size - 1)
+              drawState.navigateToColumn(aboveLine.string.size)
               val drawnChars = Screen.drawStyledChars(lastChars)
               drawState.addChars(drawnChars, lastChars.length)
               drawState.funkyWrap()
             }
           }
           val commonPrefixLength = previousLineOpt match {
-            case Some(previousLine) ⇒ Utils.commonPrefix(newLine.chars, previousLine.chars).length
+            case Some(previousLine) ⇒ Utils.commonPrefix(newLine.string.chars, previousLine.string.chars).length
             case _                  ⇒ 0
           }
-          if (previousLineOpt.map(_.chars) != Some(newLine.chars)) { // Only redraw if the actual characters have changed
+          if (previousLineOpt.map(_.string) != Some(newLine.string)) { // Only redraw if the actual characters have changed
             drawState.navigateToColumn(commonPrefixLength)
             drawState.eraseLine()
-            val remainder = newLine.chars.drop(commonPrefixLength)
+            val remainder = newLine.string.drop(commonPrefixLength)
             val drawnChars = Screen.drawStyledChars(remainder)
             drawState.addChars(drawnChars, remainder.length)
           }
