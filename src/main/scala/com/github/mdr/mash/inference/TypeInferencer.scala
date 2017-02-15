@@ -17,6 +17,7 @@ import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.ArrayBuffer
 
 case class ValueInfo(valueOpt: Option[MashValue], typeOpt: Option[Type])
 
@@ -171,12 +172,16 @@ class TypeInferencer {
   private def getUserClassType(classDeclaration: ClassDeclaration, bindings: Map[String, Type]): Type.UserClass = {
     val ClassDeclaration(_, _, className, paramList, bodyOpt, _) = classDeclaration
 
-    val methods = bodyOpt.toSeq.flatMap(_.methods).map { decl ⇒
+
+    var methodBindings = bindings // Should also include parent methods
+    val methods = ArrayBuffer[(String, Type.UserDefinedFunction)]()
+    for (decl ← bodyOpt.toSeq.flatMap(_.methods)) {
       val FunctionDeclaration(docCommentOpt, attributes, functionName, functionParamList, body, _) = decl
       val functionParams = Evaluator.parameterModel(functionParamList)
       val isPrivate = attributes.exists(_.name == Attributes.Private)
-      val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(functionName), functionParams, body, bindings)
-      functionName -> methodType
+      val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(functionName), functionParams, body, methodBindings)
+      methods += (functionName -> methodType)
+      methodBindings += functionName -> methodType
     }
     val classParams = Evaluator.parameterModel(paramList)
     Type.UserClass(className, classParams, ListMap(methods: _*))

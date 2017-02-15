@@ -367,6 +367,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "List 1 2 3" shouldBeInferredAsHavingType Seq(NumberClass)
   "List.new" shouldBeInferredAsHavingType Seq(Any)
 
+  // Intraclass method references
+  "class Foo { def a = 10; def b = a }; Foo.new.b" shouldBeInferredAsHavingType NumberClass
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {
