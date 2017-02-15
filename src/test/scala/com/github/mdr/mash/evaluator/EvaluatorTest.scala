@@ -233,6 +233,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 1] | groupBy --total='totalCount' (x => x) | select 'key' 'count' | sortBy 'count'" shouldEvaluateTo
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
 
+  // Group.count
+  "['apple', 'bike', 'book'] | groupBy first | sortBy (.key) | map (.count)" shouldEvaluateTo "[1, 2]"
+
   // identity
   "identity 1" shouldEvaluateTo 1
 

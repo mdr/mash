@@ -1,11 +1,11 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashNumber, MashValue }
 
 object GroupClass extends MashClass("collections.Group") {
 
@@ -21,11 +21,9 @@ object GroupClass extends MashClass("collections.Group") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  private case class Wrapper(target: MashValue) {
+  private case class Wrapper(targetValue: MashValue) extends AbstractObjectWrapper(targetValue) {
 
-    private val obj = target.asInstanceOf[MashObject]
-
-    def values = obj(Values).asInstanceOf[MashList]
+    def values = getListField(Values)
 
   }
 

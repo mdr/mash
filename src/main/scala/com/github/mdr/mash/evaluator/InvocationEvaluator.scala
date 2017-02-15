@@ -20,17 +20,17 @@ object InvocationEvaluator extends EvaluatorHelper {
           functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
         } else
           callFunction(result, evaluatedArguments, functionExpr, invocationExpr)
-      case _ ⇒
+      case _                      ⇒
         val function = Evaluator.simpleEvaluate(functionExpr)
         callFunction(function, evaluatedArguments, functionExpr, invocationExpr)
     }
   }
 
   def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt) ⇒
+    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒
       val suspendedValue = SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
       EvaluatedArgument.PositionArg(suspendedValue, Some(arg))
-    case Argument.ShortFlag(flags, sourceInfoOpt) ⇒
+    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒
       EvaluatedArgument.ShortFlag(flags, Some(arg))
     case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
       val suspendedValueOpt = valueOpt.map { expr ⇒
@@ -47,17 +47,17 @@ object InvocationEvaluator extends EvaluatorHelper {
                    functionLocationOpt: Option[SourceLocation] = None,
                    invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
-      case MashString(memberName, _) ⇒
+      case MashString(memberName, _)      ⇒
         val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
-      case b: MashBoolean ⇒
+      case b: MashBoolean                 ⇒
         val f = new BooleanFunction(b.value)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
-      case f: MashFunction ⇒
+      case f: MashFunction                ⇒
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
@@ -65,12 +65,12 @@ object InvocationEvaluator extends EvaluatorHelper {
         addInvocationToStackOnException(invocationLocationOpt, None) {
           method(target, arguments)
         }
-      case klass: MashClass ⇒
+      case klass: MashClass               ⇒
         klass.getStaticMethod(MashClass.ConstructorMethodName) match {
           case Some(staticMethod) ⇒ callFunction(staticMethod, arguments, functionLocationOpt, invocationLocationOpt)
-          case None ⇒ throw new EvaluatorException(s"Value of type ${klass.typeName} is not callable", functionLocationOpt)
+          case None               ⇒ throw new EvaluatorException(s"Value of type ${klass.typeName} is not callable", functionLocationOpt)
         }
-      case x ⇒
+      case x                              ⇒
         throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
     }
 
@@ -87,6 +87,7 @@ object InvocationEvaluator extends EvaluatorHelper {
         defaultValueGeneratorOpt = Some(() ⇒ MashUnit),
         isLazy = true)
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Then, Else))
@@ -115,6 +116,7 @@ object InvocationEvaluator extends EvaluatorHelper {
         nameOpt = Some("target"),
         summaryOpt = Some("Member to look-up in the target object"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Target))
@@ -127,7 +129,7 @@ object InvocationEvaluator extends EvaluatorHelper {
             val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
             Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
           }
-        case v ⇒
+        case v            ⇒
           val intermediateResult = MemberEvaluator.lookup(v, s, locationOpt = functionLocationOpt)
           Evaluator.invokeNullaryFunctions(intermediateResult, functionLocationOpt)
       }
@@ -141,7 +143,7 @@ object InvocationEvaluator extends EvaluatorHelper {
     try
       p
     catch {
-      case e: ArgumentException ⇒
+      case e: ArgumentException  ⇒
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
         throw invocationLocationOpt.map(e.lastWasFunction(functionOpt).push).getOrElse(e)
