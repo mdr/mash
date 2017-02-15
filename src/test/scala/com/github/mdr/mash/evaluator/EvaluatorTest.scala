@@ -1013,4 +1013,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // xml.fromString
   "xml.fromString '<foo>bar</foo>'" shouldEvaluateTo "{ foo: 'bar' }"
 
+  // json.prettyPrint
+  "123456789 | json.prettyPrint" shouldEvaluateTo "'123456789'"
 }

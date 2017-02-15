@@ -39,12 +39,17 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
     Streams.write(json, jsonWriter)
     stringWriter.toString
   }
-  
+
+  private def isValidLong(n: Double) = { val l = n.toLong; l.toDouble == n && l != Long.MaxValue }
+
   def asJson(value: MashValue): JsonElement = value match {
     case MashBoolean.True  ⇒ new JsonPrimitive(true)
     case MashBoolean.False ⇒ new JsonPrimitive(false)
     case n: MashNumber ⇒
-      n.asInt.map(i ⇒ new JsonPrimitive(i)).getOrElse(new JsonPrimitive(n.n))
+      if (isValidLong(n.n))
+        new JsonPrimitive(n.n.toLong)
+      else
+        new JsonPrimitive(n.n)
     case MashString(s, _) ⇒ new JsonPrimitive(s)
     case MashNull         ⇒ JsonNull.INSTANCE
     case list: MashList ⇒
