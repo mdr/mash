@@ -20,7 +20,7 @@ trait History {
   def getHistory: Seq[HistoryEntry]
 
   def findMatches(searchString: String): Seq[String] =
-    getHistory.map(_.command).filter(_.contains(searchString))
+    getHistory.map(_.command).filter(_.toLowerCase contains searchString.toLowerCase)
 
   def getLastArg(lastArgIndex: Int): Option[String] =
     getHistory.toStream.flatMap(getLastArg(_)).drop(lastArgIndex).headOption

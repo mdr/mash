@@ -122,17 +122,26 @@ class ReplTest extends FlatSpec with Matchers {
   "Multiline editing" should "be supported" in {
     val repl = makeRepl()
     repl
-      .input("{").acceptLine
-      .input("  42").acceptLine
-      .input("}").acceptLine
-    repl.it should equal(MashNumber(42))  
+      .input("{").acceptLine()
+      .input("  42").acceptLine()
+      .input("}").acceptLine()
+    repl.it should equal(MashNumber(42))
   }
 
   "Type inferencer" should "handle previously-defined user-defined nullary functions" in {
     makeRepl()
-      .input("foo = { bar: => { baz: 100 } }").acceptLine
+      .input("foo = { bar: => { baz: 100 } }").acceptLine()
       .input("foo.bar.ba").complete()
       .text should equal("foo.bar.baz")
+  }
+
+  "Incremental history search" should "find results matching case-insensitively" in {
+    makeRepl()
+      .input("foobar = 42").acceptLine()
+      .incrementalHistorySearch()
+      .input("FOO")
+      .text should equal("foobar = 42")
+
   }
 
 }
@@ -150,17 +159,40 @@ object ReplTest {
 
     import com.github.mdr.mash.repl.NormalActions._
 
-    def input(s: String): Repl = { repl.handleAction(SelfInsert(s)); repl }
+    def input(s: String): Repl = {
+      repl.handleAction(SelfInsert(s))
+      repl
+    }
 
-    def complete(): Repl = { repl.handleAction(Complete); repl }
+    def incrementalHistorySearch(): Repl = {
+      repl.handleAction(IncrementalHistorySearch)
+      repl
+    }
 
-    def previousHistory(): Repl = { repl.handleAction(PreviousHistory); repl }
+    def complete(): Repl = {
+      repl.handleAction(Complete)
+      repl
+    }
 
-    def nextHistory(): Repl = { repl.handleAction(NextHistory); repl }
+    def previousHistory(): Repl = {
+      repl.handleAction(PreviousHistory)
+      repl
+    }
 
-    def acceptLine(): Repl = { repl.handleAction(AcceptLine); repl }
+    def nextHistory(): Repl = {
+      repl.handleAction(NextHistory)
+      repl
+    }
 
-    def toggleQuote(): Repl = { repl.handleAction(ToggleQuote); repl }
+    def acceptLine(): Repl = {
+      repl.handleAction(AcceptLine)
+      repl
+    }
+
+    def toggleQuote(): Repl = {
+      repl.handleAction(ToggleQuote)
+      repl
+    }
 
     def text: String = lineBuffer.text
 
@@ -172,19 +204,31 @@ object ReplTest {
       repl
     }
 
-    def delete(): Repl = { repl.handleAction(DeleteChar); repl }
+    def delete(): Repl = {
+      repl.handleAction(DeleteChar)
+      repl
+    }
 
-    def backspace(): Repl = { repl.handleAction(BackwardDeleteChar); repl }
+    def backspace(): Repl = {
+      repl.handleAction(BackwardDeleteChar)
+      repl
+    }
 
-    def draw(): Repl = { repl.draw(); repl }
+    def draw(): Repl = {
+      repl.draw()
+      repl
+    }
 
-    def it: MashValue = { repl.state.globalVariables.get(ReplState.It).get }
+    def it: MashValue = {
+      repl.state.globalVariables.get(ReplState.It).get
+    }
 
     def incrementalCompletionState = repl.state.completionStateOpt.collect {
-      case ics: IncrementalCompletionState ⇒ ics
+      case state: IncrementalCompletionState ⇒ state
     }.getOrElse(throw new AssertionError("Not in incremental completion mode"))
 
   }
+
 }
 
 case class DummyTerminal(width: Int = 80) extends Terminal {
@@ -193,6 +237,6 @@ case class DummyTerminal(width: Int = 80) extends Terminal {
 
 }
 
-object NullPrintStream extends PrintStream(new OutputStream {
-  override def write(b: Int) { /* no-op */ }
+object NullPrintStream extends PrintStream(_ => {
+  /* no-op */
 })
