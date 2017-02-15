@@ -1,7 +1,8 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.completions
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.repl.BrowseCompletionActions._
+import com.github.mdr.mash.repl._
+import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
 import com.github.mdr.mash.utils.{ Region, StringUtils }
 
 trait BrowseCompletionActionHandler { self: Repl ⇒
@@ -27,7 +28,7 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
    * Browse completions with the given active completion index
    */
   protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
-    val Region(offset, length) = completionState.replacementLocation
+    val offset = completionState.replacementLocation.offset
     val completion = completionState.completions(activeCompletion)
     val replacement = completion.replacement
     val newReplacementLocation = Region(offset, replacement.length)

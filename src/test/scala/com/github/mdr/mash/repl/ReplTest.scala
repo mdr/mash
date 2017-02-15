@@ -7,6 +7,7 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
+import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.{ Terminal, TerminalInfo }

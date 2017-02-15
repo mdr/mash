@@ -1,6 +1,7 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.completions
 
 import com.github.mdr.mash.completions.{ Completion, CompletionContext, CompletionFragment }
+import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.utils.Region
 
 sealed trait CompletionState {
@@ -41,9 +42,9 @@ case class BrowserCompletionState(
 /** During incremental completion, we keep a memento of the previous repl state so we can unwind */
 case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
 
-  def restoreInto(replState: ReplState) {
-    replState.lineBuffer = lineBuffer
-    replState.completionStateOpt = Some(completionState)
+  def restoreInto(state: ReplState) {
+    state.lineBuffer = lineBuffer
+    state.completionStateOpt = Some(completionState)
   }
 
 }

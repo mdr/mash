@@ -3,6 +3,7 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
+import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.utils.Region
 import org.scalatest._
 

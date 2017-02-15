@@ -2,7 +2,7 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.BrowseCompletionActions._
+import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
 
 object BrowseCompletionsKeyMap extends KeyMap(NormalKeyMap.map ++ Map(
   KeyPress(Tab) -> NextCompletion,

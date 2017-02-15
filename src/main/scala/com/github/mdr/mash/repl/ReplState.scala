@@ -4,6 +4,7 @@ import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, ObjectsTableBrowserState }
+import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region

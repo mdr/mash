@@ -13,6 +13,7 @@ import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
+import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
