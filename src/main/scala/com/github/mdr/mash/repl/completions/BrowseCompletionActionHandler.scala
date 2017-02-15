@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.completions
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
-import com.github.mdr.mash.utils.{ Region, StringUtils }
+import com.github.mdr.mash.utils.{ RaggedGridNavigator, Region, StringUtils }
 
 trait BrowseCompletionActionHandler { self: Repl ⇒
 

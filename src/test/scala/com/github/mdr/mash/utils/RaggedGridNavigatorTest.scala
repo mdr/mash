@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.utils
 
 import org.scalatest._
 
@@ -138,7 +138,7 @@ class RaggedGridNavigatorTest extends FlatSpec with Matchers {
 
   private def getExpected(after: String): Int = {
     val lines = after.split("\n").map(_.trim).toSeq.tail
-    val columns = lines(0).length
+    val columns = lines.head.length
     val row = lines.indexWhere(_ contains "▣")
     val line = lines(row)
     val column = line.indexWhere(_ == '▣')
@@ -149,7 +149,7 @@ class RaggedGridNavigatorTest extends FlatSpec with Matchers {
     val symbols = "▼▶◀▲".toSet
     val lines = before.split("\n").map(_.trim).toSeq.tail
     val total = lines.map(_.length).sum
-    val columns = lines(0).length
+    val columns = lines.head.length
     val row = lines.indexWhere(_.exists(symbols.contains))
     val line = lines(row)
     val column = line.indexWhere(symbols.contains)

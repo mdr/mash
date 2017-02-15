@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.utils
 
 /**
  * Helper class to calculate motion with a ragged grid, including wrapping around the edges.
