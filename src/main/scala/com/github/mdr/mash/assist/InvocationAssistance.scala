@@ -2,7 +2,9 @@ package com.github.mdr.mash.assist
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
@@ -80,38 +82,52 @@ object InvocationAssistance {
     remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(elementType)                                             ⇒
-      assistInvocation(elementType)
-    case Type.BuiltinFunction(f)                                           ⇒
-      Some(AssistanceState(
-        f.name,
-        f.summaryOpt.toSeq ++ Seq(
-          s"${f.name} ${f.params.callingSyntax}")))
-    case Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) ⇒
-      Some(AssistanceState(
-        nameOpt.getOrElse("Anonymous function"),
-        docCommentOpt.map(_.summary).toSeq ++ Seq(
-          s"${nameOpt getOrElse "f"} ${params.callingSyntax}")))
-    case Type.BoundBuiltinMethod(_, method)                                ⇒
-      Some(AssistanceState(
-        method.name,
-        method.summaryOpt.toSeq ++ Seq(
-          s"target.${method.name} ${method.params.callingSyntax}")))
-    case Type.BoundUserDefinedMethod(_, method)                            ⇒
-      val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
-      Some(AssistanceState(
-        nameOpt.getOrElse("Anonymous method"),
-        docCommentOpt.map(_.summary).toSeq ++ Seq(
-          s"target.${nameOpt getOrElse "method"} ${params.callingSyntax}")))
-    case userClass: Type.UserClass                                         ⇒
-      Some(AssistanceState(
-        MashClass.ConstructorMethodName,
-        Seq(
-          s"Construct a new ${userClass.name}",
-          s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}")))
+    case Type.Seq(elementType)                  ⇒ assistInvocation(elementType)
+    case Type.BuiltinFunction(f)                ⇒ Some(assistFunction(f))
+    case f: Type.UserDefinedFunction            ⇒ Some(assistFunction(f))
+    case Type.BoundBuiltinMethod(_, method)     ⇒ Some(assistMethod(method))
+    case Type.BoundUserDefinedMethod(_, method) ⇒ Some(assistMethod(method))
+    case userClass: Type.UserClass              ⇒ Some(assistClass(userClass))
+    case _                                      ⇒ None
     // TODO: Handle .new calls on builtin classes
-    case _ ⇒
-      None
+  }
+
+  private def assistFunction(f: MashFunction): AssistanceState = {
+    AssistanceState(
+      f.name,
+      f.summaryOpt.toSeq ++ Seq(
+        s"${f.name} ${f.params.callingSyntax}"))
+  }
+
+  private def assistFunction(f: Type.UserDefinedFunction) = {
+    val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
+    AssistanceState(
+      nameOpt.getOrElse("Anonymous function"),
+      docCommentOpt.map(_.summary).toSeq ++ Seq(
+        s"${nameOpt getOrElse "f"} ${params.callingSyntax}"))
+  }
+
+  private def assistMethod(method: MashMethod): AssistanceState = {
+    AssistanceState(
+      method.name,
+      method.summaryOpt.toSeq ++ Seq(
+        s"target.${method.name} ${method.params.callingSyntax}"))
+  }
+
+  private def assistMethod(method: Type.UserDefinedFunction): AssistanceState = {
+    val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
+    AssistanceState(
+      nameOpt.getOrElse("Anonymous method"),
+      docCommentOpt.map(_.summary).toSeq ++ Seq(
+        s"target.${nameOpt getOrElse "method"} ${params.callingSyntax}"))
+  }
+
+  private def assistClass(userClass: UserClass): AssistanceState = {
+    AssistanceState(
+      MashClass.ConstructorMethodName,
+      Seq(
+        s"Construct a new ${userClass.name}",
+        s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}"))
   }
 
 }
