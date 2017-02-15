@@ -3,7 +3,7 @@ package com.github.mdr.mash.inference
 import java.time.{ Instant, LocalDate }
 import java.util.IdentityHashMap
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass, UserDefinedClass, UserDefinedMethod }
+import com.github.mdr.mash.classes._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.core._
@@ -11,6 +11,7 @@ import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.runtime._
 
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.ArrayBuffer
 
 object ValueTypeDetector {
 
@@ -47,7 +48,7 @@ class ValueTypeDetector {
     }
   }
 
-  def getType_(x: MashValue): Type = x match {
+  private def getType_(x: MashValue): Type = x match {
     case MashNull                                                                ⇒ NullClass
     case AnonymousFunction(parameterModel, body, context)                        ⇒ Type.UserDefinedFunction(docCommentOpt = None, isPrivate = false, None, parameterModel, body, buildBindings(context.scopeStack.bindings))
     case UserDefinedFunction(docCommentOpt, name, parameterModel, body, context) ⇒ Type.UserDefinedFunction(docCommentOpt, isPrivate = false, Some(name), parameterModel, body, buildBindings(context.scopeStack.bindings))
@@ -61,16 +62,21 @@ class ValueTypeDetector {
     case _: MashBoolean                                                          ⇒ BooleanClass
     case MashWrapped(_: Instant)                                                 ⇒ DateTimeClass
     case MashWrapped(_: LocalDate)                                               ⇒ DateClass
-    case UserDefinedClass(_, name, _, params, methods)                           ⇒ Type.UserClass(name, params, getMethodTypes(methods))
+    case userClass: UserDefinedClass                                             ⇒ getUserClassType(userClass)
     case _: MashClass                                                            ⇒ ClassClass
     case MashUnit                                                                ⇒ Unit
     case xs: MashList                                                            ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
     case obj@MashObject(_, None)                                                 ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
     case obj@MashObject(_, Some(GroupClass))                                     ⇒ getTypeOfGroup(obj)
     case obj@MashObject(_, Some(TimedResultClass))                               ⇒ getTypeOfTimedResult(obj)
-    case MashObject(_, Some(UserDefinedClass(_, name, _, params, methods)))      ⇒ Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
+    case MashObject(_, Some(userClass: UserDefinedClass))                        ⇒ Type.UserClassInstance(getUserClassType(userClass))
     case MashObject(_, Some(klass))                                              ⇒ klass
     case _                                                                       ⇒ Type.Any
+  }
+
+  private def getUserClassType(userClass: UserDefinedClass): Type.UserClass = {
+    val UserDefinedClass(_, name, _, params, methods) = userClass
+    Type.UserClass(name, params, getMethodTypes(methods))
   }
 
   private def getBoundMethodType(target: MashValue, method: UserDefinedMethod) = {
@@ -80,17 +86,20 @@ class ValueTypeDetector {
     Type.BoundUserDefinedMethod(getType(target), methodType)
   }
 
-  def instanceType(userDefinedClass: UserDefinedClass): Type.UserClassInstance = {
-    val UserDefinedClass(_, name, _, params, methods) = userDefinedClass
+  def instanceType(userClass: UserDefinedClass): Type.UserClassInstance = {
+    val UserDefinedClass(_, name, _, params, methods) = userClass
     Type.UserClassInstance(Type.UserClass(name, params, getMethodTypes(methods)))
   }
 
-  def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
-    val pairs = methods.map { method ⇒
-      val bindings = buildBindings(method.context.scopeStack.bindings)
+  private def getMethodTypes(methods: Seq[UserDefinedMethod]): ListMap[String, Type.UserDefinedFunction] = {
+    var methodBindings = Map[String, Type]() // TODO: Should also include parent methods
+    val pairs: ArrayBuffer[(String, Type.UserDefinedFunction)] = ArrayBuffer()
+    for (method ← methods) {
+      val bindings = methodBindings ++ buildBindings(method.context.scopeStack.bindings)
       val functionType = Type.UserDefinedFunction(method.docCommentOpt, method.isPrivate, Some(method.name),
         method.params, method.body, bindings)
-      method.name -> functionType
+      pairs += (method.name -> functionType)
+      methodBindings += (method.name -> functionType)
     }
     ListMap(pairs: _*)
   }
@@ -107,8 +116,8 @@ class ValueTypeDetector {
         keyType = getType(key)
         values ← obj.get(GroupClass.Fields.Values)
         valueType = getType(values) match {
-          case Type.Seq(valueType) ⇒ valueType
-          case _                   ⇒ Type.Any
+          case Type.Seq(elementType) ⇒ elementType
+          case _                     ⇒ Type.Any
         }
       } yield GroupClass.withGenerics(keyType, valueType)
     groupTypeOpt.getOrElse(GroupClass.withGenerics(Type.Any, Type.Any))

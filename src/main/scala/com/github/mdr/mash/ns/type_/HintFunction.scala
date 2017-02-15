@@ -7,6 +7,8 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
+import scala.PartialFunction.condOpt
+
 object HintFunction extends MashFunction("type.hint") {
 
   object Params {
@@ -46,10 +48,9 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
     valueInfo.valueOpt.flatMap(getType) orElse
       valueInfo.typeOpt.flatMap(getType)
 
-  private def getType(type_ : Type): Option[Type] = type_ match {
-    case userClass: Type.UserClass ⇒ Some(Type.UserClassInstance(userClass))
-    case Type.Seq(elementType)     ⇒ Some(getType(elementType).getOrElse(Type.Any).seq)
-    case _                         ⇒ None
+  private def getType(type_ : Type): Option[Type] = condOpt(type_) {
+    case userClass: Type.UserClass ⇒ Type.UserClassInstance(userClass)
+    case Type.Seq(elementType)     ⇒ getType(elementType).getOrElse(Type.Any).seq
   }
 
   private def getType(value: MashValue): Option[Type] = value match {

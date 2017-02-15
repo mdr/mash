@@ -1,7 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.compiler._
-import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
@@ -9,6 +9,8 @@ import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, _ }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.time._
+import com.github.mdr.mash.parser.AbstractSyntax.Expr
+import com.github.mdr.mash.runtime.MashValue
 import org.apache.commons.lang3.SystemUtils
 import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
@@ -369,14 +371,32 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // Intraclass method references
   "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
 
+  havingFirstRun("class Foo { def a = 10; def b = a }") { implicit environment ⇒
+    "Foo.new.a" ==> NumberClass
+    "Foo.new.b" ==> NumberClass
+  }
+
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 
-  private implicit class RichString(s: String) {
+  private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
+    val settings = CompilationSettings(bareWords = false)
+    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings, settings).body
+  }
+
+  private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
+    implicit val environment = StandardEnvironment.create
+    val expr = compile(s, environment.valuesMap)
+    implicit val context = EvaluationContext(ScopeStack(environment.globalVariables))
+    Evaluator.evaluate(expr)
+    f(environment)
+  }
+
+  private implicit class RichString(s: String)(implicit val environment: Environment = StandardEnvironment.create) {
 
     def ==>(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
         val settings = CompilationSettings(inferTypes = true)
-        val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = StandardEnvironment.create.bindings, settings).body
+        val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = environment.bindings, settings).body
         val Some(actualType) = expr.typeOpt
         actualType should equal(expectedType)
       }
