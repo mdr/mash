@@ -1015,4 +1015,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // json.prettyPrint
   "123456789 | json.prettyPrint" shouldEvaluateTo "'123456789'"
+
+  // List.new
+  "List 1 2 3" shouldEvaluateTo "[1, 2, 3]"
+  "List.new" shouldEvaluateTo "[]"
 }

@@ -363,6 +363,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // @alias
   // "class A { @(alias 'a') def aardvark = 42 }; A.new.a" shouldBeInferredAsHavingType NumberClass
 
+  // List.new
+  "List 1 2 3" shouldBeInferredAsHavingType Seq(NumberClass)
+  "List.new" shouldBeInferredAsHavingType Seq(Any)
+
   private implicit class RichString(s: String) {
 
     def shouldBeInferredAsHavingType(expectedType: Type) {

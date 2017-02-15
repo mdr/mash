@@ -50,6 +50,38 @@ object ListClass extends MashClass("collections.List") {
     methodise(WhereNotFunction, Seq("filterNot")),
     IntersectMethod)
 
+  override val staticMethods = Seq(NewStaticMethod)
+
+  object NewStaticMethod extends MashFunction("new") {
+
+    object Params {
+      val Elements = Parameter(
+        nameOpt = Some("elements"),
+        summaryOpt = Some("Elements of the list"),
+        isVariadic = true)
+    }
+
+    import Params._
+
+    override val params = ParameterModel(Seq(Elements))
+
+    def apply(arguments: Arguments): MashList = {
+      val boundParams = params.validate(arguments)
+      MashList(boundParams.validateSequence(Elements))
+    }
+
+    override def summaryOpt: Option[String] = Some("Construct a new List with the given elements")
+
+    override object typeInferenceStrategy extends TypeInferenceStrategy {
+
+      def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+        val argBindings = params.bindTypes(arguments)
+        argBindings.getType(Elements) orElse Some(Seq(AnyClass))
+      }
+
+    }
+  }
+
   object IntersectMethod extends MashMethod("intersect") {
 
     object Params {
@@ -57,6 +89,7 @@ object ListClass extends MashClass("collections.List") {
         nameOpt = Some("sequence"),
         summaryOpt = Some("Other sequence to intersect with this"))
     }
+
     import Params._
 
     override val params = ParameterModel(Seq(Sequence))
