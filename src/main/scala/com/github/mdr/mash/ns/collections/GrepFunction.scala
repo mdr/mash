@@ -26,6 +26,13 @@ object GrepFunction extends MashFunction("collections.grep") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isBooleanFlag = true)
+    val Negate = Parameter(
+      nameOpt = Some("negate"),
+      summaryOpt = Some("Find all items that don't match the given query"),
+      shortFlagOpt = Some('n'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      isBooleanFlag = true)
     val Regex = Parameter(
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
@@ -38,21 +45,22 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex))
+  val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex, Negate))
 
   def apply(arguments: Arguments): MashList = {
     val boundParams = params.validate(arguments)
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
+    val negate = boundParams(Negate).isTruthy
     val items = getInputItems(boundParams)
-    runGrep(items, query, ignoreCase, regex)
+    runGrep(items, query, ignoreCase, regex, negate)
   }
 
   def getItems(s: MashString) = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
 
-  def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean): MashList =
-    MashList(items.filter(matches(_, query, ignoreCase, regex)))
+  def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean): MashList =
+    MashList(items.filter(matches(_, query, ignoreCase, regex, negate)))
 
   private def getInputItems(boundParams: BoundParams): Seq[MashValue] =
     boundParams(Input) match {
@@ -61,15 +69,17 @@ object GrepFunction extends MashFunction("collections.grep") {
       case input         ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was '${input.typeName}'")
     }
 
-  private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean): Boolean = {
+  private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean): Boolean = {
     val valueString = ToStringifier.stringify(value)
-    if (regex) {
-      val pattern = Pattern.compile(query, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
-      pattern.matcher(valueString).find()
-    } else if (ignoreCase)
-      valueString.toLowerCase contains query.toLowerCase
-    else
-      valueString contains query
+    val valueMatches =
+      if (regex) {
+        val pattern = Pattern.compile(query, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
+        pattern.matcher(valueString).find()
+      } else if (ignoreCase)
+        valueString.toLowerCase contains query.toLowerCase
+      else
+        valueString contains query
+    if (negate) !valueMatches else valueMatches
   }
 
   override object typeInferenceStrategy extends TypeInferenceStrategy {

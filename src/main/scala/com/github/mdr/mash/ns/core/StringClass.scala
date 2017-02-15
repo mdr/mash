@@ -215,15 +215,16 @@ object StringClass extends MashClass("core.String") {
   object GrepMethod extends MashMethod("grep") {
     import GrepFunction.Params._
 
-    val params = ParameterModel(Seq(Query, IgnoreCase, Regex))
+    val params = ParameterModel(Seq(Query, IgnoreCase, Regex, Negate))
 
     override def apply(target: MashValue, arguments: Arguments): MashValue = {
       val boundParams = params.validate(arguments)
       val ignoreCase = boundParams(IgnoreCase).isTruthy
       val regex = boundParams(Regex).isTruthy
+      val negate = boundParams(Negate).isTruthy
       val query = ToStringifier.stringify(boundParams(Query))
       val items = GrepFunction.getItems(target.asInstanceOf[MashString])
-      GrepFunction.runGrep(items, query, ignoreCase, regex)
+      GrepFunction.runGrep(items, query, ignoreCase, regex, negate)
     }
 
     override object typeInferenceStrategy extends MethodTypeInferenceStrategy {

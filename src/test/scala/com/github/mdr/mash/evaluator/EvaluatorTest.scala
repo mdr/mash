@@ -207,6 +207,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // grep
   "['foo', 'bar', 'baz'].grep 'b'" shouldEvaluateTo "['bar', 'baz']"
+  "['foo', 'bar', 'baz'].grep -n 'b'" shouldEvaluateTo "['foo']"
   "['apple', { obj: 'ball' }] | grep 'b'" shouldEvaluateTo "[{ obj: 'ball' }]"
   "['foo', 'bar', 'BAZ'] | grep -i 'b'" shouldEvaluateTo "['bar', 'BAZ']"
   "['apple', 'ball', 'cup'] | grep -r '(a|b)'" shouldEvaluateTo "['apple', 'ball']"
