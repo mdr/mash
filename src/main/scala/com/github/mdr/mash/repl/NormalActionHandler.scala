@@ -82,6 +82,7 @@ trait NormalActionHandler {
     }
 
   private def handleIncrementalHistorySearch() {
+    state.assistanceStateOpt = None
     state.historySearchStateOpt = Some(HistorySearchState())
     history.resetHistoryPosition()
   }
