@@ -13,7 +13,7 @@ import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
-import com.github.mdr.mash.repl.history.History
+import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
 import com.github.mdr.mash.terminal.Terminal
@@ -31,7 +31,7 @@ class Repl(protected val terminal: Terminal,
            globalVariables: MashObject)
   extends NormalActionHandler
     with IncrementalCompletionActionHandler
-    with IncrementalSearchActionHandler
+    with HistorySearchActionHandler
     with BrowseCompletionActionHandler
     with ObjectBrowserActionHandler {
 
@@ -104,8 +104,8 @@ class Repl(protected val terminal: Terminal,
           case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
           case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
           case None                                              ⇒
-            state.incrementalSearchStateOpt match {
-              case Some(searchState) ⇒ handleIncrementalSearchAction(action, searchState)
+            state.historySearchStateOpt match {
+              case Some(searchState) ⇒ handleHistorySearchAction(action, searchState)
               case None              ⇒ handleNormalAction(action)
             }
         }

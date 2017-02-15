@@ -5,7 +5,6 @@ import java.nio.file.Path
 import com.github.mdr.mash.commands.{ CommandResult, CommandRunner }
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
-import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
@@ -13,6 +12,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
 import com.github.mdr.mash.repl.browser._
+import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
@@ -82,7 +82,7 @@ trait NormalActionHandler {
     }
 
   private def handleIncrementalHistorySearch() {
-    state.incrementalSearchStateOpt = Some(IncrementalSearchState())
+    state.historySearchStateOpt = Some(HistorySearchState())
     history.resetHistoryPosition()
   }
 

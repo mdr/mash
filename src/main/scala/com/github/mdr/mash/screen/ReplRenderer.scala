@@ -1,10 +1,10 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser._
+import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.terminal.TerminalInfo
@@ -30,15 +30,15 @@ object ReplRenderer {
   private def renderRegularRepl(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = {
     val bufferScreen = LineBufferRenderer.renderLineBuffer(state, terminalInfo)
     val bufferLines = bufferScreen.lines
-    val incrementalSearchScreenOpt = state.incrementalSearchStateOpt.map(renderIncrementalSearch(_, terminalInfo))
-    val incrementalSearchLines = incrementalSearchScreenOpt.map(_.lines).getOrElse(Seq())
+    val historySearchScreenOpt = state.historySearchStateOpt.map(renderHistorySearchState(_, terminalInfo))
+    val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
-    val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - incrementalSearchLines.size)
+    val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - historySearchLines.size)
     val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
       CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
-    val lines = bufferLines ++ incrementalSearchLines ++ completionLines ++ assistanceLines
+    val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalInfo.rows)
-    val newCursorPos = incrementalSearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
+    val newCursorPos = historySearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
     val title = fileSystem.pwd.toString
     val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
     ReplRenderResult(screen, numberOfCompletionColumns)
@@ -79,7 +79,7 @@ object ReplRenderer {
       case _                                                       ⇒ ???
     }
 
-  private def renderIncrementalSearch(searchState: IncrementalSearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
+  private def renderHistorySearchState(searchState: HistorySearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prefixChars: StyledString = "Incremental history search: ".style
     val searchChars: StyledString = searchState.searchString.style(Style(foregroundColour = Colour.Cyan))
     val chars = (prefixChars + searchChars).take(terminalInfo.columns)

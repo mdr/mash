@@ -2,9 +2,9 @@ package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.incrementalSearch.IncrementalSearchState
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, ObjectsTableBrowserState }
+import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region
 
@@ -30,7 +30,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
                 var assistanceStateOpt: Option[AssistanceState] = None,
                 var continue: Boolean = true, // Whether to loop or exit
                 var globalVariables: MashObject,
-                var incrementalSearchStateOpt: Option[IncrementalSearchState] = None,
+                var historySearchStateOpt: Option[HistorySearchState] = None,
                 var mish: Boolean = false,
                 var insertLastArgStateOpt: Option[InsertLastArgState] = None,
                 var objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
@@ -39,7 +39,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     lineBuffer = LineBuffer.Empty
     completionStateOpt = None
     assistanceStateOpt = None
-    incrementalSearchStateOpt = None
+    historySearchStateOpt = None
     insertLastArgStateOpt = None
   }
 
@@ -57,10 +57,10 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
         }
       case None        ⇒
         completionStateOpt match {
-          case Some(_: IncrementalCompletionState)         ⇒ ReplMode.IncrementalCompletions
-          case Some(_: BrowserCompletionState)             ⇒ ReplMode.BrowseCompletions
-          case None if incrementalSearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
-          case None                                        ⇒ ReplMode.Normal
+          case Some(_: IncrementalCompletionState)     ⇒ ReplMode.IncrementalCompletions
+          case Some(_: BrowserCompletionState)         ⇒ ReplMode.BrowseCompletions
+          case None if historySearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
+          case None                                    ⇒ ReplMode.Normal
         }
     }
 
