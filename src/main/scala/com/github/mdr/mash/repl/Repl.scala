@@ -129,7 +129,7 @@ class Repl(protected val terminal: Terminal,
         case _                            ⇒
           InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, getBindings, mish = state.mish)
       }
-    state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt
+    state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty)
   }
 
   /**
