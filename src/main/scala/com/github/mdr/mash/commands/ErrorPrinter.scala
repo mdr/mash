@@ -14,7 +14,7 @@ import org.fusesource.jansi.Ansi
 class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
   def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[StackTraceItem]) = {
-    output.println(formatStrong(msgType + ":") + formatRegular(" " + msg))
+    output.println(formatStrong(msgType + ":") + " " + msg)
     if (stack.isEmpty)
       output.println(formatRegular(unit.text))
     else
@@ -30,11 +30,9 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     val isImmediateError = unit.provenance == provenance && unit.interactive
     val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
     val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}$functionName: "
-    val padding = " " * prefix.length
-    val lineRegion = lineInfo.lineRegion(lineIndex)
     val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
-    output.println(formatStrong(prefix) + formatRegular(line))
-    output.println(formatRegular(errorUnderlineLine))
+    output.println(formatStrong(prefix) + line)
+    output.println(formatStrong(errorUnderlineLine))
   }
 
   private def getUnderlineLine(prefix: String, lineInfo: LineInfo, lineIndex: Int, point: Int, region: Region): String = {

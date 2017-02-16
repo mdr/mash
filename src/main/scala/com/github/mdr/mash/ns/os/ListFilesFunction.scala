@@ -1,15 +1,15 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.{ Files, Path }
+import java.nio.file.{Files, NoSuchFileException, Path}
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{MashFunction, Parameter, ParameterModel}
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashObject }
+import com.github.mdr.mash.runtime.{MashBoolean, MashList, MashObject}
 
 object ListFilesFunction extends MashFunction("os.listFiles") {
 
@@ -63,8 +63,16 @@ If no paths are provided, the default is the current working directory."""))
     def listPath(path: Path): Seq[MashObject] =
       if (Files.isDirectory(path) && !directory)
         ChildrenFunction.getChildren(path, ignoreDotFiles = ignoreDotFiles, recursive = recursive)
-      else
-        Seq(PathSummaryClass.asMashObject(fileSystem.getPathSummary(path)))
+      else {
+        val summary =
+          try
+            fileSystem.getPathSummary(path)
+          catch {
+            case e: NoSuchFileException =>
+              boundParams.throwInvalidArgument(Paths, s"No such file '${e.getFile}'")
+          }
+        Seq(PathSummaryClass.asMashObject(summary))
+      }
     MashList(paths.flatMap(listPath))
   }
 

@@ -78,7 +78,7 @@ class CommandRunner(output: PrintStream,
     }
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Program] = {
-    val settings = CompilationSettings(inferTypes = false, bareWords = bareWords)
+    val settings = CompilationSettings(bareWords = bareWords)
     Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
         if (printErrors)
