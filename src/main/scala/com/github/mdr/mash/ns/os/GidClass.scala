@@ -46,8 +46,7 @@ object GidClass extends MashClass("os.Gid") {
       MashString(groupEntry.group, GroupClass)
     }
 
-    override def typeInferenceStrategy =
-      Type.Seq(Type.Tagged(StringClass, UsernameClass))
+    override def typeInferenceStrategy = Type.Seq(NumberClass taggedWith UsernameClass)
 
     override def summaryOpt = Some("Name of the group with this id")
 

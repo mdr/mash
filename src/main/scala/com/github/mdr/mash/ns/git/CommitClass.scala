@@ -1,10 +1,10 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
 import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
 import com.github.mdr.mash.ns.os.PathClass
@@ -30,6 +30,7 @@ object CommitClass extends MashClass("git.Commit") {
     val Message = Field("message", Some("Commit message"), StringClass)
     val Parents = Field("parents", Some("Parents of this commit"), Seq(CommitHashClass))
   }
+
   import Fields._
 
   override lazy val fields = Seq(Hash, CommitTime, Author, Committer, Summary, Message, Parents)
@@ -44,14 +45,17 @@ object CommitClass extends MashClass("git.Commit") {
 
   override def summaryOpt = Some("A git commit object")
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(obj: MashValue) extends AbstractObjectWrapper(obj) {
 
-    def hash: MashString = target.asInstanceOf[MashObject](Hash).asInstanceOf[MashString]
+    def hash: String = getStringField(Hash)
 
-    def parents: Seq[MashString] =
-      target.asInstanceOf[MashObject](Parents).asInstanceOf[MashList].elements.map(_.asInstanceOf[MashString])
+    def parents: Seq[String] =
+      getListField(Parents).map {
+        case s: MashString ⇒ s.s
+        case element       ⇒ throw new EvaluatorException(s"Expected parents to be of type String, but one was of type '${element.typeName}'")
+      }
 
-    def parentOpt: Option[MashString] = parents.headOption
+    def parentOpt: Option[String] = parents.headOption
 
   }
 
@@ -59,13 +63,13 @@ object CommitClass extends MashClass("git.Commit") {
 
     override def aliases = Seq("isMergedInto)")
 
-    override def commitName(target: MashValue) = Wrapper(target).hash.s
+    override def commitName(target: MashValue) = Wrapper(target).hash
 
   }
 
   object ToStringMethod extends AbstractToStringMethod {
 
-    override def toString(target: MashValue) = Wrapper(target).hash.s
+    override def toString(target: MashValue) = Wrapper(target).hash
 
   }
 
@@ -75,10 +79,10 @@ object CommitClass extends MashClass("git.Commit") {
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      Wrapper(target).parentOpt.getOrElse(MashNull)
+      Wrapper(target).parentOpt.map(MashString(_, CommitHashClass)) getOrElse MashNull
     }
 
-    override def typeInferenceStrategy = Type.Tagged(StringClass, CommitHashClass)
+    override def typeInferenceStrategy = StringClass taggedWith CommitHashClass
 
     override def summaryOpt = Some("Return the first parent, if there is one, else null")
 
@@ -90,8 +94,8 @@ object CommitClass extends MashClass("git.Commit") {
     def apply(target: MashValue, arguments: Arguments) = {
       params.validate(arguments)
       val wrapper = Wrapper(target)
-      val parentSha = wrapper.parentOpt.get.s
-      val childSha = wrapper.hash.s
+      val parentSha = wrapper.parentOpt.get
+      val childSha = wrapper.hash
 
       GitHelper.withRepository { repo ⇒
         val parentId = getTreeId(repo, parentSha)
@@ -151,6 +155,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
       nameOpt = Some("commit"),
       summaryOpt = Some("Name of a commit to test if it is descendant"))
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Commit))

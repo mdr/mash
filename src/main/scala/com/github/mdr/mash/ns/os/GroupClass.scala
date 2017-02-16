@@ -24,10 +24,10 @@ object GroupClass extends MashClass("os.Group") {
       params.validate(arguments)
       val group = target.asInstanceOf[MashString].s
       val groupEntryOpt = userInteractions.groupEntries.find(_.group == group)
-      groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, GidClass)).getOrElse(MashNull)
+      groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, GidClass)) getOrElse MashNull
     }
 
-    override def typeInferenceStrategy = Type.Tagged(NumberClass, GidClass)
+    override def typeInferenceStrategy = NumberClass taggedWith GidClass
 
     override def summaryOpt = Some("Id of this group (GID)")
 
@@ -58,7 +58,7 @@ object GroupClass extends MashClass("os.Group") {
     }
 
     override def typeInferenceStrategy =
-      Type.Seq(Type.Tagged(StringClass, UsernameClass))
+      Type.Seq(StringClass taggedWith UsernameClass)
 
     override def summaryOpt = Some("Users within this group")
 

@@ -24,6 +24,11 @@ abstract class AbstractObjectWrapper(targetValue: MashValue) {
     case v             ⇒ throw new EvaluatorException(s"Field '${field.name}' should have type String, but was '${v.typeName}'")
   }
 
+  protected def getNumberField(field: Field): Double = getField(field) match {
+    case s: MashNumber ⇒ s.n
+    case v             ⇒ throw new EvaluatorException(s"Field '${field.name}' should have type Number, but was '${v.typeName}'")
+  }
+
   protected def getListField(field: Field): Seq[MashValue] = getField(field) match {
     case xs: MashList ⇒ xs.elements
     case v            ⇒ throw new EvaluatorException(s"Field '${field.name}' should have type List, but was '${v.typeName}'")

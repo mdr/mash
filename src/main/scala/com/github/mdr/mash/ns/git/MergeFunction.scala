@@ -31,7 +31,7 @@ object MergeFunction extends MashFunction("git.merge") {
       case MashString(s, _) ⇒ s
       case obj @ MashObject(_, Some(BranchClass)) ⇒ BranchClass.Wrapper(obj).name.s
       case obj @ MashObject(_, Some(RemoteBranchClass)) ⇒ RemoteBranchClass.Wrapper(obj).fullName.s
-      case obj @ MashObject(_, Some(CommitClass)) ⇒ CommitClass.Wrapper(obj).hash.s
+      case obj @ MashObject(_, Some(CommitClass)) ⇒ CommitClass.Wrapper(obj).hash
       case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a name of a commit")
     }
     GitHelper.withGit { git ⇒

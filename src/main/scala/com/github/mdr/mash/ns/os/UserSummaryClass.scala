@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.{ PasswdEntry, UserInteractions }
 import com.github.mdr.mash.runtime._
@@ -72,11 +72,14 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
       val user = Wrapper(target)
       val primaryGroup = user.primaryGroup
       val username = user.username
-      val secondaryGroups = userInteractions.groupEntries.filter(_.users.contains(username)).map(entry ⇒ MashString(entry.group, Some(GroupClass)))
+      val secondaryGroups =
+        userInteractions.groupEntries
+          .filter(_.users.contains(username))
+          .map(entry ⇒ MashString(entry.group, Some(GroupClass)))
       MashList(primaryGroup +: secondaryGroups)
     }
 
-    override def typeInferenceStrategy = Type.Seq(Type.Tagged(StringClass, GroupClass))
+    override def typeInferenceStrategy = Type.Seq(StringClass taggedWith GroupClass)
 
     override def summaryOpt = Some("Groups this user is a member of")
 
