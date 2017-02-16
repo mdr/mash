@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
@@ -32,13 +32,11 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    private val user = target.asInstanceOf[MashObject]
+    def username: String = getStringField(Name)
 
-    def username: String = user(Name).asInstanceOf[MashString].s
-
-    def primaryGroup: MashString = user(PrimaryGroup).asInstanceOf[MashString]
+    def primaryGroup: String = getStringField(PrimaryGroup)
 
   }
 
@@ -74,10 +72,12 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
       val username = user.username
       val secondaryGroups =
         userInteractions.groupEntries
-          .filter(_.users.contains(username))
-          .map(entry ⇒ MashString(entry.group, Some(GroupClass)))
-      MashList(primaryGroup +: secondaryGroups)
+          .filter(_.users contains username)
+          .map(_.group)
+      MashList((primaryGroup +: secondaryGroups).map(makeGroup))
     }
+
+    private def makeGroup(group: String) = MashString(group, Some(GroupClass))
 
     override def typeInferenceStrategy = Type.Seq(StringClass taggedWith GroupClass)
 

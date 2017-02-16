@@ -13,6 +13,12 @@ abstract class AbstractObjectWrapper(targetValue: MashValue) {
   protected def getField(field: Field): MashValue =
     target.get(field).getOrElse(throw new EvaluatorException(s"No field '${field.name}' found in object"))
 
+  protected def getOptionalField(field: Field): Option[MashValue] =
+    getField(field) match {
+      case MashNull      ⇒ None
+      case v             ⇒ Some(v)
+    }
+
   protected def getStringField(field: Field): String = getField(field) match {
     case s: MashString ⇒ s.s
     case v             ⇒ throw new EvaluatorException(s"Field '${field.name}' should have type String, but was '${v.typeName}'")

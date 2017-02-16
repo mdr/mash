@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
@@ -19,7 +19,7 @@ object PidClass extends MashClass("os.Pid") {
     (InfoMethod +: liftedMethods) ++ liftedFields
   }
 
-  private case class Wrapper(target: MashValue) {
+  private case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     val pid = target.asInstanceOf[MashNumber].asInt.getOrElse(throw new EvaluatorException("Invalid pid: " + target))
 
