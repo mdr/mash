@@ -2,7 +2,6 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.parser.AbstractSyntax.{ HolePattern, IdentPattern, ListPattern, _ }
 
 import scala.PartialFunction.cond
 

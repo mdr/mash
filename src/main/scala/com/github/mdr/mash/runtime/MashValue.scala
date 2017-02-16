@@ -1,6 +1,6 @@
 package com.github.mdr.mash.runtime
 
-import java.time.{ Instant, LocalDate, ZoneId, ZoneOffset }
+import java.time.{ Instant, LocalDate, ZoneId }
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.{ EvaluatorException, SourceLocation }

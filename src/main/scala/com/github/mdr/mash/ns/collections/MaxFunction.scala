@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt

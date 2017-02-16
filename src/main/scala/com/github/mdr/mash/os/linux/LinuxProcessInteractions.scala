@@ -1,11 +1,9 @@
 package com.github.mdr.mash.os.linux
 
-import com.jezhumble.javasysmon.JavaSysMon
-import com.jezhumble.javasysmon.{ ProcessInfo ⇒ JavaSysmonProcessInfo }
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.os.ProcessInteractions
-import com.github.mdr.mash.os.ProcessInfo
 import com.github.mdr.mash.Posix
+import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.os.{ ProcessInfo, ProcessInteractions }
+import com.jezhumble.javasysmon.{ JavaSysMon, ProcessInfo ⇒ JavaSysmonProcessInfo }
 
 object LinuxProcessInteractions extends ProcessInteractions {
 

@@ -5,7 +5,7 @@ import java.time.Instant
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.lib.PersonIdent

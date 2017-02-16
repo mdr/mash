@@ -2,8 +2,8 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.AbstractToStringMethod
-import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.runtime.MashValue
 
 object IdentityClass extends MashClass("git.Identity") {
 

@@ -1,9 +1,9 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.ns.collections.MapFunction
 
 import scala.language.implicitConversions
-import com.github.mdr.mash.ns.collections.MapFunction
 
 object TypeInferenceStrategy {
 

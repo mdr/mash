@@ -4,8 +4,6 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl._
 
-import org.apache.http.conn.ssl.X509HostnameVerifier
-
 object InsecureSsl {
 
   object TrustAllTrustManager extends X509TrustManager {

@@ -1,13 +1,12 @@
 package com.github.mdr.mash.os.linux
 
 import java.io.File
-import scala.collection.JavaConverters._
-import org.apache.commons.io.FileUtils
-import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.os.PasswdEntry
-import com.github.mdr.mash.os.GroupEntry
-import com.github.mdr.mash.os.UserInteractions
 import java.nio.charset.StandardCharsets
+
+import com.github.mdr.mash.os.{ GroupEntry, PasswdEntry, UserInteractions }
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
 
 object LinuxUserInteractions extends UserInteractions {
 

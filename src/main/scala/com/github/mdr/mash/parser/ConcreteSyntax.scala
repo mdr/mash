@@ -1,7 +1,7 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.utils.{ PointedRegion, Region }
 import com.github.mdr.mash.lexer.{ Token, TokenType, DocComment ⇒ LexerDocComment }
+import com.github.mdr.mash.utils.{ PointedRegion, Region }
 
 import scala.language.implicitConversions
 

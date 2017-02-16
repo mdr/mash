@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.thread
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
-import com.github.mdr.mash.inference.{ ValueInfo, Type, TypedArguments }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.collections.{ MapFunction, MapTypeInferenceStrategy }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 

@@ -3,8 +3,8 @@ package com.github.mdr.mash.ns.os
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type, TypedArguments }
-import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashList
 
 object GlobFunction extends MashFunction("os.glob") {

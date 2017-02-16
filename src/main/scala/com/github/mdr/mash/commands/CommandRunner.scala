@@ -3,13 +3,13 @@ package com.github.mdr.mash.commands
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.{ DebugLogger, Singletons }
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.{ DebugLogger, Singletons }
 import org.fusesource.jansi.Ansi
 
 class CommandRunner(output: PrintStream,

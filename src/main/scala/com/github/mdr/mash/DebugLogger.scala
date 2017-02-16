@@ -2,7 +2,6 @@ package com.github.mdr.mash
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.util.UUID
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.exception.ExceptionUtils

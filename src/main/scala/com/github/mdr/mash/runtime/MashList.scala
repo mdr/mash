@@ -1,6 +1,5 @@
 package com.github.mdr.mash.runtime
 
-import com.github.mdr.mash.GlobalInterpreterLock
 import com.github.mdr.mash.GlobalInterpreterLock.withLock
 import com.github.mdr.mash.evaluator.ToStringifier
 

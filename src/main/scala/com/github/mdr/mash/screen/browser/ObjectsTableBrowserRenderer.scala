@@ -7,8 +7,8 @@ import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils.tupled
-import com.github.mdr.mash.utils.{ StringUtils, Utils }
 
 import scala.collection.mutable.ArrayBuffer
 

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ LexerResult, Token, TokenType, DocComment ⇒ LexerDocComment }
 import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.lexer.{ LexerResult, Token, TokenType, DocComment ⇒ LexerDocComment }
 import com.github.mdr.mash.utils.PointedRegion
 
 import scala.collection.mutable.ArrayBuffer

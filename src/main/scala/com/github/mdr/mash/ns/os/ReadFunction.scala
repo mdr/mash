@@ -1,14 +1,12 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Path
-
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.{ MashList, MashString }
+import com.github.mdr.mash.runtime.MashString
 
 object ReadFunction extends MashFunction("os.read") {
 

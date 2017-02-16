@@ -1,21 +1,20 @@
 package com.github.mdr.mash.os.linux
 
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.nio.file.attribute._
 import java.util.EnumSet
 import java.util.stream.Collectors
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.JavaConverters._
-import org.apache.commons.io.FileUtils
+
 import com.github.mdr.mash.Posix
 import com.github.mdr.mash.evaluator.ExecutionContext
 import com.github.mdr.mash.ns.os.FileTypeClass
-import com.github.mdr.mash.os.FileSystem
-import com.github.mdr.mash.os.PathSummary
-import com.github.mdr.mash.os.Permissions
-import com.github.mdr.mash.os.PermissionsSection
-import java.nio.charset.StandardCharsets
+import com.github.mdr.mash.os.{ FileSystem, PathSummary, Permissions, PermissionsSection }
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 object LinuxFileSystem extends FileSystem {
 

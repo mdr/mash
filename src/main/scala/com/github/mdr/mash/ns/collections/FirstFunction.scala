@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, TypeInferenceStrategy, _ }
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashString, MashValue }
 
 import scala.PartialFunction.condOpt

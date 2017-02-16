@@ -1,13 +1,9 @@
 package com.github.mdr.mash.ns.git.remote
 
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ FullyQualifiedName, MashFunction, ParameterModel }
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
-import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }
-import com.github.mdr.mash.ns.git.tag.{ TagClass, TagNameClass }
-import com.github.mdr.mash.ns.git.tag.TagClass.Fields._
+import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.RemoteConfig
 
 import scala.collection.JavaConverters._

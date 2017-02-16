@@ -4,7 +4,6 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt

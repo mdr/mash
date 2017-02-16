@@ -4,7 +4,6 @@ import java.io.File
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.{ MashNull, MashString }

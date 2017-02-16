@@ -5,7 +5,6 @@ import com.github.mdr.mash.inference.{ SimpleEvaluator, Type, TypeInferencer, Va
 import com.github.mdr.mash.parser.AbstractSyntax.{ Expr, Program }
 import com.github.mdr.mash.parser._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.utils.Utils
 
 case class CompilationSettings(inferTypes: Boolean = false, bareWords: Boolean = true)
 

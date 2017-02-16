@@ -5,9 +5,8 @@ import java.nio.charset.StandardCharsets
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
 import com.google.gson._
 import org.apache.commons.io.FileUtils

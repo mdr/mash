@@ -1,8 +1,8 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.{ DateTimeFormatter, FormatStyle }
+import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.util.Date
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }

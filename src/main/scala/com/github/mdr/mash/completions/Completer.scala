@@ -2,7 +2,6 @@ package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
-import com.github.mdr.mash.parser.AbstractSyntax.Identifier
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.{ Region, Utils }
 
