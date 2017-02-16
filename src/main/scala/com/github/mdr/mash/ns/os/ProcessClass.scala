@@ -1,9 +1,9 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.ProcessInfo
 import com.github.mdr.mash.os.linux.LinuxProcessInteractions
@@ -36,14 +36,12 @@ object ProcessClass extends MashClass("os.Process") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    private val obj = target.asInstanceOf[MashObject]
-
-    def pid: Int = obj(Pid).asInstanceOf[MashNumber].asInt.get
+    def pid: Int = getNumberField(Pid).toInt
 
     def parentPidOpt: Option[Int] =
-      MashNull.option(obj(ParentPid)).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
+      getOptionalField(ParentPid).map(_.asInstanceOf[MashNumber]).flatMap(_.asInt)
 
   }
 
@@ -76,7 +74,7 @@ object ProcessClass extends MashClass("os.Process") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Kill this process")
 

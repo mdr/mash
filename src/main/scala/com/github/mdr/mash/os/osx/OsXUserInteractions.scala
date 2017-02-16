@@ -1,13 +1,12 @@
 package com.github.mdr.mash.os.osx
 
 import java.nio.charset.StandardCharsets
+
+import com.github.mdr.mash.os.{ GroupEntry, PasswdEntry, UserInteractions }
 import org.apache.commons.io.IOUtils
-import scala.xml.XML
-import com.github.mdr.mash.os.PasswdEntry
-import scala.xml.Node
-import com.github.mdr.mash.os.GroupEntry
+
 import scala.util.Try
-import com.github.mdr.mash.os.UserInteractions
+import scala.xml.{ Node, XML }
 
 object OsXUserInteractions extends UserInteractions {
 

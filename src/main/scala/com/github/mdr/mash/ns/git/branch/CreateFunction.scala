@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashObject, MashString }
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode

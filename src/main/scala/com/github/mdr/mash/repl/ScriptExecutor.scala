@@ -3,11 +3,11 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.Terminal
+import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 
 class ScriptExecutor(output: PrintStream, terminal: Terminal, sessionId: UUID, globalVariables: MashObject) {
   private val debugLogger = new DebugLogger(sessionId.toString)

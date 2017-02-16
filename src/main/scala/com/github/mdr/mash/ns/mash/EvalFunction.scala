@@ -4,7 +4,6 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.MashValue
 
 object EvalFunction extends MashFunction("mash.eval") {

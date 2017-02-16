@@ -1,7 +1,7 @@
 package com.github.mdr.mash.os.linux
 
-import java.nio.file.Paths
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
+
 import scala.collection.JavaConverters._
 
 object GlobHelper {

@@ -7,10 +7,10 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.json
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.FileUtils
 import org.json.XML
-import com.github.mdr.mash.ns.json
 
 object FromFileFunction extends MashFunction("xml.fromFile") {
 

@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit }
 
 import scala.collection.JavaConverters.asScalaSetConverter
@@ -71,7 +72,7 @@ object StageFunction extends MashFunction("git.stage") {
       status.getConflicting.asScala).toSeq.distinct
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Stage files")
 

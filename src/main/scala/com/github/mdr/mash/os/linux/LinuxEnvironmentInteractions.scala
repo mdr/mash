@@ -1,7 +1,8 @@
 package com.github.mdr.mash.os.linux
 
-import com.github.mdr.mash.os.EnvironmentInteractions
 import java.nio.file.Paths
+
+import com.github.mdr.mash.os.EnvironmentInteractions
 
 object LinuxEnvironmentInteractions extends EnvironmentInteractions {
 

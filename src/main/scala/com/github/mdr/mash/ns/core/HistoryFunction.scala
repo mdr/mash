@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.core
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, ParameterModel }
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.repl.history.{ History, HistoryEntry }
 import com.github.mdr.mash.runtime._
 

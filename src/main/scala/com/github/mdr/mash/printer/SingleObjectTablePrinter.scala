@@ -7,8 +7,6 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Screen
 import com.github.mdr.mash.screen.browser.SingleObjectTableCommonRenderer
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
-import org.fusesource.jansi.Ansi
 
 class SingleObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 

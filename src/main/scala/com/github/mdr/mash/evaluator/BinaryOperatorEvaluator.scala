@@ -1,7 +1,7 @@
 package com.github.mdr.mash.evaluator
 
-import java.time.{ Duration, Instant }
 import java.time.temporal.TemporalAmount
+import java.time.{ Duration, Instant }
 
 import com.github.mdr.mash.ns.time.{ ChronoUnitClass, MillisecondsClass }
 import com.github.mdr.mash.parser.AbstractSyntax._

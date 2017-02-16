@@ -3,8 +3,6 @@ package com.github.mdr.mash.parser
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
 
-import scala.collection.mutable.ArrayBuffer
-
 trait MishParse { self: MashParse ⇒
 
   def mishExpr(): MishExpr = {

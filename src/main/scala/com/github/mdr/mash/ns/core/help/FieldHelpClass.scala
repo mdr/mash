@@ -1,8 +1,8 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.MashValue
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
@@ -15,16 +15,16 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
   import Fields._
 
-  case class Wrapper(any: MashValue) {
-    val obj = any.asInstanceOf[MashObject]
+  case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 
-    def name = obj(Name).asInstanceOf[MashString].s
+    def name = getStringField(Name)
 
-    def klass = obj(Class).asInstanceOf[MashString].s
+    def klass = getStringField(Class)
 
-    def summaryOpt = MashNull.option(obj(Summary)).map(_.asInstanceOf[MashString].s)
+    def summaryOpt = getOptionalStringField(Summary)
 
-    def descriptionOpt = MashNull.option(obj(Description)).map(_.asInstanceOf[MashString].s)
+    def descriptionOpt = getOptionalStringField(Description)
+
   }
 
   override val fields = Seq(Name, Class, Summary, Description)

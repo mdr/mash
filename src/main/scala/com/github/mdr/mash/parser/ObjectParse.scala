@@ -1,10 +1,8 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ Token, TokenType }
+import com.github.mdr.mash.lexer.TokenType
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.parser.ConcreteSyntax._
-
-import scala.collection.mutable.ArrayBuffer
 
 trait ObjectParse {
   self: MashParse ⇒

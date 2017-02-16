@@ -1,6 +1,6 @@
 package com.github.mdr.mash.functions
 
-import com.github.mdr.mash.inference.{ ValueInfo, Type }
+import com.github.mdr.mash.inference.{ Type, ValueInfo }
 
 case class BoundTypeParams(boundArguments: Map[String, ValueInfo],
                            boundNames: Map[String, Type],

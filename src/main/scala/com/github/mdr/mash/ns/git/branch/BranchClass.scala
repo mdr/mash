@@ -1,11 +1,11 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
-import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
+import com.github.mdr.mash.ns.core.{ NumberClass, StringClass, UnitClass }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.api.Git
@@ -39,9 +39,9 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    def name = target.asInstanceOf[MashObject](Fields.Name).asInstanceOf[MashString]
+    def name = getStringField(Fields.Name)
 
   }
 
@@ -51,14 +51,14 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
-      val branchName = Wrapper(target).name.s
+      val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.branchDelete.setBranchNames(branchName).setForce(true).call()
       }
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Delete this branch")
 
@@ -68,7 +68,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     override def aliases = Seq("isMergedInto")
 
-    override def commitName(target: MashValue) = Wrapper(target).name.s
+    override def commitName(target: MashValue) = Wrapper(target).name
 
   }
 
@@ -78,7 +78,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
       params.validate(arguments)
-      val branchName = Wrapper(target).name.s
+      val branchName = Wrapper(target).name
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
         val branchId = repo.resolve(branchName)
@@ -104,7 +104,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       val force = boundParams(Force).isTruthy
       val setUpstream = boundParams(SetUpstream).isTruthy
       val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
-      val branchName = Wrapper(target).name.s
+      val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         val cmd = git.push
         cmd.add(branchName).setForce(force)
@@ -117,7 +117,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Push this branch")
 
@@ -129,14 +129,14 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
-      val branchName = Wrapper(target).name.s
+      val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.checkout().setName(branchName).call()
       }
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Switch to this branch")
 
@@ -153,13 +153,13 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       val boundParams = params.validate(arguments)
-      val branch = Wrapper(target).name.s
+      val branch = Wrapper(target).name
       val commit = MergeFunction.validateCommit(boundParams, Commit)
       SetCommitFunction.setCommit(branch, commit)
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Update this branch to point to a given commit")
 
@@ -171,7 +171,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
   object ToStringMethod extends AbstractToStringMethod {
 
-    override def toString(target: MashValue) = Wrapper(target).name.s
+    override def toString(target: MashValue) = Wrapper(target).name
 
   }
 

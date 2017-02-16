@@ -3,9 +3,9 @@ package com.github.mdr.mash.ns.git.tag
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.ns.git.branch.{ BranchClass, SwitchFunction }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashUnit, MashValue }
 
 object DeleteFunction extends MashFunction("git.tag.delete") {
@@ -25,7 +25,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
   def validateTag(boundParams: BoundParams, param: Parameter, tag: MashValue): String = {
     val tagName = tag match {
       case MashString(s, _)                  ⇒ s
-      case obj@MashObject(_, Some(TagClass)) ⇒ TagClass.Wrapper(obj).name.s
+      case obj@MashObject(_, Some(TagClass)) ⇒ TagClass.Wrapper(obj).name
       case _                                 ⇒ boundParams.throwInvalidArgument(param, "Must be a tag")
     }
     if (!ListFunction.getTagNames.contains(tagName))
@@ -50,7 +50,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
       case Tags ⇒ CompletionSpec.Items(ListFunction.getTagNames)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Delete a tag")
 }

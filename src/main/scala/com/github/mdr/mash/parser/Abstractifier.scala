@@ -1,7 +1,7 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.lexer.TokenType._
+import com.github.mdr.mash.lexer.{ Token, TokenType }
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 

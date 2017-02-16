@@ -1,14 +1,11 @@
 package com.github.mdr.mash.repl
 
 import java.io.PrintStream
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.util.UUID
 
-import com.github.mdr.mash.{ DebugLogger, Mash, Singletons }
+import com.github.mdr.mash.DebugLogger
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.commands.MishCommand
-import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
@@ -19,7 +16,6 @@ import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
-import org.apache.commons.io.FileUtils
 
 import scala.annotation.tailrec
 

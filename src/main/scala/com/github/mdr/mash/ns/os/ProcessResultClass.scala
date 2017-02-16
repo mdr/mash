@@ -2,10 +2,9 @@ package com.github.mdr.mash.ns.os
 
 import java.time.{ Duration, Instant }
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
 import com.github.mdr.mash.runtime._
@@ -52,19 +51,17 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       ProcessResultClass)
   }
 
-  case class Wrapper(x: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    private val obj = x.asInstanceOf[MashObject]
+    def stdout: String = getStringField(Stdout)
 
-    def stdout: String = obj.fieldAs[MashString](Stdout).s
+    def started: Instant = target.fieldAs[MashWrapped](Started).x.asInstanceOf[Instant]
 
-    def started: Instant = obj.fieldAs[MashWrapped](Started).x.asInstanceOf[Instant]
-
-    def finished: Instant = obj.fieldAs[MashWrapped](Finished).x.asInstanceOf[Instant]
+    def finished: Instant = target.fieldAs[MashWrapped](Finished).x.asInstanceOf[Instant]
 
     def line: String = stdout.split("\n").headOption.getOrElse("")
 
-    def exitStatus: Int = obj.fieldAs[MashNumber](ExitStatus).asInt.get
+    def exitStatus: Int = getNumberField(ExitStatus).toInt
   }
 
   object SucceededMethod extends MashMethod("succeeded") {

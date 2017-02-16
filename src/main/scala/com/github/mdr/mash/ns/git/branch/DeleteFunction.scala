@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashUnit, MashValue }
 
@@ -23,7 +24,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   def validateBranch(boundParams: BoundParams, param: Parameter, branch: MashValue): String = {
     val branchName = branch match {
       case MashString(s, _) ⇒ s
-      case obj @ MashObject(_, Some(BranchClass)) ⇒ BranchClass.Wrapper(obj).name.s
+      case obj @ MashObject(_, Some(BranchClass)) ⇒ BranchClass.Wrapper(obj).name
       case _ ⇒ boundParams.throwInvalidArgument(param, "Must be a local branch")
     }
     if (!SwitchFunction.getLocalBranches.contains(branchName))
@@ -48,7 +49,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
       case Branches ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Delete a local branch")
 }

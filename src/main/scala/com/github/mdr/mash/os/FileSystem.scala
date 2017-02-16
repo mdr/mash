@@ -1,11 +1,8 @@
 package com.github.mdr.mash.os
 
-import java.time.Instant
-import java.nio.file.Path
 import java.io.IOException
-import java.nio.charset.StandardCharsets
-
-import org.apache.commons.io.FileUtils
+import java.nio.file.Path
+import java.time.Instant
 
 case class PathSummary(
   path: Path,

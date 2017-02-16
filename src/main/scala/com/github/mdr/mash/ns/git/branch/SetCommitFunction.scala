@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.{ GitHelper, MergeFunction }
 import com.github.mdr.mash.runtime.MashUnit
 import org.eclipse.jgit.lib.ObjectId
@@ -45,7 +46,7 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Update a branch to point to a different commit")
 }

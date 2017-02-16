@@ -1,6 +1,6 @@
 package com.github.mdr.mash.parser
 
-import com.github.mdr.mash.evaluator.{ Attributes, SourceLocation }
+import com.github.mdr.mash.evaluator.SourceLocation
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.runtime._
 

@@ -1,12 +1,11 @@
 package com.github.mdr.mash.ns.git.tag
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashUnit, MashValue }
+import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 
 object TagClass extends MashClass("git.tag.Tag") {
 
@@ -21,9 +20,9 @@ object TagClass extends MashClass("git.tag.Tag") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    def name = target.asInstanceOf[MashObject](Name).asInstanceOf[MashString]
+    def name = getStringField(Name)
 
   }
 
@@ -36,14 +35,14 @@ object TagClass extends MashClass("git.tag.Tag") {
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
       params.validate(arguments)
-      val tagName = Wrapper(target).name.s
+      val tagName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.tagDelete.setTags(tagName).call()
       }
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Delete this tag")
 

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.MashMethod
@@ -38,10 +38,11 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  private case class Wrapper(value: MashValue) {
-    private val obj = value.asInstanceOf[MashObject]
-    
-    def path: MashString = obj.fieldAs[MashString](Fields.Path)
+  private case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
+
+    def path = getStringField(Fields.Path)
+
+    def pathMashValue = getField(Fields.Path)
   }
 
   private def liftPathMethod(method: MashMethod) = new MashMethod(method.name) {
@@ -49,7 +50,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     val params = method.params
 
     def apply(target: MashValue, arguments: Arguments): MashValue =
-      method.apply(Wrapper(target).path, arguments)
+      method.apply(Wrapper(target).pathMashValue, arguments)
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 
@@ -64,12 +65,12 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   object ToStringMethod extends AbstractToStringMethod {
 
-    override def toString(target: MashValue) = Wrapper(target).path.s
+    override def toString(target: MashValue) = Wrapper(target).path
 
   }
 
   def asMashObject(summary: PathSummary): MashObject = {
-    val PathSummary(path, fileType, size, owner, group, permissions, lastModified, lastAccessed) = summary
+    val PathSummary(path, fileType, size, owner, group, permissions, lastModified, _) = summary
     MashObject.of(
       ListMap(
         Fields.Path -> asPathString(path),

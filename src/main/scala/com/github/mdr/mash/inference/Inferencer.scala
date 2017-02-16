@@ -1,6 +1,5 @@
 package com.github.mdr.mash.inference
 
-import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 /**

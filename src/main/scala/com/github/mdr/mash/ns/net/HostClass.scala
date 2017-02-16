@@ -5,7 +5,7 @@ import java.net.InetAddress
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 

@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.runtime.MashUnit
 
 
@@ -32,7 +31,7 @@ object WhileFunction extends MashFunction("core.while") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Loop executing the given block while the condition remains true")
 

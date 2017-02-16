@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashUnit
 
 object AddFunction extends MashFunction("git.add") {
@@ -33,7 +34,7 @@ object AddFunction extends MashFunction("git.add") {
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Record changes to the repository")
 

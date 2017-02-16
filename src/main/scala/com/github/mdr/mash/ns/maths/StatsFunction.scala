@@ -1,13 +1,11 @@
 package com.github.mdr.mash.ns.maths
 
-import scala.collection.immutable.ListMap
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.ConstantTypeInferenceStrategy
 import com.github.mdr.mash.runtime._
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+
+import scala.collection.immutable.ListMap
 
 object StatsFunction extends MashFunction("maths.stats") {
 

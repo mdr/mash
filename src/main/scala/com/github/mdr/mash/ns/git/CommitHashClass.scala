@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import org.eclipse.jgit.revwalk.RevWalk

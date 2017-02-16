@@ -1,8 +1,6 @@
 package com.github.mdr.mash.os
 
-import com.jezhumble.javasysmon.JavaSysMon
 import com.jezhumble.javasysmon.{ ProcessInfo ⇒ JavaSysmonProcessInfo }
-import com.github.mdr.mash.evaluator.EvaluatorException
 
 trait ProcessInteractions {
 

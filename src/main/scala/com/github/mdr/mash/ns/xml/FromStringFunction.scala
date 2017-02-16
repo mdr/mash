@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.xml
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, Type }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime.MashValue
 
