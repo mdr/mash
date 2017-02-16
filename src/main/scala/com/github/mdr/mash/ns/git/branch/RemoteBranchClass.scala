@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
@@ -37,13 +37,13 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  case class Wrapper(target: MashValue) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    def name = target.asInstanceOf[MashObject](Fields.Name).asInstanceOf[MashString]
+    def name = getStringField(Fields.Name)
 
-    def remote = target.asInstanceOf[MashObject](Fields.Remote).asInstanceOf[MashString]
+    def remote = getStringField(Fields.Remote)
 
-    def fullName: MashString = MashString(s"$remote/$name", RemoteBranchNameClass)
+    def fullName = MashString(s"$remote/$name", RemoteBranchNameClass)
 
   }
 
@@ -68,7 +68,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       val switch = boundParams(Switch).isTruthy
       GitHelper.withGit { git ⇒
         val wrapper = Wrapper(target)
-        val localName = wrapper.name.s
+        val localName = wrapper.name
         val cmd = git.branchCreate.setName(localName)
         cmd.setStartPoint(wrapper.fullName.s)
         cmd.setUpstreamMode(SetupUpstreamMode.TRACK)
@@ -94,7 +94,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       val wrapper = Wrapper(target)
       GitHelper.withGit { git ⇒
         val refSpec = new RefSpec(":" + wrapper.name)
-        git.push.setRemote(wrapper.remote.s).setRefSpecs(refSpec).call()
+        git.push.setRemote(wrapper.remote).setRefSpecs(refSpec).call()
       }
       MashUnit
     }

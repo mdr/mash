@@ -25,7 +25,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
   def validateTag(boundParams: BoundParams, param: Parameter, tag: MashValue): String = {
     val tagName = tag match {
       case MashString(s, _)                  ⇒ s
-      case obj@MashObject(_, Some(TagClass)) ⇒ TagClass.Wrapper(obj).name.s
+      case obj@MashObject(_, Some(TagClass)) ⇒ TagClass.Wrapper(obj).name
       case _                                 ⇒ boundParams.throwInvalidArgument(param, "Must be a tag")
     }
     if (!ListFunction.getTagNames.contains(tagName))
