@@ -4,6 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ BranchClass, CreateFunction, RemoteBranchClass, SwitchFunction }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString, MashUnit }
 import org.eclipse.jgit.lib.ObjectId
@@ -56,7 +57,7 @@ object MergeFunction extends MashFunction("git.merge") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Merge another commit into this branch")
 

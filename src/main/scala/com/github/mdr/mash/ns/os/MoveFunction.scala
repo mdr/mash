@@ -6,6 +6,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashUnit
 import org.apache.commons.io.FileUtils
 
@@ -56,7 +57,7 @@ object MoveFunction extends MashFunction("os.move") {
 
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

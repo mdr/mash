@@ -4,6 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ ConstantTypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxProcessInteractions
 import com.github.mdr.mash.runtime._
 import jnr.constants.platform.linux.Signal
@@ -71,7 +72,7 @@ The default signal is TERM."""))
       case Params.Signal ⇒ CompletionSpec.Items(SignalClass.Signals)
     }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Send a signal to a process")
 

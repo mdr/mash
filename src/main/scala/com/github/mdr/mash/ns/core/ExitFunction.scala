@@ -24,7 +24,7 @@ object ExitFunction extends MashFunction("core.exit") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = ConstantTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Exit mash")
 
