@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
+import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.ProcessInfo
 import com.github.mdr.mash.os.linux.LinuxProcessInteractions
@@ -76,7 +76,7 @@ object ProcessClass extends MashClass("os.Process") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Kill this process")
 

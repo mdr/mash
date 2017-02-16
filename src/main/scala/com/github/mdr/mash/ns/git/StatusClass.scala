@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass }
 import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
 import com.github.mdr.mash.ns.os.PathClass
@@ -29,22 +29,36 @@ object StatusClass extends MashClass("git.Status") {
 
   override def summaryOpt = Some("The status of a git repository")
 
-  case class Wrapper(obj: MashObject) {
+  case class Wrapper(obj: MashObject) extends AbstractObjectWrapper(obj) {
+
     private def unmashify(field: Field): Seq[String] =
-      obj(field).asInstanceOf[MashList].elements.map(_.asInstanceOf[MashString].s)
+      getListField(field).map(_.asInstanceOf[MashString].s)
+
     def added = unmashify(Added)
+
     def changed = unmashify(Changed)
+
     def missing = unmashify(Missing)
+
     def modified = unmashify(Modified)
+
     def removed = unmashify(Removed)
+
     def untracked = unmashify(Untracked)
+
     def conflicting = unmashify(Conflicting)
+
     def hasChangesToBeCommitted = added.nonEmpty || changed.nonEmpty || removed.nonEmpty
+
     def hasUnstagedChanges = modified.nonEmpty || missing.nonEmpty
-    def branch = obj(Branch).asInstanceOf[MashString].s
-    def upstreamBranchOpt: Option[String] = MashNull.option(obj(UpstreamBranch)).map(_.asInstanceOf[MashString].s)
-    def aheadCount = obj(AheadCount).asInstanceOf[MashNumber].asInt.get
-    def behindCount = obj(BehindCount).asInstanceOf[MashNumber].asInt.get
+
+    def branch = getStringField(Branch)
+
+    def upstreamBranchOpt: Option[String] = getOptionalStringField(UpstreamBranch)
+
+    def aheadCount = getNumberField(AheadCount).toInt
+
+    def behindCount = getNumberField(BehindCount).toInt
   }
 
 }

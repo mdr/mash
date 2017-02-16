@@ -7,7 +7,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.pathClass._
 import com.github.mdr.mash.ns.time.DateTimeClass
@@ -240,7 +240,7 @@ The default character encoding is used.""")
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Delete this path")
 

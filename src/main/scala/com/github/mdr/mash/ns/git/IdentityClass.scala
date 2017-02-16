@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.git
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.AbstractToStringMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
@@ -22,9 +22,9 @@ object IdentityClass extends MashClass("git.Identity") {
 
   override def summaryOpt = Some("A combination of a person identity and time in Git")
 
-  case class Wrapper(target: MashValue) {
-    def name: MashString = target.asInstanceOf[MashObject](Name).asInstanceOf[MashString]
-    def email: MashString = target.asInstanceOf[MashObject](Email).asInstanceOf[MashString]
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
+    def name: String = getStringField(Name)
+    def email: String = getStringField(Email)
   }
 
   object ToStringMethod extends AbstractToStringMethod {

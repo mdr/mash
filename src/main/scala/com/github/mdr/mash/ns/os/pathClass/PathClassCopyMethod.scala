@@ -4,7 +4,7 @@ import java.nio.file.Files
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ ParameterModel, _ }
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 import org.apache.commons.io.FileUtils
 
@@ -37,7 +37,7 @@ object PathClassCopyMethod extends MashMethod("copy") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+  override def typeInferenceStrategy = UnitClass
 
   override def summaryOpt = Some("Copy this file or directory to another location")
 

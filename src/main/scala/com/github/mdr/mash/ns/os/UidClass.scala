@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type, TypedArguments }
+import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.os.UserInteractions
 import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashValue }
@@ -30,8 +30,7 @@ object UidClass extends MashClass("os.Uid") {
       userSummary.fields(field.name)
     }
 
-    override def typeInferenceStrategy =
-      ConstantMethodTypeInferenceStrategy(UserSummaryClass.fieldsMap(field.name).fieldType)
+    override def typeInferenceStrategy = UserSummaryClass.fieldsMap(field.name).fieldType
 
     override def summaryOpt = Some(s"Access '${field.name}' property of this user")
 

@@ -6,8 +6,7 @@ import java.time.temporal.{ ChronoUnit, TemporalAmount }
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
-import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.ns.core.{ AnyClass, UnitClass }
 import com.github.mdr.mash.runtime.{ MashNumber, MashUnit, MashValue, MashWrapped }
 
 abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass(name) {
@@ -34,7 +33,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       MashUnit
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Unit)
+    override def typeInferenceStrategy = UnitClass
 
     override def summaryOpt = Some("Sleep for this many " + unit.name.toLowerCase)
 

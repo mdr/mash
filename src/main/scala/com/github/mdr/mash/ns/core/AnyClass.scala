@@ -5,7 +5,6 @@ import java.time.{ Instant, LocalDate }
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.ConstantMethodTypeInferenceStrategy
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
 

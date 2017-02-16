@@ -3,9 +3,8 @@ package com.github.mdr.mash.ns.http
 import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.{ ConstantMethodTypeInferenceStrategy, Type }
 import com.github.mdr.mash.inference.Type.classToType
-import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
+import com.github.mdr.mash.ns.core.{ AnyClass, BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.json.FromFileFunction
 import com.github.mdr.mash.runtime._
 
@@ -38,7 +37,7 @@ object ResponseClass extends MashClass("http.Response") {
       FromFileFunction.parseJson(body)
     }
 
-    override def typeInferenceStrategy = ConstantMethodTypeInferenceStrategy(Type.Any)
+    override def typeInferenceStrategy = AnyClass
 
     override def summaryOpt = Some("Parse response body as JSON")
 
