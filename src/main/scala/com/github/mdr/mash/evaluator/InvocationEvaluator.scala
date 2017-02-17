@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
-import com.github.mdr.mash.functions.{ ArgumentException, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 
@@ -47,30 +47,30 @@ object InvocationEvaluator extends EvaluatorHelper {
                    functionLocationOpt: Option[SourceLocation] = None,
                    invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
-      case MashString(memberName, _)      ⇒
+      case MashString(memberName, _)                  ⇒
         val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
-      case b: MashBoolean                 ⇒
+      case b: MashBoolean                             ⇒
         val f = new BooleanFunction(b.value)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(arguments)
         }
-      case f: MashFunction                ⇒
-        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-          f(arguments)
+      case function: MashFunction                     ⇒
+        addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
+          function(arguments)
         }
-      case BoundMethod(target, method, _) ⇒
-        addInvocationToStackOnException(invocationLocationOpt, None) {
+      case boundMethod@BoundMethod(target, method, _) ⇒
+        addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
           method(target, arguments)
         }
-      case klass: MashClass               ⇒
+      case klass: MashClass                           ⇒
         klass.getStaticMethod(MashClass.ConstructorMethodName) match {
           case Some(staticMethod) ⇒ callFunction(staticMethod, arguments, functionLocationOpt, invocationLocationOpt)
           case None               ⇒ throw new EvaluatorException(s"Value of type ${klass.typeName} is not callable", functionLocationOpt)
         }
-      case x                              ⇒
+      case x                                          ⇒
         throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
     }
 
@@ -139,7 +139,8 @@ object InvocationEvaluator extends EvaluatorHelper {
 
   }
 
-  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation], functionOpt: Option[MashFunction] = None)(p: ⇒ T): T =
+  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation],
+                                         functionOpt: Option[MashCallable] = None)(p: ⇒ T): T =
     try
       p
     catch {
