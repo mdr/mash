@@ -30,7 +30,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   private def locationOpt(param: Parameter): Option[SourceLocation] =
     parameterToArguments.get(param).map(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduce(mergeLocation))
 
-  def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this(param) match {
+  def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
     case xs: MashList                          ⇒ xs.elements
     case MashString(s, tagOpt) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
     case x                                     ⇒ throwInvalidArgumentType("sequence", x, param)
@@ -88,7 +88,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   }
 
   def validatePaths(param: Parameter): Seq[Path] = {
-    val arg = this(param)
+    val arg = this (param)
     catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(arg) getOrElse (
       throw new ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as a path.", locationOpt(param)))
   }

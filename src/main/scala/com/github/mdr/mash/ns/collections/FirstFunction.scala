@@ -30,16 +30,17 @@ object FirstFunction extends MashFunction("collections.first") {
     val sequence = boundParams(Sequence)
     boundParams.validateIntegerOpt(N) match {
       case Some(count) ⇒
-        sequence match {
-          case s: MashString ⇒ s.modify(_.take(count))
-          case xs: MashList  ⇒ xs.take(count)
-        }
+        if (count < 0)
+          boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
+        else
+          sequence match {
+            case s: MashString ⇒ s.modify(_ take count)
+            case xs: MashList  ⇒ xs take count
+          }
       case None        ⇒
         sequence match {
-          case s: MashString ⇒
-            if (s.isEmpty) MashNull else s.first
-          case xs: MashList  ⇒
-            if (xs.isEmpty) MashNull else xs.head
+          case s: MashString ⇒ if (s.isEmpty) MashNull else s.first
+          case xs: MashList  ⇒ if (xs.isEmpty) MashNull else xs.head
         }
     }
   }
