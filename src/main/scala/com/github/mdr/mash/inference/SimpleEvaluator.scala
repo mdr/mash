@@ -5,6 +5,9 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.Utils
 
+/**
+  * Statically determine the values of expressions, if possible.
+  */
 object SimpleEvaluator {
 
   def evaluate(expr: Expr)(implicit context: EvaluationContext): Option[MashValue] = {
@@ -39,9 +42,13 @@ object SimpleEvaluator {
         fieldValue ← targetObject.get(name)
       } yield fieldValue
     case lookupExpr: LookupExpr                        ⇒
-      evaluate(lookupExpr.index)
-      evaluate(lookupExpr.target)
-      None
+      val indexOpt = evaluate(lookupExpr.index)
+      val targetOpt = evaluate(lookupExpr.target)
+      for {
+        targetList ← targetOpt.flatMap(_.asList)
+        index ← indexOpt.collect { case MashInteger(i) ⇒ i }
+        value ← targetList.elements.lift(index)
+      } yield value
     case invocationExpr: InvocationExpr                ⇒
       evaluate(invocationExpr.function)
       invocationExpr.arguments.collect {

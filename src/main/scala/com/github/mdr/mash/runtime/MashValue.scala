@@ -17,6 +17,10 @@ trait MashValue {
     case obj: MashObject ⇒ obj
   }
 
+  def asList: Option[MashList] = condOpt(this) {
+    case list: MashList ⇒ list
+  }
+
   def typeName: String = primaryClass.name
 
   def primaryClass: MashClass = this match {

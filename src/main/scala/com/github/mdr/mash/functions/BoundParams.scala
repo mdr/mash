@@ -93,15 +93,6 @@ case class BoundParams(boundNames: Map[String, MashValue],
       throw new ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as a path.", locationOpt(param)))
   }
 
-  object MashInteger {
-
-    def unapply(x: MashValue): Option[Int] = x match {
-      case n: MashNumber ⇒ n.asInt
-      case _             ⇒ None
-    }
-
-  }
-
   def validateInteger(param: Parameter): Int = validateInteger(param, this (param))
 
   def validateIntegerOpt(param: Parameter): Option[Int] =

@@ -57,3 +57,12 @@ case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends 
   override def toString = NumberUtils.prettyString(n)
 
 }
+
+object MashInteger {
+
+  def unapply(x: MashValue): Option[Int] = x match {
+    case n: MashNumber ⇒ n.asInt
+    case _             ⇒ None
+  }
+
+}
