@@ -19,14 +19,12 @@ object HelpEvaluator {
         }.flatten
         lazy val directHelp = {
           val result = MemberEvaluator.evaluateMemberExpr(memberExpr, target, thisTarget = false, invokeNullaryWhenVectorising = true).result
-          HelpCreator.getHelp(result).getOrElse(
-            throw new EvaluatorException("No help available for value of type " + result.typeName, helpExpr.locationOpt))
+          HelpCreator.getHelp(result)
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
       case expr ⇒
         val result = Evaluator.simpleEvaluate(expr)
-        HelpCreator.getHelp(result).getOrElse(
-          throw new EvaluatorException("No help available for value of type " + result.typeName, helpExpr.locationOpt))
+        HelpCreator.getHelp(result)
     }
 
   private def lookupField(target: MashValue, name: String): Option[(Field, MashClass)] =
@@ -35,7 +33,7 @@ object HelpEvaluator {
     }.flatten
 
   private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
-    val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpCreator.getHelp(field, klass) }
+    val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpCreator.getFieldHelp(field, klass) }
     lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
       case method: BoundMethod ⇒ HelpCreator.getHelp(method)
     }

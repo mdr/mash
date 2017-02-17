@@ -21,15 +21,12 @@ object HelpFunction extends MashFunction("core.help.help") {
   def apply(arguments: Arguments): MashObject = {
     val boundParams = params.validate(arguments)
     val item = boundParams(Item)
-    HelpCreator.getHelp(item).getOrElse(
-      boundParams.throwInvalidArgument(Item, "No help available for value of type " + item.typeName))
+    HelpCreator.getHelp(item)
   }
 
   override def typeInferenceStrategy = HelpTypeInferenceStrategy
 
   override def summaryOpt = Some("Find help for the given function, method, field or class")
-
-
 
 }
 

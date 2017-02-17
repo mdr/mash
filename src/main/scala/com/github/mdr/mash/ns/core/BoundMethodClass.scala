@@ -53,7 +53,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
-      HelpCreator.getHelp(target.asInstanceOf[BoundMethod])
+      HelpCreator.getHelp(target)
     }
 
     override def typeInferenceStrategy = FunctionHelpClass

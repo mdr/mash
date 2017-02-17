@@ -5,19 +5,18 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter }
 import com.github.mdr.mash.runtime._
 
-import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
 
 object HelpCreator {
 
-  def getHelp(item: MashValue): Option[MashObject] = condOpt(item) {
-    case f: MashFunction  ⇒ getHelp(f)
-    case bm: BoundMethod  ⇒ getHelp(bm)
-    case klass: MashClass ⇒ getHelp(klass)
-    case value            ⇒ getHelp(value.primaryClass)
+  def getHelp(item: MashValue): MashObject = item match {
+    case f: MashFunction  ⇒ getFunctionHelp(f)
+    case bm: BoundMethod  ⇒ getMethodHelp(bm)
+    case klass: MashClass ⇒ getClassHelp(klass)
+    case value            ⇒ getClassHelp(value.primaryClass)
   }
 
-  def getHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject = {
+  private def getFunctionHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject = {
     import FunctionHelpClass.Fields._
     MashObject.of(
       ListMap(
@@ -27,15 +26,15 @@ object HelpCreator {
         Summary -> f.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
         Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        Parameters -> MashList(f.params.params.map(getHelp)),
+        Parameters -> MashList(f.params.params.map(getParamHelp)),
         Class -> classOpt.map(klass ⇒ MashString(klass.fullyQualifiedName.toString)).getOrElse(MashNull)),
       FunctionHelpClass)
   }
 
-  def getHelp(boundMethod: BoundMethod): MashObject =
-    getHelp(boundMethod.method, boundMethod.klass)
+  private def getMethodHelp(boundMethod: BoundMethod): MashObject =
+    getMethodHelp(boundMethod.method, boundMethod.klass)
 
-  def getHelp(m: MashMethod, klass: MashClass): MashObject = {
+  private def getMethodHelp(m: MashMethod, klass: MashClass): MashObject = {
     import FunctionHelpClass.Fields._
     MashObject.of(
       ListMap(
@@ -45,12 +44,12 @@ object HelpCreator {
         Summary -> m.summaryOpt.map(MashString(_)).getOrElse(MashNull),
         CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
         Description -> m.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        Parameters -> MashList(m.params.params.map(getHelp)),
+        Parameters -> MashList(m.params.params.map(getParamHelp)),
         Class -> MashString(klass.fullyQualifiedName.toString)),
       FunctionHelpClass)
   }
 
-  def getHelp(field: Field, klass: MashClass): MashObject = {
+  def getFieldHelp(field: Field, klass: MashClass): MashObject = {
     import FieldHelpClass.Fields._
     MashObject.of(
       ListMap(
@@ -61,7 +60,7 @@ object HelpCreator {
       FieldHelpClass)
   }
 
-  def getHelp(param: Parameter): MashObject = {
+  private def getParamHelp(param: Parameter): MashObject = {
     import ParameterHelpClass.Fields._
     MashObject.of(
       ListMap(
@@ -83,10 +82,10 @@ object HelpCreator {
       .map(MashString(_))
       .getOrElse(MashNull)
 
-  def getHelp(klass: MashClass): MashObject = {
-    val fields = klass.fields.map(getHelp(_, klass))
-    val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getHelp(_, klass))
-    val staticMethods = klass.staticMethods.map(getHelp(_, Some(klass)))
+  private def getClassHelp(klass: MashClass): MashObject = {
+    val fields = klass.fields.map(getFieldHelp(_, klass))
+    val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass))
+    val staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass)))
     val parent = klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull)
     val description = klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull)
     val summary = klass.summaryOpt.map(MashString(_)).getOrElse(MashNull)

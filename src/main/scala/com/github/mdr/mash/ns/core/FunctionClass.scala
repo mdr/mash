@@ -18,7 +18,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
-      HelpCreator.getHelp(target.asInstanceOf[MashFunction])
+      HelpCreator.getHelp(target)
     }
 
     override def typeInferenceStrategy = FunctionHelpClass
