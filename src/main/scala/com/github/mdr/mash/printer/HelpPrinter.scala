@@ -11,15 +11,13 @@ import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color
 
 /**
- * Render function/method/field help objects in a similar style to man pages
- */
+  * Render function/method/field help objects in a similar style to man pages
+  */
 class HelpPrinter(output: PrintStream) {
 
   private val indentAmount = 8
 
   private val indentSpace = " " * indentAmount
-
-  def bold(s: Any) = Ansi.ansi().bold().a("" + s).boldOff().toString
 
   def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
@@ -96,7 +94,6 @@ class HelpPrinter(output: PrintStream) {
   }
 
   def printClassHelp(obj: MashObject) {
-    def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     import ClassHelpClass.Fields._
     output.println(bold("CLASS"))
     val summaryOpt = MashNull.option(obj(Summary))
@@ -124,20 +121,32 @@ class HelpPrinter(output: PrintStream) {
         output.println()
       }
     }
+    val staticMethods = obj(StaticMethods).asInstanceOf[MashList].elements
+    if (staticMethods.nonEmpty) {
+      output.println()
+      output.println(bold("STATIC METHODS"))
+      staticMethods.foreach(printMethodSummary)
+    }
     val methods = obj(Methods).asInstanceOf[MashList].elements
     if (methods.nonEmpty) {
       output.println()
       output.println(bold("METHODS"))
-      for (method ← methods) {
-        val methodObject = method.asInstanceOf[MashObject]
-        output.print(indentSpace)
-        output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name)))
-        for (summary ← MashNull.option(methodObject(FieldHelpClass.Fields.Summary)))
-          output.print(" - " + summary)
-        output.println()
-      }
+      methods.foreach(printMethodSummary)
     }
 
   }
+
+  private def printMethodSummary(method: MashValue): Unit = {
+    val methodObject = method.asInstanceOf[MashObject]
+    output.print(indentSpace)
+    output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name)))
+    for (summary ← MashNull.option(methodObject(FieldHelpClass.Fields.Summary)))
+      output.print(" - " + summary)
+    output.println()
+  }
+
+  private def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
+
+  private def bold(s: Any) = Ansi.ansi().bold().a("" + s).boldOff().toString
 
 }

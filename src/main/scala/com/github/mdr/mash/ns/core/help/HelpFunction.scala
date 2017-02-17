@@ -41,7 +41,7 @@ object HelpFunction extends MashFunction("core.help.help") {
     case value            ⇒ getHelp(value.primaryClass)
   }
 
-  def getHelp(f: MashFunction): MashObject = {
+  def getHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject = {
     import FunctionHelpClass.Fields._
     MashObject.of(
       ListMap(
@@ -52,7 +52,7 @@ object HelpFunction extends MashFunction("core.help.help") {
         CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
         Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
         Parameters -> MashList(f.params.params.map(getHelp)),
-        Class -> MashNull),
+        Class -> classOpt.map(klass ⇒ MashString(klass.fullyQualifiedName.toString)).getOrElse(MashNull)),
       FunctionHelpClass)
   }
 
@@ -108,18 +108,24 @@ object HelpFunction extends MashFunction("core.help.help") {
       .getOrElse(MashNull)
 
   def getHelp(klass: MashClass): MashObject = {
-    import ClassHelpClass.Fields._
     val fields = klass.fields.map(getHelp(_, klass))
     val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getHelp(_, klass))
+    val staticMethods = klass.staticMethods.map(getHelp(_, Some(klass)))
+    val parent = klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull)
+    val description = klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull)
+    val summary = klass.summaryOpt.map(MashString(_)).getOrElse(MashNull)
+    val fullyQualifiedName = MashString(klass.fullyQualifiedName.toString)
+    import ClassHelpClass.Fields._
     MashObject.of(
       ListMap(
         Name -> MashString(klass.name),
-        FullyQualifiedName -> MashString(klass.fullyQualifiedName.toString),
-        Summary -> klass.summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        Description -> klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        Parent -> klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull),
+        FullyQualifiedName -> fullyQualifiedName,
+        Summary -> summary,
+        Description -> description,
+        Parent -> parent,
         Fields -> MashList(fields),
-        Methods -> MashList(methods)),
+        Methods -> MashList(methods),
+        StaticMethods -> MashList(staticMethods)),
       ClassHelpClass)
   }
 
@@ -131,8 +137,9 @@ object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = HelpFunction.params.bindTypes(arguments)
     import HelpFunction.Params._
     argBindings.getType(Item).collect {
-      case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _, _, _) | Type.BoundBuiltinMethod(_, _) ⇒ FunctionHelpClass
-      case Type.Instance(ClassClass)                                                                            ⇒ ClassHelpClass
+      case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _, _, _) ⇒ FunctionHelpClass
+      case Type.BoundBuiltinMethod(_, _)                                        ⇒ FunctionHelpClass
+      case Type.Instance(ClassClass)                                            ⇒ ClassHelpClass
     }
 
   }

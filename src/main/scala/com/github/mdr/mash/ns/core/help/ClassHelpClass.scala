@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ ClassClass, StringClass }
 
 object ClassHelpClass extends MashClass("core.help.ClassHelp") {
@@ -12,13 +11,14 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
     val Summary = Field("summary", Some("Summary of what the class does"), StringClass)
     val Description = Field("description", Some("Description of the class"), StringClass)
     val Parent = Field("parent", Some("The parent class, if any, else null"), ClassClass)
-    val Fields = Field("fields", Some("The fields of the class"), Type.Seq(FieldHelpClass))
-    val Methods = Field("methods", Some("The methods of the class"), Type.Seq(FunctionHelpClass))
+    val Fields = Field("fields", Some("The fields of the class"), Seq(FieldHelpClass))
+    val Methods = Field("methods", Some("The methods of the class"), Seq(FunctionHelpClass))
+    val StaticMethods = Field("staticMethods", Some("The static methods of the class"), Seq(FunctionHelpClass))
   }
 
   import Fields._
 
-  override val fields = Seq(Name, FullyQualifiedName, Summary, Description, Parent, Fields.Fields, Methods)
+  override val fields = Seq(Name, FullyQualifiedName, Summary, Description, Parent, Fields.Fields, Methods, StaticMethods)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
