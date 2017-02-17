@@ -226,6 +226,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "'foo'.regex?" ==> FunctionHelpClass
   "def foo = 42; foo?" ==> FunctionHelpClass
   "class A { def a = 42 }; A.new.a?" ==> FunctionHelpClass
+  "class A { def a b = 42 }; help A.new.a" ==> FunctionHelpClass
+  "class A; help A" ==> ClassHelpClass
 
   // target
   "[1].sumBy.target" ==> Seq(NumberClass)
@@ -326,7 +328,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Foo { def bar m = 10 }; Foo 5 | .bar 10" ==> NumberClass
   "class Foo { def bar m = m }; Foo 5 | .bar 10" ==> NumberClass
   "class Foo { def bar m = m }; [Foo.new, Foo.new].bar 42" ==> Seq(NumberClass)
-  // "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
+  "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
 
   // this
   "class A { def method1 = this; def method2 = 10 }; A.new.method1.method2" ==> NumberClass
@@ -367,9 +369,6 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // List.new
   "List 1 2 3" ==> Seq(NumberClass)
   "List.new" ==> Seq(Any)
-
-  // Intraclass method references
-  "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
 
   havingFirstRun("class Foo { def a = 10; def b = a }") { implicit environment ⇒
     "Foo.new.a" ==> NumberClass

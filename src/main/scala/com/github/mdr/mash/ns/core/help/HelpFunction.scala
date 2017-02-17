@@ -36,9 +36,9 @@ object HelpTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = HelpFunction.params.bindTypes(arguments)
     import HelpFunction.Params._
     argBindings.getType(Item).collect {
-      case Type.BuiltinFunction(_) | Type.UserDefinedFunction(_, _, _, _, _, _) ⇒ FunctionHelpClass
-      case Type.BoundBuiltinMethod(_, _)                                        ⇒ FunctionHelpClass
-      case Type.Instance(ClassClass)                                            ⇒ ClassHelpClass
+      case Type.BuiltinFunction(_) | _: Type.UserDefinedFunction          ⇒ FunctionHelpClass
+      case Type.BoundBuiltinMethod(_, _) | _: Type.BoundUserDefinedMethod ⇒ FunctionHelpClass
+      case Type.Instance(ClassClass) | _: Type.UserClass                  ⇒ ClassHelpClass
     }
 
   }
