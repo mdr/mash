@@ -1023,4 +1023,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // List.new
   "List 1 2 3" ==> "[1, 2, 3]"
   "List.new" ==> "[]"
+
+  // net.urlEncode
+  "net.urlEncode 'user@example.com'" ==> "'user%40example.com'"
 }
