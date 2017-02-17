@@ -1,7 +1,7 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
-import com.github.mdr.mash.ns.core.help.HelpFunction
+import com.github.mdr.mash.ns.core.help.HelpCreator
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 
@@ -19,13 +19,13 @@ object HelpEvaluator {
         }.flatten
         lazy val directHelp = {
           val result = MemberEvaluator.evaluateMemberExpr(memberExpr, target, thisTarget = false, invokeNullaryWhenVectorising = true).result
-          HelpFunction.getHelp(result).getOrElse(
+          HelpCreator.getHelp(result).getOrElse(
             throw new EvaluatorException("No help available for value of type " + result.typeName, helpExpr.locationOpt))
         }
         scalarHelpOpt orElse vectorHelpOpt getOrElse directHelp
       case expr ⇒
         val result = Evaluator.simpleEvaluate(expr)
-        HelpFunction.getHelp(result).getOrElse(
+        HelpCreator.getHelp(result).getOrElse(
           throw new EvaluatorException("No help available for value of type " + result.typeName, helpExpr.locationOpt))
     }
 
@@ -35,9 +35,9 @@ object HelpEvaluator {
     }.flatten
 
   private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
-    val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpFunction.getHelp(field, klass) }
+    val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpCreator.getHelp(field, klass) }
     lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
-      case method: BoundMethod ⇒ HelpFunction.getHelp(method)
+      case method: BoundMethod ⇒ HelpCreator.getHelp(method)
     }
     fieldHelpOpt orElse memberHelpOpt
   }

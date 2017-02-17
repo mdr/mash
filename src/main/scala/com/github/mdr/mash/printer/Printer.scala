@@ -9,7 +9,7 @@ import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.BytesClass
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, HelpFunction }
+import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
 import com.github.mdr.mash.ns.time.{ MillisecondsClass, SecondsClass }
@@ -38,19 +38,19 @@ class FieldRenderer(viewConfig: ViewConfig) {
   private val dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
 
   def renderField(value: MashValue, inCell: Boolean = false): String = value match {
-    case MashBoolean.True if inCell                         ⇒ "✓"
-    case MashBoolean.False if inCell                        ⇒ "✗"
-    case obj @ MashObject(_, Some(PermissionsClass))        ⇒ PermissionsPrinter.permissionsString(obj)
-    case obj @ MashObject(_, Some(PermissionsSectionClass)) ⇒ PermissionsPrinter.permissionsSectionString(obj)
-    case MashNumber(n, Some(BytesClass))                    ⇒ BytesPrinter.humanReadable(n)
-    case MashNumber(n, Some(MillisecondsClass))             ⇒ NumberUtils.prettyString(n) + "ms"
-    case MashNumber(n, Some(SecondsClass))                  ⇒ NumberUtils.prettyString(n) + "s"
-    case MashNumber(n, _)                                   ⇒ NumberUtils.prettyString(n)
-    case MashWrapped(i: Instant) if viewConfig.fuzzyTime    ⇒ Printer.prettyTime.format(Date.from(i))
-    case MashWrapped(i: Instant)                            ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
-    case xs: MashList if inCell                             ⇒ xs.elements.map(renderField(_)).mkString(", ")
-    case xs: MashList                                       ⇒ xs.elements.map(renderField(_)).mkString("[", ", ", "]")
-    case _                                                  ⇒
+    case MashBoolean.True if inCell                       ⇒ "✓"
+    case MashBoolean.False if inCell                      ⇒ "✗"
+    case obj@MashObject(_, Some(PermissionsClass))        ⇒ PermissionsPrinter.permissionsString(obj)
+    case obj@MashObject(_, Some(PermissionsSectionClass)) ⇒ PermissionsPrinter.permissionsSectionString(obj)
+    case MashNumber(n, Some(BytesClass))                  ⇒ BytesPrinter.humanReadable(n)
+    case MashNumber(n, Some(MillisecondsClass))           ⇒ NumberUtils.prettyString(n) + "ms"
+    case MashNumber(n, Some(SecondsClass))                ⇒ NumberUtils.prettyString(n) + "s"
+    case MashNumber(n, _)                                 ⇒ NumberUtils.prettyString(n)
+    case MashWrapped(i: Instant) if viewConfig.fuzzyTime  ⇒ Printer.prettyTime.format(Date.from(i))
+    case MashWrapped(i: Instant)                          ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
+    case xs: MashList if inCell                           ⇒ xs.elements.map(renderField(_)).mkString(", ")
+    case xs: MashList                                     ⇒ xs.elements.map(renderField(_)).mkString("[", ", ", "]")
+    case _                                                ⇒
       val s = ToStringifier.safeStringify(value)
       if (inCell) Printer.replaceProblematicChars(s) else s
   }
@@ -65,14 +65,14 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
-    case obj: MashObject                                       ⇒
+    case obj: MashObject                         ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
     case xs: MashList if xs.forall(_.isAnObject) ⇒
       val objects = xs.elements.asInstanceOf[Seq[MashObject]]
       new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(objects, xs)
-    case xs: MashList ⇒
+    case xs: MashList                            ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                     ⇒
+    case _                                       ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
@@ -85,10 +85,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if alwaysUseTreeBrowser                                       ⇒
+        case _: MashList | _: MashObject if alwaysUseTreeBrowser                               ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           return PrintResult(Some(model))
-        case xs: MashList if xs.nonEmpty && xs.forall(_.isAnObject)                      ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_.isAnObject)                            ⇒
           val objects = xs.elements.asInstanceOf[Seq[MashObject]]
           val nonDataRows = 4 // 3 header rows + 1 footer
           if (objects.size > terminalInfo.rows - nonDataRows) {
@@ -96,41 +96,41 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
             return PrintResult(Some(model))
           } else
             new ObjectsTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull) ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)             ⇒
           if (xs.length > terminalInfo.rows) {
             val model = new TextLinesModelCreator(viewConfig).create(xs)
             return PrintResult(Some(model))
           } else
             xs.elements.foreach(output.println)
-        case obj: MashObject if obj.classOpt == Some(ViewClass)                                        ⇒
+        case obj: MashObject if obj.classOpt == Some(ViewClass)                                ⇒
           val data = obj(ViewClass.Fields.Data)
           val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
           val alwaysUseBrowser = obj(ViewClass.Fields.UseBrowser) == MashBoolean.True
           val alwaysUseTreeBrowser = obj(ViewClass.Fields.UseTree) == MashBoolean.True
           return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser, alwaysUseTreeBrowser = alwaysUseTreeBrowser)
-        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !disableCustomViews         ⇒
+        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
           helpPrinter.printFunctionHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews            ⇒
+        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews    ⇒
           helpPrinter.printFieldHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !disableCustomViews            ⇒
+        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !disableCustomViews    ⇒
           helpPrinter.printClassHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews               ⇒
+        case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
-        case obj: MashObject                                                                           ⇒
+        case obj: MashObject                                                                   ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                 ⇒ // Don't print out sequence of unit
-        case f: MashFunction if !disableCustomViews                                                    ⇒
-          print(HelpFunction.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case method: BoundMethod if !disableCustomViews                                                ⇒
-          print(HelpFunction.getHelp(method), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case klass: MashClass if !disableCustomViews                                                   ⇒
-          print(HelpFunction.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case MashUnit                                                                                  ⇒ // Don't print out Unit
-        case _                                                                                         ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                         ⇒ // Don't print out sequence of unit
+        case f: MashFunction if !disableCustomViews                                            ⇒
+          print(HelpCreator.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        case method: BoundMethod if !disableCustomViews                                        ⇒
+          print(HelpCreator.getHelp(method), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        case klass: MashClass if !disableCustomViews                                           ⇒
+          print(HelpCreator.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
+        case MashUnit                                                                          ⇒ // Don't print out Unit
+        case _                                                                                 ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
       }
       PrintResult()
-  }
+    }
 
   def printBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)

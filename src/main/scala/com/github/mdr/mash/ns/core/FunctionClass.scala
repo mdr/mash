@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpFunction }
+import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 object FunctionClass extends MashClass("core.Function") {
@@ -18,7 +18,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
       params.validate(arguments)
-      HelpFunction.getHelp(target.asInstanceOf[MashFunction])
+      HelpCreator.getHelp(target.asInstanceOf[MashFunction])
     }
 
     override def typeInferenceStrategy = FunctionHelpClass
