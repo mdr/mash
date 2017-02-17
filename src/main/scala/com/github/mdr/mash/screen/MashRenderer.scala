@@ -18,7 +18,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
-      val bareTokensOpt = getBareTokens(s, mishByDefault)
+      val bareTokensOpt = getBareTokens(s, mish)
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
       val matchingBracketOffsetOpt = BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish)
       TokenInfo(tokens, bareTokensOpt, matchingBracketOffsetOpt)
@@ -90,8 +90,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
       case ERROR                                                      ⇒ Style(foregroundColour = Colour.Red, bold = true)
       case t if t.isFlag                                              ⇒ Style(foregroundColour = Colour.Blue, bold = true)
       case t if t.isKeyword                                           ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒
-        Style(foregroundColour = Colour.Green)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = Colour.Green)
       case _                                                          ⇒ Style()
     }
   }

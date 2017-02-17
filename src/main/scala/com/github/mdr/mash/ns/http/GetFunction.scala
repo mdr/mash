@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.http
 
 import java.net.URI
+import java.nio.charset.StandardCharsets
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
@@ -53,9 +54,9 @@ object GetFunction extends MashFunction("http.get") {
   def asMashObject(response: HttpResponse, cookieStore: CookieStore): MashObject = {
     val code = response.getStatusLine.getStatusCode
     val content = response.getEntity.getContent
-    val responseBody = IOUtils.toString(content, "UTF-8")
-    val headers = response.getAllHeaders.map(header ⇒ asMashObject(header))
-    val cookies = cookieStore.getCookies.asScala.map(cookie ⇒ asMashObject(cookie))
+    val responseBody = IOUtils.toString(content, StandardCharsets.UTF_8)
+    val headers = response.getAllHeaders.map(asMashObject(_))
+    val cookies = cookieStore.getCookies.asScala.map(asMashObject(_))
     import ResponseClass.Fields._
     MashObject.of(ListMap(
       Status -> MashNumber(code),

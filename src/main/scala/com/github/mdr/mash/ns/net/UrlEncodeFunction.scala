@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.net
 
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
@@ -21,7 +22,7 @@ object UrlEncodeFunction extends MashFunction("net.urlEncode") {
   def apply(arguments: Arguments): MashString = {
     val boundParams = params.validate(arguments)
     val s = ToStringifier.stringify(boundParams(String))
-    MashString(URLEncoder.encode(s, "utf-8"))
+    MashString(URLEncoder.encode(s, StandardCharsets.UTF_8.name))
   }
 
   override def typeInferenceStrategy = StringClass
