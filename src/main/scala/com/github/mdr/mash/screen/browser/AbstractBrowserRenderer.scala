@@ -3,7 +3,7 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.{ Line, LineBufferRenderer, Point, Screen }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.terminal.TerminalInfo
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: TerminalInfo) {
@@ -33,8 +33,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
       case None             ⇒ state.path
     }
     val cursorOffset = renderCursor._1.column
-    Line(LineBufferRenderer.renderChars(fullExpression, cursorOffset, mishByDefault = false,
-      globalVariables = MashObject.empty, bareWords = false))
+    Line(new MashRenderer().renderChars(fullExpression, cursorOffset, mishByDefault = false))
   }
 
 }

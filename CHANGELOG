@@ -1,6 +1,7 @@
 v0.0.6 (..)
 -----------
 
+* Syntax highlighting in error printer
 * Incremental history search now case insensitive
 * grep --negate
 * Add List.new

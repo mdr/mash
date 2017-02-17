@@ -4,13 +4,15 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem }
+import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.screen.{ LineBufferRenderer, MashRenderer, Screen }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
 import org.fusesource.jansi.Ansi
 
 /**
- * Print errors with stack traces
- */
+  * Print errors with stack traces
+  */
 class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
 
   def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[StackTraceItem]) = {
@@ -27,27 +29,28 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     val lineInfo = new LineInfo(provenance.source)
     val (lineIndex, _) = lineInfo.lineAndColumn(point)
     val line = lineInfo.lines(lineIndex)
+    val renderedLine = new MashRenderer().renderChars(line, cursorOffset = line.length, mishByDefault = false)
+    val drawnLine = Screen.drawStyledChars(renderedLine)
     val isImmediateError = unit.provenance == provenance && unit.interactive
     val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
     val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}$functionName: "
     val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
-    output.println(formatStrong(prefix) + line)
+    output.println(formatStrong(prefix) + drawnLine)
     output.println(formatStrong(errorUnderlineLine))
   }
 
   private def getUnderlineLine(prefix: String, lineInfo: LineInfo, lineIndex: Int, point: Int, region: Region): String = {
     val padding = " " * prefix.length
     val lineRegion = lineInfo.lineRegion(lineIndex)
-    padding +
-      (for (i ← lineRegion.range)
-        yield i match {
-        case i if i == point        ⇒ "^"
-        case i if region contains i ⇒ "-"
-        case _                      ⇒ " "
-      }).mkString
+    padding + lineRegion.range.map {
+      case i if i == point        ⇒ "^"
+      case i if region contains i ⇒ "-"
+      case _                      ⇒ " "
+    }.mkString
   }
 
   private def formatStrong(s: String): String = Ansi.ansi.fg(Ansi.Color.RED).bold.a(s).reset.toString
+
   private def formatRegular(s: String) = Ansi.ansi.fg(Ansi.Color.RED).a(s).reset.toString
 
 }
