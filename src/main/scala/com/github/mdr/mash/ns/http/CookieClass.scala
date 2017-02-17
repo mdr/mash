@@ -7,7 +7,7 @@ object CookieClass extends MashClass("http.Cookie") {
 
   object Fields {
     lazy val Name = Field("name", Some("Cookie name"), StringClass)
-    lazy val Value = Field("body", Some("Cookie value"), StringClass)
+    lazy val Value = Field("value", Some("Cookie value"), StringClass)
   }
 
   import Fields._

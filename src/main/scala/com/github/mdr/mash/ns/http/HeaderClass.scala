@@ -7,7 +7,7 @@ object HeaderClass extends MashClass("http.Header") {
 
   object Fields {
     lazy val Name = Field("name", Some("Header field name"), StringClass)
-    lazy val Value = Field("body", Some("Header field value"), StringClass)
+    lazy val Value = Field("value", Some("Header field value"), StringClass)
   }
 
   import Fields._
