@@ -14,7 +14,7 @@ object StringUtils {
     *
     * @param maxLength of the string
     */
-  def ellipsisiseMiddle(s: String, maxLength: Int) = {
+  def ellipsisiseMiddle(s: String, maxLength: Int) =
     if (s.size > maxLength)
       if (s.size < 5)
         "." * maxLength
@@ -33,7 +33,6 @@ object StringUtils {
       }
     else
       s
-  }
 
   private def halveRoundingDown(n: Int) = n / 2
 

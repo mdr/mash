@@ -11,7 +11,7 @@ object Parameter {
 case class Parameter(nameOpt: Option[String],
                      summaryOpt: Option[String] = None, // One-liner description of the parameter
                      descriptionOpt: Option[String] = None, // Rest of the docs
-                     shortFlagOpt: Option[Character] = None, // Single character version of the flag
+                     shortFlagOpt: Option[Char] = None, // Single character version of the flag
                      defaultValueGeneratorOpt: Option[() ⇒ MashValue] = None, // Default value if none provided
                      isVariadic: Boolean = false, // Is a variadic parameter (can be bound to 0-to-many arguments)
                      variadicAtLeastOne: Boolean = false, // As a variadic parameter, must it have at least one argument?

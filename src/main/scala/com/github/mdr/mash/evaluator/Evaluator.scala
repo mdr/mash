@@ -201,7 +201,7 @@ object Evaluator extends EvaluatorHelper {
         EvaluatedAttribute(attribute.name, argumentsOpt)
     }
 
-  private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute]): Option[Character] = {
+  private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute]): Option[Char] = {
     val ShortFlag = Parameter(Some("shortName"))
     val params = ParameterModel(Seq(ShortFlag))
     for {
