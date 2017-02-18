@@ -7,6 +7,8 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ DocComment, QuotationType }
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.utils.Utils
+import org.apache.commons.lang3.StringUtils.getLevenshteinDistance
 
 import scala.PartialFunction.condOpt
 
@@ -116,17 +118,26 @@ object Evaluator extends EvaluatorHelper {
     Evaluator.evaluate(blockExpr.expr)(newContext)
   }
 
-  def evaluateThisExpr(thisExpr: ThisExpr)(implicit context: EvaluationContext): MashValue = context.scopeStack.thisOpt.getOrElse {
-    throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
-  }
+  def evaluateThisExpr(thisExpr: ThisExpr)(implicit context: EvaluationContext): MashValue =
+    context.scopeStack.thisOpt.getOrElse {
+      throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
+    }
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
     evaluateIdentifier(identifier.name, sourceLocation(identifier))
 
-  private def evaluateIdentifier(name: String, locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
+  private def evaluateIdentifier(name: String,
+                                 locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
     context.scopeStack.lookup(name).getOrElse {
-      throw new EvaluatorException(s"No binding for '$name'", locationOpt)
+      val names = context.scopeStack.bindings.keys.toSeq
+      throw new EvaluatorException(s"No binding for '$name'${suggestionSuffix(names, name)}", locationOpt)
     }
+
+  def suggestionSuffix(possibleNames: Seq[String], requested: String): String = {
+    val suggestionOpt = Utils.minBy(possibleNames, (boundName: String) ⇒
+      getLevenshteinDistance(requested.toLowerCase, boundName.toLowerCase))
+    suggestionOpt.map(suggestion ⇒ s". Did you mean '$suggestion'?") getOrElse ""
+  }
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate

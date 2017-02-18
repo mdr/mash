@@ -3,6 +3,7 @@ package com.github.mdr.mash.evaluator
 import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
+import com.github.mdr.mash.evaluator.Evaluator.suggestionSuffix
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
@@ -11,6 +12,7 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.{ PointedRegion, Utils }
+import org.apache.commons.lang3.StringUtils._
 
 import scala.PartialFunction.condOpt
 
@@ -45,8 +47,10 @@ object MemberEvaluator extends EvaluatorHelper {
       def vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, invokeNullaryWhenVectorising, locationOpt)
         .map(result ⇒ MemberExprEvalResult(result, wasVectorised = true))
       scalarLookup orElse
-        vectorisedLookup getOrElse
-        (throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
+        vectorisedLookup getOrElse {
+        val names = getMemberNames(target)
+        throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
+      }
     }
   }
 
@@ -92,8 +96,10 @@ object MemberEvaluator extends EvaluatorHelper {
     lookup(target, field.name)
 
   def lookup(target: MashValue, name: String, includePrivate: Boolean = false, locationOpt: Option[SourceLocation] = None): MashValue =
-    maybeLookup(target, name, includePrivate).getOrElse(
-      throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}", locationOpt))
+    maybeLookup(target, name, includePrivate).getOrElse {
+      val names = getMemberNames(target)
+      throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
+    }
 
   def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
@@ -115,7 +121,24 @@ object MemberEvaluator extends EvaluatorHelper {
       case dt@MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date@MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
       case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate)
-      case _                              ⇒ None
     }
+
+  private def getMemberNames(target: MashValue): Seq[String] = {
+    val memberNames = target match {
+      case MashNumber(n, tagClassOpt)     ⇒ NumberClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)
+      case MashString(s, tagClassOpt)     ⇒ StringClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)
+      case MashNull                       ⇒ NullClass.memberNames
+      case MashUnit                       ⇒ UnitClass.memberNames
+      case b: MashBoolean                 ⇒ BooleanClass.memberNames
+      case xs: MashList                   ⇒ ListClass.memberNames
+      case f: MashFunction                ⇒ FunctionClass.memberNames
+      case bm: BoundMethod                ⇒ BoundMethodClass.memberNames
+      case klass: MashClass               ⇒ ClassClass.memberNames
+      case dt@MashWrapped(_: Instant)     ⇒ DateTimeClass.memberNames
+      case date@MashWrapped(_: LocalDate) ⇒ DateClass.memberNames
+      case obj: MashObject                ⇒ obj.immutableFields.keys.toSeq ++ (obj.classOpt getOrElse ObjectClass).memberNames
+    }
+    (memberNames ++ AnyClass.memberNames).distinct
+  }
 
 }
