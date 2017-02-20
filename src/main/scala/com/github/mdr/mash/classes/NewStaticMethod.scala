@@ -25,6 +25,6 @@ case class NewStaticMethod(klass: MashClass) extends MashFunction(MashClass.Cons
     MashObject.of(fields, klass)
   }
 
-  override def summaryOpt: Option[String] = Some(s"Construct a new ${klass.name}")
+  override def summaryOpt: Option[String] = Some(s"Construct a new ${klass.name} object")
 
 }

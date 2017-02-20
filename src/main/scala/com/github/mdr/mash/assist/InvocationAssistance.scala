@@ -126,7 +126,7 @@ object InvocationAssistance {
     AssistanceState(
       MashClass.ConstructorMethodName,
       Seq(
-        s"Construct a new ${userClass.name}",
+        s"Construct a new ${userClass.name} object",
         s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}"))
   }
 

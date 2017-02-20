@@ -31,7 +31,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
       MashObject.of(fields, UserDefinedClass.this)
     }
 
-    override def summaryOpt = Some(s"Construct a new ${UserDefinedClass.this.name}")
+    override def summaryOpt = Some(s"Construct a new ${UserDefinedClass.this.name} object")
 
     override def params: ParameterModel = UserDefinedClass.this.params
 
