@@ -6,16 +6,10 @@ import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpDelete
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 object DeleteFunction extends MashFunction("http.delete") {
 
-  object Params {
-    val Url = PostFunction.Params.Url
-    val BasicAuth = PostFunction.Params.BasicAuth
-    val Headers = PostFunction.Params.Headers
-  }
-  import Params._
+  import HttpFunctions.Params._
 
   val params = ParameterModel(Seq(Url, BasicAuth, Headers))
 
@@ -25,20 +19,8 @@ object DeleteFunction extends MashFunction("http.delete") {
 
     val url = new URI(boundParams.validateString(Url).s)
 
-    val request = new HttpDelete(url)
-    for (header <- headers)
-      request.setHeader(header.name, header.value)
-    BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
-    val cookieStore = new BasicCookieStore
-    val client = HttpClientBuilder.create
-      .setDefaultCookieStore(cookieStore)
-      .setSSLContext(InsecureSsl.makeInsecureSslContext())
-      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
-      .build
-
-    val response = client.execute(request)
-
-    GetFunction.asMashObject(response, cookieStore)
+    val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
+    HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt)
   }
 
   override def typeInferenceStrategy = ResponseClass

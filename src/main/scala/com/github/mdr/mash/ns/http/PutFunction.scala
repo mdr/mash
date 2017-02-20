@@ -9,18 +9,9 @@ import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.client.methods.HttpPut
 import org.apache.http.entity.{ ContentType, StringEntity }
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 object PutFunction extends MashFunction("http.put") {
-
-  object Params {
-    val Url = PostFunction.Params.Url
-    val BasicAuth = PostFunction.Params.BasicAuth
-    val Headers = PostFunction.Params.Headers
-    val Body = PostFunction.Params.Body
-    val Json = PostFunction.Params.Json
-  }
-  import Params._
+  import HttpFunctions.Params._
 
   val params = ParameterModel(Seq(Url, Body, BasicAuth, Headers, Json))
 
@@ -32,21 +23,8 @@ object PutFunction extends MashFunction("http.put") {
     val bodyValue = boundParams(Body)
     val json = boundParams(Json).isTruthy
 
-    val request = new HttpPut(url)
-    for (header <- headers)
-      request.setHeader(header.name, header.value)
-    BasicCredentials.getBasicCredentials(boundParams, BasicAuth).foreach(_.addCredentials(request))
-    val cookieStore = new BasicCookieStore
-    val client = HttpClientBuilder.create
-      .setDefaultCookieStore(cookieStore)
-      .setSSLContext(InsecureSsl.makeInsecureSslContext())
-      .setSSLHostnameVerifier(InsecureSsl.TrustAllHostnameVerifier)
-      .build
-    setBody(request, bodyValue, json)
-
-    val response = client.execute(request)
-
-    GetFunction.asMashObject(response, cookieStore)
+    val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
+    HttpOperations.runRequest(new HttpPut(url), headers, basicCredentialsOpt, Some(bodyValue), json)
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodyValue: MashValue, json: Boolean) {
