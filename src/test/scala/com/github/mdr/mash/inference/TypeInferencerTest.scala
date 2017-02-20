@@ -329,6 +329,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Foo { def bar m = m }; Foo 5 | .bar 10" ==> NumberClass
   "class Foo { def bar m = m }; [Foo.new, Foo.new].bar 42" ==> Seq(NumberClass)
   "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
+  "class Foo { @(alias 'aaa') def aardvark = 10; def b = aaa }; Foo.new.b" ==> NumberClass
 
   // this
   "class A { def method1 = this; def method2 = 10 }; A.new.method1.method2" ==> NumberClass
@@ -364,7 +365,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{ foo: 42 }.fields.first.unbless" ==> obj("name" -> StringClass, "value" -> Any)
 
   // @alias
-  // "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> NumberClass
+  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> NumberClass
 
   // List.new
   "List 1 2 3" ==> Seq(NumberClass)
@@ -394,7 +395,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
     def ==>(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
-        val settings = CompilationSettings(inferTypes = true)
+        val settings = CompilationSettings(inferTypes = true, bareWords = false)
         val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = environment.bindings, settings).body
         val Some(actualType) = expr.typeOpt
         actualType should equal(expectedType)

@@ -273,11 +273,10 @@ object AbstractSyntax {
     def children = Seq(expr)
   }
 
-  case class InvocationExpr(
-                             function: Expr,
-                             arguments: Seq[Argument],
-                             isParenInvocation: Boolean,
-                             sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
+  case class InvocationExpr(function: Expr,
+                            arguments: Seq[Argument],
+                            isParenInvocation: Boolean,
+                            sourceInfoOpt: Option[SourceInfo] = None) extends Expr {
 
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 

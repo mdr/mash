@@ -17,23 +17,23 @@ object SimpleEvaluator {
   }
 
   def simplyEvaluate(expr: Expr)(implicit context: EvaluationContext): Option[MashValue] = expr match {
-    case _: Hole | _: PipeExpr | _: HeadlessMemberExpr ⇒ None // Should have been removed from the AST by now
-    case _: InterpolatedString | _: MishFunction       ⇒ None
-    case literal: Literal                              ⇒ Some(literal.value)
-    case stringLiteral: StringLiteral                  ⇒ Some(Evaluator.evaluateStringLiteral(stringLiteral))
-    case listExpr: ListExpr                            ⇒ Utils.sequence(listExpr.elements.map(evaluate(_))).map(MashList(_))
-    case identifier: Identifier                        ⇒ context.scopeStack.lookup(identifier.name)
-    case objectExpr: ObjectExpr                        ⇒ simplyEvaluate(objectExpr)
-    case StatementSeq(statements, _)                   ⇒ statements.map(evaluate).lastOption getOrElse Some(MashUnit)
-    case ParenExpr(body, _)                            ⇒ evaluate(body)
-    case blockExpr: BlockExpr                          ⇒ evaluate(blockExpr.expr)
-    case HelpExpr(body, _)                             ⇒
+    case _: Hole | _: PipeExpr | _: HeadlessMemberExpr          ⇒ None // Should have been removed from the AST by now
+    case _: InterpolatedString | _: MishFunction                ⇒ None
+    case literal: Literal                                       ⇒ Some(literal.value)
+    case stringLiteral: StringLiteral                           ⇒ Some(Evaluator.evaluateStringLiteral(stringLiteral))
+    case listExpr: ListExpr                                     ⇒ Utils.sequence(listExpr.elements.map(evaluate(_))).map(MashList(_))
+    case identifier: Identifier                                 ⇒ context.scopeStack.lookup(identifier.name)
+    case objectExpr: ObjectExpr                                 ⇒ simplyEvaluate(objectExpr)
+    case StatementSeq(statements, _)                            ⇒ statements.map(evaluate).lastOption getOrElse Some(MashUnit)
+    case ParenExpr(body, _)                                     ⇒ evaluate(body)
+    case blockExpr: BlockExpr                                   ⇒ evaluate(blockExpr.expr)
+    case HelpExpr(body, _)                                      ⇒
       evaluate(body)
       None
-    case MinusExpr(subExpr, _)                         ⇒
+    case MinusExpr(subExpr, _)                                  ⇒
       evaluate(subExpr)
       None
-    case memberExpr: MemberExpr                        ⇒
+    case memberExpr: MemberExpr                                 ⇒
       val MemberExpr(target, name, _, _) = memberExpr
       // We just check for field lookups
       for {
@@ -41,7 +41,7 @@ object SimpleEvaluator {
         targetObject ← targetValue.asObject
         fieldValue ← targetObject.get(name)
       } yield fieldValue
-    case lookupExpr: LookupExpr                        ⇒
+    case lookupExpr: LookupExpr                                 ⇒
       val indexOpt = evaluate(lookupExpr.index)
       val targetOpt = evaluate(lookupExpr.target)
       for {
@@ -49,61 +49,71 @@ object SimpleEvaluator {
         index ← indexOpt.collect { case MashInteger(i) ⇒ i }
         value ← targetList.elements.lift(index)
       } yield value
-    case invocationExpr: InvocationExpr                ⇒
+    case invocationExpr: InvocationExpr                         ⇒
       evaluate(invocationExpr.function)
-      invocationExpr.arguments.collect {
-        case Argument.PositionArg(value, _)       ⇒ evaluate(value)
-        case Argument.LongFlag(_, Some(value), _) ⇒ evaluate(value)
-      }
+      invocationExpr.arguments.foreach(simplyEvaluate(_))
       None
-    case LambdaExpr(params, body, _)                   ⇒
+    case LambdaExpr(params, body, _)                            ⇒
       evaluate(body)
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None
-    case binOpExpr: BinOpExpr                          ⇒
+    case binOpExpr: BinOpExpr                                   ⇒
       binOpExpr.children.foreach(evaluate)
       None
-    case chainedOpExpr: ChainedOpExpr                  ⇒
+    case chainedOpExpr: ChainedOpExpr                           ⇒
       chainedOpExpr.children.foreach(evaluate)
       None
-    case assExpr: AssignmentExpr                       ⇒
+    case assExpr: AssignmentExpr                                ⇒
       assExpr.children.foreach(evaluate)
       None
-    case assExpr: PatternAssignmentExpr                ⇒
+    case assExpr: PatternAssignmentExpr                         ⇒
       evaluate(assExpr.right)
       None
-    case ifExpr: IfExpr                                ⇒
+    case ifExpr: IfExpr                                         ⇒
       ifExpr.children.foreach(evaluate)
       None
-    case mishExpr: MishExpr                            ⇒
+    case mishExpr: MishExpr                                     ⇒
       mishExpr.children.foreach(evaluate)
       None
-    case interpolationExpr: MishInterpolation          ⇒
+    case interpolationExpr: MishInterpolation                   ⇒
       interpolationExpr.part match {
         case ExprPart(partExpr) ⇒ evaluate(partExpr)
         case _                  ⇒
       }
       None
-    case FunctionDeclaration(_, _, _, params, body, _)       ⇒
-      evaluate(body)
+    case FunctionDeclaration(_, attributes, _, params, body, _) ⇒
+      attributes.foreach(simplyEvaluate(_))
       params.params.flatMap(_.defaultExprOpt).map(evaluate)
+      evaluate(body)
       None
-    case ClassDeclaration(_, _, _, params, bodyOpt, _)                ⇒
+    case ClassDeclaration(_, attributes, _, params, bodyOpt, _) ⇒
+      attributes.foreach(simplyEvaluate(_))
+      params.params.flatMap(_.defaultExprOpt).map(evaluate)
       for {
         body ← bodyOpt
         method ← body.methods
       } evaluate(method)
-      params.params.flatMap(_.defaultExprOpt).map(evaluate)
       None
-    case ThisExpr(_) ⇒
+    case ThisExpr(_)                                            ⇒
       None
+  }
+
+  private def simplyEvaluate(attribute: Attribute)(implicit context: EvaluationContext): Unit =
+    attribute.argumentsOpt.foreach(arguments ⇒ arguments.foreach(simplyEvaluate(_)))
+
+  private def simplyEvaluate(arg: Argument)(implicit context: EvaluationContext): Unit = arg match {
+    case Argument.PositionArg(value, _)       ⇒ evaluate(value)
+    case Argument.LongFlag(_, Some(value), _) ⇒ evaluate(value)
+    case _                                    =>
   }
 
   def simplyEvaluate(objectExpr: ObjectExpr)(implicit context: EvaluationContext): Option[MashValue] = {
     def getFieldName(fieldNameExpr: Expr): Option[String] =
       fieldNameExpr match {
         case Identifier(name, _) ⇒ Some(name)
-        case _                   ⇒ evaluate(fieldNameExpr) collect { case MashString(s, _) ⇒ s }
+        case _                   ⇒ evaluate(fieldNameExpr) collect {
+          case MashString(s, _) ⇒ s
+        }
       }
     val fieldPairsOpt =
       objectExpr.fields.map {
@@ -114,6 +124,7 @@ object SimpleEvaluator {
   }
 
   private def pairOfOptionToOptionPair[X, Y](pair: (Option[X], Option[Y])): Option[(X, Y)] =
-    for (x <- pair._1; y <- pair._2) yield (x, y)
+    for (x <- pair._1;
+         y <- pair._2) yield (x, y)
 
 }

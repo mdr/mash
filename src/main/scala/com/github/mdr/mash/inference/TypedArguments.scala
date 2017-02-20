@@ -22,8 +22,9 @@ object TypedArguments {
     case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ ValueInfo(e.constantValueOpt, e.typeOpt)))
   }
 
-  def from(invocationExpr: InvocationExpr): TypedArguments =
-    TypedArguments(invocationExpr.arguments.map(annotateArg))
+  def from(invocationExpr: InvocationExpr): TypedArguments = from(invocationExpr.arguments)
+
+  def from(arguments: Seq[Argument]): TypedArguments = TypedArguments(arguments.map(annotateArg))
 
 }
 

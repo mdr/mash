@@ -128,7 +128,9 @@ class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignor
           if (!ignoreAdditionalParameters) {
             val firstExcessArgument = arguments.positionArgs.drop(maxPositionArgs).head
             val locationOpt = getLocation(firstExcessArgument)
-            val message = s"Too many positional arguments -- $providedArgs were provided, but at most $maxPositionArgs are allowed"
+            val wasWere = if (providedArgs == 1) "was" else "were"
+            val isAre = if (maxPositionArgs == 1) "is" else "are"
+            val message = s"Too many positional arguments -- $providedArgs $wasWere provided, but at most $maxPositionArgs $isAre allowed"
             throw new ArgumentException(message, locationOpt)
           }
       }

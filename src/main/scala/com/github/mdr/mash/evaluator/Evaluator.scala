@@ -188,13 +188,11 @@ object Evaluator extends EvaluatorHelper {
   }
 
   private def getAliases(evaluatedAttributes: Seq[EvaluatedAttribute]): Seq[String] = {
-    val Name = Parameter(Some("name"))
-    val params = ParameterModel(Seq(Name))
     for {
       attribute ← evaluatedAttributes.filter(_.name == Attributes.Alias)
       arguments = attribute.argumentsOpt getOrElse Seq()
-      boundParams = params.validate(Arguments(arguments))
-      alias = boundParams.validateString(Name).s
+      boundParams = AliasParameterModel.params.validate(Arguments(arguments))
+      alias = boundParams.validateString(AliasParameterModel.Params.Name).s
     } yield alias
   }
 

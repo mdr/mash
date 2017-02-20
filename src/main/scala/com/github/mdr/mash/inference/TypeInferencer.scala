@@ -177,14 +177,29 @@ class TypeInferencer {
     for (decl ← bodyOpt.toSeq.flatMap(_.methods)) {
       val FunctionDeclaration(docCommentOpt, attributes, functionName, functionParamList, body, _) = decl
       val functionParams = Evaluator.parameterModel(functionParamList)
+
       val isPrivate = attributes.exists(_.name == Attributes.Private)
       val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(functionName), functionParams, body, methodBindings)
-      methods += (functionName -> methodType)
+
+      methods += functionName -> methodType
       methodBindings += functionName -> methodType
+      for (alias ← getAliases(decl)) {
+        methods += alias -> methodType
+        methodBindings += alias -> methodType
+      }
     }
     val classParams = Evaluator.parameterModel(paramList)
     Type.UserClass(className, classParams, ListMap(methods: _*))
   }
+
+  private def getAliases(decl: FunctionDeclaration): Seq[String] =
+    for {
+      attribute ← decl.attributes.filter(_.name == Attributes.Alias)
+      arguments ← attribute.argumentsOpt
+      boundTypes = AliasParameterModel.params.bindTypes(TypedArguments.from(arguments))
+      nameArg ← boundTypes.getArgument(AliasParameterModel.Params.Name)
+      alias ← nameArg.valueOpt.collect { case s: MashString ⇒ s.s }
+    } yield alias
 
   private def inferType(assignmentExpr: AssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
     val AssignmentExpr(left, operatorOpt, right, _) = assignmentExpr
@@ -443,7 +458,7 @@ class TypeInferencer {
       val bindings = new ValueTypeDetector().buildBindings(context.scopeStack.bindings)
       val functionType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(name), params, body, bindings)
       Type.BoundUserDefinedMethod(targetType, functionType)
-    case _                                                                           ⇒
+    case _                                                                              ⇒
       Type.BoundBuiltinMethod(targetType, method)
   }
 
