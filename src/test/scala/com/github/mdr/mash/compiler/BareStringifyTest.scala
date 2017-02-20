@@ -21,8 +21,9 @@ class BareStringifyTest extends FlatSpec with Matchers {
   "def doSomething (@flag @(shortFlag d) dryRun = false) = 42" ==>
     """def doSomething (@flag @(shortFlag "d") dryRun = false) = 42"""
 
-//  "class A { @(alias 'a') def aardvark = 42; def b = a }" ==>
-//    "class A { @(alias 'a') def aardvark = 42; def b = a }"
+  // Can make this pass, but requires running simple evaluation earlier, not sure it's worth it
+  //  "class A { @(alias 'a') def aardvark = 42; def b = a }" ==>
+  //    "class A { @(alias 'a') def aardvark = 42; def b = a }"
 
   private implicit class RichString(input: String)(implicit val bindings: Set[String] = Set()) {
 

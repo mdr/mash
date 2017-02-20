@@ -25,6 +25,15 @@ object TypeInferencer {
 
   val ThisName = "this"
 
+  def getAliases(decl: FunctionDeclaration): Seq[String] =
+    for {
+      attribute ← decl.attributes.filter(_.name == Attributes.Alias)
+      arguments ← attribute.argumentsOpt
+      boundTypes = AliasParameterModel.params.bindTypes(TypedArguments.from(arguments))
+      nameArg ← boundTypes.getArgument(AliasParameterModel.Params.Name)
+      alias ← nameArg.valueOpt.collect { case s: MashString ⇒ s.s }
+    } yield alias
+
 }
 
 class TypeInferencer {
@@ -181,25 +190,14 @@ class TypeInferencer {
       val isPrivate = attributes.exists(_.name == Attributes.Private)
       val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(functionName), functionParams, body, methodBindings)
 
-      methods += functionName -> methodType
-      methodBindings += functionName -> methodType
-      for (alias ← getAliases(decl)) {
-        methods += alias -> methodType
-        methodBindings += alias -> methodType
+      for (name ← functionName +: getAliases(decl)) {
+        methods += name -> methodType
+        methodBindings += name -> methodType
       }
     }
     val classParams = Evaluator.parameterModel(paramList)
     Type.UserClass(className, classParams, ListMap(methods: _*))
   }
-
-  private def getAliases(decl: FunctionDeclaration): Seq[String] =
-    for {
-      attribute ← decl.attributes.filter(_.name == Attributes.Alias)
-      arguments ← attribute.argumentsOpt
-      boundTypes = AliasParameterModel.params.bindTypes(TypedArguments.from(arguments))
-      nameArg ← boundTypes.getArgument(AliasParameterModel.Params.Name)
-      alias ← nameArg.valueOpt.collect { case s: MashString ⇒ s.s }
-    } yield alias
 
   private def inferType(assignmentExpr: AssignmentExpr, bindings: Map[String, Type]): Option[Type] = {
     val AssignmentExpr(left, operatorOpt, right, _) = assignmentExpr
