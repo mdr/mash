@@ -1001,6 +1001,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" ==> 6
+  "class Point x y { def diff = x - y }; Point.bless { y: 4, x: 10 } | .diff" ==> 6
 
   // .unbless
   "class Thing; Thing.new.unbless.getClass" ==> "Object"

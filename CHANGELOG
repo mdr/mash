@@ -1,6 +1,7 @@
 v0.0.6 (..)
 -----------
 
+* Add Class.bless
 * Add json.get/post/put/delete methods
 * Suggestions for misspelled identifiers/members
 * Include static methods in class help
