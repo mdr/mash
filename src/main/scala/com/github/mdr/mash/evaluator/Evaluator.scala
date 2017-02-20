@@ -133,11 +133,13 @@ object Evaluator extends EvaluatorHelper {
       throw new EvaluatorException(s"No binding for '$name'${suggestionSuffix(names, name)}", locationOpt)
     }
 
-  def suggestionSuffix(possibleNames: Seq[String], requested: String): String = {
-    val suggestionOpt = Utils.minBy(possibleNames, (boundName: String) ⇒
-      getLevenshteinDistance(requested.toLowerCase, boundName.toLowerCase))
-    suggestionOpt.map(suggestion ⇒ s". Did you mean '$suggestion'?") getOrElse ""
-  }
+
+  private def getSuggestion(possibleNames: Seq[String], requested: String): Option[String] =
+    Utils.minBy(possibleNames, (possibleName: String) ⇒
+      getLevenshteinDistance(requested.toLowerCase, possibleName.toLowerCase))
+
+  def suggestionSuffix(possibleNames: Seq[String], requested: String): String =
+    getSuggestion(possibleNames, requested).map(suggestion ⇒ s". Did you mean '$suggestion'?") getOrElse ""
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
