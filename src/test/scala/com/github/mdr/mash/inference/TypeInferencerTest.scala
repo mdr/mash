@@ -331,6 +331,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Foo { def a = 10; def b = a }; Foo.new.b" ==> NumberClass
   "class Foo { @(alias 'aaa') def aardvark = 10; def b = aaa }; Foo.new.b" ==> NumberClass
 
+  havingFirstRun("class Alias { @(alias 'aaa') def aardvark = 10; def b = aaa }") { implicit environment ⇒
+    "Alias.new.b" ==> NumberClass
+  }
+
   // this
   "class A { def method1 = this; def method2 = 10 }; A.new.method1.method2" ==> NumberClass
   "class A { def method1 n = this; def method2 = 10 }; A.new.method1 3 | .method2" ==> NumberClass

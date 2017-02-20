@@ -26,5 +26,4 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
-
 }
