@@ -1,11 +1,12 @@
 package com.github.mdr.mash.ns.http
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type.classToType
-import com.github.mdr.mash.ns.core.{ AnyClass, BooleanClass, NumberClass, StringClass }
+import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.json.FromFileFunction
+import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
 
 object ResponseClass extends MashClass("http.Response") {
@@ -27,17 +28,21 @@ object ResponseClass extends MashClass("http.Response") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
+    def body = getStringField(Body)
+    def code = getNumberField(Status)
+  }
+
   object JsonMethod extends MashMethod("json") {
 
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       params.validate(arguments)
-      val body = target.asInstanceOf[MashObject].apply(Body).asInstanceOf[MashString].s
-      FromFileFunction.parseJson(body)
+      parseJson(Wrapper(target).body)
     }
 
-    override def typeInferenceStrategy = AnyClass
+    override def typeInferenceStrategy = ObjectClass
 
     override def summaryOpt = Some("Parse response body as JSON")
 
@@ -49,7 +54,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       params.validate(arguments)
-      val code = target.asInstanceOf[MashObject].apply(Status).asInstanceOf[MashNumber].n
+      val code = Wrapper(target).code
       MashBoolean(200 <= code && code <= 299)
     }
 

@@ -42,7 +42,14 @@ object MashRoot {
       MathsFunctions ++
       Seq(BrowserFunction, RawFunction, TreeFunction) ++
       Seq(xml.FromFileFunction, xml.FromStringFunction) ++
-      Seq(json.FromFileFunction, json.FromStringFunction, json.PrettyPrintFunction) ++
+      Seq(
+        json.DeleteFunction,
+        json.FromFileFunction,
+        json.FromStringFunction,
+        json.GetFunction,
+        json.PostFunction,
+        json.PrettyPrintFunction,
+        json.PutFunction) ++
       Seq(
         dns.LookupFunction,
         http.DeleteFunction,
