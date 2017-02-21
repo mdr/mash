@@ -134,12 +134,11 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   protected def areSemisAllowed: Boolean = withinSemiInferrableRegion
-
   /**
     * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
     * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
     */
-  protected def speculate[T](p: ⇒ T): Option[T] = {
+  protected def speculate[T](name: String)(p: ⇒ T): Option[T] = {
     val oldPos = pos
     val oldInferredSemi = inferredSemi
     val oldWithinSemiInferrableRegion = withinSemiInferrableRegion

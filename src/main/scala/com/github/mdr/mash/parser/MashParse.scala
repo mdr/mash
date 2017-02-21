@@ -66,25 +66,37 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     } else
       previousExpr
 
+  private def isPatternStart = HOLE || IDENTIFIER || LBRACE || LSQUARE
+
   protected def patternAssignmentExpr(): Expr = {
-    val patternEqualsOpt = speculate {
-      val pat = pattern()
-      val equals = consumeRequiredToken("assignment", SHORT_EQUALS)
-      (pat, equals)
-    }
-    patternEqualsOpt match {
-      case Some((pat, equals)) ⇒
-        val right = pipeExpr()
-        PatternAssignmentExpr(pat, equals, right)
-      case None                ⇒
-        val left = ifExpr()
-        if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
-          val equals = nextToken()
+    if (!isPatternStart)
+      actualAssignmentExpr()
+    else {
+      val patternEqualsOpt = speculate("patternEquals")(patternEquals())
+      patternEqualsOpt match {
+        case Some((pat, equals)) ⇒
           val right = pipeExpr()
-          AssignmentExpr(left, equals, right)
-        } else
-          left
+          PatternAssignmentExpr(pat, equals, right)
+        case None                ⇒
+          actualAssignmentExpr()
+      }
     }
+  }
+
+  private def patternEquals(): (Pattern, Token) = {
+    val pat = pattern()
+    val equals = consumeRequiredToken("assignment", SHORT_EQUALS)
+    (pat, equals)
+  }
+
+  private def actualAssignmentExpr(): Expr = {
+    val left = ifExpr()
+    if (SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS || DIVIDE_EQUALS) {
+      val equals = nextToken()
+      val right = pipeExpr()
+      AssignmentExpr(left, equals, right)
+    } else
+      left
   }
 
   private def ifExpr(): Expr =
@@ -233,10 +245,10 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     else if (LSQUARE)
       listExpr()
     else if (LBRACE) {
-      if (lookahead(1) == IDENTIFIER && lookahead(2) == COLON)
+      if ((lookahead(1) == IDENTIFIER || lookahead(1) == STRING_LITERAL) && lookahead(2) == COLON)
         objectExpr() // <-- better error messages if we can positively commit to this being an objectExpr
       else
-        speculate(objectExpr()) getOrElse blockExpr()
+        speculate("objectExpr")(objectExpr()) getOrElse blockExpr()
     } else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)
       mishInterpolation()
     else if (forgiving)
@@ -244,33 +256,41 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     else
       unexpectedToken()
 
-  protected def statementSeq(): Expr = speculate(lambdaStart()) match {
-    case Some(start) ⇒
-      completeLambdaExpr(start, mayContainStatementSeq = true)
-    case None        ⇒
-      var statements = ArrayBuffer[Statement]()
-      var continue = true
-      safeWhile(continue) {
-        if (RBRACE || RPAREN || EOF)
-          continue = false
-        else if (SEMI) {
+  protected def statementSeq(): Expr =
+    if (!isLambdaStart)
+      actualStatementSeq()
+    else
+      speculate("statSeq.lambdaStart")(lambdaStart()) match {
+        case Some(start) ⇒
+          completeLambdaExpr(start, mayContainStatementSeq = true)
+        case None        ⇒
+          actualStatementSeq()
+      }
+
+  private def actualStatementSeq(): Expr = {
+    var statements = ArrayBuffer[Statement]()
+    var continue = true
+    safeWhile(continue) {
+      if (RBRACE || RPAREN || EOF)
+        continue = false
+      else if (SEMI) {
+        val semi = nextToken()
+        statements += Statement(statementOpt = None, Some(semi))
+      } else {
+        val statement = statementExpr()
+        if (SEMI) {
           val semi = nextToken()
-          statements += Statement(statementOpt = None, Some(semi))
+          statements += Statement(Some(statement), Some(semi))
         } else {
-          val statement = statementExpr()
-          if (SEMI) {
-            val semi = nextToken()
-            statements += Statement(Some(statement), Some(semi))
-          } else {
-            statements += Statement(Some(statement), semiOpt = None)
-            continue = false
-          }
+          statements += Statement(Some(statement), semiOpt = None)
+          continue = false
         }
       }
-      statements match {
-        case Seq(Statement(Some(statement), None)) ⇒ statement
-        case _                                     ⇒ StatementSeq(statements)
-      }
+    }
+    statements match {
+      case Seq(Statement(Some(statement), None)) ⇒ statement
+      case _                                     ⇒ StatementSeq(statements)
+    }
   }
 
   private def blockExpr(): BlockExpr = {

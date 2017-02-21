@@ -29,12 +29,15 @@ trait FunctionParse {
     val params = paramList()
     val equals = consumeRequiredToken(s"function '${name.text}'", SHORT_EQUALS)
     val firstToken = attributesOpt.flatMap(_.tokens.headOption) getOrElse defToken
-    val body = semisAllowed { pipeExpr() }
+    val body = semisAllowed {
+      pipeExpr()
+    }
     FunctionDeclaration(docComment(firstToken), attributesOpt, defToken, name, params, equals, body)
   }
 
+  protected def isParamStart = IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE
+
   protected def paramList(): ParamList = {
-    def isParamStart = IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE
     val params =
       if (isParamStart)
         parameter() +: noSemis(safeWhile(isParamStart)(parameter()))
@@ -150,11 +153,16 @@ trait FunctionParse {
     LambdaExpr(lambdaStart.paramList, lambdaStart.arrow, body)
   }
 
+  protected def isLambdaStart = isParamStart || RIGHT_ARROW
+
   protected def lambdaExpr(mayContainPipe: Boolean = false, mayContainStatementSeq: Boolean = false): Expr =
-    speculate(lambdaStart()) match {
-      case Some(lambdaStart) ⇒
-        completeLambdaExpr(lambdaStart, mayContainPipe = mayContainPipe, mayContainStatementSeq = mayContainStatementSeq)
-      case None              ⇒
-        patternAssignmentExpr()
-    }
+    if (!isLambdaStart)
+      patternAssignmentExpr()
+    else
+      speculate("lambdaStart")(lambdaStart()) match {
+        case Some(lambdaStart) ⇒
+          completeLambdaExpr(lambdaStart, mayContainPipe = mayContainPipe, mayContainStatementSeq = mayContainStatementSeq)
+        case None              ⇒
+          patternAssignmentExpr()
+      }
 }
