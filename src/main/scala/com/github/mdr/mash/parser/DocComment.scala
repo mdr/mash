@@ -1,5 +1,7 @@
 package com.github.mdr.mash.parser
 
+import com.github.mdr.mash.utils.StringUtils
+
 import scala.PartialFunction.condOpt
 
 case class DocComment(summary: String, descriptionOpt: Option[String], paramComments: Seq[ParamComment]) {
@@ -21,7 +23,7 @@ object DocCommentParser {
       Some(lines mkString "\n")
 
   def parse(s: String): Option[DocComment] = {
-    val (paramLines, mainLines) = extractParamLines(splitIntoLines(s) map dropInitialSpace)
+    val (paramLines, mainLines) = extractParamLines(StringUtils.splitIntoLines(s).toList map dropInitialSpace)
     val (summary, descriptionOpt) = mainLines match {
       case first :: rest ⇒
         val summary = first
@@ -37,8 +39,6 @@ object DocCommentParser {
   private def parseParamComment(line: String): Option[ParamComment] = condOpt(line) {
     case ParamRegex(name, summary) ⇒ ParamComment(name, summary)
   }
-
-  private def splitIntoLines(s: String): List[String] = s.split("""\r?\n""", -1).toList
 
   private def dropInitialSpace(s: String) = if (s startsWith " ") s.tail else s
 

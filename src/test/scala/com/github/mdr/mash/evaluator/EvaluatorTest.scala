@@ -978,6 +978,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |square.help.summary
   """.stripMargin ==> "'Square a number'"
 
+  """# Summary
+    |# Description 1
+    |# Description 2
+    |# Description 3
+    |def fun x = x
+    |fun.help.description
+  """.stripMargin ==> "'Description 1`nDescription 2`nDescription 3'"
+
   """# Square a number
     |@private def square n = n * n
     |square.help.summary
