@@ -29,13 +29,14 @@ object CompletionRenderer {
       case CompletionType.Flag      ⇒ Colour.Cyan
       case CompletionType.Binding   ⇒ Colour.Default
       case CompletionType.Function  ⇒ Colour.Green
+      case CompletionType.Class     ⇒ Colour.Cyan
       case CompletionType.Field     ⇒ Colour.Default
       case CompletionType.Method    ⇒ Colour.Green
     }.getOrElse(Colour.Blue)
 
   /**
-   * Return the lines for the completion, and the number of completion columns
-   */
+    * Return the lines for the completion, and the number of completion columns
+    */
   private def renderCompletionOptions(completionState: CompletionState, terminalInfo: TerminalInfo): (Seq[Line], Int) = {
     val completions = completionState.completions
     val completionFragment = completionState match {
@@ -91,22 +92,21 @@ object CompletionRenderer {
     completionState match {
       case bcs: BrowserCompletionState ⇒
         val activeCompletion = bcs.completions(bcs.activeCompletion)
-        activeCompletion.descriptionOpt.toSeq.flatMap { description ⇒
-          val title =
-            activeCompletion.typeOpt match {
-              case Some(completionType) ⇒ s" ${completionType.name} "
-              case None                 ⇒ ""
-            }
-          val boxWidth = math.min(math.max(description.size + 4, title.size + 4), terminalInfo.columns)
-          val innerWidth = boxWidth - 4
-          val displayTitle = StringUtils.ellipsisise(title, innerWidth)
-          val displayDescription = StringUtils.ellipsisise(Printer.replaceProblematicChars(description), innerWidth)
-          Seq(
-            Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style),
-            Line(("│ " + displayDescription + " " * (innerWidth - displayDescription.length) + " │").style),
-            Line(("└─" + "─" * innerWidth + "─┘").style))
-        }
-      case _ ⇒ Seq()
+        val description = activeCompletion.descriptionOpt.getOrElse("")
+        val title =
+          activeCompletion.typeOpt match {
+            case Some(completionType) ⇒ s" ${completionType.name} "
+            case None                 ⇒ ""
+          }
+        val boxWidth = math.min(math.max(description.size + 4, title.size + 4), terminalInfo.columns)
+        val innerWidth = boxWidth - 4
+        val displayTitle = StringUtils.ellipsisise(title, innerWidth)
+        val displayDescription = StringUtils.ellipsisise(Printer.replaceProblematicChars(description), innerWidth)
+        Seq(
+          Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style),
+          Line(("│ " + displayDescription + " " * (innerWidth - displayDescription.length) + " │").style),
+          Line(("└─" + "─" * innerWidth + "─┘").style))
+      case _                           ⇒ Seq()
     }
 
 }

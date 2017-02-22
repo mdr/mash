@@ -11,5 +11,6 @@ object CompletionType {
   val Method = CompletionType("Method")
   val Binding = CompletionType("Binding")
   val Function = CompletionType("Function")
+  val Class = CompletionType("Class")
 
 }

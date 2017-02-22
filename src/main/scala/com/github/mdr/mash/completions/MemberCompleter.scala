@@ -88,28 +88,31 @@ object MemberCompleter {
 
   private def getMembers(klass: MashClass): Seq[MemberInfo] = {
     val fieldMembers = klass.fields.map(f ⇒
-      MemberInfo(f.name, classOpt = Some(klass), descriptionOpt = f.summaryOpt, isField = true))
+      MemberInfo(f.name, classNameOpt = klass.nameOpt, descriptionOpt = f.summaryOpt, isField = true))
     val methodMembers = klass.methods.flatMap(m ⇒
-      m.names.map(name ⇒ MemberInfo(name, classOpt = Some(klass), descriptionOpt = m.summaryOpt, isField = false)))
+      m.names.map(name ⇒ MemberInfo(name, classNameOpt = klass.nameOpt, descriptionOpt = m.summaryOpt, isField = false)))
     val parentClassMembers = klass.parentOpt.toSeq.flatMap(parentClass ⇒ getMembers(parentClass))
     distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
   }
 
   private def getMembers(userClass: UserClass): Seq[MemberInfo] = {
-    val fieldMembers = userClass.params.params.flatMap(_.nameOpt).map(name ⇒ MemberInfo(name, isField = true))
-    val methodMembers = userClass.methods.collect { case (name, method) if method.isPublic ⇒ MemberInfo(name, isField = false) }
+    val fieldMembers = userClass.params.params.flatMap(_.nameOpt).map(name ⇒
+      MemberInfo(name, classNameOpt = Some(userClass.name), isField = true))
+    val methodMembers = userClass.methods.collect { case (name, method) if method.isPublic ⇒
+      MemberInfo(name, classNameOpt = Some(userClass.name), isField = false)
+    }
     val parentClassMembers = getMembers(ObjectClass)
     distinct(fieldMembers ++ methodMembers ++ parentClassMembers)
   }
 
   private def getStaticMembers(userClass: UserClass): Seq[MemberInfo] = {
-    val staticMethodMembers = Seq(MemberInfo("new", isField = false))
+    val staticMethodMembers = Seq(MemberInfo("new", classNameOpt = Some(userClass.name), isField = false, isStatic = true))
     distinct(staticMethodMembers ++ getMembers(ClassClass))
   }
 
   private def getValueMembers(klass: MashClass): Seq[MemberInfo] = {
     val staticMethodMembers = klass.staticMethods.map(method ⇒
-      MemberInfo(method.name, descriptionOpt = method.summaryOpt, isField = false))
+      MemberInfo(method.name, classNameOpt = klass.nameOpt, descriptionOpt = method.summaryOpt, isField = false, isStatic = true))
     distinct(staticMethodMembers ++ getMembers(ClassClass))
   }
 
