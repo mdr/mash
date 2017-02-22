@@ -16,8 +16,7 @@ case class CompletionParser(env: Map[String, MashValue], mish: Boolean) {
     MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
 
   def getBareTokens(s: String): Seq[Token] = {
-    val settings = CompilationSettings(bareWords = false)
-    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), env, settings).body
+    val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), env).body
     BareStringify.getBareTokens(expr, env.keySet).toSeq
   }
 

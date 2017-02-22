@@ -383,10 +383,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 
-  private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
-    val settings = CompilationSettings(bareWords = false)
-    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings, settings).body
-  }
+  private def compile(s: String, bindings: Map[String, MashValue]): Expr =
+    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings).body
 
   private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
     implicit val environment = StandardEnvironment.create
@@ -400,7 +398,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
     def ==>(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
-        val settings = CompilationSettings(inferTypes = true, bareWords = false)
+        val settings = CompilationSettings(inferTypes = true)
         val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = environment.bindings, settings).body
         val Some(actualType) = expr.typeOpt
         actualType should equal(expectedType)

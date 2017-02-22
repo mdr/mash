@@ -367,10 +367,8 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "class Thing field; Thing --fiel▶" shouldContainCompletion "--field"
 
-  private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
-    val settings = CompilationSettings(bareWords = false)
-    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings, settings).body
-  }
+  private def compile(s: String, bindings: Map[String, MashValue]): Expr =
+    Compiler.compileForgiving(CompilationUnit(s), bindings = bindings).body
 
   private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
     implicit val environment = StandardEnvironment.create

@@ -25,12 +25,10 @@ class SimpleEvaluatorTest extends FlatSpec with Matchers {
     actual should equal(Some(expected))
   }
 
-  private def compile(s: String, bindings: Map[String, MashValue]): Expr = {
-    val settings = CompilationSettings(bareWords = false)
-    Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {
+  private def compile(s: String, bindings: Map[String, MashValue]): Expr =
+    Compiler.compile(CompilationUnit(s), bindings = bindings) match {
       case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed: " + message)
       case Right(program)               ⇒ program.body
     }
-  }
 
 }
