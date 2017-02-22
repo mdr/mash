@@ -245,6 +245,10 @@ class MashParserTest extends FlatSpec with Matchers {
     parse("...")
   }
 
+  "Parsing {{{" should "not crash" in {
+    parse("{{{")
+  }
+
   "Parsing 'if ('" should "not crash" in {
     parse("if (")
   }

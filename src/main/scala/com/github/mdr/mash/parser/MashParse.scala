@@ -260,7 +260,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
     if (!isLambdaStart)
       actualStatementSeq()
     else
-      speculate("statSeq.lambdaStart")(lambdaStart()) match {
+      speculate("lambdaStart")(lambdaStart()) match {
         case Some(start) ⇒
           completeLambdaExpr(start, mayContainStatementSeq = true)
         case None        ⇒

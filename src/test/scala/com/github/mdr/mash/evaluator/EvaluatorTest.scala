@@ -1027,4 +1027,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // net.urlEncode
   "net.urlEncode 'user@example.com'" ==> "'user%40example.com'"
+
+  // Check against exponential complexity parser problem
+  "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}" ==> "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"
 }

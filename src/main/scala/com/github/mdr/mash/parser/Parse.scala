@@ -9,6 +9,19 @@ import scala.language.implicitConversions
 
 class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
+  private case class State(pos: Int, forgiving: Boolean, inferredSemi: Boolean, withinSemiInferrableRegion: Boolean)
+
+  private def getState = State(pos, forgiving, inferredSemi, withinSemiInferrableRegion)
+
+  private def setState(state: State): Unit = {
+    pos = state.pos
+    forgiving = state.forgiving
+    inferredSemi = state.inferredSemi
+    withinSemiInferrableRegion = state.withinSemiInferrableRegion
+  }
+
+  private var memoizations: Map[(State, String), (State, Option[_])] = Map()
+
   private val tokens = lexerResult.tokens.toArray
 
   /**
@@ -63,17 +76,12 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   protected def lookahead(n: Int): TokenType = {
     require(n >= 0)
     // Step forward through the token stream to make use of the semicolon inference logic, then rewind
-    val oldPos = pos
-    val oldInferredSemi = inferredSemi
-    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
+    val oldState = getState
     try {
       for (_ ← 1 to n) nextToken()
       nextToken().tokenType
-    } finally {
-      pos = oldPos
-      inferredSemi = oldInferredSemi
-      withinSemiInferrableRegion = oldWithinSemiInferrableRegion
-    }
+    } finally
+      setState(oldState)
   }
 
   protected def currentLocation = PointedRegion(currentToken.offset, currentToken.region)
@@ -134,26 +142,34 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
   }
 
   protected def areSemisAllowed: Boolean = withinSemiInferrableRegion
+
   /**
     * Speculatively parse from the current position. If it succeeds, we return Some(..), and any consumed tokens
     * remain consumed. Otherwise, we return None, and the state of the parse remains unchanged.
     */
   protected def speculate[T](name: String)(p: ⇒ T): Option[T] = {
-    val oldPos = pos
-    val oldInferredSemi = inferredSemi
-    val oldWithinSemiInferrableRegion = withinSemiInferrableRegion
-    val oldForgiving = forgiving
+    val oldState = getState
+
+    memoizations.get((oldState, name)).foreach { case (newState, result) ⇒
+      setState(newState)
+      return result.asInstanceOf[Option[T]]
+    }
+
     forgiving = false
-    try
-      Some(p)
-    catch {
-      case _: MashParserException ⇒
-        pos = oldPos
-        inferredSemi = oldInferredSemi
-        withinSemiInferrableRegion = oldWithinSemiInferrableRegion
-        None
-    } finally
-      forgiving = oldForgiving
+    val result =
+      try
+        Some(p)
+      catch {
+        case _: MashParserException ⇒
+          setState(oldState)
+          None
+      } finally
+        forgiving = oldState.forgiving
+    val newState = getState
+
+    memoizations += (oldState, name) -> (newState, result)
+
+    result
   }
 
   /**
@@ -173,16 +189,16 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     */
   protected def safeWhile[T](cond: ⇒ Boolean)(body: ⇒ T): Seq[T] = {
     val results = ArrayBuffer[T]()
-    var oldPos = pos
+    var previousPos = pos
     var noAdvanceCount = 0
     while (cond) {
       results += body
-      if (oldPos == pos)
+      if (previousPos == pos)
         noAdvanceCount += 1
       else
         noAdvanceCount = 0
       assert(noAdvanceCount < 10, "Infinite loop detected parsing at position " + pos + ", current token is " + currentToken)
-      oldPos = pos
+      previousPos = pos
     }
     results
   }
