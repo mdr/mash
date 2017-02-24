@@ -14,7 +14,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def apply(param: String): MashValue = boundNames(param)
 
-  def apply(param: Parameter): MashValue = boundNames(param.nameOpt.getOrElse(""))
+  def apply(param: Parameter): MashValue = boundNames(param.nameOpt getOrElse "")
 
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
