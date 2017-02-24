@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.{ GitHelper, MergeFunction }
@@ -23,8 +23,7 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
 
   val params = ParameterModel(Seq(Branch, Commit))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     val commit = MergeFunction.validateCommit(boundParams, Commit)
     setCommit(branch, commit)

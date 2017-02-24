@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
 
@@ -31,8 +31,7 @@ object MapFunction extends MashFunction("collections.map") {
 
   val params = ParameterModel(Seq(F, Sequence, WithIndex))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashValue, MashValueOrdering }
 import com.github.mdr.mash.utils.Utils._
@@ -50,8 +50,7 @@ object SortFunction extends MashFunction("collections.sort") {
 
   }
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy

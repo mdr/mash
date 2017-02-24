@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core.thread
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 
@@ -21,8 +21,7 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
 
   val params = ParameterModel(Seq(Block))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val f = boundParams(Block).asInstanceOf[MashFunction]
     Future {
       f.apply(Arguments(Seq()))

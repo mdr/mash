@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.net
 import java.net.{ URI, URISyntaxException }
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashString
 
@@ -18,8 +18,7 @@ object UrlFunction extends MashFunction("net.url") {
 
   val params = ParameterModel(Seq(Url))
 
-  def apply(arguments: Arguments): MashString = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashString = {
     val s = ToStringifier.stringify(boundParams(Url))
     try
       new URI(s)

@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -38,8 +38,7 @@ object ChildrenFunction extends MashFunction("os.children") {
 
   val params = ParameterModel(Seq(Directory, IgnoreDotFiles, Recursive))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val parentDir = boundParams.validatePath(Directory)
     if (!fileSystem.exists(parentDir))
       boundParams.throwInvalidArgument(Directory, s"'$parentDir' does not exist")

@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.time
 import java.time._
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.MashWrapped
 
 object FromMillisSinceEpoch extends MashFunction("time.fromMillisSinceEpoch") {
@@ -17,8 +17,7 @@ object FromMillisSinceEpoch extends MashFunction("time.fromMillisSinceEpoch") {
 
   val params = ParameterModel(Seq(Millis))
   
-  def apply(arguments: Arguments): MashWrapped = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashWrapped = {
     val date = boundParams.validateNumber(Millis)
     MashWrapped(Instant.ofEpochMilli(date.toLong))
  }

@@ -41,8 +41,7 @@ object MergeFunction extends MashFunction("git.merge") {
     }
   }
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val commit = validateCommit(boundParams, Commit)
     val squash = boundParams(Squash).isTruthy
 

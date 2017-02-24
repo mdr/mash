@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime.MashList
 
 import scala.collection.JavaConverters._
@@ -10,8 +10,7 @@ object PullFunction extends MashFunction("git.pull") {
 
   val params = ParameterModel(Seq())
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val pullResult = git.pull.call()
       val fetchResult = pullResult.getFetchResult

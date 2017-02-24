@@ -11,8 +11,7 @@ object NonEmptyFunction extends MashFunction("collections.nonEmpty") {
 
   val params = IsEmptyFunction.params
 
-  def apply(arguments: Arguments): MashBoolean = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)
     MashBoolean(sequence.nonEmpty)
   }

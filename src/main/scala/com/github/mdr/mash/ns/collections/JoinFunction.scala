@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashString
 
@@ -21,8 +21,7 @@ object JoinFunction extends MashFunction("collections.join") {
 
   val params = ParameterModel(Seq(Separator, Sequence))
 
-  def apply(arguments: Arguments): MashString = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashString = {
     val sequence = boundParams.validateSequence(Sequence)
     val separator = boundParams.validateString(Separator).s
     val chunks = sequence.map(ToStringifier.stringify)

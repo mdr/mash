@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit }
@@ -32,8 +32,7 @@ object CommitFunction extends MashFunction("git.commit") {
 
   val params = ParameterModel(Seq(Message, All, Amend))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val all = boundParams(All).isTruthy
     val amend = boundParams(Amend).isTruthy
     val message = boundParams.validateString(Message).s

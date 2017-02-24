@@ -21,8 +21,7 @@ object LastFunction extends MashFunction("collections.last") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
     boundParams.validateIntegerOpt(N) match {

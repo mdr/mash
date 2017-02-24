@@ -48,8 +48,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
         boundParams.throwInvalidArgument(FromRemote, s + "is not a valid remote branch")
     }
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val branchOpt = boundParams.validateStringOpt(Branch).map(_.s)
     val fromRemoteOpt = validateRemote(boundParams)
     val switch = boundParams(Switch).isTruthy

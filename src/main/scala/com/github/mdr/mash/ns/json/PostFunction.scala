@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.json
 import java.net.URI
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.http.ResponseClass.Wrapper
 import com.github.mdr.mash.ns.http.{ BasicCredentials, Header, HttpFunctions, HttpOperations }
@@ -16,8 +16,7 @@ object PostFunction extends MashFunction("json.post") {
 
   val params = ParameterModel(Seq(Url, Body, BasicAuth, Headers))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)

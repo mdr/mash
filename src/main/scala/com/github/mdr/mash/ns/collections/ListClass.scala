@@ -65,8 +65,7 @@ object ListClass extends MashClass("collections.List") {
 
     override val params = ParameterModel(Seq(Elements))
 
-    def apply(arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
+    def apply(boundParams: BoundParams): MashList = {
       MashList(boundParams.validateSequence(Elements))
     }
 

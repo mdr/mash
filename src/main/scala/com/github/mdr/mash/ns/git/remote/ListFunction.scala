@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git.remote
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ FullyQualifiedName, MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, FullyQualifiedName, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
 import org.eclipse.jgit.transport.RemoteConfig
@@ -15,8 +15,7 @@ object ListFunction extends MashFunction("git.remote.list") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val remoteConfigs = git.remoteList().call().asScala
       MashList(remoteConfigs.map(asMashObject))

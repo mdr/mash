@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.mash
 
 import com.github.mdr.mash.build.BuildInfo
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 
@@ -10,8 +10,7 @@ object VersionFunction extends MashFunction("mash.version") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashValue = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     MashString(BuildInfo.version)
   }
 

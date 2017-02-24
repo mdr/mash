@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime._
@@ -17,8 +17,7 @@ object OpenFunction extends MashFunction("os.open") {
 
   val params = ParameterModel(Seq(Item))
 
-  override def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  override def apply(boundParams: BoundParams): MashUnit = {
     val item = boundParams(Item)
     val process = new ProcessBuilder("open", ToStringifier.stringify(item)).start()
     process.waitFor()

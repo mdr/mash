@@ -4,7 +4,7 @@ import java.nio.file.{ Files, StandardCopyOption }
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashUnit
@@ -32,8 +32,7 @@ If the destination is not a directory, only a single source path may be provided
 
   val params = ParameterModel(Seq(SourcePaths, Destination))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(SourcePaths))
     val destination = boundParams.validatePath(Destination)
 

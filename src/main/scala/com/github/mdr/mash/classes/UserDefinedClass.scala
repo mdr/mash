@@ -1,7 +1,7 @@
 package com.github.mdr.mash.classes
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Namespace, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Namespace, ParameterModel }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashObject
@@ -21,8 +21,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
     NewStaticMethod)
 
   object NewStaticMethod extends MashFunction(MashClass.ConstructorMethodName) {
-    override def apply(arguments: Arguments): MashObject = {
-      val boundParams = params.validate(arguments)
+    override def apply(boundParams: BoundParams): MashObject = {
       val fields =
         for {
           param <- params.params

@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashUnit, MashValue }
@@ -36,8 +36,7 @@ Otherwise, write the item as a string."""))
 
   val params = ParameterModel(Seq(Append, File, Data))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val append = boundParams(Append).isTruthy
     val path = boundParams.validatePath(File)
     val data = boundParams(Data)

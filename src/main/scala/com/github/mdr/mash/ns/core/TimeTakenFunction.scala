@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core
 import java.time.Clock
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.ns.os.{ ProcessResultClass, WithinFunction }
 import com.github.mdr.mash.runtime.{ MashObject, MashWrapped }
@@ -24,8 +24,7 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
 
   val params = ParameterModel(Seq(Block))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val f = boundParams(Block).asInstanceOf[MashFunction]
     val start = clock.instant
     val result = f.apply(Arguments(Seq()))

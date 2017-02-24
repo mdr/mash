@@ -4,7 +4,7 @@ import java.{ util ⇒ ju }
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.branch.{ LocalBranchNameClass, RemoteBranchNameClass }
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.api.{ Git, Status }
@@ -17,8 +17,7 @@ object StatusFunction extends MashFunction("git.status") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashObject = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     GitHelper.withRepository { repo ⇒
       val branch = repo.getBranch
       val git = new Git(repo)

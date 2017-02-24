@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass.SplitMethod
 import com.github.mdr.mash.runtime.{ MashList, MashNull }
@@ -22,8 +22,7 @@ object SplitFunction extends MashFunction("core.split") {
 
   val params = ParameterModel(Seq(Regex, Separator, String))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val string = boundParams.validateString(String)
     val regex = boundParams(Regex).isTruthy
     val separator = SplitMethod.getSeparator(boundParams, Separator, regex)

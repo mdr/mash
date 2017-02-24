@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.view
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
 
 import scala.collection.immutable.ListMap
@@ -17,8 +17,7 @@ object TreeFunction extends MashFunction("view.tree") {
 
   val params = ParameterModel(Seq(Data))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val data = boundParams(Data)
     import ViewClass.Fields._
     MashObject.of(ListMap(

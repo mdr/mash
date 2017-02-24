@@ -21,8 +21,7 @@ object GetFunction extends MashFunction("git.branch.get") {
 
   val params = ParameterModel(Seq(Branch))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)

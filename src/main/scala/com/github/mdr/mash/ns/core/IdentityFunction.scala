@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashValue
 
@@ -16,8 +16,7 @@ object IdentityFunction extends MashFunction("core.identity") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     boundParams(Item)
   }
 

@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.time
 import java.time.{ Clock, LocalDateTime }
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashNumber, MashUnit }
 
@@ -21,8 +21,7 @@ object SleepFunction extends MashFunction("time.sleep") {
 
   val params = ParameterModel(Seq(Duration))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val millis = boundParams(Duration) match {
       case MashNumber(n, Some(klass: ChronoUnitClass)) ⇒
         val nowInstant = clock.instant

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.MashUnit
@@ -20,8 +20,7 @@ object AddFunction extends MashFunction("git.add") {
 
   val params = ParameterModel(Seq(Paths))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     GitHelper.withGit { git ⇒
       val cmd = git.add

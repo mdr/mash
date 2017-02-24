@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import java.nio.charset.StandardCharsets
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
@@ -22,8 +22,7 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
 
   val params = ParameterModel(Seq(Item))
 
-  override def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  override def apply(boundParams: BoundParams): MashValue = {
     MashNull.option(boundParams(Item)) match {
       case Some(xs: MashList) ⇒ setClipboard(xs.elements.map(ToStringifier.stringify).mkString("\n"))
       case Some(item)         ⇒ setClipboard(ToStringifier.stringify(item))

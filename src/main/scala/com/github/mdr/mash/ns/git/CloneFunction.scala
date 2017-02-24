@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.git
 import java.io.File
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.{ MashNull, MashString }
@@ -25,8 +25,7 @@ object CloneFunction extends MashFunction("git.clone") {
 
   val params = ParameterModel(Seq(Repository, Directory))
 
-  def apply(arguments: Arguments): MashString = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashString = {
     val repository = boundParams.validateString(Repository).s
     val directory = boundParams.validateStringOpt(Directory).map(_.s).getOrElse(new URIish(repository).getHumanishName)
     val cmd = Git.cloneRepository

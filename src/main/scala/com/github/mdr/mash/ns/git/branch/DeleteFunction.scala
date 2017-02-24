@@ -35,8 +35,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   def validateBranches(boundParams: BoundParams, param: Parameter): Seq[String] =
     boundParams.validateSequence(param).map(branch ⇒ validateBranch(boundParams, param, branch))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val branches = validateBranches(boundParams, Branches)
     GitHelper.withGit { git ⇒
       git.branchDelete.setForce(true).setBranchNames(branches: _*).call()

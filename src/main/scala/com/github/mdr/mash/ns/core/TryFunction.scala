@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluationInterruptedException }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashValue
 
@@ -22,8 +22,7 @@ object TryFunction extends MashFunction("core.try") {
 
   val params = ParameterModel(Seq(Body, Catch))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val body = boundParams(Body).asInstanceOf[MashFunction]
     val catchBlock = boundParams(Catch).asInstanceOf[MashFunction]
     try

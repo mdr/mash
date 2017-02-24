@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git.stash
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -13,8 +13,7 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashUnit = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     GitHelper.withGit { git ⇒
       git.stashApply.call()
     }

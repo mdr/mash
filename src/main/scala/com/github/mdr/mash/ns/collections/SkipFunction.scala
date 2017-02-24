@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashString, MashValue }
 
@@ -22,8 +22,7 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
     val n = boundParams.validateInteger(N)

@@ -7,10 +7,7 @@ case class SuspendedValueFunction(suspendedValue: SuspendedMashValue) extends Ma
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashValue = {
-    params.validate(arguments)
-    suspendedValue.resolve()
-  }
+  def apply(boundParams: BoundParams): MashValue = suspendedValue.resolve()
 
   override def summaryOpt = Some("Lazily computed argument")
 

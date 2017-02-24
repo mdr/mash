@@ -11,8 +11,7 @@ object AnyFunction extends MashFunction("collections.any") {
 
   import AllFunction.Params._
 
-  def apply(arguments: Arguments): MashBoolean = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
     MashBoolean(sequence.exists(x ⇒ predicate(x).isTruthy))

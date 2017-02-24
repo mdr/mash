@@ -36,8 +36,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
   def validateTags(boundParams: BoundParams, param: Parameter): Seq[String] =
     boundParams.validateSequence(param).map(tag ⇒ validateTag(boundParams, param, tag))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val tags = validateTags(boundParams, Tags)
     GitHelper.withGit { git ⇒
       git.tagDelete.setTags(tags: _*).call()

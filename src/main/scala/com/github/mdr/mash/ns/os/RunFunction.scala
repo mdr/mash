@@ -26,8 +26,7 @@ object RunFunction extends MashFunction("os.run") {
 
   val params = ParameterModel(Seq(Command, StandardIn))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val args: Seq[MashValue] =
       boundParams(Command) match {
         case MashList(xs: MashList)     ⇒ xs.elements

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.ObjectClass.GetMethod
 import com.github.mdr.mash.runtime._
@@ -25,8 +25,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
 
   val params = ParameterModel(Seq(Fields, Target))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val fields: Seq[String] = boundParams.validateSequence(Fields).collect {
       case s: MashString ⇒ s.s
       case field         ⇒ boundParams.throwInvalidArgument(Fields, "Invalid field name of type: " + field.typeName)

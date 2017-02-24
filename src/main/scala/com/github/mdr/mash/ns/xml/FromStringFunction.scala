@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.xml
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime.MashValue
 
@@ -16,8 +16,7 @@ object FromStringFunction extends MashFunction("xml.fromString") {
 
   val params = ParameterModel(Seq(String))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val xml = boundParams.validateString(String).s
     FromFileFunction.fromString(xml)
   }

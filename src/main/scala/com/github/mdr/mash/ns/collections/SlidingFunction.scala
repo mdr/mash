@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashList
 
@@ -19,8 +19,7 @@ object SlidingFunction extends MashFunction("collections.sliding") {
 
   val params = ParameterModel(Seq(Size, Sequence))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val n = boundParams.validateInteger(Size)
     if (n <= 0)
       boundParams.throwInvalidArgument(Size, "size must be positive")

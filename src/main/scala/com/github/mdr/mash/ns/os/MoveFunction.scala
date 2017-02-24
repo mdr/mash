@@ -28,8 +28,7 @@ object MoveFunction extends MashFunction("os.move") {
 
   val params = ParameterModel(Seq(Paths, Destination))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val destination = boundParams.validatePath(Destination)
     if (sourcePaths.isEmpty)

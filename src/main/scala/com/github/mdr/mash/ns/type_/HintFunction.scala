@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.type_
 
 import com.github.mdr.mash.classes.{ MashClass, UserDefinedClass }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
@@ -24,8 +24,7 @@ object HintFunction extends MashFunction("type.hint") {
 
   val params = ParameterModel(Seq(Hint, Item))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     boundParams(Item)
   }
 

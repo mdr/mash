@@ -26,8 +26,7 @@ object ReduceFunction extends MashFunction("collections.reduce") {
 
   val params = ParameterModel(Seq(Accumulator, Initial, Sequence))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val (initial, sequence) = getInitialAndSequence(boundParams)
     val accumulator = getAccumulator(boundParams)
     sequence.fold(initial)(accumulator)

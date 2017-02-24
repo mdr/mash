@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashNumber, MashUnit }
@@ -24,8 +24,7 @@ object UpFunction extends MashFunction("os.up") {
 
   val params = ParameterModel(Seq(N))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val times = boundParams.validateInteger(N)
     workingDirectoryStack.push(fileSystem.pwd)
     for (n ← 1 to times)

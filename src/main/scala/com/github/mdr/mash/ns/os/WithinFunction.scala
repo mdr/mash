@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashValue
@@ -24,8 +24,7 @@ object WithinFunction extends MashFunction("os.within") {
 
   val params = ParameterModel(Seq(Directory, Block))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(Directory)
     val f = boundParams(Block).asInstanceOf[MashFunction]
     val oldDir = fileSystem.pwd

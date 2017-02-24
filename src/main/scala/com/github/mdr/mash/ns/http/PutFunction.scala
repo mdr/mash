@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.http
 import java.net.URI
 
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
 import org.apache.http.HttpEntityEnclosingRequest
@@ -15,8 +15,7 @@ object PutFunction extends MashFunction("http.put") {
 
   val params = ParameterModel(Seq(Url, Body, BasicAuth, Headers, Json))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)

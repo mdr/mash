@@ -47,8 +47,7 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex, Negate))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))

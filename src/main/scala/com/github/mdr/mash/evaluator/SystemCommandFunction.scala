@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashUnit }
 import com.github.mdr.mash.subprocesses.ProcessRunner
 
@@ -19,8 +19,7 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
 
   val params = ParameterModel(Seq(Args))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val args = boundParams(Args) match {
       case MashList(xs: MashList) ⇒ xs.elements
       case xs: MashList           ⇒ xs.elements

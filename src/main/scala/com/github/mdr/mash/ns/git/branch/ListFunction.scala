@@ -16,8 +16,7 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val branches = git.branchList.call().asScala.filter(_.getName startsWith "refs/heads/")

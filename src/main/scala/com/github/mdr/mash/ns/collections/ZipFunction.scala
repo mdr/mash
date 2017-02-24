@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.runtime.MashList
 
@@ -20,8 +20,7 @@ object ZipFunction extends MashFunction("collections.zip") {
 
   val params = ParameterModel(Seq(Sequence1, Sequence2))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     MashList(for ((l, r) <- boundParams.validateSequence(Sequence1) zip boundParams.validateSequence(Sequence2))
       yield MashList.of(l, r))
   }

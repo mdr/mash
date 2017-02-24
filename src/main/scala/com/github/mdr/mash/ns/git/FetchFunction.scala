@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.branch.RemoteBranchNameClass
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.lib.ObjectId
@@ -14,8 +14,7 @@ object FetchFunction extends MashFunction("git.fetch") {
 
   val params = ParameterModel(Seq())
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  override def apply(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val fetchResult = git.fetch.call()
       val updates = fetchResult.getTrackingRefUpdates.asScala.toSeq

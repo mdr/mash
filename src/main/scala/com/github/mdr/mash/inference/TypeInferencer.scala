@@ -491,7 +491,7 @@ class TypeInferencer {
 
     object FakeFunction extends MashFunction(MashClass.ConstructorMethodName) {
 
-      override def apply(arguments: Arguments): MashValue =
+      override def apply(boundParams: BoundParams): MashValue =
         throw new AssertionError("Fake function cannot be executed")
 
       override def summaryOpt = Some(s"Construct a new ${userClass.name} object")

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit }
@@ -29,8 +29,7 @@ object StageFunction extends MashFunction("git.stage") {
 
   val params = ParameterModel(Seq(Paths, All))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val all = boundParams(All).isTruthy
     if (paths.isEmpty && !all)

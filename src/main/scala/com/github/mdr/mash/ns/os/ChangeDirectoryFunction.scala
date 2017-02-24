@@ -5,7 +5,7 @@ import java.nio.file.Path
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
@@ -31,8 +31,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   val params = ParameterModel(Seq(Directory))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(Directory)
     changeDirectory(path) match {
       case Success ⇒

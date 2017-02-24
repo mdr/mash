@@ -6,7 +6,7 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.FileUtils
@@ -24,8 +24,7 @@ object SourceFunction extends MashFunction("mash.source") {
 
   val params = ParameterModel(Seq(File))
 
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(File)
     val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
     scriptExecutor.runUnit(CompilationUnit(s, name = path.toString, mish = false))

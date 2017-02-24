@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.ClassClass
 import com.github.mdr.mash.runtime._
@@ -18,8 +18,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val item = boundParams(Item)
     HelpCreator.getHelp(item)
   }

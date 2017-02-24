@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
 
@@ -38,8 +38,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     val params = ParameterModel(Seq(Objects))
 
-    override def apply(arguments: Arguments): MashObject = {
-      val boundParams = params.validate(arguments)
+    override def apply(boundParams: BoundParams): MashObject = {
       val xs = boundParams.validateSequence(Objects)
       val items = xs match {
         case Seq(list: MashList) ⇒ list.elements

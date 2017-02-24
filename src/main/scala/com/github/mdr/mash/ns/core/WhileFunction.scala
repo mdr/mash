@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.MashUnit
 
 
@@ -22,8 +22,7 @@ object WhileFunction extends MashFunction("core.while") {
 
   val params = ParameterModel(Seq(Condition, Block))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val cond = boundParams(Condition).asInstanceOf[MashFunction]
     val block = boundParams(Block).asInstanceOf[MashFunction]
     while (cond.apply(Arguments(Seq())).isTruthy)

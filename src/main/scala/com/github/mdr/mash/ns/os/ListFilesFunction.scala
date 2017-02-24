@@ -1,15 +1,15 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.{Files, NoSuchFileException, Path}
+import java.nio.file.{ Files, NoSuchFileException, Path }
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{MashFunction, Parameter, ParameterModel}
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.os._
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.{MashBoolean, MashList, MashObject}
+import com.github.mdr.mash.runtime.{ MashBoolean, MashList, MashObject }
 
 object ListFilesFunction extends MashFunction("os.listFiles") {
 
@@ -53,8 +53,7 @@ If no paths are provided, the default is the current working directory."""))
 
   val params = ParameterModel(Seq(Paths, All, Recursive, Directory))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val ignoreDotFiles = boundParams(All).isFalsey
     val recursive = boundParams(Recursive).isTruthy
     val directory = boundParams(Directory).isTruthy

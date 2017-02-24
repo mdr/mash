@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.remote.RemoteNameClass
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
@@ -16,8 +16,7 @@ object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala.filterNot(_.getName endsWith "/HEAD")

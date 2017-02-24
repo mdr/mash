@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.runtime.MashBoolean
 
@@ -20,8 +20,7 @@ object ContainsFunction extends MashFunction("collections.contains") {
 
   val params = ParameterModel(Seq(Element, Sequence))
 
-  def apply(arguments: Arguments): MashBoolean = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)
     val element = boundParams(Element)
     MashBoolean(sequence.contains(element))

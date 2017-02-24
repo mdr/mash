@@ -92,8 +92,7 @@ object InvocationEvaluator extends EvaluatorHelper {
 
     val params = ParameterModel(Seq(Then, Else))
 
-    def apply(arguments: Arguments): MashValue = {
-      val boundParams = params.validate(arguments)
+    def apply(boundParams: BoundParams): MashValue = {
       if (b)
         boundParams(Then).asInstanceOf[MashFunction].apply(Arguments(Seq()))
       else
@@ -121,8 +120,7 @@ object InvocationEvaluator extends EvaluatorHelper {
 
     val params = ParameterModel(Seq(Target))
 
-    def apply(arguments: Arguments): MashValue = {
-      val boundParams = params.validate(arguments)
+    def apply(boundParams: BoundParams): MashValue = {
       boundParams(Target) match {
         case xs: MashList ⇒
           xs.map { target ⇒

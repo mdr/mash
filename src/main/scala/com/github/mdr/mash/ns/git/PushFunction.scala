@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
@@ -44,8 +44,7 @@ object PushFunction extends MashFunction("git.push") {
 
   val params = ParameterModel(Seq(SetUpstream, Force, Remote, Branches))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
 

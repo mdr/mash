@@ -41,8 +41,7 @@ The default signal is TERM."""))
 
   val params = ParameterModel(Seq(Params.Signal, Params.Processes))
 
-  def apply(arguments: Arguments): MashUnit = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashUnit = {
     val signal = getSignal(boundParams, Params.Signal)
     val processes = boundParams.validateSequence(Params.Processes)
     if (processes.isEmpty)

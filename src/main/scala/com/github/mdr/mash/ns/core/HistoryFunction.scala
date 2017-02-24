@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashFunction, ParameterModel }
 import com.github.mdr.mash.repl.history.{ History, HistoryEntry }
 import com.github.mdr.mash.runtime._
 
@@ -14,10 +14,8 @@ object HistoryFunction extends MashFunction("os.history") {
 
   val params = ParameterModel()
 
-  def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
+  override def apply(boundParams: BoundParams): MashList =
     MashList(history.getHistory.reverse.map(asObject))
-  }
 
   private def asObject(entry: HistoryEntry): MashObject = {
     import HistoryEntryClass.Fields._

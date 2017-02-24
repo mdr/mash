@@ -23,8 +23,7 @@ object ReadLinesFunction extends MashFunction("os.readLines") {
 
   val params = ParameterModel(Seq(File))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val path = boundParams.validatePath(File)
     readLines(path)
   }

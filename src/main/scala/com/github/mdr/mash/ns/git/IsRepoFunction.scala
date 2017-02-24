@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashBoolean
@@ -19,8 +19,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
 
   val params = ParameterModel(Seq(Dir))
 
-  def apply(arguments: Arguments): MashBoolean = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashBoolean = {
     val path = boundParams.validatePath(Dir)
     MashBoolean(GitHelper.isRepository(path))
   }

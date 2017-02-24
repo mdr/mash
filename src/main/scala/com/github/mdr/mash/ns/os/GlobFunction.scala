@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.MashList
@@ -20,8 +20,7 @@ object GlobFunction extends MashFunction("os.glob") {
 
   val params = ParameterModel(Seq(Pattern))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val pattern = boundParams.validateString(Pattern).s
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }

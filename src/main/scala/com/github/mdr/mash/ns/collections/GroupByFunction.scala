@@ -49,8 +49,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   val params = ParameterModel(Seq(Discriminator, Total, IncludeNull, Sequence))
 
-  def apply(arguments: Arguments): MashList = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashList = {
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
     val includeNulls = boundParams(IncludeNull).isTruthy

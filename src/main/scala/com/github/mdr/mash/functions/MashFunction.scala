@@ -14,7 +14,13 @@ abstract class MashFunction(
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
   @throws[ArgumentException]
-  def apply(arguments: Arguments): MashValue
+  def apply(arguments: Arguments): MashValue = {
+    val boundParams = params.validate(arguments)
+    this.apply(boundParams)
+  }
+
+  @throws[ArgumentException]
+  def apply(boundParams: BoundParams): MashValue
 
   /**
    * When true, it is possible to call this function with no arguments

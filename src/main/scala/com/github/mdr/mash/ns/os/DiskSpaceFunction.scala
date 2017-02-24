@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import java.nio.charset.StandardCharsets
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.runtime._
@@ -18,9 +18,7 @@ object DiskSpaceFunction extends MashFunction("os.diskSpace") {
 
   override def params = ParameterModel()
 
-  override def apply(arguments: Arguments): MashList = {
-    params.validate(arguments)
-
+  override def apply(boundParams: BoundParams): MashList = {
     val process = new ProcessBuilder("df", "-k").redirectOutput(ProcessBuilder.Redirect.PIPE).start()
     val output = IOUtils.toString(process.getInputStream, StandardCharsets.UTF_8)
     process.waitFor()

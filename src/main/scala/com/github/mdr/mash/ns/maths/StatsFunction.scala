@@ -18,8 +18,7 @@ object StatsFunction extends MashFunction("maths.stats") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(arguments: Arguments): MashObject = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashObject = {
     val numbers: Seq[Double] =
       boundParams(Sequence) match {
         case list: MashList ⇒ list.elements.map {

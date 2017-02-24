@@ -3,7 +3,7 @@ import java.time._
 import java.time.format.DateTimeFormatter
 
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.MashWrapped
 
 object ParseIso8601Function extends MashFunction("time.parseIso8601") {
@@ -17,8 +17,7 @@ object ParseIso8601Function extends MashFunction("time.parseIso8601") {
 
   val params = ParameterModel(Seq(Date))
   
-  def apply(arguments: Arguments): MashWrapped = {
-    val boundParams = params.validate(arguments)
+  def apply(boundParams: BoundParams): MashWrapped = {
     val date = boundParams.validateString(Date).s
     MashWrapped(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(date)))
   }
