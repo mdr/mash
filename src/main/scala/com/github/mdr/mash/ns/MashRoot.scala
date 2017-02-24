@@ -58,7 +58,9 @@ object MashRoot {
         http.PutFunction,
         net.UrlEncodeFunction,
         net.UrlFunction) ++
-      Seq(random.UuidFunction) ++
+      Seq(
+        random.NumberFunction,
+        random.UuidFunction) ++
       Seq(
         mash.EvalFunction,
         mash.SourceFunction,
