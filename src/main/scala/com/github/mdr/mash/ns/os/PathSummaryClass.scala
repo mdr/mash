@@ -49,10 +49,8 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
     val params = method.params
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue =
-      method.apply(Wrapper(target).pathMashValue, arguments)
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue =
+      method.apply(Wrapper(target).pathMashValue, boundParams)
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 

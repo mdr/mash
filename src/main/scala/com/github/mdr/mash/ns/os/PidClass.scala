@@ -29,14 +29,12 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = method.params
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
-      method.apply(processObject, arguments)
+      method.apply(processObject, boundParams)
     }
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 

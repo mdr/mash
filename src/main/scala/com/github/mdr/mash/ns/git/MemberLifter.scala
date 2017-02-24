@@ -31,13 +31,11 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = method.params
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
-      method.apply(obj, arguments)
+      method.apply(obj, boundParams)
     }
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
     override def summaryOpt = method.summaryOpt

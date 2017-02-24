@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ Field, MashClass }
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass
@@ -44,14 +43,12 @@ object UsernameClass extends MashClass("os.Username") {
 
     val params = method.params
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val username = target.asInstanceOf[MashString].s
       val passwdEntry = userInteractions.passwdEntries.find(_.username == username).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
-      method.apply(userSummary, arguments)
+      method.apply(userSummary, boundParams)
     }
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 

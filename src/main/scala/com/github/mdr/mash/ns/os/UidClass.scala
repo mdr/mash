@@ -41,14 +41,12 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = method.params
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
-      method.apply(userSummary, arguments)
+      method.apply(userSummary, boundParams)
     }
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 
