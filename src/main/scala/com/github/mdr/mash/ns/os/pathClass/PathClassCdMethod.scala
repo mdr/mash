@@ -11,7 +11,7 @@ object PathClassCdMethod extends MashMethod("cd") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashUnit = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
     import ChangeDirectoryFunction._
     changeDirectory(path) match {

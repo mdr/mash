@@ -52,7 +52,7 @@ object PidClass extends MashClass("os.Pid") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
@@ -72,7 +72,7 @@ object PidClass extends MashClass("os.Pid") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val pid = Wrapper(target).pid
       val processInfo = getProcessInfo(pid)
       ProcessClass.makeProcess(processInfo)

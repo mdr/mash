@@ -13,7 +13,7 @@ object PathClassFollowLinkMethod extends MashMethod("followLink") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
     val resolved = Files.readSymbolicLink(path)
     MashString(resolved.toString, PathClass)

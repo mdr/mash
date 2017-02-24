@@ -94,7 +94,7 @@ object ListClass extends MashClass("collections.List") {
     override val params = ParameterModel(Seq(Sequence))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val sequence = MashList(boundParams.validateSequence(Sequence))
       target.asInstanceOf[MashList] intersect sequence
     }

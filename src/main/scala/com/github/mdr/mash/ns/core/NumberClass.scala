@@ -45,7 +45,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel(Seq(End, Step))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
@@ -75,7 +75,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel(Seq(End, Step))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
@@ -102,7 +102,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel(Seq(Block))
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val f = boundParams(Block).asInstanceOf[MashFunction]
       val iterations = target.asInstanceOf[MashNumber].asInt.getOrElse(
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
@@ -131,7 +131,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashNumber].modify(n ⇒ if (n < 0) math.ceil(n) else math.floor(n))
     }
 
@@ -149,7 +149,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashNumber].tagClassOpt.getOrElse(MashNull)
     }
 
@@ -164,7 +164,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashNumber].copy(tagClassOpt = None)
     }
 
@@ -178,7 +178,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashNumber].copy(tagClassOpt = Some(BytesClass))
     }
 
@@ -192,7 +192,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val n = target.asInstanceOf[MashNumber]
       MashNumber(n.n * 1024, BytesClass)
     }
@@ -207,7 +207,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val n = target.asInstanceOf[MashNumber]
       MashNumber(n.n * 1024 * 1024, BytesClass)
     }
@@ -222,7 +222,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val n = target.asInstanceOf[MashNumber]
       MashNumber(n.n * 1024 * 1024 * 1024, BytesClass)
     }
@@ -240,7 +240,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashNumber].withTag(klass)
     }
 
@@ -263,7 +263,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val n = target.asInstanceOf[MashNumber]
       n.negate
     }

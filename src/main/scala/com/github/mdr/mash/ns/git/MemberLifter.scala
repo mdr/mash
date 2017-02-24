@@ -12,7 +12,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
       obj.fields(field.name)

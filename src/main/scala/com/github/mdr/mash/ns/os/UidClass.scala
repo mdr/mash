@@ -23,7 +23,7 @@ object UidClass extends MashClass("os.Uid") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
@@ -65,7 +65,7 @@ object UidClass extends MashClass("os.Uid") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       UserSummaryClass.fromPasswdEntry(passwdEntry)

@@ -13,7 +13,7 @@ object PathClassInfoMethod extends MashMethod("info") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashObject = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
     val summary = fileSystem.getPathSummary(path)
     PathSummaryClass.asMashObject(summary)

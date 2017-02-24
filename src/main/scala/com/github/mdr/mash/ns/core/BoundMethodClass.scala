@@ -32,7 +32,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     val params = ParameterModel(Seq(Args, NamedArgs))
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
       val methodArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
@@ -52,7 +52,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       HelpCreator.getHelp(target)
     }
 
@@ -67,7 +67,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[BoundMethod].target
     }
 

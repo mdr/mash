@@ -75,7 +75,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       val obj = target.asInstanceOf[MashObject]
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val field = boundParams.validateString(FieldName).s
       val prefixOpt = boundParams.validateStringOpt(Prefix).map(_.s)
       val fieldValue = obj.get(field).getOrElse(
@@ -175,7 +175,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def apply(target: MashValue, arguments: Arguments): MashObject = {
       val obj = target.asInstanceOf[MashObject]
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val klass = boundParams(Class) match {
         case klass: MashClass ⇒ klass
         case value            ⇒ boundParams.throwInvalidArgument(Class, s"Must be a class, but was a ${value.typeName}")
@@ -203,7 +203,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def apply(target: MashValue, arguments: Arguments): MashObject = {
       val obj = target.asInstanceOf[MashObject]
-      params.validate(arguments)
+      params.bindTo(arguments)
       obj.withoutClass
     }
 
@@ -260,7 +260,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
       val obj = target.asInstanceOf[MashObject]
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val field = boundParams.validateString(Name).s
       MashBoolean(obj.fields.contains(field))
     }
@@ -288,7 +288,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
       val obj = target.asInstanceOf[MashObject]
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val field = boundParams.validateString(Name).s
       val default = boundParams(Default)
       obj.fields.getOrElse(field, default)
@@ -351,7 +351,7 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
       val obj = target.asInstanceOf[MashObject]
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val field = boundParams.validateString(Name).s
       val value = boundParams(Value)
       obj.withField(field, value)

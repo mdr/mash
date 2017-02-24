@@ -15,7 +15,7 @@ abstract class MashFunction(
 
   @throws[ArgumentException]
   def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments)
+    val boundParams = params.bindTo(arguments)
     this.apply(boundParams)
   }
 

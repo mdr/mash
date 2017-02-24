@@ -15,7 +15,7 @@ object BooleanClass extends MashClass("core.Boolean") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       target.asInstanceOf[MashBoolean].negate
     }
 

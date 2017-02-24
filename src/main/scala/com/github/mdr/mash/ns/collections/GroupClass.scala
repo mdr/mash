@@ -32,7 +32,7 @@ object GroupClass extends MashClass("collections.Group") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashNumber(Wrapper(target).values.length)
     }
 

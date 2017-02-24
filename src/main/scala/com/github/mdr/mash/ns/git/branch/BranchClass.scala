@@ -50,7 +50,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.branchDelete.setBranchNames(branchName).setForce(true).call()
@@ -77,7 +77,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val branchName = Wrapper(target).name
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
@@ -100,7 +100,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     val params = ParameterModel(Seq(Force, SetUpstream, Remote))
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val force = boundParams(Force).isTruthy
       val setUpstream = boundParams(SetUpstream).isTruthy
       val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
@@ -128,7 +128,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.checkout().setName(branchName).call()
@@ -152,7 +152,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     val params = ParameterModel(Seq(Commit))
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val branch = Wrapper(target).name
       val commit = MergeFunction.validateCommit(boundParams, Commit)
       SetCommitFunction.setCommit(branch, commit)

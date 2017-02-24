@@ -23,7 +23,7 @@ object AnyClass extends MashClass("core.Any") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(target.isNull)
     }
 
@@ -42,7 +42,7 @@ object AnyClass extends MashClass("core.Any") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(target.isTruthy)
     }
 
@@ -70,7 +70,7 @@ object AnyClass extends MashClass("core.Any") {
     val params = ParameterModel(Seq(Class))
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val klass = boundParams.validateClass(Class)
       MashBoolean(target isA klass)
     }
@@ -146,7 +146,7 @@ object AnyClass extends MashClass("core.Any") {
     val params = ParameterModel(Seq(Sequence))
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val sequence = boundParams.validateSequence(Sequence)
       MashBoolean(sequence.contains(target))
     }

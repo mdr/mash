@@ -24,7 +24,7 @@ object PathClassRenameToMethod extends MashMethod("renameTo") {
   val params = ParameterModel(Seq(NewName))
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    val boundParams = params.validate(arguments)
+    val boundParams = params.bindTo(arguments)
     val path = FunctionHelpers.interpretAsPath(target)
     val newName = validateName(boundParams, NewName)
     val newPath = path.resolveSibling(newName)

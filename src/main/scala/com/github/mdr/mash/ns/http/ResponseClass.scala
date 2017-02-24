@@ -38,7 +38,7 @@ object ResponseClass extends MashClass("http.Response") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       parseJson(Wrapper(target).body)
     }
 
@@ -53,7 +53,7 @@ object ResponseClass extends MashClass("http.Response") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val code = Wrapper(target).code
       MashBoolean(200 <= code && code <= 299)
     }

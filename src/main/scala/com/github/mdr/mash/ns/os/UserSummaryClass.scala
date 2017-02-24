@@ -45,7 +45,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val username = Wrapper(target).username
       val fullNameOpt =
         for {
@@ -66,7 +66,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val user = Wrapper(target)
       val primaryGroup = user.primaryGroup
       val username = user.username

@@ -20,7 +20,7 @@ object HostClass extends MashClass("net.Host") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val host = target.asInstanceOf[MashString].s
       val addresses = InetAddress.getAllByName(host).map(asMashString)
       MashList(addresses)

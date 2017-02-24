@@ -32,7 +32,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val branchName = target.asInstanceOf[MashString]
       getBranchInfo(branchName)
     }

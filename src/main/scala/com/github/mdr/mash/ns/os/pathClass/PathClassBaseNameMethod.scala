@@ -11,7 +11,7 @@ object PathClassBaseNameMethod extends MashMethod("baseName") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
     MashString(FilenameUtils.getBaseName(name))
   }

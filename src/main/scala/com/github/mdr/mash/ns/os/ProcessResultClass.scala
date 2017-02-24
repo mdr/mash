@@ -69,7 +69,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(Wrapper(target).exitStatus == 0)
     }
 
@@ -84,7 +84,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(Wrapper(target).exitStatus != 0)
     }
 
@@ -99,7 +99,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val stdout = Wrapper(target).stdout
       MashList(StringUtils.splitIntoLines(stdout).map(MashString(_)))
     }
@@ -115,7 +115,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashString(Wrapper(target).line)
     }
 
@@ -130,7 +130,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashNumber(Wrapper(target).line.toDouble)
     }
 
@@ -145,7 +145,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashString(Wrapper(target).line, PathClass)
     }
 
@@ -166,7 +166,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val wrapper = Wrapper(target)
       durationBetween(wrapper.started, wrapper.finished)
     }

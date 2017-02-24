@@ -10,7 +10,7 @@ object PathClassExtensionMethod extends MashMethod("extension") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashValue = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
     if (name contains ".")
       MashString(name.reverse.takeWhile(_ != '.').reverse)

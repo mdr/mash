@@ -191,7 +191,7 @@ object Evaluator extends EvaluatorHelper {
     for {
       attribute ← evaluatedAttributes.filter(_.name == Attributes.Alias)
       arguments = attribute.argumentsOpt getOrElse Seq()
-      boundParams = AliasParameterModel.params.validate(Arguments(arguments))
+      boundParams = AliasParameterModel.params.bindTo(Arguments(arguments))
       alias = boundParams.validateString(AliasParameterModel.Params.Name).s
     } yield alias
   }
@@ -218,7 +218,7 @@ object Evaluator extends EvaluatorHelper {
     for {
       attribute ← evaluatedAttributes.find(_.name == Attributes.ShortFlag)
       arguments = attribute.argumentsOpt getOrElse Seq()
-      boundParams = params.validate(Arguments(arguments))
+      boundParams = params.bindTo(Arguments(arguments))
       name = boundParams.validateString(ShortFlag).s
     } yield
       if (name.length == 1) name.head

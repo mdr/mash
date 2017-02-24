@@ -58,7 +58,7 @@ object PathClass extends MashClass("os.Path") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val path = interpretAsPath(target)
       ReadLinesFunction.readLines(path)
     }
@@ -78,7 +78,7 @@ The default character encoding and line separator are used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val path = interpretAsPath(target)
       MashString(fileSystem.read(path))
     }
@@ -105,7 +105,7 @@ The default character encoding is used.""")
     val params = ParameterModel(Seq(Args))
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val args =
         target +: (boundParams(Args) match {
           case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_)).toSeq
@@ -128,7 +128,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val path = interpretAsPath(target)
       asPathString(fileSystem.pwd.resolve(path).toRealPath())
     }
@@ -144,7 +144,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val parent = interpretAsPath(target).getParent
       if (parent == null)
         MashNull
@@ -169,7 +169,7 @@ The default character encoding is used.""")
     val params = ParameterModel(Seq(Destination))
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val source = interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
@@ -202,7 +202,7 @@ The default character encoding is used.""")
     val params = ParameterModel(Seq(Destination))
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      val boundParams = params.validate(arguments)
+      val boundParams = params.bindTo(arguments)
       val source = interpretAsPath(target)
       val destination = boundParams.validatePath(Destination)
       if (!Files.isDirectory(destination))
@@ -231,7 +231,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val path = interpretAsPath(target)
       if (Files.isDirectory(path))
         FileUtils.deleteDirectory(path.toFile)
@@ -251,7 +251,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       asPathString(interpretAsPath(target).getFileName)
     }
 
@@ -266,7 +266,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(Files.isDirectory(interpretAsPath(target)))
     }
 
@@ -283,7 +283,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val path = interpretAsPath(target)
       MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
     }
@@ -299,7 +299,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashBoolean(Files.isRegularFile(interpretAsPath(target)))
     }
 
@@ -316,7 +316,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashWrapped = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashWrapped(fileSystem.getPathSummary(interpretAsPath(target)).lastModified)
     }
 
@@ -333,7 +333,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.owner, Some(UsernameClass))
     }
@@ -351,7 +351,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.group, Some(GroupClass))
     }
@@ -369,7 +369,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val summary = fileSystem.getPathSummary(interpretAsPath(target))
       val permissions = summary.permissions
       PermissionsClass.asMashObject(permissions)
@@ -388,7 +388,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashNumber(summary.size, Some(BytesClass))
     }
@@ -406,7 +406,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val summary = fileSystem.getPathSummary(interpretAsPath(target))
       MashString(summary.fileType, Some(FileTypeClass))
     }
@@ -422,7 +422,7 @@ The default character encoding is used.""")
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val segments: Seq[Path] = interpretAsPath(target).asScala.toSeq
       MashList(segments.map(asPathString))
     }

@@ -38,7 +38,7 @@ object HistoryEntryClass extends MashClass("core.HistoryEntry") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val entryObject = target.asInstanceOf[MashObject]
       val command = entryObject.get(Command).getOrElse(
         throw new EvaluatorException("Invalid history entry")).asInstanceOf[MashString].s

@@ -17,7 +17,7 @@ object PathClassCreateDirectoryMethod extends MashMethod("createDirectory") {
   val params = ParameterModel(Seq(CreateIntermediates))
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    val boundParams = params.validate(arguments)
+    val boundParams = params.bindTo(arguments)
     val createIntermediates = boundParams(CreateIntermediates).isTruthy
     val path = interpretAsPath(target)
     val resultPath = fileSystem.createDirectory(path, createIntermediates)

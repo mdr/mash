@@ -15,7 +15,7 @@ object PathClassAbsoluteMethod extends MashMethod("absolute") {
   val params = ParameterModel()
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     val path = interpretAsPath(target)
     asPathString(fileSystem.pwd.resolve(path).toRealPath())
   }

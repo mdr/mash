@@ -30,8 +30,8 @@ Otherwise, write the item as a string."""))
   val params = ParameterModel(Seq(Append, Data))
 
   def apply(target: MashValue, arguments: Arguments): MashUnit = {
-    params.validate(arguments)
-    val boundParams = params.validate(arguments)
+    params.bindTo(arguments)
+    val boundParams = params.bindTo(arguments)
     val append = boundParams(Append).isTruthy
     val path = interpretAsPath(target)
     val data = boundParams(Data)

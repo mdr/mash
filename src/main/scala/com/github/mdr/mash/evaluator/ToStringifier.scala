@@ -13,7 +13,7 @@ abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod
   val params = AnyClass.ToStringMethod.params
 
   def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.validate(arguments)
+    params.bindTo(arguments)
     MashString(toString(target))
   }
 

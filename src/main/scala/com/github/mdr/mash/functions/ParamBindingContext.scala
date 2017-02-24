@@ -4,7 +4,10 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 
-class ParamValidationContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
+/**
+  * Bind arguments to parameters
+  */
+class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
 
   private var boundNames: Map[String, MashValue] = Map()
   private var boundParams: Set[Parameter] = Set()

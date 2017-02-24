@@ -19,7 +19,7 @@ object UrlClass extends MashClass("net.Url") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val uri = new URI(target.asInstanceOf[MashString].s)
       Option(uri.getHost).map(MashString(_, HostClass)) getOrElse MashNull
     }

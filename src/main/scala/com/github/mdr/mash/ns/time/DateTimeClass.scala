@@ -27,7 +27,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashNumber(Wrapper(target).instant.toEpochMilli)
     }
 
@@ -43,7 +43,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashString(prettyTime.format(Date.from(Wrapper(target).instant)))
     }
 
@@ -58,7 +58,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashWrapped = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       MashWrapped(toLocalDate(Wrapper(target).instant))
     }
 

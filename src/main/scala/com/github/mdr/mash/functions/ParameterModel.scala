@@ -27,8 +27,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     paramMap
   }
 
-  def validate(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
-    new ParamValidationContext(this, arguments, ignoreAdditionalParameters).validate()
+  def bindTo(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
+    new ParamBindingContext(this, arguments, ignoreAdditionalParameters).validate()
 
   def flags: Seq[Flag] = params.map(param ⇒
     Flag(param.summaryOpt orElse param.nameOpt, param.shortFlagOpt.map(_.toString), param.nameOpt))

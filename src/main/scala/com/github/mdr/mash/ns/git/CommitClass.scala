@@ -78,7 +78,7 @@ object CommitClass extends MashClass("git.Commit") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       Wrapper(target).parentOpt.map(MashString(_, CommitHashClass)) getOrElse MashNull
     }
 
@@ -92,7 +92,7 @@ object CommitClass extends MashClass("git.Commit") {
     val params = ParameterModel()
 
     def apply(target: MashValue, arguments: Arguments) = {
-      params.validate(arguments)
+      params.bindTo(arguments)
       val wrapper = Wrapper(target)
       val parentSha = wrapper.parentOpt.get
       val childSha = wrapper.hash
@@ -161,7 +161,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
   val params = ParameterModel(Seq(Commit))
 
   def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-    val boundParams = params.validate(arguments)
+    val boundParams = params.bindTo(arguments)
     val commit = MergeFunction.validateCommit(boundParams, Commit)
 
     GitHelper.withRepository { repo ⇒

@@ -34,7 +34,7 @@ object SelectFunction extends MashFunction("collections.select") {
   override def apply(boundParams: BoundParams): MashValue = ??? // Not used
 
   override def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.validate(arguments, ignoreAdditionalParameters = true)
+    val boundParams = params.bindTo(arguments, ignoreAdditionalParameters = true)
     val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
