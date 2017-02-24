@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
@@ -40,8 +40,7 @@ object TimedResultClass extends MashClass("core.TimedResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashWrapped = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val wrapper = Wrapper(target)
       val started = wrapper.started
       MashWrapped(started plusMillis wrapper.duration)

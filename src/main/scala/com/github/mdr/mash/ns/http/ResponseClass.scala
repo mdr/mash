@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.json.FromFileFunction
@@ -37,8 +37,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       parseJson(Wrapper(target).body)
     }
 
@@ -52,8 +51,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val code = Wrapper(target).code
       MashBoolean(200 <= code && code <= 299)
     }

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.os.{ PasswdEntry, UserInteractions }
@@ -44,8 +44,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val username = Wrapper(target).username
       val fullNameOpt =
         for {
@@ -65,8 +64,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val user = Wrapper(target)
       val primaryGroup = user.primaryGroup
       val username = user.username

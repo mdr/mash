@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.git.{ GitHelper, MemberLifter }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
@@ -31,8 +31,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val branchName = target.asInstanceOf[MashString]
       getBranchInfo(branchName)
     }

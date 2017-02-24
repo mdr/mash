@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.{ CreateDirectoryFunction, PathClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -16,8 +16,7 @@ object PathClassCreateDirectoryMethod extends MashMethod("createDirectory") {
 
   val params = ParameterModel(Seq(CreateIntermediates))
 
-  def apply(target: MashValue, arguments: Arguments): MashString = {
-    val boundParams = params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashString = {
     val createIntermediates = boundParams(CreateIntermediates).isTruthy
     val path = interpretAsPath(target)
     val resultPath = fileSystem.createDirectory(path, createIntermediates)

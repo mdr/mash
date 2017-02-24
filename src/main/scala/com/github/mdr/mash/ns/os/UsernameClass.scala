@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.os.UserInteractions
@@ -25,8 +25,7 @@ object UsernameClass extends MashClass("os.Username") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val username = target.asInstanceOf[MashString].s
       val passwdEntry = userInteractions.passwdEntries.find(_.username == username).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
@@ -45,12 +44,14 @@ object UsernameClass extends MashClass("os.Username") {
 
     val params = method.params
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
       val username = target.asInstanceOf[MashString].s
       val passwdEntry = userInteractions.passwdEntries.find(_.username == username).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
       method.apply(userSummary, arguments)
     }
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 
@@ -67,8 +68,7 @@ object UsernameClass extends MashClass("os.Username") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val username = target.asInstanceOf[MashString].s
       val passwdEntry = userInteractions.passwdEntries.find(_.username == username).get
       UserSummaryClass.fromPasswdEntry(passwdEntry)

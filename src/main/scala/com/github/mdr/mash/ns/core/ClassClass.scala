@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, HelpCreator }
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
@@ -28,8 +28,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel(Seq(Object))
 
-    override def apply(target: MashValue, arguments: Arguments): MashObject = {
-      val boundParams = params.bindTo(arguments)
+    override def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = boundParams(Object) match {
         case obj: MashObject ⇒ obj
         case value           ⇒ boundParams.throwInvalidArgument(Object, s"Must be an object, but was a ${value.typeName}")
@@ -58,8 +57,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
     }
 
@@ -73,8 +71,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].name)
     }
 
@@ -88,8 +85,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)
     }
 
@@ -103,8 +99,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       HelpCreator.getHelp(target)
     }
 

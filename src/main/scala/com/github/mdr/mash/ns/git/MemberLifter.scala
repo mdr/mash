@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 class MemberLifter(getFullObject: MashString ⇒ MashObject) {
@@ -11,8 +11,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
       obj.fields(field.name)
@@ -32,11 +31,13 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = method.params
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
       method.apply(obj, arguments)
     }
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
     override def summaryOpt = method.summaryOpt

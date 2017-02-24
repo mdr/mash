@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git.tag
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
@@ -33,8 +33,7 @@ object TagClass extends MashClass("git.tag.Tag") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val tagName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.tagDelete.setTags(tagName).call()

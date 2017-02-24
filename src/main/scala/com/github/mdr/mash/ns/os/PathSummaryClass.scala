@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.os
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.pathClass.PathClassInfoMethod
@@ -49,8 +49,10 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
     val params = method.params
 
-    def apply(target: MashValue, arguments: Arguments): MashValue =
+    override def apply(target: MashValue, arguments: Arguments): MashValue =
       method.apply(Wrapper(target).pathMashValue, arguments)
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import org.eclipse.jgit.revwalk.RevWalk
@@ -28,8 +28,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val hash = target.asInstanceOf[MashString].s
       getCommit(hash)
     }

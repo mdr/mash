@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
 import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
@@ -77,8 +77,7 @@ object CommitClass extends MashClass("git.Commit") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       Wrapper(target).parentOpt.map(MashString(_, CommitHashClass)) getOrElse MashNull
     }
 
@@ -91,8 +90,7 @@ object CommitClass extends MashClass("git.Commit") {
   object DiffMethod extends MashMethod("diff") {
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments) = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams) = {
       val wrapper = Wrapper(target)
       val parentSha = wrapper.parentOpt.get
       val childSha = wrapper.hash
@@ -160,8 +158,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   val params = ParameterModel(Seq(Commit))
 
-  def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-    val boundParams = params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val commit = MergeFunction.validateCommit(boundParams, Commit)
 
     GitHelper.withRepository { repo ⇒

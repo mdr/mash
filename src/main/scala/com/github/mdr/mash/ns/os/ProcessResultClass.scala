@@ -4,7 +4,7 @@ import java.time.{ Duration, Instant }
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
 import com.github.mdr.mash.runtime._
@@ -68,8 +68,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(Wrapper(target).exitStatus == 0)
     }
 
@@ -83,8 +82,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(Wrapper(target).exitStatus != 0)
     }
 
@@ -98,8 +96,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val stdout = Wrapper(target).stdout
       MashList(StringUtils.splitIntoLines(stdout).map(MashString(_)))
     }
@@ -114,8 +111,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(Wrapper(target).line)
     }
 
@@ -129,8 +125,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
       MashNumber(Wrapper(target).line.toDouble)
     }
 
@@ -144,8 +139,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(Wrapper(target).line, PathClass)
     }
 
@@ -165,8 +159,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
       val wrapper = Wrapper(target)
       durationBetween(wrapper.started, wrapper.finished)
     }

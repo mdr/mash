@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.git.branch
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.{ NumberClass, StringClass, UnitClass }
 import com.github.mdr.mash.ns.git._
@@ -49,8 +49,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.branchDelete.setBranchNames(branchName).setForce(true).call()
@@ -76,8 +75,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val branchName = Wrapper(target).name
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
@@ -99,8 +97,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Force, SetUpstream, Remote))
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val force = boundParams(Force).isTruthy
       val setUpstream = boundParams(SetUpstream).isTruthy
       val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
@@ -127,8 +124,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val branchName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.checkout().setName(branchName).call()
@@ -151,8 +147,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     val params = ParameterModel(Seq(Commit))
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val branch = Wrapper(target).name
       val commit = MergeFunction.validateCommit(boundParams, Commit)
       SetCommitFunction.setCommit(branch, commit)

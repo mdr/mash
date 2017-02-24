@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.ProcessInfo
@@ -29,12 +29,14 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = method.params
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
       method.apply(processObject, arguments)
     }
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
 
@@ -51,8 +53,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
@@ -71,8 +72,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val pid = Wrapper(target).pid
       val processInfo = getProcessInfo(pid)
       ProcessClass.makeProcess(processInfo)

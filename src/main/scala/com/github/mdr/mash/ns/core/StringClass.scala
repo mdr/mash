@@ -87,8 +87,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Substring))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val s = target.asInstanceOf[MashString].s
       val pattern = ToStringifier.stringify(boundParams(Substring))
       MashBoolean(s contains pattern)
@@ -106,8 +105,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val pattern = target.asInstanceOf[MashString].s
       MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
     }
@@ -122,8 +120,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].modify(_.trim)
     }
 
@@ -139,8 +136,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].copy(tagClassOpt = Some(RegexClass))
     }
 
@@ -154,8 +150,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[MashString].tagClassOpt.getOrElse(MashNull)
     }
 
@@ -168,8 +163,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].copy(tagClassOpt = None)
     }
 
@@ -197,8 +191,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(_Pattern, IgnoreCase))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val s = target.asInstanceOf[MashString].s
       val pattern = ToStringifier.stringify(boundParams(_Pattern))
       val ignoreCase = boundParams(IgnoreCase).isTruthy
@@ -217,8 +210,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Query, IgnoreCase, Regex, Negate))
 
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
-      val boundParams = params.bindTo(arguments)
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val ignoreCase = boundParams(IgnoreCase).isTruthy
       val regex = boundParams(Regex).isTruthy
       val negate = boundParams(Negate).isTruthy
@@ -239,8 +231,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val targetString = target.asInstanceOf[MashString]
       val pieces = StringUtils.splitIntoLines(targetString.s)
       MashList(pieces.map(MashString(_, targetString.tagClassOpt)))
@@ -272,8 +263,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Regex, Separator))
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val targetString = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
       val separator = getSeparator(boundParams, Separator, regex)
@@ -322,8 +312,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Target, Replacement, Regex))
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       val s = target.asInstanceOf[MashString]
       val regex = boundParams(Regex).isTruthy
       val targetString = boundParams.validateString(Target).s
@@ -344,8 +333,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
       target.asInstanceOf[MashString].length
     }
 
@@ -359,8 +347,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].modify(_.toLowerCase)
     }
 
@@ -374,8 +361,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].modify(_.toUpperCase)
     }
 
@@ -389,8 +375,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
       MashNumber(target.asInstanceOf[MashString].s.toDouble)
     }
 
@@ -409,8 +394,7 @@ object StringClass extends MashClass("core.String") {
     def parseInstant(s: String): Option[Instant] =
       parser.parse(s).asScala.headOption.flatMap(_.getDates.asScala.headOption).map(_.toInstant)
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       parseInstant(target.asInstanceOf[MashString].s).map(MashWrapped).getOrElse(MashNull)
     }
 
@@ -424,8 +408,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       ToDateTimeMethod.parseInstant(target.asInstanceOf[MashString].s)
         .map(DateTimeClass.DateMethod.toLocalDate)
         .map(MashWrapped)
@@ -442,8 +425,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       target.asInstanceOf[MashString].copy(tagClassOpt = Some(PathClass))
     }
 
@@ -465,8 +447,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Prefix))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val s = target.asInstanceOf[MashString]
       val pattern = boundParams(Prefix).asInstanceOf[MashString]
       MashBoolean(s.startsWith(pattern))
@@ -490,8 +471,7 @@ object StringClass extends MashClass("core.String") {
 
     val params = ParameterModel(Seq(Suffix))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val s = target.asInstanceOf[MashString]
       val pattern = boundParams(Suffix).asInstanceOf[MashString]
       MashBoolean(s.reverse.startsWith(pattern.reverse))

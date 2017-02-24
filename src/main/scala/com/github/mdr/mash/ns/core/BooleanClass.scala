@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashValue }
 
 object BooleanClass extends MashClass("core.Boolean") {
@@ -14,8 +14,7 @@ object BooleanClass extends MashClass("core.Boolean") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       target.asInstanceOf[MashBoolean].negate
     }
 

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
@@ -16,8 +16,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       HelpCreator.getHelp(target)
     }
 
@@ -43,8 +42,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     val params = ParameterModel(Seq(Args, NamedArgs))
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
       val functionArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++

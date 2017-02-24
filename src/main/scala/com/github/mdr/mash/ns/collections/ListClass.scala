@@ -93,8 +93,7 @@ object ListClass extends MashClass("collections.List") {
 
     override val params = ParameterModel(Seq(Sequence))
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val sequence = MashList(boundParams.validateSequence(Sequence))
       target.asInstanceOf[MashList] intersect sequence
     }
@@ -118,10 +117,12 @@ object ListClass extends MashClass("collections.List") {
 
     val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains "sequence"))
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
+    override def apply(target: MashValue, arguments: Arguments): MashValue = {
       val targetArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ target), None)
       function.apply(Arguments(arguments.evaluatedArguments :+ targetArg))
     }
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
     override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
       function.typeInferenceStrategy.inferTypes(inferencer, updateArgs(arguments, targetTypeOpt))

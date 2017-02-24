@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.git.remote.RemoteNameClass
@@ -63,8 +63,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel(Seq(Switch))
 
-    def apply(target: MashValue, arguments: Arguments): MashObject = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val switch = boundParams(Switch).isTruthy
       GitHelper.withGit { git ⇒
         val wrapper = Wrapper(target)
@@ -89,8 +88,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val wrapper = Wrapper(target)
       GitHelper.withGit { git ⇒
         val refSpec = new RefSpec(":" + wrapper.name)
@@ -115,8 +113,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val branchName = Wrapper(target).fullName.s
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
@@ -142,8 +139,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       Wrapper(target).fullName
     }
 

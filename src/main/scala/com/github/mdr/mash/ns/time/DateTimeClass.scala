@@ -5,7 +5,7 @@ import java.util.Date
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ AnyClass, NumberClass, StringClass }
 import com.github.mdr.mash.runtime._
 import org.ocpsoft.prettytime.PrettyTime
@@ -26,8 +26,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashNumber = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
       MashNumber(Wrapper(target).instant.toEpochMilli)
     }
 
@@ -42,8 +41,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(prettyTime.format(Date.from(Wrapper(target).instant)))
     }
 
@@ -57,8 +55,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashWrapped = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
       MashWrapped(toLocalDate(Wrapper(target).instant))
     }
 

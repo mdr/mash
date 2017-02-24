@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime._
 
 import scala.collection.immutable.ListMap
@@ -24,8 +24,7 @@ object RegexClass extends MashClass("core.Regex") {
 
     val params = ParameterModel(Seq(Params.String))
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val regex = target.asInstanceOf[MashString].s.r
       val s = boundParams.validateString(Params.String).s
       val matchOption = regex.findFirstMatchIn(s)

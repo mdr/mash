@@ -4,7 +4,7 @@ import java.net.InetAddress
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
@@ -19,8 +19,7 @@ object HostClass extends MashClass("net.Host") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val host = target.asInstanceOf[MashString].s
       val addresses = InetAddress.getAllByName(host).map(asMashString)
       MashList(addresses)

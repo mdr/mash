@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.ProcessInfo
@@ -66,8 +66,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel(Seq(Signal))
 
-    def apply(target: MashValue, arguments: Arguments): MashUnit = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
       val pid = Wrapper(target).pid
       val signal = KillFunction.getSignal(boundParams, Params.Signal)
       processInteractions.kill(pid, signal)
@@ -87,8 +86,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val parentPidOpt = Wrapper(target).parentPidOpt
       val parentProcessOpt =
         for {
@@ -108,8 +106,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashList = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val pid = Wrapper(target).pid
       val children = processInteractions.getProcesses.filter(_.parentPidOpt contains pid)
       MashList(children.map(makeProcess))

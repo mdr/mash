@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 
 import java.util.IdentityHashMap
 
-import com.github.mdr.mash.functions.MashMethod
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
@@ -12,8 +12,7 @@ abstract class AbstractToStringMethod extends MashMethod(AnyClass.ToStringMethod
 
   val params = AnyClass.ToStringMethod.params
 
-  def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashString = {
     MashString(toString(target))
   }
 

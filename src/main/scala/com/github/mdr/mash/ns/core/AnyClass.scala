@@ -4,7 +4,7 @@ import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
 
@@ -22,8 +22,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(target.isNull)
     }
 
@@ -41,8 +40,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(target.isTruthy)
     }
 
@@ -69,8 +67,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel(Seq(Class))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val klass = boundParams.validateClass(Class)
       MashBoolean(target isA klass)
     }
@@ -91,7 +88,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashClass = target.primaryClass
+    def apply(target: MashValue, boundParams: BoundParams): MashClass = target.primaryClass
 
     override def typeInferenceStrategy = ClassClass
 
@@ -103,7 +100,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashString = target match {
+    def apply(target: MashValue, boundParams: BoundParams): MashString = target match {
       case s: MashString ⇒ s
       case _             ⇒ MashString(stringify(target))
     }
@@ -145,8 +142,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel(Seq(Sequence))
 
-    def apply(target: MashValue, arguments: Arguments): MashBoolean = {
-      val boundParams = params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val sequence = boundParams.validateSequence(Sequence)
       MashBoolean(sequence.contains(target))
     }

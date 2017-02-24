@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ FunctionHelpers, MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
@@ -12,8 +12,7 @@ object PathClassInfoMethod extends MashMethod("info") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, arguments: Arguments): MashObject = {
-    params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
     val path = FunctionHelpers.interpretAsPath(target)
     val summary = fileSystem.getPathSummary(path)
     PathSummaryClass.asMashObject(summary)

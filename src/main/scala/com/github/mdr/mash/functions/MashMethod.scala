@@ -7,7 +7,12 @@ import com.github.mdr.mash.runtime.MashValue
 
 abstract class MashMethod(val name: String) {
 
-  def apply(target: MashValue, arguments: Arguments): MashValue
+  def apply(target: MashValue, arguments: Arguments): MashValue = {
+    val boundParams = params.bindTo(arguments)
+    this.apply(target, boundParams)
+  }
+
+  def apply(target: MashValue, boundParams: BoundParams): MashValue
 
   def params: ParameterModel
 

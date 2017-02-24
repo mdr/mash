@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{ MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.WriteFunction
 import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit, MashValue }
@@ -29,9 +29,7 @@ Otherwise, write the item as a string."""))
 
   val params = ParameterModel(Seq(Append, Data))
 
-  def apply(target: MashValue, arguments: Arguments): MashUnit = {
-    params.bindTo(arguments)
-    val boundParams = params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
     val append = boundParams(Append).isTruthy
     val path = interpretAsPath(target)
     val data = boundParams(Data)

@@ -4,7 +4,7 @@ import java.net.URI
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.Arguments
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashNull, MashString, MashValue }
 
@@ -18,8 +18,7 @@ object UrlClass extends MashClass("net.Url") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val uri = new URI(target.asInstanceOf[MashString].s)
       Option(uri.getHost).map(MashString(_, HostClass)) getOrElse MashNull
     }

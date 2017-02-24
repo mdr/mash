@@ -4,7 +4,7 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.ns.time.DateTimeClass
@@ -37,8 +37,7 @@ object HistoryEntryClass extends MashClass("core.HistoryEntry") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, arguments: Arguments): MashValue = {
-      params.bindTo(arguments)
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val entryObject = target.asInstanceOf[MashObject]
       val command = entryObject.get(Command).getOrElse(
         throw new EvaluatorException("Invalid history entry")).asInstanceOf[MashString].s

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers._
-import com.github.mdr.mash.functions.{ MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -14,8 +14,7 @@ object PathClassAbsoluteMethod extends MashMethod("absolute") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, arguments: Arguments): MashString = {
-    params.bindTo(arguments)
+  def apply(target: MashValue, boundParams: BoundParams): MashString = {
     val path = interpretAsPath(target)
     asPathString(fileSystem.pwd.resolve(path).toRealPath())
   }
