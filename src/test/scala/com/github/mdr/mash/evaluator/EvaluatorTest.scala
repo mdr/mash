@@ -875,8 +875,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "[Object, Object].merge { foo: 42 }" ==> "[{ foo: 42 }, { foo: 42 }]"
 
+  // Default arguments for methods
   "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" ==> 100
   "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" ==> 100
+  "class Foo { def foo (n = bar) = n; def bar = 100 }; Foo.new.foo" ==> 100
 
   "class Foo { def getFields = fields }; Foo.new.getFields" ==> "[]"
   "class Foo { def getFields = fields }; Foo.new.fields" ==> "[]"

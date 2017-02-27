@@ -2,6 +2,7 @@ package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.runtime.MashBoolean
 
 import scala.PartialFunction.cond
 
@@ -128,7 +129,7 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
 
   private def handleFlagArgs() {
     for (flagArg ← arguments.argSet)
-      bindFlagParam(flagArg, arg = ValueInfo(None, Some(BooleanClass)))
+      bindFlagParam(flagArg, arg = ValueInfo(Some(MashBoolean.True), Some(BooleanClass)))
     for {
       (flagArg, valueOpt) ← arguments.argValues
       value ← valueOpt
