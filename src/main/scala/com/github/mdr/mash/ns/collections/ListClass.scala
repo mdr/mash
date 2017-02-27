@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ TypedArguments, _ }
 import com.github.mdr.mash.ns.core._
@@ -79,6 +78,7 @@ object ListClass extends MashClass("collections.List") {
       }
 
     }
+
   }
 
   object IntersectMethod extends MashMethod("intersect") {
@@ -115,14 +115,23 @@ object ListClass extends MashClass("collections.List") {
 
     override def aliases = methodAliases
 
-    val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains "sequence"))
-
-    override def apply(target: MashValue, arguments: Arguments): MashValue = {
-      val targetArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ target), None)
-      function.apply(Arguments(arguments.evaluatedArguments :+ targetArg))
+    private val targetParamName = function match {
+      case MinFunction | MaxFunction ⇒ MinFunction.Params.Items.nameOpt.get
+      case GrepFunction              ⇒ GrepFunction.Params.Input.nameOpt.get
+      case _                         ⇒ ReverseFunction.Params.Sequence.nameOpt.get
     }
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
+    val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains targetParamName))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+      val actualTarget = function match {
+        case MinFunction | MaxFunction ⇒ MashList.of(target)
+        case _                         ⇒ target
+      }
+      val newBoundNames = boundParams.boundNames + (targetParamName -> actualTarget)
+      val newBoundParams = boundParams.copy(boundNames = newBoundNames)
+      function.apply(newBoundParams)
+    }
 
     override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
       function.typeInferenceStrategy.inferTypes(inferencer, updateArgs(arguments, targetTypeOpt))

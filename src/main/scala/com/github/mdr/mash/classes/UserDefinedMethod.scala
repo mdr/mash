@@ -24,7 +24,6 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
 
   def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
-
   override def summaryOpt = docCommentOpt.map(_.summary)
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)

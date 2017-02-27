@@ -335,6 +335,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "min [2, null, 1]" ==> 1
   "min [] --default=0" ==> "0"
   "[].min --default=0" ==> "0"
+  "[].min [1, 2, 3]" shouldThrowAnException // used to be a bug where we leaked an argument
 
   // minBy
   "minBy length [ 'a', 'bbb', 'cc'] " ==> " 'a' "
