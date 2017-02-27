@@ -122,8 +122,8 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
           variadicParam.nameOpt.foreach(boundNames += _ -> MashList(varargs.map(_.value.resolve())))
           boundParams += variadicParam
           for {
-            firstVararg ← varargs
-            argNode ← firstVararg.argumentNodeOpt
+            arg ← varargs
+            argNode ← arg.argumentNodeOpt
           } addArgumentToParameter(variadicParam, argNode)
         case None                ⇒
           val maxPositionArgs = params.positionalParams.size
