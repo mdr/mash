@@ -5,7 +5,7 @@ import com.github.mdr.mash.ns.core.BooleanClass
 
 import scala.PartialFunction.cond
 
-object TypeParamValidationContext {
+object TypeParamBindingContext {
 
   def bindPatternParam(pattern: ParamPattern, typeOpt: Option[Type]): Map[String, Type] =
     pattern match {
@@ -44,8 +44,8 @@ object TypeParamValidationContext {
 
 }
 
-class TypeParamValidationContext(params: ParameterModel, arguments: TypedArguments) {
-  import TypeParamValidationContext._
+class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments) {
+  import TypeParamBindingContext._
 
   private var boundArguments: Map[String, ValueInfo] = Map()
   private var boundNames: Map[String, Type] = Map()

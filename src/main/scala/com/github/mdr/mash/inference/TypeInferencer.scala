@@ -110,7 +110,7 @@ class TypeInferencer {
     (for {
       param ← params.params
       paramTypeOpt = param.defaultExprOpt.flatMap(inferType(_, bindings))
-      (name, type_) ← TypeParamValidationContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
+      (name, type_) ← TypeParamBindingContext.bindParam(Evaluator.makeParameter(param), paramTypeOpt)
     } yield name -> type_).toMap
 
   private def inferType(functionDecl: FunctionDeclaration, bindings: Map[String, Type]): Option[Type] = {
@@ -159,7 +159,7 @@ class TypeInferencer {
         case AssignmentExpr(Identifier(name, _), _, _, _) ⇒
           statement.typeOpt.foreach(latestBindings += name -> _)
         case PatternAssignmentExpr(pattern, right, _)     ⇒
-          latestBindings ++= TypeParamValidationContext.bindPatternParam(Evaluator.makeParamPattern(pattern), right.typeOpt)
+          latestBindings ++= TypeParamBindingContext.bindPatternParam(Evaluator.makeParamPattern(pattern), right.typeOpt)
         case functionDeclaration: FunctionDeclaration     ⇒
           latestBindings += functionDeclaration.name -> getFunctionType(functionDeclaration, latestBindings)
         case classDeclaration: ClassDeclaration           ⇒

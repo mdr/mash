@@ -78,7 +78,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   }
 
   def bindTypes(arguments: TypedArguments): BoundTypeParams =
-    new TypeParamValidationContext(this, arguments).bind()
+    new TypeParamBindingContext(this, arguments).bind()
 
 }
 
