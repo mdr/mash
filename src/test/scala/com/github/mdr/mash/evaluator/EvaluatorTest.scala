@@ -766,6 +766,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def fun ({ foo } = { foo: 42 }) = foo + 1; fun { foo: 100 }" ==> 101
   "def mkList (xs... = [1, 2, 3]) = xs; mkList" ==> "[1, 2, 3]"
   "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[]" ==> "[]"
+  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[4, 5, 6]" ==> "[4, 5, 6]"
   "def mkList (xs... = null) = xs; mkList" ==> "null"
 
   // holes
@@ -973,6 +974,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject" ==> "{}"
   "def makeObject (@namedArgs namedArgs) (@flag otherArg) = { namedArgs, otherArg }; makeObject --otherArg=10" ==>
     "{ namedArgs: { otherArg: 10 }, otherArg: 10 }"
+  "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject 1 --foo=2" ==> "[1, { foo: 2 }]"
+  "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject --foo=2 --otherParam=1" ==>
+    "[1, { foo: 2, otherParam: 1 }]"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
 
   // doc comments
@@ -1041,4 +1045,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Check against exponential complexity parser problem
   "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}" ==> "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"
+
+  // Object.whereField
+  "{ apple: 1, bob: 2, aardvark: 3 }.whereField (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
 }

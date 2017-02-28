@@ -1,6 +1,7 @@
 v0.0.6 (..)
 -----------
 
+* Add Object.whereField
 * Add random.number
 * Add Class.bless
 * Add json.get/post/put/delete methods

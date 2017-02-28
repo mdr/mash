@@ -22,7 +22,8 @@ object ObjectClass extends MashClass("core.Object") {
     HasFieldMethod,
     HoistMethod,
     UnblessMethod,
-    WithFieldMethod)
+    WithFieldMethod,
+    WhereFieldMethod)
 
   object MergeStaticMethod extends MashFunction("merge") {
 
@@ -374,6 +375,28 @@ object ObjectClass extends MashClass("core.Object") {
     override def typeInferenceStrategy = WithFieldMethodTypeInferenceStrategy
 
     override def summaryOpt = Some("Return a copy of this object with the given field added or updated with the given value.")
+  }
+
+  object WhereFieldMethod extends MashMethod("whereField") {
+
+    object Params {
+      val Predicate = Parameter(
+        nameOpt = Some("predicate"),
+        summaryOpt = Some("Predicate used to test fields"))
+    }
+    import Params._
+
+    val params = ParameterModel(Seq(Predicate))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      val predicate = boundParams.validateFunction(Predicate)
+      MashObject.of(for ((field, value) <- obj.immutableFields if predicate.apply(MashString(field)).isTruthy) yield (field, value))
+    }
+
+    override def typeInferenceStrategy = ObjectClass
+
+    override def summaryOpt: Option[String] = Some("Return a new object retaining only fields satisfying the given predicate")
   }
 
   override def summaryOpt = Some("The class of all objects")
