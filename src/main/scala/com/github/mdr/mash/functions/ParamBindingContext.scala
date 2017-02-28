@@ -68,8 +68,12 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
           generator()
         case None            ⇒
           evalArgs match {
-            case Seq(arg@EvaluatedArgument.LongFlag(_, Some(_), _)) ⇒ getArgValue(param, arg)
-            case _                                                  ⇒ MashList(evalArgs.map(getArgValue(param, _)))
+            case Seq(arg@EvaluatedArgument.LongFlag(_, Some(_), _)) ⇒ getArgValue(param, arg) match {
+              case xs: MashList ⇒ xs
+              case x            ⇒
+                throw new ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
+            }
+            case _ ⇒ MashList(evalArgs.map(getArgValue(param, _)))
           }
       }
     for (name ← param.nameOpt)

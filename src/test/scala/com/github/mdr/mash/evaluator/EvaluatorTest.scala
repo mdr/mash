@@ -1048,4 +1048,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Object.whereField
   "{ apple: 1, bob: 2, aardvark: 3 }.whereField (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
+
+  "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 }
