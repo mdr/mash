@@ -34,6 +34,52 @@ object TypeInferencer {
       alias ← nameArg.valueOpt.collect { case s: MashString ⇒ s.s }
     } yield alias
 
+
+  private object StringLike {
+    def unapply(type_ : Type): Option[Type] = condOpt(type_) {
+      case Type.Tagged(StringClass, _) | Type.Instance(StringClass) ⇒ type_
+    }
+  }
+
+  private object NumberLike {
+    def unapply(type_ : Type): Option[Option[MashClass]] = condOpt(type_) {
+      case Type.Tagged(NumberClass, klass) ⇒ Some(klass)
+      case Type.Instance(NumberClass)      ⇒ None
+    }
+  }
+
+  def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
+    (leftTypeOpt, rightTypeOpt) match {
+      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
+        if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
+      case (Some(StringLike(_)), _)                                            ⇒ leftTypeOpt
+      case (_, Some(StringLike(_)))                                            ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _)                                            ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_)))                                            ⇒ rightTypeOpt
+      case (Some(Type.Instance(klass1)), Some(Type.Instance(klass2)))
+        if klass1 == klass2 && klass1.isSubClassOf(ObjectClass)                ⇒
+        Some(Type.Instance(klass1))
+      case (Some(Type.UserClassInstance(userClass1)), Some(Type.UserClassInstance(userClass2)))
+        if userClass1 == userClass2                                            ⇒
+        Some(Type.UserClassInstance(userClass1))
+      case _                                                                   ⇒
+        val objectAdditionTypeOpt =
+          for {
+            leftFields ← leftTypeOpt.flatMap(getObjectFields)
+            rightFields ← rightTypeOpt.flatMap(getObjectFields)
+          } yield Type.Object(leftFields ++ rightFields)
+        objectAdditionTypeOpt orElse Some(Type.Instance(NumberClass))
+    }
+
+  private def getObjectFields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
+    case Type.Instance(klass)    ⇒ fields(klass)
+    case Type.Object(fields)     ⇒ fields
+    case Type.Generic(klass, _*) ⇒ fields(klass)
+  }
+
+  private def fields(klass: MashClass): Map[String, Type] =
+    klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
+
 }
 
 class TypeInferencer {
@@ -289,35 +335,9 @@ class TypeInferencer {
     inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt, right)
   }
 
-  private def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
-    (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
-        if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
-      case (Some(StringLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(StringLike(_)))                                            ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_)))                                            ⇒ rightTypeOpt
-      case _                                                                   ⇒
-        val objectAdditionTypeOpt =
-          for {
-            leftFields ← leftTypeOpt.flatMap(getObjectFields)
-            rightFields ← rightTypeOpt.flatMap(getObjectFields)
-          } yield Type.Object(leftFields ++ rightFields)
-        objectAdditionTypeOpt orElse Some(Type.Instance(NumberClass))
-    }
-
   private object ThingWithFields {
     def unapply(type_ : Type): Option[Map[String, Type]] = getObjectFields(type_)
   }
-
-  private def getObjectFields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
-    case Type.Instance(klass)    ⇒ fields(klass)
-    case Type.Object(fields)     ⇒ fields
-    case Type.Generic(klass, _*) ⇒ fields(klass)
-  }
-
-  private def fields(klass: MashClass): Map[String, Type] =
-    klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
 
   private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
@@ -327,19 +347,6 @@ class TypeInferencer {
       case (Some(StringLike(_) | Type.Seq(_)), Some(NumberLike(_))) ⇒ leftTypeOpt
       case _                                                        ⇒ Some(Type.Instance(NumberClass))
     }
-
-  private object StringLike {
-    def unapply(type_ : Type): Option[Type] = condOpt(type_) {
-      case Type.Tagged(StringClass, _) | Type.Instance(StringClass) ⇒ type_
-    }
-  }
-
-  private object NumberLike {
-    def unapply(type_ : Type): Option[Option[MashClass]] = condOpt(type_) {
-      case Type.Tagged(NumberClass, klass) ⇒ Some(klass)
-      case Type.Instance(NumberClass)      ⇒ None
-    }
-  }
 
   private def inferTypeSubtract(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type], right: Expr): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {

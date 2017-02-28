@@ -18,6 +18,7 @@ object SumFunction extends MashFunction("collections.sum") {
       summaryOpt = Some("Sequence of items to sum"),
       isLast = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(EmptyValue, Sequence))
@@ -34,7 +35,8 @@ object SumFunction extends MashFunction("collections.sum") {
 
   override def summaryOpt = Some("Sum all the elements of a sequence")
 
-  override def descriptionOpt = Some("""Add all the elements in the sequence together, as if they were combined with the '+' operator.
+  override def descriptionOpt = Some(
+    """Add all the elements in the sequence together, as if they were combined with the '+' operator.
 
 Examples:
   sum [1, 2, 3]      # 6
@@ -42,7 +44,7 @@ Examples:
   sum [[1, 2], [3]]  # [1, 2, 3]
   sum []             # 0
   sum "" []          # ""  
-""")
+    """)
 
 }
 
@@ -53,12 +55,7 @@ object SumTypeInferenceStrategy extends TypeInferenceStrategy {
     val elementTypeOpt = argBindings.getType(SumFunction.Params.Sequence).collect {
       case Type.Seq(elementType) ⇒ elementType
     }
-    elementTypeOpt match {
-      case Some(Type.Tagged(NumberClass | StringClass, _)) ⇒ elementTypeOpt
-      case Some(Type.Instance(NumberClass | StringClass)) ⇒ elementTypeOpt
-      case Some(Type.Seq(_)) ⇒ elementTypeOpt
-      case _ ⇒ Some(Type.Instance(NumberClass))
-    }
+    TypeInferencer.inferTypeAdd(elementTypeOpt, elementTypeOpt)
   }
 
 }

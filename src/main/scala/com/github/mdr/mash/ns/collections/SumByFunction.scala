@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.{ Arguments, BinaryOperatorEvaluator }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.NumberClass
+import com.github.mdr.mash.ns.core.{ AnyClass, NumberClass, ObjectClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashNumber, MashValue }
 
 object SumByFunction extends MashFunction("collections.sumBy") {
@@ -21,6 +21,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
       summaryOpt = Some("Sequence to find the sum of"),
       isLast = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Attribute, EmptyValue, Sequence))
@@ -42,7 +43,8 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
   override def summaryOpt = Some("Sum the elements of a sequence using an attribute")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   sumBy length ["foo", "bar", "baz"] # 9""")
 
 }
@@ -55,11 +57,8 @@ object SumByTypeInferenceStrategy extends TypeInferenceStrategy {
     val argBindings = SumByFunction.params.bindTypes(arguments)
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val attributeArg = argBindings.getArgument(Attribute)
-    val inferredTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, attributeArg, sequenceTypeOpt)
-    inferredTypeOpt match {
-      case Some(Type.Tagged(NumberClass, _)) ⇒ inferredTypeOpt
-      case _                                 ⇒ Some(NumberClass)
-    }
+    val mappedTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, attributeArg, sequenceTypeOpt)
+    TypeInferencer.inferTypeAdd(mappedTypeOpt, mappedTypeOpt)
   }
 
 }

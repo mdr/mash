@@ -51,6 +51,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "42 + 24" ==> NumberClass
   "[1] + [2]" ==> Seq(NumberClass)
   "{ foo: 42 } + { bar: 100 }" ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
+  "class Bob { def foo = 42 }; Bob.new + Bob.new | .foo" ==> NumberClass
+  "ls.first + ls.first" ==> PathSummaryClass
 
   // subtraction
   "2 - 1" ==> NumberClass
@@ -144,15 +146,19 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "null" ==> NullClass
 
   // sum
-  " [1.bytes] | sum " ==> Tagged(NumberClass, BytesClass)
-  " [] | sum " ==> NumberClass
-  " ['foo', 'bar'] | sum" ==> StringClass
-  " [[1, 2], [3]] | sum" ==> Seq(NumberClass)
+  "[1.bytes] | sum" ==> Tagged(NumberClass, BytesClass)
+  "['foo', 'bar'] | sum" ==> StringClass
+  "[[1, 2], [3]] | sum" ==> Seq(NumberClass)
 
   // sumBy
-  " [1.bytes] | sumBy (_) " ==> Tagged(NumberClass, BytesClass)
-  " [] | sumBy (_) " ==> NumberClass
+  "[1.bytes] | sumBy (_)" ==> (NumberClass taggedWith BytesClass)
   "sumBy (_.toNumber) '123'" ==> NumberClass
+  "[{ foo: 42 }, {foo: 100 }] | sumBy identity" ==> obj("foo" -> NumberClass)
+  "[{ foo: 42 }, {foo: 100 }].sumBy (.foo)" ==> NumberClass
+  "[ls.first, ls.first] | sumBy identity" ==> PathSummaryClass
+  "class Bob { def foo = 42 }; [Bob.new, Bob.new] | sumBy identity | .foo" ==> NumberClass
+  "['a', 'b'] | sumBy identity"  ==> StringClass
+  "['a'.r, 'b'.r] | sumBy identity"  ==> (StringClass taggedWith RegexClass)
 
   // max
   "[1, 2, 3] | max" ==> NumberClass
@@ -181,8 +187,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // isEmpty
   "isEmpty []" ==> BooleanClass
 
-  "'size' pwd" ==> Tagged(NumberClass, BytesClass)
-  "'size' ls" ==> Seq(Tagged(NumberClass, BytesClass))
+  "'size' pwd" ==> (NumberClass taggedWith BytesClass)
+  "'size' ls" ==> Seq(NumberClass taggedWith BytesClass)
 
   "pwd?.parent" ==> TaggedStringType
 
