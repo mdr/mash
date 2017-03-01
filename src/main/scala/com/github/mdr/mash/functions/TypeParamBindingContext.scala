@@ -101,29 +101,6 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
     }
   }
 
-  private def bindPattern(pattern: ParamPattern, typeOpt: Option[Type]): Unit = pattern match {
-    case ParamPattern.Object(entries)   ⇒
-      val fieldTypes: Map[String, Type] = typeOpt.map {
-        case Type.Object(knownFields) ⇒ knownFields
-        case Type.Instance(klass)     ⇒ klass.fieldsMap.mapValues(_.fieldType)
-        case _                        ⇒ Map[String, Type]()
-      }.getOrElse(Map())
-      for (entry ← entries)
-        entry match {
-          case ParamPattern.ObjectEntry(fieldName, None)               ⇒
-            boundNames += fieldName -> fieldTypes.getOrElse(fieldName, Type.Any)
-          case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
-            bindPattern(valuePattern, fieldTypes.get(fieldName))
-        }
-    case ParamPattern.Hole              ⇒
-    case ParamPattern.Ident(identifier) ⇒
-      boundNames += identifier -> typeOpt.getOrElse(Type.Any)
-    case ParamPattern.List(patterns)    ⇒
-      val elementTypeOpt = typeOpt.collect { case Type.Seq(elementType) ⇒ elementType }
-      for (elementPattern ← patterns)
-        bindPattern(elementPattern, elementTypeOpt)
-  }
-
   private def posOfArg(arg: ValueInfo): Int =
     arguments.arguments.indexWhere(cond(_) { case TypedArgument.PositionArg(`arg`) ⇒ true })
 

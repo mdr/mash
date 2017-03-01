@@ -16,15 +16,18 @@ object TypedArgument {
 
 object TypedArguments {
 
-  private def annotateArg(arg: Argument): TypedArgument = arg match {
-    case Argument.PositionArg(e, _)           ⇒ TypedArgument.PositionArg(ValueInfo(e.constantValueOpt, e.typeOpt))
-    case Argument.ShortFlag(flags, _)         ⇒ TypedArgument.ShortFlag(flags)
-    case Argument.LongFlag(flag, valueOpt, _) ⇒ TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ ValueInfo(e.constantValueOpt, e.typeOpt)))
+  private def makeTypedArg(arg: Argument): TypedArgument = arg match {
+    case Argument.PositionArg(e, _)           ⇒
+      TypedArgument.PositionArg(ValueInfo(e.constantValueOpt, e.typeOpt))
+    case Argument.ShortFlag(flags, _)         ⇒
+      TypedArgument.ShortFlag(flags)
+    case Argument.LongFlag(flag, valueOpt, _) ⇒
+      TypedArgument.LongFlag(flag, valueOpt.map(e ⇒ ValueInfo(e.constantValueOpt, e.typeOpt)))
   }
 
   def from(invocationExpr: InvocationExpr): TypedArguments = from(invocationExpr.arguments)
 
-  def from(arguments: Seq[Argument]): TypedArguments = TypedArguments(arguments.map(annotateArg))
+  def from(arguments: Seq[Argument]): TypedArguments = TypedArguments(arguments.map(makeTypedArg))
 
 }
 
