@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.{ MashString, _ }
@@ -14,14 +14,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     val F = Parameter(
       nameOpt = Some("f"),
       summaryOpt = Some("Function used to transform elements of the sequence"),
-      descriptionOpt = Some("Must return a sequence"))
-    val WithIndex = Parameter(
-      nameOpt = Some("withIndex"),
-      shortFlagOpt = Some('i'),
-      summaryOpt = Some("Pass index into the function as well as the item"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
-      isFlag = true,
-      isBooleanFlag = true)
+      descriptionOpt = Some("Must return a sequence. If the function can take two arguments, the index is supplied as the second argument."))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to map over"),
@@ -30,19 +23,15 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F, Sequence, WithIndex))
+  val params = ParameterModel(Seq(F, Sequence))
 
   def apply(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
-    val withIndex = boundParams(WithIndex).isTruthy
     val sequence = boundParams.validateSequence(Sequence)
     val mapped: Seq[MashValue] =
-      if (withIndex) {
-        val f = boundParams.validateFunction2(F).tupled
-        zipWithMashIndex(sequence).map(f)
-      } else {
-        val f = boundParams.validateFunction(F)
-        sequence.map(f)
+      boundParams.validateFunction1Or2(F) match {
+        case Left(f)  ⇒ sequence.map(f)
+        case Right(f) ⇒ zipWithMashIndex(sequence).map(f.tupled)
       }
     flatten(mapped, inSequence)
   }
@@ -94,7 +83,8 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
   output elements.
 
 Examples:
-  flatMap (x => [x * 10, x * 100]) [1, 2, 3] # [20, 200, 40, 400, 60, 600]""")
+  flatMap (x => [x * 10, x * 100]) [1, 2, 3] # [20, 200, 40, 400, 60, 600]
+  flatMap (n i => [n, i]) [1, 2, 3]          # [1, 0, 2, 1, 3, 2]""")
 
 }
 
@@ -108,8 +98,8 @@ object FlatMapTypeInferenceStrategy extends TypeInferenceStrategy {
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val newElementSeqTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, functionOpt, sequenceTypeOpt)
     val newElementType = newElementSeqTypeOpt match {
-      case Some(Type.Seq(newElementType)) ⇒ newElementType
-      case _                              ⇒ Type.Any
+      case Some(Type.Seq(elementType)) ⇒ elementType
+      case _                           ⇒ Type.Any
     }
     Some(newElementType.seq)
   }

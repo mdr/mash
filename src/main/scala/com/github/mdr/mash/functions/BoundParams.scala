@@ -68,6 +68,13 @@ case class BoundParams(boundNames: Map[String, MashValue],
       throwInvalidArgumentType("function", x, param)
   }
 
+  def validateFunction1Or2(param: Parameter): Either[MashValue ⇒ MashValue, (MashValue, MashValue) ⇒ MashValue] =
+    this (param) match {
+      case f: MashFunction if f.params.allowsBinary         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
+      case bm: BoundMethod if bm.method.params.allowsBinary ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
+      case arg                                              ⇒ Left(validateFunction(param, arg))
+    }
+
   private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {
     val message = s"Invalid argument '${name(param)}'. Must be a $desiredType, but was a ${value.typeName}"
     throw new ArgumentException(message, locationOpt(param))

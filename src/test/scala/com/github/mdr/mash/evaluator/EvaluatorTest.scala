@@ -289,8 +289,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "flatMap (.toString) [1, 22, 333]" ==> "'122333'"
   "'abc' | flatMap (c => [c])" ==> "['a', 'b', 'c']"
   "'abc'.flatMap (c => [c]) " ==> "['a', 'b', 'c']"
-
-  "flatMap --withIndex (n i => [n, i]) [1, 2, 3]" ==> "[1, 0, 2, 1, 3, 2]"
+  "flatMap (n i => [n, i]) [1, 2, 3]" ==> "[1, 0, 2, 1, 3, 2]"
 
   // flatten
   "flatten [[], [1], [2, 3]]" ==> "[1, 2, 3]"
@@ -304,7 +303,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "map --f=(_ * 2) [1, 2, 3]" ==> "[2, 4, 6]"
   "[1, 2, 3] | map --f=(_ * 2)" ==> "[2, 4, 6]"
   "'123' | map (_.toNumber)" ==> "[1, 2, 3]"
-  "map --withIndex (n i => n + i) [1, 2, 3]" ==> "[1, 3, 5]"
+  "map (n i => n + i) [1, 2, 3]" ==> "[1, 3, 5]"
   "'foo' | map (.toUpper)" ==> "'FOO'"
   "'foo'.map (.toUpper)" ==> "'FOO'"
 

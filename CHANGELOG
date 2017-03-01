@@ -1,6 +1,7 @@
 v0.0.6 (..)
 -----------
 
+* map/flatMap --withIndex replaced by detecting arity of incoming function
 * Add Object.whereField
 * Add random.number
 * Add Class.bless

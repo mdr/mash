@@ -69,7 +69,7 @@ class GeneralArgBinder[T](params: ParameterModel, arguments: Seq[GeneralArgument
     }
 
   private def handlePositionalArgs() {
-    val regularParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast) // .isNamedArgsParam ?
+    val regularParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
     val positionArgs = if (lastParameterConsumed) this.positionArgs.init else this.positionArgs
 
     handleExcessArguments(positionArgs, regularParams)

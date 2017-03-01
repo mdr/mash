@@ -33,10 +33,12 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def flags: Seq[Flag] = params.map(param ⇒
     Flag(param.summaryOpt orElse param.nameOpt, param.shortFlagOpt.map(_.toString), param.nameOpt))
 
-  def allowsNullary: Boolean = params.forall(p ⇒ allowsNullary(p))
+  def allowsNullary: Boolean = params.forall(allowsNullary(_))
 
   private def allowsNullary(p: Parameter): Boolean =
     (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined || p.isNamedArgsParam
+  
+  def allowsBinary: Boolean = params.exists(_.isVariadic) || positionalParams.size >= 2
 
   def callingSyntax: String = {
     val positionalParams =
