@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
@@ -21,9 +20,11 @@ object ObjectClass extends MashClass("core.Object") {
     GetMethod,
     HasFieldMethod,
     HoistMethod,
+    MapMethod,
     UnblessMethod,
     WithFieldMethod,
-    WhereFieldMethod)
+    WhereMethod,
+    WhereNotMethod)
 
   object MergeStaticMethod extends MashFunction("merge") {
 
@@ -377,27 +378,96 @@ object ObjectClass extends MashClass("core.Object") {
     override def summaryOpt = Some("Return a copy of this object with the given field added or updated with the given value.")
   }
 
-  object WhereFieldMethod extends MashMethod("whereField") {
+  object WhereMethod extends MashMethod("where") {
 
     object Params {
       val Predicate = Parameter(
         nameOpt = Some("predicate"),
-        summaryOpt = Some("Predicate used to test fields"))
+        summaryOpt = Some("Predicate used to test fields"),
+        descriptionOpt = Some("If the function can take one argument, the field name is supplied. If it can take two, the field name and value are supplied."))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Predicate))
 
     def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = target.asInstanceOf[MashObject]
-      val predicate = boundParams.validateFunction(Predicate)
-      MashObject.of(for ((field, value) <- obj.immutableFields if predicate.apply(MashString(field)).isTruthy) yield (field, value))
+      val test: (String, MashValue) ⇒ Boolean = validatePredicate(boundParams)
+      MashObject.of(
+        for ((field, value) <- obj.immutableFields if test(field, value))
+          yield (field, value))
+    }
+
+    def validatePredicate(boundParams: BoundParams): (String, MashValue) ⇒ Boolean = {
+      boundParams.validateFunction1Or2(Predicate) match {
+        case Left(f)  ⇒ (field: String, value: MashValue) ⇒ f(MashString(field)).isTruthy
+        case Right(f) ⇒ (field: String, value: MashValue) ⇒ f(MashString(field), value).isTruthy
+      }
     }
 
     override def typeInferenceStrategy = ObjectClass
 
     override def summaryOpt: Option[String] = Some("Return a new object retaining only fields satisfying the given predicate")
+
+    override def descriptionOpt = Some(
+      """Examples:
+        |  { "foo": 1, "bar": 2, "baz": 3 }.where (.startsWith "b")                   # { "bar": 2, "baz": 3 }
+        |  { "foo": 1, "bar": 2, "baz": 3 }.where (f v => f.startsWith "f" or v == 3) # { "foo": 1, "baz": 3 }""".stripMargin)
   }
+
+  object WhereNotMethod extends MashMethod("whereNot") {
+
+    import WhereMethod.Params._
+
+    val params = ParameterModel(Seq(Predicate))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      val test: (String, MashValue) ⇒ Boolean = WhereMethod.validatePredicate(boundParams)
+      MashObject.of(
+        for ((field, value) <- obj.immutableFields if !test(field, value))
+          yield (field, value))
+    }
+
+    override def typeInferenceStrategy = ObjectClass
+
+    override def summaryOpt: Option[String] = Some("Return a new object without any fields satisfying the given predicate")
+
+    override def descriptionOpt = Some(
+      """Examples:
+        |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (.startsWith "b")                   # { "foo": 1 }
+        |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }""".stripMargin)
+  }
+
+  object MapMethod extends MashMethod("map") {
+
+    object Params {
+      val F = Parameter(
+        nameOpt = Some("f"),
+        summaryOpt = Some("Function used to transform fields of the object"),
+        descriptionOpt = Some("The function must take two arguments, the field name and value."))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(F))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      val f = boundParams.validateFunction2(F)
+      val objects = obj.immutableFields.map { case (field, value) ⇒ f(MashString(field), value).asInstanceOf[MashObject] }
+      objects.reduceOption(_ + _) getOrElse MashObject.empty
+    }
+
+    override def typeInferenceStrategy = ObjectClass
+
+    override def summaryOpt: Option[String] = Some("Return a new object with the fields transformed")
+
+    override def descriptionOpt = Some(
+      """Examples:"""".stripMargin)
+  }
+
 
   override def summaryOpt = Some("The class of all objects")
 
