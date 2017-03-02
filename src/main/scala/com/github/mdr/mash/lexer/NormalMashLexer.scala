@@ -222,7 +222,12 @@ trait NormalMashLexer { self: MashLexer ⇒
       nextChar()
       if (ch == '-') {
         nextChar()
-        getIdentRest(Some(LONG_FLAG))
+        if (ch.isUnicodeIdentifierStart)
+          getIdentRest(Some(LONG_FLAG))
+        else if (forgiving)
+          token(LONG_FLAG)
+        else
+          throw new MashParserException(s"Incomplete flag", currentPointedRegion)
       } else if (ch == '=') {
         nextChar()
         token(MINUS_EQUALS)
@@ -337,7 +342,7 @@ trait NormalMashLexer { self: MashLexer ⇒
       nextChar()
       getIdentRest(tokenTypeOpt)
     case _ ⇒
-      val tokenType = tokenTypeOpt.getOrElse(Keywords.getOrElse(currentTokenText, IDENTIFIER))
+      val tokenType = tokenTypeOpt getOrElse Keywords.getOrElse(currentTokenText, IDENTIFIER)
       token(tokenType)
   }
 

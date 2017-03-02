@@ -54,4 +54,6 @@ case class PointedRegion(point: Int, region: Region) {
 
   def merge(that: PointedRegion): PointedRegion = copy(region = this.region merge that.region)
 
+  def movePoint(delta: Int) = copy(point = point + delta)
+
 }

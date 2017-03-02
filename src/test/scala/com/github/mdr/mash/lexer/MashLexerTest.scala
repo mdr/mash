@@ -154,6 +154,7 @@ class MashLexerTest extends FlatSpec with Matchers {
     "\"unterminated string" shouldThrowAnExceptionAtPos 18
     "03" shouldThrowAnExceptionAtPos 1
     "$" shouldThrowAnExceptionAtPos 0
+    "--" shouldThrowAnExceptionAtPos 2
   }
 
   // Multilines
