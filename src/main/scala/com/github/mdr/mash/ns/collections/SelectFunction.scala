@@ -37,31 +37,34 @@ object SelectFunction extends MashFunction("collections.select") {
     val boundParams = params.bindTo(arguments, ignoreAdditionalParameters = true)
     val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
-    val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] = arguments.evaluatedArguments.init.flatMap {
-      case EvaluatedArgument.PositionArg(suspendedValue, argumentNodeOpt) ⇒
-        suspendedValue.resolve() match {
-          case s: MashString ⇒
-            Some(s.s -> FunctionHelpers.interpretAsFunction(s))
-          case _ ⇒
-            throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
-        }
-      case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt) ⇒
-        if (flags == Seq(AddShortFlag.toString))
-          None
-        else
-          throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
-      case EvaluatedArgument.LongFlag(flag, None, _) ⇒
-        if (Add.nameOpt contains flag)
-          None
-        else
-          Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
-      case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒
-        Some(flag -> FunctionHelpers.interpretAsFunction(value.resolve()))
-    }
+    val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] =
+      arguments.evaluatedArguments.init.flatMap(getFieldAndFunction)
     target match {
       case xs: MashList ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))
       case x            ⇒ doSelect(x, fieldsAndFunctions, add)
     }
+  }
+
+  private def getFieldAndFunction(argument: EvaluatedArgument): Option[(String, MashValue ⇒ MashValue)] = argument match{
+    case EvaluatedArgument.PositionArg(suspendedValue, argumentNodeOpt) ⇒
+      suspendedValue.resolve() match {
+        case s: MashString ⇒
+          Some(s.s -> FunctionHelpers.interpretAsFunction(s))
+        case _ ⇒
+          throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+      }
+    case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt) ⇒
+      if (flags == Seq(AddShortFlag.toString))
+        None
+      else
+        throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+    case EvaluatedArgument.LongFlag(flag, None, _) ⇒
+      if (Add.nameOpt contains flag)
+        None
+      else
+        Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
+    case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒
+      Some(flag -> FunctionHelpers.interpretAsFunction(value.resolve()))
   }
 
   private def doSelect(target: MashValue, fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)], add: Boolean): MashObject = {
@@ -121,4 +124,3 @@ Examples:
   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
   select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]""")
 }
-
