@@ -43,13 +43,15 @@ object FunctionClass extends MashClass("core.Function") {
     val params = ParameterModel(Seq(Args, NamedArgs))
 
     def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+      val function = target.asInstanceOf[MashFunction]
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
+
       val functionArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
-      namedArgs.fields.toSeq.map { case (field, value) ⇒
-        EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
-      })
-      target.asInstanceOf[MashFunction].apply(functionArguments)
+        namedArgs.fields.toSeq.map { case (field, value) ⇒
+          EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
+        })
+      function.apply(functionArguments)
     }
 
     override def summaryOpt = Some("Invoke this function with the given arguments")
