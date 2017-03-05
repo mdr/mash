@@ -13,34 +13,38 @@ import scala.collection.immutable.ListMap
   */
 object SelectFunction extends MashFunction("collections.select") {
 
-  private val AddShortFlag = 'a'
+  private lazy val AddShortFlag = 'a'
 
   object Params {
-    val Target = Parameter(
-      nameOpt = Some("target"),
-      summaryOpt = Some("Either an object or sequence of objects to select fields from"),
-      isLast = true)
-    val Add = Parameter(
+    lazy val Add = Parameter(
       nameOpt = Some("add"),
       summaryOpt = Some("Add the fields to the existing set of members, rather than replacing"),
       shortFlagOpt = Some(AddShortFlag),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true)
-    val Selectors = Parameter(
+    lazy val Selectors = Parameter(
       nameOpt = Some("selectors"),
       summaryOpt = Some("The selection of members to take from the object"),
       isAllArgsParam = true)
+    lazy val Target = Parameter(
+      nameOpt = Some("target"),
+      summaryOpt = Some("Either an object or sequence of objects to select fields from"),
+      isLast = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Seq(Target, Add, Selectors))
+  val params = ParameterModel(Seq(Add, Selectors, Target))
 
   override def apply(boundParams: BoundParams): MashValue = {
-    val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
+    doSelect(target, boundParams)
+  }
+
+  def doSelect(target: MashValue, boundParams: BoundParams): MashValue = {
+    val add = boundParams(Add).isTruthy
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] =
-      boundParams.allResolvedArgs.init.flatMap(getFieldAndFunction)
+      boundParams.allResolvedArgs.flatMap(getFieldAndFunction)
     target match {
       case xs: MashList ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))
       case x            ⇒ doSelect(x, fieldsAndFunctions, add)
@@ -48,18 +52,18 @@ object SelectFunction extends MashFunction("collections.select") {
   }
 
   private def getFieldAndFunction(argument: EvaluatedArgument[MashValue]): Option[(String, MashValue ⇒ MashValue)] = argument match {
-    case EvaluatedArgument.PositionArg(suspendedValue, argumentNodeOpt) ⇒
-      suspendedValue match {
+    case EvaluatedArgument.PositionArg(value, argumentNodeOpt) ⇒
+      value match {
         case s: MashString ⇒
           Some(s.s -> FunctionHelpers.interpretAsFunction(s))
-        case _             ⇒
-          throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+        case x             ⇒
+          throw new ArgumentException(s"Positional arguments must be a String, but was a ${x.typeName}", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
       }
     case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt)            ⇒
       if (flags == Seq(AddShortFlag.toString))
         None
       else
-        throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+        throw new ArgumentException(s"Short flags not supported by select: ${flags.map(f ⇒ "-" + f).mkString(", ")}", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
     case EvaluatedArgument.LongFlag(flag, None, _)                      ⇒
       if (Add.nameOpt contains flag)
         None

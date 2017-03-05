@@ -363,7 +363,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // select
   "{ foo: 42, bar: 24 } | select 'foo' " ==> "{ foo: 42 }"
-//  "[{ foo: 42, bar: 24 }].select 'foo'" ==> "{ foo: 42 }"
   "{ foo: 42, bar: 24 } | select --foo " ==> "{ foo: 42 }"
   "{ foo: 42, bar: 24 } | select --foo=(_.foo) " ==> "{ foo: 42 }"
   "{ foo: 42, bar: 24 } | select 'foo' --baz=(_.foo) 'bar' " ==> "{ foo: 42, baz: 42, bar: 24 }"
@@ -375,6 +374,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "select --foo --target={ foo: 42 }" ==> "{ foo: 42 }"
   "select --add --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
   "select -a --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
+  "[{ foo: 42, bar: 24 }].select 'foo'" ==> "[{ foo: 42 }]"
 
   // skip
   "[1, 2, 3, 4, 5] | skip 2" ==> "[3, 4, 5]"

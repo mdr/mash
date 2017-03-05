@@ -112,7 +112,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
   }
 
   private def bindAllArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
-    allResolvedArgs = arguments.evaluatedArguments.map(_.map(_.resolve()))
+    allResolvedArgs = evalArgs.map(_.map(_.resolve()))
   }
 
   private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation] = None): Unit =

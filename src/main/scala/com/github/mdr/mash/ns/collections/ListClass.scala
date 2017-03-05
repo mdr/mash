@@ -34,7 +34,6 @@ object ListClass extends MashClass("collections.List") {
     methodise(NonEmptyFunction),
     methodise(ReduceFunction),
     methodise(ReverseFunction),
-    methodise(SelectFunction),
     methodise(SkipFunction),
     methodise(SkipUntilFunction),
     methodise(SkipWhileFunction),
@@ -47,7 +46,8 @@ object ListClass extends MashClass("collections.List") {
     methodise(UniqueFunction),
     methodise(WhereFunction, Seq("filter")),
     methodise(WhereNotFunction, Seq("filterNot")),
-    IntersectMethod)
+    IntersectMethod,
+    SelectMethod)
 
   override val staticMethods = Seq(NewStaticMethod)
 
@@ -109,6 +109,24 @@ object ListClass extends MashClass("collections.List") {
     }
 
     override def typeInferenceStrategy = IntersectMethodTypeInferenceStrategy
+  }
+
+  object SelectMethod extends MashMethod("select") {
+    import SelectFunction.Params._
+    override val params = ParameterModel(Seq(Add, Selectors))
+
+    override def apply(target: MashValue, boundParams: BoundParams): MashValue =
+      SelectFunction.doSelect(target, boundParams)
+
+    override def summaryOpt: Option[String] = SelectFunction.summaryOpt
+
+    override def descriptionOpt: Option[String] = SelectFunction.descriptionOpt
+
+    override def typeInferenceStrategy = methodise(SelectFunction).typeInferenceStrategy
+
+    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] =
+      methodise(SelectFunction).getCompletionSpecs(argPos, targetTypeOpt, arguments)
+
   }
 
   def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod = new MashMethod(function.name) {
