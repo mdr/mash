@@ -7,18 +7,12 @@ import com.github.mdr.mash.runtime._
 /**
   * Bind arguments to parameters
   */
-class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAdditionalParameters: Boolean) {
+class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
 
   private var boundNames: Map[String, MashValue] = Map()
-
+  private var allResolvedArgs: Seq[EvaluatedArgument[MashValue]] = Seq()
   def bind: BoundParams = {
     val parameterToArgs: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = runGeneralArgBinder
-
-    val allResolvedArgs =
-      if (params.provideAllArgs)
-        arguments.evaluatedArguments.map(_.map(_.resolve()))
-      else
-        Seq()
 
     bindParams(parameterToArgs)
 
@@ -30,7 +24,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
   }
 
   private def runGeneralArgBinder: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = {
-    val argBinder = new GeneralArgBinder(params, generalArguments, ignoreAdditionalParameters = params.provideAllArgs)
+    val argBinder = new GeneralArgBinder(params, generalArguments)
     val result =
       try
         argBinder.bind
@@ -48,6 +42,8 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
         bindVariadicParam(param, evalArgs)
       else if (param.isNamedArgsParam)
         bindNamedArgsParam(param, evalArgs)
+      else if (param.isAllArgsParam)
+        bindAllArgsParam(param, evalArgs)
       else
         bindRegularParam(param, evalArgs)
 
@@ -113,6 +109,10 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
     })
     for (name ← param.nameOpt)
       boundNames += name -> argsObject
+  }
+
+  private def bindAllArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
+    allResolvedArgs = arguments.evaluatedArguments.map(_.map(_.resolve()))
   }
 
   private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation] = None): Unit =

@@ -130,7 +130,7 @@ class CompletionsTest extends FlatSpec with Matchers {
   // Flags
   "pwd.children --recur▶" shouldGiveCompletions "--recursive"
   "select --add▶" shouldGiveCompletions "--add"
-  "select --▶" shouldGiveCompletions("--add", "--target")
+  "select --▶" shouldGiveCompletions("--add", "--selectors", "--target")
   "cd -▶" shouldGiveCompletions "--directory"
   "ls -▶" shouldContainCompletion "-a"
   "'dir' | ls -▶" shouldContainCompletion "-a"

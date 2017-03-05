@@ -4,8 +4,7 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.inference.TypedArguments
 
-case class ParameterModel(params: Seq[Parameter] = Seq(),
-                          provideAllArgs: Boolean = false) {
+case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   require(params.count(_.isVariadic) <= 1)
   require(params.count(_.isLast) <= 1)
@@ -28,8 +27,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq(),
     paramMap
   }
 
-  def bindTo(arguments: Arguments, ignoreAdditionalParameters: Boolean = false): BoundParams =
-    new ParamBindingContext(this, arguments, ignoreAdditionalParameters).bind
+  def bindTo(arguments: Arguments): BoundParams =
+    new ParamBindingContext(this, arguments).bind
 
   def flags: Seq[Flag] = params.map(param ⇒
     Flag(param.summaryOpt orElse param.nameOpt, param.shortFlagOpt.map(_.toString), param.nameOpt))

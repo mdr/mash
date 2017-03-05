@@ -26,11 +26,15 @@ object SelectFunction extends MashFunction("collections.select") {
       shortFlagOpt = Some(AddShortFlag),
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true)
+    val Selectors = Parameter(
+      nameOpt = Some("selectors"),
+      summaryOpt = Some("The selection of members to take from the object"),
+      isAllArgsParam = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Seq(Target, Add), provideAllArgs = true)
+  val params = ParameterModel(Seq(Target, Add, Selectors))
 
   override def apply(boundParams: BoundParams): MashValue = {
     val add = boundParams(Add).isTruthy
