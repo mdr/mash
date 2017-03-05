@@ -9,15 +9,15 @@ def setVersion version =
     | write "build.sbt"
 
 def prepareBuildSbt = {
-  currentVersion = getVersion
-  if not (currentVersion.endsWith "-SNAPSHOT") then
-    error "Current version is not a SNAPSHOT: $currentVersion"
-  releaseVersion = currentVersion.replace "-SNAPSHOT" ""
+  current = getVersion
+  if not (current.endsWith "-SNAPSHOT") then
+    error "Current version is not a SNAPSHOT: $current"
+  release = current.replace "-SNAPSHOT" ""
 
-  print "Updating build.sbt to $releaseVersion"
-  setVersion releaseVersion
+  print "Updating build.sbt to $release"
+  setVersion release
 
-  newPoint = releaseVersion.split(".").last.toNumber + 1
-  newSnapshotVersion = "v0.0.$newPoint-SNAPSHOT"
-  { current, release, newSnapshot }
+  newPoint = release.split(".").last.toNumber + 1
+  new = "v0.0.$newPoint-SNAPSHOT"
+  { current, release, new }
 }
