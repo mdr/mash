@@ -28,24 +28,32 @@ case class GeneralArgBinderResult[T](parameterToArguments: Map[Parameter, Seq[T]
 
 case class ArgBindingException[T](message: String, argumentOpt: Option[T] = None) extends RuntimeException(message)
 
-class GeneralArgBinder[T](params: ParameterModel, arguments: Seq[GeneralArgument[T]], ignoreAdditionalParameters: Boolean) {
+class GeneralArgBinder[T](params: ParameterModel,
+                          arguments: Seq[GeneralArgument[T]],
+                          ignoreAdditionalParameters: Boolean) {
 
   private var parameterToArguments: Map[Parameter, Seq[T]] = Map()
   private var lastParameterConsumed = false
+  private var posToParam: Map[Int, Parameter] = Map()
+
+  case class ArgAndPos(arg: GeneralArgument[T], pos: Int)
+
+  case class PositionArgAndPos(arg: GeneralArgument.PositionArg[T], pos: Int)
 
   @throws[ArgBindingException[T]]
   def bind: GeneralArgBinderResult[T] = {
-    handleNamedArgsParams()
     handleLastArg()
     handlePositionalArgs()
     handleFlagArgs()
     handleDefaultAndMandatory()
+    handleNamedArgsParams2()
     GeneralArgBinderResult(parameterToArguments)
   }
 
-  private def addArgToParam(param: Parameter, arg: GeneralArgument[T]) = {
+  private def addArgToParam(param: Parameter, arg: GeneralArgument[T], pos: Int) = {
     ensureParamIsBound(param)
     parameterToArguments += param -> (parameterToArguments(param) :+ arg.value)
+    posToParam += pos -> param
   }
 
   private def ensureParamIsBound(param: Parameter) =
@@ -54,71 +62,80 @@ class GeneralArgBinder[T](params: ParameterModel, arguments: Seq[GeneralArgument
   private def handleNamedArgsParams() =
     for (param ← params.params if param.isNamedArgsParam) {
       ensureParamIsBound(param)
-      arguments.filterNot(_.isPositionArg).foreach(addArgToParam(param, _))
+      argsAndPos
+        .filterNot(_.arg.isPositionArg)
+        .foreach { case ArgAndPos(arg, pos) ⇒ addArgToParam(param, arg, pos) }
     }
+
+  private def handleNamedArgsParams2() =
+    for (param ← params.params if param.isNamedArgsParam) {
+      ensureParamIsBound(param)
+      for (ArgAndPos(arg, pos) ← argsAndPos if !posToParam.contains(pos) if !arg.isPositionArg)
+        addArgToParam(param, arg, pos)
+    }
+
 
   private def handleLastArg() =
     for {
       lastParam ← params.lastParamOpt
       if !lastParam.nameOpt.exists(isProvidedAsNamedArg)
       paramName = lastParam.nameOpt
-      lastArg ← positionArgs.lastOption
+      PositionArgAndPos(lastArg, pos) ← positionArgsWithIndex.lastOption
     } {
       lastParameterConsumed = true
-      addArgToParam(lastParam, lastArg)
+      addArgToParam(lastParam, lastArg, pos)
     }
 
   private def handlePositionalArgs() {
     val regularParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
-    val positionArgs = if (lastParameterConsumed) this.positionArgs.init else this.positionArgs
+    val positionArgs = if (lastParameterConsumed) this.positionArgsWithIndex.init else this.positionArgsWithIndex
 
     handleExcessArguments(positionArgs, regularParams)
 
-    for ((param, arg) ← regularParams zip positionArgs)
-      addArgToParam(param, arg)
+    for ((param, PositionArgAndPos(arg, pos)) ← regularParams zip positionArgs)
+      addArgToParam(param, arg, pos)
   }
 
-  private def handleExcessArguments(positionArgs: Seq[GeneralArgument.PositionArg[T]], regularParams: Seq[Parameter]) =
+  private def handleExcessArguments(positionArgs: Seq[PositionArgAndPos], regularParams: Seq[Parameter]) =
     if (positionArgs.size > regularParams.size)
       params.variadicParamOpt match {
         case Some(variadicParam) ⇒
           val varargs = positionArgs.drop(regularParams.size)
-          for (arg ← varargs)
-            addArgToParam(variadicParam, arg)
+          for (PositionArgAndPos(arg, pos) ← varargs)
+            addArgToParam(variadicParam, arg, pos)
         case None                ⇒
           if (!ignoreAdditionalParameters) {
             val maxPositionArgs = params.positionalParams.size
-            val providedArgs = this.positionArgs.size
-            val firstExcessArgument = this.positionArgs.drop(maxPositionArgs).head
+            val providedArgs = this.positionArgsWithIndex.size
+            val firstExcessArgument = this.positionArgsWithIndex.drop(maxPositionArgs).head
             val wasWere = if (providedArgs == 1) "was" else "were"
             val isAre = if (maxPositionArgs == 1) "is" else "are"
             val message = s"Too many positional arguments -- $providedArgs $wasWere provided, but at most $maxPositionArgs $isAre allowed"
-            throw new ArgBindingException(message, Some(firstExcessArgument.value))
+            throw new ArgBindingException(message, Some(firstExcessArgument.arg.value))
           }
       }
 
   private def handleFlagArgs() {
-    for (argument ← arguments)
+    for (ArgAndPos(argument, pos) ← argsAndPos)
       argument match {
         case GeneralArgument.ShortFlag(flags, _)    ⇒
           for (flag ← flags)
-            bindFlagParam(flag, argument)
+            bindFlagParam(flag, argument, pos)
         case GeneralArgument.LongFlag(flag, _)      ⇒
-          bindFlagParam(flag, argument)
+          bindFlagParam(flag, argument, pos)
         case posArg: GeneralArgument.PositionArg[T] ⇒
         // skip
       }
   }
 
-
-  private def bindFlagParam(paramName: String, arg: GeneralArgument[T]) = {
+  private def bindFlagParam(paramName: String, arg: GeneralArgument[T], pos: Int) = {
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (!param.isNamedArgsParam)
           if (parameterToArguments contains param)
             throw new ArgBindingException(s"${describe(param).capitalize} is provided multiple times", Some(arg))
           else
-            addArgToParam(param, arg)
+            addArgToParam(param, arg, pos)
       case None        ⇒
         if (!ignoreAdditionalParameters && !hasNamedArgsParam)
           throw new ArgBindingException(s"Unexpected named argument '$paramName'", Some(arg.value))
@@ -136,7 +153,7 @@ class GeneralArgBinder[T](params: ParameterModel, arguments: Seq[GeneralArgument
               throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
             else
               ensureParamIsBound(param)
-          else
+          else if (!param.isNamedArgsParam)
             throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
       }
 
@@ -148,7 +165,10 @@ class GeneralArgBinder[T](params: ParameterModel, arguments: Seq[GeneralArgument
 
   private def hasNamedArgsParam = params.params.exists(_.isNamedArgsParam)
 
-  private lazy val positionArgs = arguments.collect { case arg: GeneralArgument.PositionArg[T] ⇒ arg }
+  private lazy val argsAndPos: Seq[ArgAndPos] = arguments.zipWithIndex.map((ArgAndPos.apply _).tupled)
+
+  private lazy val positionArgsWithIndex =
+    argsAndPos.collect { case ArgAndPos(arg: GeneralArgument.PositionArg[T], pos) => PositionArgAndPos(arg, pos) }
 
   private def isProvidedAsNamedArg(name: String): Boolean =
     arguments.exists {

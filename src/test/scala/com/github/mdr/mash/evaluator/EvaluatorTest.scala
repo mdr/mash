@@ -973,10 +973,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -abc" ==> "{ a: true, b: true, c: true }"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject" ==> "{}"
   "def makeObject (@namedArgs namedArgs) (@flag otherArg) = { namedArgs, otherArg }; makeObject --otherArg=10" ==>
-    "{ namedArgs: { otherArg: 10 }, otherArg: 10 }"
+    "{ namedArgs: {}, otherArg: 10 }"
   "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject 1 --foo=2" ==> "[1, { foo: 2 }]"
   "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject --foo=2 --otherParam=1" ==>
-    "[1, { foo: 2, otherParam: 1 }]"
+    "[1, { foo: 2 }]"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
 
   // doc comments

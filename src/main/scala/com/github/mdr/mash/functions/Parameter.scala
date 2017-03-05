@@ -22,6 +22,7 @@ case class Parameter(nameOpt: Option[String],
                      isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list
                      isLazy: Boolean = false, // if true, don't evaluate argument
                      isNamedArgsParam: Boolean = false, // If true, receive a list of the named arguments
+                     isAllArgsParam: Boolean = false, // If true, receive a list of all argument
                      patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 
