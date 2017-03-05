@@ -1,6 +1,5 @@
 namespace mash.release
 
-
 def getVersion = read "build.sbt" | 'version := "(.+)"'.r.match | .groups.first
 
 def setVersion version =
@@ -20,4 +19,27 @@ def prepareBuildSbt = {
   newPoint = release.split(".").last.toNumber + 1
   new = "v0.0.$newPoint-SNAPSHOT"
   { current, release, new }
+}
+
+def createGithubRelease newVersion = {
+  releasesUrl = "https://api.github.com/repos/mdr/mash/releases"
+  name = "v$newVersion"
+  body = { tag_name: name, name, prerelease: true }
+  token = readLines "~/.mash/mdr-github-token" | first
+  response = http.post releasesUrl --headers={ Authorization: "bearer $token" } --json body
+  if response.succeeded then {
+    print "Released mash $name"
+    response
+    # TODO: attach assets
+    # target/scala-2.12/mash-$newVersion.jar
+    # target/mash_$newVersion.deb
+    # response.json.upload_url / "application/octet-stream"
+  } else
+    error "Problem creating release: $response"
+}
+
+def getRelease newVersion = {
+  releasesUrl = "https://api.github.com/repos/mdr/mash/releases"
+  token = readLines "~/.mash/mdr-github-token" | first
+  json.get --headers={ Authorization: "bearer $token" } "$releasesUrl/$newVersion"
 }
