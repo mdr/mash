@@ -1,5 +1,5 @@
-v0.0.6 (..)
------------
+v0.0.6 (5/March/2017)
+---------------------
 
 * Add core.error function
 * map/flatMap --withIndex replaced by detecting arity of incoming function
