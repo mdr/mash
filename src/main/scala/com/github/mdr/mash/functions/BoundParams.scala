@@ -10,7 +10,8 @@ import com.github.mdr.mash.runtime._
 import scala.util.control.Exception._
 
 case class BoundParams(boundNames: Map[String, MashValue],
-                       parameterToArguments: Map[Parameter, Seq[Argument]]) {
+                       parameterToArguments: Map[Parameter, Seq[Argument]],
+                       allResolvedArgs: Seq[EvaluatedArgument[MashValue]]) {
 
   def apply(param: String): MashValue = boundNames(param)
 

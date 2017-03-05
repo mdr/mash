@@ -9,8 +9,8 @@ import com.github.mdr.mash.runtime._
 import scala.collection.immutable.ListMap
 
 /**
- * Select members of an object
- */
+  * Select members of an object
+  */
 object SelectFunction extends MashFunction("collections.select") {
 
   private val AddShortFlag = 'a'
@@ -27,44 +27,42 @@ object SelectFunction extends MashFunction("collections.select") {
       defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
       isFlag = true)
   }
+
   import Params._
 
-  val params = ParameterModel(Seq(Target, Add))
+  val params = ParameterModel(Seq(Target, Add), provideAllArgs = true)
 
-  override def apply(boundParams: BoundParams): MashValue = ??? // Not used
-
-  override def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.bindTo(arguments, ignoreAdditionalParameters = true)
+  override def apply(boundParams: BoundParams): MashValue = {
     val add = boundParams(Add).isTruthy
     val target = boundParams(Target)
     val fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)] =
-      arguments.evaluatedArguments.init.flatMap(getFieldAndFunction)
+      boundParams.allResolvedArgs.init.flatMap(getFieldAndFunction)
     target match {
       case xs: MashList ⇒ xs.map(doSelect(_, fieldsAndFunctions, add))
       case x            ⇒ doSelect(x, fieldsAndFunctions, add)
     }
   }
 
-  private def getFieldAndFunction(argument: EvaluatedArgument): Option[(String, MashValue ⇒ MashValue)] = argument match{
+  private def getFieldAndFunction(argument: EvaluatedArgument[MashValue]): Option[(String, MashValue ⇒ MashValue)] = argument match {
     case EvaluatedArgument.PositionArg(suspendedValue, argumentNodeOpt) ⇒
-      suspendedValue.resolve() match {
+      suspendedValue match {
         case s: MashString ⇒
           Some(s.s -> FunctionHelpers.interpretAsFunction(s))
-        case _ ⇒
+        case _             ⇒
           throw new ArgumentException("Positional arguments must be strings", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
       }
-    case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt) ⇒
+    case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt)            ⇒
       if (flags == Seq(AddShortFlag.toString))
         None
       else
         throw new ArgumentException("Short flags not supported by select", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
-    case EvaluatedArgument.LongFlag(flag, None, _) ⇒
+    case EvaluatedArgument.LongFlag(flag, None, _)                      ⇒
       if (Add.nameOpt contains flag)
         None
       else
         Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
-    case EvaluatedArgument.LongFlag(flag, Some(value), _) ⇒
-      Some(flag -> FunctionHelpers.interpretAsFunction(value.resolve()))
+    case EvaluatedArgument.LongFlag(flag, Some(value), _)               ⇒
+      Some(flag -> FunctionHelpers.interpretAsFunction(value))
   }
 
   private def doSelect(target: MashValue, fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)], add: Boolean): MashObject = {
@@ -94,14 +92,15 @@ object SelectFunction extends MashFunction("collections.select") {
             case Some(targetType)            ⇒ Seq(CompletionSpec.Members(targetType))
             case _                           ⇒ Seq()
           }
-        case _ ⇒ Seq()
+        case _                               ⇒ Seq()
       }
     else
       Seq()
 
   override def summaryOpt = Some("Select members of an object or sequence of objects")
 
-  override def descriptionOpt = Some("""If the input is a sequence, the selection is applied to every element and a 
+  override def descriptionOpt = Some(
+    """If the input is a sequence, the selection is applied to every element and a
   sequence of new objects is returned.
 If the input is a single object, a single new object is returned with the selection applied.
 

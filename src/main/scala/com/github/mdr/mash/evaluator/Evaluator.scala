@@ -196,7 +196,7 @@ object Evaluator extends EvaluatorHelper {
     } yield alias
   }
 
-  protected case class EvaluatedAttribute(name: String, argumentsOpt: Option[Seq[EvaluatedArgument]])
+  protected case class EvaluatedAttribute(name: String, argumentsOpt: Option[Seq[EvaluatedArgument[SuspendedMashValue]]])
 
   private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
     val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl

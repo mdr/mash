@@ -4,7 +4,8 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.inference.TypedArguments
 
-case class ParameterModel(params: Seq[Parameter] = Seq()) {
+case class ParameterModel(params: Seq[Parameter] = Seq(),
+                          provideAllArgs: Boolean = false) {
 
   require(params.count(_.isVariadic) <= 1)
   require(params.count(_.isLast) <= 1)
@@ -37,7 +38,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   private def allowsNullary(p: Parameter): Boolean =
     (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined || p.isNamedArgsParam
-  
+
   def allowsBinary: Boolean = params.exists(_.isVariadic) || positionalParams.size >= 2
 
   def callingSyntax: String = {

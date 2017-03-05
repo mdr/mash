@@ -12,7 +12,13 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
   private var boundNames: Map[String, MashValue] = Map()
 
   def bind: BoundParams = {
-    val parameterToArgs: Map[Parameter, Seq[EvaluatedArgument]] = runGeneralArgBinder
+    val parameterToArgs: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = runGeneralArgBinder
+
+    val allResolvedArgs =
+      if (params.provideAllArgs)
+        arguments.evaluatedArguments.map(_.map(_.resolve()))
+      else
+        Seq()
 
     bindParams(parameterToArgs)
 
@@ -20,23 +26,23 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
       for ((param, evalArgs) <- parameterToArgs)
         yield param -> evalArgs.flatMap(_.argumentNodeOpt)
 
-    BoundParams(boundNames, parameterToArguments)
+    BoundParams(boundNames, parameterToArguments, allResolvedArgs)
   }
 
-  private def runGeneralArgBinder: Map[Parameter, Seq[EvaluatedArgument]] = {
-    val argBinder = new GeneralArgBinder(params, generalArguments, ignoreAdditionalParameters)
+  private def runGeneralArgBinder: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = {
+    val argBinder = new GeneralArgBinder(params, generalArguments, ignoreAdditionalParameters = params.provideAllArgs)
     val result =
       try
         argBinder.bind
       catch {
         case ArgBindingException(message, argumentOpt) ⇒
-          val locationOpt = argumentOpt.collect { case arg: EvaluatedArgument ⇒ arg }.flatMap(getLocation)
+          val locationOpt = argumentOpt.collect { case arg: EvaluatedArgument[_] ⇒ arg }.flatMap(getLocation)
           throw new ArgumentException(message, locationOpt)
       }
     result.parameterToArguments
   }
 
-  private def bindParams(parameterToArgs: Map[Parameter, Seq[EvaluatedArgument]]) =
+  private def bindParams(parameterToArgs: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]]) =
     for ((param, evalArgs) ← parameterToArgs)
       if (param.isVariadic)
         bindVariadicParam(param, evalArgs)
@@ -45,14 +51,14 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
       else
         bindRegularParam(param, evalArgs)
 
-  private def generalArguments: Seq[GeneralArgument[EvaluatedArgument]] =
+  private def generalArguments: Seq[GeneralArgument[EvaluatedArgument[SuspendedMashValue]]] =
     arguments.evaluatedArguments.map {
       case arg@EvaluatedArgument.ShortFlag(flags, _)  ⇒ GeneralArgument.ShortFlag(flags, arg)
       case arg@EvaluatedArgument.LongFlag(flag, _, _) ⇒ GeneralArgument.LongFlag(flag, arg)
       case arg@EvaluatedArgument.PositionArg(_, _)    ⇒ GeneralArgument.PositionArg(arg)
     }
 
-  private def getArgValue(param: Parameter, arg: EvaluatedArgument): MashValue = arg match {
+  private def getArgValue(param: Parameter, arg: EvaluatedArgument[SuspendedMashValue]): MashValue = arg match {
     case EvaluatedArgument.PositionArg(value, _)    ⇒
       resolve(param, value)
     case EvaluatedArgument.LongFlag(_, valueOpt, _) ⇒
@@ -61,7 +67,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
       MashBoolean.True
   }
 
-  private def bindVariadicParam(param: Parameter, evalArgs: Seq[EvaluatedArgument]): Unit = {
+  private def bindVariadicParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]): Unit = {
     val argsList =
       param.defaultValueGeneratorOpt.filter(_ ⇒ evalArgs.isEmpty) match {
         case Some(generator) ⇒
@@ -73,14 +79,14 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
               case x            ⇒
                 throw new ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
             }
-            case _ ⇒ MashList(evalArgs.map(getArgValue(param, _)))
+            case _                                                  ⇒ MashList(evalArgs.map(getArgValue(param, _)))
           }
       }
     for (name ← param.nameOpt)
       boundNames += name -> argsList
   }
 
-  private def bindRegularParam(param: Parameter, evalArgs: Seq[EvaluatedArgument]) {
+  private def bindRegularParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
     val value = evalArgs match {
       case Seq()    ⇒
         param.defaultValueGeneratorOpt.getOrElse(throw new AssertionError(s"No argument for mandatory param $param"))()
@@ -95,7 +101,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
     }
   }
 
-  private def bindNamedArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument]) {
+  private def bindNamedArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
     val argsObject = MashObject.of(evalArgs.flatMap {
       case EvaluatedArgument.LongFlag(flag, valueOpt, _) ⇒
         val value = valueOpt.map(_.resolve()) getOrElse MashBoolean.True
@@ -147,7 +153,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, ignoreAd
     else
       suspendedValue.resolve()
 
-  private def getLocation(arg: EvaluatedArgument): Option[SourceLocation] =
+  private def getLocation(arg: EvaluatedArgument[_]): Option[SourceLocation] =
     arg.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)
 
 }

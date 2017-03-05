@@ -1,9 +1,9 @@
 package com.github.mdr.mash.evaluator
 
-case class Arguments(evaluatedArguments: Seq[EvaluatedArgument] = Seq()) {
+case class Arguments(evaluatedArguments: Seq[EvaluatedArgument[SuspendedMashValue]] = Seq()) {
 
-  def positionArgs: Seq[EvaluatedArgument.PositionArg] =
-    evaluatedArguments.collect { case arg: EvaluatedArgument.PositionArg ⇒ arg }
+  def positionArgs: Seq[EvaluatedArgument.PositionArg[SuspendedMashValue]] =
+    evaluatedArguments.collect { case arg: EvaluatedArgument.PositionArg[SuspendedMashValue] ⇒ arg }
 
   lazy val argSet: Set[String] = evaluatedArguments.collect {
     case EvaluatedArgument.ShortFlag(flags, _)     ⇒ flags
