@@ -19,5 +19,5 @@ def prepareBuildSbt = {
 
   newPoint = releaseVersion.split(".").last.toNumber + 1
   newSnapshotVersion = "v0.0.$newPoint-SNAPSHOT"
-  { curent, release, newSnapshot }
+  { current, release, newSnapshot }
 }
