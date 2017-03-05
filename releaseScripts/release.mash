@@ -1,5 +1,6 @@
 namespace mash.release
 
+
 def getVersion = read "build.sbt" | 'version := "(.+)"'.r.match | .groups.first
 
 def setVersion version =
@@ -7,12 +8,16 @@ def setVersion version =
     | .replace --regex 'version := "(.+)"' "version := `"$version`""
     | write "build.sbt"
 
-def doStuff = {
+def prepareBuildSbt = {
   currentVersion = getVersion
   if not (currentVersion.endsWith "-SNAPSHOT") then
     error "Current version is not a SNAPSHOT: $currentVersion"
   releaseVersion = currentVersion.replace "-SNAPSHOT" ""
+
+  print "Updating build.sbt to $releaseVersion"
   setVersion releaseVersion
-  newPoint = oldVersion.split(".").last.toNumber + 1
+
+  newPoint = releaseVersion.split(".").last.toNumber + 1
   newSnapshotVersion = "v0.0.$newPoint-SNAPSHOT"
+  { currentVersion, releaseVersion, newSnapshotVersion}
 }
