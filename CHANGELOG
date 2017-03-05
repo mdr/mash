@@ -1,8 +1,9 @@
 v0.0.6 (..)
 -----------
 
+* Add core.error function
 * map/flatMap --withIndex replaced by detecting arity of incoming function
-* Add Object.where/whereNot/map
+* Add Object.transform/whereField/whereNotField
 * Add random.number
 * Add Class.bless
 * Add json.get/post/put/delete methods

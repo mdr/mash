@@ -67,6 +67,7 @@ object MashRoot {
         mash.VersionFunction)
 
   private val CoreFunctions = Seq(
+    ErrorFunction,
     ExitFunction,
     IdentityFunction,
     InBackgroundFunction,
