@@ -11,6 +11,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
 
   private var boundNames: Map[String, MashValue] = Map()
   private var allResolvedArgs: Seq[EvaluatedArgument[MashValue]] = Seq()
+
   def bind: BoundParams = {
     val parameterToArgs: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = runGeneralArgBinder
 
@@ -71,7 +72,8 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
         case None            ⇒
           evalArgs match {
             case Seq(arg@EvaluatedArgument.LongFlag(_, Some(_), _)) ⇒ getArgValue(param, arg) match {
-              case xs: MashList ⇒ xs
+              case xs: MashList ⇒
+                xs
               case x            ⇒
                 throw new ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
             }
@@ -98,13 +100,23 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
   }
 
   private def bindNamedArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
+    var flagsSeen: Set[String] = Set()
+    def checkFlag(flag: String, arg: EvaluatedArgument[_]) =
+      if (flagsSeen contains flag)
+        throw new ArgumentException(s"Argument '$flag' is provided multiple times", getLocation(arg))
+      else
+        flagsSeen += flag
+
     val argsObject = MashObject.of(evalArgs.flatMap {
-      case EvaluatedArgument.LongFlag(flag, valueOpt, _) ⇒
+      case arg@EvaluatedArgument.LongFlag(flag, valueOpt, _) ⇒
         val value = valueOpt.map(_.resolve()) getOrElse MashBoolean.True
+        checkFlag(flag, arg)
         Seq(flag -> value)
-      case EvaluatedArgument.ShortFlag(flags, _)         ⇒
+      case arg@EvaluatedArgument.ShortFlag(flags, _)         ⇒
+        for (flag ← flags)
+          checkFlag(flag, arg)
         flags.map(_.toString -> MashBoolean.True)
-      case EvaluatedArgument.PositionArg(_, _)           ⇒
+      case EvaluatedArgument.PositionArg(_, _)               ⇒
         Seq()
     })
     for (name ← param.nameOpt)

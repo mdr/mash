@@ -979,6 +979,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     "[1, { foo: 2 }]"
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
 
+  "def foo (@namedArgs args) = args; foo --arg --arg" shouldThrowAnException
+
+  "def foo (@namedArgs args) = args; foo -aa" shouldThrowAnException
+
+  "def foo arg (@namedArgs args) = args; foo 42 --arg=100" shouldThrowAnException
+
   // doc comments
   """# Square a number
     |def square n = n * n

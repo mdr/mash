@@ -1,6 +1,7 @@
 v0.0.7 (..)
 -----------
 
+* Error on duplicate named arguments when using @namedArgs
 * Add back/forward functions to navigate old directories
 
 v0.0.6 (5/March/2017)

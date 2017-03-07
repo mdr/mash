@@ -118,10 +118,10 @@ class CompletionsTest extends FlatSpec with Matchers {
   }
 
   {
-    implicit val filesystem = MockFileSystem.of("/foo.txt")
+    implicit val filesystem = MockFileSystem.of("/foobar.txt")
 
-    "[{ foo: 42 }] | map fo▶" shouldGiveCompletions "foo"
-    "[{ bar: 42 }] | map fo▶" shouldGiveCompletions "foo.txt"
+    "[{ foobar: 42 }] | map fooba▶" shouldGiveCompletions "foobar"
+    "[{ bar: 42 }] | map fooba▶" shouldGiveCompletions "foobar.txt"
   }
 
   "{ foo: 42 } | select fo▶" shouldGiveCompletions "foo"
