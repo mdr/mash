@@ -75,6 +75,8 @@ class HelpPrinter(output: PrintStream) {
       qualifiers +:= "last"
     if (boolParam(IsLazy))
       qualifiers +:= "lazy"
+    if (boolParam(IsNamedArgs))
+      qualifiers +:= "namedArgs"
     if (boolParam(IsOptional))
       qualifiers +:= "optional"
     if (boolParam(IsVariadic))

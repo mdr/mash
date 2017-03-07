@@ -1,6 +1,7 @@
 package com.github.mdr.mash
 
 import com.github.mdr.mash.evaluator.ExecutionContext
+import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.ScriptExecutor
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashObject
@@ -15,7 +16,7 @@ object Singletons {
 
   var terminalControl: TerminalControl = _
 
-  var workingDirectoryStack: WorkingDirectoryStack = new WorkingDirectoryStack
+  var workingDirectoryStack: WorkingDirectoryStack = new WorkingDirectoryStack(LinuxFileSystem.pwd)
 
   var history: History = _
 

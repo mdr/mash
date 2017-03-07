@@ -14,7 +14,9 @@ import com.github.mdr.mash.runtime.{ MashString, MashUnit }
 object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   sealed trait Result
+
   case object Success extends Result
+
   case object NotADirectory extends Result
 
   private val fileSystem = LinuxFileSystem
@@ -27,6 +29,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
       summaryOpt = Some("Directory to change into; defaults to the current user's home directory."),
       defaultValueGeneratorOpt = Some(() ⇒ home))
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Directory))
@@ -34,7 +37,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
   def apply(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(Directory)
     changeDirectory(path) match {
-      case Success ⇒
+      case Success       ⇒
         MashUnit
       case NotADirectory ⇒
         boundParams.throwInvalidArgument(Directory, s"Could not change directory to '$path', not a directory")
@@ -44,12 +47,14 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
   private def home = MashString(environmentInteractions.home.toString, Some(PathClass))
 
   def changeDirectory(path: Path): Result = {
+    val result =
+      if (fileSystem.isDirectory(path)) {
+        fileSystem.chdir(path)
+        Success
+      } else
+        NotADirectory
     workingDirectoryStack.push(fileSystem.pwd)
-    if (fileSystem.isDirectory(path)) {
-      fileSystem.chdir(path)
-      Success
-    } else
-      NotADirectory
+    result
   }
 
   override def typeInferenceStrategy = UnitClass
@@ -58,7 +63,8 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   override def summaryOpt = Some("Change the current working directory")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
    cd "/tmp"
    cd # cd to home directory""")
 

@@ -72,6 +72,7 @@ object HelpCreator {
         IsOptional -> MashBoolean(param.isOptional),
         IsLast -> MashBoolean(param.isLast),
         IsLazy -> MashBoolean(param.isLazy),
+        IsNamedArgs -> MashBoolean(param.isNamedArgsParam),
         IsVariadic -> MashBoolean(param.isVariadic)),
       ParameterHelpClass)
   }

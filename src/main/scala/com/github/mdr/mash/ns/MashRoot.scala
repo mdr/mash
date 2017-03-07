@@ -97,6 +97,7 @@ object MashRoot {
     maths.StatsFunction)
 
   private val OsFunctions = Seq(
+    BackFunction,
     ChangeDirectoryFunction,
     ChildrenFunction,
     CopyFunction,
@@ -105,6 +106,7 @@ object MashRoot {
     CreateTempFileFunction,
     CurrentDirectoryFunction,
     DeleteFunction,
+    ForwardFunction,
     GlobFunction,
     HomeFunction,
     KillFunction,

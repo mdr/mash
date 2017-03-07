@@ -26,9 +26,9 @@ object UpFunction extends MashFunction("os.up") {
 
   def apply(boundParams: BoundParams): MashUnit = {
     val times = boundParams.validateInteger(N)
-    workingDirectoryStack.push(fileSystem.pwd)
     for (n ← 1 to times)
       fileSystem.chdir(Paths.get(".."))
+    workingDirectoryStack.push(fileSystem.pwd)
     MashUnit
   }
 

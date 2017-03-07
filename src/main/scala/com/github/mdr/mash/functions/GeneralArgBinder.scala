@@ -29,7 +29,8 @@ case class GeneralArgBinderResult[T](parameterToArguments: Map[Parameter, Seq[T]
 case class ArgBindingException[T](message: String, argumentOpt: Option[T] = None) extends RuntimeException(message)
 
 class GeneralArgBinder[T](params: ParameterModel,
-                          arguments: Seq[GeneralArgument[T]]) {
+                          arguments: Seq[GeneralArgument[T]],
+                          forgiving: Boolean = false) {
 
   private var parameterToArguments: Map[Parameter, Seq[T]] = Map()
   private var lastParameterConsumed = false
@@ -113,7 +114,8 @@ class GeneralArgBinder[T](params: ParameterModel,
             val wasWere = if (providedArgs == 1) "was" else "were"
             val isAre = if (maxPositionArgs == 1) "is" else "are"
             val message = s"Too many positional arguments -- $providedArgs $wasWere provided, but at most $maxPositionArgs $isAre allowed"
-            throw new ArgBindingException(message, Some(firstExcessArgument.arg.value))
+            if (!forgiving)
+              throw new ArgBindingException(message, Some(firstExcessArgument.arg.value))
           }
       }
 
@@ -129,19 +131,20 @@ class GeneralArgBinder[T](params: ParameterModel,
         // skip
       }
 
-  private def bindFlagParam(paramName: String, arg: GeneralArgument[T], pos: Int) = {
+  private def bindFlagParam(paramName: String, arg: GeneralArgument[T], pos: Int): Unit =
     params.paramByName.get(paramName) match {
       case Some(param) ⇒
         if (!param.isNamedArgsParam)
-          if (parameterToArguments contains param)
-            throw new ArgBindingException(s"${describe(param).capitalize} is provided multiple times", Some(arg))
-          else
+          if (parameterToArguments contains param) {
+            if (!forgiving)
+              throw new ArgBindingException(s"${describe(param).capitalize} is provided multiple times", Some(arg))
+          } else
             addArgToParam(param, arg, pos)
       case None        ⇒
         if (!hasNamedArgsParam && !hasAllArgsParam)
-          throw new ArgBindingException(s"Unexpected named argument '$paramName'", Some(arg.value))
+          if (!forgiving)
+            throw new ArgBindingException(s"Unexpected named argument '$paramName'", Some(arg.value))
     }
-  }
 
   private def handleDefaultAndMandatory() =
     for (param ← params.params if !(parameterToArguments contains param))
@@ -150,12 +153,14 @@ class GeneralArgBinder[T](params: ParameterModel,
           ensureParamIsBound(param)
         case None            ⇒
           if (param.isVariadic)
-            if (param.variadicAtLeastOne)
-              throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
-            else
+            if (param.variadicAtLeastOne) {
+              if (!forgiving)
+                throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
+            } else
               ensureParamIsBound(param)
           else if (!param.isNamedArgsParam && !param.isAllArgsParam)
-            throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
+            if (!forgiving)
+              throw new ArgBindingException(s"Missing mandatory ${describe(param)}")
       }
 
 
@@ -165,6 +170,7 @@ class GeneralArgBinder[T](params: ParameterModel,
   }
 
   private def hasNamedArgsParam = params.params.exists(_.isNamedArgsParam)
+
   private def hasAllArgsParam = params.params.exists(_.isAllArgsParam)
 
   private lazy val argsAndPos: Seq[ArgAndPos] = arguments.zipWithIndex.map((ArgAndPos.apply _).tupled)
