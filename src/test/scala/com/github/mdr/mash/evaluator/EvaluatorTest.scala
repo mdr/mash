@@ -1075,6 +1075,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Object.grep
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
+  "{ a: 42 } | grep 'name'" ==> "{}"
 
   "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 

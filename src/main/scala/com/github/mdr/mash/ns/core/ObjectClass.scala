@@ -503,12 +503,9 @@ object ObjectClass extends MashClass("core.Object") {
       val regex = boundParams(Regex).isTruthy
       val query = ToStringifier.stringify(boundParams(Query))
       val negate = boundParams(Negate).isTruthy
-      val items = FieldsMethod.getFieldObjects(obj)
-      GrepFunction.runGrep(items, query, ignoreCase, regex, negate).elements.map { case obj: MashObject ⇒
-        val name = obj("name").asInstanceOf[MashString].s
-        val value = obj("value")
-        MashObject.of(List(name -> value))
-      }.reduceOption(_ + _) getOrElse MashObject.empty
+      val items = obj.immutableFields.map(MashObject.of(_)).toSeq
+      val filteredItems = GrepFunction.runGrep(items, query, ignoreCase, regex, negate)
+      filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ + _)
     }
 
     override def summaryOpt: Option[String] = Some("Find all the fields in the object which match the given query somewhere in its String representation")
