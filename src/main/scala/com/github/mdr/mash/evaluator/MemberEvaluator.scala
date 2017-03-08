@@ -82,13 +82,17 @@ object MemberEvaluator extends EvaluatorHelper {
         None
     }
 
-  private def lookupMethod(target: MashValue, klass: MashClass, name: String, includePrivate: Boolean = false): Option[BoundMethod] = {
+  private def lookupMethod(target: MashValue,
+                           klass: MashClass,
+                           name: String,
+                           includePrivate: Boolean = false,
+                           includeParents: Boolean = true): Option[BoundMethod] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
         if method.isPublic || includePrivate
       } yield BoundMethod(target, method, klass)
-    def parentResultOpt = klass.parentOpt.flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
+    def parentResultOpt = klass.parentOpt.filter(_ ⇒ includeParents).flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
     directResultOpt orElse parentResultOpt
   }
 
@@ -107,7 +111,10 @@ object MemberEvaluator extends EvaluatorHelper {
   /**
     * @return a bound method, a static method, or a field value corresponding to the given name in the target
     */
-  def maybeLookup(target: MashValue, name: String, includePrivate: Boolean = false): Option[MashValue] =
+  def maybeLookup(target: MashValue,
+                  name: String,
+                  includePrivate: Boolean = false,
+                  includeParents: Boolean = true): Option[MashValue] =
     target match {
       case MashNumber(n, tagClassOpt)     ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
       case MashString(s, tagClassOpt)     ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
@@ -120,7 +127,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case klass: MashClass               ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
       case dt@MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date@MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
-      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate)
+      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeParents)
     }
 
   private def getMemberNames(target: MashValue): Seq[String] = {

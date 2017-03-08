@@ -881,9 +881,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" ==> 100
   "class Foo { def foo (n = bar) = n; def bar = 100 }; Foo.new.foo" ==> 100
 
-  "class Foo { def getFields = fields }; Foo.new.getFields" ==> "[]"
-  "class Foo { def getFields = fields }; Foo.new.fields" ==> "[]"
-  "class Foo { def getFields = toString }; Foo.new.getFields" ==> "'{ Foo | }'"
+  "class Foo { def getFields = this.fields }; Foo.new.getFields" ==> "[]"
+  "class Foo { def getFields = this.toString }; Foo.new.getFields" ==> "'{ Foo | }'"
 
   "(class A { def foo = 42 }) | .new.foo" ==> 42
   "(def foo = 42) | x => x" ==> 42
