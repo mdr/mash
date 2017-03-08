@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.ObjectClass.GrepMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.StringUtils
@@ -47,16 +48,20 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex, Negate))
 
-  def apply(boundParams: BoundParams): MashList = {
-    val ignoreCase = boundParams(IgnoreCase).isTruthy
-    val regex = boundParams(Regex).isTruthy
-    val query = ToStringifier.stringify(boundParams(Query))
-    val negate = boundParams(Negate).isTruthy
-    val items = getInputItems(boundParams)
-    runGrep(items, query, ignoreCase, regex, negate)
-  }
+  def apply(boundParams: BoundParams): MashValue =
+    boundParams(Input) match {
+      case obj: MashObject ⇒
+        GrepMethod.doGrep(obj, boundParams)
+      case inSequence      ⇒
+        val items = getInputItems(boundParams)
+        val ignoreCase = boundParams(IgnoreCase).isTruthy
+        val regex = boundParams(Regex).isTruthy
+        val query = ToStringifier.stringify(boundParams(Query))
+        val negate = boundParams(Negate).isTruthy
+        runGrep(items, query, ignoreCase, regex, negate)
+    }
 
-  def getItems(s: MashString) = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
+  def getItems(s: MashString): Seq[MashString] = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
 
   def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean): MashList =
     MashList(items.filter(matches(_, query, ignoreCase, regex, negate)))

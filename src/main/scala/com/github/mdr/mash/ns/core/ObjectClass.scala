@@ -2,8 +2,10 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.collections.GrepFunction
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -18,6 +20,7 @@ object ObjectClass extends MashClass("core.Object") {
     BlessMethod,
     FieldsMethod,
     GetMethod,
+    GrepMethod,
     HasFieldMethod,
     HoistMethod,
     MapMethod,
@@ -231,13 +234,17 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, boundParams: BoundParams): MashList = {
       val obj = target.asInstanceOf[MashObject]
+      MashList(getFieldObjects(obj))
+    }
+
+    def getFieldObjects(obj: MashObject): Seq[MashObject] = {
       def asObject(name: String, value: MashValue) = {
         import FieldAndValueClass.Fields._
         MashObject.of(ListMap(
           Name -> MashString(name),
           Value -> value), FieldAndValueClass)
       }
-      MashList(obj.fields.toSeq.map((asObject _).tupled))
+      obj.fields.toSeq.map((asObject _).tupled)
     }
 
     override def typeInferenceStrategy = Seq(FieldAndValueClass)
@@ -478,6 +485,35 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def descriptionOpt = Some(
       """Examples:"""".stripMargin)
+  }
+
+  object GrepMethod extends MashMethod("grep") {
+
+    import GrepFunction.Params._
+
+    val params = ParameterModel(Seq(Query, IgnoreCase, Regex, Negate))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+      val obj = target.asInstanceOf[MashObject]
+      doGrep(obj, boundParams)
+    }
+
+    def doGrep(obj: MashObject, boundParams: BoundParams): MashObject = {
+      val ignoreCase = boundParams(IgnoreCase).isTruthy
+      val regex = boundParams(Regex).isTruthy
+      val query = ToStringifier.stringify(boundParams(Query))
+      val negate = boundParams(Negate).isTruthy
+      val items = FieldsMethod.getFieldObjects(obj)
+      GrepFunction.runGrep(items, query, ignoreCase, regex, negate).elements.map { case obj: MashObject ⇒
+        val name = obj("name").asInstanceOf[MashString].s
+        val value = obj("value")
+        MashObject.of(List(name -> value))
+      }.reduceOption(_ + _) getOrElse MashObject.empty
+    }
+
+    override def summaryOpt: Option[String] = Some("Find all the fields in the object which match the given query somewhere in its String representation")
+
+    override def typeInferenceStrategy = ObjectClass
   }
 
 

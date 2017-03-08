@@ -1072,6 +1072,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
   "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
 
+  // Object.grep
+  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
+  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
+
   "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 
   "class A { def foo = [1, 2, 3] | where (_ > 1) }; A.new.foo" ==> "[2, 3]"
