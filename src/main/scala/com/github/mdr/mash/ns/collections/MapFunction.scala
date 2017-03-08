@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.ObjectClass.{ MapMethod, WhereMethod }
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -24,21 +25,23 @@ object MapFunction extends MashFunction("collections.map") {
 
   val params = ParameterModel(Seq(F, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
-    val inSequence = boundParams(Sequence)
-    val sequence = boundParams.validateSequence(Sequence)
-    val mapped: Seq[MashValue] =
-      boundParams.validateFunction1Or2(F) match {
-        case Left(f)  ⇒ sequence.map(f)
-        case Right(f) ⇒ sequence.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
-      }
-    inSequence match {
-      case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
-        mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-      case _                                                   ⇒
-        MashList(mapped)
+  def apply(boundParams: BoundParams): MashValue =
+    boundParams(Sequence) match {
+      case obj: MashObject ⇒ MapMethod.doMap(obj, boundParams)
+      case inSequence      ⇒
+        val sequence = boundParams.validateSequence(Sequence)
+        val mapped: Seq[MashValue] =
+          boundParams.validateFunction1Or2(F) match {
+            case Left(f)  ⇒ sequence.map(f)
+            case Right(f) ⇒ sequence.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
+          }
+        inSequence match {
+          case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
+            mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
+          case _                                                   ⇒
+            MashList(mapped)
+        }
     }
-  }
 
   override def typeInferenceStrategy = MapTypeInferenceStrategy
 

@@ -1,10 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
+import com.github.mdr.mash.ns.core.ObjectClass.WhereMethod
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object WhereFunction extends MashFunction("collections.where") {
 
@@ -17,17 +17,20 @@ object WhereFunction extends MashFunction("collections.where") {
       summaryOpt = Some("Sequence to find values in"),
       isLast = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
-    val inSequence = boundParams(Sequence)
-    val sequence = boundParams.validateSequence(Sequence)
-    val predicate = boundParams.validateFunction(Predicate)
-    val newSequence = sequence.filter(x ⇒ predicate(x).isTruthy)
-    reassembleSequence(inSequence, newSequence)
-  }
+  def apply(boundParams: BoundParams): MashValue =
+    boundParams(Sequence) match {
+      case obj: MashObject ⇒ WhereMethod.doWhere(obj, boundParams)
+      case inSequence      ⇒
+        val sequence = boundParams.validateSequence(Sequence)
+        val predicate = boundParams.validateFunction(Predicate)
+        val newSequence = sequence.filter(x ⇒ predicate(x).isTruthy)
+        reassembleSequence(inSequence, newSequence)
+    }
 
   def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =
     inSequence match {
@@ -42,7 +45,8 @@ object WhereFunction extends MashFunction("collections.where") {
 
   override def summaryOpt = Some("Find all the elements in the sequence for which a predicate holds")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]""")
 
 }

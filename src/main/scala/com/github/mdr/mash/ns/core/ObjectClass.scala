@@ -393,6 +393,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = target.asInstanceOf[MashObject]
+      doWhere(obj, boundParams)
+    }
+
+    def doWhere(obj: MashObject, boundParams: BoundParams): MashObject = {
       val test: (String, MashValue) ⇒ Boolean = validatePredicate(boundParams)
       MashObject.of(
         for ((field, value) <- obj.immutableFields if test(field, value))
@@ -424,6 +428,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = target.asInstanceOf[MashObject]
+      doWhereNot(obj, boundParams)
+    }
+
+    def doWhereNot(obj: MashObject, boundParams: BoundParams): MashObject = {
       val test: (String, MashValue) ⇒ Boolean = WhereMethod.validatePredicate(boundParams)
       MashObject.of(
         for ((field, value) <- obj.immutableFields if !test(field, value))
@@ -455,6 +463,10 @@ object ObjectClass extends MashClass("core.Object") {
 
     def apply(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = target.asInstanceOf[MashObject]
+      doMap(obj, boundParams)
+    }
+
+    def doMap(obj: MashObject, boundParams: BoundParams): MashObject = {
       val f = boundParams.validateFunction2(F)
       val objects = obj.immutableFields.map { case (field, value) ⇒ f(MashString(field), value).asInstanceOf[MashObject] }
       objects.reduceOption(_ + _) getOrElse MashObject.empty

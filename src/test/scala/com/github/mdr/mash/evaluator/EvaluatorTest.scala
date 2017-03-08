@@ -1054,17 +1054,23 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Check against exponential complexity parser problem
   "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}" ==> "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"
 
-  // Object.whereField
+  // Object.where
   "{ apple: 1, bob: 2, aardvark: 3 }.where (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
   "{ apple: 1, bob: 2, aardvark: 3 }.where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
+  "{ apple: 1, bob: 2, aardvark: 3 } | where (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
+  "{ apple: 1, bob: 2, aardvark: 3 } | where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
 
-  // Object.whereNotField
+  // Object.whereNot
   "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (.startsWith 'a')" ==> "{ bob: 2 }"
   "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
+  "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (.startsWith 'a')" ==> "{ bob: 2 }"
+  "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
 
-  // Object.transform
+  // Object.map
   "{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
   "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
+  "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
+  "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
 
   "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 
