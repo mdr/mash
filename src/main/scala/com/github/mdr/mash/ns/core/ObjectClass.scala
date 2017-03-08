@@ -20,7 +20,7 @@ object ObjectClass extends MashClass("core.Object") {
     GetMethod,
     HasFieldMethod,
     HoistMethod,
-    TransformMethod,
+    MapMethod,
     UnblessMethod,
     WithFieldMethod,
     WhereMethod,
@@ -145,18 +145,18 @@ object ObjectClass extends MashClass("core.Object") {
 
     override def descriptionOpt = Some(
       """Examples:
-  { 
-    foo: 42, 
+  {
+    foo: 42,
     bar: {
       baz1: 100,
       baz2: 200
-    } 
+    }
   }.hoist 'bar'
   # becomes:
-  { 
+  {
     foo: 42,
     baz1: 100,
-    baz2: 200 
+    baz2: 200
   }
       """)
 
@@ -378,7 +378,7 @@ object ObjectClass extends MashClass("core.Object") {
     override def summaryOpt = Some("Return a copy of this object with the given field added or updated with the given value.")
   }
 
-  object WhereMethod extends MashMethod("whereField") {
+  object WhereMethod extends MashMethod("where") {
 
     object Params {
       val Predicate = Parameter(
@@ -416,7 +416,7 @@ object ObjectClass extends MashClass("core.Object") {
         |  { "foo": 1, "bar": 2, "baz": 3 }.where (f v => f.startsWith "f" or v == 3) # { "foo": 1, "baz": 3 }""".stripMargin)
   }
 
-  object WhereNotMethod extends MashMethod("whereNotField") {
+  object WhereNotMethod extends MashMethod("whereNot") {
 
     import WhereMethod.Params._
 
@@ -440,7 +440,7 @@ object ObjectClass extends MashClass("core.Object") {
         |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }""".stripMargin)
   }
 
-  object TransformMethod extends MashMethod("transform") {
+  object MapMethod extends MashMethod("map") {
 
     object Params {
       val F = Parameter(
