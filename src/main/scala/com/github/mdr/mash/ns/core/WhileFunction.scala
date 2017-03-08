@@ -25,8 +25,8 @@ object WhileFunction extends MashFunction("core.while") {
   def apply(boundParams: BoundParams): MashUnit = {
     val cond = boundParams(Condition).asInstanceOf[MashFunction]
     val block = boundParams(Block).asInstanceOf[MashFunction]
-    while (cond.apply(Arguments(Seq())).isTruthy)
-      block.apply(Arguments(Seq()))
+    while (cond.applyNullary().isTruthy)
+      block.applyNullary()
     MashUnit
   }
 

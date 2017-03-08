@@ -26,10 +26,10 @@ object TryFunction extends MashFunction("core.try") {
     val body = boundParams(Body).asInstanceOf[MashFunction]
     val catchBlock = boundParams(Catch).asInstanceOf[MashFunction]
     try
-      body.apply(Arguments(Seq()))
+      body.applyNullary()
     catch {
       case e: EvaluationInterruptedException ⇒ throw e
-      case _: Throwable ⇒ catchBlock.apply(Arguments(Seq()))
+      case _: Throwable ⇒ catchBlock.applyNullary()
     }
   }
 

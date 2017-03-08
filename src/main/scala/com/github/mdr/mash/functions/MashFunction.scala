@@ -13,6 +13,8 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
+  def applyNullary(): MashValue = apply(params.bindTo(Arguments(Seq())))
+
   @throws[ArgumentException]
   def apply(arguments: Arguments): MashValue = {
     val boundParams = params.bindTo(arguments)

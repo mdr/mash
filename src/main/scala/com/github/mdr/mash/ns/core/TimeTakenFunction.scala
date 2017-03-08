@@ -27,7 +27,7 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
   def apply(boundParams: BoundParams): MashObject = {
     val f = boundParams(Block).asInstanceOf[MashFunction]
     val start = clock.instant
-    val result = f.apply(Arguments(Seq()))
+    val result = f.applyNullary()
     val finish = clock.instant
     val duration = ProcessResultClass.DurationMethod.durationBetween(start, finish)
     import TimedResultClass.Fields._

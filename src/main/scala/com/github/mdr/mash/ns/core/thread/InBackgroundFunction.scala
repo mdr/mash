@@ -24,7 +24,7 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
   def apply(boundParams: BoundParams): MashValue = {
     val f = boundParams(Block).asInstanceOf[MashFunction]
     Future {
-      f.apply(Arguments(Seq()))
+      f.applyNullary()
     }
     MashUnit
   }

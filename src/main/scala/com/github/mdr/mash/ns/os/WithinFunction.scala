@@ -33,7 +33,7 @@ object WithinFunction extends MashFunction("os.within") {
     else
       throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
     try
-      f.apply(Arguments(Seq()))
+      f.applyNullary()
     finally
       fileSystem.chdir(oldDir)
   }
