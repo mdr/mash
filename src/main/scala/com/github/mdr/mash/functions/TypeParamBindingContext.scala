@@ -45,7 +45,7 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
 
   import TypeParamBindingContext._
 
-  private var boundArguments: Map[String, ValueInfo] = Map()
+  private var boundArguments: Map[Parameter, ValueInfo] = Map()
   private var boundNames: Map[String, Type] = Map()
 
   def bind(): BoundTypeParams = {
@@ -68,13 +68,13 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
     } {
       val argTypeOpt = value.typeOpt
       val paramNames = bindParam(param, argTypeOpt)
-      param.nameOpt.foreach(boundArguments += _ -> value)
+      boundArguments += param -> value
       boundNames ++= paramNames
     }
 
   private def bindVariadicParam(param: Parameter, evalArgs: Seq[TypedArgument]) = {
     val varargType = evalArgs.flatMap(_.valueOpt).flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
-    param.nameOpt.foreach(boundArguments += _ -> ValueInfo(None, Some(varargType)))
+    boundArguments += param -> ValueInfo(None, Some(varargType))
     param.nameOpt.foreach(boundNames += _ -> varargType)
   }
 
