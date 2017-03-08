@@ -1,6 +1,7 @@
 v0.0.7 (..)
 -----------
 
+* Improve stack traces
 * Add Object.grep
 * Error on duplicate named arguments when using @namedArgs
 * Add back/forward functions to navigate old directories

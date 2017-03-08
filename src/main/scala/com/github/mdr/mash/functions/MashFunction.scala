@@ -16,12 +16,6 @@ abstract class MashFunction(
   def applyNullary(): MashValue = apply(params.bindTo(Arguments(Seq())))
 
   @throws[ArgumentException]
-  def apply(arguments: Arguments): MashValue = {
-    val boundParams = params.bindTo(arguments)
-    this.apply(boundParams)
-  }
-
-  @throws[ArgumentException]
   def apply(boundParams: BoundParams): MashValue
 
   /**

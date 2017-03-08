@@ -49,17 +49,20 @@ object InvocationEvaluator extends EvaluatorHelper {
     function match {
       case MashString(memberName, _)                  ⇒
         val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
+        val boundParams = f.params.bindTo(arguments)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-          f(arguments)
+          f(boundParams)
         }
       case b: MashBoolean                             ⇒
         val f = new BooleanFunction(b.value)
+        val boundParams = f.params.bindTo(arguments)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-          f(arguments)
+          f(boundParams)
         }
       case function: MashFunction                     ⇒
+        val boundParams = function.params.bindTo(arguments)
         addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
-          function(arguments)
+          function(boundParams)
         }
       case boundMethod@BoundMethod(target, method, _) ⇒
         addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
@@ -94,11 +97,11 @@ object InvocationEvaluator extends EvaluatorHelper {
 
     def apply(boundParams: BoundParams): MashValue = {
       if (b)
-        boundParams(Then).asInstanceOf[MashFunction].apply(Arguments(Seq()))
+        boundParams(Then).asInstanceOf[MashFunction].applyNullary()
       else
         boundParams(Else) match {
           case MashUnit        ⇒ MashUnit
-          case f: MashFunction ⇒ f.apply(Arguments(Seq()))
+          case f: MashFunction ⇒ f.applyNullary()
         }
     }
 
