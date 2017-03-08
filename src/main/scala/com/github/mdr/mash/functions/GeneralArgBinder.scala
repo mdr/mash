@@ -24,7 +24,8 @@ object GeneralArgument {
 
 }
 
-case class GeneralArgBinderResult[T](parameterToArguments: Map[Parameter, Seq[T]] = Map())
+case class GeneralArgBinderResult[T](parameterToArguments: Map[Parameter, Seq[T]] = Map(),
+                                     posToParam: Map[Int, Parameter])
 
 case class ArgBindingException[T](message: String, argumentOpt: Option[T] = None) extends RuntimeException(message)
 
@@ -48,7 +49,7 @@ class GeneralArgBinder[T](params: ParameterModel,
     handleDefaultAndMandatory()
     handleNamedArgsParams()
     handleAllArgsParams()
-    GeneralArgBinderResult(parameterToArguments)
+    GeneralArgBinderResult(parameterToArguments, posToParam)
   }
 
   private def addArgToParam(param: Parameter, argAndPos: PositionArgAndPos) {

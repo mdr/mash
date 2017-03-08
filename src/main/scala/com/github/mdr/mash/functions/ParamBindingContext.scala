@@ -37,6 +37,13 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
     result.parameterToArguments
   }
 
+  private def generalArguments: Seq[GeneralArgument[EvaluatedArgument[SuspendedMashValue]]] =
+    arguments.evaluatedArguments.map {
+      case arg@EvaluatedArgument.ShortFlag(flags, _)  ⇒ GeneralArgument.ShortFlag(flags, arg)
+      case arg@EvaluatedArgument.LongFlag(flag, _, _) ⇒ GeneralArgument.LongFlag(flag, arg)
+      case arg@EvaluatedArgument.PositionArg(_, _)    ⇒ GeneralArgument.PositionArg(arg)
+    }
+
   private def bindParams(parameterToArgs: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]]) =
     for ((param, evalArgs) ← parameterToArgs)
       if (param.isVariadic)
@@ -47,13 +54,6 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
         bindAllArgsParam(param, evalArgs)
       else
         bindRegularParam(param, evalArgs)
-
-  private def generalArguments: Seq[GeneralArgument[EvaluatedArgument[SuspendedMashValue]]] =
-    arguments.evaluatedArguments.map {
-      case arg@EvaluatedArgument.ShortFlag(flags, _)  ⇒ GeneralArgument.ShortFlag(flags, arg)
-      case arg@EvaluatedArgument.LongFlag(flag, _, _) ⇒ GeneralArgument.LongFlag(flag, arg)
-      case arg@EvaluatedArgument.PositionArg(_, _)    ⇒ GeneralArgument.PositionArg(arg)
-    }
 
   private def getArgValue(param: Parameter, arg: EvaluatedArgument[SuspendedMashValue]): MashValue = arg match {
     case EvaluatedArgument.PositionArg(value, _)    ⇒

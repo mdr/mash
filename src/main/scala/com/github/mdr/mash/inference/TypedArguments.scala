@@ -2,15 +2,22 @@ package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.parser.AbstractSyntax._
 
-sealed trait TypedArgument
+sealed trait TypedArgument {
+  def valueOpt: Option[ValueInfo]
+}
 
 object TypedArgument {
 
-  case class PositionArg(arg: ValueInfo) extends TypedArgument
+  case class PositionArg(arg: ValueInfo) extends TypedArgument {
+    def valueOpt = Some(arg)
+  }
 
   case class LongFlag(flag: String, valueOpt: Option[ValueInfo]) extends TypedArgument
 
-  case class ShortFlag(flags: Seq[String]) extends TypedArgument
+
+  case class ShortFlag(flags: Seq[String]) extends TypedArgument {
+    val valueOpt = None
+  }
 
 }
 

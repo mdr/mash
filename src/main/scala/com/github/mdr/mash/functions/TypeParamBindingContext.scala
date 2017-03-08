@@ -1,10 +1,6 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.BooleanClass
-import com.github.mdr.mash.runtime.MashBoolean
-
-import scala.PartialFunction.cond
 
 object TypeParamBindingContext {
 
@@ -18,7 +14,7 @@ object TypeParamBindingContext {
         }.getOrElse(Map())
         def inferEntry(entry: ParamPattern.ObjectEntry): Map[String, Type] =
           entry match {
-            case ParamPattern.ObjectEntry(fieldName, None)          ⇒
+            case ParamPattern.ObjectEntry(fieldName, None)               ⇒
               Map(fieldName -> fieldTypes.getOrElse(fieldName, Type.Any))
             case ParamPattern.ObjectEntry(fieldName, Some(valuePattern)) ⇒
               bindPatternParam(valuePattern, fieldTypes.get(fieldName))
@@ -46,86 +42,47 @@ object TypeParamBindingContext {
 }
 
 class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments) {
+
   import TypeParamBindingContext._
 
   private var boundArguments: Map[String, ValueInfo] = Map()
   private var boundNames: Map[String, Type] = Map()
-  private var posToParam: Map[Int, Parameter] = Map()
-  private var lastParameterConsumed = false
 
   def bind(): BoundTypeParams = {
-    handleLastArg()
-    handlePositionalArgs()
-    handleFlagArgs()
-    BoundTypeParams(boundArguments, boundNames, posToParam)
+    val result = new GeneralArgBinder(params, generalArguments, forgiving = true).bind
+    bindParams(result.parameterToArguments)
+    BoundTypeParams(boundArguments, boundNames, result.posToParam)
   }
 
-  private def handleLastArg() {
+  private def bindParams(parameterToArgs: Map[Parameter, Seq[TypedArgument]]) =
+    for ((param, evalArgs) ← parameterToArgs)
+      if (param.isVariadic)
+        bindVariadicParam(param, evalArgs)
+      else
+        bindRegularParam(param, evalArgs)
+
+  private def bindRegularParam(param: Parameter, evalArgs: Seq[TypedArgument]) =
     for {
-      lastParam ← params.lastParamOpt
-      paramName = lastParam.nameOpt
-      lastArg ← arguments.positionArgs.lastOption
-      if !lastParam.nameOpt.exists(arguments.isProvidedAsNamedArg)
+      arg ← evalArgs.headOption
+      value ← arg.valueOpt
     } {
-      lastParameterConsumed = true
-      lastParam.nameOpt.foreach(boundArguments += _ -> lastArg)
-      for {
-        argType ← lastArg.typeOpt
-        paramName ← lastParam.nameOpt
-      } boundNames += paramName -> argType
-      posToParam += posOfArg(lastArg) -> lastParam
-    }
-  }
-
-  private def handlePositionalArgs() = {
-    val regularPosParams = params.positionalParams.filterNot(p ⇒ p.isVariadic || p.isLast)
-    val positionArgs = if (lastParameterConsumed) arguments.positionArgs.init else arguments.positionArgs
-
-    if (positionArgs.size > regularPosParams.size)
-      for (variadicParam ← params.variadicParamOpt) {
-        val varargs = positionArgs.drop(regularPosParams.size)
-        val varargType = varargs.flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
-        variadicParam.nameOpt.foreach(boundArguments += _ -> ValueInfo(None, Some(varargType)))
-        variadicParam.nameOpt.foreach(boundNames += _ -> varargType)
-        val extraArgs = positionArgs.drop(regularPosParams.size)
-        for (arg ← extraArgs)
-          posToParam += posOfArg(arg) -> variadicParam
-      }
-
-    for ((param, arg) ← regularPosParams zip positionArgs) {
-      val argTypeOpt = arg.typeOpt
+      val argTypeOpt = value.typeOpt
       val paramNames = bindParam(param, argTypeOpt)
-      param.nameOpt.foreach(boundArguments += _ -> arg)
+      param.nameOpt.foreach(boundArguments += _ -> value)
       boundNames ++= paramNames
-      posToParam += posOfArg(arg) -> param
     }
+
+  private def bindVariadicParam(param: Parameter, evalArgs: Seq[TypedArgument]) = {
+    val varargType = evalArgs.flatMap(_.valueOpt).flatMap(_.typeOpt).headOption.getOrElse(Type.Any).seq
+    param.nameOpt.foreach(boundArguments += _ -> ValueInfo(None, Some(varargType)))
+    param.nameOpt.foreach(boundNames += _ -> varargType)
   }
 
-  private def posOfArg(arg: ValueInfo): Int =
-    arguments.arguments.indexWhere(cond(_) { case TypedArgument.PositionArg(`arg`) ⇒ true })
-
-  private def handleFlagArgs() {
-    for (flagArg ← arguments.argSet)
-      bindFlagParam(flagArg, arg = ValueInfo(Some(MashBoolean.True), Some(BooleanClass)))
-    for {
-      (flagArg, valueOpt) ← arguments.argValues
-      value ← valueOpt
-    } bindFlagParam(flagArg, arg = value)
-  }
-
-  private def bindFlagParam(paramName: String, arg: ValueInfo) =
-    for (param ← params.paramByName.get(paramName)) {
-      param.nameOpt.foreach(boundArguments += _ -> arg)
-      for {
-        argType ← arg.typeOpt
-        paramName ← param.nameOpt
-      } boundNames += paramName -> argType
-      val argIndex = arguments.arguments.indexWhere {
-        case TypedArgument.LongFlag(`paramName`, _) ⇒ true
-        case TypedArgument.ShortFlag(flags)         ⇒ flags contains paramName
-        case _                                      ⇒ false
-      }
-      posToParam += argIndex -> param
+  private def generalArguments: Seq[GeneralArgument[TypedArgument]] =
+    arguments.arguments.map {
+      case arg@TypedArgument.ShortFlag(flags)  ⇒ GeneralArgument.ShortFlag(flags, arg)
+      case arg@TypedArgument.LongFlag(flag, _) ⇒ GeneralArgument.LongFlag(flag, arg)
+      case arg@TypedArgument.PositionArg(_)    ⇒ GeneralArgument.PositionArg(arg)
     }
 
 }
