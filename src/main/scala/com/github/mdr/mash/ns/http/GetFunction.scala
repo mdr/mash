@@ -17,9 +17,9 @@ object GetFunction extends MashFunction("http.get") {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)
-
+    val json = boundParams(Json).isTruthy
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpGet(url), headers, basicCredentialsOpt)
+    HttpOperations.runRequest(new HttpGet(url), headers, basicCredentialsOpt, json = json)
   }
 
   override def typeInferenceStrategy = ResponseClass

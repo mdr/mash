@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.json
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.http.ResponseClass.Wrapper
@@ -20,7 +19,7 @@ object GetFunction extends MashFunction("json.get") {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = new URI(boundParams.validateString(Url).s)
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    val result = HttpOperations.runRequest(new HttpGet(url), headers, basicCredentialsOpt)
+    val result = HttpOperations.runRequest(new HttpGet(url), headers, basicCredentialsOpt, json = true)
     parseJson(Wrapper(result).body)
   }
 

@@ -19,12 +19,19 @@ import scala.collection.immutable.ListMap
 
 object HttpOperations {
 
+  def addAcceptApplicationJsonIfRequired(json: Boolean, headers: Seq[Header]): Seq[Header] =
+    if (json && !headers.exists(_.name.toLowerCase == "accept"))
+      Header("Accept", "application/json") +: headers
+    else
+      headers
+
   def runRequest(request: HttpUriRequest,
                  headers: Seq[Header],
                  basicCredentialsOpt: Option[BasicCredentials],
                  bodyValueOpt: Option[MashValue] = None,
                  json: Boolean = false): MashObject = {
-    for (header <- headers)
+    val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
+    for (header <- actualHeaders)
       request.setHeader(header.name, header.value)
     basicCredentialsOpt.foreach(_.addCredentials(request))
 

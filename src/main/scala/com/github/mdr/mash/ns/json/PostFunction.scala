@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.json
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.http.ResponseClass.Wrapper

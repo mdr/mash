@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.http
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpDelete
@@ -17,9 +16,9 @@ object DeleteFunction extends MashFunction("http.delete") {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)
-
+    val json = boundParams(Json).isTruthy
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt)
+    HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt, json = json)
   }
 
   override def typeInferenceStrategy = ResponseClass

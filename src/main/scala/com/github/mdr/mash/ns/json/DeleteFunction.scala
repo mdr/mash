@@ -20,7 +20,7 @@ object DeleteFunction extends MashFunction("json.delete") {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = new URI(boundParams.validateString(Url).s)
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    val result = HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt)
+    val result = HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt, json = true)
     parseJson(Wrapper(result).body)
   }
 
