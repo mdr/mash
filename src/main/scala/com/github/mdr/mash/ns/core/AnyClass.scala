@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.core
 import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
@@ -24,9 +23,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
-      MashBoolean(target.isNull)
-    }
+    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = MashBoolean(target.isNull)
 
     override def summaryOpt = Some("Check whether or not the given value is null")
 
