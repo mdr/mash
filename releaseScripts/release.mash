@@ -21,25 +21,29 @@ def prepareBuildSbt = {
   { current, release, new }
 }
 
-def createGithubRelease newVersion = {
+def createGithubRelease releaseVersion = {
   releasesUrl = "https://api.github.com/repos/mdr/mash/releases"
-  name = "v$newVersion"
+  name = "v$releaseVersion"
   body = { tag_name: name, name, prerelease: true }
   token = readLines "~/.mash/mdr-github-token" | first
   response = http.post releasesUrl --headers={ Authorization: "bearer $token" } --json body
   if response.succeeded then {
     print "Released mash $name"
-    response
-    # TODO: attach assets
-    # target/scala-2.12/mash-$newVersion.jar
-    # target/mash_$newVersion.deb
-    # response.json.upload_url / "application/octet-stream"
+    uploadUrl = response.json.upload_url.replace --regex"\{\?.+\}" ""
+    jar = "mash-${releaseVersion}.jar"
+    print "Uploading $jar"
+    !!{curl -X POST --header "Authorization:bearer $token" --header "Content-Type:application/octet-stream" --data-binary "@target/scala-2.12/$jar" "$uploadUrl?name=$jar"}
+    print "Uploading $deb"
+    deb = "mash_${releaseVersion}_all.deb"
+    !!{curl -X POST --header "Authorization:bearer $token" --header "Content-Type:application/octet-stream" --data-binary "@target/$deb" "$uploadUrl?name=$deb"}
+    response.json.html_url
   } else
     error "Problem creating release: $response"
+
 }
 
-def getRelease newVersion = {
+def getRelease version = {
   releasesUrl = "https://api.github.com/repos/mdr/mash/releases"
   token = readLines "~/.mash/mdr-github-token" | first
-  json.get --headers={ Authorization: "bearer $token" } "$releasesUrl/$newVersion"
+  json.get --headers={ Authorization: "bearer $token" } "$releasesUrl/v$version"
 }
