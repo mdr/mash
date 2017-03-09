@@ -1,7 +1,7 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ Arguments, SourceLocation }
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, SourceLocation }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.MashValue
 
@@ -13,7 +13,9 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
-  def applyNullary(): MashValue = apply(params.bindTo(Arguments(Seq())))
+  def applyNullary(): MashValue = apply(params.bindTo(Arguments(Seq()), paramContext))
+
+  def paramContext = EvaluationContext.NotUsed
 
   @throws[ArgumentException]
   def apply(boundParams: BoundParams): MashValue

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.compiler.DesugarHoles
-import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext }
 import com.github.mdr.mash.inference.TypedArguments
 
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
@@ -27,8 +27,8 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     paramMap
   }
 
-  def bindTo(arguments: Arguments): BoundParams =
-    new ParamBindingContext(this, arguments).bind
+  def bindTo(arguments: Arguments, context: EvaluationContext): BoundParams =
+    new ParamBindingContext(this, arguments, context).bind
 
   def flags: Seq[Flag] = params.map(param ⇒
     Flag(param.summaryOpt orElse param.nameOpt, param.shortFlagOpt.map(_.toString), param.nameOpt))

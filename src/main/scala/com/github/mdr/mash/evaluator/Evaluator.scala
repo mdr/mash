@@ -12,6 +12,12 @@ import org.apache.commons.lang3.StringUtils.getLevenshteinDistance
 
 import scala.PartialFunction.condOpt
 
+object EvaluationContext {
+
+  val NotUsed = EvaluationContext(ScopeStack(List()))
+
+}
+
 case class EvaluationContext(scopeStack: ScopeStack, namespaceOpt: Option[Namespace] = None)
 
 object Evaluator extends EvaluatorHelper {
@@ -187,11 +193,11 @@ object Evaluator extends EvaluatorHelper {
     klass
   }
 
-  private def getAliases(evaluatedAttributes: Seq[EvaluatedAttribute]): Seq[String] = {
+  private def getAliases(evaluatedAttributes: Seq[EvaluatedAttribute])(implicit context: EvaluationContext): Seq[String] = {
     for {
       attribute ← evaluatedAttributes.filter(_.name == Attributes.Alias)
       arguments = attribute.argumentsOpt getOrElse Seq()
-      boundParams = AliasParameterModel.params.bindTo(Arguments(arguments))
+      boundParams = AliasParameterModel.params.bindTo(Arguments(arguments), context)
       alias = boundParams.validateString(AliasParameterModel.Params.Name).s
     } yield alias
   }
@@ -212,13 +218,13 @@ object Evaluator extends EvaluatorHelper {
         EvaluatedAttribute(attribute.name, argumentsOpt)
     }
 
-  private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute]): Option[Char] = {
+  private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute])(implicit context: EvaluationContext): Option[Char] = {
     val ShortFlag = Parameter(Some("shortName"))
     val params = ParameterModel(Seq(ShortFlag))
     for {
       attribute ← evaluatedAttributes.find(_.name == Attributes.ShortFlag)
       arguments = attribute.argumentsOpt getOrElse Seq()
-      boundParams = params.bindTo(Arguments(arguments))
+      boundParams = params.bindTo(Arguments(arguments), context)
       name = boundParams.validateString(ShortFlag).s
     } yield
       if (name.length == 1) name.head
@@ -237,8 +243,8 @@ object Evaluator extends EvaluatorHelper {
     val isFlag = attributes.exists(_.name == Attributes.Flag)
     val isNamedArgsParam = attributes.exists(_.name == Attributes.NamedArgs)
 
-    val defaultValueGeneratorOpt = evaluationContextOpt.flatMap(implicit context ⇒
-      defaultExprOpt.map(defaultExpr ⇒ () ⇒ evaluate(defaultExpr)))
+    val defaultValueGeneratorOpt: Option[ValueGenerator] =
+      defaultExprOpt.map(defaultExpr ⇒ (context: EvaluationContext) ⇒ evaluate(defaultExpr)(context))
     val docSummaryOpt =
       for {
         name ← nameOpt

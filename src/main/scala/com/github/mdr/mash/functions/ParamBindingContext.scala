@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime._
 /**
   * Bind arguments to parameters
   */
-class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
+class ParamBindingContext(params: ParameterModel, arguments: Arguments, context: EvaluationContext) {
 
   private var boundNames: Map[String, MashValue] = Map()
   private var allResolvedArgs: Seq[EvaluatedArgument[MashValue]] = Seq()
@@ -68,7 +68,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
     val argsList =
       param.defaultValueGeneratorOpt.filter(_ ⇒ evalArgs.isEmpty) match {
         case Some(generator) ⇒
-          generator()
+          generator.generate(context)
         case None            ⇒
           evalArgs match {
             case Seq(arg@EvaluatedArgument.LongFlag(_, Some(_), _)) ⇒ getArgValue(param, arg) match {
@@ -87,7 +87,8 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments) {
   private def bindRegularParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
     val value = evalArgs match {
       case Seq()    ⇒
-        param.defaultValueGeneratorOpt.getOrElse(throw new AssertionError(s"No argument for mandatory param $param"))()
+        val valueGenerator = param.defaultValueGeneratorOpt.getOrElse(throw new AssertionError(s"No argument for mandatory param $param"))
+        valueGenerator.generate(context)
       case Seq(arg) ⇒
         getArgValue(param, arg)
       case _        ⇒

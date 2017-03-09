@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass, UserDefinedMethod }
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -49,22 +49,30 @@ object InvocationEvaluator extends EvaluatorHelper {
     function match {
       case MashString(memberName, _)                  ⇒
         val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
-        val boundParams = f.params.bindTo(arguments)
+        val boundParams = f.params.bindTo(arguments, EvaluationContext.NotUsed)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(boundParams)
         }
       case b: MashBoolean                             ⇒
         val f = new BooleanFunction(b.value)
-        val boundParams = f.params.bindTo(arguments)
+        val boundParams = f.params.bindTo(arguments, EvaluationContext.NotUsed)
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(boundParams)
         }
       case function: MashFunction                     ⇒
-        val boundParams = function.params.bindTo(arguments)
+        val context = function match {
+          case udf: UserDefinedFunction ⇒ udf.context
+          case _                        ⇒ EvaluationContext.NotUsed
+        }
+        val boundParams = function.params.bindTo(arguments, context)
         addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
           function(boundParams)
         }
       case boundMethod@BoundMethod(target, method, _) ⇒
+//        val context = method match {
+//          case udm: UserDefinedMethod ⇒ udm.context
+//          case _                      ⇒ EvaluationContext.NotUsed
+//        }
         addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
           method(target, arguments)
         }

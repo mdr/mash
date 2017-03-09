@@ -16,8 +16,9 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
                              override val aliases: Seq[String]) extends MashMethod(methodName) {
 
   override def apply(target: MashValue, arguments: Arguments): MashValue = {
-    val parameterEvalContext = Some(context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target)))
-    val boundParams = Evaluator.parameterModel(paramList, parameterEvalContext).bindTo(arguments)
+    val parameterEvalContext = context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target))
+    val parameterEvalContextOpt = Some(parameterEvalContext)
+    val boundParams = Evaluator.parameterModel(paramList, parameterEvalContextOpt).bindTo(arguments, parameterEvalContext)
     val methodBodyEvalContext = context.copy(scopeStack = context.scopeStack.withFullScope(boundParams.boundNames, target))
     Evaluator.evaluate(body)(methodBodyEvalContext)
   }
