@@ -2,7 +2,7 @@ name := "mash"
 
 organization := "com.github.mdr"
 
-version := "0.0.7-SNAPSHOT"
+version := "0.0.7"
 
 maintainer := "Matt Russell <MattRussellUK@gmail.com>"
 
