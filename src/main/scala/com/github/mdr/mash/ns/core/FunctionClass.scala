@@ -52,11 +52,7 @@ object FunctionClass extends MashClass("core.Function") {
         EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
       }
       val functionArguments = Arguments(positionalArguments ++ namedArguments)
-      val context = function match {
-        case udf: UserDefinedFunction ⇒ udf.context
-        case _                        ⇒ EvaluationContext.NotUsed
-      }
-      function.apply(function.params.bindTo(functionArguments, context))
+      function.apply(function.params.bindTo(functionArguments, function.paramContext))
     }
 
     override def summaryOpt = Some("Invoke this function with the given arguments")

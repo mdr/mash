@@ -15,15 +15,12 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
                              override val isPrivate: Boolean,
                              override val aliases: Seq[String]) extends MashMethod(methodName) {
 
-  override def apply(target: MashValue, arguments: Arguments): MashValue = {
-    val parameterEvalContext = context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target))
-    val parameterEvalContextOpt = Some(parameterEvalContext)
-    val boundParams = Evaluator.parameterModel(paramList, parameterEvalContextOpt).bindTo(arguments, parameterEvalContext)
+  override def paramContext(target: MashValue) = context.copy(scopeStack = context.scopeStack.withFullScope(Map(), target))
+
+  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
     val methodBodyEvalContext = context.copy(scopeStack = context.scopeStack.withFullScope(boundParams.boundNames, target))
     Evaluator.evaluate(body)(methodBodyEvalContext)
   }
-
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = ??? // not used
 
   override def summaryOpt = docCommentOpt.map(_.summary)
 

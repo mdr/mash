@@ -16,6 +16,7 @@ case class UserDefinedFunction(docCommentOpt: Option[DocComment],
     val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
+
   override def paramContext = context
 
   override def summaryOpt = docCommentOpt.map(_.summary)

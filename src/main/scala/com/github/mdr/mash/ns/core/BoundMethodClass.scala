@@ -34,12 +34,15 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
     def apply(target: MashValue, boundParams: BoundParams): MashValue = {
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
-      val methodArguments = Arguments(args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v))) ++
-        namedArgs.fields.toSeq.map { case (field, value) ⇒
-          EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
-        })
+      val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
+      val namedArguments = namedArgs.fields.toSeq.map { case (field, value) ⇒
+        EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
+      }
+      val methodArguments = Arguments(positionalArguments ++ namedArguments)
       val boundMethod = target.asInstanceOf[BoundMethod]
-      boundMethod.method.apply(boundMethod.target, methodArguments)
+      val method = boundMethod.method
+      val invocationBoundParams = method.params.bindTo(methodArguments, method.paramContext(target))
+      method.apply(boundMethod.target, invocationBoundParams)
     }
 
     override def summaryOpt = Some("Invoke this method with the given arguments")

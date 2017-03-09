@@ -60,21 +60,14 @@ object InvocationEvaluator extends EvaluatorHelper {
           f(boundParams)
         }
       case function: MashFunction                     ⇒
-        val context = function match {
-          case udf: UserDefinedFunction ⇒ udf.context
-          case _                        ⇒ EvaluationContext.NotUsed
-        }
-        val boundParams = function.params.bindTo(arguments, context)
+        val boundParams = function.params.bindTo(arguments, function.paramContext)
         addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
           function(boundParams)
         }
       case boundMethod@BoundMethod(target, method, _) ⇒
-//        val context = method match {
-//          case udm: UserDefinedMethod ⇒ udm.context
-//          case _                      ⇒ EvaluationContext.NotUsed
-//        }
+        val boundParams = method.params.bindTo(arguments, method.paramContext(target))
         addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
-          method(target, arguments)
+          method(target, boundParams)
         }
       case klass: MashClass                           ⇒
         klass.getStaticMethod(MashClass.ConstructorMethodName) match {
