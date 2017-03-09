@@ -1,10 +1,10 @@
 package com.github.mdr.mash.completions
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.lexer.Token
+import com.github.mdr.mash.ns.core.AnyClass.ToStringMethod.quickStringify
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.{ AbstractSyntax, ConcreteSyntax }
 import com.github.mdr.mash.runtime.MashValue
@@ -70,7 +70,7 @@ object BindingCompleter {
     case klass: MashClass  ⇒
       Completion(name, typeOpt = Some(CompletionType.Class), descriptionOpt = klass.summaryOpt orElse Some(name))
     case _                ⇒
-      Completion(name, typeOpt = Some(CompletionType.Binding), descriptionOpt = Some(ToStringifier.safeStringify(value)))
+      Completion(name, typeOpt = Some(CompletionType.Binding), descriptionOpt = quickStringify(value))
   }
 
   private def getCompletion(name: String, type_ : Type): Completion = type_ match {

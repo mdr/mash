@@ -43,14 +43,17 @@ object ToStringifier {
     }
   }
 
-  def stringify(x: MashValue): String = if (x.isAString) x.asInstanceOf[MashString].s else {
-    val toStringMethod = MemberEvaluator.lookup(x, AnyClass.ToStringMethod.name)
-    val stringified = Evaluator.invokeNullaryFunctions(toStringMethod, locationOpt = None)
-    stringified match {
-      case MashString(s, _) ⇒ s
-      case _                ⇒ throw new EvaluatorException("Invalid toString value of type " + stringified.typeName)
+  def stringify(x: MashValue): String =
+    if (x.isAString)
+      x.asInstanceOf[MashString].s
+    else {
+      val toStringMethod = MemberEvaluator.lookup(x, AnyClass.ToStringMethod.name)
+      val stringified = Evaluator.invokeNullaryFunctions(toStringMethod, locationOpt = None)
+      stringified match {
+        case MashString(s, _) ⇒ s
+        case _                ⇒ throw new EvaluatorException("Invalid toString value of type " + stringified.typeName)
+      }
     }
-  }
 
   def safeStringify(x: MashValue): String = Try(stringify(x)).getOrElse("error calling .toString")
 

@@ -8,6 +8,8 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
 
+import scala.PartialFunction.condOpt
+
 object AnyClass extends MashClass("core.Any") {
 
   override val methods = Seq(
@@ -28,7 +30,8 @@ object AnyClass extends MashClass("core.Any") {
 
     override def summaryOpt = Some("Check whether or not the given value is null")
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   null.isNull # true
   0.isNull    # false""")
 
@@ -46,7 +49,8 @@ object AnyClass extends MashClass("core.Any") {
 
     override def summaryOpt = Some("Check whether or not the given value is truthy")
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   true.isTruthy  # true
   false.isTruthy # false
   null.isTruthy  # false
@@ -63,6 +67,7 @@ object AnyClass extends MashClass("core.Any") {
         nameOpt = Some("class"),
         summaryOpt = Some("Class to check"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Class))
@@ -76,11 +81,12 @@ object AnyClass extends MashClass("core.Any") {
 
     override def summaryOpt = Some("Return true if and only if this value is an instance of the given class")
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   42.isA Number  # true
   42.isA Boolean # false
   42.isA Any     # true
-""")
+      """)
 
   }
 
@@ -106,9 +112,14 @@ object AnyClass extends MashClass("core.Any") {
     }
 
     private def stringify(value: MashValue): String = value match {
+      case obj: MashObject ⇒ obj.asString
+      case xs: MashList    ⇒ xs.asString
+      case value           ⇒ quickStringify(value) getOrElse "???"
+    }
+
+    def quickStringify(value: MashValue): Option[String] = condOpt(value) {
       case MashNull                  ⇒ "null"
       case MashUnit                  ⇒ ""
-      case obj: MashObject           ⇒ obj.asString
       case MashNumber(n, _)          ⇒ NumberUtils.prettyString(n)
       case MashBoolean(b)            ⇒ b.toString
       case MashWrapped(i: Instant)   ⇒ i.toString
@@ -116,18 +127,17 @@ object AnyClass extends MashClass("core.Any") {
       case f: MashFunction           ⇒ f.fullyQualifiedName.toString
       case method: BoundMethod       ⇒ method.fullyQualifiedName
       case klass: MashClass          ⇒ klass.fullyQualifiedName.toString
-      case xs: MashList              ⇒ xs.asString
-      case _                         ⇒ "???"
     }
 
     override def typeInferenceStrategy = StringClass
 
     override def summaryOpt = Some("Represent this object as a string")
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   42.toString   # "42"
   null.toString # "null"
-""")
+      """)
 
   }
 
@@ -138,6 +148,7 @@ object AnyClass extends MashClass("core.Any") {
         nameOpt = Some("sequence"),
         summaryOpt = Some("Sequence to check if element is contained in"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Sequence))
@@ -151,11 +162,12 @@ object AnyClass extends MashClass("core.Any") {
 
     override def summaryOpt = Some("Check whether this element is contained in a sequence")
 
-    override def descriptionOpt = Some("""Examples:
+    override def descriptionOpt = Some(
+      """Examples:
   2.in [1, 2, 3] # true
   4.in [1, 2, 3] # false
   "i".in "team"  # false
-""")
+      """)
 
   }
 
