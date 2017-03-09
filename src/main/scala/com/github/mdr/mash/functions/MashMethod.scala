@@ -14,6 +14,8 @@ abstract class MashMethod(val name: String) {
 
   def apply(target: MashValue, boundParams: BoundParams): MashValue
 
+  def applyNullary(target: MashValue): MashValue = apply(target, Arguments(Seq()))
+
   def params: ParameterModel
 
   def allowsNullary: Boolean = params.allowsNullary
