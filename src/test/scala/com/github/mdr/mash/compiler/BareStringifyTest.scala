@@ -14,8 +14,8 @@ class BareStringifyTest extends FlatSpec with Matchers {
     "bound" ==> "bound"
   }
 
-  "class A { def foo = fields }" ==> "class A { def foo = fields }"
-  "class A { def foo = toString }" ==> "class A { def foo = toString }"
+  "class A { def foo = fields }" ==> """class A { def foo = "fields" }"""
+  "class A { def foo = toString }" ==> """class A { def foo = "toString" }"""
   "class A { def foo = bar; def bar = 42 }" ==> "class A { def foo = bar; def bar = 42 }"
 
   "def doSomething (@flag @(shortFlag d) dryRun = false) = 42" ==>
