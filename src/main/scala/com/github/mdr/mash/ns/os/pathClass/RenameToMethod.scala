@@ -11,7 +11,7 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 import scala.collection.JavaConverters._
 
-object PathClassRenameToMethod extends MashMethod("renameTo") {
+object RenameToMethod extends MashMethod("renameTo") {
 
   object Params {
     val NewName = Parameter(

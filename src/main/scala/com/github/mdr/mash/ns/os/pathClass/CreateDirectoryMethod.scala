@@ -8,7 +8,7 @@ import com.github.mdr.mash.ns.os.{ CreateDirectoryFunction, PathClass }
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
-object PathClassCreateDirectoryMethod extends MashMethod("createDirectory") {
+object CreateDirectoryMethod extends MashMethod("createDirectory") {
 
   private val fileSystem = LinuxFileSystem
 

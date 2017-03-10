@@ -8,7 +8,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 import org.apache.commons.io.FileUtils
 
-object PathClassCopyMethod extends MashMethod("copy") {
+object CopyMethod extends MashMethod("copy") {
 
   object Params {
     val Destination = Parameter(

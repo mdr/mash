@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
 
-object PathClassExistsMethod extends MashMethod("exists") {
+object ExistsMethod extends MashMethod("exists") {
 
   private val fileSystem = LinuxFileSystem
 

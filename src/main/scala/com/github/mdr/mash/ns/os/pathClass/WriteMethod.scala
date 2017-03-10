@@ -7,7 +7,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.WriteFunction
 import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit, MashValue }
 
-object PathClassWriteMethod extends MashMethod("write") {
+object WriteMethod extends MashMethod("write") {
 
   object Params {
     val Append = Parameter(

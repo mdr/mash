@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 
-object PathClassCdMethod extends MashMethod("cd") {
+object CdMethod extends MashMethod("cd") {
 
   val params = ParameterModel()
 

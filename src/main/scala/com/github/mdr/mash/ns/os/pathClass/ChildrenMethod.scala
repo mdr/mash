@@ -7,7 +7,7 @@ import com.github.mdr.mash.ns.os.ChildrenFunction
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
-object PathClassChildrenMethod extends MashMethod("children") {
+object ChildrenMethod extends MashMethod("children") {
 
   private val fileSystem = LinuxFileSystem
 

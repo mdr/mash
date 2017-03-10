@@ -882,7 +882,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Foo { def foo (n = bar) = n; def bar = 100 }; Foo.new.foo" ==> 100
 
   "class Foo { def getFields = this.fields }; Foo.new.getFields" ==> "[]"
-  "class Foo { def getFields = this.toString }; Foo.new.getFields" ==> "'{ Foo | }'"
+  "class Foo { def getFields = this.toString }; Foo.new.getFields" ==> "'{}'"
 
   "(class A { def foo = 42 }) | .new.foo" ==> 42
   "(def foo = 42) | x => x" ==> 42

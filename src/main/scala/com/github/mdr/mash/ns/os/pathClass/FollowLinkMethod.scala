@@ -8,7 +8,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
-object PathClassFollowLinkMethod extends MashMethod("followLink") {
+object FollowLinkMethod extends MashMethod("followLink") {
 
   val params = ParameterModel()
 

@@ -6,7 +6,7 @@ import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.os.pathClass.PathClassInfoMethod
+import com.github.mdr.mash.ns.os.pathClass.InfoMethod
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.os.PathSummary
 import com.github.mdr.mash.runtime._
@@ -31,7 +31,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
   }
 
   override lazy val methods = {
-    val omittedMethods = fields.map(_.name).toSet + PathClassInfoMethod.name
+    val omittedMethods = fields.map(_.name).toSet + InfoMethod.name
     val liftedMethods = PathClass.methods.filterNot(m ⇒ omittedMethods contains m.name).map(liftPathMethod)
     ToStringMethod +: liftedMethods
   }

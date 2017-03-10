@@ -5,7 +5,7 @@ import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashMethod,
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.{ MashNull, MashString, MashValue }
 
-object PathClassExtensionMethod extends MashMethod("extension") {
+object ExtensionMethod extends MashMethod("extension") {
 
   val params = ParameterModel()
 

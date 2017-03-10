@@ -10,7 +10,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
-object PathClassRenameByMethod extends MashMethod("renameBy") {
+object RenameByMethod extends MashMethod("renameBy") {
 
   object Params {
     val F = Parameter(
@@ -25,7 +25,7 @@ object PathClassRenameByMethod extends MashMethod("renameBy") {
     val path = FunctionHelpers.interpretAsPath(target)
     val renamerFunction = boundParams.validateFunction(F)
     val newFileName = Paths.get(ToStringifier.stringify(renamerFunction(asPathString(path.getFileName))))
-    PathClassRenameToMethod.validateName(newFileName, boundParams, F)
+    RenameToMethod.validateName(newFileName, boundParams, F)
     val newPath = path.resolveSibling(newFileName)
     val newLocation = Files.move(path, newPath)
     asPathString(newLocation)

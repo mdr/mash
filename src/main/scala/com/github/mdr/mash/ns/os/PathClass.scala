@@ -21,39 +21,39 @@ import scala.collection.JavaConverters._
 object PathClass extends MashClass("os.Path") {
 
   override val methods = Seq(
-    PathClassAbsoluteMethod,
-    PathClassBaseNameMethod,
-    PathClassCdMethod,
-    PathClassChildrenMethod,
-    PathClassCopyIntoMethod,
-    PathClassCopyMethod,
-    PathClassDeleteMethod,
-    PathClassExistsMethod,
-    PathClassExtensionMethod,
-    PathClassFollowLinkMethod,
-    PathClassGroupMethod,
-    PathClassInfoMethod,
-    PathClassIsDirectoryMethod,
-    PathClassIsEmptyDirMethod,
-    PathClassIsFileMethod,
-    PathClassLastModifiedMethod,
-    PathClassCreateDirectoryMethod,
-    PathClassMoveIntoMethod,
-    PathClassNameMethod,
-    PathClassOwnerMethod,
-    PathClassParentMethod,
-    PathClassPermissionsMethod,
-    PathClassReadMethod,
-    PathClassReadLinesMethod,
-    PathClassRenameByMethod,
-    PathClassRenameToMethod,
-    PathClassRunMethod,
-    PathClassSegmentsMethod,
-    PathClassSizeMethod,
-    PathClassTypeMethod,
-    PathClassWriteMethod)
+    AbsoluteMethod,
+    BaseNameMethod,
+    CdMethod,
+    ChildrenMethod,
+    CopyIntoMethod,
+    CopyMethod,
+    DeleteMethod,
+    ExistsMethod,
+    ExtensionMethod,
+    FollowLinkMethod,
+    GroupMethod,
+    InfoMethod,
+    IsDirectoryMethod,
+    IsEmptyDirMethod,
+    IsFileMethod,
+    LastModifiedMethod,
+    CreateDirectoryMethod,
+    MoveIntoMethod,
+    NameMethod,
+    OwnerMethod,
+    ParentMethod,
+    PermissionsMethod,
+    ReadMethod,
+    ReadLinesMethod,
+    RenameByMethod,
+    RenameToMethod,
+    RunMethod,
+    SegmentsMethod,
+    SizeMethod,
+    TypeMethod,
+    WriteMethod)
 
-  object PathClassReadLinesMethod extends MashMethod("readLines") {
+  object ReadLinesMethod extends MashMethod("readLines") {
 
     val params = ParameterModel()
 
@@ -71,7 +71,7 @@ The default character encoding and line separator are used.""")
 
   }
 
-  object PathClassReadMethod extends MashMethod("read") {
+  object ReadMethod extends MashMethod("read") {
     private val fileSystem = LinuxFileSystem
 
     val params = ParameterModel()
@@ -90,7 +90,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassRunMethod extends MashMethod("run") {
+  object RunMethod extends MashMethod("run") {
 
     object Params {
       val Args = Parameter(
@@ -118,7 +118,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassAbsoluteMethod extends MashMethod("absolute") {
+  object AbsoluteMethod extends MashMethod("absolute") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -135,7 +135,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassParentMethod extends MashMethod("parent") {
+  object ParentMethod extends MashMethod("parent") {
 
     val params = ParameterModel()
 
@@ -152,7 +152,7 @@ The default character encoding is used.""")
     override def summaryOpt = Some("The parent of this path")
   }
 
-  object PathClassCopyIntoMethod extends MashMethod("copyInto") {
+  object CopyIntoMethod extends MashMethod("copyInto") {
 
     object Params {
       val Destination = Parameter(
@@ -184,7 +184,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassMoveIntoMethod extends MashMethod("moveInto") {
+  object MoveIntoMethod extends MashMethod("moveInto") {
 
     object Params {
       val Destination = Parameter(
@@ -217,7 +217,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassDeleteMethod extends MashMethod("delete") {
+  object DeleteMethod extends MashMethod("delete") {
 
     override def aliases = Seq("rm")
 
@@ -238,7 +238,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassNameMethod extends MashMethod("name") {
+  object NameMethod extends MashMethod("name") {
 
     val params = ParameterModel()
 
@@ -252,7 +252,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassIsDirectoryMethod extends MashMethod("isDirectory") {
+  object IsDirectoryMethod extends MashMethod("isDirectory") {
 
     val params = ParameterModel()
 
@@ -266,7 +266,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassIsEmptyDirMethod extends MashMethod("isEmptyDir") {
+  object IsEmptyDirMethod extends MashMethod("isEmptyDir") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -283,7 +283,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassIsFileMethod extends MashMethod("isFile") {
+  object IsFileMethod extends MashMethod("isFile") {
 
     val params = ParameterModel()
 
@@ -297,7 +297,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassLastModifiedMethod extends MashMethod("lastModified") {
+  object LastModifiedMethod extends MashMethod("lastModified") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -313,7 +313,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassOwnerMethod extends MashMethod("owner") {
+  object OwnerMethod extends MashMethod("owner") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -330,7 +330,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassGroupMethod extends MashMethod("group") {
+  object GroupMethod extends MashMethod("group") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -347,7 +347,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassPermissionsMethod extends MashMethod("permissions") {
+  object PermissionsMethod extends MashMethod("permissions") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -365,7 +365,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassSizeMethod extends MashMethod("size") {
+  object SizeMethod extends MashMethod("size") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -382,7 +382,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassTypeMethod extends MashMethod("type") {
+  object TypeMethod extends MashMethod("type") {
 
     private val fileSystem = LinuxFileSystem
 
@@ -399,7 +399,7 @@ The default character encoding is used.""")
 
   }
 
-  object PathClassSegmentsMethod extends MashMethod("segments") {
+  object SegmentsMethod extends MashMethod("segments") {
 
     val params = ParameterModel()
 

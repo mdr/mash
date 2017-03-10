@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-object PathClassInfoMethod extends MashMethod("info") {
+object InfoMethod extends MashMethod("info") {
 
   private val fileSystem = LinuxFileSystem
 

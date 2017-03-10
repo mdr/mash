@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 import org.apache.commons.io.FilenameUtils
 
-object PathClassBaseNameMethod extends MashMethod("baseName") {
+object BaseNameMethod extends MashMethod("baseName") {
 
   val params = ParameterModel()
 
