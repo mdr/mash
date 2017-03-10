@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.ObjectClass.WhereMethod
+import com.github.mdr.mash.ns.core.objectClass.WhereMethod
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object WhereFunction extends MashFunction("collections.where") {

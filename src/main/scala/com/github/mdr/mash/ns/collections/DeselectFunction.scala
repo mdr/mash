@@ -4,7 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.ObjectClass.GetMethod
+import com.github.mdr.mash.ns.core.objectClass.GetMethod
 import com.github.mdr.mash.runtime._
 
 object DeselectFunction extends MashFunction("collections.deselect") {

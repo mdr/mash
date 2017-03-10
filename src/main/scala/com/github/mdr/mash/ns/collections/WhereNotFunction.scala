@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.ObjectClass.WhereNotMethod
+import com.github.mdr.mash.ns.core.objectClass.WhereNotMethod
 import com.github.mdr.mash.runtime._
 
 object WhereNotFunction extends MashFunction("collections.whereNot") {

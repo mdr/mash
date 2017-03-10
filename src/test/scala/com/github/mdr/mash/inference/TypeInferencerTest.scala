@@ -6,6 +6,7 @@ import com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, _ }
+import com.github.mdr.mash.ns.core.objectClass.MergeStaticMethod
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.os._
 import com.github.mdr.mash.ns.time._
@@ -325,7 +326,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "(x => x).isNull" ==> BooleanClass
 
   // static
-  "Object.merge" ==> Type.BuiltinFunction(ObjectClass.MergeStaticMethod)
+  "Object.merge" ==> Type.BuiltinFunction(MergeStaticMethod)
 
   // classes
   "class Foo { def bar = 10 }; Foo.new.bar" ==> NumberClass
