@@ -92,7 +92,7 @@ object HoistMethod extends MashMethod("hoist") {
     completionSpecOpt.toSeq
   }
 
-  override def summaryOpt = Some("Hoist the fields of a   subobject up into this object")
+  override def summaryOpt = Some("Hoist the fields of a subobject up into this object")
 
   override def descriptionOpt = Some(
     """Examples:

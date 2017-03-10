@@ -2,6 +2,7 @@ v0.0.8 (..)
 -----------
 
 * Add Path/PathSummary.open
+* Add base64.encode
 
 v0.0.7 (9/March/2017)
 ---------------------
