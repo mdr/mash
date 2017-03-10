@@ -4,6 +4,7 @@ import com.github.mdr.mash.assist.InvocationAssistance.getTypeOfNearestFunction
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.collections.{ ListClass, ReverseFunction }
+import com.github.mdr.mash.ns.core.stringClass.StartsWithMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.os.{ HomeFunction, ListFilesFunction }
 import com.github.mdr.mash.repl.LineBufferTestHelper
@@ -28,7 +29,7 @@ class InvocationAssistanceTest extends FlatSpec with Matchers {
   "reverse▶" ==> Type.BuiltinFunction(ReverseFunction)
 
   "1.toString▶" ==> Type.BoundBuiltinMethod(NumberClass, AnyClass.ToStringMethod)
-  "''.startsWith 'x'▶" ==> Type.BoundBuiltinMethod(StringClass, StringClass.StartsWithMethod)
+  "''.startsWith 'x'▶" ==> Type.BoundBuiltinMethod(StringClass, StartsWithMethod)
 
   implicit class RichString(s: String) {
 

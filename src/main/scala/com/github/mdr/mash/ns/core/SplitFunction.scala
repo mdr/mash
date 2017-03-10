@@ -1,9 +1,8 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.StringClass.SplitMethod
+import com.github.mdr.mash.ns.core.stringClass.SplitMethod
 import com.github.mdr.mash.runtime.{ MashList, MashNull }
 
 object SplitFunction extends MashFunction("core.split") {
