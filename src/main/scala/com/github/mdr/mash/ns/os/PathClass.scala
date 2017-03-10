@@ -15,6 +15,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.SystemUtils
 
 import scala.collection.JavaConverters._
 
@@ -51,7 +52,12 @@ object PathClass extends MashClass("os.Path") {
     SegmentsMethod,
     SizeMethod,
     TypeMethod,
-    WriteMethod)
+    WriteMethod) ++
+    (if (SystemUtils.IS_OS_MAC_OSX)
+      Seq(OpenMethod)
+    else
+      Seq())
+
 
   object ReadLinesMethod extends MashMethod("readLines") {
 
@@ -66,7 +72,8 @@ object PathClass extends MashClass("os.Path") {
 
     override def summaryOpt = Some("Read lines from this file")
 
-    override def descriptionOpt = Some("""Returns a sequence of lines read from this file.
+    override def descriptionOpt = Some(
+      """Returns a sequence of lines read from this file.
 The default character encoding and line separator are used.""")
 
   }
@@ -85,7 +92,8 @@ The default character encoding and line separator are used.""")
 
     override def summaryOpt = Some("Read the contents of this file as a string")
 
-    override def descriptionOpt = Some("""Returns a string with the contents of this file.
+    override def descriptionOpt = Some(
+      """Returns a string with the contents of this file.
 The default character encoding is used.""")
 
   }
@@ -98,6 +106,7 @@ The default character encoding is used.""")
         summaryOpt = Some("Arguments to command"),
         isVariadic = true)
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Args))
@@ -159,6 +168,7 @@ The default character encoding is used.""")
         nameOpt = Some("destination"),
         summaryOpt = Some("Location to copy file to"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Destination))
@@ -191,6 +201,7 @@ The default character encoding is used.""")
         nameOpt = Some("destination"),
         summaryOpt = Some("Location to copy file to"))
     }
+
     import Params._
 
     val params = ParameterModel(Seq(Destination))
