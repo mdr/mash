@@ -1,6 +1,7 @@
 v0.0.8 (..)
 -----------
 
+* Add hash.sha256
 * Use ~ where possible in stack traces
 * Fix bug with http and --json flag
 * Add Path/PathSummary.open

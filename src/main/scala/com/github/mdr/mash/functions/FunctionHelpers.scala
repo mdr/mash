@@ -17,11 +17,11 @@ object FunctionHelpers {
       case _            ⇒ Seq(interpretAsPath(value))
     }
 
-  def safeInterpretAsPath(x: MashValue): Option[Path] =
+  def safeInterpretAsPath(x: MashValue, stringsMustHaveTags: Boolean = false): Option[Path] =
     condOpt(x) {
-      case MashString(s, _) ⇒
+      case MashString(s, tagOpt) if !stringsMustHaveTags || tagOpt.contains(PathClass) ⇒
         Paths.get(s)
-      case obj: MashObject if obj.classOpt == Some(PathSummaryClass) ⇒
+      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒
         Paths.get(obj(PathSummaryClass.Fields.Path).asInstanceOf[MashString].s)
     }
 

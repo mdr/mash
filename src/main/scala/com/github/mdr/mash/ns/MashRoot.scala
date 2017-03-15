@@ -60,6 +60,9 @@ object MashRoot {
         net.UrlEncodeFunction,
         net.UrlFunction) ++
       Seq(
+        hash.Sha256Function
+      ) ++
+      Seq(
         random.NumberFunction,
         random.UuidFunction) ++
       Seq(
