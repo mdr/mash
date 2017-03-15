@@ -14,7 +14,7 @@ object ResponseClass extends MashClass("http.Response") {
   object Fields {
     lazy val Status = Field("status", Some("Status code"), NumberClass)
     lazy val Body = Field("body", Some("Body of the response"), StringClass)
-    lazy val Headers = Field("headers", Some("Response headers"), Seq(HeaderClass))
+    lazy val Headers = Field("headers", Some("Response headers"), ObjectClass)
     lazy val Cookies = Field("cookies", Some("Response cookies"), Seq(CookieClass))
   }
 

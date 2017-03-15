@@ -65,13 +65,13 @@ object HttpOperations {
     val code = response.getStatusLine.getStatusCode
     val content = response.getEntity.getContent
     val responseBody = IOUtils.toString(content, StandardCharsets.UTF_8)
-    val headers = response.getAllHeaders.map(asMashObject(_))
+    val headers = asMashObject(response.getAllHeaders)
     val cookies = cookieStore.getCookies.asScala.map(asMashObject(_))
     import ResponseClass.Fields._
     MashObject.of(ListMap(
       Status -> MashNumber(code),
       Body -> MashString(responseBody),
-      Headers -> MashList(headers),
+      Headers -> headers,
       Cookies -> MashList(cookies)), ResponseClass)
   }
 
@@ -82,10 +82,11 @@ object HttpOperations {
       Value -> MashString(cookie.getValue)), CookieClass)
   }
 
-  private def asMashObject(header: org.apache.http.Header): MashObject = {
-    import HeaderClass.Fields._
-    MashObject.of(ListMap(
-      Name -> MashString(header.getName),
-      Value -> MashString(header.getValue)), HeaderClass)
+  private def asMashObject(headers: Seq[org.apache.http.Header]): MashObject = {
+    val pairs =
+      for (header ← headers)
+        yield header.getName -> MashString(header.getValue)
+    MashObject.of(pairs)
   }
+
 }
