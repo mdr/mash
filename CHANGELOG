@@ -1,6 +1,8 @@
 v0.0.8 (..)
 -----------
 
+* Use ~ where possible in stack traces
+* Fix bug with http and --json flag
 * Add Path/PathSummary.open
 * Add base64.encode
 

@@ -3,9 +3,9 @@ package com.github.mdr.mash.commands
 import java.io.PrintStream
 
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem }
-import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.{ LineBufferRenderer, MashRenderer, Screen }
+import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpander }
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
+import com.github.mdr.mash.screen.{ MashRenderer, Screen }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
 import org.fusesource.jansi.Ansi
@@ -14,6 +14,8 @@ import org.fusesource.jansi.Ansi
   * Print errors with stack traces
   */
 class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
+
+  private val envInteractions = LinuxEnvironmentInteractions
 
   def printError(msgType: String, msg: String, unit: CompilationUnit, stack: Seq[StackTraceItem]) = {
     output.println(formatStrong(msgType + ":") + " " + msg)
@@ -33,11 +35,14 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     val drawnLine = Screen.drawStyledChars(renderedLine)
     val isImmediateError = unit.provenance == provenance && unit.interactive
     val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
-    val prefix = if (isImmediateError) "" else s"${provenance.name}:${lineIndex + 1}$functionName: "
+    val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${lineIndex + 1}$functionName: "
     val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
     output.println(formatStrong(prefix) + drawnLine)
     output.println(formatStrong(errorUnderlineLine))
   }
+
+  private def replaceHomePath(path: String): String =
+    new TildeExpander(envInteractions).retilde(path)
 
   private def getUnderlineLine(prefix: String, lineInfo: LineInfo, lineIndex: Int, point: Int, region: Region): String = {
     val padding = " " * prefix.length
