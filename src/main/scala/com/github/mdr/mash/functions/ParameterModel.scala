@@ -27,6 +27,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     paramMap
   }
 
+  @throws[ArgumentException]
   def bindTo(arguments: Arguments, context: EvaluationContext): BoundParams =
     new ParamBindingContext(this, arguments, context).bind
 

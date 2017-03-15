@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass, UserDefinedMethod }
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.parser.AbstractSyntax._
@@ -49,23 +49,31 @@ object InvocationEvaluator extends EvaluatorHelper {
     function match {
       case MashString(memberName, _)                  ⇒
         val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
-        val boundParams = f.params.bindTo(arguments, EvaluationContext.NotUsed)
+        val boundParams = translateArgumentException(invocationLocationOpt) {
+          f.params.bindTo(arguments, EvaluationContext.NotUsed)
+        }
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(boundParams)
         }
       case b: MashBoolean                             ⇒
         val f = new BooleanFunction(b.value)
-        val boundParams = f.params.bindTo(arguments, EvaluationContext.NotUsed)
+        val boundParams = translateArgumentException(invocationLocationOpt) {
+          f.params.bindTo(arguments, EvaluationContext.NotUsed)
+        }
         addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
           f(boundParams)
         }
       case function: MashFunction                     ⇒
-        val boundParams = function.params.bindTo(arguments, function.paramContext)
+        val boundParams = translateArgumentException(invocationLocationOpt) {
+          function.params.bindTo(arguments, function.paramContext)
+        }
         addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
           function(boundParams)
         }
       case boundMethod@BoundMethod(target, method, _) ⇒
-        val boundParams = method.params.bindTo(arguments, method.paramContext(target))
+        val boundParams = translateArgumentException(invocationLocationOpt) {
+          method.params.bindTo(arguments, method.paramContext(target))
+        }
         addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
           method(target, boundParams)
         }
@@ -140,6 +148,14 @@ object InvocationEvaluator extends EvaluatorHelper {
     override def summaryOpt = Some("String as a function")
 
   }
+
+  def translateArgumentException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
+    try
+      p
+    catch {
+      case e: ArgumentException ⇒
+        throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
+    }
 
   def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation],
                                          functionOpt: Option[MashCallable] = None)(p: ⇒ T): T =

@@ -2,7 +2,7 @@ package com.github.mdr.mash.completions
 
 import java.nio.file.Paths
 
-import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.compiler.{ CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem, MockEnvironmentInteractions, MockFileSystem }
