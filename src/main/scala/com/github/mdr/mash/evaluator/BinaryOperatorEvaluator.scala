@@ -34,7 +34,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       if (leftResult == MashNull || rightResult == MashNull)
         MashBoolean.False
       else {
-        val comparisonResult = MashValueOrdering.compareWithLocation(leftResult, rightResult, locationOpt)
+        val comparisonResult = MashValueOrdering.compare(leftResult, rightResult)
         MashBoolean(comparator(comparisonResult, 0))
       }
     op match {
@@ -79,8 +79,8 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
 
   def add(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue = (left, right) match {
     case (xs: MashList, ys: MashList)                                                 ⇒ xs ++ ys
-    case (s: MashString, right)                                                       ⇒ s + right
-    case (left, s: MashString)                                                        ⇒ s.rplus(left)
+    case (s: MashString, _)                                                           ⇒ s + right
+    case (_, s: MashString)                                                           ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber)                                        ⇒ left + right
     case (left: MashObject, right: MashObject)                                        ⇒ left + right
     case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
