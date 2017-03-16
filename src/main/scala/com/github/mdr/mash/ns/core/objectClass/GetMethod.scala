@@ -14,7 +14,7 @@ object GetMethod extends MashMethod("get") {
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default to use if no field with that name present in object (default null)"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
   }
 
   import Params._

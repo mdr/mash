@@ -30,21 +30,21 @@ If no paths are provided, the default is the current working directory."""))
       summaryOpt = Some("Include files starting with a dot (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
     val Recursive = Parameter(
       nameOpt = Some("recursive"),
       summaryOpt = Some("Recursively retrieve results from directories (default false)"),
       shortFlagOpt = Some('r'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
     val Directory = Parameter(
       nameOpt = Some("directory"),
       summaryOpt = Some("List directories themselves, not their contents (default false)"),
       shortFlagOpt = Some('d'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
 

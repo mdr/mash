@@ -22,7 +22,7 @@ object RestoreFunction extends MashFunction("git.restore") {
       summaryOpt = Some("Restore all modified paths (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

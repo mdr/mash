@@ -17,7 +17,7 @@ object HoistMethod extends MashMethod("hoist") {
     val Prefix = Parameter(
       nameOpt = Some("prefix"),
       summaryOpt = Some("Add this prefix to hoisted field names"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      defaultValueGeneratorOpt = Some(MashNull),
       isFlag = true,
       flagValueNameOpt = Some("prefix"))
   }

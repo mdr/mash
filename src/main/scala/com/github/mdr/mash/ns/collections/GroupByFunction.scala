@@ -19,7 +19,7 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
       nameOpt = Some("total"),
       summaryOpt = Some("Include a total group containing all the results"),
       shortFlagOpt = Some('t'),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some(
@@ -31,7 +31,7 @@ Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
       nameOpt = Some("includeNull"),
       summaryOpt = Some("Include groups that have null keys"),
       shortFlagOpt = Some('n'),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some(

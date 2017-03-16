@@ -22,7 +22,7 @@ object UnstageFunction extends MashFunction("git.unstage") {
       summaryOpt = Some("Unstage all staged files (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
   import Params._

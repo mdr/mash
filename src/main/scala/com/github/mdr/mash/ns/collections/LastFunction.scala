@@ -9,7 +9,7 @@ object LastFunction extends MashFunction("collections.last") {
     val N = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements to take"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the last value(s) of"),

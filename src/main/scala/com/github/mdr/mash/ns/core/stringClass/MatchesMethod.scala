@@ -18,7 +18,7 @@ object MatchesMethod extends MashMethod("matches") {
       summaryOpt = Some("Perform a case-insensitive match"),
       shortFlagOpt = Some('i'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
 

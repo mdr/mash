@@ -21,7 +21,7 @@ object WriteFunction extends MashFunction("os.write") {
       summaryOpt = Some("Append to the end of the file, if it already exists"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
     val File = Parameter(
       nameOpt = Some("file"),

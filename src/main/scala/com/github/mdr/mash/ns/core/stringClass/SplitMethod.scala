@@ -14,13 +14,13 @@ object SplitMethod extends MashMethod("split") {
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
       summaryOpt = Some("Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Separator = Parameter(
       nameOpt = Some("separator"),
       summaryOpt = Some("Separator to split string on; if not provided, the default is to split on whitespace"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
   }
 
   import Params._

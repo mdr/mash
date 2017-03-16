@@ -17,7 +17,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default value to return, if the items are empty"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      defaultValueGeneratorOpt = Some(MashNull),
       isFlag = true,
       isFlagValueMandatory = true)
   }

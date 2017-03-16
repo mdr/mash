@@ -17,7 +17,7 @@ object ReplaceMethod extends MashMethod("replace") {
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
       summaryOpt = Some("Interpret target as a regular expression"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
 

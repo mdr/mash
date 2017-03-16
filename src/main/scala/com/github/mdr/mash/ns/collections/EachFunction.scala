@@ -14,7 +14,7 @@ object EachFunction extends MashFunction("collections.each") {
       nameOpt = Some("withIndex"),
       shortFlagOpt = Some('i'),
       summaryOpt = Some("Pass index into the function as well as the item"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val Sequence = Parameter(

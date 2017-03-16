@@ -18,14 +18,14 @@ object SortFunction extends MashFunction("collections.sort") {
       nameOpt = Some("descending"),
       shortFlagOpt = Some('d'),
       summaryOpt = Some("Sort results from highest value to lowest"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
     val NaturalOrder = Parameter(
       nameOpt = Some("naturalOrder"),
       shortFlagOpt = Some('n'),
       summaryOpt = Some("Use natural sort order ('alphanum') when comparing items"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)
   }

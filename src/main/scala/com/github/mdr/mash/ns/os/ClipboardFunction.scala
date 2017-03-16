@@ -15,7 +15,7 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
     val Item = Parameter(
       nameOpt = Some("item"),
       summaryOpt = Some("Item to place on the clipboard. If not provided, the contents of the clipboard are returned."),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
   }
 
   import Params._

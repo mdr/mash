@@ -12,7 +12,7 @@ object SplitFunction extends MashFunction("core.split") {
     val String = Parameter(
       nameOpt = Some("string"),
       summaryOpt = Some("String to split"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
 
   }
 

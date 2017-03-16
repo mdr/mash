@@ -10,7 +10,7 @@ object SkipFunction extends MashFunction("collections.skip") {
     val N = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements to skip (default 1)"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
+      defaultValueGeneratorOpt = Some(MashNumber(1)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to skip values from"),

@@ -18,7 +18,7 @@ object RunFunction extends MashFunction("os.run") {
     val StandardIn = Parameter(
       nameOpt = Some("standardIn"),
       summaryOpt = Some("What to send to standard input"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      defaultValueGeneratorOpt = Some(MashNull),
       isFlag = true,
       isFlagValueMandatory = true)
   }

@@ -12,7 +12,7 @@ object FirstFunction extends MashFunction("collections.first") {
     val N: Parameter = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the first value(s) of"),

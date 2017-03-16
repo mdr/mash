@@ -13,7 +13,7 @@ object LogFunction extends MashFunction("maths.log") {
     val Base = Parameter(
       nameOpt = Some("base"),
       summaryOpt = Some("base"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(Math.E)))
+      defaultValueGeneratorOpt = Some(MashNumber(Math.E)))
   }
   import Params._
 

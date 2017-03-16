@@ -96,7 +96,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       val Else = Parameter(
         nameOpt = Some("else"),
         summaryOpt = Some("The result if this is false"),
-        defaultValueGeneratorOpt = Some(() ⇒ MashUnit),
+        defaultValueGeneratorOpt = Some(MashUnit),
         isLazy = true)
     }
 

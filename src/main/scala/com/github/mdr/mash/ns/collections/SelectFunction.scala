@@ -20,7 +20,7 @@ object SelectFunction extends MashFunction("collections.select") {
       nameOpt = Some("add"),
       summaryOpt = Some("Add the fields to the existing set of members, rather than replacing"),
       shortFlagOpt = Some(AddShortFlag),
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true)
     lazy val Selectors = Parameter(
       nameOpt = Some("selectors"),

@@ -14,7 +14,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
     val EmptyValue = Parameter(
       nameOpt = Some("emptyValue"),
       summaryOpt = Some("Value used as the sum of an empty list (default 0)"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNumber(0)))
+      defaultValueGeneratorOpt = Some(MashNumber(0)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the sum of"),

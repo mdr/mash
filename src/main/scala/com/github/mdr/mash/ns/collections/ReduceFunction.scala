@@ -16,7 +16,7 @@ object ReduceFunction extends MashFunction("collections.reduce") {
     val Initial = Parameter(
       nameOpt = Some("initial"),
       summaryOpt = Some("Initial value"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence of items to reduce"),

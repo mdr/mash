@@ -38,7 +38,7 @@ object NumberClass extends MashClass("core.Number") {
       val Step = Parameter(
         nameOpt = Some("step"),
         summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
-        defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
+        defaultValueGeneratorOpt = Some(MashNumber(1)))
     }
     import Params._
 
@@ -67,7 +67,7 @@ object NumberClass extends MashClass("core.Number") {
       val Step = Parameter(
         nameOpt = Some("step"),
         summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
-        defaultValueGeneratorOpt = Some(() ⇒ MashNumber(1)))
+        defaultValueGeneratorOpt = Some(MashNumber(1)))
     }
     import Params._
 

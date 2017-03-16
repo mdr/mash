@@ -16,7 +16,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
       summaryOpt = Some("Create intermediate directories as required (default false)"),
       shortFlagOpt = Some('c'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
     val Paths = Parameter(
       nameOpt = Some("paths"),

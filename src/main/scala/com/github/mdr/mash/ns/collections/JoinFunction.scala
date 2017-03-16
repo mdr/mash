@@ -11,7 +11,7 @@ object JoinFunction extends MashFunction("collections.join") {
     val Separator = Parameter(
       nameOpt = Some("separator"),
       summaryOpt = Some("""String used to separate elements in the result string; defaults to """""),
-      defaultValueGeneratorOpt = Some(() ⇒ MashString("")))
+      defaultValueGeneratorOpt = Some(MashString("")))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to combine into a string"),

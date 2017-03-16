@@ -55,7 +55,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
         summaryOpt = Some("Switch to the new branch after creating it (default false)"),
         shortFlagOpt = Some('s'),
         isFlag = true,
-        defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+        defaultValueGeneratorOpt = Some(MashBoolean.False),
         isBooleanFlag = true)
     }
 

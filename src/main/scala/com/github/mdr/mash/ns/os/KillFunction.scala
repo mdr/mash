@@ -26,7 +26,7 @@ object KillFunction extends MashFunction("os.kill") {
     val Signal = Parameter(
       nameOpt = Some("signal"),
       summaryOpt = Some("Signal to send to the process"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashString(Term, SignalClass)),
+      defaultValueGeneratorOpt = Some(MashString(Term, SignalClass)),
       isFlag = true,
       isFlagValueMandatory = true,
       flagValueNameOpt = Some("signal"),

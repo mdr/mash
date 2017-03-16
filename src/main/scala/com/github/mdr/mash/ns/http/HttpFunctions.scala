@@ -25,14 +25,14 @@ object HttpFunctions {
           |If false, the body will be used directly.""".stripMargin),
       shortFlagOpt = Some('f'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
 
     val BasicAuth = Parameter(
       nameOpt = Some("basicAuth"),
       summaryOpt = Some("Basic authentication"),
       descriptionOpt = Some("Must either be a String of the form 'username:password', or an object of the form { username: 'username', password: 'password' }"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull),
+      defaultValueGeneratorOpt = Some(MashNull),
       isFlag = true)
 
     val Headers = Parameter(
@@ -44,14 +44,14 @@ object HttpFunctions {
           |  --headers=["header1:value", "header2:value"]
           |  --headers=[{ name: "header1", value: "value"}]""".stripMargin),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashNull))
+      defaultValueGeneratorOpt = Some(MashNull))
 
     val Json = Parameter(
       nameOpt = Some("json"),
       summaryOpt = Some("Whether to send the body as JSON (default false)"),
       shortFlagOpt = Some('j'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashBoolean.False),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
 
