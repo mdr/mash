@@ -35,7 +35,7 @@ object ChildrenFunction extends MashFunction("os.children") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Directory, IgnoreDotFiles, Recursive))
+  lazy val params = ParameterModel(Seq(Directory, IgnoreDotFiles, Recursive))
 
   def apply(boundParams: BoundParams): MashList = {
     val parentDir = boundParams.validatePath(Directory)
