@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.FunctionHelpers.asPathString
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass

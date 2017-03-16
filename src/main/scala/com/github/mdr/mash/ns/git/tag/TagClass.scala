@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git.tag
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }

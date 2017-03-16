@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.StringClass

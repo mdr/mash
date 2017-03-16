@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, HelpCreator }

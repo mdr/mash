@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import java.nio.file.Files
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ ParameterModel, _ }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }

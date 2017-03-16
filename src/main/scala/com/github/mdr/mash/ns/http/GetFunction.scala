@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.http
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpGet

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import java.util.regex.Pattern
 
-import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.objectClass.GrepMethod

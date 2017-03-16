@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.git.branch
 
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.remote.RemoteNameClass
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }

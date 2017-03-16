@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.os
 import java.nio.file.Paths
 
 import com.github.mdr.mash.Singletons
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem

@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.net
 import java.net.InetAddress
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }

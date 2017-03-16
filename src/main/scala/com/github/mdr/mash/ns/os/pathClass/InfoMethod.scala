@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.os.pathClass
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem

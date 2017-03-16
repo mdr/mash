@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.os.linux.LinuxFileSystem

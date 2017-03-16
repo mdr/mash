@@ -4,7 +4,6 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.collections.GrepFunction
-import com.github.mdr.mash.ns.collections.GrepFunction.Params._
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object GrepMethod extends MashMethod("grep") {

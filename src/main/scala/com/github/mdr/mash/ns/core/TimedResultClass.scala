@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.core
 import java.time.Instant
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.classToType

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ Field, MashClass }
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass

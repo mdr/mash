@@ -1,11 +1,9 @@
 package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.json.FromFileFunction
 import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
 

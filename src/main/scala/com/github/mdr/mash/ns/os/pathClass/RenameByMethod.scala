@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os.pathClass
 
 import java.nio.file.{ Files, Paths }
 
-import com.github.mdr.mash.evaluator.{ Arguments, ToStringifier }
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.FunctionHelpers._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass

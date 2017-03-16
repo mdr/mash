@@ -6,9 +6,9 @@ import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.http.ResponseClass.Wrapper
 import com.github.mdr.mash.ns.http._
+import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpPost
-import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 
 object PostFunction extends MashFunction("json.post") {
   import HttpFunctions.Params._

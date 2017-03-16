@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.classes.Field
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 

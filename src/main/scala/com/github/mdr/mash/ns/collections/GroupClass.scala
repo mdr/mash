@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core._

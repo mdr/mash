@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.core
 
 import java.time.Clock
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
 import com.github.mdr.mash.ns.os.{ ProcessResultClass, WithinFunction }

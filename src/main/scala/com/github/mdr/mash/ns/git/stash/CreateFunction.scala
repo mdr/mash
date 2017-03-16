@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.git.stash
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.GitHelper

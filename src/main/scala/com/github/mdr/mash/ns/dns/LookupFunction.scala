@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.dns
 
 import java.net.InetAddress
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.net.HostClass.IpAddressesMethod

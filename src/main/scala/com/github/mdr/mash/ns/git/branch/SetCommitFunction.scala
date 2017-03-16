@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass

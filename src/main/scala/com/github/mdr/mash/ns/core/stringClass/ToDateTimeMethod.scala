@@ -6,6 +6,7 @@ import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.time.DateTimeClass
 import com.github.mdr.mash.runtime.{ MashNull, MashString, MashValue, MashWrapped }
 import com.joestelmach.natty.Parser
+
 import scala.collection.JavaConverters._
 
 object ToDateTimeMethod extends MashMethod("toDateTime") {

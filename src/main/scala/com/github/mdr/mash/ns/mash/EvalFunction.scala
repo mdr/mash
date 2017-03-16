@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.mash
 
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.MashValue
 

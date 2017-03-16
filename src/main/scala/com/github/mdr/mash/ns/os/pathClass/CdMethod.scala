@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.os.pathClass
 
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluatorException }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction

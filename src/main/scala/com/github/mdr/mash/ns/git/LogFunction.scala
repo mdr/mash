@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.git
 import java.time.Instant
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }

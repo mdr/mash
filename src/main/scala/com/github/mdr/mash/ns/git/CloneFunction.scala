@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.git
 
 import java.io.File
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass

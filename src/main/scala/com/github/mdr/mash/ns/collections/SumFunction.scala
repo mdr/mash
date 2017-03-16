@@ -1,9 +1,8 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.{ Arguments, BinaryOperatorEvaluator }
+import com.github.mdr.mash.evaluator.BinaryOperatorEvaluator
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashNumber, MashValue }
 
 object SumFunction extends MashFunction("collections.sum") {

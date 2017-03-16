@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.git.tag
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.git.GitHelper
 import com.github.mdr.mash.runtime.MashObject

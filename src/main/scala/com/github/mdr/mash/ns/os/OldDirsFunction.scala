@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.Singletons
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, FunctionHelpers, MashFunction, ParameterModel }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.StringClass
