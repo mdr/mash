@@ -17,9 +17,9 @@ object Sha256Function extends MashFunction("hash.sha256") {
     val Data = Parameter(
       nameOpt = Some("data"),
       summaryOpt = Some("Data to hash"),
-        descriptionOpt = Some(
-          """If a path, then the contents of the file will be hashed.
-            |Else, the given data will be turned into a String and hashed.""".stripMargin))
+      descriptionOpt = Some(
+        """If a path, then the contents of the file will be hashed.
+          |Else, the given data will be turned into a String and hashed.""".stripMargin))
   }
 
   import Params._
