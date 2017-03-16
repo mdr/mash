@@ -1,6 +1,7 @@
 v0.0.8 (..)
 -----------
 
+* Add file parameter to http/json.post/put to send file as body
 * Add hash.sha256
 * Use ~ where possible in stack traces
 * Fix bug with http and --json flag

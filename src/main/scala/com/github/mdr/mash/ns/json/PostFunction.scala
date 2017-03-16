@@ -13,15 +13,14 @@ import org.apache.http.client.methods.HttpPost
 object PostFunction extends MashFunction("json.post") {
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, Body, BasicAuth, Headers))
+  val params = ParameterModel(Seq(Url, Body, File, BasicAuth, Headers))
 
   def apply(boundParams: BoundParams): MashValue = {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)
-    val bodyValue = boundParams(Body)
+    val bodySource = HttpFunctions.getBodySource(boundParams)
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    val bodySource = BodySource.Value(bodyValue)
     val result = HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodySource), json = true)
     parseJson(Wrapper(result).body)
   }

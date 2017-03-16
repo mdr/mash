@@ -9,17 +9,16 @@ import org.apache.http.client.methods.HttpPut
 object PutFunction extends MashFunction("http.put") {
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, Body, BasicAuth, Headers, Json))
+  val params = ParameterModel(Seq(Url, Body, File, Json, BasicAuth, Headers))
 
   def apply(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
 
     val url = new URI(boundParams.validateString(Url).s)
-    val bodyValue = boundParams(Body)
+    val bodySource = HttpFunctions.getBodySource(boundParams)
     val json = boundParams(Json).isTruthy
 
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    val bodySource = BodySource.Value(bodyValue)
     HttpOperations.runRequest(new HttpPut(url), headers, basicCredentialsOpt, Some(bodySource), json)
   }
 
