@@ -18,7 +18,7 @@ object Sha256Function extends MashFunction("hash.sha256") {
       nameOpt = Some("data"),
       summaryOpt = Some("Data to hash"),
       descriptionOpt = Some(
-        """If a path, then the contents of the file will be hashed.
+        """If a Path or PathSummary, then the contents of the file will be hashed.
           |Else, the given data will be turned into a String and hashed.""".stripMargin))
   }
 
@@ -37,7 +37,7 @@ object Sha256Function extends MashFunction("hash.sha256") {
 
   override def typeInferenceStrategy = StringClass
 
-  override def summaryOpt = Some("Calculate the SHA-256 of the given input data")
+  override def summaryOpt = Some("Calculate the SHA-256 hash of the given input data")
 
   private def withFileInputStream[T](path: Path)(f: InputStream ⇒ T) = {
     val inputStream = openInputStream(path.toFile)

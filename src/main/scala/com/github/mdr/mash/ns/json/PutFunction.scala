@@ -2,14 +2,13 @@ package com.github.mdr.mash.ns.json
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.http.ResponseClass.Wrapper
-import com.github.mdr.mash.ns.http.{ BasicCredentials, Header, HttpFunctions, HttpOperations }
+import com.github.mdr.mash.ns.http._
 import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
-import org.apache.http.client.methods.{ HttpPost, HttpPut }
+import org.apache.http.client.methods.HttpPut
 
 object PutFunction extends MashFunction("json.put") {
   import HttpFunctions.Params._
@@ -22,7 +21,8 @@ object PutFunction extends MashFunction("json.put") {
     val url = new URI(boundParams.validateString(Url).s)
     val bodyValue = boundParams(Body)
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    val result = HttpOperations.runRequest(new HttpPut(url), headers, basicCredentialsOpt, Some(bodyValue), json = true)
+    val bodySource = BodySource.Value(bodyValue)
+    val result = HttpOperations.runRequest(new HttpPut(url), headers, basicCredentialsOpt, Some(bodySource), json = true)
     parseJson(Wrapper(result).body)
   }
 

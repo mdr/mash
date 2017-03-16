@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.http
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.json.PrettyPrintFunction
@@ -10,12 +11,22 @@ import org.apache.http.client.CookieStore
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.cookie.Cookie
-import org.apache.http.entity.{ ContentType, StringEntity }
+import org.apache.http.entity.{ ContentType, FileEntity, StringEntity }
 import org.apache.http.impl.client.{ BasicCookieStore, CloseableHttpClient, HttpClients }
 import org.apache.http.{ HttpEntityEnclosingRequest, HttpResponse }
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
+
+sealed trait BodySource
+
+object BodySource {
+
+  case class Value(value: MashValue) extends BodySource
+
+  case class File(path: Path) extends BodySource
+
+}
 
 object HttpOperations {
 
@@ -28,15 +39,15 @@ object HttpOperations {
   def runRequest(request: HttpUriRequest,
                  headers: Seq[Header],
                  basicCredentialsOpt: Option[BasicCredentials],
-                 bodyValueOpt: Option[MashValue] = None,
+                 bodySourceOpt: Option[BodySource] = None,
                  json: Boolean = false): MashObject = {
     val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
     for (header <- actualHeaders)
       request.setHeader(header.name, header.value)
     basicCredentialsOpt.foreach(_.addCredentials(request))
 
-    for (bodyValue ← bodyValueOpt)
-      setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodyValue, json)
+    for (bodySource ← bodySourceOpt)
+      setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodySource, json)
 
     val (cookieStore, client) = makeClient
     val response = client.execute(request)
@@ -55,9 +66,15 @@ object HttpOperations {
     (cookieStore, client)
   }
 
-  private def setBody(request: HttpEntityEnclosingRequest, bodyValue: MashValue, json: Boolean) {
-    val bodyString = if (json) PrettyPrintFunction.asJsonString(bodyValue) else ToStringifier.stringify(bodyValue)
-    val entity = new StringEntity(bodyString, ContentType.APPLICATION_JSON)
+  private def setBody(request: HttpEntityEnclosingRequest, bodySource: BodySource, json: Boolean) {
+    val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.TEXT_PLAIN
+    val entity = bodySource match {
+      case BodySource.Value(value) ⇒
+        val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else ToStringifier.stringify(value)
+        new StringEntity(bodyString, contentType)
+      case BodySource.File(path)   ⇒
+        new FileEntity(path.toFile, contentType)
+    }
     request.setEntity(entity)
   }
 

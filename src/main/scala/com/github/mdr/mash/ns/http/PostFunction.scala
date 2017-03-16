@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.http
 
 import java.net.URI
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpPost
@@ -20,7 +19,8 @@ object PostFunction extends MashFunction("http.post") {
     val bodyValue = boundParams(Body)
     val json = boundParams(Json).isTruthy
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodyValue), json)
+    val bodySource = BodySource.Value(bodyValue)
+    HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodySource), json)
   }
 
   override def typeInferenceStrategy = ResponseClass
