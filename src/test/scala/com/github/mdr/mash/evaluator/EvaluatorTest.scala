@@ -62,6 +62,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "null < null" ==> false
   "null < null < null" ==> false
 
+  // comparisons across types
+  "() < true < 1 < 'foo' < now < (x => x + 1) < [].sortBy < [] < {} < String" ==> true
+
+  // and / or
+
   "true and true" ==> true
   "true and false" ==> false
   "false and true" ==> false
