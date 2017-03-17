@@ -14,10 +14,11 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     val ChainedOpExpr(left, opRights, _) = chainedOp
     val leftResult = Evaluator.evaluate(left)
     val (success, _) = opRights.foldLeft((true, leftResult)) {
-      case ((leftSuccess, leftResult), (op, right)) ⇒
-        lazy val rightResult = Evaluator.evaluate(right)
-        lazy val thisSuccess = evaluateBinOp(leftResult, op, rightResult, sourceLocation(chainedOp)).isTruthy
-        (leftSuccess && thisSuccess, if (leftSuccess) rightResult else leftResult /* avoid evaluating right result if we know the expression is false */ )
+      case ((previousSuccess, previousResult), (op, right)) ⇒
+        val thisResult = Evaluator.evaluate(right)
+        val thisSuccess = evaluateBinOp(previousResult, op, thisResult, sourceLocation(chainedOp)).isTruthy
+        val result = if (previousSuccess) thisResult else previousResult
+        (previousSuccess && thisSuccess, result)
     }
     MashBoolean(success)
   }
@@ -29,7 +30,10 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     evaluateBinOp(leftResult, op, rightResult, sourceLocation(binOp))
   }
 
-  def evaluateBinOp(leftResult: ⇒ MashValue, op: BinaryOperator, rightResult: ⇒ MashValue, locationOpt: Option[SourceLocation]): MashValue = {
+  def evaluateBinOp(leftResult: ⇒ MashValue,
+                    op: BinaryOperator,
+                    rightResult: ⇒ MashValue,
+                    locationOpt: Option[SourceLocation]): MashValue = {
     def compareWith(comparator: (Int, Int) ⇒ Boolean): MashBoolean =
       if (leftResult == MashNull || rightResult == MashNull)
         MashBoolean.False
@@ -38,6 +42,10 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
         MashBoolean(comparator(comparisonResult, 0))
       }
     op match {
+      case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
+      case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
+      case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)
+      case BinaryOperator.GreaterThanEquals ⇒ compareWith(_ >= _)
       case BinaryOperator.And               ⇒ if (leftResult.isTruthy) rightResult else leftResult
       case BinaryOperator.Or                ⇒ if (leftResult.isFalsey) rightResult else leftResult
       case BinaryOperator.Equals            ⇒ MashBoolean(leftResult == rightResult)
@@ -46,15 +54,15 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case BinaryOperator.Minus             ⇒ subtract(leftResult, rightResult, locationOpt)
       case BinaryOperator.Multiply          ⇒ multiply(leftResult, rightResult, locationOpt)
       case BinaryOperator.Divide            ⇒ arithmeticOp(leftResult, rightResult, locationOpt, "divide", _ / _)
-      case BinaryOperator.LessThan          ⇒ compareWith(_ < _)
-      case BinaryOperator.LessThanEquals    ⇒ compareWith(_ <= _)
-      case BinaryOperator.GreaterThan       ⇒ compareWith(_ > _)
-      case BinaryOperator.GreaterThanEquals ⇒ compareWith(_ >= _)
       case BinaryOperator.Sequence          ⇒ leftResult; rightResult
     }
   }
 
-  private def arithmeticOp(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation], name: String, f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
+  private def arithmeticOp(left: MashValue,
+                           right: MashValue,
+                           locationOpt: Option[SourceLocation],
+                           name: String,
+                           f: (MashNumber, MashNumber) ⇒ MashNumber): MashNumber =
     (left, right) match {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
@@ -68,7 +76,8 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (left: MashList, right: MashNumber) if right.isInt   ⇒ left * right.asInt.get
     case (left: MashNumber, right: MashList) if left.isInt    ⇒ right * left.asInt.get
     case (left: MashNumber, right: MashNumber)                ⇒ left * right
-    case _                                                    ⇒ throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+    case _                                                    ⇒
+      throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   private implicit class RichInstant(instant: Instant) {
@@ -108,7 +117,8 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case (left: MashObject, right: MashList)                                          ⇒
         left - right.elements.map {
           case MashString(s, _) ⇒ s
-          case element          ⇒ throw new EvaluatorException(s"Cannot subtract a value of type ${element.typeName} from an object", locationOpt)
+          case element          ⇒
+            throw new EvaluatorException(s"Cannot subtract a value of type ${element.typeName} from an object", locationOpt)
         }
       case _                                                                            ⇒
         throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)

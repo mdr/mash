@@ -42,7 +42,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "1 < 2 < -100" ==> false
   "1 < -10 < 100" ==> false
   "a = 0; -100 < (a = a + 1; a) < 100; a" ==> 1
-  "a = 0; (a = a + 1; 100) < (a = a + 1; -100) < (a = a + 1; -1000); a" ==> 2 // short circuits the last
+  "a = 0; (a += 1; 100) < (a += 1; -100) < (a += 1; -1000); a" ==> 3 // should evaluate all expressions
 
   // date/time comparisons
   "now > 3.days.ago" ==> true
@@ -63,7 +63,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "null < null < null" ==> false
 
   // comparisons across types
-  "() < true < 1 < 'foo' < now < (x => x + 1) < [].sortBy < [] < {} < String" ==> true
+  "() < true < 1 < 'foo' < now < reverse < [].sortBy < [] < {} < String" ==> true
+
+  // object comparisons
+  "{ foo: 1 } < { foo: 2 }" ==> true
+  "{ foo: 1 } < { foo: 1, bar: 1 }" ==> true
+  "{ foo: 1, bar: 1 } < { foo: 1, bar: 2 }" ==> true
+  "{ foo: 1, bar: 1 } < { foo: 1, car: 1 }" ==> true
+  "{ a: 1, b: 1 } < { b: 1, a: 1 }" ==> true
 
   // and / or
 
