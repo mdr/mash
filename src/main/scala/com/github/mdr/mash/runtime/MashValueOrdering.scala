@@ -55,17 +55,18 @@ object MashValueOrdering extends Ordering[MashValue] {
 
   private def toInstant(date: LocalDate): Instant = date.atStartOfDay(ZoneId.systemDefault).toInstant
 
-  def compare(xs: List[MashValue], ys: List[MashValue]): Int = (xs, ys) match {
-    case (Nil, Nil)               ⇒ 0
-    case (_, Nil)                 ⇒ 1
-    case (Nil, _)                 ⇒ -1
-    case (x :: tailX, y :: tailY) ⇒
-      val c = compare(x, y)
-      if (c == 0)
-        compare(tailX, tailY)
-      else
-        c
-  }
+  def compare(xs: List[MashValue], ys: List[MashValue], elementOrdering: Ordering[MashValue] = MashValueOrdering): Int =
+    (xs, ys) match {
+      case (Nil, Nil)               ⇒ 0
+      case (_, Nil)                 ⇒ 1
+      case (Nil, _)                 ⇒ -1
+      case (x :: tailX, y :: tailY) ⇒
+        val c = elementOrdering.compare(x, y)
+        if (c == 0)
+          compare(tailX, tailY, elementOrdering)
+        else
+          c
+    }
 
   def compare(xs: ListMap[String, MashValue], ys: ListMap[String, MashValue]): Int = {
     def compareP(xs: List[(String, MashValue)], ys: List[(String, MashValue)]): Int = (xs, ys) match {

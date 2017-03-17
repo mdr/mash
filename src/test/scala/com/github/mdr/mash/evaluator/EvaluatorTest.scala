@@ -427,6 +427,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'123' | sortBy (-_.toNumber)" ==> "'321'"
   "'123'.sortBy (-_.toNumber)" ==> "'321'"
   "[{ foo: 1 }, { foo: null }, { foo: 2 }].sortBy 'foo'" ==> "[{ foo: null }, { foo: 1 }, { foo: 2 }]"
+  "[{ foo: 'a1.txt'}, { foo: 'a10.txt' }, { foo: 'a2.txt' }] | sortBy (.foo) --naturalOrder" ==>
+    "[{ foo: 'a1.txt'}, { foo: 'a2.txt' }, { foo: 'a10.txt' }]"
 
   // sum
   " [] | sum " ==> 0

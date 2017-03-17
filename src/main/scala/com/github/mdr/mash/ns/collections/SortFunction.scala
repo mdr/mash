@@ -29,6 +29,7 @@ object SortFunction extends MashFunction("collections.sort") {
       isFlag = true,
       isBooleanFlag = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Sequence, Descending, NaturalOrder))
@@ -45,11 +46,8 @@ object SortFunction extends MashFunction("collections.sort") {
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy
     val naturalOrder = boundParams(NaturalOrder).isTruthy
-    val sorted =
-      if (naturalOrder)
-        sequence.sortWith(NaturalOrdering.lt)
-      else
-        sequence.sortWith(MashValueOrdering.lt)
+    val ordering: Ordering[MashValue] = if (naturalOrder) NaturalOrdering else MashValueOrdering
+    val sorted = sequence.sortWith(ordering.lt)
 
     val newSequence = sorted.when(descending, _.reverse)
     WhereFunction.reassembleSequence(inSequence, newSequence)
@@ -59,7 +57,8 @@ object SortFunction extends MashFunction("collections.sort") {
 
   override def summaryOpt = Some("Sort the elements of a sequence")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
   sort [3, 1, 2]                                      # [1, 2, 3]
   sort --descending [3, 1, 2]                         # [3, 2, 1]
   sort --naturalOrder ["a2.txt", "a10.txt", "a1.txt"] # ["a1.txt", "a2.txt", "a10.txt"] """)
