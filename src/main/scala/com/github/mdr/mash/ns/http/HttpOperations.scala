@@ -67,7 +67,7 @@ object HttpOperations {
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodySource: BodySource, json: Boolean) {
-    val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.TEXT_PLAIN
+    val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.APPLICATION_OCTET_STREAM
     val entity = bodySource match {
       case BodySource.Value(value) ⇒
         val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else ToStringifier.stringify(value)

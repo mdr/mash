@@ -12,6 +12,7 @@ object ListClass extends MashClass("collections.List") {
   override val methods = Seq(
     methodise(AllFunction),
     methodise(AnyFunction),
+    methodise(ChunkedFunction),
     methodise(ContainsFunction),
     methodise(CountMatchesFunction),
     methodise(EachFunction),

@@ -1094,4 +1094,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 
   "class A { def foo = [1, 2, 3] | where (_ > 1) }; A.new.foo" ==> "[2, 3]"
+
+  // chunked
+  "chunked 2 [1, 2, 3, 4, 5]" ==> "[[1, 2], [3, 4], [5]]"
+  "chunked 1 [1, 2, 3]" ==> "[[1], [2], [3]]"
+  "chunked 3 'foobar'" ==> "['foo', 'bar']"
+
 }

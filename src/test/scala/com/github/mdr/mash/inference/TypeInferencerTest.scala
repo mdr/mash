@@ -215,6 +215,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // sliding
   "[1, 2, 3] | sliding 2" ==> Seq(Seq(NumberClass))
 
+  // chunked
+  "[1, 2, 3] | chunked 2" ==> Seq(Seq(NumberClass))
+
   // Strings as functions
   " 'foo' { foo: 42 } " ==> NumberClass
   " 'toString' 42 " ==> StringClass

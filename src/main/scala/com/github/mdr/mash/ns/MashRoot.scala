@@ -146,6 +146,7 @@ object MashRoot {
     FlattenFunction,
     GrepFunction,
     GroupByFunction,
+    ChunkedFunction,
     IndexOfFunction,
     IsEmptyFunction,
     JoinFunction,
