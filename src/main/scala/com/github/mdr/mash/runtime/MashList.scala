@@ -68,4 +68,6 @@ class MashList(val elements: ArrayBuffer[MashValue]) extends MashValue with Comp
 
   override def compareTo(that: MashList) = withLock { MashValueOrdering.compare(this.elements.toList, that.elements.toList) }
 
+  def immutableElements: Seq[MashValue] = withLock { elements.toList }
+
 }

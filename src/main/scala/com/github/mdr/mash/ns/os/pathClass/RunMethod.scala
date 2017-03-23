@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.os.ProcessResultClass
+import com.github.mdr.mash.ns.os.{ ProcessResultClass, RunFunction }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.subprocesses.ProcessRunner
 
@@ -16,7 +16,7 @@ object RunMethod extends MashMethod("run") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Args))
+  val params = ParameterModel(Seq(Args, RunFunction.Params.StandardIn))
 
   def apply(target: MashValue, boundParams: BoundParams): MashObject = {
     val args =
@@ -24,7 +24,8 @@ object RunMethod extends MashMethod("run") {
         case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_)).toSeq
         case xs: MashList               ⇒ xs.elements
       })
-    val result = ProcessRunner.runProcess(args, captureProcess = true)
+    val stdinImmediateOpt = RunFunction.getStandardInOpt(boundParams)
+    val result = ProcessRunner.runProcess(args, captureProcess = true, stdinImmediateOpt = stdinImmediateOpt)
     ProcessResultClass.fromResult(result)
   }
 

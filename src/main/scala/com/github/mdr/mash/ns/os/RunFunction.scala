@@ -29,16 +29,23 @@ object RunFunction extends MashFunction("os.run") {
   def apply(boundParams: BoundParams): MashObject = {
     val args: Seq[MashValue] =
       boundParams(Command) match {
-        case MashList(xs: MashList)     ⇒ xs.elements
+        case MashList(xs: MashList)     ⇒ xs.immutableElements
         case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_))
         case xs: MashList               ⇒ xs.elements
         case x                          ⇒ Seq(x)
       }
-    val stdinImmediateOpt = MashNull.option(boundParams(StandardIn)).map(ToStringifier.stringify)
+    val stdinImmediateOpt = getStandardInOpt(boundParams)
     if (args.isEmpty)
       throw new EvaluatorException("Must provide at least one argument for the command")
     val result = ProcessRunner.runProcess(args, captureProcess = true, stdinImmediateOpt = stdinImmediateOpt)
     ProcessResultClass.fromResult(result)
+  }
+
+  def getStandardInOpt(boundParams: BoundParams): Option[String] = {
+    MashNull.option(boundParams(StandardIn)).map {
+      case xs: MashList ⇒ xs.immutableElements.map(ToStringifier.stringify).mkString("\n")
+      case x            ⇒ ToStringifier.stringify(x)
+    }
   }
 
   override def typeInferenceStrategy = ProcessResultClass

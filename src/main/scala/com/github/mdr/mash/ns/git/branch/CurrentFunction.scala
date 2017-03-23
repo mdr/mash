@@ -11,14 +11,13 @@ object CurrentFunction extends MashFunction("git.branch.current") {
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def apply(boundParams: BoundParams): MashObject =
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val currentBranch = repo.getFullBranch
       val branch = git.branchList.call().asScala.find(_.getName == currentBranch).get
       ListFunction.asMashObject(repo)(branch)
     }
-  }
 
   override def typeInferenceStrategy = BranchClass
 

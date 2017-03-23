@@ -64,12 +64,14 @@ object PushFunction extends MashFunction("git.push") {
     MashUnit
   }
 
-  def setUpstreamConfig(git: Git, refs: Seq[String], remoteOpt: Option[String]) {
-    val config = git.getRepository.getConfig
-    for (ref ← refs) {
+  def setUpstreamConfig(git: Git, branches: Seq[String], remoteOpt: Option[String]) {
+    val repo = git.getRepository
+    val config = repo.getConfig
+    val actualBranches = if (branches.isEmpty) Seq(repo.getFullBranch.replaceAll("^refs/heads/", "")) else branches
+    for (branch ← actualBranches) {
       val remoteName = remoteOpt.getOrElse(Constants.DEFAULT_REMOTE_NAME)
-      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, ConfigConstants.CONFIG_KEY_REMOTE, remoteName)
-      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, ref, ConfigConstants.CONFIG_KEY_MERGE, "refs/heads/" + ref)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, branch, ConfigConstants.CONFIG_KEY_REMOTE, remoteName)
+      config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, branch, ConfigConstants.CONFIG_KEY_MERGE, "refs/heads/" + branch)
     }
     config.save()
   }
