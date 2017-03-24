@@ -5,7 +5,7 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ CellSearchInfo, SearchState }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -13,13 +13,14 @@ import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class CellSearchInfo(matches: Seq[Region])
-
 object ObjectsTableBrowserState {
 
+  case class CellSearchInfo(matches: Seq[Region])
+
   case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map(), ignoreCase: Boolean = true) {
-    def rows = byPoint.map(_._1.row).toSeq.distinct.sorted
+    lazy val rows = byPoint.map(_._1.row).toSeq.distinct.sorted
   }
+
 }
 
 case class ObjectsTableBrowserState(model: ObjectsTableModel,
@@ -32,13 +33,10 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     searchStateOpt: Option[SearchState] = None,
                                     expressionOpt: Option[String] = None) extends BrowserState {
 
-  def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
-    runSearch(searchState.query, !searchState.ignoreCase, terminalRows)
+  def setSearch(query: String, terminalRows: Int): BrowserState = {
+    val ignoreCase = searchStateOpt.forall(_.ignoreCase)
+    runSearch(query, ignoreCase, terminalRows)
   }
-
-  private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
-
-  def stopSearching: BrowserState = copy(searchStateOpt = None)
 
   def nextHit(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     val rows = searchState.rows
@@ -51,6 +49,12 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     val nextRow = rows.find(_ < selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
     copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
   }
+
+  def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
+    runSearch(searchState.query, !searchState.ignoreCase, terminalRows)
+  }
+
+  def stopSearching: BrowserState = copy(searchStateOpt = None)
 
   private def runSearch(query: String, ignoreCase: Boolean, terminalRows: Int): BrowserState = {
     val flags = if (ignoreCase) Pattern.CASE_INSENSITIVE else 0
@@ -76,14 +80,6 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
-
-  def setSearch(query: String, terminalRows: Int): BrowserState = {
-    val ignoreCase = searchStateOpt.forall(_.ignoreCase)
-    runSearch(query, ignoreCase, terminalRows)
-  }
-
   private def getCellSearchInfo(pattern: Pattern, row: Int, column: Int): Option[CellSearchInfo] = {
     val obj = model.objects(row)
     val s = obj.data(model.columnNames(column))
@@ -93,6 +89,12 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       regions += Region(matcher.start, matcher.end - matcher.start)
     if (regions.nonEmpty) Some(CellSearchInfo(regions)) else None
   }
+
+  private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
+
+  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+
+  def acceptExpression: BrowserState = copy(expressionOpt = None)
 
   def rawValue: MashValue = model.rawValue
 

@@ -17,11 +17,11 @@ object KeyHint {
   val Search = KeyHint("/", "find")
   val Expression = KeyHint("e", "expr")
 
-  val NextHit = KeyHint("^n", "next")
-  val PreviousHit = KeyHint("^p", "prev")
+  val NextHit = KeyHint("^N", "next")
+  val PreviousHit = KeyHint("^P", "prev")
   val DoneSearch = KeyHint("ret", "done")
-  val CaseSensitive = KeyHint("^t", "case sensitive")
-  val CaseInsensitive = KeyHint("^t", "ignore case")
+  val CaseSensitive = KeyHint("^T", "case sensitive")
+  val CaseInsensitive = KeyHint("^T", "ignore case")
 
   def renderKeyHints(hints: Seq[KeyHint]): StyledString = {
     def renderHint(hint: KeyHint) = hint.key.style(hintStyle) + " ".style + hint.description.style

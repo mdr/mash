@@ -29,11 +29,18 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
     Seq(upperStatusLine) ++ dataLines ++ Seq(statusLine)
   }
 
-  private def renderStatusLine = {
+  private def renderRegularStatusLine = {
     import KeyHint._
     Line(renderKeyHints(Seq(Exit, Back, InsertWhole)))
   }
 
+  private def renderStatusLine: Line =
+    state.expressionOpt match {
+      case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
+      case None             ⇒ renderRegularStatusLine
+    }
+
   protected val windowSize = terminalInfo.rows - 2 // two status lines
+
 
 }

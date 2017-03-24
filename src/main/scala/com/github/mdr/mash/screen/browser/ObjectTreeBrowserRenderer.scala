@@ -45,11 +45,17 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
 
   }
 
-  private def renderStatusLine: Line = {
+  private def renderRegularStatusLine: Line = {
     import KeyHint._
     val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table)
     Line(renderKeyHints(hints))
   }
+
+  private def renderStatusLine: Line =
+    state.expressionOpt match {
+      case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
+      case None             ⇒ renderRegularStatusLine
+    }
 
   private def print(printer: Printer, node: ObjectTreeNode): Unit = {
     val prefix = ""
@@ -74,7 +80,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print("─ ")
-          val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      ⇒
@@ -110,7 +116,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print(" ")
-          val truncatedValue  = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      ⇒

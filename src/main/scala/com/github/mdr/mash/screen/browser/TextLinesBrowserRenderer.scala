@@ -19,12 +19,18 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
     Seq(upperStatusLine) ++ dataLines ++ Seq(statusLine)
   }
 
-  private def renderStatusLine = {
+  private def renderRegularStatusLine = {
     import KeyHint._
     val hints = Seq(Exit, Back, InsertWhole)
     val countChars = s"${state.selectedRow + 1}/${state.model.renderedLines.size}".style(Style(inverse = true))
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
+
+  private def renderStatusLine: Line =
+    state.expressionOpt match {
+      case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
+      case None             ⇒ renderRegularStatusLine
+    }
 
   protected val windowSize = state.windowSize(terminalInfo.rows)
 

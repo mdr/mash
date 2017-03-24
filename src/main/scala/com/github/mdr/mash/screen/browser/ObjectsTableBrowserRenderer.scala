@@ -3,7 +3,6 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
 import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
@@ -68,7 +67,8 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
-        val style = Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = if (isSearchMatch) Colour.Cyan else Colour.Default)
+        val foregroundColour = if (isSearchMatch) Colour.Cyan else Colour.Default
+        val style = Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = foregroundColour)
         buf += StyledCharacter(c, style)
       }
       StyledString(buf)
@@ -89,27 +89,12 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
 
-  private def renderExpressionInputStatusLine(expression: String): Line = {
-    import KeyHint._
-    val hints = Seq(DoneSearch)
-    Line("(".style + renderKeyHints(hints) + ")".style)
-  }
-
-  private def renderIncrementalSearchStatusLine(searchState: SearchState): Line = {
-    import KeyHint._
-    val hints = Seq(NextHit, PreviousHit, DoneSearch, if (searchState.ignoreCase) CaseSensitive else CaseInsensitive)
-    val hits = searchState.rows
-    val currentHit = hits.indexOf(currentRow)
-    val countChars = s"${currentHit + 1}/${hits.size}".style(Style(inverse = true))
-    Line(countChars + s" Find: ${searchState.query}".style + " (".style + renderKeyHints(hints) + ")".style)
-  }
-
   private def renderStatusLine: Line =
     state.searchStateOpt match {
-      case Some(searchState) ⇒ renderIncrementalSearchStatusLine(searchState)
+      case Some(searchState) ⇒ StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
       case None              ⇒
         state.expressionOpt match {
-          case Some(expression) ⇒ renderExpressionInputStatusLine(expression)
+          case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
           case None             ⇒ renderRegularStatusLine
         }
     }

@@ -87,7 +87,7 @@ trait ObjectBrowserActionHandler
       case None             ⇒
         browserStateStack.headState match {
           case objectTableBrowserState: ObjectsTableBrowserState       ⇒ handleObjectsTableBrowserAction(action, objectTableBrowserState)
-          case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectBrowserAction(action, singleObjectBrowserState)
+          case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectTableBrowserAction(action, singleObjectBrowserState)
           case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ handleObjectTreeBrowserAction(action, objectTreeBrowserState)
           case valueBrowserState: ValueBrowserState                    ⇒ handleValueBrowserAction(action, valueBrowserState)
           case textLinesBrowserState: TextLinesBrowserState            ⇒ handleTextLinesBrowserAction(action, textLinesBrowserState)
