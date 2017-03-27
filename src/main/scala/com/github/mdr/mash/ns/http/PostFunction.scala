@@ -2,6 +2,7 @@ package com.github.mdr.mash.ns.http
 
 import java.net.URI
 
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.runtime._
 import org.apache.http.client.methods.HttpPost
@@ -10,12 +11,11 @@ object PostFunction extends MashFunction("http.post") {
 
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, Body, File, Json, Form, BasicAuth, Headers))
+  val params = ParameterModel(Seq(Url, Body, File, Json, Form, BasicAuth, Headers, QueryParams))
 
   def apply(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
-
-    val url = new URI(boundParams.validateString(Url).s)
+    val url = QueryParameters.getUrl(boundParams)
     val bodySource = HttpFunctions.getBodySource(boundParams)
     val json = boundParams(Json).isTruthy
     val form = boundParams(Form).isTruthy
@@ -30,6 +30,7 @@ object PostFunction extends MashFunction("http.post") {
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
     HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodySource), json, form)
   }
+
 
   override def typeInferenceStrategy = ResponseClass
 

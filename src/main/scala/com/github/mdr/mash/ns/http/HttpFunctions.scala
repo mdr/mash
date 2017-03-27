@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
 import com.github.mdr.mash.ns.http.HttpFunctions.Params._
-import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashString }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashObject, MashString }
 
 object HttpFunctions {
 
@@ -45,6 +45,15 @@ object HttpFunctions {
           |  --headers=[{ name: "header1", value: "value"}]""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(MashNull))
+
+    val QueryParams = Parameter(
+      nameOpt = Some("queryParams"),
+      summaryOpt = Some("Query parameters to add to the URL"),
+      descriptionOpt = Some(
+        """Examples:
+          |  --queryParams={ name: "value" }""".stripMargin),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(() ⇒ MashObject.empty))
 
     val Json = Parameter(
       nameOpt = Some("json"),

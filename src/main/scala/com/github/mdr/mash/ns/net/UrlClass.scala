@@ -13,7 +13,7 @@ object UrlClass extends MashClass("net.Url") {
 
   override val methods = Seq(
     HostMethod,
-    WithQueryParams)
+    WithQueryParamsMethod)
 
   override def summaryOpt = Some("Tag class for a URL")
 
@@ -34,7 +34,7 @@ object UrlClass extends MashClass("net.Url") {
 
   private def targetUri(target: MashValue): URI = new URI(target.asInstanceOf[MashString].s)
 
-  object WithQueryParams extends MashMethod("withQueryParams") {
+  object WithQueryParamsMethod extends MashMethod("withQueryParams") {
 
     object Params {
 
