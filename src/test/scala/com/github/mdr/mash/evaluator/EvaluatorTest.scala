@@ -976,7 +976,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   """def doSomething (@flag @(shortFlag 'd') dryRun = false) =
     |  if dryRun then 'Dry run' else 'For reals'
     |doSomething -d
-    |""".stripMargin ==> "'Dry run'"
+    | """.stripMargin ==> "'Dry run'"
 
   // @namedArgs
   "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo=1" ==> "{ foo: 1 }"
@@ -1044,7 +1044,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class Thing; Thing.new.unbless.getClass" ==> "Object"
 
   // @alias
-//  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> 42
+  //  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> 42
 
   // defs, classes as expressions
   "[def foo = 42].first.invoke" ==> 42
@@ -1100,4 +1100,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "chunked 1 [1, 2, 3]" ==> "[[1], [2], [3]]"
   "chunked 3 'foobar'" ==> "['foo', 'bar']"
 
+  // Url.withQueryParams
+  "net.url 'http://example.com' | .withQueryParams { param: 42 }" ==> "'http://example.com?param=42'"
+  "net.url 'http://example.com' | .withQueryParams --param=42" ==> "'http://example.com?param=42'"
+
+  // Url.host
+  "net.url 'http://example.com' | .host" ==> "'example.com'"
 }

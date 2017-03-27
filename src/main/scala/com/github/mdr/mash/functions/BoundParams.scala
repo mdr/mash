@@ -47,6 +47,12 @@ case class BoundParams(boundNames: Map[String, MashValue],
     case x               ⇒ throwInvalidArgumentType("Object", x, param)
   }
 
+  def validateObjectOpt(param: Parameter): Option[MashObject] = this (param) match {
+    case obj: MashObject ⇒ Some(obj)
+    case MashNull        ⇒ None
+    case x               ⇒ throwInvalidArgumentType("Object", x, param)
+  }
+
   def validateStringOpt(param: Parameter): Option[MashString] = this (param) match {
     case s: MashString ⇒ Some(s)
     case MashNull      ⇒ None

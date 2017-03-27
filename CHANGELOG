@@ -1,6 +1,7 @@
 v0.0.8 (..)
 -----------
 
+* Url.withQueryParams
 * os.delete deletes paths bottom up
 * git.reflog
 * http.post --form
