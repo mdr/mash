@@ -1,6 +1,7 @@
 v0.0.8 (..)
 -----------
 
+* Object.transformFields/transformValues
 * Url.open
 * Url.withQueryParams, http.XXX --queryParams={}
 * os.delete deletes paths bottom up

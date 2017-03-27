@@ -1086,6 +1086,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
   "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
 
+  // Object.transformValues
+  "{ foo: 3, bar: 4 }.transformValues (n => n * n)" ==> "{ foo: 9, bar: 16 }"
+  """{ foo: 3, bar: 4 }.transformValues (f v => "$f$v")""" ==> "{ foo: 'foo3', bar: 'bar4' }"
+
+  // Object.transformFields
+  "{ foo: 3, bar: 4 }.transformFields (.toUpper)" ==> "{ FOO: 3, BAR: 4 }"
+  "{ foo: 3, bar: 4 }.transformFields (f v => f.toUpper + v)" ==> "{ FOO3: 3, BAR4: 4 }"
+
   // Object.grep
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
@@ -1106,4 +1114,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Url.host
   "net.url 'http://example.com' | .host" ==> "'example.com'"
+
 }
