@@ -19,6 +19,7 @@ object DeleteFunction extends MashFunction("os.delete") {
       isVariadic = true,
       variadicAtLeastOne = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Paths))
@@ -27,7 +28,8 @@ object DeleteFunction extends MashFunction("os.delete") {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     if (paths.isEmpty)
       throw new EvaluatorException("Must provide at least one path to delete")
-    for (path ← paths)
+    val deletionOrder = paths.sortBy(_.toAbsolutePath.toString).reverse
+    for (path ← deletionOrder)
       if (Files.isDirectory(path))
         FileUtils.deleteDirectory(path.toFile)
       else

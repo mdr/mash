@@ -1,6 +1,7 @@
 v0.0.8 (..)
 -----------
 
+* os.delete deletes paths bottom up
 * git.reflog
 * http.post --form
 * Add incremental search to single object table browser; always show appropriate status line
