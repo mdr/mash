@@ -27,19 +27,22 @@ def createGithubRelease releaseVersion = {
   body = { tag_name: name, name, prerelease: true }
   token = readLines "~/.mash/mdr-github-token" | first
   response = http.post releasesUrl --headers={ Authorization: "bearer $token" } --json body
-  if response.succeeded then {
-    print "Released mash $name"
-    uploadUrl = response.json.upload_url.replace --regex"\{\?.+\}" ""
-    jar = "mash-${releaseVersion}.jar"
-    print "Uploading $jar"
-    !!{curl -X POST --header "Authorization:bearer $token" --header "Content-Type:application/octet-stream" --data-binary "@target/scala-2.12/$jar" "$uploadUrl?name=$jar"}
-    print "Uploading $deb"
-    deb = "mash_${releaseVersion}_all.deb"
-    !!{curl -X POST --header "Authorization:bearer $token" --header "Content-Type:application/octet-stream" --data-binary "@target/$deb" "$uploadUrl?name=$deb"}
-    response.json.html_url
-  } else
+  htmlUrl = response.json.html_url
+  if not response.succeeded then
     error "Problem creating release: $response"
-
+  print "Released mash $name"
+  uploadUrl = response.json.upload_url.replace --regex"\{\?.+\}" ""
+  jar = "mash-${releaseVersion}.jar"
+  print "Uploading $jar"
+  response = http.post --headers={ Authorization: "bearer $token" } uploadUrl --queryParams={ name: jar } --file "target/scala-2.12/$jar"
+  if not response.succeeded then
+    error "Upload of $jar failed: $response"
+  print "Uploading $deb"
+  deb = "mash_${releaseVersion}_all.deb"
+  response = http.post --headers={ Authorization: "bearer $token" } uploadUrl --queryParams={ name: deb } --file "target/$deb"
+  if not response.succeeded then
+    error "Upload of $deb failed: $response"
+  htmlUrl
 }
 
 def getRelease version = {
