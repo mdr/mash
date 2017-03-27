@@ -5,14 +5,16 @@ import java.net.URI
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
-import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
+import com.github.mdr.mash.ns.core.{ AnyClass, StringClass, UnitClass }
+import com.github.mdr.mash.ns.os.OpenFunction
+import com.github.mdr.mash.runtime._
 import org.apache.http.client.utils.URIBuilder
 
 object UrlClass extends MashClass("net.Url") {
 
   override val methods = Seq(
     HostMethod,
+    OpenMethod,
     WithQueryParamsMethod)
 
   override def summaryOpt = Some("Tag class for a URL")
@@ -73,6 +75,19 @@ object UrlClass extends MashClass("net.Url") {
       """Examples:
   net.url "http://example.com" | .withQueryParams { param: 42 } # http://example.com?param=42
   net.url "http://example.com" | .withQueryParams --param=42    # http://example.com?param=42""")
+
+  }
+
+  object OpenMethod extends MashMethod("open") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, boundParams: BoundParams): MashUnit =
+      OpenFunction.open(target)
+
+    override def typeInferenceStrategy = UnitClass
+
+    override def summaryOpt = Some("Open a this URL with the default application")
 
   }
 
