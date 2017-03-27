@@ -28,9 +28,11 @@ case class Parameter(nameOpt: Option[String],
 
   def isMandatory = !isOptional
 
-  override def toString = nameOpt getOrElse Parameter.AnonymousParamName
+  override def toString = name
 
   def boundNames: Seq[String] = nameOpt.map(Seq(_)).getOrElse(patternOpt.toSeq.flatMap(_.boundNames))
+
+  def name = nameOpt getOrElse Parameter.AnonymousParamName
 }
 
 sealed trait ParamPattern {

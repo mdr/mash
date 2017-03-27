@@ -10,7 +10,7 @@ object PostFunction extends MashFunction("http.post") {
 
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, Body, File, Json, BasicAuth, Headers))
+  val params = ParameterModel(Seq(Url, Body, File, Json, Form, BasicAuth, Headers))
 
   def apply(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
@@ -18,8 +18,17 @@ object PostFunction extends MashFunction("http.post") {
     val url = new URI(boundParams.validateString(Url).s)
     val bodySource = HttpFunctions.getBodySource(boundParams)
     val json = boundParams(Json).isTruthy
+    val form = boundParams(Form).isTruthy
+    if (json && form)
+      boundParams.throwInvalidArgument(Json, s"Incompatible arguments ${Json.name} and ${Form.name}")
+    if (form)
+      bodySource match {
+        case BodySource.Value(obj: MashObject) ⇒
+        case _                                 ⇒
+          boundParams.throwInvalidArgument(Form, "Invalid body, must be an object")
+      }
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodySource), json)
+    HttpOperations.runRequest(new HttpPost(url), headers, basicCredentialsOpt, Some(bodySource), json, form)
   }
 
   override def typeInferenceStrategy = ResponseClass

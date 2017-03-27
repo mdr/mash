@@ -229,6 +229,7 @@ object MashRoot {
     FetchBranchUpdateClass,
     BranchClass,
     LocalBranchNameClass,
+    ReflogEntryClass,
     RemoteBranchClass,
     RemoteBranchNameClass,
     tag.TagClass,

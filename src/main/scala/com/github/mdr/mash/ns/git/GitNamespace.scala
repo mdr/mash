@@ -15,6 +15,7 @@ object GitNamespace {
     MergeFunction,
     PullFunction,
     PushFunction,
+    ReflogFunction,
     RestoreFunction,
     StageFunction,
     StatusFunction,

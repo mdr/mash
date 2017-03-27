@@ -1,6 +1,8 @@
 v0.0.8 (..)
 -----------
 
+* git.reflog
+* http.post --form
 * Add incremental search to single object table browser; always show appropriate status line
 * support String.run --standardIn
 * fix git.push --setUpstream with no argument

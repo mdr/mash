@@ -9,10 +9,13 @@ import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.CookieStore
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
+import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.cookie.Cookie
 import org.apache.http.entity.{ ContentType, FileEntity, StringEntity }
 import org.apache.http.impl.client.{ BasicCookieStore, CloseableHttpClient, HttpClients }
+import org.apache.http.message.BasicNameValuePair
 import org.apache.http.{ HttpEntityEnclosingRequest, HttpResponse }
 
 import scala.collection.JavaConverters._
@@ -36,18 +39,22 @@ object HttpOperations {
     else
       headers
 
+  /**
+    * @param form  if set, body source must be a Value(MashObject)
+    */
   def runRequest(request: HttpUriRequest,
                  headers: Seq[Header],
                  basicCredentialsOpt: Option[BasicCredentials],
                  bodySourceOpt: Option[BodySource] = None,
-                 json: Boolean = false): MashObject = {
+                 json: Boolean = false,
+                 form: Boolean = false): MashObject = {
     val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
     for (header <- actualHeaders)
       request.setHeader(header.name, header.value)
     basicCredentialsOpt.foreach(_.addCredentials(request))
 
     for (bodySource ← bodySourceOpt)
-      setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodySource, json)
+      setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodySource, json, form)
 
     val (cookieStore, client) = makeClient
     val response = client.execute(request)
@@ -66,16 +73,31 @@ object HttpOperations {
     (cookieStore, client)
   }
 
-  private def setBody(request: HttpEntityEnclosingRequest, bodySource: BodySource, json: Boolean) {
-    val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.APPLICATION_OCTET_STREAM
-    val entity = bodySource match {
-      case BodySource.Value(value) ⇒
-        val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else ToStringifier.stringify(value)
-        new StringEntity(bodyString, contentType)
-      case BodySource.File(path)   ⇒
-        new FileEntity(path.toFile, contentType)
+  private def setBody(request: HttpEntityEnclosingRequest, bodySource: BodySource, json: Boolean, form: Boolean) {
+    if (form) {
+      val entity = bodySource match {
+        case BodySource.Value(obj: MashObject) ⇒
+          import scala.collection.JavaConverters._
+          val nameValues = obj.immutableFields.map { case (key, value) ⇒
+            new BasicNameValuePair(key, ToStringifier.stringify(value))
+          }.asJava
+          new UrlEncodedFormEntity(nameValues)
+        case _                                 ⇒
+          throw new AssertionError(s"Unexpected body source: $bodySource")
+      }
+      request.setEntity(entity)
+    } else {
+      val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.APPLICATION_OCTET_STREAM
+
+      val entity = bodySource match {
+        case BodySource.Value(value) ⇒
+          val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else ToStringifier.stringify(value)
+          new StringEntity(bodyString, contentType)
+        case BodySource.File(path)   ⇒
+          new FileEntity(path.toFile, contentType)
+      }
+      request.setEntity(entity)
     }
-    request.setEntity(entity)
   }
 
   private def asMashObject(response: HttpResponse, cookieStore: CookieStore): MashObject = {

@@ -53,13 +53,19 @@ object HttpFunctions {
       isFlag = true,
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
+
+    val Form = Parameter(
+      nameOpt = Some("form"),
+      summaryOpt = Some("Whether to send the body as a URL-encoded form (default false)"),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      isBooleanFlag = true)
   }
 
-  def getBodySource(boundParams: BoundParams): BodySource = {
-    val file = boundParams(File).isTruthy
-    if (file)
+  def getBodySource(boundParams: BoundParams): BodySource =
+    if (boundParams(File).isTruthy)
       BodySource.File(boundParams.validatePath(Body))
     else
       BodySource.Value(boundParams(Body))
-  }
+
 }
