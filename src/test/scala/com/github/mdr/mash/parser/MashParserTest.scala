@@ -253,6 +253,10 @@ class MashParserTest extends FlatSpec with Matchers {
     parse("if (")
   }
 
+  "Parsing 'def directory namespace'" should "not crash" in {
+    parse("def directory namespace")
+  }
+
   "Parsing '(=> 1 +'" should "have a sensible region" in {
     parse("(=> 1 +").region shouldEqual Region(0, 7)
   }
