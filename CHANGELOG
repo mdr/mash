@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add http.Response.getHeaders
 * Add Object.fromPairs
 * http.headers are now sequences of Headers; added http.headersObject
 * Expand semantics of ?. to return null or any missing member

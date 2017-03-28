@@ -1,7 +1,7 @@
 package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
@@ -20,6 +20,7 @@ object ResponseClass extends MashClass("http.Response") {
   override val fields = Seq(Status, Body, Headers, Cookies)
 
   override val methods = Seq(
+    GetHeadersMethod,
     HeadersObjectMethod,
     JsonMethod,
     SucceededMethod)
@@ -77,6 +78,32 @@ object ResponseClass extends MashClass("http.Response") {
     override def typeInferenceStrategy = Seq(HeaderClass)
 
     override def summaryOpt = Some("The headers as an object")
+
+  }
+
+  object GetHeadersMethod extends MashMethod("getHeaders") {
+
+    object Params {
+      val Name = Parameter(
+        nameOpt = Some("name"),
+        summaryOpt = Some("Header name to search for"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Name))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+      val requestedName = boundParams.validateString(Name).s
+      val elements =
+        for (Header(name, value) <- Wrapper(target).headers if name.toLowerCase == requestedName)
+          yield MashString(value)
+      MashList(elements)
+    }
+
+    override def typeInferenceStrategy = Seq(StringClass)
+
+    override def summaryOpt = Some("Get all headers with the given name, ignoring case")
 
   }
 
