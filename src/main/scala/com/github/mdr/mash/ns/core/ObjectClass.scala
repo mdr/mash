@@ -6,6 +6,7 @@ import com.github.mdr.mash.ns.core.objectClass._
 object ObjectClass extends MashClass("core.Object") {
 
   override val staticMethods = Seq(
+    FromPairsStaticMethod,
     MergeStaticMethod)
 
   override val methods = Seq(

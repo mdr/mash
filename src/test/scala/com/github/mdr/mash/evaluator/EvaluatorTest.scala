@@ -861,6 +861,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "Object.merge { foo: 42 } { foo: 128 }" ==> "{ foo: 128 }"
   "class A a; class B b; class C c; Object.merge [A 1, B 2, C 3] | .getClass.name" ==> "'C'"
 
+  // Object.fromPairs
+  "[['a', 1], ['b', 2]] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
+  "[{ name: 'a', value: 1 }, { name: 'b', value: 2 }] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
+
   // type.hint
   "type.hint [String] 42" ==> 42
 
