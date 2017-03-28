@@ -11,7 +11,6 @@ import org.apache.http.client.CookieStore
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpUriRequest
-import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.cookie.Cookie
 import org.apache.http.entity.{ ContentType, FileEntity, StringEntity }
 import org.apache.http.impl.client.{ BasicCookieStore, CloseableHttpClient, HttpClients }
@@ -104,13 +103,13 @@ object HttpOperations {
     val code = response.getStatusLine.getStatusCode
     val content = response.getEntity.getContent
     val responseBody = IOUtils.toString(content, StandardCharsets.UTF_8)
-    val headers = asMashObject(response.getAllHeaders)
+    val headers = response.getAllHeaders.map(asMashObject(_))
     val cookies = cookieStore.getCookies.asScala.map(asMashObject(_))
     import ResponseClass.Fields._
     MashObject.of(ListMap(
       Status -> MashNumber(code),
       Body -> MashString(responseBody),
-      Headers -> headers,
+      Headers -> MashList(headers),
       Cookies -> MashList(cookies)), ResponseClass)
   }
 
@@ -126,6 +125,13 @@ object HttpOperations {
       for (header ← headers)
         yield header.getName -> MashString(header.getValue)
     MashObject.of(pairs)
+  }
+
+  private def asMashObject(header: org.apache.http.Header): MashObject = {
+    import HeaderClass.Fields._
+    MashObject.of(ListMap(
+      Name -> MashString(header.getName),
+      Value -> MashString(header.getValue)), HeaderClass)
   }
 
 }

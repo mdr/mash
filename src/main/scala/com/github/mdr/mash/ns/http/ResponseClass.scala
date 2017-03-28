@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
-import com.github.mdr.mash.inference.Type.classToType
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.json.FromFileFunction.parseJson
 import com.github.mdr.mash.runtime._
@@ -21,6 +20,7 @@ object ResponseClass extends MashClass("http.Response") {
   override val fields = Seq(Status, Body, Headers, Cookies)
 
   override val methods = Seq(
+    HeadersObjectMethod,
     JsonMethod,
     SucceededMethod)
 
@@ -28,7 +28,10 @@ object ResponseClass extends MashClass("http.Response") {
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
     def body = getStringField(Body)
+
     def code = getNumberField(Status)
+
+    def headers: Seq[Header] = getListField(Headers).map(HeaderClass.asHeader)
   }
 
   object JsonMethod extends MashMethod("json") {
@@ -44,7 +47,7 @@ object ResponseClass extends MashClass("http.Response") {
     override def summaryOpt = Some("Parse response body as JSON")
 
   }
-  
+
   object SucceededMethod extends MashMethod("succeeded") {
 
     val params = ParameterModel()
@@ -59,7 +62,24 @@ object ResponseClass extends MashClass("http.Response") {
     override def summaryOpt = Some("True if the HTTP request succeeded (status code 2xx)")
 
   }
-  
+
+  object HeadersObjectMethod extends MashMethod("headersObject") {
+
+    val params = ParameterModel()
+
+    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+      val pairs =
+        for (Header(name, value) <- Wrapper(target).headers)
+          yield name -> MashString(value)
+      MashObject.of(pairs)
+    }
+
+    override def typeInferenceStrategy = Seq(HeaderClass)
+
+    override def summaryOpt = Some("The headers as an object")
+
+  }
+
   override def summaryOpt = Some("An HTTP response")
 
 }
