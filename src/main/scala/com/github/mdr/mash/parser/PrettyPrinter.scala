@@ -29,8 +29,8 @@ object PrettyPrinter {
     case MishFunction(w, _)                                                    ⇒ "!" + w.toString
     case Hole(_)                                                               ⇒ "_"
     case MinusExpr(subExpr, _)                                                 ⇒ "-" + parens(pretty(subExpr))
-    case MemberExpr(left, member, isNullSafe, _)                               ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isNullSafe) "?." else ".") + member
-    case HeadlessMemberExpr(member, isNullSafe, _)                             ⇒ (if (isNullSafe) "?." else ".") + member
+    case MemberExpr(left, member, isSafe, _)                                   ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isSafe) "?." else ".") + member
+    case HeadlessMemberExpr(member, isSafe, _)                                 ⇒ (if (isSafe) "?." else ".") + member
     case LookupExpr(expr, index, _)                                            ⇒ parens(pretty(expr), simpleOmitParens(expr)) + "[" + pretty(index) + "]"
     case PipeExpr(left, right, _)                                              ⇒ "(" + pretty(left) + ") | (" + pretty(right) + ")"
     case ParenExpr(body, _)                                                    ⇒ "(" + pretty(body) + ")"

@@ -33,12 +33,12 @@ object TreePrettyPrinter {
         printTree(body, depth + 1)
         for (elseBody ← elseOpt)
           printTree(elseBody, depth + 1)
-      case MemberExpr(left, member, isNullSafe, _) ⇒
-        println("MemberExpr" + typeDescription + (if (isNullSafe) "(null safe)" else ""))
+      case MemberExpr(left, member, isSafe, _) ⇒
+        println("MemberExpr" + typeDescription + (if (isSafe) "(safe)" else ""))
         printTree(left, depth + 1)
         println("  " * (depth + 1) + member)
-      case HeadlessMemberExpr(member, isNullSafe, _) ⇒
-        println("HeadlessMemberExpr" + typeDescription + (if (isNullSafe) "(null safe)" else ""))
+      case HeadlessMemberExpr(member, isSafe, _) ⇒
+        println("HeadlessMemberExpr" + typeDescription + (if (isSafe) "(safe)" else ""))
         println("  " * (depth + 1) + member)
       case MinusExpr(subExpr, _) ⇒
         println("MinusExpr" + typeDescription)

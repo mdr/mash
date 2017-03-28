@@ -12,13 +12,12 @@ import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.{ PointedRegion, Utils }
-import org.apache.commons.lang3.StringUtils._
 
 import scala.PartialFunction.condOpt
 
 object MemberEvaluator extends EvaluatorHelper {
 
-  case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean)
+  case class MemberExprEvalResult(result: MashValue, wasVectorised: Boolean = false)
 
   /**
     * @param invokeNullaryWhenVectorising if true, then any vectorised member lookups that result in
@@ -37,17 +36,17 @@ object MemberEvaluator extends EvaluatorHelper {
                          thisTarget: Boolean,
                          invokeNullaryWhenVectorising: Boolean)(implicit context: EvaluationContext): MemberExprEvalResult = {
     val name = memberExpr.name
-    val isNullSafe = memberExpr.isNullSafe
-    if (target == MashNull && isNullSafe)
-      MemberExprEvalResult(MashNull, wasVectorised = false)
-    else {
-      val locationOpt = getLocation(memberExpr)
-      val scalarLookup = MemberEvaluator.maybeLookup(target, name, includePrivate = thisTarget).map(result ⇒
-        MemberExprEvalResult(result, wasVectorised = false))
-      def vectorisedLookup = vectorisedMemberLookup(target, name, isNullSafe, invokeNullaryWhenVectorising, locationOpt)
-        .map(result ⇒ MemberExprEvalResult(result, wasVectorised = true))
-      scalarLookup orElse
-        vectorisedLookup getOrElse {
+    val isSafe = memberExpr.isSafe
+    val locationOpt = getLocation(memberExpr)
+    val scalarLookup = MemberEvaluator.maybeLookup(target, name, includePrivate = thisTarget).map(result ⇒
+      MemberExprEvalResult(result))
+    def vectorisedLookup = vectorisedMemberLookup(target, name, isSafe, invokeNullaryWhenVectorising, locationOpt)
+      .map(result ⇒ MemberExprEvalResult(result, wasVectorised = true))
+    scalarLookup orElse
+      vectorisedLookup getOrElse {
+      if (isSafe)
+        MemberExprEvalResult(MashNull)
+      else {
         val names = getMemberNames(target)
         throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
       }
@@ -63,19 +62,19 @@ object MemberEvaluator extends EvaluatorHelper {
 
   private def vectorisedMemberLookup(target: MashValue,
                                      name: String,
-                                     isNullSafe: Boolean,
+                                     isSafe: Boolean,
                                      immediatelyResolveNullaryWhenVectorising: Boolean,
                                      locationOpt: Option[SourceLocation]): Option[MashList] =
     target match {
       case xs: MashList ⇒
-        val options = xs.elements.map {
-          case MashNull if isNullSafe ⇒ Some(MashNull)
-          case x                      ⇒
-            val lookupOpt = MemberEvaluator.maybeLookup(x, name)
+        val options = xs.elements.map { element ⇒
+          val memberOpt = MemberEvaluator.maybeLookup(element, name)
+          val resolvedOpt =
             if (immediatelyResolveNullaryWhenVectorising)
-              lookupOpt.map(lookup ⇒ Evaluator.invokeNullaryFunctions(lookup, locationOpt))
+              memberOpt.map(lookup ⇒ Evaluator.invokeNullaryFunctions(lookup, locationOpt))
             else
-              lookupOpt
+              memberOpt
+          if (isSafe) resolvedOpt orElse Some(MashNull) else resolvedOpt
         }
         Utils.sequence(options).map(MashList(_))
       case _            ⇒

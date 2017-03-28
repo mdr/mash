@@ -67,9 +67,9 @@ object DesugarHoles {
         yield PipeExpr(left, addLambdaIfNeeded(right), sourceInfoOpt)
     case Literal(_, _) | StringLiteral(_, _, _, _) | Identifier(_, _) | MishFunction(_, _) | HeadlessMemberExpr(_, _, _) | ThisExpr(_) ⇒
       Result(expr)
-    case MemberExpr(target, name, isNullSafe, sourceInfoOpt)                                                                           ⇒
+    case MemberExpr(target, name, isSafe, sourceInfoOpt)                                                                           ⇒
       for (newTarget ← desugarHoles_(target))
-        yield MemberExpr(newTarget, name, isNullSafe, sourceInfoOpt)
+        yield MemberExpr(newTarget, name, isSafe, sourceInfoOpt)
     case MinusExpr(expr, sourceInfoOpt)                                                                                                ⇒
       for (newExpr ← desugarHoles_(expr))
         yield MinusExpr(newExpr, sourceInfoOpt)

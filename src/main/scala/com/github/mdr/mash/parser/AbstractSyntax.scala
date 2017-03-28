@@ -156,7 +156,7 @@ object AbstractSyntax {
 
   sealed trait AbstractMemberExpr extends Expr {
     val name: String
-    val isNullSafe: Boolean
+    val isSafe: Boolean
   }
 
   /**
@@ -164,7 +164,7 @@ object AbstractSyntax {
     */
   case class MemberExpr(target: Expr,
                         name: String,
-                        isNullSafe: Boolean,
+                        isSafe: Boolean,
                         sourceInfoOpt: Option[SourceInfo]) extends AbstractMemberExpr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
@@ -175,7 +175,7 @@ object AbstractSyntax {
     * An expression of the form: .member or ?.member
     */
   case class HeadlessMemberExpr(name: String,
-                                isNullSafe: Boolean,
+                                isSafe: Boolean,
                                 sourceInfoOpt: Option[SourceInfo]) extends AbstractMemberExpr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 

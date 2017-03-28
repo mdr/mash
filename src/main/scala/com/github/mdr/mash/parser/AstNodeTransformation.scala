@@ -34,8 +34,8 @@ trait AstNodeTransformation {
       LambdaExpr(params.transform(f).asInstanceOf[ParamList], body.transform(f), sourceInfoOpt)
     case PipeExpr(left, right, sourceInfoOpt)                                               ⇒
       PipeExpr(left.transform(f), right.transform(f), sourceInfoOpt)
-    case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                                  ⇒
-      MemberExpr(expr.transform(f), name, isNullSafe, sourceInfoOpt)
+    case MemberExpr(expr, name, isSafe, sourceInfoOpt)                                  ⇒
+      MemberExpr(expr.transform(f), name, isSafe, sourceInfoOpt)
     case LookupExpr(expr, index, sourceInfoOpt)                                             ⇒
       LookupExpr(expr.transform(f), index.transform(f), sourceInfoOpt)
     case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt)              ⇒

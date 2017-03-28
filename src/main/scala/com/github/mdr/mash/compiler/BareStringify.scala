@@ -50,8 +50,8 @@ class BareStringificationContext {
       bareStringify(statementSeq, bindings)
     case PipeExpr(left, right, sourceInfoOpt)                                              ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
-    case MemberExpr(expr, name, isNullSafe, sourceInfoOpt)                                 ⇒
-      MemberExpr(bareStringify(expr, bindings), name, isNullSafe, sourceInfoOpt)
+    case MemberExpr(expr, name, isSafe, sourceInfoOpt)                                 ⇒
+      MemberExpr(bareStringify(expr, bindings), name, isSafe, sourceInfoOpt)
     case LookupExpr(expr, index, sourceInfoOpt)                                            ⇒
       LookupExpr(bareStringify(expr, bindings), bareStringify(index, bindings), sourceInfoOpt)
     case InvocationExpr(function, arguments, isParenInvocation, sourceInfoOpt)             ⇒

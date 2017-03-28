@@ -144,10 +144,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "null.in [1, 2, 3]" ==> false
   "null.in [null]" ==> true
 
-  // null-safe dereferencing
-  "null?.toString" ==> null
+  // safe member dereferencing
+  "null?.noSuchMember" ==> null
+  "42?.noSuchMember" ==> null
+  "{}?.noSuchMember" ==> null
+  "null?.toString" ==> "'null'"
   "[null, { foo: 42 }] | map (_?.foo)" ==> "[null, 42]"
-  "[ { foo: { bar: 42 } }, { foo: null } ].foo?.bar" ==> "[42, null]"
+  "[{ foo: { bar: 42 } }, { foo: null }].foo?.bar" ==> "[42, null]"
+  "[{ foo: 42 }, { bar: 12 }]?.foo" ==> "[42, null]"
 
   // Indexing
   "[1, 2, 3][0]" ==> 1

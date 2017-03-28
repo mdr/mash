@@ -22,26 +22,31 @@ def prepareBuildSbt = {
 }
 
 def createGithubRelease releaseVersion = {
+  token = readLines "~/.mash/mdr-github-token" | first
+
   releasesUrl = "https://api.github.com/repos/mdr/mash/releases"
   name = "v$releaseVersion"
   body = { tag_name: name, name, prerelease: true }
-  token = readLines "~/.mash/mdr-github-token" | first
+  println "Releasing $releaseVersion"
   response = http.post releasesUrl --headers={ Authorization: "bearer $token" } --json body
-  htmlUrl = response.json.html_url
   if not response.succeeded then
     error "Problem creating release: $response"
-  print "Released mash $name"
+  htmlUrl = response.json.html_url
   uploadUrl = response.json.upload_url.replace --regex"\{\?.+\}" ""
-  jar = "mash-${releaseVersion}.jar"
+  print "Released mash $name"
+
   print "Uploading $jar"
+  jar = "mash-${releaseVersion}.jar"
   response = http.post --headers={ Authorization: "bearer $token" } uploadUrl --queryParams={ name: jar } --file "target/scala-2.12/$jar"
   if not response.succeeded then
     error "Upload of $jar failed: $response"
+
   print "Uploading $deb"
   deb = "mash_${releaseVersion}_all.deb"
   response = http.post --headers={ Authorization: "bearer $token" } uploadUrl --queryParams={ name: deb } --file "target/$deb"
   if not response.succeeded then
     error "Upload of $deb failed: $response"
+
   htmlUrl
 }
 

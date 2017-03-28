@@ -22,7 +22,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         }
         context.scopeStack.set(name, actualRightValue)
         actualRightValue
-      case memberExpr@MemberExpr(_, _, /* isNullSafe */ false, _) ⇒
+      case memberExpr@MemberExpr(_, _, /* isSafe */ false, _) ⇒
         evaluateAssignmentToMemberExpr(memberExpr, expr, operatorOpt, rightValue)
       case lookupExpr: LookupExpr                                 ⇒
         evaluateAssignmentToLookupExpr(lookupExpr, expr, operatorOpt, rightValue)
