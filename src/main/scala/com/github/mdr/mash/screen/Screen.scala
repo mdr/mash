@@ -51,6 +51,7 @@ object Screen {
   }
 
   private def ansiColour(colour: Colour) = colour match {
+    case Colour.Black   ⇒ BLACK
     case Colour.Cyan    ⇒ CYAN
     case Colour.Blue    ⇒ BLUE
     case Colour.Green   ⇒ GREEN
@@ -66,8 +67,8 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
 
 
   /**
-   * Advance past the entire screen, leaving it untouched.
-   */
+    * Advance past the entire screen, leaving it untouched.
+    */
   def acceptScreen: String = {
     val sb = new StringBuilder
     var currentRow = cursorPos.row

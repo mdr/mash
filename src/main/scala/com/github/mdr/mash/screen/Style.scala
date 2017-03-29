@@ -6,12 +6,13 @@ sealed trait Colour
 
 object Colour {
   case object Default extends Colour
-  case object Cyan extends Colour
-  case object Blue extends Colour
-  case object Yellow extends Colour
+  case object Black extends Colour
   case object Red extends Colour
   case object Green extends Colour
+  case object Yellow extends Colour
+  case object Blue extends Colour
   case object Magenta extends Colour
+  case object Cyan extends Colour
 }
 
 object Style {
