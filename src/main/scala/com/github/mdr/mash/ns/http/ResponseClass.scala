@@ -20,6 +20,7 @@ object ResponseClass extends MashClass("http.Response") {
   override val fields = Seq(Status, Body, Headers, Cookies)
 
   override val methods = Seq(
+    GetHeaderMethod,
     GetHeadersMethod,
     HeadersObjectMethod,
     JsonMethod,
@@ -94,7 +95,7 @@ object ResponseClass extends MashClass("http.Response") {
     val params = ParameterModel(Seq(Name))
 
     def apply(target: MashValue, boundParams: BoundParams): MashList = {
-      val requestedName = boundParams.validateString(Name).s
+      val requestedName = boundParams.validateString(Name).s.toLowerCase
       val elements =
         for (Header(name, value) <- Wrapper(target).headers if name.toLowerCase == requestedName)
           yield MashString(value)
@@ -104,6 +105,31 @@ object ResponseClass extends MashClass("http.Response") {
     override def typeInferenceStrategy = Seq(StringClass)
 
     override def summaryOpt = Some("Get all headers with the given name, ignoring case")
+
+  }
+
+  object GetHeaderMethod extends MashMethod("getHeader") {
+
+    object Params {
+      val Name = Parameter(
+        nameOpt = Some("name"),
+        summaryOpt = Some("Header name to search for"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Seq(Name))
+
+    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+      val requestedName = boundParams.validateString(Name).s.toLowerCase
+      Wrapper(target).headers.collectFirst {
+        case Header(name, value) if name.toLowerCase == requestedName ⇒ MashString(value)
+      }.getOrElse(MashNull)
+    }
+
+    override def typeInferenceStrategy = StringClass
+
+    override def summaryOpt = Some("Get header with the given name, ignoring case, else null")
 
   }
 

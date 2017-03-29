@@ -230,6 +230,7 @@ object MashRoot {
     BranchClass,
     LocalBranchNameClass,
     ReflogEntryClass,
+    StatusClass,
     RemoteBranchClass,
     RemoteBranchNameClass,
     tag.TagClass,
