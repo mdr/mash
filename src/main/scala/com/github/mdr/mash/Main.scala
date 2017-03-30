@@ -27,11 +27,12 @@ object Main extends App {
       val output = System.out
       val terminalWrapper = new JLineTerminalWrapper(terminal)
       val globalVariables = StandardEnvironment.createGlobalVariables()
+      val ns = globalVariables(StandardEnvironment.Ns).asObject.getOrElse(throw new AssertionError("ns was not an object"))
       Singletons.terminalControl = new TerminalControlImpl(terminal)
       Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
       Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
 
-      val loader = new Loader(terminalWrapper, output, sessionId, globalVariables)
+      val loader = new Loader(terminalWrapper, output, sessionId, globalVariables, ns)
       loader.load()
 
       val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)

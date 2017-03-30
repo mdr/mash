@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Loaded modules are now added to the global ns
 * Add http.Response.getHeaders/getHeader
 * Add Object.fromPairs
 * http.headers are now sequences of Headers; added http.headersObject

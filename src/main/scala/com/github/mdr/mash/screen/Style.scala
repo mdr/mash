@@ -71,5 +71,4 @@ case class StyledString(chars: Seq[StyledCharacter]) {
 
   def isEmpty = chars.isEmpty
 
-
 }

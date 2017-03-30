@@ -22,7 +22,8 @@ case class LoadResult(namespace: Namespace, loadScope: MashObject)
 class Loader(terminal: Terminal,
              output: PrintStream,
              sessionId: UUID,
-             globalVariables: MashObject) {
+             globalVariables: MashObject,
+             ns: MashObject) {
 
   private val fileSystem = LinuxFileSystem
   private val errorPrinter = new ErrorPrinter(output, terminal.info)
@@ -36,22 +37,24 @@ class Loader(terminal: Terminal,
       path ← mashFilePaths
       LoadResult(namespace, loadScope) ← load(path)
       (name, value) ← loadScope.immutableFields
-    } populate(globalVariables, namespace.segments, name, value)
+    } populate(ns, namespace.segments.toList, name, value)
+    for ((name, value) <- ns.immutableFields)
+      globalVariables.set(name, value)
   }
 
-  private def populate(obj: MashObject, path: Seq[String], name: String, value: MashValue): Unit = path match {
-    case Seq()               ⇒
-      obj.set(name, value)
-    case Seq(first, rest@_*) ⇒
-      obj.get(first) match {
-        case Some(subObject: MashObject) ⇒
-          populate(subObject, rest, name, value)
-        case _                           ⇒
-          obj.set(first, MashObject.empty)
-          populate(obj, path, name, value)
-      }
-
-  }
+  private def populate(obj: MashObject, path: List[String], name: String, value: MashValue): Unit =
+    path match {
+      case Nil           ⇒
+        obj.set(name, value)
+      case first :: rest ⇒
+        obj.get(first) match {
+          case Some(subObject: MashObject) ⇒
+            populate(subObject, rest, name, value)
+          case _                           ⇒
+            obj.set(first, MashObject.empty)
+            populate(obj, path, name, value)
+        }
+    }
 
   private def load(path: Path): Option[LoadResult] = {
     val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
