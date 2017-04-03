@@ -24,10 +24,10 @@ class CommandRunner(output: PrintStream,
 
   def run(cmd: String, unitName: String, mish: Boolean, bareWords: Boolean, viewConfig: ViewConfig): CommandResult = {
     cmd match {
-      case DebugCommand(keyword, args) ⇒
+      case DebugCommand(keyword, args)        ⇒
         debugCommandRunner.runDebugCommand(keyword, args, bareWords)
         CommandResult()
-      case MishCommand(prefix, mishCmd) ⇒
+      case MishCommand(prefix, mishCmd)       ⇒
         if (mishCmd == "")
           CommandResult(toggleMish = true)
         else {
@@ -37,14 +37,14 @@ class CommandRunner(output: PrintStream,
       case SuffixMishCommand(mishCmd, suffix) ⇒
         val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
         runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
-      case _ ⇒
+      case _                                  ⇒
         val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
         runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
     }
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
-    safeCompile(unit, bareWords = bareWords).flatMap(runProgram(_, unit))
+    safeCompile(unit, bareWords = bareWords, printErrors = printErrors).flatMap(runProgram(_, unit))
 
   private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
@@ -67,24 +67,24 @@ class CommandRunner(output: PrintStream,
       val result = Evaluator.evaluate(program.body)(EvaluationContext(ScopeStack(globals)))
       Some(result)
     } catch {
-      case e @ EvaluatorException(msg, stack, cause) ⇒
+      case e@EvaluatorException(msg, stack, cause) ⇒
         if (printErrors)
           errorPrinter.printError("Error", msg, unit, stack.reverse)
         debugLogger.logException(e)
         None
-      case _: EvaluationInterruptedException ⇒
+      case _: EvaluationInterruptedException       ⇒
         output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
         None
     }
 
-  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Program] = {
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean, printErrors: Boolean = true): Option[AbstractSyntax.Program] = {
     val settings = CompilationSettings(bareWords = bareWords)
     Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
         if (printErrors)
           errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
         None
-      case Right(program) ⇒
+      case Right(program)                  ⇒
         Some(program)
     }
   }

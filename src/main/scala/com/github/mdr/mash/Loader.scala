@@ -22,7 +22,7 @@ case class LoadResult(namespace: Namespace, loadScope: MashObject)
 class Loader(terminal: Terminal,
              output: PrintStream,
              sessionId: UUID,
-             globalVariables: MashObject,
+             globals: MashObject,
              ns: MashObject) {
 
   private val fileSystem = LinuxFileSystem
@@ -30,16 +30,19 @@ class Loader(terminal: Terminal,
   private val debugLogger = new DebugLogger(sessionId.toString)
 
   def load() {
-    val libPath = Mash.MashDir.resolve("lib")
-    val mashFileGlob = libPath.toString + "/**.mash"
-    val mashFilePaths = fileSystem.glob(mashFileGlob).map(_.path)
     for {
-      path ← mashFilePaths
+      path ← getMashFilePaths
       LoadResult(namespace, loadScope) ← load(path)
       (name, value) ← loadScope.immutableFields
     } populate(ns, namespace.segments.toList, name, value)
     for ((name, value) <- ns.immutableFields)
-      globalVariables.set(name, value)
+      globals.set(name, value)
+  }
+
+  private def getMashFilePaths: Seq[Path] = {
+    val libPath = Mash.MashDir.resolve("lib")
+    val mashFileGlob = libPath.toString + "/**.mash"
+    fileSystem.glob(mashFileGlob).map(_.path)
   }
 
   private def populate(obj: MashObject, path: List[String], name: String, value: MashValue): Unit =
@@ -74,14 +77,14 @@ class Loader(terminal: Terminal,
   private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashObject] =
     try {
       val context = new ExecutionContext(Thread.currentThread)
-      Singletons.environment = globalVariables.get(StandardEnvironment.Env) match {
+      Singletons.environment = globals.get(StandardEnvironment.Env) match {
         case Some(obj: MashObject) ⇒ obj
         case _                     ⇒ MashObject.empty
       }
       Singletons.setExecutionContext(context)
       ExecutionContext.set(context)
       val unitScope = MashObject.empty
-      val scopeStack = ScopeStack(globalVariables).withFullScope(unitScope)
+      val scopeStack = ScopeStack(globals).withFullScope(unitScope)
       val namespaceOpt = program.namespaceOpt.map(getNamespace)
       Evaluator.evaluate(program.body)(EvaluationContext(scopeStack, namespaceOpt))
       Some(unitScope)
@@ -96,12 +99,11 @@ class Loader(terminal: Terminal,
         None
     }
 
-
-  private def safeCompile(unit: CompilationUnit, bareWords: Boolean): Option[AbstractSyntax.Program] = {
-    val settings = CompilationSettings(inferTypes = false, bareWords = bareWords)
-    Compiler.compile(unit, globalVariables.immutableFields, settings) match {
+  private def safeCompile(unit: CompilationUnit, bareWords: Boolean, printErrors: Boolean = true): Option[AbstractSyntax.Program] = {
+    val settings = CompilationSettings(bareWords = bareWords)
+    Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
-        if (true)
+        if (printErrors)
           errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
         None
       case Right(program)                  ⇒
