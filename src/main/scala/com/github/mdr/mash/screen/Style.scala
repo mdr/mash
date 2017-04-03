@@ -4,7 +4,7 @@ import com.github.mdr.mash.utils.Utils
 
 sealed trait Colour
 
-sealed abstract class BasicColour(val value: Int) extends Colour {
+sealed trait BasicColour extends Colour {
 
   def bright = BrightColour(this)
 
@@ -13,14 +13,14 @@ sealed abstract class BasicColour(val value: Int) extends Colour {
 case object DefaultColour extends Colour
 
 object BasicColour {
-  case object Black extends BasicColour(0)
-  case object Red extends BasicColour(1)
-  case object Green extends BasicColour(2)
-  case object Yellow extends BasicColour(3)
-  case object Blue extends BasicColour(4)
-  case object Magenta extends BasicColour(5)
-  case object Cyan extends BasicColour(6)
-  case object Grey extends BasicColour(7)
+  case object Black extends BasicColour
+  case object Red extends BasicColour
+  case object Green extends BasicColour
+  case object Yellow extends BasicColour
+  case object Blue extends BasicColour
+  case object Magenta extends BasicColour
+  case object Cyan extends BasicColour
+  case object Grey extends BasicColour
 }
 
 case class BrightColour(colour: BasicColour) extends Colour

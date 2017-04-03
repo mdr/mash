@@ -88,9 +88,9 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
       case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
       case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = BasicColour.Yellow.bright)
       case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
-      case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue, bold = true)
+      case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue.bright)
       case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
       case _                                                          ⇒ Style()
     }
   }

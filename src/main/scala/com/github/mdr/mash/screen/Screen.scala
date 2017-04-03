@@ -1,6 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
+import com.github.mdr.mash.terminal.ansi.StyleToAnsi
 import com.github.mdr.mash.utils.Utils
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.Color._
@@ -33,64 +34,17 @@ object Screen {
     val sb = new StringBuilder
     var previousStyleOpt: Option[Style] = None
     for (StyledCharacter(c, style) ← string.chars) {
-      val ansi = Ansi.ansi()
       if (previousStyleOpt != Some(style)) {
-        ansi.reset()
-        if (style.bold)
-          ansi.bold()
-        if (style.inverse)
-          ansi.a(Attribute.NEGATIVE_ON)
-        fg(ansi, style.foregroundColour)
-        bg(ansi, style.backgroundColour)
+        sb.append(StyleToAnsi.Reset)
+        sb.append(StyleToAnsi(style))
       }
-      ansi.a(c)
-      sb.append(ansi.toString)
+      sb.append(c)
       previousStyleOpt = Some(style)
     }
-    sb.append(Ansi.ansi().reset())
+    sb.append(StyleToAnsi.Reset)
     sb.toString
   }
-
-  private def fg(ansi: Ansi, colour: Colour): Unit = colour match {
-    case DefaultColour                     ⇒ ansi.fg(DEFAULT)
-    case BasicColour.Black                 ⇒ ansi.fg(BLACK)
-    case BasicColour.Red                   ⇒ ansi.fg(RED)
-    case BasicColour.Green                 ⇒ ansi.fg(GREEN)
-    case BasicColour.Yellow                ⇒ ansi.fg(YELLOW)
-    case BasicColour.Blue                  ⇒ ansi.fg(BLUE)
-    case BasicColour.Cyan                  ⇒ ansi.fg(CYAN)
-    case BasicColour.Magenta               ⇒ ansi.fg(MAGENTA)
-    case BasicColour.Grey                  ⇒ ansi.fg(WHITE)
-    case BrightColour(BasicColour.Black)   ⇒ ansi.fgBright(BLACK)
-    case BrightColour(BasicColour.Red)     ⇒ ansi.fgBright(RED)
-    case BrightColour(BasicColour.Green)   ⇒ ansi.fgBright(GREEN)
-    case BrightColour(BasicColour.Yellow)  ⇒ ansi.fgBright(YELLOW)
-    case BrightColour(BasicColour.Blue)    ⇒ ansi.fgBright(BLUE)
-    case BrightColour(BasicColour.Cyan)    ⇒ ansi.fgBright(CYAN)
-    case BrightColour(BasicColour.Magenta) ⇒ ansi.fgBright(MAGENTA)
-    case BrightColour(BasicColour.Grey)    ⇒ ansi.fgBright(WHITE)
-  }
-
-  private def bg(ansi: Ansi, colour: Colour): Unit = colour match {
-    case DefaultColour                     ⇒ ansi.bg(DEFAULT)
-    case BasicColour.Black                 ⇒ ansi.bg(BLACK)
-    case BasicColour.Red                   ⇒ ansi.bg(RED)
-    case BasicColour.Green                 ⇒ ansi.bg(GREEN)
-    case BasicColour.Yellow                ⇒ ansi.bg(YELLOW)
-    case BasicColour.Blue                  ⇒ ansi.bg(BLUE)
-    case BasicColour.Cyan                  ⇒ ansi.bg(CYAN)
-    case BasicColour.Magenta               ⇒ ansi.bg(MAGENTA)
-    case BasicColour.Grey                  ⇒ ansi.bg(WHITE)
-    case BrightColour(BasicColour.Black)   ⇒ ansi.bgBright(BLACK)
-    case BrightColour(BasicColour.Red)     ⇒ ansi.bgBright(RED)
-    case BrightColour(BasicColour.Green)   ⇒ ansi.bgBright(GREEN)
-    case BrightColour(BasicColour.Yellow)  ⇒ ansi.bgBright(YELLOW)
-    case BrightColour(BasicColour.Blue)    ⇒ ansi.bgBright(BLUE)
-    case BrightColour(BasicColour.Cyan)    ⇒ ansi.bgBright(CYAN)
-    case BrightColour(BasicColour.Magenta) ⇒ ansi.bgBright(MAGENTA)
-    case BrightColour(BasicColour.Grey)    ⇒ ansi.bgBright(WHITE)
-  }
-
+  
 }
 
 case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
