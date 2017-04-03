@@ -24,15 +24,15 @@ object CompletionRenderer {
 
   private def getCompletionColour(completionTypeOpt: Option[CompletionType]): Colour =
     completionTypeOpt.collect {
-      case CompletionType.Directory ⇒ Colour.Magenta
-      case CompletionType.File      ⇒ Colour.Yellow
-      case CompletionType.Flag      ⇒ Colour.Cyan
-      case CompletionType.Binding   ⇒ Colour.Default
-      case CompletionType.Function  ⇒ Colour.Green
-      case CompletionType.Class     ⇒ Colour.Cyan
-      case CompletionType.Field     ⇒ Colour.Default
-      case CompletionType.Method    ⇒ Colour.Green
-    }.getOrElse(Colour.Blue)
+      case CompletionType.Directory ⇒ BasicColour.Magenta
+      case CompletionType.File      ⇒ BasicColour.Yellow
+      case CompletionType.Flag      ⇒ BasicColour.Cyan
+      case CompletionType.Binding   ⇒ DefaultColour
+      case CompletionType.Function  ⇒ BasicColour.Green
+      case CompletionType.Class     ⇒ BasicColour.Cyan
+      case CompletionType.Field     ⇒ DefaultColour
+      case CompletionType.Method    ⇒ BasicColour.Green
+    }.getOrElse(BasicColour.Blue)
 
   /**
     * Return the lines for the completion, and the number of completion columns

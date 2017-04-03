@@ -81,7 +81,7 @@ object ReplRenderer {
 
   private def renderHistorySearchState(searchState: HistorySearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
     val prefixChars: StyledString = "Incremental history search: ".style
-    val searchChars: StyledString = searchState.searchString.style(Style(foregroundColour = Colour.Cyan))
+    val searchChars: StyledString = searchState.searchString.style(Style(foregroundColour = BasicColour.Cyan))
     val chars = (prefixChars + searchChars).take(terminalInfo.columns)
     val line = Line((prefixChars + searchChars).take(terminalInfo.columns))
     val cursorPos = Point(0, chars.size)
@@ -107,6 +107,6 @@ object ReplRenderer {
     topLine +: contentLines :+ bottomLine
   }
 
-  private val TitleStyle = Style(bold = true, foregroundColour = Colour.Yellow)
+  private val TitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
 }

@@ -52,15 +52,15 @@ object LineBufferRenderer {
 
   private def getPrompt(commandNumber: Int, mishByDefault: Boolean): StyledString = {
     val num = s"[$commandNumber] "
-    val numStyle = Style(foregroundColour = Colour.Yellow)
+    val numStyle = Style(foregroundColour = BasicColour.Yellow)
     val numStyled = num.style(numStyle)
 
     val pwd = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
-    val pwdStyle = Style(foregroundColour = Colour.Cyan, bold = true)
+    val pwdStyle = Style(foregroundColour = BasicColour.Cyan, bold = true)
     val pwdStyled = pwd.style(pwdStyle)
 
     val promptChar = if (mishByDefault) "!" else "$"
-    val promptCharStyle = Style(foregroundColour = Colour.Green, bold = true)
+    val promptCharStyle = Style(foregroundColour = BasicColour.Green, bold = true)
     val promptCharStyled = s" $promptChar ".style(promptCharStyle)
 
     numStyled + pwdStyled + promptCharStyled

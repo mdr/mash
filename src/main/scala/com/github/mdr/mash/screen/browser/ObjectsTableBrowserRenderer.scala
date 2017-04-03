@@ -29,7 +29,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   private def renderHeaderRow(model: ObjectsTableModel): Line = {
     def renderColumn(name: String): StyledString = {
       val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
-      fit.style(Style(bold = true, foregroundColour = Colour.Yellow))
+      fit.style(Style(bold = true, foregroundColour = BasicColour.Yellow))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
     buffer ++= boxCharacterSupplier.doubleVertical.style.chars
@@ -67,7 +67,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
-        val foregroundColour = if (isSearchMatch) Colour.Cyan else Colour.Default
+        val foregroundColour = if (isSearchMatch) BasicColour.Cyan else DefaultColour
         val style = Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = foregroundColour)
         buf += StyledCharacter(c, style)
       }

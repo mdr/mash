@@ -160,12 +160,12 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private def hasFields: Boolean = model.fields.nonEmpty
 
-  private val classNameStyle: Style = Style(bold = true, foregroundColour = Colour.Yellow)
+  private val classNameStyle: Style = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
   private def internalRowStyle(isCursorRow: Boolean, isSearchHit: Boolean = false): Style =
-    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) Colour.Cyan else Colour.Default)
+    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else DefaultColour)
 
   private def fieldStyle(isCursorRow: Boolean, isSearchHit: Boolean): Style =
-    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) Colour.Cyan else Colour.Yellow)
+    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else BasicColour.Yellow)
 
 }

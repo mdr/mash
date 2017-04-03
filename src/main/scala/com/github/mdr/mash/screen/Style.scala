@@ -4,16 +4,26 @@ import com.github.mdr.mash.utils.Utils
 
 sealed trait Colour
 
-object Colour {
-  case object Default extends Colour
-  case object Black extends Colour
-  case object Red extends Colour
-  case object Green extends Colour
-  case object Yellow extends Colour
-  case object Blue extends Colour
-  case object Magenta extends Colour
-  case object Cyan extends Colour
+sealed abstract class BasicColour(val value: Int) extends Colour {
+
+  def bright = BrightColour(this)
+
 }
+
+case object DefaultColour extends Colour
+
+object BasicColour {
+  case object Black extends BasicColour(0)
+  case object Red extends BasicColour(1)
+  case object Green extends BasicColour(2)
+  case object Yellow extends BasicColour(3)
+  case object Blue extends BasicColour(4)
+  case object Magenta extends BasicColour(5)
+  case object Cyan extends BasicColour(6)
+  case object Grey extends BasicColour(7)
+}
+
+case class BrightColour(colour: BasicColour) extends Colour
 
 object Style {
 
@@ -28,8 +38,8 @@ object Style {
 }
 
 case class Style(
-  foregroundColour: Colour = Colour.Default,
-  backgroundColour: Colour = Colour.Default,
+  foregroundColour: Colour = DefaultColour,
+  backgroundColour: Colour = DefaultColour,
   bold: Boolean = false,
   inverse: Boolean = false)
 

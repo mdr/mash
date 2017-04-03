@@ -28,7 +28,7 @@ object KeyHint {
     StyledString.mkString(hints.map(renderHint), ", ".style)
   }
 
-  val hintStyle = Style(inverse = true, foregroundColour = Colour.Cyan)
+  val hintStyle = Style(inverse = true, foregroundColour = BasicColour.Cyan)
 
 }
 

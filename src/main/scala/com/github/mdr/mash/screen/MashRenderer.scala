@@ -63,7 +63,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
                           bareWords: Boolean): StyledString = {
     val style =
       if (bareTokensOpt exists (_ contains token))
-        if (bareWords) getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = Colour.Red)
+        if (bareWords) getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
       else
         getTokenStyle(token)
 
@@ -72,7 +72,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
     matchingBracketOffsetOpt match {
       case Some(offset) if token.region contains offset ⇒
         val posWithinToken = offset - token.offset
-        val newChar = initialTokenChars(posWithinToken).updateStyle(_.copy(foregroundColour = Colour.Cyan, inverse = true))
+        val newChar = initialTokenChars(posWithinToken).updateStyle(_.copy(foregroundColour = BasicColour.Cyan, inverse = true))
         initialTokenChars.updated(posWithinToken, newChar)
       case _                                            ⇒
         initialTokenChars
@@ -84,13 +84,13 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
   private def getTokenStyle(tokenType: TokenType): Style = {
     import TokenType._
     tokenType match {
-      case COMMENT                                                    ⇒ Style(foregroundColour = Colour.Cyan)
-      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = Colour.Blue)
-      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = Colour.Yellow)
-      case ERROR                                                      ⇒ Style(foregroundColour = Colour.Red, bold = true)
-      case t if t.isFlag                                              ⇒ Style(foregroundColour = Colour.Blue, bold = true)
-      case t if t.isKeyword                                           ⇒ Style(foregroundColour = Colour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = Colour.Green)
+      case COMMENT                                                    ⇒ Style(foregroundColour = BasicColour.Cyan)
+      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
+      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = BasicColour.Yellow.bright)
+      case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
+      case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue, bold = true)
+      case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green)
       case _                                                          ⇒ Style()
     }
   }

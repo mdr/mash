@@ -30,7 +30,7 @@ case class Line(string: StyledString, endsInNewline: Boolean = true) {
 object Screen {
 
   def drawStyledChars(string: StyledString): String = {
-    val sb = new StringBuilder()
+    val sb = new StringBuilder
     var previousStyleOpt: Option[Style] = None
     for (StyledCharacter(c, style) ← string.chars) {
       val ansi = Ansi.ansi()
@@ -40,7 +40,8 @@ object Screen {
           ansi.bold()
         if (style.inverse)
           ansi.a(Attribute.NEGATIVE_ON)
-        ansi.fg(ansiColour(style.foregroundColour))
+        fg(ansi, style.foregroundColour)
+        bg(ansi, style.backgroundColour)
       }
       ansi.a(c)
       sb.append(ansi.toString)
@@ -50,15 +51,44 @@ object Screen {
     sb.toString
   }
 
-  private def ansiColour(colour: Colour) = colour match {
-    case Colour.Black   ⇒ BLACK
-    case Colour.Cyan    ⇒ CYAN
-    case Colour.Blue    ⇒ BLUE
-    case Colour.Green   ⇒ GREEN
-    case Colour.Default ⇒ DEFAULT
-    case Colour.Red     ⇒ RED
-    case Colour.Yellow  ⇒ YELLOW
-    case Colour.Magenta ⇒ MAGENTA
+  private def fg(ansi: Ansi, colour: Colour): Unit = colour match {
+    case DefaultColour                     ⇒ ansi.fg(DEFAULT)
+    case BasicColour.Black                 ⇒ ansi.fg(BLACK)
+    case BasicColour.Red                   ⇒ ansi.fg(RED)
+    case BasicColour.Green                 ⇒ ansi.fg(GREEN)
+    case BasicColour.Yellow                ⇒ ansi.fg(YELLOW)
+    case BasicColour.Blue                  ⇒ ansi.fg(BLUE)
+    case BasicColour.Cyan                  ⇒ ansi.fg(CYAN)
+    case BasicColour.Magenta               ⇒ ansi.fg(MAGENTA)
+    case BasicColour.Grey                  ⇒ ansi.fg(WHITE)
+    case BrightColour(BasicColour.Black)   ⇒ ansi.fgBright(BLACK)
+    case BrightColour(BasicColour.Red)     ⇒ ansi.fgBright(RED)
+    case BrightColour(BasicColour.Green)   ⇒ ansi.fgBright(GREEN)
+    case BrightColour(BasicColour.Yellow)  ⇒ ansi.fgBright(YELLOW)
+    case BrightColour(BasicColour.Blue)    ⇒ ansi.fgBright(BLUE)
+    case BrightColour(BasicColour.Cyan)    ⇒ ansi.fgBright(CYAN)
+    case BrightColour(BasicColour.Magenta) ⇒ ansi.fgBright(MAGENTA)
+    case BrightColour(BasicColour.Grey)    ⇒ ansi.fgBright(WHITE)
+  }
+
+  private def bg(ansi: Ansi, colour: Colour): Unit = colour match {
+    case DefaultColour                     ⇒ ansi.bg(DEFAULT)
+    case BasicColour.Black                 ⇒ ansi.bg(BLACK)
+    case BasicColour.Red                   ⇒ ansi.bg(RED)
+    case BasicColour.Green                 ⇒ ansi.bg(GREEN)
+    case BasicColour.Yellow                ⇒ ansi.bg(YELLOW)
+    case BasicColour.Blue                  ⇒ ansi.bg(BLUE)
+    case BasicColour.Cyan                  ⇒ ansi.bg(CYAN)
+    case BasicColour.Magenta               ⇒ ansi.bg(MAGENTA)
+    case BasicColour.Grey                  ⇒ ansi.bg(WHITE)
+    case BrightColour(BasicColour.Black)   ⇒ ansi.bgBright(BLACK)
+    case BrightColour(BasicColour.Red)     ⇒ ansi.bgBright(RED)
+    case BrightColour(BasicColour.Green)   ⇒ ansi.bgBright(GREEN)
+    case BrightColour(BasicColour.Yellow)  ⇒ ansi.bgBright(YELLOW)
+    case BrightColour(BasicColour.Blue)    ⇒ ansi.bgBright(BLUE)
+    case BrightColour(BasicColour.Cyan)    ⇒ ansi.bgBright(CYAN)
+    case BrightColour(BasicColour.Magenta) ⇒ ansi.bgBright(MAGENTA)
+    case BrightColour(BasicColour.Grey)    ⇒ ansi.bgBright(WHITE)
   }
 
 }
@@ -90,13 +120,15 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
     for ((linePair, row) ← newAndPreviousLines.zipWithIndex) {
       linePair match {
         case (newLineOpt, previousLineOpt) if newLineOpt == previousLineOpt ⇒ //noop
-        case (Some(newLine), previousLineOpt) ⇒
+        case (Some(newLine), previousLineOpt)                               ⇒
           drawState.navigateUpToRowOrDownToJustAbove(row)
-          if (drawState.getCurrentRow == row - 1) { // We ended up on the line above
+          if (drawState.getCurrentRow == row - 1) {
+            // We ended up on the line above
             val aboveLine = lines(row - 1)
             if (aboveLine.endsInNewline)
               drawState.crlf()
-            else { // We rewrite the last character to force a wrap
+            else {
+              // We rewrite the last character to force a wrap
               val lastChars = aboveLine.string.drop(aboveLine.string.size - 1)
               drawState.navigateToColumn(aboveLine.string.size)
               val drawnChars = Screen.drawStyledChars(lastChars)
@@ -108,14 +140,15 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
             case Some(previousLine) ⇒ Utils.commonPrefix(newLine.string.chars, previousLine.string.chars).length
             case _                  ⇒ 0
           }
-          if (previousLineOpt.map(_.string) != Some(newLine.string)) { // Only redraw if the actual characters have changed
+          if (previousLineOpt.map(_.string) != Some(newLine.string)) {
+            // Only redraw if the actual characters have changed
             drawState.navigateToColumn(commonPrefixLength)
             drawState.eraseLine()
             val remainder = newLine.string.drop(commonPrefixLength)
             val drawnChars = Screen.drawStyledChars(remainder)
             drawState.addChars(drawnChars, remainder.length)
           }
-        case (None, Some(previousLine)) ⇒
+        case (None, Some(previousLine))                                     ⇒
           drawState.navigateUpOrDownToRow(row)
           drawState.cr()
           drawState.eraseLine()
