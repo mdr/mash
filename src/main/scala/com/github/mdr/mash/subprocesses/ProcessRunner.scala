@@ -9,8 +9,8 @@ import java.time.Instant
 import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.terminal.ansi.Ansi
 import org.apache.commons.io.IOUtils
-import org.fusesource.jansi.Ansi
 
 object ProcessRunner {
 
@@ -49,7 +49,7 @@ object ProcessRunner {
 
   // Clear out any partial output
   def clearPartialOutput() {
-    output.write(("\r" + Ansi.ansi().eraseLine()).getBytes)
+    output.write(("\r" + Ansi.EraseLine).getBytes)
     output.flush()
   }
 

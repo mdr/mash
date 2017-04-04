@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen
 
-import org.fusesource.jansi.Ansi
+import com.github.mdr.mash.terminal.ansi.Ansi
 
 object DrawState {
 
@@ -20,7 +20,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
   import DrawState._
 
-  private var sb: StringBuilder = new StringBuilder(HideCursor)
+  private val sb = new StringBuilder(HideCursor)
 
   def getCurrentRow = currentRow
 
@@ -40,7 +40,6 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     while (currentRow > row) {
       sb.append(CursorUp)
       currentRow -= 1
-      //      currentColumn = 0
     }
     while (currentRow < row) {
       sb.append("\r\n")
@@ -93,7 +92,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
   }
 
   def eraseLine() {
-    sb.append(Ansi.ansi().eraseLine())
+    sb.append(Ansi.EraseLine)
   }
 
   def title(s: String) {

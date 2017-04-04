@@ -4,8 +4,10 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.printer.model.{ ObjectTreeModelCreator, ObjectTreeNode }
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.terminal.TerminalInfo
-import org.fusesource.jansi.Ansi
+import com.github.mdr.mash.screen.Style.StylableString
 
 class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
@@ -21,30 +23,6 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
     case ObjectTreeNode.Object(Seq(), _)  ⇒ output.println("{}")
     case ObjectTreeNode.Object(values, _) ⇒ printObject(values, prefix, connectUp = true)
     case ObjectTreeNode.Leaf(value, _)    ⇒ output.println(value)
-  }
-
-  private def printList2(nodes: Seq[ObjectTreeNode], prefix: String, connectUp: Boolean) {
-    for ((node, index) <- nodes.zipWithIndex) {
-      val isFirstNode = index == 0
-      val isLastNode = index == nodes.length - 1
-      val stuff = getStuff(index, nodes, connectUp, prefix)
-      output.print(s"$stuff─ $index:")
-      val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
-      node match {
-        case ObjectTreeNode.Leaf(value, _)      ⇒
-          output.println(s" $value")
-        case ObjectTreeNode.List(Seq(), _)      ⇒
-          output.println(" []")
-        case ObjectTreeNode.Object(Seq(), _)    ⇒
-          output.println(" {}")
-        case ObjectTreeNode.List(childNodes, _) ⇒
-          output.print(s"\n$nestingPrefix")
-          printList(childNodes, nestingPrefix, connectUp = true)
-        case ObjectTreeNode.Object(values, _)   ⇒
-          output.print(s"\n$nestingPrefix")
-          printObject(values, nestingPrefix, connectUp = true)
-      }
-    }
   }
 
   private def printList(nodes: Seq[ObjectTreeNode], prefix: String, connectUp: Boolean) {
@@ -74,7 +52,7 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
       val isLastNode = index == nodes.length - 1
       val stuff = getStuff(index, nodes.map(_._2), connectUp, prefix)
       output.print(s"$stuff─ ")
-      output.print(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a(field).reset())
+      output.print(drawStyledChars(field.style(foregroundColour = BasicColour.Green)))
       output.print(":")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {
@@ -111,6 +89,5 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
       if (isLastNode) s"$prefix└" else s"$prefix├"
     }
   }
-
 
 }

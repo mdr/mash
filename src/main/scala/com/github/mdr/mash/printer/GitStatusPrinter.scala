@@ -4,8 +4,9 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.runtime.MashObject
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi.Color
+import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.Screen._
+import com.github.mdr.mash.screen.Style.StylableString
 
 /**
  * Render a git.Status object in the style of the command-line "git status" output
@@ -14,8 +15,8 @@ class GitStatusPrinter(output: PrintStream) {
 
   def print(obj: MashObject) {
     val status = StatusClass.Wrapper(obj)
-    def red(s: String) = Ansi.ansi().fg(Color.RED).a(s).reset
-    def green(s: String) = Ansi.ansi().fg(Color.GREEN).a(s).reset
+    def red(s: String) = drawStyledChars(s.style(foregroundColour = BasicColour.Red))
+    def green(s: String) = drawStyledChars(s.style(foregroundColour = BasicColour.Green))
     val indent = " " * 8
     output.println("On branch " + status.branch)
     val upstreamBranch = status.upstreamBranchOpt.getOrElse("")

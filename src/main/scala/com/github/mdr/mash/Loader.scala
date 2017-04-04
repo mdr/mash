@@ -13,9 +13,10 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.parser.AbstractSyntax.NamespaceDeclaration
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.screen.{ BasicColour, Screen }
 import com.github.mdr.mash.terminal.Terminal
 import org.apache.commons.io.FileUtils
-import org.fusesource.jansi.Ansi
+import com.github.mdr.mash.screen.Style.StylableString
 
 case class LoadResult(namespace: Namespace, loadScope: MashObject)
 
@@ -95,7 +96,9 @@ class Loader(terminal: Terminal,
         debugLogger.logException(e)
         None
       case _: EvaluationInterruptedException       ⇒
-        output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
+        val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
+          " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
+        output.println(Screen.drawStyledChars(chars))
         None
     }
 

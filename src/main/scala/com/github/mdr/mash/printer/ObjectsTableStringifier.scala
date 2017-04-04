@@ -1,8 +1,10 @@
 package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
+import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils
-import org.fusesource.jansi.Ansi
+import com.github.mdr.mash.screen.Style.StylableString
 
 class ObjectsTableStringifier(showSelections: Boolean = false) {
 
@@ -22,7 +24,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
   def renderHeaderRow(model: ObjectsTableModel): String = {
     def renderColumn(name: String) = {
       val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
-      Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a(fit).reset()
+      drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow, bold = true))
     }
     val sb = new StringBuilder()
     sb.append(doubleVertical)

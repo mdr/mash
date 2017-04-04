@@ -8,9 +8,10 @@ import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.screen.{ BasicColour, Screen }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.{ DebugLogger, Singletons }
-import org.fusesource.jansi.Ansi
+import com.github.mdr.mash.screen.Style.StylableString
 
 class CommandRunner(output: PrintStream,
                     terminalInfo: TerminalInfo,
@@ -73,7 +74,9 @@ class CommandRunner(output: PrintStream,
         debugLogger.logException(e)
         None
       case _: EvaluationInterruptedException       ⇒
-        output.println(Ansi.ansi().fg(Ansi.Color.YELLOW).bold.a("Interrupted:").boldOff.a(" command cancelled by user").reset())
+        val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
+          " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
+        output.println(Screen.drawStyledChars(chars))
         None
     }
 

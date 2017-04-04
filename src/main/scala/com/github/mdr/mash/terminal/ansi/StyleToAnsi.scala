@@ -1,8 +1,6 @@
 package com.github.mdr.mash.terminal.ansi
 
 import com.github.mdr.mash.screen._
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi.Color._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -11,9 +9,9 @@ object StyleToAnsi {
   private val EscapePrefix = "\u001b["
 
   def apply(style: Style): String = {
-    val attribs: ArrayBuffer[Int] = ArrayBuffer()
-    attribs += fg(style.foregroundColour)
-    attribs += bg(style.backgroundColour)
+    val attribs = ArrayBuffer[Int]()
+    attribs ++= fg(style.foregroundColour)
+    attribs ++= bg(style.backgroundColour)
     if (style.inverse)
       attribs += 7
     if (style.bold)
@@ -26,45 +24,25 @@ object StyleToAnsi {
   private def attribEscape(attribs: Seq[Int]): String =
     s"$EscapePrefix${attribs mkString ";"}m"
 
-  private def fg(colour: Colour): Int = colour match {
-    case DefaultColour                     ⇒ 39
-    case BasicColour.Black                 ⇒ 30
-    case BasicColour.Red                   ⇒ 31
-    case BasicColour.Green                 ⇒ 32
-    case BasicColour.Yellow                ⇒ 33
-    case BasicColour.Blue                  ⇒ 34
-    case BasicColour.Magenta               ⇒ 35
-    case BasicColour.Cyan                  ⇒ 36
-    case BasicColour.Grey                  ⇒ 37
-    case BrightColour(BasicColour.Black)   ⇒ 90
-    case BrightColour(BasicColour.Red)     ⇒ 91
-    case BrightColour(BasicColour.Green)   ⇒ 92
-    case BrightColour(BasicColour.Yellow)  ⇒ 93
-    case BrightColour(BasicColour.Blue)    ⇒ 94
-    case BrightColour(BasicColour.Magenta) ⇒ 95
-    case BrightColour(BasicColour.Cyan)    ⇒ 96
-    case BrightColour(BasicColour.Grey)    ⇒ 97
+  private def fg(colour: Colour): Seq[Int] = colour match {
+    case BasicColour.Black              ⇒ Seq(30)
+    case BasicColour.Red                ⇒ Seq(31)
+    case BasicColour.Green              ⇒ Seq(32)
+    case BasicColour.Yellow             ⇒ Seq(33)
+    case BasicColour.Blue               ⇒ Seq(34)
+    case BasicColour.Magenta            ⇒ Seq(35)
+    case BasicColour.Cyan               ⇒ Seq(36)
+    case BasicColour.Grey               ⇒ Seq(37)
+    case BrightColour(basicColour)      ⇒ addToFirstAttribute(fg(basicColour), 60)
+    case RgbColour256(r, g, b)          ⇒ Seq(38, 5, 16 + 36 * r + 6 * g + b)
+    case GreyscaleColour256(brightness) ⇒ Seq(38, 5, brightness + 232)
+    case DefaultColour                  ⇒ Seq(39)
   }
 
-  private def bg(colour: Colour): Int = colour match {
-    case DefaultColour                     ⇒ 49
-    case BasicColour.Black                 ⇒ 40
-    case BasicColour.Red                   ⇒ 41
-    case BasicColour.Green                 ⇒ 42
-    case BasicColour.Yellow                ⇒ 43
-    case BasicColour.Blue                  ⇒ 44
-    case BasicColour.Magenta               ⇒ 45
-    case BasicColour.Cyan                  ⇒ 46
-    case BasicColour.Grey                  ⇒ 47
-    case BrightColour(BasicColour.Black)   ⇒ 100
-    case BrightColour(BasicColour.Red)     ⇒ 101
-    case BrightColour(BasicColour.Green)   ⇒ 102
-    case BrightColour(BasicColour.Yellow)  ⇒ 103
-    case BrightColour(BasicColour.Blue)    ⇒ 104
-    case BrightColour(BasicColour.Magenta) ⇒ 105
-    case BrightColour(BasicColour.Cyan)    ⇒ 106
-    case BrightColour(BasicColour.Grey)    ⇒ 107
-  }
+  private def bg(colour: Colour): Seq[Int] =
+    addToFirstAttribute(fg(colour), 10)
 
+  def addToFirstAttribute(attrs: Seq[Int], amount: Int): Seq[Int] =
+    attrs.updated(0, attrs.head + amount)
 
 }

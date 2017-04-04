@@ -1,11 +1,8 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
-import com.github.mdr.mash.terminal.ansi.StyleToAnsi
+import com.github.mdr.mash.terminal.ansi.{ Ansi, StyleToAnsi }
 import com.github.mdr.mash.utils.Utils
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi.Color._
-import org.fusesource.jansi.Ansi._
 
 case class Point(row: Int, column: Int) {
 
@@ -44,7 +41,7 @@ object Screen {
     sb.append(StyleToAnsi.Reset)
     sb.toString
   }
-  
+
 }
 
 case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
@@ -60,8 +57,8 @@ case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = t
       sb.append("\r\n")
       currentRow += 1
     }
-    sb.append(Ansi.ansi().eraseLine())
-    sb.append(Ansi.ansi().reset())
+    sb.append(Ansi.EraseLine)
+    sb.append(StyleToAnsi.Reset)
     sb.toString
   }
 

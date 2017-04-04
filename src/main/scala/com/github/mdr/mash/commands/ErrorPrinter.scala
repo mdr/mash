@@ -5,10 +5,11 @@ import java.io.PrintStream
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpander }
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.screen.{ MashRenderer, Screen }
+import com.github.mdr.mash.screen.Screen.drawStyledChars
+import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, MashRenderer }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
-import org.fusesource.jansi.Ansi
 
 /**
   * Print errors with stack traces
@@ -32,7 +33,7 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     val (lineIndex, _) = lineInfo.lineAndColumn(point)
     val line = lineInfo.lines(lineIndex)
     val renderedLine = new MashRenderer().renderChars(line, cursorOffset = line.length, mishByDefault = false)
-    val drawnLine = Screen.drawStyledChars(renderedLine)
+    val drawnLine = drawStyledChars(renderedLine)
     val isImmediateError = unit.provenance == provenance && unit.interactive
     val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
     val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${lineIndex + 1}$functionName: "
@@ -54,8 +55,10 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     }.mkString
   }
 
-  private def formatStrong(s: String): String = Ansi.ansi.fg(Ansi.Color.RED).bold.a(s).reset.toString
+  private def formatStrong(s: String): String =
+    drawStyledChars(s.style(foregroundColour = BasicColour.Red, bold = true))
 
-  private def formatRegular(s: String) = Ansi.ansi.fg(Ansi.Color.RED).a(s).reset.toString
+  private def formatRegular(s: String) =
+    drawStyledChars(s.style(foregroundColour = BasicColour.Red))
 
 }

@@ -23,7 +23,6 @@ libraryDependencies ++= Seq(
   "org.pegdown" % "pegdown" % "1.6.0" % Test) // Needed for test reports
 
 libraryDependencies ++= Seq(
-  "org.fusesource.jansi" % "jansi" % "1.12",
   "commons-io" % "commons-io" % "2.5",
   "org.apache.commons" % "commons-lang3" % "3.5",
   "com.github.jnr" % "jnr-posix" % "3.0.33",

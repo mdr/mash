@@ -6,9 +6,10 @@ import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils.indent
-import org.fusesource.jansi.Ansi
-import org.fusesource.jansi.Ansi.Color
+import com.github.mdr.mash.screen.Style.StylableString
 
 /**
   * Render function/method/field help objects in a similar style to man pages
@@ -66,7 +67,6 @@ class HelpPrinter(output: PrintStream) {
 
   def printParameterHelp(param: MashObject) {
     import ParameterHelpClass.Fields._
-    def paramNameStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
     output.print(indentSpace)
     def boolParam(field: Field) = param(field).asInstanceOf[MashBoolean].value
     var qualifiers: Seq[String] = Seq()
@@ -99,7 +99,7 @@ class HelpPrinter(output: PrintStream) {
     import ClassHelpClass.Fields._
     output.println(bold("CLASS"))
     val summaryOpt = MashNull.option(obj(Summary))
-    output.println(indentSpace + bold(obj(FullyQualifiedName)) + summaryOpt.fold("")(" - " + _))
+    output.println(indentSpace + bold(obj(FullyQualifiedName).toString) + summaryOpt.fold("")(" - " + _))
     for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
       output.println()
       output.println(bold("DESCRIPTION"))
@@ -117,7 +117,7 @@ class HelpPrinter(output: PrintStream) {
       for (field ← fields) {
         val fieldObject = field.asInstanceOf[MashObject]
         output.print(indentSpace)
-        output.print(fieldMethodStyle(fieldObject(FieldHelpClass.Fields.Name)))
+        output.print(fieldMethodStyle(fieldObject(FieldHelpClass.Fields.Name).toString))
         for (summary ← MashNull.option(fieldObject(FieldHelpClass.Fields.Summary)))
           output.print(" - " + summary)
         output.println()
@@ -141,14 +141,16 @@ class HelpPrinter(output: PrintStream) {
   private def printMethodSummary(method: MashValue): Unit = {
     val methodObject = method.asInstanceOf[MashObject]
     output.print(indentSpace)
-    output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name)))
+    output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name).toString))
     for (summary ← MashNull.option(methodObject(FieldHelpClass.Fields.Summary)))
       output.print(" - " + summary)
     output.println()
   }
 
-  private def fieldMethodStyle(s: Any) = Ansi.ansi().bold().fg(Color.BLUE).a("" + s).boldOff().fg(Color.DEFAULT).toString
+  private def paramNameStyle(s: String) = drawStyledChars(s.toString.style(foregroundColour = BasicColour.Blue, bold = true))
 
-  private def bold(s: Any) = Ansi.ansi().bold().a("" + s).boldOff().toString
+  private def fieldMethodStyle(s: String) = drawStyledChars(s.toString.style(foregroundColour = BasicColour.Blue, bold = true))
+
+  private def bold(s: String) = drawStyledChars(s.toString.style(bold = true))
 
 }
