@@ -66,4 +66,7 @@ object GetMethod extends MashMethod("get") {
   }
 
   override def summaryOpt = Some("Get the value of the given field, else use a default (null by default)")
+
+  override val isShy = true
+
 }

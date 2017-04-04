@@ -41,4 +41,7 @@ object TransformFieldsMethod extends MashMethod("transformFields") {
   override def descriptionOpt = Some(
     """Examples:
       |  { foo: 3, bar: 4 }.transformFields (.toUpper) # { FOO: 3, BAR: 4 }""".stripMargin)
+
+  override val isShy = true
+
 }

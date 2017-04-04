@@ -111,4 +111,6 @@ object HoistMethod extends MashMethod("hoist") {
   }
     """)
 
+  override val isShy = true
+
 }

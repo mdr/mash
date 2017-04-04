@@ -38,4 +38,7 @@ object BlessMethod extends MashMethod("bless") {
   }
 
   override def summaryOpt: Option[String] = Some("Give this object the given class")
+
+  override val isShy = true
+
 }

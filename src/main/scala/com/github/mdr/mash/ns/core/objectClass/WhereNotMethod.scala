@@ -30,4 +30,7 @@ object WhereNotMethod extends MashMethod("whereNot") {
     """Examples:
       |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (.startsWith "b")                   # { "foo": 1 }
       |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }""".stripMargin)
+
+  override val isShy = true
+
 }

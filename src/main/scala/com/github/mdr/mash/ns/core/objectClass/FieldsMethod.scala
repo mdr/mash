@@ -28,4 +28,7 @@ object FieldsMethod extends MashMethod("fields") {
   override def typeInferenceStrategy = Seq(FieldAndValueClass)
 
   override def summaryOpt = Some("Return the fields of this object")
+
+  override val isShy = true
+
 }

@@ -30,4 +30,7 @@ object GrepMethod extends MashMethod("grep") {
   override def summaryOpt: Option[String] = Some("Find all the fields in the object which match the given query somewhere in its String representation")
 
   override def typeInferenceStrategy = ObjectClass
+
+  override val isShy = true
+
 }

@@ -95,5 +95,4 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
     }
   }
 
-
 }

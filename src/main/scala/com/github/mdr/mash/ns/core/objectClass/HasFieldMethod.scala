@@ -25,4 +25,7 @@ object HasFieldMethod extends MashMethod("hasField") {
   override def typeInferenceStrategy = BooleanClass
 
   override def summaryOpt = Some("Return true if this object contains the given field")
+
+  override val isShy = true
+
 }

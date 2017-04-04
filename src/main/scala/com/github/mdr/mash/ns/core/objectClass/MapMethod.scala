@@ -34,4 +34,7 @@ object MapMethod extends MashMethod("map") {
 
   override def descriptionOpt = Some(
     """Examples:"""".stripMargin)
+
+  override val isShy = true
+
 }

@@ -34,4 +34,7 @@ object TransformValuesMethod extends MashMethod("transformValues") {
   override def descriptionOpt = Some(
     """Examples:
       |  { foo: 3, bar: 4 }.transformValues (n => n * n) # { foo: 9, bar: 16 }""".stripMargin)
+
+  override val isShy = true
+
 }

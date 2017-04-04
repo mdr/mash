@@ -32,4 +32,5 @@ object MergeStaticMethod extends MashFunction("merge") {
 
   override def summaryOpt = Some("Merge objects together")
 
+
 }

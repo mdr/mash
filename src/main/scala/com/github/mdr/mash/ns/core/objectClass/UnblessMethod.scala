@@ -30,4 +30,7 @@ object UnblessMethod extends MashMethod("unbless") {
   }
 
   override def summaryOpt: Option[String] = Some("This object without any associated class")
+
+  override val isShy = true
+
 }

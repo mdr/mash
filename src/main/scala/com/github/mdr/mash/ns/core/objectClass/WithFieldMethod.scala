@@ -50,4 +50,7 @@ object WithFieldMethod extends MashMethod("withField") {
   override def typeInferenceStrategy = WithFieldMethodTypeInferenceStrategy
 
   override def summaryOpt = Some("Return a copy of this object with the given field added or updated with the given value.")
+
+  override val isShy = true
+
 }
