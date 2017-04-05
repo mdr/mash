@@ -86,69 +86,6 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
     }
 
-  private class BooleanFunction(b: Boolean) extends MashFunction() {
-
-    object Params {
-      val Then = Parameter(
-        nameOpt = Some("then"),
-        summaryOpt = Some("The result if this is true"),
-        isLazy = true)
-      val Else = Parameter(
-        nameOpt = Some("else"),
-        summaryOpt = Some("The result if this is false"),
-        defaultValueGeneratorOpt = Some(MashUnit),
-        isLazy = true)
-    }
-
-    import Params._
-
-    val params = ParameterModel(Seq(Then, Else))
-
-    def apply(boundParams: BoundParams): MashValue = {
-      if (b)
-        boundParams(Then).asInstanceOf[MashFunction].applyNullary()
-      else
-        boundParams(Else) match {
-          case MashUnit        ⇒ MashUnit
-          case f: MashFunction ⇒ f.applyNullary()
-        }
-    }
-
-    override def summaryOpt = Some("Boolean as a function")
-
-  }
-
-  private class StringFunction(s: String,
-                               functionLocationOpt: Option[SourceLocation],
-                               invocationLocationOpt: Option[SourceLocation]) extends MashFunction() {
-
-    object Params {
-      val Target = Parameter(
-        nameOpt = Some("target"),
-        summaryOpt = Some("Member to look-up in the target object"))
-    }
-
-    import Params._
-
-    val params = ParameterModel(Seq(Target))
-
-    def apply(boundParams: BoundParams): MashValue = {
-      boundParams(Target) match {
-        case xs: MashList ⇒
-          xs.map { target ⇒
-            val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
-            Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
-          }
-        case v            ⇒
-          val intermediateResult = MemberEvaluator.lookup(v, s, locationOpt = functionLocationOpt)
-          Evaluator.invokeNullaryFunctions(intermediateResult, functionLocationOpt)
-      }
-    }
-
-    override def summaryOpt = Some("String as a function")
-
-  }
-
   def translateArgumentException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
     try
       p
