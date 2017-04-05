@@ -238,6 +238,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
     RSQUARE -> "]",
     CLASS -> "class",
     COLON -> ":",
+    DOT -> ".",
     THEN -> "then",
     NAMESPACE -> "namespace",
     SHORT_EQUALS -> "=",

@@ -131,7 +131,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyParents)
     }
 
-  private def getMemberNames(target: MashValue): Seq[String] = {
+  def getMemberNames(target: MashValue): Seq[String] = {
     val memberNames = target match {
       case MashNumber(n, tagClassOpt)     ⇒ NumberClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)
       case MashString(s, tagClassOpt)     ⇒ StringClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)

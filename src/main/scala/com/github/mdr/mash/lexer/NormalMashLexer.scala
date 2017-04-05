@@ -18,6 +18,7 @@ object NormalMashLexer {
     "else" -> ELSE,
     "false" -> FALSE,
     "if" -> IF,
+    "import" -> IMPORT,
     "namespace" -> NAMESPACE,
     "null" -> NULL,
     "or" -> OR,

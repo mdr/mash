@@ -96,7 +96,30 @@ object Evaluator extends EvaluatorHelper {
       case MinusExpr(subExpr, _)                                     ⇒ evaluateMinusExpr(subExpr)
       case identifier: Identifier                                    ⇒ evaluateIdentifier(identifier)
       case objectExpr: ObjectExpr                                    ⇒ evaluateObjectExpr(objectExpr)
+      case importStatement: ImportStatement                          ⇒ evaluateImportStatement(importStatement)
     }
+
+  private def evaluateImportStatement(importStatement: ImportStatement)(implicit context: EvaluationContext): MashValue = {
+    val target = Evaluator.evaluate(importStatement.expr)
+    importStatement.importNameOpt match {
+      case Some(name) ⇒
+        MemberEvaluator.maybeLookup(target, name, includeShyParents = false) match {
+          case Some(value) ⇒
+            context.scopeStack.set(name, value)
+            value
+          case None        ⇒
+            val names = MemberEvaluator.getMemberNames(target)
+            throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", sourceLocation(importStatement))
+        }
+      case None       ⇒
+        val names = MemberEvaluator.getMemberNames(target)
+        for {
+          name ← names
+          value ← MemberEvaluator.maybeLookup(target, name, includeShyParents = false)
+        } context.scopeStack.set(name, value)
+        MashUnit
+    }
+  }
 
   def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
     def getFieldName(fieldNameExpr: Expr): String =

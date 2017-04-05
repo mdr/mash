@@ -451,4 +451,14 @@ object AbstractSyntax {
     def children = namespaceOpt.toSeq :+ body
   }
 
+  /**
+    * @param importNameOpt if None, this is a wildcard import
+    */
+  case class ImportStatement(expr: Expr,
+                             importNameOpt: Option[String],
+                             sourceInfoOpt: Option[SourceInfo]) extends Expr {
+    def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
+
+    def children = Seq(expr)
+  }
 }

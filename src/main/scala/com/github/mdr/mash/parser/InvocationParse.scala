@@ -9,7 +9,7 @@ trait InvocationParse { self: MashParse ⇒
     !(PIPE || RPAREN || EOF || LONG_EQUALS || NOT_EQUALS || GREATER_THAN || GREATER_THAN_EQUALS || LESS_THAN ||
       LESS_THAN_EQUALS || AND || OR || PLUS || MINUS || TIMES || DIVIDE || IF || THEN || ELSE || SEMI || COMMA ||
       RSQUARE || ERROR || RBRACE || COLON || RIGHT_ARROW || SHORT_EQUALS || PLUS_EQUALS || MINUS_EQUALS || TIMES_EQUALS
-      || DIVIDE_EQUALS || TILDE || DEF || AT || CLASS || STRING_END || ELLIPSIS || NAMESPACE)
+      || DIVIDE_EQUALS || TILDE || DEF || AT || CLASS || STRING_END || ELLIPSIS || NAMESPACE || IMPORT)
 
   protected def invocationExpr(): Expr = {
     val expr = prefixExpr()

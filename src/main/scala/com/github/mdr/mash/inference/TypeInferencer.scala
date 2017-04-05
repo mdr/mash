@@ -143,7 +143,13 @@ class TypeInferencer {
       case classDecl: ClassDeclaration                  ⇒ inferType(classDecl, bindings)
       case lambda: LambdaExpr                           ⇒ inferType(lambda, bindings)
       case thisExpr: ThisExpr                           ⇒ bindings.get(ThisName)
+      case importStatement: ImportStatement             ⇒ inferType(importStatement, bindings)
     }
+
+  private def inferType(importStatement: ImportStatement, bindings: Map[String, Type]): Option[Type] = {
+    inferType(importStatement.expr, bindings)
+    None
+  }
 
   private def inferType(lambdaExpr: LambdaExpr, bindings: Map[String, Type]): Option[Type] = {
     val preliminaryBindings = inferType(lambdaExpr.params, bindings)

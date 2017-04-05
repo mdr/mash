@@ -5,6 +5,7 @@ import com.github.mdr.mash.lexer.{ LexerResult, Token }
 import com.github.mdr.mash.parser.ConcreteSyntax._
 
 import scala.PartialFunction.cond
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
@@ -49,8 +50,33 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       functionDeclaration()
     else if (CLASS)
       classDeclaration()
+    else if (IMPORT)
+      importStatement()
     else
       pipeExpr()
+
+  protected def importStatement(): ImportStatement = {
+    val importToken = nextToken()
+    val firstIdent = consumeRequiredToken("import statement", IDENTIFIER)
+    @tailrec
+    def readImportStatement(exprSoFar: Expr): ImportStatement = {
+      val dot = consumeRequiredToken("import statement", DOT)
+      if (HOLE) {
+        val hole = nextToken()
+        ImportStatement(importToken, exprSoFar, dot, hole)
+      } else if (IDENTIFIER && lookahead(1) != DOT) {
+        val ident = nextToken()
+        ImportStatement(importToken, exprSoFar, dot, ident)
+      } else if (forgiving) {
+        val ident = syntheticToken(IDENTIFIER)
+        ImportStatement(importToken, exprSoFar, dot, ident)
+      } else {
+        val ident = consumeRequiredToken("import statement", IDENTIFIER)
+        readImportStatement(MemberExpr(exprSoFar, dot, ident))
+      }
+    }
+    readImportStatement(Identifier(firstIdent))
+  }
 
   protected def pipeExpr(): Expr = {
     val expr = lambdaExpr(mayContainPipe = true)

@@ -501,4 +501,10 @@ object ConcreteSyntax {
     def children = Seq(body)
   }
 
+  case class ImportStatement(importToken: Token, expr: Expr, dot: Token, finalSegment: Token) extends Expr {
+    lazy val tokens = Seq(importToken) ++ expr.tokens ++ Seq(dot, finalSegment)
+
+    def children = Seq(expr)
+  }
+
 }

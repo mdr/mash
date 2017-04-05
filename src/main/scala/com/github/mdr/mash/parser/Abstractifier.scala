@@ -24,6 +24,14 @@ class Abstractifier(provenance: Provenance) {
     Abstract.NamespaceDeclaration(segments, sourceInfo(namespace))
   }
 
+  private def abstractifyImport(importStatement: Concrete.ImportStatement): Abstract.ImportStatement = {
+    val expr = abstractify(importStatement.expr)
+    val importNameOpt = condOpt(importStatement.finalSegment) {
+      case token: Token if token.tokenType == TokenType.IDENTIFIER ⇒ token.text
+    }
+    Abstract.ImportStatement(expr, importNameOpt, sourceInfo(importStatement))
+  }
+
   private def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
@@ -54,6 +62,7 @@ class Abstractifier(provenance: Provenance) {
     case Concrete.HelpExpr(subExpr, _)                      ⇒ Abstract.HelpExpr(abstractify(subExpr), sourceInfo(expr))
     case Concrete.MishInterpolationExpr(start, mishExpr, _) ⇒ abstractifyMish(mishExpr, captureProcessOutput = start.tokenType == MISH_INTERPOLATION_START)
     case Concrete.ThisExpr(thisToken)                       ⇒ Abstract.ThisExpr(sourceInfo(expr))
+    case stat: Concrete.ImportStatement                     ⇒ abstractifyImport(stat)
   }
 
   private def abstractifyPatternAssignmentExpr(assignmentExpr: Concrete.PatternAssignmentExpr): Abstract.PatternAssignmentExpr = {
@@ -102,7 +111,7 @@ class Abstractifier(provenance: Provenance) {
 
   private def abstractifyAttributes(attributes: Concrete.Attributes): Seq[Abstract.Attribute] =
     attributes.attributes.map {
-      case attr@Concrete.SimpleAttribute(_, name)                 ⇒
+      case attr@Concrete.SimpleAttribute(_, name)                    ⇒
         Abstract.Attribute(name.text, None, sourceInfo(attr))
       case attr@Concrete.ArgumentAttribute(_, _, name, arguments, _) ⇒
         val args = arguments.map(abstractifyArg)

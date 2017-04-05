@@ -34,7 +34,7 @@ class BareStringificationContext {
     case identifier: Identifier                                                            ⇒
       bareStringify(identifier, bindings)
     case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _)
-         | HeadlessMemberExpr(_, _, _) | ThisExpr(_)                                       ⇒
+         | HeadlessMemberExpr(_, _, _) | ThisExpr(_) | _: NamespaceDeclaration             ⇒
       expr
     case InterpolatedString(start, parts, end, sourceInfoOpt)                              ⇒
       val newParts = parts.map {
@@ -46,11 +46,11 @@ class BareStringificationContext {
       ParenExpr(bareStringify(expr, bindings), sourceInfoOpt)
     case BlockExpr(expr, sourceInfoOpt)                                                    ⇒
       BlockExpr(bareStringify(expr, bindings), sourceInfoOpt)
-    case statementSeq: StatementSeq ⇒
+    case statementSeq: StatementSeq                                                        ⇒
       bareStringify(statementSeq, bindings)
     case PipeExpr(left, right, sourceInfoOpt)                                              ⇒
       PipeExpr(bareStringify(left, bindings), bareStringify(right, bindings), sourceInfoOpt)
-    case MemberExpr(expr, name, isSafe, sourceInfoOpt)                                 ⇒
+    case MemberExpr(expr, name, isSafe, sourceInfoOpt)                                     ⇒
       MemberExpr(bareStringify(expr, bindings), name, isSafe, sourceInfoOpt)
     case LookupExpr(expr, index, sourceInfoOpt)                                            ⇒
       LookupExpr(bareStringify(expr, bindings), bareStringify(index, bindings), sourceInfoOpt)
@@ -106,6 +106,8 @@ class BareStringificationContext {
       ClassDeclaration(docCommentOpt, newAttributes, name, bareStringify(params, bindings), newBody, sourceInfoOpt)
     case HelpExpr(expr, sourceInfoOpt)                                                     ⇒
       HelpExpr(bareStringify(expr, bindings), sourceInfoOpt)
+    case ImportStatement(expr, importNameOpt, sourceInfoOpt)                                            ⇒
+      ImportStatement(bareStringify(expr, bindings), importNameOpt, sourceInfoOpt)
   }
 
   private def bareStringify(attribute: Attribute, bindings: Set[String]): Attribute = {

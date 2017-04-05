@@ -1123,4 +1123,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Url.host
   "net.url 'http://example.com' | .host" ==> "'example.com'"
 
+  // import
+  "import hash.sha256; sha256" ==> "sha256"
+  "import hash._; sha256" ==> "sha256"
+  "obj = { foo: 42 }; import obj.foo; foo" ==> 42
+  "class A n { def inc = n += 1 }; a = A 0; import a._; inc; a.n" ==> 1
 }
