@@ -1128,4 +1128,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "import hash._; sha256" ==> "sha256"
   "obj = { foo: 42 }; import obj.foo; foo" ==> 42
   "class A n { def inc = n += 1 }; a = A 0; import a._; inc; a.n" ==> 1
+  "x = {}; import x._; where.getClass" ==> "Function" // Object.where is a 'shy' method
+  "x = {}; import x.where; where.getClass" ==> "BoundMethod"
 }

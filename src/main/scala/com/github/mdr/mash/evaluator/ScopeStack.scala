@@ -9,7 +9,7 @@ sealed abstract class Scope(val variables: MashObject) {
   private def thisGet(name: String): Option[MashValue] =
     for {
       thisValue ← thisOpt
-      memberValue ← MemberEvaluator.maybeLookup(thisValue, name, includePrivate = true, includeShyParents = false)
+      memberValue ← MemberEvaluator.maybeLookup(thisValue, name, includePrivate = true, includeShyMembers = false)
     } yield memberValue
 
   def set(name: String, value: MashValue) = variables.set(name, value)

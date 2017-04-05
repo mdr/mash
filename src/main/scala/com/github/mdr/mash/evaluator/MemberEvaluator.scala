@@ -85,7 +85,7 @@ object MemberEvaluator extends EvaluatorHelper {
                            klass: MashClass,
                            name: String,
                            includePrivate: Boolean = false,
-                           includeShyParents: Boolean = true): Option[BoundMethod] = {
+                           includeShyMembers: Boolean = true): Option[BoundMethod] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
@@ -93,8 +93,7 @@ object MemberEvaluator extends EvaluatorHelper {
       } yield BoundMethod(target, method, klass)
     def parentResultOpt = klass.parentOpt
       .flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
-      .filter(includeShyParents || !_.method.isShy)
-    directResultOpt orElse parentResultOpt
+    (directResultOpt orElse parentResultOpt).filter(includeShyMembers || !_.method.isShy)
   }
 
   def lookup(target: MashValue, field: Field): MashValue =
@@ -115,7 +114,7 @@ object MemberEvaluator extends EvaluatorHelper {
   def maybeLookup(target: MashValue,
                   name: String,
                   includePrivate: Boolean = false,
-                  includeShyParents: Boolean = true): Option[MashValue] =
+                  includeShyMembers: Boolean = true): Option[MashValue] =
     target match {
       case MashNumber(n, tagClassOpt)     ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
       case MashString(s, tagClassOpt)     ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
@@ -128,7 +127,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case klass: MashClass               ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
       case dt@MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
       case date@MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
-      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyParents)
+      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyMembers)
     }
 
   def getMemberNames(target: MashValue): Seq[String] = {
