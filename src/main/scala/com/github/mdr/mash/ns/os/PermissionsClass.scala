@@ -1,8 +1,10 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import java.time.Instant
+
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.os.Permissions
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.{ MashObject, MashValue, MashWrapped }
 
 import scala.collection.immutable.ListMap
 
@@ -19,6 +21,14 @@ object PermissionsClass extends MashClass("os.Permissions") {
   override val fields = Seq(Owner, Group, Others)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  case class Wrapper(x: MashValue) extends AbstractObjectWrapper(x) {
+
+    def owner: MashObject = getObjectField(Owner)
+    def group: MashObject = getObjectField(Group)
+    def others: MashObject = getObjectField(Others)
+
+  }
 
   def asMashObject(permissions: Permissions): MashObject = {
     val Permissions(owner, others, group) = permissions

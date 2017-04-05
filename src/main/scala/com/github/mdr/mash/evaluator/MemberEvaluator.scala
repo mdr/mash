@@ -2,7 +2,7 @@ package com.github.mdr.mash.evaluator
 
 import java.time.{ Instant, LocalDate }
 
-import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
@@ -84,30 +84,27 @@ object MemberEvaluator extends EvaluatorHelper {
         None
     }
 
-  private def lookupMethod(target: MashValue,
-                           klass: MashClass,
-                           name: String,
-                           includePrivate: Boolean = false,
-                           includeShyMembers: Boolean = true): Option[BoundMethod] = {
+  private def maybeLookupInClass(target: MashValue,
+                                 klass: MashClass,
+                                 name: String,
+                                 includePrivate: Boolean = false,
+                                 includeShyMembers: Boolean = true): Option[BoundMethod] = {
     val directResultOpt =
       for {
         method ← klass.getMethod(name)
         if method.isPublic || includePrivate
       } yield BoundMethod(target, method, klass)
     def parentResultOpt = klass.parentOpt
-      .flatMap(parentClass ⇒ lookupMethod(target, parentClass, name))
+      .flatMap(parentClass ⇒ maybeLookupInClass(target, parentClass, name))
     (directResultOpt orElse parentResultOpt).filter(includeShyMembers || !_.method.isShy)
   }
 
-  def lookup(target: MashValue, field: Field): MashValue =
-    lookup(target, field.name)
-
-  def lookup(target: MashValue, name: String, includePrivate: Boolean = false, locationOpt: Option[SourceLocation] = None): MashValue =
+  def lookup(target: MashValue,
+             name: String,
+             includePrivate: Boolean = false,
+             locationOpt: Option[SourceLocation] = None): MashValue =
     maybeLookup(target, name, includePrivate).getOrElse(
       throwCannotFindMemberException(target, name, locationOpt))
-
-  def hasMember(target: MashValue, name: String): Boolean =
-    maybeLookup(target, name).isDefined
 
   /**
     * @return a bound method, a static method, or a field value corresponding to the given name in the target
@@ -117,18 +114,18 @@ object MemberEvaluator extends EvaluatorHelper {
                   includePrivate: Boolean = false,
                   includeShyMembers: Boolean = true): Option[MashValue] =
     target match {
-      case MashNumber(n, tagClassOpt)     ⇒ lookupMethod(target, NumberClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
-      case MashString(s, tagClassOpt)     ⇒ lookupMethod(target, StringClass, name) orElse tagClassOpt.flatMap(lookupMethod(target, _, name))
-      case MashNull                       ⇒ lookupMethod(target, NullClass, name)
-      case MashUnit                       ⇒ lookupMethod(target, UnitClass, name)
-      case b: MashBoolean                 ⇒ lookupMethod(b, BooleanClass, name)
-      case xs: MashList                   ⇒ lookupMethod(xs, ListClass, name)
-      case f: MashFunction                ⇒ lookupMethod(f, FunctionClass, name)
-      case bm: BoundMethod                ⇒ lookupMethod(bm, BoundMethodClass, name)
-      case klass: MashClass               ⇒ klass.getStaticMethod(name) orElse lookupMethod(klass, ClassClass, name)
-      case dt@MashWrapped(_: Instant)     ⇒ lookupMethod(dt, DateTimeClass, name)
-      case date@MashWrapped(_: LocalDate) ⇒ lookupMethod(date, DateClass, name)
-      case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyMembers)
+      case MashNumber(n, tagClassOpt)     ⇒ maybeLookupInClass(target, NumberClass, name) orElse tagClassOpt.flatMap(maybeLookupInClass(target, _, name))
+      case MashString(s, tagClassOpt)     ⇒ maybeLookupInClass(target, StringClass, name) orElse tagClassOpt.flatMap(maybeLookupInClass(target, _, name))
+      case MashNull                       ⇒ maybeLookupInClass(target, NullClass, name)
+      case MashUnit                       ⇒ maybeLookupInClass(target, UnitClass, name)
+      case b: MashBoolean                 ⇒ maybeLookupInClass(b, BooleanClass, name)
+      case xs: MashList                   ⇒ maybeLookupInClass(xs, ListClass, name)
+      case f: MashFunction                ⇒ maybeLookupInClass(f, FunctionClass, name)
+      case bm: BoundMethod                ⇒ maybeLookupInClass(bm, BoundMethodClass, name)
+      case klass: MashClass               ⇒ klass.getStaticMethod(name) orElse maybeLookupInClass(klass, ClassClass, name)
+      case dt@MashWrapped(_: Instant)     ⇒ maybeLookupInClass(dt, DateTimeClass, name)
+      case date@MashWrapped(_: LocalDate) ⇒ maybeLookupInClass(date, DateClass, name)
+      case obj: MashObject                ⇒ obj.get(name) orElse maybeLookupInClass(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyMembers)
     }
 
   def getMemberNames(target: MashValue, includePrivate: Boolean = false): Seq[String] = {

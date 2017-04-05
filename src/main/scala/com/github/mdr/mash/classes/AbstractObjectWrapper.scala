@@ -34,9 +34,19 @@ abstract class AbstractObjectWrapper(targetValue: MashValue) {
     case v             ⇒ throwFieldTypeError(field, "Number", v)
   }
 
+  protected def getBooleanField(field: Field): Boolean = getField(field) match {
+    case s: MashBoolean ⇒ s.value
+    case v             ⇒ throwFieldTypeError(field, "Boolean", v)
+  }
+
   protected def getListField(field: Field): Seq[MashValue] = getField(field) match {
     case xs: MashList ⇒ xs.elements
     case v            ⇒ throwFieldTypeError(field, "List", v)
+  }
+
+  protected def getObjectField(field: Field): MashObject = getField(field) match {
+    case obj: MashObject ⇒ obj
+    case v               ⇒ throwFieldTypeError(field, "Object", v)
   }
 
   private def throwFieldTypeError(field: Field, expectedType: String, value: MashValue) =

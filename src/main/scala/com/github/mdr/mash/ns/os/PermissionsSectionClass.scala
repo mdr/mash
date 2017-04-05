@@ -1,9 +1,9 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.os.PermissionsSection
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashValue }
 
 import scala.collection.immutable.ListMap
 
@@ -20,6 +20,12 @@ object PermissionsSectionClass extends MashClass("os.PermissionsSection") {
   override val fields = Seq(CanRead, CanWrite, CanExecute)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  case class Wrapper(x: MashValue) extends AbstractObjectWrapper(x) {
+    def canRead = getBooleanField(CanRead)
+    def canWrite = getBooleanField(CanWrite)
+    def canExecute = getBooleanField(CanExecute)
+  }
 
   def asMashObject(section: PermissionsSection): MashObject = {
     val PermissionsSection(canRead, canWrite, canExecute) = section

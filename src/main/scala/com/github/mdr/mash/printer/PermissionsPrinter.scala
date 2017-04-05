@@ -1,32 +1,26 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.classes.Field
-import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
+import com.github.mdr.mash.runtime.MashObject
 
 object PermissionsPrinter {
 
   def permissionsSectionString(section: MashObject): String = {
-    val s = new StringBuilder
-    def test(field: Field) = MemberEvaluator.lookup(section, field).asInstanceOf[MashBoolean].value
-    import PermissionsSectionClass.Fields
-    if (test(Fields.CanRead)) s.append("r") else s.append("-")
-    if (test(Fields.CanWrite)) s.append("w") else s.append("-")
-    if (test(Fields.CanExecute)) s.append("x") else s.append("-")
-    s.toString
+    val sb = new StringBuilder
+    val wrapper = PermissionsSectionClass.Wrapper(section)
+    if (wrapper.canRead) sb.append("r") else sb.append("-")
+    if (wrapper.canWrite) sb.append("w") else sb.append("-")
+    if (wrapper.canExecute) sb.append("x") else sb.append("-")
+    sb.toString
   }
 
   def permissionsString(perms: MashObject): String = {
-    import PermissionsClass.Fields
-    val s = new StringBuilder
-    val owner = MemberEvaluator.lookup(perms, Fields.Owner).asInstanceOf[MashObject]
-    val group = MemberEvaluator.lookup(perms, Fields.Group).asInstanceOf[MashObject]
-    val others = MemberEvaluator.lookup(perms, Fields.Others).asInstanceOf[MashObject]
-    s.append(permissionsSectionString(owner))
-    s.append(permissionsSectionString(group))
-    s.append(permissionsSectionString(others))
-    s.toString
+    val wrapper = PermissionsClass.Wrapper(perms)
+    val sb = new StringBuilder
+    sb.append(permissionsSectionString(wrapper.owner))
+    sb.append(permissionsSectionString(wrapper.group))
+    sb.append(permissionsSectionString(wrapper.others))
+    sb.toString
   }
 
 }
