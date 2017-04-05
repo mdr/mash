@@ -46,11 +46,14 @@ object MemberEvaluator extends EvaluatorHelper {
       vectorisedLookup getOrElse {
       if (isSafe)
         MemberExprEvalResult(MashNull)
-      else {
-        val names = getMemberNames(target)
-        throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
-      }
+      else
+        throwCannotFindMemberException(target, name, locationOpt)
     }
+  }
+
+  def throwCannotFindMemberException(target: MashValue, name: String, locationOpt: Option[SourceLocation]) = {
+    val names = getMemberNames(target)
+    throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
   }
 
   def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] = {
@@ -100,10 +103,8 @@ object MemberEvaluator extends EvaluatorHelper {
     lookup(target, field.name)
 
   def lookup(target: MashValue, name: String, includePrivate: Boolean = false, locationOpt: Option[SourceLocation] = None): MashValue =
-    maybeLookup(target, name, includePrivate).getOrElse {
-      val names = getMemberNames(target)
-      throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
-    }
+    maybeLookup(target, name, includePrivate).getOrElse(
+      throwCannotFindMemberException(target, name, locationOpt))
 
   def hasMember(target: MashValue, name: String): Boolean =
     maybeLookup(target, name).isDefined
@@ -130,22 +131,22 @@ object MemberEvaluator extends EvaluatorHelper {
       case obj: MashObject                ⇒ obj.get(name) orElse lookupMethod(obj, obj.classOpt getOrElse ObjectClass, name, includePrivate, includeShyMembers)
     }
 
-  def getMemberNames(target: MashValue): Seq[String] = {
+  def getMemberNames(target: MashValue, includePrivate: Boolean = false): Seq[String] = {
     val memberNames = target match {
-      case MashNumber(n, tagClassOpt)     ⇒ NumberClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)
-      case MashString(s, tagClassOpt)     ⇒ StringClass.memberNames ++ tagClassOpt.toSeq.flatMap(_.memberNames)
-      case MashNull                       ⇒ NullClass.memberNames
-      case MashUnit                       ⇒ UnitClass.memberNames
-      case b: MashBoolean                 ⇒ BooleanClass.memberNames
-      case xs: MashList                   ⇒ ListClass.memberNames
-      case f: MashFunction                ⇒ FunctionClass.memberNames
-      case bm: BoundMethod                ⇒ BoundMethodClass.memberNames
-      case klass: MashClass               ⇒ ClassClass.memberNames
-      case dt@MashWrapped(_: Instant)     ⇒ DateTimeClass.memberNames
-      case date@MashWrapped(_: LocalDate) ⇒ DateClass.memberNames
-      case obj: MashObject                ⇒ obj.immutableFields.keys.toSeq ++ (obj.classOpt getOrElse ObjectClass).memberNames
+      case MashNumber(n, tagClassOpt)     ⇒ NumberClass.memberNames(includePrivate) ++ tagClassOpt.toSeq.flatMap(_.memberNames(includePrivate))
+      case MashString(s, tagClassOpt)     ⇒ StringClass.memberNames(includePrivate) ++ tagClassOpt.toSeq.flatMap(_.memberNames(includePrivate))
+      case MashNull                       ⇒ NullClass.memberNames(includePrivate)
+      case MashUnit                       ⇒ UnitClass.memberNames(includePrivate)
+      case b: MashBoolean                 ⇒ BooleanClass.memberNames(includePrivate)
+      case xs: MashList                   ⇒ ListClass.memberNames(includePrivate)
+      case f: MashFunction                ⇒ FunctionClass.memberNames(includePrivate)
+      case bm: BoundMethod                ⇒ BoundMethodClass.memberNames(includePrivate)
+      case klass: MashClass               ⇒ ClassClass.memberNames(includePrivate)
+      case dt@MashWrapped(_: Instant)     ⇒ DateTimeClass.memberNames(includePrivate)
+      case date@MashWrapped(_: LocalDate) ⇒ DateClass.memberNames(includePrivate)
+      case obj: MashObject                ⇒ obj.immutableFields.keys.toSeq ++ (obj.classOpt getOrElse ObjectClass).memberNames(includePrivate)
     }
-    (memberNames ++ AnyClass.memberNames).distinct
+    (memberNames ++ AnyClass.memberNames(includePrivate)).distinct
   }
 
 }

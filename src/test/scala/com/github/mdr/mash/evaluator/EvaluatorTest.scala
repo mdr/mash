@@ -1130,4 +1130,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "class A n { def inc = n += 1 }; a = A 0; import a._; inc; a.n" ==> 1
   "x = {}; import x._; where.getClass" ==> "Function" // Object.where is a 'shy' method
   "x = {}; import x.where; where.getClass" ==> "BoundMethod"
+  "class A { @private def method = 42 }; a = A.new; import a.method" shouldThrowAnException
+
+
 }

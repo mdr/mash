@@ -108,13 +108,11 @@ object Evaluator extends EvaluatorHelper {
             context.scopeStack.set(name, value)
             value
           case None        ⇒
-            val names = MemberEvaluator.getMemberNames(target)
-            throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", sourceLocation(importStatement))
+            MemberEvaluator.throwCannotFindMemberException(target, name, sourceLocation(importStatement))
         }
       case None       ⇒
-        val names = MemberEvaluator.getMemberNames(target)
         for {
-          name ← names
+          name ← MemberEvaluator.getMemberNames(target)
           value ← MemberEvaluator.maybeLookup(target, name, includeShyMembers = false)
         } context.scopeStack.set(name, value)
         MashUnit

@@ -14,7 +14,7 @@ object MashClass {
 }
 
 abstract class MashClass(val nameOpt: Option[String],
-                         val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName with Comparable[MashClass]  {
+                         val namespaceOpt: Option[Namespace] = None) extends MashValue with HasName with Comparable[MashClass] {
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
@@ -37,7 +37,8 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def methodNames = methods.flatMap(_.names)
 
-  lazy val memberNames: Seq[String] = (fields.map(_.name) ++ methods.flatMap(_.names)).distinct
+  def memberNames(includePrivate: Boolean = false): Seq[String] =
+    (fields.map(_.name) ++ methods.filter(_.isPublic || includePrivate).flatMap(_.names)).distinct
 
   override def toString = fullyQualifiedName.toString
 
