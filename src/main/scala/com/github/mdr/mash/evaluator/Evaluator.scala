@@ -157,16 +157,8 @@ object Evaluator extends EvaluatorHelper {
                                  locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
     context.scopeStack.lookup(name).getOrElse {
       val names = context.scopeStack.bindings.keys.toSeq
-      throw new EvaluatorException(s"No binding for '$name'${suggestionSuffix(names, name)}", locationOpt)
+      throw new EvaluatorException(s"No binding for '$name'${Suggestor.suggestionSuffix(names, name)}", locationOpt)
     }
-
-
-  private def getSuggestion(possibleNames: Seq[String], requested: String): Option[String] =
-    Utils.minBy(possibleNames, (possibleName: String) ⇒
-      getLevenshteinDistance(requested.toLowerCase, possibleName.toLowerCase))
-
-  def suggestionSuffix(possibleNames: Seq[String], requested: String): String =
-    getSuggestion(possibleNames, requested).map(suggestion ⇒ s". Did you mean '$suggestion'?") getOrElse ""
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate

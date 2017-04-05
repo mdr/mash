@@ -1,5 +1,7 @@
 package com.github.mdr.mash.functions
 
+import com.github.mdr.mash.evaluator.Suggestor
+
 sealed trait GeneralArgument[+T] {
 
   val isPositionArg: Boolean
@@ -143,8 +145,11 @@ class GeneralArgBinder[T](params: ParameterModel,
             addArgToParam(param, arg, pos)
       case None        ⇒
         if (!hasNamedArgsParam && !hasAllArgsParam)
-          if (!forgiving)
-            throw new ArgBindingException(s"Unexpected named argument '$paramName'", Some(arg.value))
+          if (!forgiving) {
+            val names = params.paramByName.keys.toSeq
+            val message = s"Unexpected named argument '$paramName'${Suggestor.suggestionSuffix(names, paramName)}"
+            throw new ArgBindingException(message, Some(arg.value))
+          }
     }
 
   private def handleDefaultAndMandatory() =

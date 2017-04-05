@@ -3,7 +3,6 @@ package com.github.mdr.mash.evaluator
 import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
-import com.github.mdr.mash.evaluator.Evaluator.suggestionSuffix
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
@@ -53,7 +52,8 @@ object MemberEvaluator extends EvaluatorHelper {
 
   def throwCannotFindMemberException(target: MashValue, name: String, locationOpt: Option[SourceLocation]) = {
     val names = getMemberNames(target)
-    throw new EvaluatorException(s"Cannot find member '$name' in value of type ${target.typeName}${suggestionSuffix(names, name)}", locationOpt)
+    val message = s"Cannot find member '$name' in value of type ${target.typeName}${Suggestor.suggestionSuffix(names, name)}"
+    throw new EvaluatorException(message, locationOpt)
   }
 
   def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] = {
