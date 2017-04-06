@@ -391,6 +391,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "select --add --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
   "select -a --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
   "[{ foo: 42, bar: 24 }].select 'foo'" ==> "[{ foo: 42 }]"
+  "class A; A.new | select --add --n=(_ => 42) | .getClass" ==> "A"
+  "class A; A.new | select --n=(_ => 42) | .getClass" ==> "Object"
 
   // skip
   "[1, 2, 3, 4, 5] | skip 2" ==> "[3, 4, 5]"
@@ -785,7 +787,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def mkList (xs... = [1, 2, 3]) = xs; mkList" ==> "[1, 2, 3]"
   "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[]" ==> "[]"
   "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[4, 5, 6]" ==> "[4, 5, 6]"
-  "def mkList (xs... = null) = xs; mkList" ==> "null"
+  "def mkList (xs... = null) = xs; mkList" ==> null
 
   // holes
   "def baz = 128 + _; (baz) 72" ==> 200

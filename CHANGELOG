@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* select --add preserves class
 * Import statements
 * Support 256 terminal colours
 * Loaded modules are now added to the global ns
