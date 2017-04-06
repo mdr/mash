@@ -1,8 +1,6 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
-
-import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
@@ -94,40 +92,39 @@ class HelpPrinter(output: PrintStream) {
   }
 
   def printClassHelp(obj: MashObject) {
-    import ClassHelpClass.Fields._
+    val classHelp = ClassHelpClass.Wrapper(obj)
     output.println(bold("CLASS"))
-    val summaryOpt = MashNull.option(obj(Summary))
-    output.println(indentSpace + bold(obj(FullyQualifiedName).toString) + summaryOpt.fold("")(" - " + _))
-    for (description ← MashNull.option(obj(Description)).map(_.asInstanceOf[MashString])) {
+    val summaryOpt = classHelp.summaryOpt
+    output.println(indentSpace + bold(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _))
+    for (description ← classHelp.descriptionOpt.map(_.asInstanceOf[MashString])) {
       output.println()
       output.println(bold("DESCRIPTION"))
       output.println(indent(description.s, indentAmount))
     }
-    for (parent ← MashNull.option(obj(Parent)).map(_.asInstanceOf[MashString])) {
+    for (parent ← classHelp.parentOpt) {
       output.println()
       output.println(bold("PARENT"))
-      output.println(indentSpace + obj(Parent))
+      output.println(indentSpace + parent)
     }
-    val fields = obj(Fields).asInstanceOf[MashList]
+    val fields = classHelp.fields
     if (fields.nonEmpty) {
       output.println()
       output.println(bold("FIELDS"))
       for (field ← fields) {
-        val fieldObject = field.asInstanceOf[MashObject]
         output.print(indentSpace)
-        output.print(fieldMethodStyle(fieldObject(FieldHelpClass.Fields.Name).toString))
-        for (summary ← MashNull.option(fieldObject(FieldHelpClass.Fields.Summary)))
+        output.print(fieldMethodStyle(field.name))
+        for (summary ← field.summaryOpt)
           output.print(" - " + summary)
         output.println()
       }
     }
-    val staticMethods = obj(StaticMethods).asInstanceOf[MashList].elements
+    val staticMethods = classHelp.staticMethods
     if (staticMethods.nonEmpty) {
       output.println()
       output.println(bold("STATIC METHODS"))
       staticMethods.foreach(printMethodSummary)
     }
-    val methods = obj(Methods).asInstanceOf[MashList].elements
+    val methods = classHelp.methods
     if (methods.nonEmpty) {
       output.println()
       output.println(bold("METHODS"))
@@ -136,11 +133,10 @@ class HelpPrinter(output: PrintStream) {
 
   }
 
-  private def printMethodSummary(method: MashValue): Unit = {
-    val methodObject = method.asInstanceOf[MashObject]
+  private def printMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Unit = {
     output.print(indentSpace)
-    output.print(fieldMethodStyle(methodObject(FieldHelpClass.Fields.Name).toString))
-    for (summary ← MashNull.option(methodObject(FieldHelpClass.Fields.Summary)))
+    output.print(fieldMethodStyle(methodHelp.name))
+    for (summary ← methodHelp.summaryOpt)
       output.print(" - " + summary)
     output.println()
   }

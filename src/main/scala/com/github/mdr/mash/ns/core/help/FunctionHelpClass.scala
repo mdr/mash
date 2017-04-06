@@ -28,6 +28,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
+    def name: String = getStringField(Name)
+
     def fullyQualifiedName: String = getStringField(FullyQualifiedName)
 
     def classOpt: Option[String] = getOptionalStringField(Class)
