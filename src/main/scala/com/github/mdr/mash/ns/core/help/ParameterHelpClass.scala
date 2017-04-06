@@ -1,7 +1,8 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
+import com.github.mdr.mash.runtime.MashValue
 
 object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
 
@@ -23,6 +24,30 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
   override val fields = Seq(Name, Summary, Description, ShortFlag, IsFlagParameter, IsOptional, IsLast, IsLazy, IsNamedArgs, IsVariadic)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
+
+    def isFlag: Boolean = getBooleanField(IsFlagParameter)
+
+    def isLast: Boolean = getBooleanField(IsLast)
+
+    def isLazy: Boolean = getBooleanField(IsLazy)
+
+    def isNamedArgs: Boolean = getBooleanField(IsNamedArgs)
+
+    def isOptional: Boolean = getBooleanField(IsOptional)
+
+    def isVariadic: Boolean = getBooleanField(IsVariadic)
+
+    def nameOpt: Option[String] = getOptionalStringField(Name)
+
+    def shortFlagOpt: Option[String] = getOptionalStringField(ShortFlag)
+
+    def summaryOpt: Option[String] = getOptionalStringField(Summary)
+
+    def descriptionOpt: Option[String] = getOptionalStringField(Description)
+
+  }
 
   override def summaryOpt = Some("Help documentation for parameters")
 

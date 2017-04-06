@@ -22,7 +22,7 @@ class HelpPrinter(output: PrintStream) {
 
   def printFunctionHelp(obj: MashObject) {
     import FunctionHelpClass.Fields._
-    val help = new FunctionHelpClass.Wrapper(obj)
+    val help = FunctionHelpClass.Wrapper(obj)
     output.println(bold(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
     val name = help.fullyQualifiedName
     val names = (name +: help.aliases).map(bold(_)).mkString(", ")
@@ -66,32 +66,30 @@ class HelpPrinter(output: PrintStream) {
   }
 
   def printParameterHelp(param: MashObject) {
-    import ParameterHelpClass.Fields._
+    val paramHelp = ParameterHelpClass.Wrapper(param)
     output.print(indentSpace)
-    def boolParam(field: Field) = param(field).asInstanceOf[MashBoolean].value
     var qualifiers: Seq[String] = Seq()
-    val isFlag = boolParam(IsFlagParameter)
-    if (boolParam(IsLast))
+    val isFlag = paramHelp.isFlag
+    if (paramHelp.isLast)
       qualifiers +:= "last"
-    if (boolParam(IsLazy))
+    if (paramHelp.isLazy)
       qualifiers +:= "lazy"
-    if (boolParam(IsNamedArgs))
+    if (paramHelp.isNamedArgs)
       qualifiers +:= "namedArgs"
-    if (boolParam(IsOptional))
+    if (paramHelp.isOptional)
       qualifiers +:= "optional"
-    if (boolParam(IsVariadic))
+    if (paramHelp.isVariadic)
       qualifiers +:= "variadic"
     val qualifierString = qualifiers match {
       case Seq() ⇒ ""
       case _     ⇒ qualifiers.mkString(" [", ", ", "]")
     }
-    val name = MashNull.option(param(Name)) getOrElse Parameter.AnonymousParamName
-    val paramName = paramNameStyle("" + (if (isFlag) "--" + param(Name) else name))
-    val shortFlagDescription = paramNameStyle(MashNull.option(param(ShortFlag)).map(f ⇒ s" | -$f").getOrElse(""))
-    val summaryOpt = MashNull.option(param(Summary))
-    output.println(paramName + shortFlagDescription + qualifierString + summaryOpt.fold("")(" - " + _))
-    for (description ← MashNull.option(param(Description)).map(_.asInstanceOf[MashString]))
-      output.println(indent(description.s, indentAmount * 2))
+    val name = paramHelp.nameOpt getOrElse Parameter.AnonymousParamName
+    val paramName = paramNameStyle(if (isFlag) "--" + name else name)
+    val shortFlagDescription = paramNameStyle(paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse(""))
+    output.println(paramName + shortFlagDescription + qualifierString + paramHelp.summaryOpt.fold("")(" - " + _))
+    for (description ← paramHelp.descriptionOpt)
+      output.println(indent(description, indentAmount * 2))
     output.println()
   }
 

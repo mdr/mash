@@ -26,7 +26,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   override def summaryOpt = Some("Help documentation for a function")
 
-  class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     def fullyQualifiedName: String = getStringField(FullyQualifiedName)
 
