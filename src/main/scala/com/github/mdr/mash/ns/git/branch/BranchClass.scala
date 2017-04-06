@@ -34,8 +34,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     IsAncestorOfMethod,
     PushMethod,
     SetCommitMethod,
-    SwitchMethod,
-    ToStringMethod)
+    SwitchMethod)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -162,12 +161,6 @@ object BranchClass extends MashClass("git.branch.Branch") {
       params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
         case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
       }
-  }
-
-  object ToStringMethod extends AbstractToStringMethod {
-
-    override def toString(target: MashValue) = Wrapper(target).name
-
   }
 
 }

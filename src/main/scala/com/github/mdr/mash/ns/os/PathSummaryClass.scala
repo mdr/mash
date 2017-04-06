@@ -32,8 +32,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   override lazy val methods = {
     val omittedMethods = fields.map(_.name).toSet + InfoMethod.name
-    val liftedMethods = PathClass.methods.filterNot(m ⇒ omittedMethods contains m.name).map(liftPathMethod)
-    ToStringMethod +: liftedMethods
+    PathClass.methods.filterNot(m ⇒ omittedMethods contains m.name).map(liftPathMethod)
   }
 
   override val staticMethods = Seq(NewStaticMethod(this))
@@ -60,12 +59,6 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
     override def summaryOpt = method.summaryOpt
 
     override def descriptionOpt = method.descriptionOpt
-
-  }
-
-  object ToStringMethod extends AbstractToStringMethod {
-
-    override def toString(target: MashValue) = Wrapper(target).path
 
   }
 

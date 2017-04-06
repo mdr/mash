@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.{ StringClass, UnitClass }
 import com.github.mdr.mash.ns.git._
@@ -32,8 +31,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     DeleteMethod,
     FullNameMethod,
     IsAncestorOfMethod,
-    LogMethod,
-    ToStringMethod)
+    LogMethod)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -126,12 +124,6 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
     override def typeInferenceStrategy = Seq(CommitClass)
 
     override def summaryOpt = Some("Return a list of commits from this branch")
-
-  }
-
-  object ToStringMethod extends AbstractToStringMethod {
-
-    override def toString(target: MashValue) = Wrapper(target).fullName.s
 
   }
 

@@ -35,8 +35,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     LinesMethod,
     SucceededMethod,
     ToNumberMethod,
-    ToPathMethod,
-    ToStringMethod)
+    ToPathMethod)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -146,12 +145,6 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     override def summaryOpt = Some("Tag the stdout as a path")
 
     override def typeInferenceStrategy = StringClass taggedWith PathClass
-
-  }
-
-  object ToStringMethod extends AbstractToStringMethod {
-
-    override def toString(target: MashValue) = Wrapper(target).stdout
 
   }
 

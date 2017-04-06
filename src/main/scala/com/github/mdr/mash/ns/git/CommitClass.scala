@@ -38,8 +38,7 @@ object CommitClass extends MashClass("git.Commit") {
   override lazy val methods = Seq(
     DiffMethod,
     IsAncestorOfMethod,
-    ParentMethod,
-    ToStringMethod)
+    ParentMethod)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -64,12 +63,6 @@ object CommitClass extends MashClass("git.Commit") {
     override def aliases = Seq("isMergedInto)")
 
     override def commitName(target: MashValue) = Wrapper(target).hash
-
-  }
-
-  object ToStringMethod extends AbstractToStringMethod {
-
-    override def toString(target: MashValue) = Wrapper(target).hash
 
   }
 
