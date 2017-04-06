@@ -67,13 +67,14 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       } else if (IDENTIFIER && lookahead(1) != DOT) {
         val ident = nextToken()
         ImportStatement(importToken, exprSoFar, dot, ident)
+      } else if (IDENTIFIER) {
+        val ident = consumeRequiredToken("import statement", IDENTIFIER)
+        readImportStatement(MemberExpr(exprSoFar, dot, ident))
       } else if (forgiving) {
         val ident = syntheticToken(IDENTIFIER)
         ImportStatement(importToken, exprSoFar, dot, ident)
-      } else {
-        val ident = consumeRequiredToken("import statement", IDENTIFIER)
-        readImportStatement(MemberExpr(exprSoFar, dot, ident))
-      }
+      } else
+        errorExpectedToken(Some("import statement"), describeToken(IDENTIFIER))
     }
     readImportStatement(Identifier(firstIdent))
   }

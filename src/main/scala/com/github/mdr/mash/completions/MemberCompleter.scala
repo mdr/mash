@@ -29,8 +29,9 @@ object MemberCompleter {
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.node.tokens
       identifierToken ← tokens.find(t ⇒ t.isIdentifier && t.region == dummyIdentifierRegion)
-      memberExpr ← findMemberExpr(expr, identifierToken)
-      members ← getMembers(memberExpr)
+      memberExprOrImport ← findMemberExprOrImport(expr, identifierToken)
+      target = getTarget(memberExprOrImport)
+      members ← getMembers(target)
       completions = members.map(_.asCompletion(isQuoted = false))
       region = Region(dot.region.posAfter, 0)
       result ← CompletionResult.of(completions, region)
@@ -40,23 +41,30 @@ object MemberCompleter {
   def completeString(targetType: Type, prefix: String): Seq[Completion] =
     getMembers(targetType).filter(_.name startsWith prefix).map(_.asCompletion(isQuoted = true))
 
-  private def getMembers(memberExpr: MemberExpr): Option[Seq[MemberInfo]] = {
-    val target = memberExpr.target
-    target.constantValueOpt.flatMap(getValueMembers) orElse target.typeOpt.map(getMembers(_))
+  private def getTarget(expr: Expr) = expr match {
+    case memberExpr: MemberExpr           ⇒ memberExpr.target
+    case importStatement: ImportStatement ⇒ importStatement.expr
   }
 
+  private def getMembers(target: Expr): Option[Seq[MemberInfo]] =
+    target.constantValueOpt.flatMap(getValueMembers) orElse target.typeOpt.map(getMembers(_))
+
   def completeIdentifier(text: String, identifier: Token, parser: CompletionParser): MemberCompletionResult = {
-    val memberExprOpt = findMemberExpr(text, identifier, parser)
+    val exprOpt = findMemberExprOrImport(text, identifier, parser)
     val completionResultOpt =
       for {
-        memberExpr ← memberExprOpt
-        targetType ← memberExpr.target.typeOpt
-        members ← getMembers(memberExpr)
+        expr ← exprOpt
+        target = getTarget(expr)
+        targetType ← target.typeOpt
+        members ← getMembers(target)
         completions = members.filter(_.name startsWith identifier.text).map(_.asCompletion(isQuoted = false))
         result ← CompletionResult.of(completions, identifier.region)
       } yield result
-    val prioritiseMembers = memberExprOpt.exists(shouldPrioritise)
-    MemberCompletionResult(memberExprOpt.isDefined, completionResultOpt, prioritiseMembers)
+    val prioritiseMembers = exprOpt.exists {
+      case memberExpr: MemberExpr ⇒ shouldPrioritise(memberExpr)
+      case _                      ⇒ false
+    }
+    MemberCompletionResult(exprOpt.isDefined, completionResultOpt, prioritiseMembers)
   }
 
   private def shouldPrioritise(memberExpr: MemberExpr): Boolean =
@@ -72,18 +80,19 @@ object MemberCompleter {
       }
     }
 
-  private def findMemberExpr(text: String, identifier: Token, parser: CompletionParser): Option[MemberExpr] = {
+  private def findMemberExprOrImport(text: String, identifier: Token, parser: CompletionParser): Option[Expr] = {
     val expr = parser.parse(text)
     for {
       sourceInfo ← expr.sourceInfoOpt
       tokens = sourceInfo.node.tokens
-      memberExpr ← findMemberExpr(expr, identifier)
+      memberExpr ← findMemberExprOrImport(expr, identifier)
     } yield memberExpr
   }
 
-  private def findMemberExpr(expr: Expr, token: Token): Option[MemberExpr] = expr.find {
-    case mexpr@MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.MemberExpr(_, _, `token`))))      ⇒ mexpr
-    case mexpr@MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.HeadlessMemberExpr(_, `token`)))) ⇒ mexpr
+  private def findMemberExprOrImport(expr: Expr, token: Token): Option[Expr] = expr.find {
+    case e@MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.MemberExpr(_, _, `token`))))           ⇒ e
+    case e@MemberExpr(_, _, _, Some(SourceInfo(_, ConcreteSyntax.HeadlessMemberExpr(_, `token`))))      ⇒ e
+    case e@ImportStatement(_, _, Some(SourceInfo(_, ConcreteSyntax.ImportStatement(_, _, _, `token`)))) ⇒ e
   }
 
   private def getMembers(klass: MashClass): Seq[MemberInfo] = {

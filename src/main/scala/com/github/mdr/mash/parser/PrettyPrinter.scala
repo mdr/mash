@@ -94,6 +94,7 @@ object PrettyPrinter {
         descr = s"($descr)"
       descr
     case HelpExpr(subExpr, _)                                                  ⇒ pretty(subExpr) + "?"
+    case ImportStatement(expr, importNameOpt, _)                               ⇒ "import " + pretty(expr) + "." + importNameOpt.getOrElse("_")
     case _                                                                     ⇒ ""
   }
 

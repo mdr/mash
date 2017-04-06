@@ -367,6 +367,11 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   "class Thing field; Thing --fiel▶" shouldContainCompletion "--field"
 
+  // import completion
+  "import core.help.▶" shouldContainCompletion "help"
+  "import core.help.h▶" shouldContainCompletion "help"
+  "import c▶" shouldContainCompletion "core"
+
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =
     Compiler.compileForgiving(CompilationUnit(s), bindings = bindings).body
 

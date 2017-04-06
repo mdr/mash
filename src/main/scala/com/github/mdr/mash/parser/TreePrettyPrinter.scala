@@ -141,6 +141,9 @@ object TreePrettyPrinter {
       case HelpExpr(subExpr, _) ⇒
         println("HelpExpr" + typeDescription)
         printTree(subExpr, depth + 1)
+      case ImportStatement(expr, importNameOpt, _)                               ⇒
+        println("ImportStatement (" + importNameOpt.getOrElse("_") + ")")
+        printTree(expr, depth + 1)
       case _ ⇒
     }
 
