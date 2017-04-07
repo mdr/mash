@@ -30,16 +30,20 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
   private def printStackEntry(item: StackTraceItem, unit: CompilationUnit) {
     val StackTraceItem(SourceLocation(provenance, PointedRegion(point, region)), functionOpt) = item
     val lineInfo = new LineInfo(provenance.source)
-    val (lineIndex, _) = lineInfo.lineAndColumn(point)
-    val line = lineInfo.lines(lineIndex)
-    val renderedLine = new MashRenderer().renderChars(line, cursorOffset = line.length, mishByDefault = false)
-    val drawnLine = drawStyledChars(renderedLine)
+    val (pointLineIndex, _) = lineInfo.lineAndColumn(point)
     val isImmediateError = unit.provenance == provenance && unit.interactive
     val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
-    val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${lineIndex + 1}$functionName: "
-    val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
-    output.println(formatStrong(prefix) + drawnLine)
-    output.println(formatStrong(errorUnderlineLine))
+    val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${pointLineIndex + 1}$functionName: "
+
+    val (firstLineIndex, lastLineIndex) = lineInfo.linesOfRegion(region)
+    for (lineIndex ← firstLineIndex to lastLineIndex) {
+      val line = lineInfo.lines(lineIndex)
+      val renderedLine = new MashRenderer().renderChars(line, cursorOffset = line.length, mishByDefault = false)
+      val drawnLine = drawStyledChars(renderedLine)
+      val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
+      output.println(formatStrong(prefix) + drawnLine)
+      output.println(formatStrong(errorUnderlineLine))
+    }
   }
 
   private def replaceHomePath(path: String): String =

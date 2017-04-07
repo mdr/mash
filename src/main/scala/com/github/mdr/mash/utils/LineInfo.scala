@@ -46,6 +46,15 @@ class LineInfo(s: String) {
     (line, column)
   }
 
+  /**
+    * @return pair of the first and last line index that cover the region
+    */
+  def linesOfRegion(region: Region): (Int, Int) = {
+    val firstLine = lineAndColumn(region.offset)._1
+    val lastLine = lineAndColumn(region.lastPos)._1
+    (firstLine, lastLine)
+  }
+
   def offset(lineIndex: Int, column: Int): Int =
     lines.take(lineIndex).map(_.length + 1).sum + column
 
