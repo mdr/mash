@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.os
 import java.time.{ Duration, Instant }
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.time.{ DateTimeClass, MillisecondsClass }
@@ -26,8 +25,6 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   override val fields = Seq(ExitStatus, Stdout, Started, Finished)
 
-  override def summaryOpt = Some("The result of running a process")
-
   override val methods = Seq(
     DurationMethod,
     FailedMethod,
@@ -38,6 +35,8 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
     ToPathMethod)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  override def summaryOpt = Some("The result of running a process")
 
   def fromResult(processResult: ProcessResult): MashObject = {
     import ProcessResultClass.Fields._
@@ -58,7 +57,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     def finished: Instant = target.fieldAs[MashWrapped](Finished).x.asInstanceOf[Instant]
 
-    def line: String = stdout.split("\n").headOption.getOrElse("")
+    def line: String = StringUtils.splitIntoLines(stdout).headOption getOrElse ""
 
     def exitStatus: Int = getNumberField(ExitStatus).toInt
   }
@@ -110,9 +109,8 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = {
+    def apply(target: MashValue, boundParams: BoundParams): MashString =
       MashString(Wrapper(target).line)
-    }
 
     override def typeInferenceStrategy = StringClass
 
