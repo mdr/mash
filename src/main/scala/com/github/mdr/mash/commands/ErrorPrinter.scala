@@ -48,11 +48,13 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
   private def getUnderlineLine(prefix: String, lineInfo: LineInfo, lineIndex: Int, point: Int, region: Region): String = {
     val padding = " " * prefix.length
     val lineRegion = lineInfo.lineRegion(lineIndex)
-    padding + lineRegion.range.map {
+    val mainLine = lineRegion.range.map {
       case i if i == point        ⇒ "^"
       case i if region contains i ⇒ "-"
       case _                      ⇒ " "
-    }.mkString
+    }
+    val endOfLinePoint = if (point == lineRegion.posAfter) "^" else ""
+    padding + mainLine.mkString + endOfLinePoint
   }
 
   private def formatStrong(s: String): String =
