@@ -52,15 +52,15 @@ object Evaluator extends EvaluatorHelper {
     */
   def invokeNullaryFunctions(value: MashValue, locationOpt: Option[SourceLocation]): MashValue =
     value match {
-      case f: MashFunction if f.allowsNullary                     ⇒
+      case f: MashFunction if f.allowsNullary                        ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
           f.applyNullary()
         }
-      case BoundMethod(target, method, _) if method.allowsNullary ⇒
-        InvocationEvaluator.addInvocationToStackOnException(locationOpt) {
+      case bm@BoundMethod(target, method, _) if method.allowsNullary ⇒
+        InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(bm)) {
           method.applyNullary(target)
         }
-      case _                                                      ⇒ value
+      case _                                                         ⇒ value
     }
 
   /**

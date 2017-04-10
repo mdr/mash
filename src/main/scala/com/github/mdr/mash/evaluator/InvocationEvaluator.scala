@@ -8,7 +8,7 @@ import com.github.mdr.mash.runtime._
 
 object InvocationEvaluator extends EvaluatorHelper {
 
-  def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext) = {
+  def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext): MashValue = {
     val InvocationExpr(functionExpr, arguments, _, _) = invocationExpr
     val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
     functionExpr match {
@@ -26,18 +26,19 @@ object InvocationEvaluator extends EvaluatorHelper {
     }
   }
 
-  def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument[SuspendedMashValue] = arg match {
-    case Argument.PositionArg(expr, sourceInfoOpt)        ⇒
-      val suspendedValue = SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
-      EvaluatedArgument.PositionArg(suspendedValue, Some(arg))
-    case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒
-      EvaluatedArgument.ShortFlag(flags, Some(arg))
-    case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
-      val suspendedValueOpt = valueOpt.map { expr ⇒
-        SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
-      }
-      EvaluatedArgument.LongFlag(flag, suspendedValueOpt, Some(arg))
-  }
+  def evaluateArgument(arg: Argument)(implicit context: EvaluationContext): EvaluatedArgument[SuspendedMashValue] =
+    arg match {
+      case Argument.PositionArg(expr, sourceInfoOpt)        ⇒
+        val suspendedValue = SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
+        EvaluatedArgument.PositionArg(suspendedValue, Some(arg))
+      case Argument.ShortFlag(flags, sourceInfoOpt)         ⇒
+        EvaluatedArgument.ShortFlag(flags, Some(arg))
+      case Argument.LongFlag(flag, valueOpt, sourceInfoOpt) ⇒
+        val suspendedValueOpt = valueOpt.map { expr ⇒
+          SuspendedMashValue(() ⇒ Evaluator.evaluate(expr))
+        }
+        EvaluatedArgument.LongFlag(flag, suspendedValueOpt, Some(arg))
+    }
 
   private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
     callFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
