@@ -1,5 +1,11 @@
 package com.github.mdr.mash.evaluator
 
+object Arguments {
+
+  val EmptyArguments = Arguments()
+
+}
+
 case class Arguments(evaluatedArguments: Seq[EvaluatedArgument[SuspendedMashValue]] = Seq()) {
 
   def positionArgs: Seq[EvaluatedArgument.PositionArg[SuspendedMashValue]] =

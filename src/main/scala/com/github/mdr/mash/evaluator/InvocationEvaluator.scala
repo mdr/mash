@@ -17,12 +17,12 @@ object InvocationEvaluator extends EvaluatorHelper {
           invokeNullaryWhenVectorising = false)
         if (wasVectorised) {
           val functions = result.asInstanceOf[MashList]
-          functions.map(function ⇒ callFunction(function, evaluatedArguments, functionExpr, invocationExpr))
+          functions.map(function ⇒ callAsFunction(function, evaluatedArguments, functionExpr, invocationExpr))
         } else
-          callFunction(result, evaluatedArguments, functionExpr, invocationExpr)
+          callAsFunction(result, evaluatedArguments, functionExpr, invocationExpr)
       case _                      ⇒
         val function = Evaluator.simpleEvaluate(functionExpr)
-        callFunction(function, evaluatedArguments, functionExpr, invocationExpr)
+        callAsFunction(function, evaluatedArguments, functionExpr, invocationExpr)
     }
   }
 
@@ -40,52 +40,90 @@ object InvocationEvaluator extends EvaluatorHelper {
         EvaluatedArgument.LongFlag(flag, suspendedValueOpt, Some(arg))
     }
 
-  private def callFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
-    callFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
+  private def callAsFunction(function: MashValue, arguments: Arguments, functionExpr: Expr, invocationExpr: Expr): MashValue =
+    callAsFunction(function, arguments, sourceLocation(functionExpr), sourceLocation(invocationExpr))
 
-  def callFunction(function: MashValue,
-                   arguments: Arguments,
-                   functionLocationOpt: Option[SourceLocation] = None,
-                   invocationLocationOpt: Option[SourceLocation] = None): MashValue =
+  def callAsFunction(function: MashValue,
+                     arguments: Arguments,
+                     functionLocationOpt: Option[SourceLocation] = None,
+                     invocationLocationOpt: Option[SourceLocation] = None): MashValue =
     function match {
-      case MashString(memberName, _)                  ⇒
-        val f = new StringFunction(memberName, functionLocationOpt, invocationLocationOpt)
-        val boundParams = translateArgumentException(invocationLocationOpt) {
-          f.params.bindTo(arguments, EvaluationContext.NotUsed)
-        }
-        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-          f(boundParams)
-        }
-      case b: MashBoolean                             ⇒
-        val f = new BooleanFunction(b.value)
-        val boundParams = translateArgumentException(invocationLocationOpt) {
-          f.params.bindTo(arguments, EvaluationContext.NotUsed)
-        }
-        addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-          f(boundParams)
-        }
-      case function: MashFunction                     ⇒
-        val boundParams = translateArgumentException(invocationLocationOpt) {
-          function.params.bindTo(arguments, function.paramContext)
-        }
-        addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
-          function(boundParams)
-        }
-      case boundMethod@BoundMethod(target, method, _) ⇒
-        val boundParams = translateArgumentException(invocationLocationOpt) {
-          method.params.bindTo(arguments, method.paramContext(target))
-        }
-        addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
-          method(target, boundParams)
-        }
-      case klass: MashClass                           ⇒
-        klass.getStaticMethod(MashClass.ConstructorMethodName) match {
-          case Some(staticMethod) ⇒ callFunction(staticMethod, arguments, functionLocationOpt, invocationLocationOpt)
-          case None               ⇒ throw new EvaluatorException(s"Value of type ${klass.typeName} is not callable", functionLocationOpt)
-        }
-      case x                                          ⇒
-        throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
+      case MashString(s, _)         ⇒
+        callStringAsFunction(s, arguments, functionLocationOpt, invocationLocationOpt)
+      case b: MashBoolean           ⇒
+        callBooleanAsFunction(b, arguments, invocationLocationOpt)
+      case function: MashFunction   ⇒
+        callFunction(function, arguments, invocationLocationOpt)
+      case boundMethod: BoundMethod ⇒
+        callBoundMethod(boundMethod, arguments, invocationLocationOpt)
+      case klass: MashClass         ⇒
+        callClassAsFunction(klass, arguments, invocationLocationOpt, functionLocationOpt)
+      case x                        ⇒
+        throwValueIsNotCallableException(x, functionLocationOpt)
     }
+
+  private def throwValueIsNotCallableException(x: MashValue, functionLocationOpt: Option[SourceLocation]): Nothing = {
+    throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
+  }
+
+  private def callBoundMethod(boundMethod: BoundMethod,
+                              arguments: Arguments,
+                              invocationLocationOpt: Option[SourceLocation]): MashValue = {
+    val BoundMethod(target, method, _) = boundMethod
+    val boundParams = translateArgumentException(invocationLocationOpt) {
+      method.params.bindTo(arguments, method.paramContext(target))
+    }
+    addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
+      method(target, boundParams)
+    }
+  }
+
+  private def callClassAsFunction(klass: MashClass,
+                                  arguments: Arguments,
+                                  invocationLocationOpt: Option[SourceLocation],
+                                  functionLocationOpt: Option[SourceLocation]): MashValue =
+    klass.getStaticMethod(MashClass.ConstructorMethodName) match {
+      case Some(staticMethod) ⇒
+        callAsFunction(staticMethod, arguments, functionLocationOpt, invocationLocationOpt)
+      case None               ⇒
+        throwValueIsNotCallableException(klass, functionLocationOpt)
+    }
+
+  private def callFunction(function: MashFunction,
+                           arguments: Arguments,
+                           invocationLocationOpt: Option[SourceLocation]): MashValue = {
+    val boundParams = translateArgumentException(invocationLocationOpt) {
+      function.params.bindTo(arguments, function.paramContext)
+    }
+    addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
+      function(boundParams)
+    }
+  }
+
+  private def callStringAsFunction(s: String,
+                                   arguments: Arguments,
+                                   functionLocationOpt: Option[SourceLocation],
+                                   invocationLocationOpt: Option[SourceLocation]): MashValue = {
+    val f = new StringFunction(s, functionLocationOpt, invocationLocationOpt)
+    val boundParams = translateArgumentException(invocationLocationOpt) {
+      f.params.bindTo(arguments, EvaluationContext.NotUsed)
+    }
+    addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
+      f(boundParams)
+    }
+  }
+
+  private def callBooleanAsFunction(b: MashBoolean,
+                                    arguments: Arguments,
+                                    invocationLocationOpt: Option[SourceLocation]): MashValue = {
+    val f = new BooleanFunction(b.value)
+    val boundParams = translateArgumentException(invocationLocationOpt) {
+      f.params.bindTo(arguments, EvaluationContext.NotUsed)
+    }
+    addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
+      f(boundParams)
+    }
+  }
 
   def translateArgumentException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =
     try
@@ -103,7 +141,9 @@ object InvocationEvaluator extends EvaluatorHelper {
       case e: ArgumentException  ⇒
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
-        throw invocationLocationOpt.map(e.lastWasFunction(functionOpt).push).getOrElse(e)
+        val withAssociatedFunction = e.lastWasFunction(functionOpt)
+        val withAdditionalFrame = invocationLocationOpt.map(invocationLocation ⇒ withAssociatedFunction.push(invocationLocation))
+        throw withAdditionalFrame getOrElse withAssociatedFunction
     }
 
 }

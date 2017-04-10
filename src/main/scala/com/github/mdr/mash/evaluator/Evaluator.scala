@@ -7,8 +7,6 @@ import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ DocComment, QuotationType }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.utils.Utils
-import org.apache.commons.lang3.StringUtils.getLevenshteinDistance
 
 import scala.PartialFunction.condOpt
 

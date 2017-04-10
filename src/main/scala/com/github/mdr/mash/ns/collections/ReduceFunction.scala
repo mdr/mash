@@ -51,7 +51,7 @@ object ReduceFunction extends MashFunction("collections.reduce") {
           val accArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ acc))
           val itemArg = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ item))
           val args = Arguments(Seq(accArg, itemArg))
-          InvocationEvaluator.callFunction(f, args)
+          InvocationEvaluator.callAsFunction(f, args)
         }
         accumulate
       case x ⇒

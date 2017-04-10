@@ -10,24 +10,22 @@ class StringFunction(s: String,
   object Params {
     val Target = Parameter(
       nameOpt = Some("target"),
-      summaryOpt = Some("Member to look-up in the target object"))
+      summaryOpt = Some("Target value to lookup a member"))
   }
 
   import Params._
 
   val params = ParameterModel(Seq(Target))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def apply(boundParams: BoundParams): MashValue =
     boundParams(Target) match {
-      case xs: MashList ⇒
-        xs.map { target ⇒
-          val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
-          Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
-        }
-      case v            ⇒
-        val intermediateResult = MemberEvaluator.lookup(v, s, locationOpt = functionLocationOpt)
-        Evaluator.invokeNullaryFunctions(intermediateResult, functionLocationOpt)
+      case xs: MashList ⇒ xs.map(lookupMember)
+      case target       ⇒ lookupMember(target)
     }
+
+  private def lookupMember(target: MashValue): MashValue = {
+    val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
+    Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
   }
 
   override def summaryOpt = Some("String as a function")

@@ -44,6 +44,7 @@ object MemberCompleter {
   private def getTarget(expr: Expr) = expr match {
     case memberExpr: MemberExpr           ⇒ memberExpr.target
     case importStatement: ImportStatement ⇒ importStatement.expr
+    case _                                ⇒ throw new AssertionError(s"Unexpected target: $expr")
   }
 
   private def getMembers(target: Expr): Option[Seq[MemberInfo]] =

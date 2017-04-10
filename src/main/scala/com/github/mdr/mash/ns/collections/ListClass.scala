@@ -1,11 +1,9 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.{ TypedArguments, _ }
+import com.github.mdr.mash.ns.collections.listClass._
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
 object ListClass extends MashClass("collections.List") {
 
@@ -45,131 +43,15 @@ object ListClass extends MashClass("collections.List") {
     methodise(SumFunction),
     methodise(TakeWhileFunction),
     methodise(UniqueFunction),
-    methodise(WhereFunction, Seq("filter")),
-    methodise(WhereNotFunction, Seq("filterNot")),
+    methodise(WhereFunction),
+    methodise(WhereNotFunction),
     IntersectMethod,
     SelectMethod)
 
   override val staticMethods = Seq(NewStaticMethod)
 
-  object NewStaticMethod extends MashFunction("new") {
-
-    object Params {
-      val Elements = Parameter(
-        nameOpt = Some("elements"),
-        summaryOpt = Some("Elements of the list"),
-        isVariadic = true)
-    }
-
-    import Params._
-
-    override val params = ParameterModel(Seq(Elements))
-
-    def apply(boundParams: BoundParams): MashList = {
-      MashList(boundParams.validateSequence(Elements))
-    }
-
-    override def summaryOpt: Option[String] = Some("Construct a new List with the given elements")
-
-    override object typeInferenceStrategy extends TypeInferenceStrategy {
-
-      def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-        val argBindings = params.bindTypes(arguments)
-        argBindings.getType(Elements) orElse Some(Seq(AnyClass))
-      }
-
-    }
-
-  }
-
-  object IntersectMethod extends MashMethod("intersect") {
-
-    object Params {
-      val Sequence = Parameter(
-        nameOpt = Some("sequence"),
-        summaryOpt = Some("Other sequence to intersect with this"))
-    }
-
-    import Params._
-
-    override val params = ParameterModel(Seq(Sequence))
-
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
-      val sequence = MashList(boundParams.validateSequence(Sequence))
-      target.asInstanceOf[MashList] intersect sequence
-    }
-
-    override def summaryOpt: Option[String] = Some("Compute the multiset intersection between this and another sequence")
-
-    object IntersectMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
-
-      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
-        val argBindings = params.bindTypes(arguments)
-        targetTypeOpt orElse argBindings.getArgument(Sequence).flatMap(_.typeOpt)
-      }
-    }
-
-    override def typeInferenceStrategy = IntersectMethodTypeInferenceStrategy
-  }
-
-  object SelectMethod extends MashMethod("select") {
-    import SelectFunction.Params._
-    override val params = ParameterModel(Seq(Add, Selectors))
-
-    override def apply(target: MashValue, boundParams: BoundParams): MashValue =
-      SelectFunction.doSelect(target, boundParams)
-
-    override def summaryOpt: Option[String] = SelectFunction.summaryOpt
-
-    override def descriptionOpt: Option[String] = SelectFunction.descriptionOpt
-
-    override def typeInferenceStrategy = methodise(SelectFunction).typeInferenceStrategy
-
-    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] =
-      methodise(SelectFunction).getCompletionSpecs(argPos, targetTypeOpt, arguments)
-
-  }
-
-  def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod = new MashMethod(function.name) {
-
-    override def aliases = methodAliases
-
-    private val targetParamName = function match {
-      case MinFunction | MaxFunction ⇒ MinFunction.Params.Items.nameOpt.get
-      case GrepFunction              ⇒ GrepFunction.Params.Input.nameOpt.get
-      case _                         ⇒ ReverseFunction.Params.Sequence.nameOpt.get
-    }
-
-    val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains targetParamName))
-
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
-      val actualTarget = function match {
-        case MinFunction | MaxFunction ⇒ MashList.of(target)
-        case _                         ⇒ target
-      }
-      val newBoundNames = boundParams.boundNames + (targetParamName -> actualTarget)
-      val newBoundParams = boundParams.copy(boundNames = newBoundNames)
-      function.apply(newBoundParams)
-    }
-
-    override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
-      function.typeInferenceStrategy.inferTypes(inferencer, updateArgs(arguments, targetTypeOpt))
-
-    override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[CompletionSpec] =
-      function.getCompletionSpecs(argPos, updateArgs(arguments, targetTypeOpt))
-
-    private def updateArgs(arguments: TypedArguments, targetTypeOpt: Option[Type]): TypedArguments = {
-      val sequenceArg = TypedArgument.PositionArg(ValueInfo(None, targetTypeOpt))
-      TypedArguments(arguments.arguments :+ sequenceArg)
-    }
-
-    override def toString = s"methodise($function)"
-
-    override def summaryOpt = function.summaryOpt
-
-    override def descriptionOpt = function.descriptionOpt
-
-  }
+  def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod =
+    FunctionWrappingMethod(function, methodAliases)
 
   override def summaryOpt = Some("A sequence of objects")
 

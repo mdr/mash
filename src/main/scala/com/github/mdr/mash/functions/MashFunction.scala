@@ -13,7 +13,7 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
-  def applyNullary(): MashValue = apply(params.bindTo(Arguments(Seq()), paramContext))
+  def applyNullary(): MashValue = apply(params.bindTo(Arguments.EmptyArguments, paramContext))
 
   def paramContext = EvaluationContext.NotUsed
 
