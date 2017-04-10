@@ -1,108 +1,14 @@
 package com.github.mdr.mash.evaluator
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-
 import scala.language.postfixOps
 
-@RunWith(classOf[JUnitRunner])
 class EvaluatorTest extends AbstractEvaluatorTest {
-
-  // Comparisons
-
-  "1 < 2" ==> true
-  "1 < 1" ==> false
-  "1 < 0" ==> false
-
-  "1 <= 2" ==> true
-  "1 <= 1" ==> true
-  "1 <= 0" ==> false
-
-  "1 > 2" ==> false
-  "1 > 1" ==> false
-  "1 > 0" ==> true
-
-  "1 >= 2" ==> false
-  "1 >= 1" ==> true
-  "1 >= 0" ==> true
-
-  "[] < [1]" ==> true
-  "[1] < [1, 2]" ==> true
-
-  "1 == 1" ==> true
-  "1 == 2" ==> false
-
-  "1 != 1" ==> false
-  "1 != 2" ==> true
-
-  // Chained comparisons
-  "1 < 2 < 3" ==> true
-  "1 <= 2 < 3" ==> true
-  "1 < 100 < 3" ==> false
-  "1 < 2 < -100" ==> false
-  "1 < -10 < 100" ==> false
-  "a = 0; -100 < (a = a + 1; a) < 100; a" ==> 1
-  "a = 0; (a += 1; 100) < (a += 1; -100) < (a += 1; -1000); a" ==> 3 // should evaluate all expressions
-
-  // date/time comparisons
-  "now > 3.days.ago" ==> true
-  "now < 3.days.ago" ==> false
-  "now.date > 3.days.ago.date" ==> true
-  "now.date < 3.days.ago.date" ==> false
-
-  // comparisons with null
-  "null < 1" ==> false
-  "null <= 1" ==> false
-  "null > 1" ==> false
-  "null >= 1" ==> false
-  "1 < null" ==> false
-  "1 <= null" ==> false
-  "1 > null" ==> false
-  "1 >= null" ==> false
-  "null < null" ==> false
-  "null < null < null" ==> false
-
-  // comparisons across types
-  "() < true < 1 < 'foo' < now < reverse < [].sortBy < [] < {} < String" ==> true
-
-  // object comparisons
-  "{ foo: 1 } < { foo: 2 }" ==> true
-  "{ foo: 1 } < { foo: 1, bar: 1 }" ==> true
-  "{ foo: 1, bar: 1 } < { foo: 1, bar: 2 }" ==> true
-  "{ foo: 1, bar: 1 } < { foo: 1, car: 1 }" ==> true
-  "{ a: 1, b: 1 } < { b: 1, a: 1 }" ==> true
-
-  // and / or
-
-  "true and true" ==> true
-  "true and false" ==> false
-  "false and true" ==> false
-  "false and false" ==> false
-
-  "true or true" ==> true
-  "true or false" ==> true
-  "false or true" ==> true
-  "false or false" ==> false
-
-  "true or null.bang" ==> true
-  "false and null.bang" ==> false
 
   "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" ==> true
   "class Box n; Box 42 == { n: 42 }" ==> false
 
   "(class Box n) == (class Box n)" ==> false
   "class Box n; Box == Box" ==> true
-
-  "{} or 42" ==> "42"
-  "{ a: 1 } or 42" ==> "{ a: 1 }"
-
-  "[] or 42" ==> "42"
-  "[1] or 42" ==> "[1]"
-
-  "0 or 42" ==> "42"
-  "1 or 42" ==> "1"
-
-  "null or 42" ==> "42"
 
   "42 | _ < 100" ==> true
 
@@ -143,15 +49,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // null
   "null.in [1, 2, 3]" ==> false
   "null.in [null]" ==> true
-
-  // safe member dereferencing
-  "null?.noSuchMember" ==> null
-  "42?.noSuchMember" ==> null
-  "{}?.noSuchMember" ==> null
-  "null?.toString" ==> "'null'"
-  "[null, { foo: 42 }] | map (_?.foo)" ==> "[null, 42]"
-  "[{ foo: { bar: 42 } }, { foo: null }].foo?.bar" ==> "[42, null]"
-  "[{ foo: 42 }, { bar: 12 }]?.foo" ==> "[42, null]"
 
   // Indexing
   "[1, 2, 3][0]" ==> 1
@@ -231,27 +128,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'foo`nbar`nbaz' | grep 'b'" ==> "['bar', 'baz']"
   "'foo`nbar`nbaz'.grep 'b'" ==> "['bar', 'baz']"
 
-  // groupBy
-  "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" ==>
-    "[ { key: 1, count: 2 }, { key: 2, count: 1 }, { key: 3, count: 1 } ] "
-  "'foo' | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" ==>
-    "[ { key: 'f', count: 1 }, { key: 'o', count: 2 } ] "
-  "'foo'.groupBy (x => x) | select 'key' 'count' | sortBy 'key'" ==>
-    "[ { key: 'f', count: 1 }, { key: 'o', count: 2 } ] "
-
-  "[null] | groupBy --includeNull (x => x) | select 'key' 'count'" ==>
-    "[ { key: null, count: 1 } ]"
-  "[null] | groupBy --includeNull='nope' (x => x) | select 'key'" ==>
-    "[ { key: 'nope' } ]"
-
-  "[1, 2, 1] | groupBy --total (x => x) | select 'key' 'count' | sortBy 'count'" ==>
-    "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'Total', count: 3 } ]"
-  "[1, 2, 1] | groupBy --total='totalCount' (x => x) | select 'key' 'count' | sortBy 'count'" ==>
-    "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
-
-  // Group.count
-  "['apple', 'bike', 'book'] | groupBy first | sortBy (.key) | map (.count)" ==> "[1, 2]"
-
   // identity
   "identity 1" ==> 1
 
@@ -264,20 +140,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // isNull
   "isNull null" ==> true
   "isNull 0" ==> false
-
-  // join
-  " [1, 2, 3].join(', ') " ==> " '1, 2, 3' "
-  " [1, 2, 3].join " ==> " '123' "
-  " join ', ' [1, 2, 3] " ==> " '1, 2, 3' "
-  " join [1, 2, 3] " ==> " '123' "
-  " join --sequence=[1, 2, 3] " ==> " '123' "
-  " join ', ' --sequence=[1, 2, 3] " ==> " '1, 2, 3' "
-  " join --separator=', ' --sequence=[1, 2, 3] " ==> " '1, 2, 3' "
-  " join --separator=', ' [1, 2, 3] " ==> " '1, 2, 3' "
-  " join [] " ==> " '' "
-  " join 'abc' " ==> " 'abc' "
-  " join ':' 'abc' " ==> " 'a:b:c' "
-  " 'abc'.join ':'" ==> " 'a:b:c' "
 
   // last
   "last [1, 2, 3]" ==> 3
@@ -323,41 +185,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'foo' | map (.toUpper)" ==> "'FOO'"
   "'foo'.map (.toUpper)" ==> "'FOO'"
 
-  // max
-  "max [1, 200, 3]" ==> 200
-  "[1, 200, 3].max" ==> 200
-  "max 'abc'" ==> "'c'"
-  "'abc'.max" ==> "'c'"
-  "max 1 2 3" ==> 3
-  "max [2, null, 1]" ==> 2
-  "max [] --default=0" ==> "0"
-  "[].max --default=0" ==> "0"
-
-  // maxBy
-  "maxBy length [ 'a', 'bbb', 'cc'] " ==> " 'bbb' "
-  "maxBy (_) 'abcde'" ==> "'e'"
-  "maxBy 'foo' [{ foo: null }, { foo: 42 }]" ==> "{ foo: 42 }"
-  "'abcde'.maxBy (_)" ==> "'e'"
-  "maxBy length [] --default=0" ==> "0"
-  "[].maxBy length --default=0" ==> "0"
-
-  // min
-  "min [100, 2, 300]" ==> 2
-  "[100, 2, 300].min" ==> 2
-  "min 'abc'" ==> "'a'"
-  "'abc'.min" ==> "'a'"
-  "min 1 2 3" ==> 1
-  "min [2, null, 1]" ==> 1
-  "min [] --default=0" ==> "0"
-  "[].min --default=0" ==> "0"
-  "[].min [1, 2, 3]" shouldThrowAnException // used to be a bug where we leaked an argument
-
-  // minBy
-  "minBy length [ 'a', 'bbb', 'cc'] " ==> " 'a' "
-  "minBy 'foo' [{ foo: null }, { foo: 42 }]" ==> "{ foo: 42 }"
-  "minBy length [] --default=0" ==> "0"
-  "[].minBy length --default=0" ==> "0"
-
   // nonEmpty
   "nonEmpty []" ==> false
   "nonEmpty [1, 2, 3]" ==> true
@@ -376,23 +203,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "reverse 'trebor'" ==> " 'robert' "
   "'trebor'.reverse" ==> " 'robert' "
   "[1, 2, 3].reverse" ==> "[3, 2, 1]"
-
-  // select
-  "{ foo: 42, bar: 24 } | select 'foo' " ==> "{ foo: 42 }"
-  "{ foo: 42, bar: 24 } | select --foo " ==> "{ foo: 42 }"
-  "{ foo: 42, bar: 24 } | select --foo=(_.foo) " ==> "{ foo: 42 }"
-  "{ foo: 42, bar: 24 } | select 'foo' --baz=(_.foo) 'bar' " ==> "{ foo: 42, baz: 42, bar: 24 }"
-  "[{ foo: 42, bar: 24 }] | select 'foo'" ==> " [{ foo: 42 }] "
-  "{ foo: 42 } | select --add --bar=(_.foo)" ==> "{ foo: 42, bar: 42 }"
-  "{ foo: 42, bar: 24 } | select 'foo' --bar" ==> "{ foo: 42, bar: 24  }"
-  "select 'foo' --target=[{ foo: 42 }]" ==> " [{ foo: 42 }] "
-  "select 'foo' --target={ foo: 42 }" ==> "{ foo: 42 }"
-  "select --foo --target={ foo: 42 }" ==> "{ foo: 42 }"
-  "select --add --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
-  "select -a --bar=(_.foo) --target={ foo: 42 }" ==> "{ foo: 42, bar: 42 }"
-  "[{ foo: 42, bar: 24 }].select 'foo'" ==> "[{ foo: 42 }]"
-  "class A; A.new | select --add --n=(_ => 42) | .getClass" ==> "A"
-  "class A; A.new | select --n=(_ => 42) | .getClass" ==> "Object"
 
   // skip
   "[1, 2, 3, 4, 5] | skip 2" ==> "[3, 4, 5]"
@@ -532,18 +342,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " 'toString' 42 " ==> " '42' "
   " 'foo' [{ foo: 42 }] " ==> "[42]"
 
-  // String interpolation
-  """(name => "Hello $name!") "Matt" """ ==> "'Hello Matt!'"
-  """(name => "Hello ${name}!") "Matt" """ ==> "'Hello Matt!'"
-  """(name => "Hello $name.reverse!") "Matt" """ ==> "'Hello ttaM!'"
-  """(name => "Hello ${name.reverse}!") "Matt" """ ==> "'Hello ttaM!'"
-  """(name => "Hello ${name | reverse}!") "Matt" """ ==> "'Hello ttaM!'"
-  """ 42 | "$_" """ ==> "'42'"
-  """ 'foo' | "$_.reverse" """ ==> "'oof'"
-  """ "`"${42}`"" """ ==> """ '"42"' """
-  """ "'${42}'" """ ==> """ "'42'" """
-  """ "${4}'bar'${2}" """ ==> """ "4'bar'2" """
-
   // String escapes
   """ "`$" """ ==> " '$' "
   """ "`"" """ ==> """ '"' """
@@ -574,24 +372,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "['foo', 'bar', 'baz'] | map 'reverse'" ==> "['oof', 'rab', 'zab']"
   "[{foo: 42}] | map 'foo'" ==> "[42]"
   "['f', 'x'] | map 'foo'.startsWith" ==> "[true, false]"
-
-  // help
-
-  "listFiles? .name" ==> "'listFiles'"
-  "help groupBy" ==> "groupBy?"
-  "man groupBy" ==> "groupBy?"
-  "groupBy.help" ==> "groupBy?"
-
-  "[1, 2, 3].reverse? .name" ==> "'reverse'"
-  "[1, 2, 3].sortBy? .name" ==> "'sortBy'"
-  "help [1,2, 3].sortBy" ==> "[1, 2, 3].sortBy?"
-  "[1, 2, 3].sortBy.help" ==> "[1, 2, 3].sortBy?"
-
-  "pwd.info.permissions? .name" ==> "'permissions'"
-  "[pwd].info.permissions? .name" ==> "'permissions'"
-
-  "git.log? .name" ==> "'log'"
-  "help 42.getClass | _.name" ==> "'Number'"
 
   "def square n = n * n; square 8" ==> 64
   "def square n = n * n; square --n=8" ==> 64
@@ -630,8 +410,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // regex
   "'(.*)bar'.r.match 'wibblebar' | .groups.first" ==> "'wibble'"
 
-  "a = now; b = 3.days.ago; min a b" ==> "b"
-
   // Block expressions
   "{ a = 0; a = a + 1; a }" ==> 1
   "{ a = 42 }; a" ==> 42
@@ -643,44 +421,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "{ foo: 42 }.fields.name" ==> "['foo']"
   "42.fields" shouldThrowAnException
 
-  // object addition
-  "{ foo: 42 } + { bar: 100 }" ==> "{ foo: 42, bar: 100 }"
-  "{ foo: 42 } + { }" ==> "{ foo: 42 }"
-  "{ foo: 42 } + { foo: 100 }" ==> "{ foo: 100 }"
-  "class Box n; Box 5 + { foo: 42 } | .getClass.name" ==> "'Box'"
-  "class Box n; { foo: 42 } + Box 5 | .getClass.name" ==> "'Box'"
-  "class A a; class B b; A 'a' + B 'b' | .getClass.name" ==> "'B'"
-
-  // object field subtraction
-  "{ foo: 42, bar: 100 } - 'foo'" ==> "{ bar: 100 }"
-  "{ foo: 42 } - 'bar'" ==> "{ foo: 42 }"
-
-  "{ foo: 42 } - []" ==> "{ foo: 42 }"
-  "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo']" ==> "{ bar: 2 }"
-  "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo', 'notInObject']" ==> "{ bar: 2 }"
-
   // list subtraction
   "[1, 2, 3, 4] - [2, 4]" ==> "[1, 3]"
   "[1, 2, 3, 4] - []" ==> "[1, 2, 3, 4]"
   "[] - [1, 2, 3]" ==> "[]"
   "[1, 2, 3, 2, 1] - [2, 1]" ==> "[3, 2, 1]"
 
-  // assignment
-  "a = 42; a" ==> 42
-  "a = {}; a['foo'] = 42; a.foo" ==> 42
-  "a = [1, 2, 3]; a[1] = 42; a" ==> "[1, 42, 3]"
-
-  "a = 0; a += 42; a" ==> 42
-  "a = 42; a -= 42; a" ==> 0
-  "a = 3; a *= 4; a" ==> 12
-  "a = 15; a /= 5; a" ==> 3
-  "a = { foo: 0 }; a.foo += 42; a" ==> "{ foo: 42 }"
-  "a = [1, 0, 3]; a[1] += 42; a" ==> "[1, 42, 3]"
-
-  "a = 42" ==> 42
-  "a = 5; a += 10" ==> 15
-  "_ = 10" ==> 10
-  "{ foo } = { foo: 42 }" ==> "{ foo: 42 }"
 
   {
     // bare words
@@ -779,16 +525,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |A.new.a
   """ ==> 42
 
-  // Default arguments
-  "def foo (x = 42) = x + 1; foo" ==> 43
-  "def foo (x = 42) = x + 1; foo 100" ==> 101
-  "def fun ({ foo } = { foo: 42 }) = foo + 1; fun" ==> 43
-  "def fun ({ foo } = { foo: 42 }) = foo + 1; fun { foo: 100 }" ==> 101
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList" ==> "[1, 2, 3]"
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[]" ==> "[]"
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[4, 5, 6]" ==> "[4, 5, 6]"
-  "def mkList (xs... = null) = xs; mkList" ==> null
-
   // holes
   "def baz = 128 + _; (baz) 72" ==> 200
   "def foo (x = _) = 42; foo" ==> 42
@@ -819,12 +555,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "def foo n = n += _; f = foo 1; f 2; f 3" ==> 6
 
-  // Object.hoist
-  "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar'" ==> "{ foo: 42, baz1: 100, baz2: 200 }"
-  "{ foo: 42, bar: [{ baz1: 100, baz2: 200 }, { baz1: 300, baz2: 400 }] }.hoist 'bar'" ==>
-    "[{ foo: 42, baz1: 100, baz2: 200 }, { foo: 42, baz1: 300, baz2: 400 }]"
-  "{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar' --prefix='bar_'" ==> "{ foo: 42, bar_baz1: 100, bar_baz2: 200 }"
-
   // maths.stats
   "[1, 2, 3] | maths.stats | .mean" ==> 2
 
@@ -840,83 +570,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "a = 0; while (a < 10) { a = a + 1 }; a" ==> 10
   "42 | a = _; a" ==> 42
 
-  // Patterns
-  "{ foo: 42, bar: 128 } | { foo } => foo + 1" ==> 43
-  "{ foo: 42, bar: 128 } | { wibble } => wibble" ==> null
-  "{ foo: 42, bar: 128 } | { foo, bar } => foo + bar" ==> 170
-  "{ foo, bar } = { bar: 1, baz: 2, foo: 3 }; foo + bar" ==> 4
-  "{ baz } = { foo: 42 }; baz" ==> null
-  "{ foo: { bar } } = { foo: { bar: 42 } }; bar" ==> 42
-  "{ foo: 42, bar: 128 } | { foo: foofar } => foofar" ==> 42
-  "{ foo: 42, bar: 128 } | { foo: _ } => 10" ==> 10
-  "(_ => 42) 10" ==> 42
-  "def foo { bar } = bar; foo { bar: 42 }" ==> 42
-  "[a, b, c] = [1, 2, 3]; a + b + c" ==> 6
-  "[a, b] = [1, 2, 3]; a + b" ==> 3
-  "[a, b] = [1]; b" ==> null
-  "{ baz } = 42" shouldThrowAnException
-
-  // Object.merge
-  "Object.merge []" ==> "{}"
-  "Object.merge { foo: 42 }" ==> "{ foo: 42 }"
-  "Object.merge { foo: 42 } { bar: 128 }" ==> "{ foo: 42, bar: 128 }"
-  "Object.merge { foo: 42 } { foo: 128 }" ==> "{ foo: 128 }"
-  "class A a; class B b; class C c; Object.merge [A 1, B 2, C 3] | .getClass.name" ==> "'C'"
-
-  // Object.fromPairs
-  "[['a', 1], ['b', 2]] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
-  "[{ name: 'a', value: 1 }, { name: 'b', value: 2 }] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
-
   // type.hint
   "type.hint [String] 42" ==> 42
 
-  // classes
-  "class Point x y; Point.new 3 4 | [.x, .y]" ==> "[3, 4]"
-  "class Point x y; Point 3 4 | [.x, .y]" ==> "[3, 4]"
-  "class Point x y { def sum = x + y }; Point 3 4 | .sum" ==> 7
-  "class Point x y { def sum = this.x + this.y }; Point 3 4 | .sum" ==> 7
-  "class Point x y { def sum = x + y; def sumSquared = sum * sum }; Point 3 4 | .sumSquared" ==> 49
-
-  "class Box n { def update n = this.n = n }; b = Box 0; b.update 10; b.n" ==> 10
-  "class Box n { def increment = n += 1 }; box = Box 10; box.increment; box.n" ==> 11
-  "class Box n { def increment = this['n'] += 1 }; box = Box 10; box.increment; box.n" ==> 11
-
-  """class Outer o1 {
-       def outer o2 = {
-         class Inner i1 {
-           def inner i2 = o1 + o2 + i1 + i2
-         }
-         Inner 1 | .inner 2
-       }
-     }
-     Outer 3 | .outer 4
-  """ ==> "10"
-
-  "class Thing x { def x = 100 }; Thing 42 | .x" ==> 42
-  "class Thing { def x = 100; def y = { x = 42; x } }; Thing.new.y" ==> 42
-  "class Thing; Thing.new.getClass.name" ==> "'Thing'"
-  "class Thing { }; Thing.new.getClass.name" ==> "'Thing'"
-  "class Point x y { def add = x + y }; [Point 1 2, Point 3 4].add" ==> "[3, 7]"
-
-  "[Object, Object].merge { foo: 42 }" ==> "[{ foo: 42 }, { foo: 42 }]"
-
-  // Default arguments for methods
-  "class Foo wibble { def get (n = wibble) = n }; Foo 100 | .get" ==> 100
-  "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" ==> 100
-  "class Foo { def foo (n = bar) = n; def bar = 100 }; Foo.new.foo" ==> 100
-
-  "class Foo { def getFields = this.fields }; Foo.new.getFields" ==> "[]"
-  "class Foo { def getFields = this.toString }; Foo.new.getFields" ==> "'{}'"
-
-  "(class A { def foo = 42 }) | .new.foo" ==> 42
   "(def foo = 42) | x => x" ==> 42
-
-  "false < true" ==> true
-  "false < false" ==> false
-  "true < false" ==> false
-  "true < true" ==> false
-  "false <= false" ==> true
-  "true <= true" ==> true
 
   "(_ => b = 100) 42; b" ==> 100
 
@@ -930,19 +587,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
       .foo
       .bar
   """ ==> 100
-
-  // private visibility
-  "class A { @private def a = 42 }; A.new.a" shouldThrowAnException
-
-  "class A { @private def a = 42 }; A.new['a']" shouldThrowAnException
-
-  "class A { @private def a = 42 }; 'a' A.new" shouldThrowAnException
-
-  "class A { @private def a = 42 }; [A.new].a" shouldThrowAnException
-
-  "class A { @private def a = 42; def b = a }; A.new.b" ==> 42
-  "class A { @private def a = 42; def b = this.a }; A.new.b" ==> 42
-  "class A { @private def a = 42; def b = this['a'].invoke }; A.new.b" ==> 42
 
   // attributes
   """@attribute
@@ -961,21 +605,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |}
     |mutu 3""" ==> 1
 
-  // @last
-  "def foo n... (@last m) = m; foo 1 2 3" ==> 3
-  "def foo n... (@last m) = m; foo 3" ==> 3
-  "def foo (n = 10) (@last m) = m; foo 3" ==> 3
-
-  "def fun first (@last second = 10) = { first, second }; fun 1 2" ==> "{ first: 1, second: 2 }"
-  "def fun first (@last second = 10) = { first, second }; fun --first=1" ==> "{ first: 1, second: 10 }"
-  "def fun first (@last second = 10) = { first, second }; fun 1" shouldThrowAnException
-
-  "def fun args... (@last arg = 10) = { args, arg }; fun" ==> "{ args: [], arg: 10 }"
-  "def fun args... (@last arg = 10) = { args, arg }; fun 1" ==> "{ args: [], arg: 1 }"
-  "def fun args... (@last arg = 10) = { args, arg }; fun 1 2" ==> "{ args: [1], arg: 2 }"
-  "def fun args... (@last arg = 10) = { args, arg }; fun --arg=20" ==> "{ args: [], arg: 20 }"
-  "def fun args... (@last arg = 10) = { args, arg }; fun 1 --arg=20" ==> "{ args: [1], arg: 20 }"
-
   // @flag
   "def foo (@flag m = 10) n = m + n; foo 3" ==> 13
   "def foo (@flag m) n = m + n; foo 3 --m=20" ==> 23
@@ -987,29 +616,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |  if dryRun then 'Dry run' else 'For reals'
     |doSomething -d
     | """.stripMargin ==> "'Dry run'"
-
-  // @namedArgs
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo=1" ==> "{ foo: 1 }"
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --foo" ==> "{ foo: true }"
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -a" ==> "{ a: true }"
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -abc" ==> "{ a: true, b: true, c: true }"
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject" ==> "{}"
-  "def makeObject (@namedArgs namedArgs) (@flag otherArg) = { namedArgs, otherArg }; makeObject --otherArg=10" ==>
-    "{ namedArgs: {}, otherArg: 10 }"
-  "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject 1 --foo=2" ==> "[1, { foo: 2 }]"
-  "def makeObject otherParam (@namedArgs namedArgs) = [otherParam, namedArgs]; makeObject --foo=2 --otherParam=1" ==>
-    "[1, { foo: 2 }]"
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --namedArgs=42" ==> "{ namedArgs: 42 }"
-  "def makeObject varargs... (@namedArgs namedArgs) = { varargs, namedArgs }; makeObject 1 2 3 --foo=42" ==>
-    "{ varargs: [1, 2, 3], namedArgs: { foo: 42} }"
-
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
-
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --arg --arg" shouldThrowAnException
-
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -aa" shouldThrowAnException
-
-  "def makeObject arg (@namedArgs namedArgs) = namedArgs; makeObject 42 --arg=100" shouldThrowAnException
 
   // doc comments
   """# Square a number
@@ -1078,37 +684,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Check against exponential complexity parser problem
   "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}" ==> "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"
 
-  // Object.where
-  "{ apple: 1, bob: 2, aardvark: 3 }.where (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
-  "{ apple: 1, bob: 2, aardvark: 3 }.where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
-  "{ apple: 1, bob: 2, aardvark: 3 } | where (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
-  "{ apple: 1, bob: 2, aardvark: 3 } | where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
-
-  // Object.whereNot
-  "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (.startsWith 'a')" ==> "{ bob: 2 }"
-  "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
-  "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (.startsWith 'a')" ==> "{ bob: 2 }"
-  "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
-
-  // Object.map
-  "{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-  "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-
-  // Object.transformValues
-  "{ foo: 3, bar: 4 }.transformValues (n => n * n)" ==> "{ foo: 9, bar: 16 }"
-  """{ foo: 3, bar: 4 }.transformValues (f v => "$f$v")""" ==> "{ foo: 'foo3', bar: 'bar4' }"
-
-  // Object.transformFields
-  "{ foo: 3, bar: 4 }.transformFields (.toUpper)" ==> "{ FOO: 3, BAR: 4 }"
-  "{ foo: 3, bar: 4 }.transformFields (f v => f.toUpper + v)" ==> "{ FOO3: 3, BAR4: 4 }"
-
-  // Object.grep
-  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
-  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
-  "{ a: 42 } | grep 'name'" ==> "{}"
-
   "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 
   "class A { def foo = [1, 2, 3] | where (_ > 1) }; A.new.foo" ==> "[2, 3]"
@@ -1124,15 +699,5 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Url.host
   "net.url 'http://example.com' | .host" ==> "'example.com'"
-
-  // import
-  "import hash.sha256; sha256" ==> "sha256"
-  "import hash._; sha256" ==> "sha256"
-  "obj = { foo: 42 }; import obj.foo; foo" ==> 42
-  "class A n { def inc = n += 1 }; a = A 0; import a._; inc; a.n" ==> 1
-  "x = {}; import x._; where.getClass" ==> "Function" // Object.where is a 'shy' method
-  "x = {}; import x.where; where.getClass" ==> "BoundMethod"
-  "class A { @private def method = 42 }; a = A.new; import a.method" shouldThrowAnException
-
 
 }
