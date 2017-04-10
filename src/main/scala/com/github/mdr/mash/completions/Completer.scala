@@ -96,7 +96,7 @@ class Completer(fileSystem: FileSystem, envInteractions: EnvironmentInteractions
   }
 
   private def completeDot(text: String, dotToken: Token, pos: Int, parser: CompletionParser): Option[CompletionResult] = {
-    lazy val memberResultOpt = MemberCompleter.completeAfterDot(text, dotToken, pos, parser)
+    lazy val memberResultOpt = MemberCompleter.completeImmediatelyAfterDot(text, dotToken, pos, parser)
     lazy val asStringResultOpt = stringCompleter.completeAsString(text, dotToken, parser).completionResultOpt
 
     val tokens = parser.tokenise(text)

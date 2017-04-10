@@ -43,7 +43,7 @@ class ArgCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteracti
           pathCompleter.completePaths(withoutQuotes, literalToken.region, directoriesOnly = spec == Directory, substring = substring)
         completePaths(substring = false) orElse completePaths(substring = true)
       case Members(targetType) ⇒
-        val members = MemberCompleter.completeString(targetType, withoutQuotes)
+        val members = MemberCompleter.completeStringMember(targetType, withoutQuotes)
         CompletionResult.of(members, literalToken.region)
       case Items(items) ⇒
         val matches = items.filter(_.startsWith(withoutQuotes))

@@ -372,9 +372,12 @@ class TypeInferencer {
   private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type], right: Expr): Option[Type] = {
     import BinaryOperator._
     op match {
-      case Plus                                                                             ⇒ inferTypeAdd(leftTypeOpt, rightTypeOpt)
-      case Multiply                                                                         ⇒ inferTypeMultiply(leftTypeOpt, rightTypeOpt)
-      case Minus                                                                            ⇒ inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
+      case Plus                                                                             ⇒
+        inferTypeAdd(leftTypeOpt, rightTypeOpt)
+      case Multiply                                                                         ⇒
+        inferTypeMultiply(leftTypeOpt, rightTypeOpt)
+      case Minus                                                                            ⇒
+        inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
       case Divide                                                                           ⇒
         (leftTypeOpt, rightTypeOpt) match {
           case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
