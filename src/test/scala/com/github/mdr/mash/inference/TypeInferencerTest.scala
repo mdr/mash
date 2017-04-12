@@ -390,7 +390,6 @@ class TypeInferencerTest extends FlatSpec with Matchers {
     "Foo.new.a" ==> NumberClass
     "Foo.new.b" ==> NumberClass
   }
-
   // skip
   "[1, 2, 3] | skip 2" ==> Seq(NumberClass)
   "[1, 2, 3] | skip" ==> Seq(NumberClass)
@@ -398,6 +397,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // allButLast
   "[1, 2, 3] | allButLast 2" ==> Seq(NumberClass)
   "[1, 2, 3] | allButLast" ==> Seq(NumberClass)
+
+  // boolean functions
+  "true 1 2" ==> NumberClass
 
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 

@@ -419,7 +419,7 @@ class TypeInferencer {
     case Type.Seq(elementType)                                                                                            ⇒
       Some(elementType)
     case Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(_, _, _, parameterModel, body, methodBindings)) ⇒
-      val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
+      val argBindings = parameterModel.bindTypes(typedArgs).boundNames
       inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))
     case Type.BoundBuiltinMethod(targetType, method)                                                                      ⇒
       val strategy = method.typeInferenceStrategy
@@ -428,16 +428,20 @@ class TypeInferencer {
     case Type.BuiltinFunction(f)                                                                                          ⇒
       f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
     case Type.UserDefinedFunction(_, _, _, parameterModel, expr, lambdaBindings)                                          ⇒
-      val argBindings = parameterModel.bindTypes(TypedArguments(typedArgs.arguments)).boundNames
+      val argBindings = parameterModel.bindTypes(typedArgs).boundNames
       inferType(expr, lambdaBindings ++ argBindings)
     case Type.Instance(ClassClass)                                                                                        ⇒
       getStaticMethodType(function, MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
         f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
       }
-    case userClass: Type.UserClass                                                                                        ⇒
+    case Type.Instance(BooleanClass)                                                                                      ⇒
+      val f = new BooleanFunction(true)
+      val argBindings = f.params.bindTypes(typedArgs)
+      argBindings.getType(f.Params.Then) orElse argBindings.getType(f.Params.Else)
+    case userClass: Type.UserClass ⇒
       val Type.BuiltinFunction(constructor) = getConstructor(userClass)
       constructor.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-    case _                                                                                                                ⇒
+    case _                         ⇒
       None
   }
 

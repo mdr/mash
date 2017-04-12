@@ -64,6 +64,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   " 'toString' 42 " ==> " '42' "
   " 'foo' [{ foo: 42 }] " ==> "[42]"
 
+  // Booleans as functions
+  "true 1 2" ==> 1
+  "false 1 2" ==> 2
+  "a = 0; true (a += 1); a" ==> 1
+  "a = 0; false (a += 1); a" ==> 0
+  "a = 0; true (a += 1) (a -= 1); a" ==> 1
+  "a = 0; false (a += 1) (a -= 1); a" ==> -1
+
   // String escapes
   """ "`$" """ ==> " '$' "
   """ "`"" """ ==> """ '"' """
