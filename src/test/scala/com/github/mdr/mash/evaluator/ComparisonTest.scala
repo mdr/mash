@@ -72,4 +72,7 @@ class ComparisonTest extends AbstractEvaluatorTest {
   "false <= false" ==> true
   "true <= true" ==> true
 
+  // date/time comparisons
+  "now > 1.day.ago" ==> true
+
 }

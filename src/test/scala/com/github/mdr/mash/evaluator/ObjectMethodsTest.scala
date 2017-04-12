@@ -50,4 +50,32 @@ class ObjectMethodsTest extends AbstractEvaluatorTest {
   "[['a', 1], ['b', 2]] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
   "[{ name: 'a', value: 1 }, { name: 'b', value: 2 }] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
 
+  // Object.withField
+  "{}.withField 'foo' 42" ==> "{ foo: 42 }"
+  "{ foo: 42 }.withField 'bar' 256" ==> "{ foo: 42, bar: 256 }"
+  "{ foo: 42 }.withField 'foo' 256" ==> "{ foo: 256 }"
+  "{ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }.withField 'c' 100 | .fields[2].name" ==> "'c'"
+
+  // Object.get
+  "{ foo: 42 }.get 'foo'" ==> 42
+  "{}.get 'nope'" ==> null
+  "{}.get 'nope' --default=42" ==> 42
+
+  // Object literals
+  "{ 'foo': 42 }.foo" ==> 42
+  "{ ('foo' + 'bar'): 42 }" ==> "{ foobar: 42 }"
+  "foo = 42; bar = 128; { foo, bar }" ==> "{ foo: 42, bar: 128 }"
+  "def pi = 3.14; { pi }" ==> "{ pi: 3.14 }"
+
+  // Object.hasField
+  "{ foo: 42 }.hasField 'foo'" ==> true
+  "{ foo: 42 }.hasField 'bar'" ==> false
+
+  // Object.unbless
+  "class Thing; Thing.new.unbless.getClass" ==> "Object"
+
+  // Object.fields
+  "{ foo: 42 }.fields.name" ==> "['foo']"
+  "42.fields" shouldThrowAnException
+
 }

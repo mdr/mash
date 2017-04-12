@@ -6,6 +6,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" ==> true
   "class Box n; Box 42 == { n: 42 }" ==> false
+  "class Box n; b1 = Box 42; class Box n; b2 = Box 42; b1 == b2" ==> false
 
   "(class Box n) == (class Box n)" ==> false
   "class Box n; Box == Box" ==> true
@@ -13,25 +14,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "42 | _ < 100" ==> true
 
   "(x => x) | (f => f 42)" ==> "42"
-
-  // Multiplication
-  "'xy' * 3" ==> "'xyxyxy'"
-  "3 * 'xy'" ==> "'xyxyxy'"
-  "'x' * 1" ==> "'x'"
-  "'x' * 0" ==> "''"
-
-  "[1, 2] * 3" ==> "[1, 2, 1, 2, 1, 2]"
-  "3 * [1, 2]" ==> "[1, 2, 1, 2, 1, 2]"
-  "[1] * 1" ==> "[1]"
-  "[1] * 0" ==> "[]"
-
-  "3 * 1.second | .tag" ==> "time.Seconds"
-  "1.second * 3 | .tag" ==> "time.Seconds"
-
-  "1 * 2 + 3 * 4" ==> 14
-  "3 * 100 / 3" ==> 100
-  "10 / 10 / 10" ==> 0.1
-  "1 - 2 - 3" ==> -4
 
   "if 1 < 2 then 100 else 200" ==> 100
   "if 1 > 2 then 100 else 200" ==> 200
@@ -43,12 +25,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 4, 5] | filter (_ >= 3)" ==> "[3, 4, 5]"
 
   "{ foo: 42, bar: 24 } | [_.foo, _.bar]" ==> "[42, 24]"
-
-  "now > 1.day.ago" ==> true
-
-  // null
-  "null.in [1, 2, 3]" ==> false
-  "null.in [null]" ==> true
 
   // Indexing
   "[1, 2, 3][0]" ==> 1
@@ -228,24 +204,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'abc' | sliding 2" ==> "['ab', 'bc']"
   "'abc'.sliding 2" ==> "['ab', 'bc']"
 
-  // sort
-  " ['c', 'a', 'b'].sort " ==> "['a', 'b', 'c']"
-  "'eaebcd' | sort" ==> "'abcdee'"
-  "'eaebcd'.sort" ==> "'abcdee'"
-  "[1, null, 2].sort" ==> "[null, 1, 2]"
-  "sort [1, 3, 2] --descending" ==> "[3, 2, 1]"
-  "sort ['a1.txt', 'a10.txt', 'a2.txt'] --naturalOrder" ==> "['a1.txt', 'a2.txt', 'a10.txt']"
-  // Bug where we used lte rather than lt to sort with:
-  "sort [15, 12, 9, 3, 2, 90, 75, 7, 18, 9, 2, 1, 1, 14, 3, 3, 2, 21, 53, 2, 61, 24, 31, 1, 13, 14, 21, 4, 28, 17, 2, 5, 1, 17, 3, 3, 10, 100, 246, 176, 2, 10, 2, 4, 1, 1, 2, 1, 261, 1, 27, 10, 3, 6, 390, 44, 1, 2, 4, 1, 13, 4, 6, 1, 2, 8, 9, 3, 33, 9, 3, 131, 10, 2, 15, 35, 2, 157, 71, 32, 4, 12, 6, 7, 3, 8, 43, 8, 35, 1, 1, 11, 4, 2, 1, 9, 1]" shouldNotThrowAnException
-
-  // sortBy
-  " ['aa', 'b', 'ccc'] | sortBy length " ==> " ['b', 'aa', 'ccc'] "
-  "'123' | sortBy (-_.toNumber)" ==> "'321'"
-  "'123'.sortBy (-_.toNumber)" ==> "'321'"
-  "[{ foo: 1 }, { foo: null }, { foo: 2 }].sortBy 'foo'" ==> "[{ foo: null }, { foo: 1 }, { foo: 2 }]"
-  "[{ foo: 'a1.txt'}, { foo: 'a10.txt' }, { foo: 'a2.txt' }] | sortBy (.foo) --naturalOrder" ==>
-    "[{ foo: 'a1.txt'}, { foo: 'a2.txt' }, { foo: 'a10.txt' }]"
-
   // sum
   " [] | sum " ==> 0
   " [1, 2, 3] | sum " ==> 6
@@ -283,7 +241,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // zip
   "zip [1, 2, 3] [4, 5]" ==> "[[1, 4], [2, 5]]"
 
-  // matches
+  // String.matches
   " 'foo'.matches 'o' " ==> true
   " 'foo'.matches 'x' " ==> false
   " 'foo'.matches '^fo?.$' " ==> true
@@ -293,19 +251,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // startsWith
   " 'foo'.startsWith 'f' " ==> true
   " 'foo'.startsWith 'o' " ==> false
-
-  // in
-  "42.in [1, 2, 3]" ==> false
-  "2.in [1, 2, 3]" ==> true
-
-  // .toString
-  "null.toString" ==> " 'null' "
-  "2.toString" ==> " '2' "
-  "().toString" ==> "''"
-  "true.toString" ==> " 'true' "
-  "[1, 2, 3].toString" ==> "'[1, 2, 3]'"
-  """ "foo".toString.tag """ ==> """ "foo".tag """
-  "{ foo: 42 }" ==> "{ foo: 42 }"
 
   // .split
   "'foo bar baz'.split" ==> "['foo', 'bar', 'baz']"
@@ -322,13 +267,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "'`nfoo'.lines" ==> "['', 'foo']"
   "'foo`n`nbar'.lines" ==> "['foo', '', 'bar']"
   "'`n`n'.lines" ==> "['', '']"
-
-  // String concat
-  " 'foo' + 42 " ==> " 'foo42' "
-  " 42 + 'foo' " ==> " '42foo' "
-
-  // List concat
-  "[1, 2, 3] + [4, 5]" ==> "[1, 2, 3, 4, 5]"
 
   // Member vectorisation
   "['foo', 'bar', 'baz'].startsWith 'ba'" ==> "[false, true, true]"
@@ -417,16 +355,11 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Holes in paren invocation args
   "[{foo: 42}].map(_.foo)" ==> "[42]"
 
-  // .fields
-  "{ foo: 42 }.fields.name" ==> "['foo']"
-  "42.fields" shouldThrowAnException
-
   // list subtraction
   "[1, 2, 3, 4] - [2, 4]" ==> "[1, 3]"
   "[1, 2, 3, 4] - []" ==> "[1, 2, 3, 4]"
   "[] - [1, 2, 3]" ==> "[]"
   "[1, 2, 3, 2, 1] - [2, 1]" ==> "[3, 2, 1]"
-
 
   {
     // bare words
@@ -439,15 +372,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
     "a = 10; a" ==> 10
   }
-
-  // Object.hasField
-  "{ foo: 42 }.hasField 'foo'" ==> true
-  "{ foo: 42 }.hasField 'bar'" ==> false
-
-  // Any.isA
-  "42.isA Number" ==> true
-  "42.isA String" ==> false
-  "3.days.isA 3.days.tag" ==> true
 
   // Lambdas with multiple parameters
   "(x y => x * y) 2 3" ==> 6
@@ -462,45 +386,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 4, 5] | reduce (x y => x + y) 10" ==> 25
   "[] | reduce (x y => x + y) 10" ==> 10
 
-  // Object.withField
-  "{}.withField 'foo' 42" ==> "{ foo: 42 }"
-  "{ foo: 42 }.withField 'bar' 256" ==> "{ foo: 42, bar: 256 }"
-  "{ foo: 42 }.withField 'foo' 256" ==> "{ foo: 256 }"
-  "{ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }.withField 'c' 100 | .fields[2].name" ==> "'c'"
-
-  // Object.get
-  "{ foo: 42 }.get 'foo'" ==> 42
-  "{}.get 'nope'" ==> null
-  "{}.get 'nope' --default=42" ==> 42
-
-  // Object literals
-  "{ 'foo': 42 }.foo" ==> 42
-  "{ ('foo' + 'bar'): 42 }" ==> "{ foobar: 42 }"
-  "foo = 42; bar = 128; { foo, bar }" ==> "{ foo: 42, bar: 128 }"
-  "def pi = 3.14; { pi }" ==> "{ pi: 3.14 }"
-
   // holes
   "def baz = 128 + _; (baz) 72" ==> 200
   "def foo (x = _) = 42; foo" ==> 42
   "((x = _) => 42) | x => x" ==> 42
 
-  // Number.to
-  "1.to 5" ==> "[1, 2, 3, 4, 5]"
-  "1.to 10 --step=2" ==> "[1, 3, 5, 7, 9]"
-  "5.to 1 --step=-1" ==> "[5, 4, 3, 2, 1]"
-
-  // Number.until
-  "1.until 5" ==> "[1, 2, 3, 4]"
-  "1.until 10 --step=2" ==> "[1, 3, 5, 7, 9]"
-  "5.until 1 --step=-1" ==> "[5, 4, 3, 2]"
-
   // Lambdas inside parens and blocks
   "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" ==> 42
   "a = 0; (x => a += x; a += x) 21; a" ==> 42
-
-  // Number.times
-  "a = 0; 5.times (a += 1); a" ==> 5
-  "a = 0; (a += 1) | 5.times" ==> "[1, 2, 3, 4, 5]"
 
   // Lazy arguments
   "a = 0; def twice (@lazy block) = { block; block }; twice (a += 1); a" ==> 2
@@ -559,27 +452,12 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |}
     |mutu 3""" ==> 1
 
-  // @flag
-  "def foo (@flag m = 10) n = m + n; foo 3" ==> 13
-  "def foo (@flag m) n = m + n; foo 3 --m=20" ==> 23
-  "def twice (@lazy @flag body) = (body; body); a = 0; twice --body=(a += 1); a" ==> 2
-  "def twice (@lazy @flag body) = (body; body); a = 0; twice (a += 1); a" shouldThrowAnException
-
-  // @shortFlag
-  """def doSomething (@flag @(shortFlag 'd') dryRun = false) =
-    |  if dryRun then 'Dry run' else 'For reals'
-    |doSomething -d
-    | """.stripMargin ==> "'Dry run'"
-
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" ==> 6
   "class Point x y { def diff = x - y }; Point.bless { y: 4, x: 10 } | .diff" ==> 6
 
-  // .unbless
-  "class Thing; Thing.new.unbless.getClass" ==> "Object"
-
   // @alias
-  //  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> 42
+  "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> 42
 
   // defs, classes as expressions
   "[def foo = 42].first.invoke" ==> 42
