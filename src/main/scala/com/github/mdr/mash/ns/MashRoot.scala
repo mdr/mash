@@ -135,6 +135,7 @@ object MashRoot {
 
   private val CollectionsFunctions = Seq(
     AllFunction,
+    AllButLastFunction,
     AnyFunction,
     ContainsFunction,
     CountMatchesFunction,

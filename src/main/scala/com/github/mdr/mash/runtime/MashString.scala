@@ -31,6 +31,8 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
 
   def last = copy(s = s.last + "")
 
+  def init = copy(s = s.init)
+
   def length = MashNumber(s.length)
 
   def startsWith(that: MashString) = this.s.startsWith(that.s)

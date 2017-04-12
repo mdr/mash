@@ -142,7 +142,7 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
         val withAssociatedFunction = e.lastWasFunction(functionOpt)
-        val withAdditionalFrame = invocationLocationOpt.map(invocationLocation ⇒ withAssociatedFunction.push(invocationLocation))
+        val withAdditionalFrame = invocationLocationOpt.map(withAssociatedFunction.push)
         throw withAdditionalFrame getOrElse withAssociatedFunction
     }
 

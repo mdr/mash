@@ -50,8 +50,8 @@ If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is ret
 If a count ${N.nameOpt} is omitted, then the last item of the sequence is returned, if nonempty, else null.
 
 Examples:
-   last 3 [1, 2, 3, 4 5] # [3, 4, 5]
-   last 5 [1, 2, 3]      # [1, 2, 3]
-   last [1, 2, 3]        # 3
-   last []               # null""")
+   last 3 [1, 2, 3, 4, 5] # [3, 4, 5]
+   last 5 [1, 2, 3]       # [1, 2, 3]
+   last [1, 2, 3]         # 3
+   last []                # null""")
 }

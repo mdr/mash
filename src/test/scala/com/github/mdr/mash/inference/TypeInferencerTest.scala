@@ -391,6 +391,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
     "Foo.new.b" ==> NumberClass
   }
 
+  // skip
+  "[1, 2, 3] | skip 2" ==> Seq(NumberClass)
+  "[1, 2, 3] | skip" ==> Seq(NumberClass)
+
+  // allButLast
+  "[1, 2, 3] | allButLast 2" ==> Seq(NumberClass)
+  "[1, 2, 3] | allButLast" ==> Seq(NumberClass)
+
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =

@@ -9,6 +9,7 @@ object StringClass extends MashClass("core.String") {
 
   override val methods = Seq(
     ListClass.methodise(AllFunction),
+    ListClass.methodise(AllButLastFunction),
     ListClass.methodise(AnyFunction),
     ListClass.methodise(ChunkedFunction),
     ListClass.methodise(CountMatchesFunction),

@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* collections.allButLast
 * select --add preserves class
 * Import statements
 * Support 256 terminal colours

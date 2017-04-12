@@ -27,6 +27,8 @@ class MashList(val elements: ArrayBuffer[MashValue]) extends MashValue with Comp
 
   def last = withLock { elements.last }
 
+  def init = withLock { elements.init }
+
   def forall(p: MashValue ⇒ Boolean): Boolean = withLock { elements.forall(p) }
 
   def foreach(f: MashValue ⇒ Unit): Unit = withLock { elements.foreach(f) }

@@ -2,6 +2,15 @@ package com.github.mdr.mash.evaluator
 
 class SequenceFunctionsTest extends AbstractEvaluatorTest {
 
+  // allButLast
+  "allButLast [1, 2, 3, 4, 5]" ==> "[1, 2, 3, 4]"
+  "[1, 2, 3, 4, 5].allButLast" ==> "[1, 2, 3, 4]"
+  "allButLast 3 [1, 2, 3, 4, 5]" ==> "[1, 2]"
+  "allButLast 5 [1, 2, 3]" ==> "[]"
+  "allButLast []" ==> "[]"
+  "allButLast 5 []" ==> "[]"
+  "allButLast 'abcde'" ==> "'abcd'"
+
   // all
   "[2, 4, 6] | all (_ < 10)" ==> true
   "[2, 4, 6] | all (_ < 5)" ==> false
