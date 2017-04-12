@@ -479,52 +479,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "foo = 42; bar = 128; { foo, bar }" ==> "{ foo: 42, bar: 128 }"
   "def pi = 3.14; { pi }" ==> "{ pi: 3.14 }"
 
-  // Semicolon inference
-  """a = 1
-    |b = a + 1
-    |a + b""" ==> 3
-
-  """a = 1
-    |b = a +
-    |  1
-    |a + b""" ==> 3
-
-  """def foo (arg1 = 10)
-    |        (arg2 = 20) = 42
-    |foo
-  """ ==> 42
-
-  """def foo (arg1 = {
-    |           a = 10
-    |           b = 20
-    |           a + b
-    |        }) = arg1
-    |foo
-  """ ==> 30
-
-  """class A (arg1 = 10)
-    |A.new.arg1
-  """ ==> 10
-
-  """class A (arg1 = 10) (arg2 = 20) {
-    |  def a = arg1 + arg2
-    |  def b = a
-    |}
-    |A.new.b
-  """ ==> 30
-
-  """class A
-    |A.new.getClass.name
-  """ ==> "'A'"
-
-  """@attribute
-    |class A {
-    |  @attribute
-    |  def a = 42
-    |}
-    |A.new.a
-  """ ==> 42
-
   // holes
   "def baz = 128 + _; (baz) 72" ==> 200
   "def foo (x = _) = 42; foo" ==> 42
@@ -616,41 +570,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
     |  if dryRun then 'Dry run' else 'For reals'
     |doSomething -d
     | """.stripMargin ==> "'Dry run'"
-
-  // doc comments
-  """# Square a number
-    |def square n = n * n
-    |square.help.summary
-  """.stripMargin ==> "'Square a number'"
-
-  """# Summary
-    |# Description 1
-    |# Description 2
-    |# Description 3
-    |def fun x = x
-    |fun.help.description
-  """.stripMargin ==> "'Description 1`nDescription 2`nDescription 3'"
-
-  """# Square a number
-    |@private def square n = n * n
-    |square.help.summary
-  """.stripMargin ==> "'Square a number'"
-
-  """class A {
-    |  # Do something
-    |  @attribute
-    |  def method = 42
-    |}
-    |A.new.method? | .summary
-  """.stripMargin ==> "'Do something'"
-
-  """class A {
-    |  # Do something
-    |  @(attribute "with argument")
-    |  def method = 42
-    |}
-    |A.new.method? | .summary
-  """.stripMargin ==> "'Do something'"
 
   // .bless
   "class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff" ==> 6
