@@ -47,4 +47,15 @@ object SemicolonInferenceTest extends AbstractEvaluatorTest {
     |A.new.a
   """ ==> 42
 
+  """{ a: 1, b: 2 } | select --a
+  'b'""" ==> "'b'"
+
+  """[] | sort -d
+  100""" ==> 100
+
+  """{ foo: { bar: 100 } }
+      .foo
+      .bar
+  """ ==> 100
+
 }
