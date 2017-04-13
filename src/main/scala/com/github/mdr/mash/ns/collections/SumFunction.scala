@@ -54,7 +54,7 @@ object SumTypeInferenceStrategy extends TypeInferenceStrategy {
     val elementTypeOpt = argBindings.getType(SumFunction.Params.Sequence).collect {
       case Type.Seq(elementType) ⇒ elementType
     }
-    TypeInferencer.inferTypeAdd(elementTypeOpt, elementTypeOpt)
+    BinaryOperatorTypeInferencer.inferTypeAdd(elementTypeOpt, elementTypeOpt)
   }
 
 }

@@ -11,8 +11,8 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ FunctionDeclaration, _ }
-import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
-import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
+import com.github.mdr.mash.parser.QuotationType
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
@@ -34,55 +34,9 @@ object TypeInferencer {
       alias ← nameArg.valueOpt.collect { case s: MashString ⇒ s.s }
     } yield alias
 
-
-  private object StringLike {
-    def unapply(type_ : Type): Option[Type] = condOpt(type_) {
-      case Type.Tagged(StringClass, _) | Type.Instance(StringClass) ⇒ type_
-    }
-  }
-
-  private object NumberLike {
-    def unapply(type_ : Type): Option[Option[MashClass]] = condOpt(type_) {
-      case Type.Tagged(NumberClass, klass) ⇒ Some(klass)
-      case Type.Instance(NumberClass)      ⇒ None
-    }
-  }
-
-  def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
-    (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
-        if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
-      case (Some(StringLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(StringLike(_)))                                            ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_)))                                            ⇒ rightTypeOpt
-      case (Some(Type.Instance(klass1)), Some(Type.Instance(klass2)))
-        if klass1 == klass2 && klass1.isSubClassOf(ObjectClass)                ⇒
-        Some(Type.Instance(klass1))
-      case (Some(Type.UserClassInstance(userClass1)), Some(Type.UserClassInstance(userClass2)))
-        if userClass1 == userClass2                                            ⇒
-        Some(Type.UserClassInstance(userClass1))
-      case _                                                                   ⇒
-        val objectAdditionTypeOpt =
-          for {
-            leftFields ← leftTypeOpt.flatMap(getObjectFields)
-            rightFields ← rightTypeOpt.flatMap(getObjectFields)
-          } yield Type.Object(leftFields ++ rightFields)
-        objectAdditionTypeOpt orElse Some(Type.Instance(NumberClass))
-    }
-
-  private def getObjectFields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
-    case Type.Instance(klass)    ⇒ fields(klass)
-    case Type.Object(fields)     ⇒ fields
-    case Type.Generic(klass, _*) ⇒ fields(klass)
-  }
-
-  private def fields(klass: MashClass): Map[String, Type] =
-    klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
-
 }
 
-class TypeInferencer {
+class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInferencer {
 
   import TypeInferencer._
 
@@ -330,130 +284,6 @@ class TypeInferencer {
     Some(Type.Instance(BooleanClass))
   }
 
-  private def inferTypeBinOpExpr(binOpExpr: Expr, bindings: Map[String, Type]): Option[Type] = {
-    val BinOpExpr(left, op, right, _) = binOpExpr
-    val leftTypeOpt = inferType(left, bindings)
-    val rightTypeOpt = inferType(right, bindings)
-    inferTypeBinOpExpr(leftTypeOpt, op, rightTypeOpt, right)
-  }
-
-  private object ThingWithFields {
-    def unapply(type_ : Type): Option[Map[String, Type]] = getObjectFields(type_)
-  }
-
-  private def inferTypeMultiply(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
-    (leftTypeOpt, rightTypeOpt) match {
-      case (Some(NumberLike(Some(klass))), Some(NumberLike(_)))     ⇒ leftTypeOpt
-      case (Some(NumberLike(None)), Some(NumberLike(klassOpt)))     ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), Some(StringLike(_) | Type.Seq(_))) ⇒ rightTypeOpt
-      case (Some(StringLike(_) | Type.Seq(_)), Some(NumberLike(_))) ⇒ leftTypeOpt
-      case _                                                        ⇒ Some(Type.Instance(NumberClass))
-    }
-
-  private def inferTypeSubtract(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type], right: Expr): Option[Type] =
-    (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Tagged(NumberClass, _)), _)                   ⇒ leftTypeOpt
-      case (_, Some(Type.Tagged(NumberClass, _)))                   ⇒ rightTypeOpt
-      case (Some(ThingWithFields(leftFields)), Some(StringLike(_))) ⇒
-        right.constantValueOpt collect {
-          case MashString(fieldName, _) ⇒ Type.Object(leftFields - fieldName)
-        }
-      case (Some(ThingWithFields(leftFields)), Some(Type.Seq(_)))   ⇒
-        right.constantValueOpt collect {
-          case xs: MashList ⇒
-            val removedFields = xs.elements.collect { case MashString(s, _) ⇒ s }.toSet
-            Type.Object(leftFields.filterKeys(k ⇒ !removedFields.contains(k)))
-        }
-      case (Some(Type.Seq(elementType)), _)                         ⇒ leftTypeOpt
-      case (_, Some(Type.Seq(elementType)))                         ⇒ rightTypeOpt
-      case _                                                        ⇒ Some(NumberClass)
-    }
-
-  private def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type], right: Expr): Option[Type] = {
-    import BinaryOperator._
-    op match {
-      case Plus                                                                             ⇒
-        inferTypeAdd(leftTypeOpt, rightTypeOpt)
-      case Multiply                                                                         ⇒
-        inferTypeMultiply(leftTypeOpt, rightTypeOpt)
-      case Minus                                                                            ⇒
-        inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
-      case Divide                                                                           ⇒
-        (leftTypeOpt, rightTypeOpt) match {
-          case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
-          case (_, Some(Type.Tagged(NumberClass, _))) ⇒ rightTypeOpt
-          case _                                      ⇒ Some(NumberClass)
-        }
-      case Equals | NotEquals | LessThan | LessThanEquals | GreaterThan | GreaterThanEquals ⇒
-        Some(BooleanClass)
-      case Sequence                                                                         ⇒
-        rightTypeOpt
-      case And | Or                                                                         ⇒
-        leftTypeOpt orElse rightTypeOpt
-    }
-  }
-
-  private def inferTypeArg(arg: Argument, bindings: Map[String, Type]) {
-    arg match {
-      case Argument.PositionArg(e, _)              ⇒ inferType(e, bindings)
-      case Argument.LongFlag(flag, Some(value), _) ⇒ inferType(value, bindings)
-      case _                                       ⇒
-    }
-  }
-
-  private def inferTypeInvocation(functionType: Type,
-                                  typedArgs: TypedArguments,
-                                  function: Expr,
-                                  bindings: Map[String, Type]): Option[Type] = functionType match {
-    case Type.Patterns.AnyString(_)                                                                                       ⇒
-      for {
-        arg ← typedArgs.positionArgs.headOption
-        MashString(s, _) ← function.constantValueOpt
-        argType ← arg.typeOpt
-        memberType ← memberLookup(argType, s, immediateExec = true)
-      } yield memberType
-    case Type.Seq(elementType: Type.BoundUserDefinedMethod)                                                               ⇒
-      inferTypeInvocation(elementType, typedArgs, function, bindings).map(Type.Seq)
-    case Type.Seq(elementType: Type.BoundBuiltinMethod)                                                                   ⇒
-      inferTypeInvocation(elementType, typedArgs, function, bindings).map(Type.Seq)
-    case Type.Seq(elementType)                                                                                            ⇒
-      Some(elementType)
-    case Type.BoundUserDefinedMethod(targetType, Type.UserDefinedFunction(_, _, _, parameterModel, body, methodBindings)) ⇒
-      val argBindings = parameterModel.bindTypes(typedArgs).boundNames
-      inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))
-    case Type.BoundBuiltinMethod(targetType, method)                                                                      ⇒
-      val strategy = method.typeInferenceStrategy
-      val arguments = TypedArguments(typedArgs.arguments)
-      strategy.inferTypes(new Inferencer(this, bindings), Some(targetType), arguments)
-    case Type.BuiltinFunction(f)                                                                                          ⇒
-      f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-    case Type.UserDefinedFunction(_, _, _, parameterModel, expr, lambdaBindings)                                          ⇒
-      val argBindings = parameterModel.bindTypes(typedArgs).boundNames
-      inferType(expr, lambdaBindings ++ argBindings)
-    case Type.Instance(ClassClass)                                                                                        ⇒
-      getStaticMethodType(function, MashClass.ConstructorMethodName).flatMap { case Type.BuiltinFunction(f) ⇒
-        f.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-      }
-    case Type.Instance(BooleanClass)                                                                                      ⇒
-      val f = new BooleanFunction(true)
-      val argBindings = f.params.bindTypes(typedArgs)
-      argBindings.getType(f.Params.Then) orElse argBindings.getType(f.Params.Else)
-    case userClass: Type.UserClass ⇒
-      val Type.BuiltinFunction(constructor) = getConstructor(userClass)
-      constructor.typeInferenceStrategy.inferTypes(new Inferencer(this, bindings), typedArgs)
-    case _                         ⇒
-      None
-  }
-
-  private def inferTypeInvocationExpr(invocationExpr: InvocationExpr, bindings: Map[String, Type]): Option[Type] = {
-    val InvocationExpr(function, args, _, _) = invocationExpr
-
-    args.foreach(inferTypeArg(_, bindings))
-    val typedArgs = TypedArguments.from(invocationExpr)
-
-    inferType(function, bindings, immediateExec = false).flatMap(inferTypeInvocation(_, typedArgs, function, bindings))
-  }
-
   private def inferType(ifExpr: IfExpr, bindings: Map[String, Type]): Option[Type] = {
     val IfExpr(cond, body, elseOpt, _) = ifExpr
     inferType(cond, bindings)
@@ -476,7 +306,7 @@ class TypeInferencer {
       Type.BoundBuiltinMethod(targetType, method)
   }
 
-  private def getStaticMethodType(targetExpr: Expr, name: String): Option[Type.BuiltinFunction] =
+  protected def getStaticMethodType(targetExpr: Expr, name: String): Option[Type.BuiltinFunction] =
     targetExpr
       .constantValueOpt
       .flatMap(getStaticMethod(_, name))
@@ -503,7 +333,7 @@ class TypeInferencer {
       None
   }
 
-  private def getConstructor(userClass: Type.UserClass): Type.BuiltinFunction = {
+  protected def getConstructor(userClass: Type.UserClass): Type.BuiltinFunction = {
 
     object FakeFunction extends MashFunction(MashClass.ConstructorMethodName) {
 

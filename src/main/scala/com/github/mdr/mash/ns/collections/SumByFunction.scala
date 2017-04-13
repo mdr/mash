@@ -57,7 +57,7 @@ object SumByTypeInferenceStrategy extends TypeInferenceStrategy {
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val attributeArg = argBindings.getArgument(Attribute)
     val mappedTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, attributeArg, sequenceTypeOpt)
-    TypeInferencer.inferTypeAdd(mappedTypeOpt, mappedTypeOpt)
+    BinaryOperatorTypeInferencer.inferTypeAdd(mappedTypeOpt, mappedTypeOpt)
   }
 
 }
