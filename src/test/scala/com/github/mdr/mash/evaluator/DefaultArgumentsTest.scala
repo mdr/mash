@@ -20,4 +20,7 @@ class DefaultArgumentsTest extends AbstractEvaluatorTest {
   "init = 42; a = ((v = init) => init = v); a" ==> 42
   "init = 42; a = (def mkFun (v = init) = init = v); a" ==> 42
 
+  // Default arguments are not reused
+  "def foo (x = [1]) = { y = x[0]; x[0] = 100; y }; foo; foo" ==> 1
+
 }
