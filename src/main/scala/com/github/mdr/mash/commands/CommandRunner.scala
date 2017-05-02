@@ -84,8 +84,10 @@ class CommandRunner(output: PrintStream,
     val settings = CompilationSettings(bareWords = bareWords)
     Compiler.compile(unit, globals.immutableFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
-        if (printErrors)
-          errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(SourceLocation(unit.provenance, location))))
+        if (printErrors) {
+          val sourceLocation = SourceLocation(unit.provenance, location)
+          errorPrinter.printError("Syntax error", msg, unit, Seq(StackTraceItem(Some(sourceLocation))))
+        }
         None
       case Right(program)                  ⇒
         Some(program)

@@ -39,7 +39,7 @@ object Evaluator extends EvaluatorHelper {
         throw e
       case t: Exception                      ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
-          stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(loc)),
+          stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(Some(loc))),
           cause = t)
     }
   }

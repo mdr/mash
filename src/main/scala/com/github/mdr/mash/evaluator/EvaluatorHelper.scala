@@ -12,7 +12,7 @@ trait EvaluatorHelper {
       p
     catch {
       case e: EvaluatorException if e.stack.isEmpty ⇒
-        throw e.copy(stack = locationOpt.toList.map(loc ⇒ StackTraceItem(loc)))
+        throw e.copy(stack = locationOpt.toList.map(loc ⇒ StackTraceItem(Some(loc))))
     }
 
 }

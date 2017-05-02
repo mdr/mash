@@ -6,7 +6,7 @@ import com.github.mdr.mash.utils.PointedRegion
 
 case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion)
 
-case class StackTraceItem(location: SourceLocation, functionOpt: Option[MashCallable] = None)
+case class StackTraceItem(locationOpt: Option[SourceLocation], functionOpt: Option[MashCallable] = None)
 
 case class EvaluatorException(
   message: String,
@@ -15,7 +15,7 @@ case class EvaluatorException(
     extends RuntimeException(message, cause) {
 
   def this(message: String, locationOpt: Option[SourceLocation]) =
-    this(message, locationOpt.toList.map(loc ⇒ StackTraceItem(loc)))
+    this(message, List(StackTraceItem(locationOpt)))
 
   def causeOpt: Option[Throwable] = Option(cause)
 
@@ -27,6 +27,7 @@ case class EvaluatorException(
     copy(stack = newStack)
   }
 
-  def push(location: SourceLocation): EvaluatorException = copy(stack = StackTraceItem(location) :: stack)
+  def push(location: SourceLocation): EvaluatorException =
+    copy(stack = StackTraceItem(Some(location)) :: stack)
 
 }
