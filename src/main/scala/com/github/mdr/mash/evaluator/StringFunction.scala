@@ -17,14 +17,10 @@ class StringFunction(s: String,
 
   val params = ParameterModel(Seq(Target))
 
-  def apply(boundParams: BoundParams): MashValue =
-    boundParams(Target) match {
-      case xs: MashList ⇒ xs.map(lookupMember)
-      case target       ⇒ lookupMember(target)
-    }
-
-  private def lookupMember(target: MashValue): MashValue = {
-    val intermediateResult = MemberEvaluator.lookup(target, s, locationOpt = functionLocationOpt)
+  def apply(boundParams: BoundParams): MashValue = {
+    val target = boundParams(Target)
+    val intermediateResult = MemberEvaluator.evaluateMember(target, s,
+      isSafe = false, invokeNullaryWhenVectorising = true, thisTarget = false, locationOpt = None).result
     Evaluator.invokeNullaryFunctions(intermediateResult, invocationLocationOpt)
   }
 

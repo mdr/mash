@@ -37,6 +37,15 @@ object MemberEvaluator extends EvaluatorHelper {
     val name = memberExpr.name
     val isSafe = memberExpr.isSafe
     val locationOpt = getLocation(memberExpr)
+    evaluateMember(target, name, isSafe, invokeNullaryWhenVectorising, thisTarget, locationOpt)
+  }
+
+  def evaluateMember(target: MashValue,
+                     name: String,
+                     isSafe: Boolean,
+                     invokeNullaryWhenVectorising: Boolean,
+                     thisTarget: Boolean,
+                     locationOpt: Option[SourceLocation]): MemberExprEvalResult = {
     val scalarLookup = MemberEvaluator.maybeLookup(target, name, includePrivate = thisTarget).map(result ⇒
       MemberExprEvalResult(result))
     def vectorisedLookup = vectorisedMemberLookup(target, name, isSafe, invokeNullaryWhenVectorising, locationOpt)

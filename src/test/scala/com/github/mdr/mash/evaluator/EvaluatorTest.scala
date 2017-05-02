@@ -58,11 +58,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "['foo bar', 'baz'].split" ==> "[['foo', 'bar'], ['baz']]"
   "['foo:bar', 'baz'].split ':'" ==> "[['foo', 'bar'], ['baz']]"
   "[].noSuchMember" ==> "[]"
+  "['foo', 'bar', 'baz'].startsWith | map (_ 'b')" ==> "[false, true, true]"
 
   // Strings as functions
   " 'foo' { foo: 42 } " ==> 42
   " 'toString' 42 " ==> " '42' "
   " 'foo' [{ foo: 42 }] " ==> "[42]"
+  "'reverse' [1, 2, 3]" ==> "[3, 2, 1]"
+  "'startsWith' ['foo', 'bar', 'baz'] | map (_ 'b')" ==> "[false, true, true]"
 
   // Booleans as functions
   "true 1 2" ==> 1
