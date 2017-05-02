@@ -133,7 +133,7 @@ object InvocationEvaluator extends EvaluatorHelper {
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
     }
 
-  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation],
+  def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation] = None,
                                          functionOpt: Option[MashCallable] = None)(p: ⇒ T): T =
     try
       p
@@ -141,9 +141,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       case e: ArgumentException  ⇒
         throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
-        val withAssociatedFunction = e.lastWasFunction(functionOpt)
-        val withAdditionalFrame = invocationLocationOpt.map(withAssociatedFunction.push)
-        throw withAdditionalFrame getOrElse withAssociatedFunction
+        throw e.lastWasFunction(functionOpt).push(invocationLocationOpt)
     }
 
 }

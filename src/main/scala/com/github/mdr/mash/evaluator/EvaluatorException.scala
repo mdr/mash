@@ -27,7 +27,7 @@ case class EvaluatorException(
     copy(stack = newStack)
   }
 
-  def push(location: SourceLocation): EvaluatorException =
-    copy(stack = StackTraceItem(Some(location)) :: stack)
+  def push(locationOpt: Option[SourceLocation]): EvaluatorException =
+    copy(stack = StackTraceItem(locationOpt) :: stack)
 
 }

@@ -48,8 +48,9 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
           output.println(formatStrong(errorUnderlineLine))
         }
       case None ⇒
-        val functionName = functionOpt.getOrElse("anonymous")
-        output.println(s"$functionName: (builtin)")
+        val functionName = functionOpt.map(_.name).getOrElse("anonymous")
+        output.println(formatStrong(s"builtin:$functionName: ") + "no associated source")
+        output.println()
     }
   }
 
