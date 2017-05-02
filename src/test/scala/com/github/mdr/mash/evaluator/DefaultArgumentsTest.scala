@@ -16,4 +16,8 @@ class DefaultArgumentsTest extends AbstractEvaluatorTest {
   "class Foo wibble { def get (n = this) = n }; Foo 100 | .get.wibble" ==> 100
   "class Foo { def foo (n = bar) = n; def bar = 100 }; Foo.new.foo" ==> 100
 
+  // Default argument scope bug
+  "init = 42; a = ((v = init) => init = v); a" ==> 42
+  "init = 42; a = (def mkFun (v = init) = init = v); a" ==> 42
+
 }

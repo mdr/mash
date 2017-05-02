@@ -87,8 +87,9 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
   private def bindRegularParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
     val value = evalArgs match {
       case Seq()    ⇒
-        val valueGenerator = param.defaultValueGeneratorOpt.getOrElse(throw new AssertionError(s"No argument for mandatory param $param"))
-        valueGenerator.generate(context)
+        val generator = param.defaultValueGeneratorOpt.getOrElse(
+          throw new AssertionError(s"No argument for mandatory param $param"))
+        generator.generate(context)
       case Seq(arg) ⇒
         getArgValue(param, arg)
       case _        ⇒
