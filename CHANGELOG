@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* base64.decode
 * collections.allButLast
 * select --add preserves class
 * Import statements

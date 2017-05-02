@@ -50,7 +50,9 @@ object MashRoot {
         json.PostFunction,
         json.PrettyPrintFunction,
         json.PutFunction) ++
-      Seq(base64.EncodeFunction) ++
+      Seq(
+        base64.DecodeFunction,
+        base64.EncodeFunction) ++
       Seq(
         dns.LookupFunction,
         http.DeleteFunction,
