@@ -24,21 +24,14 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
   def apply(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
-    boundParams.validateIntegerOpt(N) match {
-      case Some(count) ⇒
-        if (count < 0)
-          boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
-        else
-          sequence match {
-            case s: MashString ⇒ s.modify(_ dropRight count)
-            case xs: MashList  ⇒ MashList(xs.elements dropRight count)
-          }
-      case None        ⇒
-        sequence match {
-          case s: MashString ⇒ if (s.isEmpty) MashNull else s.init
-          case xs: MashList  ⇒ if (xs.isEmpty) MashNull else MashList(xs.init)
-        }
-    }
+    val count = boundParams.validateInteger(N)
+    if (count < 0)
+      boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
+    else
+      sequence match {
+        case s: MashString ⇒ s.modify(_ dropRight count)
+        case xs: MashList  ⇒ MashList(xs.elements dropRight count)
+      }
   }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy

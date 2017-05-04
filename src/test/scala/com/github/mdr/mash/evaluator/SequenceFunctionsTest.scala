@@ -1,15 +1,8 @@
 package com.github.mdr.mash.evaluator
 
-class SequenceFunctionsTest extends AbstractEvaluatorTest {
+import scala.language.postfixOps
 
-  // allButLast
-  "allButLast [1, 2, 3, 4, 5]" ==> "[1, 2, 3, 4]"
-  "[1, 2, 3, 4, 5].allButLast" ==> "[1, 2, 3, 4]"
-  "allButLast 3 [1, 2, 3, 4, 5]" ==> "[1, 2]"
-  "allButLast 5 [1, 2, 3]" ==> "[]"
-  "allButLast []" ==> "[]"
-  "allButLast 5 []" ==> "[]"
-  "allButLast 'abcde'" ==> "'abcd'"
+class SequenceFunctionsTest extends AbstractEvaluatorTest {
 
   // all
   "[2, 4, 6] | all (_ < 10)" ==> true
@@ -19,6 +12,15 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "[0] | all (_)" ==> false
   "'aaa' | all (_ == 'a')" ==> true
   "'aaa'.all (_ == 'a')" ==> true
+
+  // allButLast
+  "allButLast [1, 2, 3, 4, 5]" ==> "[1, 2, 3, 4]"
+  "[1, 2, 3, 4, 5].allButLast" ==> "[1, 2, 3, 4]"
+  "allButLast 3 [1, 2, 3, 4, 5]" ==> "[1, 2]"
+  "allButLast 5 [1, 2, 3]" ==> "[]"
+  "allButLast []" ==> "[]"
+  "allButLast 5 []" ==> "[]"
+  "allButLast 'abcde'" ==> "'abcd'"
 
   // any
   "[2, 4, 6] | any (_ > 10)" ==> false
@@ -144,6 +146,10 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "[1] | reduce (x y => x + y)" ==> 1
   "[1, 2, 3, 4, 5] | reduce (x y => x + y) 10" ==> 25
   "[] | reduce (x y => x + y) 10" ==> 10
+  "[] | reduce (x y => x + y) null" ==> null
+  "[] | reduce (x y => x + y)" shouldThrowAnException
+
+  "'foo' | reduce (acc c => acc + [c]) []" ==> "['f', 'o', 'o']"
 
   // reverse
   "reverse 'trebor'" ==> " 'robert' "

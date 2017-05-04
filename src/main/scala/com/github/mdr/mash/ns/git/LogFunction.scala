@@ -5,6 +5,7 @@ import java.time.Instant
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.git.branch.{ CreateFunction, SwitchFunction }
 import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.lib.PersonIdent
@@ -19,7 +20,7 @@ object LogFunction extends MashFunction("git.log") {
     val Commit = Parameter(
       nameOpt = Some("commit"),
       summaryOpt = Some("Commit to find the log of"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
   }
   import Params._
 
@@ -28,7 +29,7 @@ object LogFunction extends MashFunction("git.log") {
   def apply(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val cmd = git.log
-      if (boundParams(Commit) != MashNull) {
+      if (boundParams(Commit) != NoArgValue) {
         val commit = MergeFunction.validateCommit(boundParams, Commit)
         cmd.add(commit)
       }

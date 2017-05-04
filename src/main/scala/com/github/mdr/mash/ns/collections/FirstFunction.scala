@@ -2,6 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, TypeInferenceStrategy, _ }
+import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashString, MashValue }
 
 import scala.PartialFunction.condOpt
@@ -12,7 +14,7 @@ object FirstFunction extends MashFunction("collections.first") {
     val N: Parameter = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the first value(s) of"),

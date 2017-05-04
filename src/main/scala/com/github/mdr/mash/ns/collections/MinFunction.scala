@@ -11,7 +11,8 @@ object MinFunction extends MashFunction("collections.min") {
       summaryOpt = Some("Items to find the minimum of"),
       descriptionOpt = Some("""If a single argument is provided, it must be a sequence; the smallest element of the sequence is returned.
 If multiple arguments are provided, the smallest argument is returned."""),
-      isVariadic = true)
+      isVariadic = true,
+      variadicAtLeastOne = true)
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default value to return, if the items are empty"),

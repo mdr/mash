@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
@@ -16,7 +15,8 @@ object MaxFunction extends MashFunction("collections.max") {
       descriptionOpt = Some(
         """If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
 If multiple arguments are provided, the largest argument is returned."""),
-      isVariadic = true)
+      isVariadic = true,
+      variadicAtLeastOne = true)
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default value to return, if the items are empty"),
@@ -40,8 +40,6 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   def getSequence(boundParams: BoundParams, itemsParam: Parameter) =
     boundParams.validateSequence(itemsParam) match {
-      case Seq()                                  ⇒
-        throw new EvaluatorException("Must provide at least one argument")
       case Seq(seq@(_: MashString | _: MashList)) ⇒
         FunctionHelpers.interpretAsSequence(seq)
       case Seq(other)                             ⇒

@@ -4,6 +4,8 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime._
 
@@ -49,13 +51,13 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateObjectOpt(param: Parameter): Option[MashObject] = this (param) match {
     case obj: MashObject ⇒ Some(obj)
-    case MashNull        ⇒ None
+    case NoArgValue      ⇒ None
     case x               ⇒ throwInvalidArgumentType("Object", x, param)
   }
 
   def validateStringOpt(param: Parameter): Option[MashString] = this (param) match {
     case s: MashString ⇒ Some(s)
-    case MashNull      ⇒ None
+    case NoArgValue    ⇒ None
     case x             ⇒ throwInvalidArgumentType("String", x, param)
   }
 
@@ -111,8 +113,8 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateIntegerOpt(param: Parameter): Option[Int] =
     this (param) match {
-      case MashNull ⇒ None
-      case value    ⇒ Some(validateInteger(param, value))
+      case NoArgValue ⇒ None
+      case value      ⇒ Some(validateInteger(param, value))
     }
 
   private def validateInteger(param: Parameter, v: MashValue): Int = v match {

@@ -2,6 +2,7 @@ package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
+import com.github.mdr.mash.ns.core.NoArgFunction
 import com.github.mdr.mash.runtime._
 
 case class Header(name: String, value: String)
@@ -24,7 +25,7 @@ object Header {
       case value            ⇒
         boundParams.throwInvalidArgument(param, "Invalid header of type " + value.typeName)
     }
-    MashNull.option(boundParams(param)).toSeq.flatMap {
+    NoArgFunction.option(boundParams(param)).toSeq.flatMap {
       case xs: MashList ⇒
         xs.elements.map(getHeader)
       case obj: MashObject ⇒

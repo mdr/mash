@@ -4,6 +4,8 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.subprocesses.ProcessRunner
 
@@ -18,7 +20,7 @@ object RunFunction extends MashFunction("os.run") {
     val StandardIn = Parameter(
       nameOpt = Some("standardIn"),
       summaryOpt = Some("What to send to standard input"),
-      defaultValueGeneratorOpt = Some(MashNull),
+      defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true,
       isFlagValueMandatory = true)
   }
@@ -41,12 +43,11 @@ object RunFunction extends MashFunction("os.run") {
     ProcessResultClass.fromResult(result)
   }
 
-  def getStandardInOpt(boundParams: BoundParams): Option[String] = {
-    MashNull.option(boundParams(StandardIn)).map {
+  def getStandardInOpt(boundParams: BoundParams): Option[String] =
+    NoArgFunction.option(boundParams(StandardIn)).map {
       case xs: MashList ⇒ xs.immutableElements.map(ToStringifier.stringify).mkString("\n")
       case x            ⇒ ToStringifier.stringify(x)
     }
-  }
 
   override def typeInferenceStrategy = ProcessResultClass
 

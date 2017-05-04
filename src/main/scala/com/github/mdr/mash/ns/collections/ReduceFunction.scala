@@ -3,6 +3,8 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.runtime._
 
 object ReduceFunction extends MashFunction("collections.reduce") {
@@ -12,11 +14,11 @@ object ReduceFunction extends MashFunction("collections.reduce") {
   object Params {
     val Accumulator = Parameter(
       nameOpt = Some("accumulator"),
-      summaryOpt = Some("Function to accumulate values"))
+      summaryOpt = Some("Function to accumulate values. Must have two arguments, first the "))
     val Initial = Parameter(
       nameOpt = Some("initial"),
       summaryOpt = Some("Initial value"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence of items to reduce"),
@@ -35,11 +37,11 @@ object ReduceFunction extends MashFunction("collections.reduce") {
   private def getInitialAndSequence(boundParams: BoundParams): (MashValue, Seq[MashValue]) = {
     val sequence = boundParams.validateSequence(Sequence)
     boundParams(Initial) match {
-      case MashNull ⇒
+      case NoArgValue ⇒
         val initial = sequence.headOption.getOrElse(
           boundParams.throwInvalidArgument(Sequence, "Empty sequence and no initial value provided"))
         (initial, sequence.tail)
-      case initial ⇒
+      case initial    ⇒
         (initial, sequence)
     }
   }

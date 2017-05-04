@@ -4,6 +4,7 @@ import java.util.regex.Pattern
 
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.Type
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 
@@ -20,7 +21,7 @@ object SplitMethod extends MashMethod("split") {
     val Separator = Parameter(
       nameOpt = Some("separator"),
       summaryOpt = Some("Separator to split string on; if not provided, the default is to split on whitespace"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
   }
 
   import Params._
@@ -46,7 +47,7 @@ object SplitMethod extends MashMethod("split") {
 
   def getSeparator(boundParams: BoundParams, param: Parameter, regex: Boolean): String =
     boundParams(Separator) match {
-      case MashNull                 ⇒ "\\s+"
+      case NoArgValue               ⇒ "\\s+"
       case MashString(separator, _) ⇒ if (regex) separator else Pattern.quote(separator)
       case x                        ⇒ boundParams.throwInvalidArgument(Separator, "Invalid separator of type " + x.typeName)
     }

@@ -5,6 +5,7 @@ import java.net.URI
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass, UnitClass }
 import com.github.mdr.mash.ns.os.OpenFunction
 import com.github.mdr.mash.runtime._
@@ -43,7 +44,7 @@ object UrlClass extends MashClass("net.Url") {
       val QueryParams = Parameter(
         nameOpt = Some("queryParams"),
         summaryOpt = Some("Query parameters to set on URL"),
-        defaultValueGeneratorOpt = Some(MashNull))
+        defaultValueGeneratorOpt = Some(NoArgValue))
 
       val NamedQueryParams = Parameter(
         nameOpt = Some("namedQueryParams"),

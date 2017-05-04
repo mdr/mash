@@ -4,6 +4,7 @@ import java.nio.charset.Charset
 
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
+import com.github.mdr.mash.ns.core.NoArgFunction
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString }
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.{ HttpHeaders, HttpRequest }
@@ -11,7 +12,7 @@ import org.apache.http.{ HttpHeaders, HttpRequest }
 object BasicCredentials {
 
   def getBasicCredentials(boundParams: BoundParams, param: Parameter): Option[BasicCredentials] =
-    MashNull.option(boundParams(param)).map {
+    NoArgFunction.option(boundParams(param)).map {
       case MashString(s, _) ⇒
         val chunks = s.split(":").toSeq
         if (chunks.length != 2)

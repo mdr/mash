@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.http
 
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.http.HttpFunctions.Params._
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashObject, MashString }
 
@@ -15,7 +16,7 @@ object HttpFunctions {
     val Body = Parameter(
       nameOpt = Some("body"),
       summaryOpt = Some("Body of request"),
-      defaultValueGeneratorOpt = Some(() ⇒ MashString("")))
+      defaultValueGeneratorOpt = Some(MashString("")))
 
     val File = Parameter(
       nameOpt = Some("file"),
@@ -32,7 +33,7 @@ object HttpFunctions {
       nameOpt = Some("basicAuth"),
       summaryOpt = Some("Basic authentication"),
       descriptionOpt = Some("Must either be a String of the form 'username:password', or an object of the form { username: 'username', password: 'password' }"),
-      defaultValueGeneratorOpt = Some(MashNull),
+      defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true)
 
     val Headers = Parameter(
@@ -44,7 +45,7 @@ object HttpFunctions {
           |  --headers=["header1:value", "header2:value"]
           |  --headers=[{ name: "header1", value: "value"}]""".stripMargin),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
 
     val QueryParams = Parameter(
       nameOpt = Some("queryParams"),

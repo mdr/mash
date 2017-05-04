@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashString, MashValue }
 
 object LastFunction extends MashFunction("collections.last") {
@@ -9,7 +10,7 @@ object LastFunction extends MashFunction("collections.last") {
     val N = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements to take"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the last value(s) of"),

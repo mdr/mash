@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashUnit }
@@ -33,7 +34,7 @@ object PushFunction extends MashFunction("git.push") {
       isFlag = true,
       isFlagValueMandatory = true,
       summaryOpt = Some("Remote to push to"),
-      defaultValueGeneratorOpt = Some(MashNull))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val Branches = Parameter(
       nameOpt = Some("branches"),
       summaryOpt = Some("Local branch to push"),

@@ -13,12 +13,8 @@ trait ValueGenerator {
 
 object ValueGenerator {
 
+  implicit def fromValue(v: MashValue): ValueGenerator = context ⇒ v
   implicit def fromThunk(gen: () ⇒ MashValue): ValueGenerator = context ⇒ gen()
-  implicit def fromBoolean(b: MashBoolean): ValueGenerator = context ⇒ b
-  implicit def fromNumber(n: MashNumber): ValueGenerator = context ⇒ n
-  implicit def fromString(s: MashString): ValueGenerator = context ⇒ s
-  implicit def fromNull(n: MashNull.type): ValueGenerator = context ⇒ n
-  implicit def fromUnit(u: MashUnit.type): ValueGenerator = context ⇒ u
   implicit def fromFun(gen: EvaluationContext ⇒ MashValue): ValueGenerator = context ⇒ gen(context)
 
 }

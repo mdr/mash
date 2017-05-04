@@ -3,7 +3,8 @@ package com.github.mdr.mash.ns.core.objectClass
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
+import com.github.mdr.mash.ns.core.{ NoArgFunction, ObjectClass }
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction._
@@ -17,7 +18,7 @@ object HoistMethod extends MashMethod("hoist") {
     val Prefix = Parameter(
       nameOpt = Some("prefix"),
       summaryOpt = Some("Add this prefix to hoisted field names"),
-      defaultValueGeneratorOpt = Some(MashNull),
+      defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true,
       flagValueNameOpt = Some("prefix"))
   }
