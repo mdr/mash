@@ -12,7 +12,7 @@ object SizeMethod extends MashMethod("size") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
+  def call(target: MashValue, boundParams: BoundParams): MashNumber = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))
     MashNumber(summary.size, Some(BytesClass))
   }

@@ -21,7 +21,7 @@ object RenameByMethod extends MashMethod("renameBy") {
 
   val params = ParameterModel(Seq(F))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val path = FunctionHelpers.interpretAsPath(target)
     val renamerFunction = boundParams.validateFunction(F)
     val newFileName = Paths.get(ToStringifier.stringify(renamerFunction(asPathString(path.getFileName))))

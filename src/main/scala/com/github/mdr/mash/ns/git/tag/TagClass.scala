@@ -32,7 +32,7 @@ object TagClass extends MashClass("git.tag.Tag") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+    def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val tagName = Wrapper(target).name
       GitHelper.withGit { git ⇒
         git.tagDelete.setTags(tagName).call()

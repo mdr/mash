@@ -28,7 +28,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel(Seq(Object))
 
-    override def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    override def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = boundParams(Object) match {
         case obj: MashObject ⇒ obj
         case value           ⇒ boundParams.throwInvalidArgument(Object, s"Must be an object, but was a ${value.typeName}")
@@ -57,7 +57,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = {
+    def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
     }
 
@@ -71,7 +71,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = {
+    def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].name)
     }
 
@@ -85,7 +85,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)
     }
 
@@ -99,7 +99,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       HelpCreator.getHelp(target)
     }
 

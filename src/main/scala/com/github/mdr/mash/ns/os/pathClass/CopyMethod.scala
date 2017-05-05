@@ -18,7 +18,7 @@ object CopyMethod extends MashMethod("copy") {
 
   val params = ParameterModel(Seq(Destination))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+  def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val source = FunctionHelpers.interpretAsPath(target)
     val destination = boundParams.validatePath(Destination)
     if (Files.isDirectory(source))

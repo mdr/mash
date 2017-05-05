@@ -16,7 +16,7 @@ object IntersectMethod extends MashMethod("intersect") {
 
   override val params = ParameterModel(Seq(Sequence))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val sequence = MashList(boundParams.validateSequence(Sequence))
     target.asInstanceOf[MashList] intersect sequence
   }

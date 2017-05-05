@@ -11,7 +11,7 @@ object IsDirectoryMethod extends MashMethod("isDirectory") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     MashBoolean(Files.isDirectory(interpretAsPath(target)))
   }
 

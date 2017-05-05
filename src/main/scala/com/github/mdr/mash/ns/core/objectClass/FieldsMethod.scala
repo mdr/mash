@@ -11,7 +11,7 @@ object FieldsMethod extends MashMethod("fields") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val obj = target.asInstanceOf[MashObject]
     MashList(getFieldObjects(obj))
   }

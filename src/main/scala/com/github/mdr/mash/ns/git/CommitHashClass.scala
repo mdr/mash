@@ -27,7 +27,7 @@ object CommitHashClass extends MashClass("git.CommitHash") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val hash = target.asInstanceOf[MashString].s
       getCommit(hash)
     }

@@ -8,7 +8,7 @@ object ExtensionMethod extends MashMethod("extension") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
     if (name contains ".")
       MashString(name.reverse.takeWhile(_ != '.').reverse)

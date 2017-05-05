@@ -13,7 +13,7 @@ object SegmentsMethod extends MashMethod("segments") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val segments: Seq[Path] = interpretAsPath(target).asScala.toSeq
     MashList(segments.map(asPathString))
   }

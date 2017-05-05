@@ -29,11 +29,11 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = method.params
 
-    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
-      method.apply(processObject, boundParams)
+      method.call(processObject, boundParams)
     }
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
@@ -51,7 +51,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
@@ -70,7 +70,7 @@ object PidClass extends MashClass("os.Pid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val pid = Wrapper(target).pid
       val processInfo = getProcessInfo(pid)
       ProcessClass.makeProcess(processInfo)

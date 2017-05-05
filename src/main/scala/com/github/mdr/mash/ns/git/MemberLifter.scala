@@ -10,7 +10,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
       obj.fields(field.name)
@@ -30,10 +30,10 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
     val params = method.params
 
-    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
-      method.apply(obj, boundParams)
+      method.call(obj, boundParams)
     }
 
     override def typeInferenceStrategy = method.typeInferenceStrategy

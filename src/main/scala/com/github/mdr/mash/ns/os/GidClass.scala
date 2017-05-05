@@ -20,7 +20,7 @@ object GidClass extends MashClass("os.Gid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+    def call(target: MashValue, boundParams: BoundParams): MashList = {
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(
         throw new EvaluatorException(s"Could not find group with gid $gid"))
@@ -37,7 +37,7 @@ object GidClass extends MashClass("os.Gid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = {
+    def call(target: MashValue, boundParams: BoundParams): MashString = {
       val gid = target.asInstanceOf[MashNumber].asInt.get
       val groupEntry = userInteractions.groupEntries.find(_.gid == gid).getOrElse(
         throw new EvaluatorException(s"Could not find group with gid $gid"))

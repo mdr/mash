@@ -61,7 +61,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel(Seq(Switch))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val switch = boundParams(Switch).isTruthy
       GitHelper.withGit { git ⇒
         val wrapper = Wrapper(target)
@@ -86,7 +86,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+    def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val wrapper = Wrapper(target)
       GitHelper.withGit { git ⇒
         val refSpec = new RefSpec(":" + wrapper.name)
@@ -111,7 +111,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+    def call(target: MashValue, boundParams: BoundParams): MashList = {
       val branchName = Wrapper(target).fullName.s
       GitHelper.withRepository { repo ⇒
         val git = new Git(repo)
@@ -131,7 +131,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = {
+    def call(target: MashValue, boundParams: BoundParams): MashString = {
       Wrapper(target).fullName
     }
 

@@ -11,7 +11,7 @@ object ReadMethod extends MashMethod("read") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val path = interpretAsPath(target)
     MashString(fileSystem.read(path))
   }

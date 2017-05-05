@@ -18,7 +18,7 @@ object ToDateTimeMethod extends MashMethod("toDateTime") {
   def parseInstant(s: String): Option[Instant] =
     parser.parse(s).asScala.headOption.flatMap(_.getDates.asScala.headOption).map(_.toInstant)
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     parseInstant(target.asInstanceOf[MashString].s).map(MashWrapped).getOrElse(MashNull)
   }
 

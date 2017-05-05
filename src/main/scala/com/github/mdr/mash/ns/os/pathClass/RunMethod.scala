@@ -18,7 +18,7 @@ object RunMethod extends MashMethod("run") {
 
   val params = ParameterModel(Seq(Args, RunFunction.Params.StandardIn))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val args =
       target +: (boundParams(Args) match {
         case MashList(MashString(s, _)) ⇒ s.trim.split("\\s+").map(MashString(_)).toSeq

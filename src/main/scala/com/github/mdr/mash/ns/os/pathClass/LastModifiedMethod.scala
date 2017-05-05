@@ -12,7 +12,7 @@ object LastModifiedMethod extends MashMethod("lastModified") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
+  def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
     MashWrapped(fileSystem.getPathSummary(interpretAsPath(target)).lastModified)
   }
 

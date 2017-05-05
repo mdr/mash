@@ -17,7 +17,7 @@ object BlessMethod extends MashMethod("bless") {
 
   val params = ParameterModel(Seq(Class))
 
-  override def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  override def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
     val klass = boundParams(Class) match {
       case klass: MashClass ⇒ klass

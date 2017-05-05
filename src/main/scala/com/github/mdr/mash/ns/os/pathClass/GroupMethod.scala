@@ -13,7 +13,7 @@ object GroupMethod extends MashMethod("group") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))
     MashString(summary.group, Some(GroupClass))
   }

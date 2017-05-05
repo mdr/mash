@@ -14,7 +14,7 @@ object IsEmptyDirMethod extends MashMethod("isEmptyDir") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val path = interpretAsPath(target)
     MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
   }

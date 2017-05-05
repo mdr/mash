@@ -19,7 +19,7 @@ object TransformValuesMethod extends MashMethod("transformValues") {
 
   val params = ParameterModel(Seq(F))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
     boundParams.validateFunction1Or2(F) match {
       case Left(f)  ⇒ MashObject.of(obj.immutableFields.mapValues(f))

@@ -9,7 +9,7 @@ object ToPathMethod extends MashMethod("toPath") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     target.asInstanceOf[MashString].copy(tagClassOpt = Some(PathClass))
   }
 

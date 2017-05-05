@@ -21,7 +21,7 @@ object GetMethod extends MashMethod("get") {
 
   val params = ParameterModel(Seq(Name, Default))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
     val field = boundParams.validateString(Name).s
     val default = boundParams(Default)

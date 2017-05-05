@@ -31,7 +31,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel(Seq(Args, NamedArgs))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
       val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
@@ -43,7 +43,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val method = boundMethod.method
       val invocationBoundParams = method.params.bindTo(methodArguments, method.paramContext(target))
       InvocationEvaluator.addInvocationToStackOnException(functionOpt = Some(boundMethod)) {
-        method.apply(boundMethod.target, invocationBoundParams)
+        method.call(boundMethod.target, invocationBoundParams)
       }
     }
 
@@ -55,7 +55,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       HelpCreator.getHelp(target)
     }
 
@@ -69,7 +69,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[BoundMethod].target
     }
 

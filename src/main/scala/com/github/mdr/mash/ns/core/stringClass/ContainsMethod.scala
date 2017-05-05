@@ -17,7 +17,7 @@ object ContainsMethod extends MashMethod("contains") {
 
   val params = ParameterModel(Seq(Substring))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString].s
     val pattern = ToStringifier.stringify(boundParams(Substring))
     MashBoolean(s contains pattern)

@@ -74,7 +74,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       method.params.bindTo(arguments, method.paramContext(target))
     }
     addInvocationToStackOnException(invocationLocationOpt, Some(boundMethod)) {
-      method(target, boundParams)
+      method.call(target, boundParams)
     }
   }
 

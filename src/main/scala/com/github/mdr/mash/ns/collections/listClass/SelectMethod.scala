@@ -12,7 +12,7 @@ object SelectMethod extends MashMethod("select") {
 
   override val params = ParameterModel(Seq(Add, Selectors))
 
-  override def apply(target: MashValue, boundParams: BoundParams): MashValue =
+  override def call(target: MashValue, boundParams: BoundParams): MashValue =
     SelectFunction.doSelect(target, boundParams)
 
   override def summaryOpt: Option[String] = SelectFunction.summaryOpt

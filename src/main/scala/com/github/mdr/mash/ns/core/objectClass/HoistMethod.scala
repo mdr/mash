@@ -27,7 +27,7 @@ object HoistMethod extends MashMethod("hoist") {
 
   val params = ParameterModel(Seq(FieldName, Prefix))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
     val field = boundParams.validateString(FieldName).s
     val prefixOpt = boundParams.validateStringOpt(Prefix).map(_.s)

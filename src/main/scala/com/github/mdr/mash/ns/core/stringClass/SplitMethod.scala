@@ -28,7 +28,7 @@ object SplitMethod extends MashMethod("split") {
 
   val params = ParameterModel(Seq(Regex, Separator))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val targetString = target.asInstanceOf[MashString]
     val regex = boundParams(Regex).isTruthy
     val separator = getSeparator(boundParams, Separator, regex)

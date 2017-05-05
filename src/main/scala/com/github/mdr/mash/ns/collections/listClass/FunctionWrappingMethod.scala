@@ -18,7 +18,7 @@ case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[Str
 
   val params = function.params.copy(function.params.params.filterNot(_.nameOpt contains targetParamName))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val actualTarget = function match {
       case MinFunction | MaxFunction ⇒ MashList.of(target)
       case _                         ⇒ target

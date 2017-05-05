@@ -16,7 +16,7 @@ object StartsWithMethod extends MashMethod("startsWith") {
 
   val params = ParameterModel(Seq(Prefix))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString]
     val pattern = boundParams(Prefix).asInstanceOf[MashString]
     MashBoolean(s.startsWith(pattern))

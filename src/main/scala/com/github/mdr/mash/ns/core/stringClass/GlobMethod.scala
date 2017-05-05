@@ -13,7 +13,7 @@ object GlobMethod extends MashMethod("glob") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val pattern = target.asInstanceOf[MashString].s
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }

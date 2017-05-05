@@ -10,7 +10,7 @@ object NameMethod extends MashMethod("name") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     asPathString(interpretAsPath(target).getFileName)
   }
 

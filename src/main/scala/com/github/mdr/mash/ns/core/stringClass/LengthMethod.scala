@@ -8,7 +8,7 @@ object LengthMethod extends MashMethod("length") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashNumber = {
+  def call(target: MashValue, boundParams: BoundParams): MashNumber = {
     target.asInstanceOf[MashString].length
   }
 

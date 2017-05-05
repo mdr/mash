@@ -10,7 +10,7 @@ object ParentMethod extends MashMethod("parent") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val parent = interpretAsPath(target).getParent
     if (parent == null)
       MashNull

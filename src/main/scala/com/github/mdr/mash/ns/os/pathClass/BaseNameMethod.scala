@@ -9,7 +9,7 @@ object BaseNameMethod extends MashMethod("baseName") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString
     MashString(FilenameUtils.getBaseName(name))
   }

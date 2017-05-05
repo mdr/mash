@@ -8,7 +8,7 @@ object TagMethod extends MashMethod("tag") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     target.asInstanceOf[MashString].tagClassOpt.getOrElse(MashNull)
   }
 

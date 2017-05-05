@@ -10,7 +10,7 @@ object WhereNotMethod extends MashMethod("whereNot") {
 
   val params = ParameterModel(Seq(Predicate))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
     doWhereNot(obj, boundParams)
   }

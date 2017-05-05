@@ -27,7 +27,7 @@ object ReplaceMethod extends MashMethod("replace") {
 
   val params = ParameterModel(Seq(Target, Replacement, Regex))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val s = target.asInstanceOf[MashString]
     val regex = boundParams(Regex).isTruthy
     val targetString = boundParams.validateString(Target).s

@@ -16,7 +16,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       HelpCreator.getHelp(target)
     }
 
@@ -42,7 +42,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     val params = ParameterModel(Seq(Args, NamedArgs))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val function = target.asInstanceOf[MashFunction]
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)

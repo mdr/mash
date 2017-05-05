@@ -23,7 +23,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = MashBoolean(target.isNull)
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = MashBoolean(target.isNull)
 
     override def summaryOpt = Some("Check whether or not the given value is null")
 
@@ -40,7 +40,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(target.isTruthy)
     }
 
@@ -69,7 +69,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel(Seq(Class))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val klass = boundParams.validateClass(Class)
       MashBoolean(target isA klass)
     }
@@ -91,7 +91,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashClass = target.primaryClass
+    def call(target: MashValue, boundParams: BoundParams): MashClass = target.primaryClass
 
     override def typeInferenceStrategy = ClassClass
 
@@ -103,7 +103,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashString = target match {
+    def call(target: MashValue, boundParams: BoundParams): MashString = target match {
       case s: MashString ⇒ s
       case _             ⇒ MashString(stringify(target))
     }
@@ -150,7 +150,7 @@ object AnyClass extends MashClass("core.Any") {
 
     val params = ParameterModel(Seq(Sequence))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val sequence = boundParams.validateSequence(Sequence)
       MashBoolean(sequence.contains(target))
     }

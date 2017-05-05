@@ -7,11 +7,11 @@ import com.github.mdr.mash.runtime.MashValue
 
 abstract class MashMethod(val name: String) {
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue
+  def call(target: MashValue, boundParams: BoundParams): MashValue
 
   def paramContext(target: MashValue): EvaluationContext = EvaluationContext.NotUsed
 
-  def applyNullary(target: MashValue): MashValue = apply(target, params.bindTo(Arguments.EmptyArguments, paramContext(target)))
+  def applyNullary(target: MashValue): MashValue = call(target, params.bindTo(Arguments.EmptyArguments, paramContext(target)))
 
   def params: ParameterModel
 

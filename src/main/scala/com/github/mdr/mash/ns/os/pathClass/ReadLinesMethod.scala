@@ -11,7 +11,7 @@ object ReadLinesMethod extends MashMethod("readLines") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val path = interpretAsPath(target)
     ReadLinesFunction.readLines(path)
   }

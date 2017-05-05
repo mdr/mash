@@ -28,7 +28,7 @@ Otherwise, write the item as a string."""))
 
   val params = ParameterModel(Seq(Append, Data))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+  def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val append = boundParams(Append).isTruthy
     val path = interpretAsPath(target)
     val data = boundParams(Data)

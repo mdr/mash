@@ -8,7 +8,7 @@ object LinesMethod extends MashMethod("lines") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val targetString = target.asInstanceOf[MashString]
     val pieces = StringUtils.splitIntoLines(targetString.s)
     MashList(pieces.map(MashString(_, targetString.tagClassOpt)))

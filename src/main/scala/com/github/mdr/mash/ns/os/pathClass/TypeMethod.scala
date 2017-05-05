@@ -13,7 +13,7 @@ object TypeMethod extends MashMethod("type") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))
     MashString(summary.fileType, Some(FileTypeClass))
   }

@@ -12,7 +12,7 @@ object GrepMethod extends MashMethod("grep") {
 
   val params = ParameterModel(Seq(Query, IgnoreCase, Regex, Negate))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
     doGrep(obj, boundParams)
   }

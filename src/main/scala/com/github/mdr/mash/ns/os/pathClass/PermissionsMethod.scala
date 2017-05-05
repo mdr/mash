@@ -12,7 +12,7 @@ object PermissionsMethod extends MashMethod("permissions") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))
     val permissions = summary.permissions
     PermissionsClass.asMashObject(permissions)

@@ -8,7 +8,7 @@ object UnblessMethod extends MashMethod("unbless") {
 
   val params = ParameterModel()
 
-  override def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  override def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
     obj.withoutClass
   }

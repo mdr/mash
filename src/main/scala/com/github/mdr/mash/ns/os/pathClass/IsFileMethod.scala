@@ -11,7 +11,7 @@ object IsFileMethod extends MashMethod("isFile") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     MashBoolean(Files.isRegularFile(interpretAsPath(target)))
   }
 

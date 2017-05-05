@@ -11,7 +11,7 @@ object ExistsMethod extends MashMethod("exists") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val path = FunctionHelpers.interpretAsPath(target)
     MashBoolean(fileSystem.exists(path))
   }

@@ -19,7 +19,7 @@ object GroupClass extends MashClass("os.Group") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val group = target.asInstanceOf[MashString].s
       val groupEntryOpt = userInteractions.groupEntries.find(_.group == group)
       groupEntryOpt.map(entry ⇒ MashNumber(entry.gid, GidClass)) getOrElse MashNull
@@ -35,7 +35,7 @@ object GroupClass extends MashClass("os.Group") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+    def call(target: MashValue, boundParams: BoundParams): MashList = {
       val group = target.asInstanceOf[MashString].s
       MashList(getUsers(group))
     }

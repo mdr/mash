@@ -13,7 +13,7 @@ object ChildrenMethod extends MashMethod("children") {
 
   val params = ParameterModel(ChildrenFunction.params.params.tail)
 
-  def apply(target: MashValue, boundParams: BoundParams): MashList = {
+  def call(target: MashValue, boundParams: BoundParams): MashList = {
     val ignoreDotFiles = boundParams(ChildrenFunction.Params.IgnoreDotFiles).isTruthy
     val recursive = boundParams(ChildrenFunction.Params.Recursive).isTruthy
     val parentDir = FunctionHelpers.interpretAsPath(target)

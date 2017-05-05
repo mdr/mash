@@ -21,7 +21,7 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
@@ -40,11 +40,11 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = method.params
 
-    override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
-      method.apply(userSummary, boundParams)
+      method.call(userSummary, boundParams)
     }
 
     override def typeInferenceStrategy = method.typeInferenceStrategy
@@ -62,7 +62,7 @@ object UidClass extends MashClass("os.Uid") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       UserSummaryClass.fromPasswdEntry(passwdEntry)

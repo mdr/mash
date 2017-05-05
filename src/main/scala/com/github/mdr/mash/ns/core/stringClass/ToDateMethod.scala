@@ -8,7 +8,7 @@ object ToDateMethod extends MashMethod("toDate") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     ToDateTimeMethod.parseInstant(target.asInstanceOf[MashString].s)
       .map(DateTimeClass.DateMethod.toLocalDate)
       .map(MashWrapped)

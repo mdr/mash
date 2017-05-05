@@ -16,7 +16,7 @@ object HasFieldMethod extends MashMethod("hasField") {
 
   val params = ParameterModel(Seq(Name))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val obj = target.asInstanceOf[MashObject]
     val field = boundParams.validateString(Name).s
     MashBoolean(obj.fields.contains(field))

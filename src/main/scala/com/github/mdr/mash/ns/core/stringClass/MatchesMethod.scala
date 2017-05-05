@@ -26,7 +26,7 @@ object MatchesMethod extends MashMethod("matches") {
 
   val params = ParameterModel(Seq(_Pattern, IgnoreCase))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+  def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString].s
     val pattern = ToStringifier.stringify(boundParams(_Pattern))
     val ignoreCase = boundParams(IgnoreCase).isTruthy

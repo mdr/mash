@@ -39,7 +39,7 @@ object TimedResultClass extends MashClass("core.TimedResult") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
+    def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val wrapper = Wrapper(target)
       val started = wrapper.started
       MashWrapped(started plusMillis wrapper.duration)

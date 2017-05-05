@@ -14,7 +14,7 @@ object DeleteMethod extends MashMethod("delete") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+  def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val path = interpretAsPath(target)
     if (Files.isDirectory(path))
       FileUtils.deleteDirectory(path.toFile)

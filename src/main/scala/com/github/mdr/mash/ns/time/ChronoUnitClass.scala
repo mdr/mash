@@ -21,7 +21,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+    def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val nowInstant = clock.instant
       val now = LocalDateTime.ofInstant(nowInstant, clock.getZone)
       val amount = temporalAmount(target.asInstanceOf[MashNumber].n.toInt)
@@ -41,7 +41,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
+    def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
       MashWrapped(now.minus(temporalAmount(amount)).atZone(clock.getZone).toInstant)
@@ -57,7 +57,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashWrapped = {
+    def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
       val amount = target.asInstanceOf[MashNumber].n.toInt
       MashWrapped(now.plus(temporalAmount(amount)).atZone(clock.getZone).toInstant)

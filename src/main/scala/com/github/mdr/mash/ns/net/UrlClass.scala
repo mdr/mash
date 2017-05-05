@@ -24,7 +24,7 @@ object UrlClass extends MashClass("net.Url") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uri = targetUri(target)
 
       Option(uri.getHost).map(MashString(_, HostClass)) getOrElse MashNull
@@ -57,7 +57,7 @@ object UrlClass extends MashClass("net.Url") {
 
     val params = ParameterModel(Seq(QueryParams, NamedQueryParams))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uri = targetUri(target)
       val builder = new URIBuilder(uri)
       def addObject(obj: MashObject) =
@@ -83,7 +83,7 @@ object UrlClass extends MashClass("net.Url") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashUnit =
+    def call(target: MashValue, boundParams: BoundParams): MashUnit =
       OpenFunction.open(target)
 
     override def typeInferenceStrategy = UnitClass

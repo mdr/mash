@@ -40,7 +40,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       parseJson(Wrapper(target).body)
     }
 
@@ -54,7 +54,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashBoolean = {
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val code = Wrapper(target).code
       MashBoolean(200 <= code && code <= 299)
     }
@@ -69,7 +69,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val pairs =
         for (Header(name, value) <- Wrapper(target).headers)
           yield name -> MashString(value)
@@ -94,7 +94,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel(Seq(Name))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+    def call(target: MashValue, boundParams: BoundParams): MashList = {
       val requestedName = boundParams.validateString(Name).s.toLowerCase
       val elements =
         for (Header(name, value) <- Wrapper(target).headers if name.toLowerCase == requestedName)
@@ -120,7 +120,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     val params = ParameterModel(Seq(Name))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val requestedName = boundParams.validateString(Name).s.toLowerCase
       Wrapper(target).headers.collectFirst {
         case Header(name, value) if name.toLowerCase == requestedName ⇒ MashString(value)

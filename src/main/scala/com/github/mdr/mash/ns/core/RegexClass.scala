@@ -23,7 +23,7 @@ object RegexClass extends MashClass("core.Regex") {
 
     val params = ParameterModel(Seq(Params.String))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val regex = target.asInstanceOf[MashString].s.r
       val s = boundParams.validateString(Params.String).s
       val matchOption = regex.findFirstMatchIn(s)

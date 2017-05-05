@@ -11,7 +11,7 @@ object InfoMethod extends MashMethod("info") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val path = FunctionHelpers.interpretAsPath(target)
     val summary = fileSystem.getPathSummary(path)
     PathSummaryClass.asMashObject(summary)

@@ -65,7 +65,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel(Seq(Signal))
 
-    def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+    def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val pid = Wrapper(target).pid
       val signal = KillFunction.getSignal(boundParams, Params.Signal)
       processInteractions.kill(pid, signal)
@@ -85,7 +85,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val parentPidOpt = Wrapper(target).parentPidOpt
       val parentProcessOpt =
         for {
@@ -105,7 +105,7 @@ object ProcessClass extends MashClass("os.Process") {
 
     val params = ParameterModel()
 
-    def apply(target: MashValue, boundParams: BoundParams): MashList = {
+    def call(target: MashValue, boundParams: BoundParams): MashList = {
       val pid = Wrapper(target).pid
       val children = processInteractions.getProcesses.filter(_.parentPidOpt contains pid)
       MashList(children.map(makeProcess))

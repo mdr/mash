@@ -11,7 +11,7 @@ object GrepMethod extends MashMethod("grep") {
 
   val params = ParameterModel(Seq(Query, IgnoreCase, Regex, Negate))
 
-  override def apply(target: MashValue, boundParams: BoundParams): MashValue = {
+  override def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
     val negate = boundParams(Negate).isTruthy

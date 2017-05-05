@@ -24,7 +24,7 @@ object CopyIntoMethod extends MashMethod("copyInto") {
 
   val params = ParameterModel(Seq(Destination))
 
-  def apply(target: MashValue, boundParams: BoundParams): MashString = {
+  def call(target: MashValue, boundParams: BoundParams): MashString = {
     val source = interpretAsPath(target)
     val destination = boundParams.validatePath(Destination)
     if (!Files.isDirectory(destination))

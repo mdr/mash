@@ -10,7 +10,7 @@ object CdMethod extends MashMethod("cd") {
 
   val params = ParameterModel()
 
-  def apply(target: MashValue, boundParams: BoundParams): MashUnit = {
+  def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val path = FunctionHelpers.interpretAsPath(target)
     import ChangeDirectoryFunction._
     changeDirectory(path) match {
