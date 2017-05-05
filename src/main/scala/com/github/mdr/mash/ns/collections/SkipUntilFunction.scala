@@ -10,7 +10,7 @@ object SkipUntilFunction extends MashFunction("collections.skipUntil") {
 
   import SkipWhileFunction.Params._
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)

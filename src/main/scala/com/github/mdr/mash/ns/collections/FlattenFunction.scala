@@ -19,7 +19,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     FlatMapFunction.flatten(sequence, inSequence)

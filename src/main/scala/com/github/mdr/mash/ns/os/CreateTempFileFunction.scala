@@ -11,7 +11,7 @@ object CreateTempFileFunction extends MashFunction("os.createTempFile") {
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val path = Files.createTempFile(null, null)
     asPathString(path)
   }

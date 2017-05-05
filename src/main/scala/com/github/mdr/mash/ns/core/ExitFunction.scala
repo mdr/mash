@@ -15,7 +15,7 @@ object ExitFunction extends MashFunction("core.exit") {
 
   val params = ParameterModel(Seq(Status))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val status = boundParams.validateInteger(Status)
     System.exit(status)
     MashUnit

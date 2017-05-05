@@ -11,7 +11,7 @@ object NowFunction extends MashFunction("time.now") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashWrapped =
+  def call(boundParams: BoundParams): MashWrapped =
     MashWrapped(clock.instant)
 
   override def typeInferenceStrategy = DateTimeClass

@@ -105,7 +105,7 @@ object NumberClass extends MashClass("core.Number") {
         throw new EvaluatorException("Can only call this method on an integer, but was " + target))
       val results =
         for (n ← 1 to iterations)
-          yield f.applyNullary()
+          yield f.callNullary()
       MashList(results)
     }
 

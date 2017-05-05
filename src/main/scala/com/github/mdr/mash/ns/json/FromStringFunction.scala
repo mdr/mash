@@ -15,7 +15,7 @@ object FromStringFunction extends MashFunction("json.fromString") {
 
   val params = ParameterModel(Seq(String))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val s = boundParams.validateString(String).s
     FromFileFunction.parseJson(s)
   }

@@ -20,7 +20,7 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(boundParams: BoundParams): MashNumber = {
+  def call(boundParams: BoundParams): MashNumber = {
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
     val n = sequence.count(x ⇒ predicate(x).isTruthy)

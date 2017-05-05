@@ -20,7 +20,7 @@ object SleepFunction extends MashFunction("time.sleep") {
 
   val params = ParameterModel(Seq(Duration))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val millis = boundParams(Duration) match {
       case MashNumber(n, Some(klass: ChronoUnitClass)) ⇒
         val nowInstant = clock.instant

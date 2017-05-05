@@ -23,7 +23,7 @@ object UpFunction extends MashFunction("os.up") {
 
   val params = ParameterModel(Seq(N))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val times = boundParams.validateInteger(N)
     for (n ← 1 to times)
       fileSystem.chdir(Paths.get(".."))

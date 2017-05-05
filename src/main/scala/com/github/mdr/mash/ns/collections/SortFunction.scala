@@ -41,7 +41,7 @@ object SortFunction extends MashFunction("collections.sort") {
 
   }
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy

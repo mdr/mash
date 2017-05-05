@@ -15,7 +15,7 @@ object FromStringFunction extends MashFunction("xml.fromString") {
 
   val params = ParameterModel(Seq(String))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val xml = boundParams.validateString(String).s
     FromFileFunction.fromString(xml)
   }

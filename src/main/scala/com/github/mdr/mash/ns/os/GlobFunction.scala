@@ -19,7 +19,7 @@ object GlobFunction extends MashFunction("os.glob") {
 
   val params = ParameterModel(Seq(Pattern))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val pattern = boundParams.validateString(Pattern).s
     MashList(fileSystem.glob(pattern).map(PathSummaryClass.asMashObject))
   }

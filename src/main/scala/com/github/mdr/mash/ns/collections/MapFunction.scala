@@ -25,7 +25,7 @@ object MapFunction extends MashFunction("collections.map") {
 
   val params = ParameterModel(Seq(F, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {
       case obj: MashObject ⇒ MapMethod.doMap(obj, boundParams)
       case inSequence      ⇒

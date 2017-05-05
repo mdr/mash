@@ -13,7 +13,7 @@ object HistoryFunction extends MashFunction("os.history") {
 
   val params = ParameterModel()
 
-  override def apply(boundParams: BoundParams): MashList =
+  override def call(boundParams: BoundParams): MashList =
     MashList(history.getHistory.reverse.map(asObject))
 
   private def asObject(entry: HistoryEntry): MashObject = {

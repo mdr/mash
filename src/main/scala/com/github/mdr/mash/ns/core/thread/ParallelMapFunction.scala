@@ -16,7 +16,7 @@ object ParallelMapFunction extends MashFunction("core.thread.parallelMap") {
 
   val params = ParameterModel(Seq(F, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val f = boundParams.validateFunction(F)

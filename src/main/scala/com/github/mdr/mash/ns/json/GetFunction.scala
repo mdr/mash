@@ -14,7 +14,7 @@ object GetFunction extends MashFunction("json.get") {
 
   val params = ParameterModel(Seq(Url, BasicAuth, Headers, QueryParams))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = QueryParameters.getUrl(boundParams)
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)

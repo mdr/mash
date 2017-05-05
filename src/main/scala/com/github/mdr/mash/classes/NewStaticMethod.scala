@@ -15,7 +15,7 @@ case class NewStaticMethod(klass: MashClass) extends MashFunction(MashClass.Cons
     ParameterModel(params)
   }
 
-  override def apply(boundParams: BoundParams): MashValue = {
+  override def call(boundParams: BoundParams): MashValue = {
     val fields =
       for {
         param <- params.params

@@ -14,7 +14,7 @@ object ListFunction extends MashFunction("git.remote.list") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val remoteConfigs = git.remoteList().call().asScala
       MashList(remoteConfigs.map(asMashObject))

@@ -13,7 +13,7 @@ object FetchFunction extends MashFunction("git.fetch") {
 
   val params = ParameterModel(Seq())
 
-  override def apply(boundParams: BoundParams): MashList = {
+  override def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val fetchResult = git.fetch.call()
       val updates = fetchResult.getTrackingRefUpdates.asScala.toSeq

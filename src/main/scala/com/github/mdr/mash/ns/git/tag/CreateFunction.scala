@@ -16,7 +16,7 @@ object CreateFunction extends MashFunction("git.tag.create") {
 
   val params = ParameterModel(Seq(Name))
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val name = boundParams.validateString(Name).s
 
     GitHelper.withGit { git ⇒

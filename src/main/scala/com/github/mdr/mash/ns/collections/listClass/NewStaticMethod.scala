@@ -18,7 +18,7 @@ object NewStaticMethod extends MashFunction("new") {
 
   override val params = ParameterModel(Seq(Elements))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     MashList(boundParams.validateSequence(Elements))
   }
 

@@ -19,7 +19,7 @@ object IndexOfFunction extends MashFunction("collections.indexOf") {
 
   val params = ParameterModel(Seq(Element, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)
     val element = boundParams(Element)
     sequence.indexOf(element) match {

@@ -15,7 +15,7 @@ object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala.filterNot(_.getName endsWith "/HEAD")

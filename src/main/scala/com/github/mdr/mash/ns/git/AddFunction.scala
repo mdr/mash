@@ -19,7 +19,7 @@ object AddFunction extends MashFunction("git.add") {
 
   val params = ParameterModel(Seq(Paths))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     GitHelper.withGit { git ⇒
       val cmd = git.add

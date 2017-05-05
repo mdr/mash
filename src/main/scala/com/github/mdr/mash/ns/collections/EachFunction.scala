@@ -26,7 +26,7 @@ object EachFunction extends MashFunction("collections.each") {
 
   val params = ParameterModel(Seq(Action, Sequence, WithIndex))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val sequence = boundParams.validateSequence(Sequence)
     val withIndex = boundParams(WithIndex).isTruthy
     if (withIndex) {

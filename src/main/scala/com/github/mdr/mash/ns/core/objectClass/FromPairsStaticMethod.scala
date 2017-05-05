@@ -16,7 +16,7 @@ object FromPairsStaticMethod extends MashFunction("fromPairs") {
 
   val params = ParameterModel(Seq(Pairs))
 
-  override def apply(boundParams: BoundParams): MashObject = {
+  override def call(boundParams: BoundParams): MashObject = {
     val xs = boundParams.validateSequence(Pairs, allowStrings = false)
     val pairs =
       for (x ← xs)

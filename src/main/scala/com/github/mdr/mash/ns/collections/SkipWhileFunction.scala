@@ -19,7 +19,7 @@ object SkipWhileFunction extends MashFunction("collections.skipWhile") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)

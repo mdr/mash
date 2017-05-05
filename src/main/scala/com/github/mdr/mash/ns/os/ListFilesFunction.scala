@@ -52,7 +52,7 @@ If no paths are provided, the default is the current working directory."""))
 
   val params = ParameterModel(Seq(Paths, All, Recursive, Directory))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val ignoreDotFiles = boundParams(All).isFalsey
     val recursive = boundParams(Recursive).isTruthy
     val directory = boundParams(Directory).isTruthy

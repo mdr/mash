@@ -13,7 +13,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
 
   val params = ParameterModel(Seq(Params.String))
 
-  def apply(boundParams: BoundParams): MashNumber = {
+  def call(boundParams: BoundParams): MashNumber = {
     val s = boundParams.validateString(Params.String)
     MashNumber(s.s.toDouble)
   }

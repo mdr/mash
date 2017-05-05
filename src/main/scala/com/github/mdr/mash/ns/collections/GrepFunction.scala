@@ -48,7 +48,7 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex, Negate))
 
-  def apply(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue =
     boundParams(Input) match {
       case obj: MashObject ⇒
         GrepMethod.doGrep(obj, boundParams)

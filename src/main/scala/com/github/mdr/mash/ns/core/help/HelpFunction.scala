@@ -17,7 +17,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val item = boundParams(Item)
     HelpCreator.getHelp(item)
   }

@@ -23,7 +23,7 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
 
   val params = ParameterModel(Seq(Item))
 
-  override def apply(boundParams: BoundParams): MashValue = {
+  override def call(boundParams: BoundParams): MashValue = {
     NoArgFunction.option(boundParams(Item)) match {
       case Some(xs: MashList) ⇒ setClipboard(xs.elements.map(ToStringifier.stringify).mkString("\n"))
       case Some(item)         ⇒ setClipboard(ToStringifier.stringify(item))

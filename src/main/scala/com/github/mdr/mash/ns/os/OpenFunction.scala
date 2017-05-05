@@ -17,7 +17,7 @@ object OpenFunction extends MashFunction("os.open") {
 
   val params = ParameterModel(Seq(Item))
 
-  override def apply(boundParams: BoundParams): MashUnit =
+  override def call(boundParams: BoundParams): MashUnit =
     open(boundParams(Item))
 
   def open(value: MashValue): MashUnit = {

@@ -8,7 +8,7 @@ object NumberFunction extends MashFunction("random.number") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashNumber =
+  def call(boundParams: BoundParams): MashNumber =
     MashNumber(math.random())
 
   override def typeInferenceStrategy = NumberClass

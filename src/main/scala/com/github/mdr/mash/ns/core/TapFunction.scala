@@ -17,7 +17,7 @@ object TapFunction extends MashFunction("core.tap") {
 
   val params = ParameterModel(Seq(F, Value))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val f = boundParams.validateFunction(F)
     val value = boundParams(Value)
     f.apply(value)

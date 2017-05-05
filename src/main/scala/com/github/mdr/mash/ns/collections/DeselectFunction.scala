@@ -24,7 +24,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
 
   val params = ParameterModel(Seq(Fields, Target))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val fields: Seq[String] = boundParams.validateSequence(Fields).collect {
       case s: MashString ⇒ s.s
       case field         ⇒ boundParams.throwInvalidArgument(Fields, "Invalid field name of type: " + field.typeName)

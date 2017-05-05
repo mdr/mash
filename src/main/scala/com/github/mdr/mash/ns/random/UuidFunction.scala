@@ -10,7 +10,7 @@ object UuidFunction extends MashFunction("random.uuid") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashString =
+  def call(boundParams: BoundParams): MashString =
     MashString(UUID.randomUUID.toString)
 
   override def typeInferenceStrategy = StringClass

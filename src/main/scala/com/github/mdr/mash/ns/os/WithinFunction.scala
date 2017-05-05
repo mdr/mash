@@ -24,7 +24,7 @@ object WithinFunction extends MashFunction("os.within") {
 
   val params = ParameterModel(Seq(Directory, Block))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(Directory)
     val f = boundParams(Block).asInstanceOf[MashFunction]
     val oldDir = fileSystem.pwd
@@ -33,7 +33,7 @@ object WithinFunction extends MashFunction("os.within") {
     else
       throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
     try
-      f.applyNullary()
+      f.callNullary()
     finally
       fileSystem.chdir(oldDir)
   }

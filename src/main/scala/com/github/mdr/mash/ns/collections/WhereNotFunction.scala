@@ -11,7 +11,7 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
 
   import WhereFunction.Params._
 
-  def apply(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {
       case obj: MashObject ⇒ WhereNotMethod.doWhereNot(obj, boundParams)
       case inSequence      ⇒

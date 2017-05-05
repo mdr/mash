@@ -17,7 +17,7 @@ object DiskSpaceFunction extends MashFunction("os.diskSpace") {
 
   override def params = ParameterModel()
 
-  override def apply(boundParams: BoundParams): MashList = {
+  override def call(boundParams: BoundParams): MashList = {
     val process = new ProcessBuilder("df", "-k").redirectOutput(ProcessBuilder.Redirect.PIPE).start()
     val output = IOUtils.toString(process.getInputStream, StandardCharsets.UTF_8)
     process.waitFor()

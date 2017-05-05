@@ -15,7 +15,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     boundParams(Sequence) match {
       case s: MashString ⇒ s.reverse

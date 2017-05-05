@@ -11,7 +11,7 @@ object UserFunction extends MashFunction("os.user") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val username = userInteractions.currentUsername
     val passwdEntry = userInteractions.passwdEntries.find(_.username == username).getOrElse(
       throw new EvaluatorException(s"Could not find full user information for user '$username'"))

@@ -17,7 +17,7 @@ object SquareRootFunction extends MashFunction("maths.squareRoot") {
 
   val params = ParameterModel(Seq(N))
 
-  def apply(boundParams: BoundParams): MashNumber = {
+  def call(boundParams: BoundParams): MashNumber = {
     val n = boundParams.validateNumber(N)
     MashNumber(math.sqrt(n))
   }

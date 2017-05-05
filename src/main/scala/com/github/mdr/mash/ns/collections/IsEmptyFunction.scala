@@ -16,7 +16,7 @@ object IsEmptyFunction extends MashFunction("collections.isEmpty") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(boundParams: BoundParams): MashBoolean = {
+  def call(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)
     MashBoolean(sequence.isEmpty)
   }

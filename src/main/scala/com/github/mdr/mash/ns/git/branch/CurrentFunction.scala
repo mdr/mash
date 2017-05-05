@@ -11,7 +11,7 @@ object CurrentFunction extends MashFunction("git.branch.current") {
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashObject =
+  def call(boundParams: BoundParams): MashObject =
     GitHelper.withRepository { repo ⇒
       val git = new Git(repo)
       val currentBranch = repo.getFullBranch

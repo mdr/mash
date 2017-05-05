@@ -9,7 +9,7 @@ object PutFunction extends MashFunction("http.put") {
 
   val params = ParameterModel(Seq(Url, Body, File, Json, BasicAuth, Headers, QueryParams))
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = QueryParameters.getUrl(boundParams)
     val bodySource = HttpFunctions.getBodySource(boundParams)

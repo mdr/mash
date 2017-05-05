@@ -25,7 +25,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
 
   val params = ParameterModel(Seq(Attribute, Sequence, Default))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
     val default = boundParams(Default)

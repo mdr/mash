@@ -96,7 +96,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       function.params.bindTo(arguments, function.paramContext)
     }
     addInvocationToStackOnException(invocationLocationOpt, Some(function)) {
-      function(boundParams)
+      function.call(boundParams)
     }
   }
 
@@ -105,24 +105,14 @@ object InvocationEvaluator extends EvaluatorHelper {
                                    functionLocationOpt: Option[SourceLocation],
                                    invocationLocationOpt: Option[SourceLocation]): MashValue = {
     val f = new StringFunction(s, functionLocationOpt, invocationLocationOpt)
-    val boundParams = translateArgumentException(invocationLocationOpt) {
-      f.params.bindTo(arguments, EvaluationContext.NotUsed)
-    }
-    addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-      f(boundParams)
-    }
+    callFunction(f, arguments, invocationLocationOpt)
   }
 
   private def callBooleanAsFunction(b: MashBoolean,
                                     arguments: Arguments,
                                     invocationLocationOpt: Option[SourceLocation]): MashValue = {
     val f = new BooleanFunction(b.value)
-    val boundParams = translateArgumentException(invocationLocationOpt) {
-      f.params.bindTo(arguments, EvaluationContext.NotUsed)
-    }
-    addInvocationToStackOnException(invocationLocationOpt, Some(f)) {
-      f(boundParams)
-    }
+    callFunction(f, arguments, invocationLocationOpt)
   }
 
   def translateArgumentException[T](invocationLocationOpt: Option[SourceLocation])(p: ⇒ T): T =

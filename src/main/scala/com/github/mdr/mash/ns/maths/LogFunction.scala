@@ -19,7 +19,7 @@ object LogFunction extends MashFunction("maths.log") {
 
   val params = ParameterModel(Seq(N, Base))
 
-  def apply(boundParams: BoundParams): MashNumber = {
+  def call(boundParams: BoundParams): MashNumber = {
     val n = boundParams.validateNumber(N)
     val base = boundParams.validateNumber(Base)
     MashNumber(base match {

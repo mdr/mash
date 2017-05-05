@@ -19,7 +19,7 @@ object UrlEncodeFunction extends MashFunction("net.urlEncode") {
 
   val params = ParameterModel(Seq(String))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val s = ToStringifier.stringify(boundParams(String))
     MashString(URLEncoder.encode(s, StandardCharsets.UTF_8.name))
   }

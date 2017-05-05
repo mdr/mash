@@ -16,7 +16,7 @@ object BrowserFunction extends MashFunction("view.browser") {
 
   val params = ParameterModel(Seq(Data))
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val data = boundParams(Data)
     import ViewClass.Fields._
     MashObject.of(ListMap(

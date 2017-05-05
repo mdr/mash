@@ -21,7 +21,7 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
     val n = boundParams.validateInteger(N)

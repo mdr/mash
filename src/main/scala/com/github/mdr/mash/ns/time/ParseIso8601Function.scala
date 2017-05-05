@@ -16,7 +16,7 @@ object ParseIso8601Function extends MashFunction("time.parseIso8601") {
 
   val params = ParameterModel(Seq(Date))
   
-  def apply(boundParams: BoundParams): MashWrapped = {
+  def call(boundParams: BoundParams): MashWrapped = {
     val date = boundParams.validateString(Date).s
     MashWrapped(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(date)))
   }

@@ -24,7 +24,7 @@ object FromFileFunction extends MashFunction("json.fromFile") {
 
   val params = ParameterModel(Seq(File))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(File)
     val s = FileUtils.readFileToString(path.toFile, StandardCharsets.UTF_8)
     parseJson(s)

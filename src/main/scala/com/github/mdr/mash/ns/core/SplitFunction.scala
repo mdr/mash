@@ -22,7 +22,7 @@ object SplitFunction extends MashFunction("core.split") {
 
   val params = ParameterModel(Seq(Regex, Separator, String))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val string = boundParams.validateString(String)
     val regex = boundParams(Regex).isTruthy
     val separator = SplitMethod.getSeparator(boundParams, Separator, regex)

@@ -20,7 +20,7 @@ object ReadFunction extends MashFunction("os.read") {
 
   val params = ParameterModel(Seq(File))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val path = boundParams.validatePath(File)
     MashString(fileSystem.read(path))
   }

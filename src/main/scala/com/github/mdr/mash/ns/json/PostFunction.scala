@@ -13,7 +13,7 @@ object PostFunction extends MashFunction("json.post") {
 
   val params = ParameterModel(Seq(Url, Body, File, BasicAuth, Headers, QueryParams))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = QueryParameters.getUrl(boundParams)
     val bodySource = HttpFunctions.getBodySource(boundParams)

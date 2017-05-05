@@ -11,7 +11,7 @@ object CreateTempDirectoryFunction extends MashFunction("os.createTempDirectory"
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val path = Files.createTempDirectory(null)
     asPathString(path)
   }

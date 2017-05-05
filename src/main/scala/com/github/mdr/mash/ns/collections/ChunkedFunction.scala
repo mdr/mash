@@ -17,7 +17,7 @@ object ChunkedFunction extends MashFunction("collections.chunked") {
 
   val params = ParameterModel(Seq(Size, Sequence))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val n = boundParams.validateInteger(Size)
     if (n <= 0)
       boundParams.throwInvalidArgument(Size, "size must be positive")

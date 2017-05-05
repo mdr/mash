@@ -18,7 +18,7 @@ object DecodeFunction extends MashFunction("base64.decode") {
 
   val params = ParameterModel(Seq(String))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val s = ToStringifier.stringify(boundParams(String))
     MashString(new String(Base64.getDecoder.decode(s.getBytes)))
   }

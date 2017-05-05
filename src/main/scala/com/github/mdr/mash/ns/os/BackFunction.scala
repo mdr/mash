@@ -14,7 +14,7 @@ object BackFunction extends MashFunction("os.back") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     workingDirectoryStack.back() match {
       case Some(path) ⇒ fileSystem.chdir(path)
       case None ⇒ throw new EvaluatorException("No previous directory in history")

@@ -10,7 +10,7 @@ object GetFunction extends MashFunction("http.get") {
 
   val params = ParameterModel(Seq(Url, BasicAuth, Headers, QueryParams, Json, QueryParams))
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
     val url = QueryParameters.getUrl(boundParams)
     val json = boundParams(Json).isTruthy

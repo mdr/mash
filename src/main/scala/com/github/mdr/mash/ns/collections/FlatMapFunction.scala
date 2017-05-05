@@ -25,7 +25,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   val params = ParameterModel(Seq(F, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val mapped: Seq[MashValue] =

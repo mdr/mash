@@ -9,7 +9,7 @@ object PullFunction extends MashFunction("git.pull") {
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒
       val pullResult = git.pull.call()
       val fetchResult = pullResult.getFetchResult

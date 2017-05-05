@@ -13,12 +13,12 @@ abstract class MashFunction(
 
   def this(s: String) = this(s.split("\\.").lastOption, Some(Namespace(s.split("\\.").init)))
 
-  def applyNullary(): MashValue = apply(params.bindTo(Arguments.EmptyArguments, paramContext))
+  def callNullary(): MashValue = call(params.bindTo(Arguments.EmptyArguments, paramContext))
 
   def paramContext = EvaluationContext.NotUsed
 
   @throws[ArgumentException]
-  def apply(boundParams: BoundParams): MashValue
+  def call(boundParams: BoundParams): MashValue
 
   /**
    * When true, it is possible to call this function with no arguments

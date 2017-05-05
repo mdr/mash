@@ -25,7 +25,7 @@ object CloneFunction extends MashFunction("git.clone") {
 
   val params = ParameterModel(Seq(Repository, Directory))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val repository = boundParams.validateString(Repository).s
     val directory = boundParams.validateStringOpt(Directory).map(_.s).getOrElse(new URIish(repository).getHumanishName)
     val cmd = Git.cloneRepository

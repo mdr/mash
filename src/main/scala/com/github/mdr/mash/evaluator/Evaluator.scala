@@ -52,7 +52,7 @@ object Evaluator extends EvaluatorHelper {
     value match {
       case f: MashFunction if f.allowsNullary                        ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(f)) {
-          f.applyNullary()
+          f.callNullary()
         }
       case bm@BoundMethod(target, method, _) if method.allowsNullary ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(bm)) {

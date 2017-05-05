@@ -9,7 +9,7 @@ object InitFunction extends MashFunction("git.init") {
 
   val params = ParameterModel(Seq())
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     Git.init.call()
     MashUnit
   }

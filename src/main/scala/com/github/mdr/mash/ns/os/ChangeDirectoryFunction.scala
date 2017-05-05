@@ -33,7 +33,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   val params = ParameterModel(Seq(Directory))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(Directory)
     changeDirectory(path) match {
       case Success       ⇒

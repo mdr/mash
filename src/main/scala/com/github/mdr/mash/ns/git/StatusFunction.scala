@@ -16,7 +16,7 @@ object StatusFunction extends MashFunction("git.status") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject = {
     GitHelper.withRepository { repo ⇒
       val branch = repo.getBranch
       val git = new Git(repo)

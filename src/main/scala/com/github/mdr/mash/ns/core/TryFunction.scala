@@ -22,14 +22,14 @@ object TryFunction extends MashFunction("core.try") {
 
   val params = ParameterModel(Seq(Body, Catch))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val body = boundParams(Body).asInstanceOf[MashFunction]
     val catchBlock = boundParams(Catch).asInstanceOf[MashFunction]
     try
-      body.applyNullary()
+      body.callNullary()
     catch {
       case e: EvaluationInterruptedException ⇒ throw e
-      case _: Throwable ⇒ catchBlock.applyNullary()
+      case _: Throwable ⇒ catchBlock.callNullary()
     }
   }
 

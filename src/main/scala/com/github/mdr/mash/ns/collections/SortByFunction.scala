@@ -20,7 +20,7 @@ object SortByFunction extends MashFunction("collections.sortBy") {
 
   val params = ParameterModel(Seq(Descending, NaturalOrder, Attributes, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val descending = boundParams(Descending).isTruthy

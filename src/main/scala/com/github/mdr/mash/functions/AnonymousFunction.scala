@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime.MashValue
 case class AnonymousFunction(params: ParameterModel, body: Expr, context: EvaluationContext)
   extends MashFunction(nameOpt = None) {
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val newScopeStack = context.scopeStack.withLeakyScope(boundParams.boundNames.toSeq)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }

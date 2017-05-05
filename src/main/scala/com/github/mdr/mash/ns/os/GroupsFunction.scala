@@ -11,7 +11,7 @@ object GroupsFunction extends MashFunction("os.groups") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val passwdEntries = userInteractions.passwdEntries
     MashList(userInteractions.groupEntries.map(GroupInfoClass.makeGroupInfo(_, passwdEntries)))
   }

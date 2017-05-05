@@ -18,7 +18,7 @@ object LookupFunction extends MashFunction("dns.lookup") {
 
   val params = ParameterModel(Seq(Host))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val host = boundParams.validateString(Host).s
     val addresses = InetAddress.getAllByName(host).map(IpAddressesMethod.asMashString)
     MashList(addresses)

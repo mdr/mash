@@ -19,7 +19,7 @@ object PrintFunction extends MashFunction("core.print") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val item = boundParams(Item)
     output.println(ToStringifier.stringify(item))
     MashUnit

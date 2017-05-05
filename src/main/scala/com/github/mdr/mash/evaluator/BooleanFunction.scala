@@ -21,15 +21,14 @@ class BooleanFunction(b: Boolean) extends MashFunction() {
 
   val params = ParameterModel(Seq(Then, Else))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue =
     if (b)
-      boundParams(Then).asInstanceOf[MashFunction].applyNullary()
+      boundParams(Then).asInstanceOf[MashFunction].callNullary()
     else
       boundParams(Else) match {
         case MashUnit        ⇒ MashUnit
-        case f: MashFunction ⇒ f.applyNullary()
+        case f: MashFunction ⇒ f.callNullary()
       }
-  }
 
   override def summaryOpt = Some("Boolean as a function")
 

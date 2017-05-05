@@ -14,7 +14,7 @@ object NotFunction extends MashFunction("core.not") {
 
   val params = ParameterModel(Seq(Item))
 
-  def apply(boundParams: BoundParams): MashBoolean = {
+  def call(boundParams: BoundParams): MashBoolean = {
     MashBoolean(boundParams(Item).isFalsey)
   }
 

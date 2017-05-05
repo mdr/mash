@@ -11,7 +11,7 @@ object ReflogFunction extends MashFunction("git.reflog") {
 
   override def params: ParameterModel = ParameterModel()
 
-  override def apply(boundParams: BoundParams): MashList =
+  override def call(boundParams: BoundParams): MashList =
     GitHelper.withGit { git ⇒
       val refLogEntries = git.reflog.call().asScala.toSeq.reverse
       MashList(refLogEntries.map(asMashObject))

@@ -23,7 +23,7 @@ object HintFunction extends MashFunction("type.hint") {
 
   val params = ParameterModel(Seq(Hint, Item))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     boundParams(Item)
   }
 

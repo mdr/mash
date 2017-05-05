@@ -54,7 +54,7 @@ object FunctionClass extends MashClass("core.Function") {
       val functionArguments = Arguments(positionalArguments ++ namedArguments)
       val functionBoundParams = function.params.bindTo(functionArguments, function.paramContext)
       InvocationEvaluator.addInvocationToStackOnException(functionOpt = Some(function)) {
-        function.apply(functionBoundParams)
+        function.call(functionBoundParams)
       }
     }
 

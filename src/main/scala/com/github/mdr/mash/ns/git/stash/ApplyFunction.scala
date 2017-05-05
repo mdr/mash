@@ -12,7 +12,7 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     GitHelper.withGit { git ⇒
       git.stashApply.call()
     }

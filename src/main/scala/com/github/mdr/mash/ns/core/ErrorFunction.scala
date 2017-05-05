@@ -16,7 +16,7 @@ object ErrorFunction extends MashFunction("core.error") {
 
   val params = ParameterModel(Seq(Message))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val message = boundParams.validateString(Message)
     throw new EvaluatorException(message.s)
   }

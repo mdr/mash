@@ -21,7 +21,7 @@ object AllFunction extends MashFunction("collections.all") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(boundParams: BoundParams): MashBoolean = {
+  def call(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)
     val predicate = boundParams.validateFunction(Predicate)
     MashBoolean(sequence.forall(x ⇒ predicate(x).isTruthy))

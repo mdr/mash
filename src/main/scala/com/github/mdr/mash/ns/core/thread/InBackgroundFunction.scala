@@ -20,10 +20,10 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
 
   val params = ParameterModel(Seq(Block))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val f = boundParams(Block).asInstanceOf[MashFunction]
     Future {
-      f.applyNullary()
+      f.callNullary()
     }
     MashUnit
   }

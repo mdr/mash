@@ -24,7 +24,7 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
   val params = ParameterModel(Seq(Value))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val value = boundParams(Value)
     MashString(asJsonString(value))
   }

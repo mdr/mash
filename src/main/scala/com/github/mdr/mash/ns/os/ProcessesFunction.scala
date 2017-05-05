@@ -11,7 +11,7 @@ object ProcessesFunction extends MashFunction("os.processes") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashList =
+  def call(boundParams: BoundParams): MashList =
     MashList(processInteractions.getProcesses.map(ProcessClass.makeProcess))
 
   override def typeInferenceStrategy = Type.Seq(Type.Instance(ProcessClass))

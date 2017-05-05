@@ -29,7 +29,7 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   val params = ParameterModel(Seq(Items, Default))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val default = boundParams(Default)
     val sequence = getSequence(boundParams, Items)
     if (sequence.isEmpty)

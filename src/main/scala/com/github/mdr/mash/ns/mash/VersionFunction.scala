@@ -9,7 +9,7 @@ object VersionFunction extends MashFunction("mash.version") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     MashString(BuildInfo.version)
   }
 

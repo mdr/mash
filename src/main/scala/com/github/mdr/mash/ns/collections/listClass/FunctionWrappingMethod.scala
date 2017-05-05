@@ -25,7 +25,7 @@ case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[Str
     }
     val newBoundNames = boundParams.boundNames + (targetParamName -> actualTarget)
     val newBoundParams = boundParams.copy(boundNames = newBoundNames)
-    function.apply(newBoundParams)
+    function.call(newBoundParams)
   }
 
   override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>

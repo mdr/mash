@@ -29,7 +29,7 @@ object StageFunction extends MashFunction("git.stage") {
 
   val params = ParameterModel(Seq(Paths, All))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val all = boundParams(All).isTruthy
     if (paths.isEmpty && !all)

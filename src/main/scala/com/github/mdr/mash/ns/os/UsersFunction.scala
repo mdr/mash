@@ -11,7 +11,7 @@ object UsersFunction extends MashFunction("os.users") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashList =
+  def call(boundParams: BoundParams): MashList =
     MashList(userInteractions.passwdEntries.map(UserSummaryClass.fromPasswdEntry))
 
   override def typeInferenceStrategy = Type.Seq(Type.Instance(UserSummaryClass))

@@ -16,7 +16,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   val params = ParameterModel(Seq(Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val newSequence = sequence.distinct

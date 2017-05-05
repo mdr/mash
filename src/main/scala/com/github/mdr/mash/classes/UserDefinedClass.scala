@@ -21,7 +21,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
     NewStaticMethod)
 
   object NewStaticMethod extends MashFunction(MashClass.ConstructorMethodName) {
-    override def apply(boundParams: BoundParams): MashObject = {
+    override def call(boundParams: BoundParams): MashObject = {
       val fields =
         for {
           param <- params.params

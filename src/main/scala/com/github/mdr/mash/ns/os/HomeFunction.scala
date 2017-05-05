@@ -12,7 +12,7 @@ object HomeFunction extends MashFunction("os.home") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     asPathString(environmentInteractions.home)
   }
 

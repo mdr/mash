@@ -25,7 +25,7 @@ object FirstFunction extends MashFunction("collections.first") {
 
   val params = ParameterModel(Seq(N, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
     boundParams.validateIntegerOpt(N) match {

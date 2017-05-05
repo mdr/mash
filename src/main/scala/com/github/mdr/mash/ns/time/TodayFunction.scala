@@ -12,7 +12,7 @@ object TodayFunction extends MashFunction("time.today") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashWrapped =
+  def call(boundParams: BoundParams): MashWrapped =
     MashWrapped(DateMethod.toLocalDate(clock.instant))
 
   override def typeInferenceStrategy = DateClass

@@ -18,7 +18,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
 
   val params = ParameterModel(Seq(Dir))
 
-  def apply(boundParams: BoundParams): MashBoolean = {
+  def call(boundParams: BoundParams): MashBoolean = {
     val path = boundParams.validatePath(Dir)
     MashBoolean(GitHelper.isRepository(path))
   }

@@ -36,7 +36,7 @@ Otherwise, write the item as a string."""))
 
   val params = ParameterModel(Seq(Append, File, Data))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val append = boundParams(Append).isTruthy
     val path = boundParams.validatePath(File)
     val data = boundParams(Data)

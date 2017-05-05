@@ -17,7 +17,7 @@ class StringFunction(s: String,
 
   val params = ParameterModel(Seq(Target))
 
-  def apply(boundParams: BoundParams): MashValue = {
+  def call(boundParams: BoundParams): MashValue = {
     val target = boundParams(Target)
     val intermediateResult = MemberEvaluator.evaluateMember(target, s,
       isSafe = false, invokeNullaryWhenVectorising = true, thisTarget = false, locationOpt = None).result

@@ -21,11 +21,11 @@ object WhileFunction extends MashFunction("core.while") {
 
   val params = ParameterModel(Seq(Condition, Block))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val cond = boundParams(Condition).asInstanceOf[MashFunction]
     val block = boundParams(Block).asInstanceOf[MashFunction]
-    while (cond.applyNullary().isTruthy)
-      block.applyNullary()
+    while (cond.callNullary().isTruthy)
+      block.callNullary()
     MashUnit
   }
 

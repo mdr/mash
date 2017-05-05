@@ -22,7 +22,7 @@ object WhereFunction extends MashFunction("collections.where") {
 
   val params = ParameterModel(Seq(Predicate, Sequence))
 
-  def apply(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {
       case obj: MashObject ⇒ WhereMethod.doWhere(obj, boundParams)
       case inSequence      ⇒

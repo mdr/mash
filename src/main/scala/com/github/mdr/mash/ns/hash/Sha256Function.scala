@@ -26,7 +26,7 @@ object Sha256Function extends MashFunction("hash.sha256") {
 
   val params = ParameterModel(Seq(Data))
 
-  def apply(boundParams: BoundParams): MashString = {
+  def call(boundParams: BoundParams): MashString = {
     val data = boundParams(Data)
     val s = safeInterpretAsPath(data, stringsMustHaveTags = true) match {
       case Some(path) ⇒ withFileInputStream(path)(sha256Hex)

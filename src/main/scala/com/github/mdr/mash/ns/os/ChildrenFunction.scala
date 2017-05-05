@@ -37,7 +37,7 @@ object ChildrenFunction extends MashFunction("os.children") {
 
   lazy val params = ParameterModel(Seq(Directory, IgnoreDotFiles, Recursive))
 
-  def apply(boundParams: BoundParams): MashList = {
+  def call(boundParams: BoundParams): MashList = {
     val parentDir = boundParams.validatePath(Directory)
     if (!fileSystem.exists(parentDir))
       boundParams.throwInvalidArgument(Directory, s"'$parentDir' does not exist")

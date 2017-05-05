@@ -14,7 +14,7 @@ object NoArgFunction extends MashFunction("core.noArg") {
 
   val params = ParameterModel()
 
-  def apply(boundParams: BoundParams): MashValue = NoArgValue
+  def call(boundParams: BoundParams): MashValue = NoArgValue
 
   override def summaryOpt = Some("Value that represents no argument being provided, for use as sentinel values in default arguments")
 

@@ -31,7 +31,7 @@ object CommitFunction extends MashFunction("git.commit") {
 
   val params = ParameterModel(Seq(Message, All, Amend))
 
-  def apply(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashUnit = {
     val all = boundParams(All).isTruthy
     val amend = boundParams(Amend).isTruthy
     val message = boundParams.validateString(Message).s
