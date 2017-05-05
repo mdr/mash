@@ -42,7 +42,9 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val boundMethod = target.asInstanceOf[BoundMethod]
       val method = boundMethod.method
       val invocationBoundParams = method.params.bindTo(methodArguments, method.paramContext(target))
-      method.apply(boundMethod.target, invocationBoundParams)
+      InvocationEvaluator.addInvocationToStackOnException(functionOpt = Some(boundMethod)) {
+        method.apply(boundMethod.target, invocationBoundParams)
+      }
     }
 
     override def summaryOpt = Some("Invoke this method with the given arguments")
