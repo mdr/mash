@@ -1,6 +1,9 @@
 package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
+import com.github.mdr.mash.ns.collections.SortFunction
+import com.github.mdr.mash.ns.collections.listClass.FunctionWrappingMethod
 import com.github.mdr.mash.ns.core.objectClass._
 
 object ObjectClass extends MashClass("core.Object") {
@@ -22,10 +25,14 @@ object ObjectClass extends MashClass("core.Object") {
     UnblessMethod,
     WithFieldMethod,
     WhereMethod,
-    WhereNotMethod)
+    WhereNotMethod,
+    methodise(SortFunction))
 
   override def summaryOpt = Some("The class of all objects")
 
   override def parentOpt = Some(AnyClass)
+
+  def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod =
+    FunctionWrappingMethod(function, methodAliases)
 
 }

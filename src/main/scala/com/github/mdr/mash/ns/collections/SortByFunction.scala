@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.collections.SortFunction.NaturalOrdering
+import com.github.mdr.mash.ns.collections.SortFunction.NaturalMashValueOrdering
 import com.github.mdr.mash.runtime._
 
 object SortByFunction extends MashFunction("collections.sortBy") {
@@ -27,12 +27,12 @@ object SortByFunction extends MashFunction("collections.sortBy") {
     val naturalOrder = boundParams(NaturalOrder).isTruthy
     val attributes: Seq[MashValue ⇒ MashValue] =
       boundParams.validateSequence(Attributes, allowStrings = false).map(boundParams.validateFunction(Attributes, _))
-    val ordering: Ordering[MashValue] = if (naturalOrder) NaturalOrdering else MashValueOrdering
+    val ordering: Ordering[MashValue] = if (naturalOrder) NaturalMashValueOrdering else MashValueOrdering
 
     val sorted = sequence.sortWith((a, b) ⇒ {
-      val as = attributes.map(_ (a)).toList
-      val bs = attributes.map(_ (b)).toList
-      MashValueOrdering.compare(as, bs, ordering) < 0
+      val as = attributes.map(_ apply a).toList
+      val bs = attributes.map(_ apply b).toList
+      MashValueOrdering.compareLists(as, bs, ordering) < 0
     })
     val newSequence = if (descending) sorted.reverse else sorted
     WhereFunction.reassembleSequence(inSequence, newSequence)

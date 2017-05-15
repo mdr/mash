@@ -55,7 +55,7 @@ object MashValueOrdering extends Ordering[MashValue] {
 
   private def toInstant(date: LocalDate): Instant = date.atStartOfDay(ZoneId.systemDefault).toInstant
 
-  def compare(xs: List[MashValue], ys: List[MashValue], elementOrdering: Ordering[MashValue] = MashValueOrdering): Int =
+  def compareLists(xs: List[MashValue], ys: List[MashValue], elementOrdering: Ordering[MashValue] = MashValueOrdering): Int =
     (xs, ys) match {
       case (Nil, Nil)               ⇒ 0
       case (_, Nil)                 ⇒ 1
@@ -63,7 +63,7 @@ object MashValueOrdering extends Ordering[MashValue] {
       case (x :: tailX, y :: tailY) ⇒
         val c = elementOrdering.compare(x, y)
         if (c == 0)
-          compare(tailX, tailY, elementOrdering)
+          compareLists(tailX, tailY, elementOrdering)
         else
           c
     }

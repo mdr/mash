@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Object.sort
 * noArg for default argument sentinels
 * base64.decode
 * collections.allButLast

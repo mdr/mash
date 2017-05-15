@@ -37,5 +37,5 @@ object JoinFunction extends MashFunction("collections.join") {
 Examples:
    join ":" [1, 2, 3] # "1:2:3"
    join ":" []        # ""
-	 join [1, 2, 3]     # "123"""")
+   join [1, 2, 3]     # "123"""")
 }
