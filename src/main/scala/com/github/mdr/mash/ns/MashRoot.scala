@@ -65,6 +65,7 @@ object MashRoot {
         hash.Sha256Function
       ) ++
       Seq(
+        random.IntFunction,
         random.NumberFunction,
         random.UuidFunction) ++
       Seq(
