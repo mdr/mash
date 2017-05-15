@@ -33,6 +33,6 @@ object ObjectClass extends MashClass("core.Object") {
   override def parentOpt = Some(AnyClass)
 
   def methodise(function: MashFunction, methodAliases: Seq[String] = Seq()): MashMethod =
-    FunctionWrappingMethod(function, methodAliases)
+    FunctionWrappingMethod(function, methodAliases, isShy = true)
 
 }

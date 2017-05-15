@@ -6,7 +6,7 @@ import com.github.mdr.mash.inference.{ Type, TypedArgument, TypedArguments, Valu
 import com.github.mdr.mash.ns.collections.{ GrepFunction, MaxFunction, MinFunction, ReverseFunction }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
-case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[String] = Seq()) extends MashMethod(function.name) {
+case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[String] = Seq(), override val isShy: Boolean = false) extends MashMethod(function.name) {
 
   override def aliases = methodAliases
 
