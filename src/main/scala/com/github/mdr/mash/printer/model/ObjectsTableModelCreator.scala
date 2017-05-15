@@ -3,7 +3,7 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
-import com.github.mdr.mash.printer.{ ColumnAllocator, ColumnSpec, FieldRenderer, ViewConfig }
+import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashList, MashObject }
 import com.github.mdr.mash.terminal.TerminalInfo
 
@@ -45,32 +45,38 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
   private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {
     val pairs =
       for {
-        ColumnSpec(name, _, isNullaryMethod) ← columns
+        ColumnSpec(id, name, _, isNullaryMethod) ← columns
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-      } yield name -> (valueOpt, renderedValue)
-    val data = ((for { (k, (_, v)) <- pairs } yield k -> v) :+ (IndexColumnName -> index.toString)).toMap
-    val rawObjects = (for { (k, (rawOpt, _)) <- pairs; raw <- rawOpt } yield k -> raw).toMap
+      } yield name ->(valueOpt, renderedValue)
+    val data = ((for {(k, (_, v)) <- pairs} yield k -> v) :+ (IndexColumnName -> index.toString)).toMap
+    val rawObjects = (for {(k, (rawOpt, _)) <- pairs; raw <- rawOpt} yield k -> raw).toMap
     ObjectTableRow(data, rawObjects)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {
     val testObjects = objects.take(50)
-    if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
-      Seq(
-        ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
-        ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
-        ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
-    else if (testObjects.nonEmpty && testObjects.forall(_ isA CommitClass))
-      Seq(
-        ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
-        ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
-        ColumnSpec(CommitClass.Fields.Author.name, weight = 10),
-        ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
-    else
-      testObjects.flatMap(_.fields.keySet).distinct.map(field ⇒ ColumnSpec(field))
-  }.filterNot(hiddenColumns contains _.name)
+    val allColumnSpecs =
+      if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
+        Seq(
+          ColumnSpec(ColumnId(0), GroupClass.Fields.Key.name, weight = 10),
+          ColumnSpec(ColumnId(1), GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
+          ColumnSpec(ColumnId(2), GroupClass.Fields.Values.name, weight = 1))
+      else if (testObjects.nonEmpty && testObjects.forall(_ isA CommitClass))
+        Seq(
+          ColumnSpec(ColumnId(0), CommitClass.Fields.Hash.name, weight = 1),
+          ColumnSpec(ColumnId(1), CommitClass.Fields.CommitTime.name, weight = 10),
+          ColumnSpec(ColumnId(2), CommitClass.Fields.Author.name, weight = 10),
+          ColumnSpec(ColumnId(3), CommitClass.Fields.Summary.name, weight = 3))
+      else
+        testObjects
+          .flatMap(_.immutableFields.keys)
+          .distinct
+          .zipWithIndex
+          .map { case (field, columnIndex) ⇒ ColumnSpec(ColumnId(columnIndex), field) }
+    allColumnSpecs.filterNot(hiddenColumns contains _.name)
+  }
 
 }

@@ -5,8 +5,8 @@ import org.scalatest.{ FlatSpec, Matchers }
 class ColumnAllocatorTest extends FlatSpec with Matchers {
 
   "Allocating columns" should "work" in {
-    val fooColumn = ColumnSpec("foo", 1)
-    val barColumn = ColumnSpec("bar", 5)
+    val fooColumn = ColumnSpec(ColumnId(0), "foo", 1)
+    val barColumn = ColumnSpec(ColumnId(1), "bar", 5)
     ColumnAllocator.allocateColumns(
       columns = Seq(fooColumn),
       requestedWidths = Map(fooColumn -> 5),
@@ -14,8 +14,8 @@ class ColumnAllocatorTest extends FlatSpec with Matchers {
   }
 
   "Allocating columns" should "work2" in {
-    val fooColumn = ColumnSpec("foo", 1)
-    val barColumn = ColumnSpec("bar", 100)
+    val fooColumn = ColumnSpec(ColumnId(0), "foo", 1)
+    val barColumn = ColumnSpec(ColumnId(1), "bar", 100)
     ColumnAllocator.allocateColumns(
       columns = Seq(fooColumn, barColumn),
       requestedWidths = Map(

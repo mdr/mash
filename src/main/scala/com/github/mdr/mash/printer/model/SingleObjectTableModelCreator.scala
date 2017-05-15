@@ -1,6 +1,6 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.printer.{ ColumnAllocator, ColumnSpec, FieldRenderer, ViewConfig }
+import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 
@@ -24,8 +24,8 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
     val requestedFieldWidth = maxFieldWidth(obj)
     val requestedValueWidth = maxValueWidth(obj)
 
-    val fieldColumn = ColumnSpec("field", 10)
-    val valueColumn = ColumnSpec("value", 1)
+    val fieldColumn = ColumnSpec(ColumnId(0), "field", 10)
+    val valueColumn = ColumnSpec(ColumnId(1), "value", 1)
     val requestedWidths = Map(fieldColumn -> requestedFieldWidth, valueColumn -> requestedValueWidth)
     val columns = Seq(fieldColumn, valueColumn)
     val allocatedWidths = ColumnAllocator.allocateColumns(columns, requestedWidths, terminalInfo.columns - 3)
