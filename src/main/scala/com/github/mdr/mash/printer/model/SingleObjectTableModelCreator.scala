@@ -26,8 +26,8 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
 
     val fieldColumnId = ColumnId(0)
     val valueColumnId = ColumnId(1)
-    val fieldColumn = ColumnSpec(fieldColumnId, "field", 10)
-    val valueColumn = ColumnSpec(valueColumnId, "value", 1)
+    val fieldColumn = ColumnSpec("field", 10)
+    val valueColumn = ColumnSpec("value", 1)
     val columnIds = Seq(fieldColumnId, valueColumnId)
     val columnSpecs = Map(fieldColumnId -> fieldColumn, valueColumnId -> valueColumn)
 

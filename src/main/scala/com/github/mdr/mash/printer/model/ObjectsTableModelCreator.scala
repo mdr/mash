@@ -52,7 +52,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val pairs =
       for {
         columnId ← columnIds
-        ColumnSpec(_, name, _, isNullaryMethod) = columnSpecs(columnId)
+        ColumnSpec(name, _, isNullaryMethod) = columnSpecs(columnId)
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
@@ -68,26 +68,23 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val columnSpecs =
       if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
         Seq(
-          ColumnSpec(ColumnId(0), GroupClass.Fields.Key.name, weight = 10),
-          ColumnSpec(ColumnId(1), GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
-          ColumnSpec(ColumnId(2), GroupClass.Fields.Values.name, weight = 1))
+          ColumnId(0) -> ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
+          ColumnId(1) -> ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
+          ColumnId(2) -> ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
       else if (testObjects.nonEmpty && testObjects.forall(_ isA CommitClass))
         Seq(
-          ColumnSpec(ColumnId(0), CommitClass.Fields.Hash.name, weight = 1),
-          ColumnSpec(ColumnId(1), CommitClass.Fields.CommitTime.name, weight = 10),
-          ColumnSpec(ColumnId(2), CommitClass.Fields.Author.name, weight = 10),
-          ColumnSpec(ColumnId(3), CommitClass.Fields.Summary.name, weight = 3))
+          ColumnId(0) -> ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
+          ColumnId(1) -> ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
+          ColumnId(2) -> ColumnSpec(CommitClass.Fields.Author.name, weight = 10),
+          ColumnId(3) -> ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
       else
         testObjects
           .flatMap(_.immutableFields.keys)
           .distinct
           .zipWithIndex
-          .map { case (field, columnIndex) ⇒ ColumnSpec(ColumnId(columnIndex), field) }
-    val columnIds = columnSpecs.map(_.id).filterNot(hiddenColumns.contains)
-    val colSpecs =
-      (for (colSpec <- columnSpecs)
-        yield colSpec.id -> colSpec).toMap
-    (columnIds, colSpecs)
+          .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(field) }
+    val columnIds = columnSpecs.map(_._1).filterNot(hiddenColumns.contains)
+    (columnIds, columnSpecs.toMap)
   }
 
 }

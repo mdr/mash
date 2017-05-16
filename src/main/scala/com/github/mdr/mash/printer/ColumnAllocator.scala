@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 case class ColumnId(value: Int)
 
-case class ColumnSpec(id: ColumnId, name: String, weight: Double = 1, isNullaryMethod: Boolean = false)
+case class ColumnSpec(name: String, weight: Double = 1, isNullaryMethod: Boolean = false)
 
 object ColumnAllocator {
 
