@@ -3,6 +3,7 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
+import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ CellSearchInfo, SearchState }
@@ -29,9 +30,11 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
                                     currentColumnOpt: Option[Int] = None,
                                     markedRows: Set[Int] = Set(),
                                     path: String,
-                                    hiddenColumns: Seq[String] = Seq(),
+                                    hiddenColumns: Seq[ColumnId] = Seq(),
                                     searchStateOpt: Option[SearchState] = None,
                                     expressionOpt: Option[String] = None) extends BrowserState {
+
+  private def currentColumnIdOpt: Option[ColumnId] = currentColumnOpt.map(model.columnIds)
 
   def setSearch(query: String, terminalRows: Int): BrowserState = {
     val ignoreCase = searchStateOpt.forall(_.ignoreCase)
@@ -82,7 +85,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   private def getCellSearchInfo(pattern: Pattern, row: Int, column: Int): Option[CellSearchInfo] = {
     val obj = model.objects(row)
-    val s = obj.data(model.columnNames(column))
+    val columnId = model.columnIds(column)
+    val s = obj.data(columnId)
     val matcher = pattern.matcher(s)
     val regions = ArrayBuffer[Region]()
     while (matcher.find)
@@ -145,9 +149,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       val rowPath = s"$safePath[$selectedRow]"
       val cellSelectionInfoOpt =
         for {
-          column <- currentColumnOpt
-          field = model.columnNames(column)
-          cellObject <- model.objects(selectedRow).rawObjects.get(field)
+          columnId <- currentColumnIdOpt
+          field = model.columnName(columnId)
+          cellObject <- model.objects(selectedRow).rawObjects.get(columnId)
           newPath = safeProperty(rowPath, field)
         } yield SelectionInfo(newPath, cellObject)
       cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))

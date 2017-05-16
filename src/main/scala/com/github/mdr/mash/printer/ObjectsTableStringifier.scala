@@ -16,21 +16,21 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.append(doubleTopLeft)
     if (showSelections)
       sb.append(doubleHorizontal + doubleHorizontalSingleDown)
-    sb.append(model.columnNames.map(name ⇒ doubleHorizontal * model.columnWidth(name)).mkString(doubleHorizontalSingleDown))
+    sb.append(model.columnIds.map(columnId ⇒ doubleHorizontal * model.columnWidth(columnId)).mkString(doubleHorizontalSingleDown))
     sb.append(doubleTopRight)
     sb.toString
   }
 
   def renderHeaderRow(model: ObjectsTableModel): String = {
-    def renderColumn(name: String) = {
-      val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
+    def renderColumn(id: ColumnId) = {
+      val fit = StringUtils.fitToWidth(model.columnName(id), model.columnWidth(id))
       drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow, bold = true))
     }
     val sb = new StringBuilder()
     sb.append(doubleVertical)
     if (showSelections)
       sb.append(" " + singleVertical)
-    sb.append(model.columnNames.map(renderColumn).mkString(singleVertical))
+    sb.append(model.columnIds.map(renderColumn).mkString(singleVertical))
     sb.append(doubleVertical)
     sb.toString
   }
@@ -40,16 +40,16 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.append(doubleVerticalSingleRight)
     if (showSelections)
       sb.append(singleHorizontal + singleIntersect)
-    sb.append(model.columnNames.map(name ⇒ singleHorizontal * model.columnWidth(name)).mkString(singleIntersect))
+    sb.append(model.columnIds.map(columnId ⇒ singleHorizontal * model.columnWidth(columnId)).mkString(singleIntersect))
     sb.append(doubleVerticalSingleLeft)
     sb.toString
   }
 
   def renderObjectRow(model: ObjectsTableModel, renderedObject: ObjectTableRow): String = {
-    def renderCell(name: String) = StringUtils.fitToWidth(renderedObject.data(name), model.columnWidth(name))
+    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(renderedObject.data(columnId), model.columnWidth(columnId))
     new StringBuilder()
       .append(doubleVertical)
-      .append(model.columnNames.map(renderCell).mkString(singleVertical))
+      .append(model.columnIds.map(renderCell).mkString(singleVertical))
       .append(doubleVertical)
       .toString
   }
@@ -59,7 +59,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.append(doubleBottomLeft)
     if (showSelections)
       sb.append(doubleHorizontal + doubleHorizontalSingleUp)
-    sb.append(model.columnNames.map(name ⇒ doubleHorizontal * model.columnWidths(name)).mkString(doubleHorizontalSingleUp))
+    sb.append(model.columnIds.map(columnId ⇒ doubleHorizontal * model.columnWidths(columnId)).mkString(doubleHorizontalSingleUp))
     sb.append(doubleBottomRight)
     sb.toString
   }

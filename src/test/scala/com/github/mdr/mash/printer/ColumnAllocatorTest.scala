@@ -5,23 +5,29 @@ import org.scalatest.{ FlatSpec, Matchers }
 class ColumnAllocatorTest extends FlatSpec with Matchers {
 
   "Allocating columns" should "work" in {
-    val fooColumn = ColumnSpec(ColumnId(0), "foo", 1)
-    val barColumn = ColumnSpec(ColumnId(1), "bar", 5)
-    ColumnAllocator.allocateColumns(
-      columns = Seq(fooColumn),
-      requestedWidths = Map(fooColumn -> 5),
-      availableWidth = 5) should equal(Map(fooColumn -> 5))
+    val fooColumnId = ColumnId(0)
+    val fooColumnSpec = ColumnSpec(fooColumnId, "foo", 1)
+    val allocatedColumns =
+      ColumnAllocator.allocateColumns(
+        columnIds = Seq(fooColumnId),
+        columnSpecs = Map(fooColumnId -> fooColumnSpec),
+        requestedWidths = Map(fooColumnId -> 5),
+        availableWidth = 5)
+    allocatedColumns should equal(Map(fooColumnId -> 5))
   }
 
-  "Allocating columns" should "work2" in {
-    val fooColumn = ColumnSpec(ColumnId(0), "foo", 1)
-    val barColumn = ColumnSpec(ColumnId(1), "bar", 100)
-    ColumnAllocator.allocateColumns(
-      columns = Seq(fooColumn, barColumn),
-      requestedWidths = Map(
-        fooColumn -> 10,
-        barColumn -> 10),
-      availableWidth = 15) should equal(Map(fooColumn -> 5, barColumn -> 10))
+  "Allocating columns" should "work 2" in {
+    val fooColumnId = ColumnId(0)
+    val barColumnId = ColumnId(1)
+    val fooColumnSpec = ColumnSpec(fooColumnId, "foo", 1)
+    val barColumnSpec = ColumnSpec(barColumnId, "bar", 100)
+    val allocatedColumns =
+      ColumnAllocator.allocateColumns(
+        columnIds = Seq(fooColumnId, barColumnId),
+        columnSpecs = Map(fooColumnId -> fooColumnSpec, barColumnId -> barColumnSpec),
+        requestedWidths = Map(fooColumnId -> 10, barColumnId -> 10),
+        availableWidth = 15)
+    allocatedColumns should equal(Map(fooColumnId -> 5, barColumnId -> 10))
   }
 
 }

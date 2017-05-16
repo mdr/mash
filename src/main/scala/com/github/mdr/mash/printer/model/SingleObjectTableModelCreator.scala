@@ -24,14 +24,18 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
     val requestedFieldWidth = maxFieldWidth(obj)
     val requestedValueWidth = maxValueWidth(obj)
 
-    val fieldColumn = ColumnSpec(ColumnId(0), "field", 10)
-    val valueColumn = ColumnSpec(ColumnId(1), "value", 1)
-    val requestedWidths = Map(fieldColumn -> requestedFieldWidth, valueColumn -> requestedValueWidth)
-    val columns = Seq(fieldColumn, valueColumn)
-    val allocatedWidths = ColumnAllocator.allocateColumns(columns, requestedWidths, terminalInfo.columns - 3)
+    val fieldColumnId = ColumnId(0)
+    val valueColumnId = ColumnId(1)
+    val fieldColumn = ColumnSpec(fieldColumnId, "field", 10)
+    val valueColumn = ColumnSpec(valueColumnId, "value", 1)
+    val columnIds = Seq(fieldColumnId, valueColumnId)
+    val columnSpecs = Map(fieldColumnId -> fieldColumn, valueColumnId -> valueColumn)
 
-    val fieldColumnWidth = allocatedWidths(fieldColumn)
-    val valueColumnWidth = allocatedWidths(valueColumn)
+    val requestedWidths = Map(fieldColumnId -> requestedFieldWidth, valueColumnId -> requestedValueWidth)
+    val allocatedWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedWidths, terminalInfo.columns - 3)
+
+    val fieldColumnWidth = allocatedWidths(fieldColumnId)
+    val valueColumnWidth = allocatedWidths(valueColumnId)
     val extra = extraWidthForClassName(classNameOpt, fieldColumnWidth, valueColumnWidth)
 
     (fieldColumnWidth, valueColumnWidth + extra)

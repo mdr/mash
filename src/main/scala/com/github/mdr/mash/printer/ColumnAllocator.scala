@@ -6,31 +6,36 @@ case class ColumnSpec(id: ColumnId, name: String, weight: Double = 1, isNullaryM
 
 object ColumnAllocator {
 
-  def allocateColumns(columns: Seq[ColumnSpec], requestedWidths: Map[ColumnSpec, Int], availableWidth: Int): Map[ColumnSpec, Int] = {
-    val satisfiedAllocations: Map[ColumnSpec, Int] =
+  def allocateColumns(columnIds: Seq[ColumnId],
+                      columnSpecs: Map[ColumnId, ColumnSpec],
+                      requestedWidths: Map[ColumnId, Int],
+                      availableWidth: Int): Map[ColumnId, Int] = {
+    val satisfiedAllocations: Map[ColumnId, Int] =
       for {
-        (column, allocated) ← allocateByWeight(columns, availableWidth)
-         requested = requestedWidths(column)
+        (columnId, allocated) ← allocateByWeight(columnIds, columnSpecs, availableWidth)
+         requested = requestedWidths(columnId)
         if allocated >= requested
-      } yield column -> requested
+      } yield columnId -> requested
 
     val remainingWidth = availableWidth - satisfiedAllocations.values.sum
-    val remainingColumns = columns.filterNot(satisfiedAllocations.contains)
+    val remainingColumnIds = columnIds.filterNot(satisfiedAllocations.contains)
     satisfiedAllocations ++ (
       if (remainingWidth < availableWidth)
-        allocateColumns(remainingColumns, requestedWidths, remainingWidth)
+        allocateColumns(remainingColumnIds, columnSpecs, requestedWidths, remainingWidth)
       else
-        allocateByWeight(remainingColumns, remainingWidth))
+        allocateByWeight(remainingColumnIds, columnSpecs, remainingWidth))
   }
 
-  private def allocateByWeight(columns: Seq[ColumnSpec], availableWidth: Int): Map[ColumnSpec, Int] =
-    if (columns.isEmpty)
+  private def allocateByWeight(columnIds: Seq[ColumnId],
+                               columnSpecs: Map[ColumnId, ColumnSpec],
+                               availableWidth: Int): Map[ColumnId, Int] =
+    if (columnIds.isEmpty)
       Map()
     else {
-      val totalWeight = columns.map(_.weight).sum
-      var allocations: Map[ColumnSpec, Int] = {
-        for (c ← columns)
-          yield c -> (availableWidth * c.weight / totalWeight).toInt
+      val totalWeight = columnIds.map(id ⇒ columnSpecs(id).weight).sum
+      var allocations: Map[ColumnId, Int] = {
+        for (id ← columnIds)
+          yield id -> (availableWidth * columnSpecs(id).weight / totalWeight).toInt
       }.toMap
 
       val excess = availableWidth - allocations.values.sum

@@ -10,55 +10,62 @@ import com.github.mdr.mash.terminal.TerminalInfo
 object ObjectsTableModelCreator {
 
   private val IndexColumnName = "#"
+  private val IndexColumnId = ColumnId(-1)
 
 }
 
 class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
                                showSelections: Boolean = false,
                                viewConfig: ViewConfig,
-                               hiddenColumns: Seq[String] = Seq()) {
+                               hiddenColumns: Seq[ColumnId] = Seq()) {
 
   import ObjectsTableModelCreator._
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   def create(objects: Seq[MashObject], list: MashList): ObjectsTableModel = {
-    val columns = getColumnSpecs(objects)
+    val (columnIds, columnSpecs) = getColumnSpecs(objects)
 
-    val renderedObjects: Seq[ObjectTableRow] =
-      objects.zipWithIndex.map { case (obj, i) ⇒ createRow(obj, i, columns) }
+    val tableRows: Seq[ObjectTableRow] =
+      objects.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
-    def desiredColumnWidth(member: String): Int = (renderedObjects.map(_.data(member)) :+ member).map(_.size).max
-    val requestedColumnWidths: Map[ColumnSpec, Int] = (for (c ← columns) yield c -> desiredColumnWidth(c.name)).toMap
+    def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
+      (tableRows.map(_.data(columnId)) :+ columnName).map(_.size).max
+    val requestedColumnWidths: Map[ColumnId, Int] =
+      (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
 
-    val columnNames = IndexColumnName +: columns.map(_.name)
+    val allColumnIds = IndexColumnId +: columnIds
     val indexColumnWidth = objects.size.toString.length
     val selectionStateWidth = if (showSelections) 2 else 0
-    val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columns.size + 1) - selectionStateWidth // accounting for the table and column borders
+    val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
     val columnWidths =
-      (for ((c, w) ← ColumnAllocator.allocateColumns(columns, requestedColumnWidths, totalAvailableWidth))
-        yield c.name -> w) + (IndexColumnName -> indexColumnWidth)
-
-    ObjectsTableModel(columnNames, columnWidths, renderedObjects, list, objects)
+      (for ((columnId, w) ← ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth))
+        yield columnId -> w) + (IndexColumnId -> indexColumnWidth)
+    val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
+    ObjectsTableModel(allColumnIds, columnNames, columnWidths, tableRows, list, objects)
   }
 
-  private def createRow(obj: MashObject, index: Int, columns: Seq[ColumnSpec]): ObjectTableRow = {
+  private def createTableRow(obj: MashObject,
+                             rowIndex: Int,
+                             columnIds: Seq[ColumnId],
+                             columnSpecs: Map[ColumnId, ColumnSpec]): ObjectTableRow = {
     val pairs =
       for {
-        ColumnSpec(id, name, _, isNullaryMethod) ← columns
+        columnId ← columnIds
+        ColumnSpec(_, name, _, isNullaryMethod) = columnSpecs(columnId)
         rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-      } yield name ->(valueOpt, renderedValue)
-    val data = ((for {(k, (_, v)) <- pairs} yield k -> v) :+ (IndexColumnName -> index.toString)).toMap
-    val rawObjects = (for {(k, (rawOpt, _)) <- pairs; raw <- rawOpt} yield k -> raw).toMap
+      } yield columnId ->(valueOpt, renderedValue)
+    val data = ((for {(id, (_, v)) <- pairs} yield id -> v) :+ (IndexColumnId -> rowIndex.toString)).toMap
+    val rawObjects = (for {(id, (rawOpt, _)) <- pairs; raw <- rawOpt} yield id -> raw).toMap
     ObjectTableRow(data, rawObjects)
   }
 
-  private def getColumnSpecs(objects: Seq[MashObject]): Seq[ColumnSpec] = {
+  private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
     val testObjects = objects.take(50)
-    val allColumnSpecs =
+    val columnSpecs =
       if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
         Seq(
           ColumnSpec(ColumnId(0), GroupClass.Fields.Key.name, weight = 10),
@@ -76,7 +83,11 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
           .distinct
           .zipWithIndex
           .map { case (field, columnIndex) ⇒ ColumnSpec(ColumnId(columnIndex), field) }
-    allColumnSpecs.filterNot(hiddenColumns contains _.name)
+    val columnIds = columnSpecs.map(_.id).filterNot(hiddenColumns.contains)
+    val colSpecs =
+      (for (colSpec <- columnSpecs)
+        yield colSpec.id -> colSpec).toMap
+    (columnIds, colSpecs)
   }
 
 }

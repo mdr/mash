@@ -1,10 +1,10 @@
 package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
-import com.github.mdr.mash.printer.{ ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.printer.{ ColumnId, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ Colour, KeyHint, _ }
+import com.github.mdr.mash.screen.{ KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils.tupled
@@ -27,14 +27,14 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
   }
 
   private def renderHeaderRow(model: ObjectsTableModel): Line = {
-    def renderColumn(name: String): StyledString = {
-      val fit = StringUtils.fitToWidth(name, model.columnWidth(name))
+    def renderColumn(columnId: ColumnId): StyledString = {
+      val fit = StringUtils.fitToWidth(model.columnName(columnId), model.columnWidth(columnId))
       fit.style(Style(bold = true, foregroundColour = BasicColour.Yellow))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
     buffer ++= boxCharacterSupplier.doubleVertical.style.chars
     buffer ++= (" " + boxCharacterSupplier.singleVertical).style.chars
-    buffer ++= StyledString.mkString(model.columnNames.map(renderColumn), boxCharacterSupplier.singleVertical.style).chars
+    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), boxCharacterSupplier.singleVertical.style).chars
     buffer ++= boxCharacterSupplier.doubleVertical.style.chars
     Line(StyledString(buffer))
   }
@@ -60,10 +60,10 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     val selected = (selectedChar + boxCharacterSupplier.singleVertical).style(Style(inverse = highlightRow))
     val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
 
-    def renderCell(name: String, column: Int): StyledString = {
-      val searchInfoOpt = state.searchStateOpt.flatMap(_.byPoint.get(Point(row, column)))
-      val highlightCell = isCursorRow && currentColumnOpt.forall(_ == column)
-      val cellContents = StringUtils.fitToWidth(obj.data(name), model.columnWidth(name))
+    def renderCell(columnId: ColumnId, columnIndex: Int): StyledString = {
+      val searchInfoOpt = state.searchStateOpt.flatMap(_.byPoint.get(Point(row, columnIndex)))
+      val highlightCell = isCursorRow && currentColumnOpt.forall(_ == columnIndex)
+      val cellContents = StringUtils.fitToWidth(obj.data(columnId), model.columnWidth(columnId))
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
@@ -74,7 +74,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
       StyledString(buf)
     }
 
-    val renderedCells = model.columnNames.zipWithIndex.map(tupled(renderCell))
+    val renderedCells = model.columnIds.zipWithIndex.map(tupled(renderCell))
     val innerChars = StyledString.mkString(renderedCells, internalVertical)
     Line(side + selected + innerChars + side)
   }

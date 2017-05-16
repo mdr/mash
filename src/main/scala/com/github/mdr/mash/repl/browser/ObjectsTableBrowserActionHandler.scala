@@ -100,10 +100,10 @@ trait ObjectsTableBrowserActionHandler {
       updateState(hideColumn(browserState, currentColumn))
 
   private def hideColumn(browserState: ObjectsTableBrowserState, currentColumn: Int): ObjectsTableBrowserState = {
-    val columnName = browserState.model.columnNames(currentColumn)
+    val columnId = browserState.model.columnIds(currentColumn)
     val list = browserState.model.rawValue
     val objects = browserState.model.rawObjects
-    val hiddenColumns = browserState.hiddenColumns :+ columnName
+    val hiddenColumns = browserState.hiddenColumns :+ columnId
     val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
     val model = modelCreator.create(objects, list)
     val newColumn = if (currentColumn >= model.numberOfColumns) currentColumn - 1 else currentColumn
