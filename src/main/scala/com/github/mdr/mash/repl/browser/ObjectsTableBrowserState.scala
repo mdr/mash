@@ -86,7 +86,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   private def getCellSearchInfo(pattern: Pattern, row: Int, column: Int): Option[CellSearchInfo] = {
     val obj = model.objects(row)
     val columnId = model.columnIds(column)
-    val s = obj.data(columnId)
+    val s = obj.cells(columnId).data
     val matcher = pattern.matcher(s)
     val regions = ArrayBuffer[Region]()
     while (matcher.find)
@@ -149,9 +149,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       val rowPath = s"$safePath[$selectedRow]"
       val cellSelectionInfoOpt =
         for {
-          columnId <- currentColumnIdOpt
+          columnId ← currentColumnIdOpt
           field = model.columnName(columnId)
-          cellObject <- model.objects(selectedRow).rawObjects.get(columnId)
+          cellObject ← model.objects(selectedRow).cells(columnId).cellValueOpt
           newPath = safeProperty(rowPath, field)
         } yield SelectionInfo(newPath, cellObject)
       cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))

@@ -46,7 +46,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
   }
 
   def renderObjectRow(model: ObjectsTableModel, renderedObject: ObjectTableRow): String = {
-    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(renderedObject.data(columnId), model.columnWidth(columnId))
+    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(renderedObject.cells(columnId).data, model.columnWidth(columnId))
     new StringBuilder()
       .append(doubleVertical)
       .append(model.columnIds.map(renderCell).mkString(singleVertical))

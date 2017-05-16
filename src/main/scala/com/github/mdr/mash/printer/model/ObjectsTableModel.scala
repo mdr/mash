@@ -3,9 +3,10 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
+case class ObjectTableCell(data: String, cellValueOpt: Option[MashValue] = None)
+
 case class ObjectTableRow(rowValue: MashObject,
-                          data: Map[ColumnId, String],
-                          rawObjects: Map[ColumnId, MashValue])
+                          cells: Map[ColumnId, ObjectTableCell])
 
 case class ObjectsTableModel(columnIds: Seq[ColumnId],
                              columnNames: Map[ColumnId, String],

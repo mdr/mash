@@ -30,7 +30,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
       objects.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
     def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
-      (tableRows.map(_.data(columnId)) :+ columnName).map(_.size).max
+      (tableRows.map(_.cells(columnId).data) :+ columnName).map(_.size).max
     val requestedColumnWidths: Map[ColumnId, Int] =
       (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
 
@@ -57,10 +57,10 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-      } yield columnId ->(valueOpt, renderedValue)
-    val data = ((for {(id, (_, v)) <- pairs} yield id -> v) :+ (IndexColumnId -> rowIndex.toString)).toMap
-    val rawObjects = (for {(id, (rawOpt, _)) <- pairs; raw <- rawOpt} yield id -> raw).toMap
-    ObjectTableRow(obj, data, rawObjects)
+        cell = ObjectTableCell(renderedValue, valueOpt)
+      } yield columnId -> cell
+    val cells = (pairs :+ (IndexColumnId -> ObjectTableCell(rowIndex.toString))).toMap
+    ObjectTableRow(obj, cells)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {

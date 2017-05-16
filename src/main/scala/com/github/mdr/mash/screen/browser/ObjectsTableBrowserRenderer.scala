@@ -63,7 +63,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     def renderCell(columnId: ColumnId, columnIndex: Int): StyledString = {
       val searchInfoOpt = state.searchStateOpt.flatMap(_.byPoint.get(Point(row, columnIndex)))
       val highlightCell = isCursorRow && currentColumnOpt.forall(_ == columnIndex)
-      val cellContents = StringUtils.fitToWidth(obj.data(columnId), model.columnWidth(columnId))
+      val cellContents = StringUtils.fitToWidth(obj.cells(columnId).data, model.columnWidth(columnId))
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
