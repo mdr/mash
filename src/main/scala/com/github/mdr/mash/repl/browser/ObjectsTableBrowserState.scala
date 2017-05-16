@@ -100,7 +100,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   def acceptExpression: BrowserState = copy(expressionOpt = None)
 
-  def rawValue: MashValue = model.wholeTableValue
+  def rawValue: MashValue = model.tableValue
 
   private val size = model.objects.size
   private val numberOfColumns = model.numberOfColumns

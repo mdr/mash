@@ -38,11 +38,14 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val indexColumnWidth = objects.size.toString.length
     val selectionStateWidth = if (showSelections) 2 else 0
     val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
-    val columnWidths =
-      (for ((columnId, w) ← ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth))
-        yield columnId -> w) + (IndexColumnId -> indexColumnWidth)
+    val allocatedColumnWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
     val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
-    ObjectsTableModel(allColumnIds, columnNames, columnWidths, tableRows, list)
+    val columns =
+      for ((columnId, width) ← allocatedColumnWidths)
+        yield columnId -> ObjectTableColumn(columnNames(columnId), width)
+    val indexColumn = IndexColumnId -> ObjectTableColumn(IndexColumnName, indexColumnWidth)
+    val allColumns = columns + indexColumn
+    ObjectsTableModel(allColumnIds, allColumns, tableRows, list)
   }
 
   private def createTableRow(obj: MashObject,

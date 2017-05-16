@@ -59,7 +59,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.append(doubleBottomLeft)
     if (showSelections)
       sb.append(doubleHorizontal + doubleHorizontalSingleUp)
-    sb.append(model.columnIds.map(columnId ⇒ doubleHorizontal * model.columnWidths(columnId)).mkString(doubleHorizontalSingleUp))
+    sb.append(model.columnIds.map(columnId ⇒ doubleHorizontal * model.columnWidth(columnId)).mkString(doubleHorizontalSingleUp))
     sb.append(doubleBottomRight)
     sb.toString
   }
