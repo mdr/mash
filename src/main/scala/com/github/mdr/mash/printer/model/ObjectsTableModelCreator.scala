@@ -63,7 +63,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
         cell = ObjectsTableModel.Cell(renderedValue, valueOpt)
       } yield columnId -> cell
     val cells = (pairs :+ (IndexColumnId -> ObjectsTableModel.Cell(rowIndex.toString))).toMap
-    ObjectsTableModel.Row(obj, cells)
+    ObjectsTableModel.Row(cells, obj)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {

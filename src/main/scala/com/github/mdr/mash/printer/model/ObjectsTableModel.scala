@@ -7,8 +7,7 @@ object ObjectsTableModel {
 
   case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
 
-  case class Row(rawValue: MashObject,
-                 cells: Map[ColumnId, Cell]) {
+  case class Row(cells: Map[ColumnId, Cell], rawValue: MashObject) {
 
     def renderedValue(columnId: ColumnId): String = cells(columnId).renderedValue
 
@@ -38,4 +37,5 @@ case class ObjectsTableModel(columnIds: Seq[ColumnId],
   def rowValues = rows.map(_.rawValue)
 
   def rowValue(row: Int): MashObject = rowValues(row)
+
 }
