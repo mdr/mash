@@ -3,15 +3,15 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
-case class ObjectTableRow(data: Map[ColumnId, String],
+case class ObjectTableRow(rowValue: MashObject,
+                          data: Map[ColumnId, String],
                           rawObjects: Map[ColumnId, MashValue])
 
 case class ObjectsTableModel(columnIds: Seq[ColumnId],
                              columnNames: Map[ColumnId, String],
                              columnWidths: Map[ColumnId, Int],
                              objects: Seq[ObjectTableRow],
-                             wholeTableValue: MashList,
-                             rawObjects: Seq[MashObject]) extends PrintModel {
+                             wholeTableValue: MashList) extends PrintModel {
 
   def columnName(columnId: ColumnId): String = columnNames(columnId)
 
@@ -23,4 +23,7 @@ case class ObjectsTableModel(columnIds: Seq[ColumnId],
 
   def columnWidth(columnId: ColumnId): Int = columnWidths(columnId)
 
+  def rowValues = objects.map(_.rowValue)
+
+  def rowValue(row: Int): MashObject = rowValues(row)
 }

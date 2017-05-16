@@ -81,7 +81,7 @@ trait ObjectsTableBrowserActionHandler {
         updateState(browserState.toggleMark)
       case Rerender                        ⇒
         val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig)
-        val model = modelCreator.create(browserState.model.rawObjects, browserState.model.wholeTableValue)
+        val model = modelCreator.create(browserState.model.rowValues, browserState.model.wholeTableValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
       case ViewAsTree                      ⇒
@@ -102,7 +102,7 @@ trait ObjectsTableBrowserActionHandler {
   private def hideColumn(browserState: ObjectsTableBrowserState, currentColumn: Int): ObjectsTableBrowserState = {
     val columnId = browserState.model.columnIds(currentColumn)
     val list = browserState.model.wholeTableValue
-    val objects = browserState.model.rawObjects
+    val objects = browserState.model.rowValues
     val hiddenColumns = browserState.hiddenColumns :+ columnId
     val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
     val model = modelCreator.create(objects, list)

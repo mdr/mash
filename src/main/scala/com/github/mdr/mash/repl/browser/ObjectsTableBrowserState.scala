@@ -145,7 +145,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   def selectionInfo: SelectionInfo = {
     val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
-      val rowObject = model.rawObjects(selectedRow)
+      val rowObject = model.rowValue(selectedRow)
       val rowPath = s"$safePath[$selectedRow]"
       val cellSelectionInfoOpt =
         for {
@@ -158,7 +158,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     } else {
       val rowIndices = markedRows.toSeq.sorted
       val rowsPath = rowIndices.map(i ⇒ s"$safePath[$i]").mkString("[", ", ", "]")
-      val rowObjects = MashList(rowIndices.map(model.rawObjects))
+      val rowObjects = MashList(rowIndices.map(model.rowValues))
       SelectionInfo(rowsPath, rowObjects)
     }
   }

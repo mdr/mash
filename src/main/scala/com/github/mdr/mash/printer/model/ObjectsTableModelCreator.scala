@@ -42,7 +42,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
       (for ((columnId, w) ← ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth))
         yield columnId -> w) + (IndexColumnId -> indexColumnWidth)
     val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
-    ObjectsTableModel(allColumnIds, columnNames, columnWidths, tableRows, list, objects)
+    ObjectsTableModel(allColumnIds, columnNames, columnWidths, tableRows, list)
   }
 
   private def createTableRow(obj: MashObject,
@@ -60,7 +60,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
       } yield columnId ->(valueOpt, renderedValue)
     val data = ((for {(id, (_, v)) <- pairs} yield id -> v) :+ (IndexColumnId -> rowIndex.toString)).toMap
     val rawObjects = (for {(id, (rawOpt, _)) <- pairs; raw <- rawOpt} yield id -> raw).toMap
-    ObjectTableRow(data, rawObjects)
+    ObjectTableRow(obj, data, rawObjects)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
