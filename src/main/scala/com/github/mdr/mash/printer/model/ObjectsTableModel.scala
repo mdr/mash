@@ -10,7 +10,7 @@ case class ObjectsTableModel(columnIds: Seq[ColumnId],
                              columnNames: Map[ColumnId, String],
                              columnWidths: Map[ColumnId, Int],
                              objects: Seq[ObjectTableRow],
-                             rawValue: MashList,
+                             wholeTableValue: MashList,
                              rawObjects: Seq[MashObject]) extends PrintModel {
 
   def columnName(columnId: ColumnId): String = columnNames(columnId)
