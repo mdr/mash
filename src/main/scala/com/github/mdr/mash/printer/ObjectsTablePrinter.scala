@@ -15,8 +15,8 @@ class ObjectsTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewC
     output.println(stringifier.renderTopRow(model))
     output.println(stringifier.renderHeaderRow(model))
     output.println(stringifier.renderBelowHeaderRow(model))
-    for (obj ← model.objects)
-      output.println(stringifier.renderObjectRow(model, obj))
+    for (row ← model.rows)
+      output.println(stringifier.renderObjectRow(model, row))
     output.println(stringifier.renderBottomRow(model))
   }
 

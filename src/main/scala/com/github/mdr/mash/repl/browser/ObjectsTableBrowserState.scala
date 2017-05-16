@@ -83,10 +83,10 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
     copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  private def getCellSearchInfo(pattern: Pattern, row: Int, column: Int): Option[CellSearchInfo] = {
-    val obj = model.objects(row)
+  private def getCellSearchInfo(pattern: Pattern, rowIndex: Int, column: Int): Option[CellSearchInfo] = {
+    val row = model.rows(rowIndex)
     val columnId = model.columnIds(column)
-    val s = obj.cells(columnId).data
+    val s = row.renderedValue(columnId)
     val matcher = pattern.matcher(s)
     val regions = ArrayBuffer[Region]()
     while (matcher.find)
@@ -100,9 +100,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   def acceptExpression: BrowserState = copy(expressionOpt = None)
 
-  def rawValue: MashValue = model.tableValue
+  def rawValue: MashValue = model.rawValue
 
-  private val size = model.objects.size
+  private val size = model.rows.size
   private val numberOfColumns = model.numberOfColumns
 
   def previousItem(terminalRows: Int): ObjectsTableBrowserState = adjustSelectedRow(-1).adjustWindowToFit(terminalRows)
@@ -151,9 +151,9 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
         for {
           columnId ← currentColumnIdOpt
           field = model.columnName(columnId)
-          cellObject ← model.objects(selectedRow).cells(columnId).cellValueOpt
+          rawCellValue ← model.rows(selectedRow).cells(columnId).rawValueOpt
           newPath = safeProperty(rowPath, field)
-        } yield SelectionInfo(newPath, cellObject)
+        } yield SelectionInfo(newPath, rawCellValue)
       cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))
     } else {
       val rowIndices = markedRows.toSeq.sorted
@@ -180,7 +180,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
   def nextPage(terminalRows: Int): ObjectsTableBrowserState = {
-    val newRow = math.min(model.objects.size - 1, selectedRow + windowSize(terminalRows) - 1)
+    val newRow = math.min(model.rows.size - 1, selectedRow + windowSize(terminalRows) - 1)
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
+import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.printer.{ ColumnId, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
@@ -46,24 +46,28 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
       Line(objectTableStringifier.renderBelowHeaderRow(model).style))
 
   private def renderDataLines: Seq[Line] = {
-    val objects = model.objects.drop(state.firstRow).take(windowSize)
+    val rows = model.rows.drop(state.firstRow).take(windowSize)
     for {
-      (obj, i) ← objects.zipWithIndex
+      (row, i) ← rows.zipWithIndex
       actualIndex = i + state.firstRow
-    } yield renderObject(obj, actualIndex == state.selectedRow, state.currentColumnOpt, state.markedRows contains actualIndex, actualIndex)
+    } yield renderObject(row, actualIndex == state.selectedRow, state.currentColumnOpt, state.markedRows contains actualIndex, actualIndex)
   }
 
-  private def renderObject(obj: ObjectTableRow, isCursorRow: Boolean, currentColumnOpt: Option[Int], isSelected: Boolean, row: Int): Line = {
+  private def renderObject(row: ObjectsTableModel.Row,
+                           isCursorRow: Boolean,
+                           currentColumnIndexOpt: Option[Int],
+                           isSelected: Boolean,
+                           rowIndex: Int): Line = {
     val side = boxCharacterSupplier.doubleVertical.style
     val selectedChar = if (isSelected) "◈" else " "
-    val highlightRow = isCursorRow && currentColumnOpt.isEmpty
+    val highlightRow = isCursorRow && currentColumnIndexOpt.isEmpty
     val selected = (selectedChar + boxCharacterSupplier.singleVertical).style(Style(inverse = highlightRow))
     val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
 
     def renderCell(columnId: ColumnId, columnIndex: Int): StyledString = {
-      val searchInfoOpt = state.searchStateOpt.flatMap(_.byPoint.get(Point(row, columnIndex)))
-      val highlightCell = isCursorRow && currentColumnOpt.forall(_ == columnIndex)
-      val cellContents = StringUtils.fitToWidth(obj.cells(columnId).data, model.columnWidth(columnId))
+      val searchInfoOpt = state.searchStateOpt.flatMap(_.byPoint.get(Point(rowIndex, columnIndex)))
+      val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == columnIndex)
+      val cellContents = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
@@ -85,7 +89,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     import KeyHint._
     val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression) ++
       state.currentColumnOpt.toSeq.flatMap(_ ⇒ Seq(Row, HideColumn))
-    val countChars = s"${currentRow + 1}/${model.objects.size}".style(Style(inverse = true))
+    val countChars = s"${currentRow + 1}/${model.rows.size}".style(Style(inverse = true))
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
 

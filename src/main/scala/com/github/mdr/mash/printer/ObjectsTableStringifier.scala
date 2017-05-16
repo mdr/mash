@@ -1,6 +1,6 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.printer.model.{ ObjectTableRow, ObjectsTableModel }
+import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils
@@ -45,8 +45,8 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderObjectRow(model: ObjectsTableModel, renderedObject: ObjectTableRow): String = {
-    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(renderedObject.cells(columnId).data, model.columnWidth(columnId))
+  def renderObjectRow(model: ObjectsTableModel, row: ObjectsTableModel.Row): String = {
+    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
     new StringBuilder()
       .append(doubleVertical)
       .append(model.columnIds.map(renderCell).mkString(singleVertical))

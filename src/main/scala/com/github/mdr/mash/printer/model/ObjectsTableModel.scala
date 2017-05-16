@@ -3,17 +3,27 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
-case class ObjectTableCell(data: String, cellValueOpt: Option[MashValue] = None)
+object ObjectsTableModel {
 
-case class ObjectTableRow(rowValue: MashObject,
-                          cells: Map[ColumnId, ObjectTableCell])
+  case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
 
-case class ObjectTableColumn(name: String, width: Int)
+  case class Row(rawValue: MashObject,
+                 cells: Map[ColumnId, Cell]) {
+
+    def renderedValue(columnId: ColumnId): String = cells(columnId).renderedValue
+
+  }
+
+  case class Column(name: String, width: Int)
+
+}
+
+import ObjectsTableModel._
 
 case class ObjectsTableModel(columnIds: Seq[ColumnId],
-                             columns: Map[ColumnId, ObjectTableColumn],
-                             objects: Seq[ObjectTableRow],
-                             tableValue: MashList) extends PrintModel {
+                             columns: Map[ColumnId, Column],
+                             rows: Seq[Row],
+                             rawValue: MashList) extends PrintModel {
 
   def columnName(columnId: ColumnId): String = columns(columnId).name
 
@@ -21,11 +31,11 @@ case class ObjectsTableModel(columnIds: Seq[ColumnId],
 
   def numberOfColumns = columns.size
 
-  def numberOfRows = objects.size
+  def numberOfRows = rows.size
 
   def columnWidth(columnId: ColumnId): Int = columns(columnId).width
 
-  def rowValues = objects.map(_.rowValue)
+  def rowValues = rows.map(_.rawValue)
 
   def rowValue(row: Int): MashObject = rowValues(row)
 }

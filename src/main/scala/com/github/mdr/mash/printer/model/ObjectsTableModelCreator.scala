@@ -26,11 +26,11 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
   def create(objects: Seq[MashObject], list: MashList): ObjectsTableModel = {
     val (columnIds, columnSpecs) = getColumnSpecs(objects)
 
-    val tableRows: Seq[ObjectTableRow] =
+    val tableRows: Seq[ObjectsTableModel.Row] =
       objects.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
     def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
-      (tableRows.map(_.cells(columnId).data) :+ columnName).map(_.size).max
+      (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.size).max
     val requestedColumnWidths: Map[ColumnId, Int] =
       (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
 
@@ -42,8 +42,8 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
     val columns =
       for ((columnId, width) ← allocatedColumnWidths)
-        yield columnId -> ObjectTableColumn(columnNames(columnId), width)
-    val indexColumn = IndexColumnId -> ObjectTableColumn(IndexColumnName, indexColumnWidth)
+        yield columnId -> ObjectsTableModel.Column(columnNames(columnId), width)
+    val indexColumn = IndexColumnId -> ObjectsTableModel.Column(IndexColumnName, indexColumnWidth)
     val allColumns = columns + indexColumn
     ObjectsTableModel(allColumnIds, allColumns, tableRows, list)
   }
@@ -51,7 +51,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
   private def createTableRow(obj: MashObject,
                              rowIndex: Int,
                              columnIds: Seq[ColumnId],
-                             columnSpecs: Map[ColumnId, ColumnSpec]): ObjectTableRow = {
+                             columnSpecs: Map[ColumnId, ColumnSpec]): ObjectsTableModel.Row = {
     val pairs =
       for {
         columnId ← columnIds
@@ -60,10 +60,10 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
         valueOpt = rawValueOpt.map(rawValue ⇒
           if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
         renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-        cell = ObjectTableCell(renderedValue, valueOpt)
+        cell = ObjectsTableModel.Cell(renderedValue, valueOpt)
       } yield columnId -> cell
-    val cells = (pairs :+ (IndexColumnId -> ObjectTableCell(rowIndex.toString))).toMap
-    ObjectTableRow(obj, cells)
+    val cells = (pairs :+ (IndexColumnId -> ObjectsTableModel.Cell(rowIndex.toString))).toMap
+    ObjectsTableModel.Row(obj, cells)
   }
 
   private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
