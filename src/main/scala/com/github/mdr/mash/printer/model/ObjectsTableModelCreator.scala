@@ -22,7 +22,8 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
-  def create(values: Seq[MashValue], list: MashList): ObjectsTableModel = {
+  def create(list: MashList): ObjectsTableModel = {
+    val values = list.immutableElements
     val (columnIds, columnSpecs) = getColumnSpecs(values)
 
     val tableRows: Seq[ObjectsTableModel.Row] =
@@ -83,7 +84,10 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
           .distinct
           .zipWithIndex
           .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
-      else Seq()
+      else if (testValues.nonEmpty && testValues.forall(_.isAList))
+        0.until(testValues.map(_.asList.get.size).max).map(i ⇒ ColumnId(i) -> ColumnSpec(ColumnFetch.ByIndex(i)))
+      else
+        Seq()
     val columnIds = columnSpecs.map(_._1).filterNot(hiddenColumns.contains)
     (columnIds, columnSpecs.toMap)
   }

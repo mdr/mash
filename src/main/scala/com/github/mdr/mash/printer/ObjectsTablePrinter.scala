@@ -3,14 +3,14 @@ package com.github.mdr.mash.printer
 import java.io.PrintStream
 
 import com.github.mdr.mash.printer.model.ObjectsTableModelCreator
-import com.github.mdr.mash.runtime.{ MashList, MashObject }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 
 class ObjectsTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
-  def printTable(objects: Seq[MashObject]) {
+  def printTable(objects: Seq[MashValue]) {
     val creator = new ObjectsTableModelCreator(terminalInfo, showSelections = false, viewConfig)
-    val model = creator.create(objects, MashList(objects))
+    val model = creator.create(MashList(objects))
     val stringifier = new ObjectsTableStringifier(showSelections = false)
     output.println(stringifier.renderTopRow(model))
     output.println(stringifier.renderHeaderRow(model))
