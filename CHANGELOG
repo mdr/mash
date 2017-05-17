@@ -1,6 +1,8 @@
 v0.0.9 (..)
 -----------
 
+* Add List.cartesianProduct
+* Support table rendering for list of lists
 * random.int
 * Object.sort
 * noArg for default argument sentinels
