@@ -1,6 +1,6 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.printer.ColumnId
+import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 object ObjectsTableModel {
@@ -13,7 +13,7 @@ object ObjectsTableModel {
 
   }
 
-  case class Column(name: String, width: Int)
+  case class Column(name: String, width: Int, fetchOpt: Option[ColumnFetch] = None)
 
 }
 

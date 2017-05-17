@@ -42,7 +42,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
     val columns =
       for ((columnId, width) ← allocatedColumnWidths)
-        yield columnId -> ObjectsTableModel.Column(columnNames(columnId), width)
+        yield columnId -> ObjectsTableModel.Column(columnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
     val indexColumn = IndexColumnId -> ObjectsTableModel.Column(IndexColumnName, indexColumnWidth)
     val allColumns = columns + indexColumn
     ObjectsTableModel(allColumnIds, allColumns, tableRows, list)

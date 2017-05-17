@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
-import com.github.mdr.mash.printer.ColumnId
+import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
 import com.github.mdr.mash.printer.model.ObjectsTableModel
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ CellSearchInfo, SearchState }
@@ -152,7 +152,8 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
           columnId ← currentColumnIdOpt
           field = model.columnName(columnId)
           rawCellValue ← model.rows(selectedRow).cells(columnId).rawValueOpt
-          newPath = safeProperty(rowPath, field)
+          fetch ← model.columns(columnId).fetchOpt
+          newPath = getCellPath(rowPath, fetch)
         } yield SelectionInfo(newPath, rawCellValue)
       cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))
     } else {
@@ -162,6 +163,12 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       SelectionInfo(rowsPath, rowObjects)
     }
   }
+
+  private def getCellPath(rowPath: String, fetch: ColumnFetch): String =
+    fetch match {
+      case ColumnFetch.ByMember(name, _) ⇒ safeProperty(rowPath, name)
+      case ColumnFetch.ByIndex(index)    ⇒ s"$rowPath[$index]"
+    }
 
   def adjustWindowToFit(terminalRows: Int): ObjectsTableBrowserState = {
     var newState = this
