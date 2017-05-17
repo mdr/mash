@@ -1,10 +1,9 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.printer._
-import com.github.mdr.mash.runtime.{ MashList, MashObject }
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 
 object ObjectsTableModelCreator {
@@ -23,11 +22,11 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
-  def create(objects: Seq[MashObject], list: MashList): ObjectsTableModel = {
-    val (columnIds, columnSpecs) = getColumnSpecs(objects)
+  def create(values: Seq[MashValue], list: MashList): ObjectsTableModel = {
+    val (columnIds, columnSpecs) = getColumnSpecs(values)
 
     val tableRows: Seq[ObjectsTableModel.Row] =
-      objects.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
+      values.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
     def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
       (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.size).max
@@ -35,7 +34,7 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
       (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
 
     val allColumnIds = IndexColumnId +: columnIds
-    val indexColumnWidth = objects.size.toString.length
+    val indexColumnWidth = values.size.toString.length
     val selectionStateWidth = if (showSelections) 2 else 0
     val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
     val allocatedColumnWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
@@ -48,44 +47,43 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     ObjectsTableModel(allColumnIds, allColumns, tableRows, list)
   }
 
-  private def createTableRow(obj: MashObject,
+  private def createTableRow(rowValue: MashValue,
                              rowIndex: Int,
                              columnIds: Seq[ColumnId],
                              columnSpecs: Map[ColumnId, ColumnSpec]): ObjectsTableModel.Row = {
     val pairs =
       for {
         columnId ← columnIds
-        ColumnSpec(name, _, isNullaryMethod) = columnSpecs(columnId)
-        rawValueOpt = MemberEvaluator.maybeLookup(obj, name)
-        valueOpt = rawValueOpt.map(rawValue ⇒
-          if (isNullaryMethod) Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None) else rawValue)
-        renderedValue = valueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-        cell = ObjectsTableModel.Cell(renderedValue, valueOpt)
+        ColumnSpec(fetch, _) = columnSpecs(columnId)
+        cellValueOpt = fetch.lookup(rowValue)
+        renderedValue = cellValueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
+        cell = ObjectsTableModel.Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
     val cells = (pairs :+ (IndexColumnId -> ObjectsTableModel.Cell(rowIndex.toString))).toMap
-    ObjectsTableModel.Row(cells, obj)
+    ObjectsTableModel.Row(cells, rowValue)
   }
 
-  private def getColumnSpecs(objects: Seq[MashObject]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
-    val testObjects = objects.take(50)
+  private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
+    val testValues = values.take(50)
     val columnSpecs =
-      if (testObjects.nonEmpty && testObjects.forall(_ isA GroupClass))
+      if (testValues.nonEmpty && testValues.forall(_ isA GroupClass))
         Seq(
-          ColumnId(0) -> ColumnSpec(GroupClass.Fields.Key.name, weight = 10),
-          ColumnId(1) -> ColumnSpec(GroupClass.CountMethod.name, weight = 3, isNullaryMethod = true),
-          ColumnId(2) -> ColumnSpec(GroupClass.Fields.Values.name, weight = 1))
-      else if (testObjects.nonEmpty && testObjects.forall(_ isA CommitClass))
+          ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Key), weight = 10),
+          ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
+          ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Values), weight = 1))
+      else if (testValues.nonEmpty && testValues.forall(_ isA CommitClass))
         Seq(
-          ColumnId(0) -> ColumnSpec(CommitClass.Fields.Hash.name, weight = 1),
-          ColumnId(1) -> ColumnSpec(CommitClass.Fields.CommitTime.name, weight = 10),
-          ColumnId(2) -> ColumnSpec(CommitClass.Fields.Author.name, weight = 10),
-          ColumnId(3) -> ColumnSpec(CommitClass.Fields.Summary.name, weight = 3))
-      else
-        testObjects
-          .flatMap(_.immutableFields.keys)
+          ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Hash), weight = 1),
+          ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
+          ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Author), weight = 10),
+          ColumnId(3) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
+      else if (testValues.nonEmpty && testValues.forall(_.isAnObject))
+        testValues
+          .flatMap(_.asObject.get.immutableFields.keys)
           .distinct
           .zipWithIndex
-          .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(field) }
+          .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
+      else Seq()
     val columnIds = columnSpecs.map(_._1).filterNot(hiddenColumns.contains)
     (columnIds, columnSpecs.toMap)
   }
