@@ -16,7 +16,7 @@ object ReplaceMethod extends MashMethod("replace") {
     val Regex = Parameter(
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
-      summaryOpt = Some("Interpret target as a regular expression"),
+      summaryOpt = Some("Interpret target as a regular expression (default false)"),
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true)

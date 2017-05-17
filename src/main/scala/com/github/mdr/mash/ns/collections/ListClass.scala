@@ -48,6 +48,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(WhereNotFunction),
     CartesianProductMethod,
     IntersectMethod,
+    NaturalJoinMethod,
     SelectMethod)
 
   override val staticMethods = Seq(NewStaticMethod)
