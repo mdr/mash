@@ -35,6 +35,7 @@ object ColumnFetch {
 
     def lookup(value: MashValue) = value match {
       case xs: MashList ⇒ xs.immutableElements.lift(index)
+      case _            ⇒ None
     }
 
     def name = index.toString

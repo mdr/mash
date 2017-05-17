@@ -78,14 +78,19 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
           ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
           ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Author), weight = 10),
           ColumnId(3) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
-      else if (testValues.nonEmpty && testValues.forall(_.isAnObject))
-        testValues
-          .flatMap(_.asObject.get.immutableFields.keys)
-          .distinct
-          .zipWithIndex
-          .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
-      else if (testValues.nonEmpty && testValues.forall(_.isAList))
-        0.until(testValues.map(_.asList.get.size).max).map(i ⇒ ColumnId(i) -> ColumnSpec(ColumnFetch.ByIndex(i)))
+      else if (testValues.nonEmpty && testValues.forall(v ⇒ v.isAnObject || v.isAList)) {
+        val fieldSpecs =
+          testValues
+            .flatMap(_.asObject)
+            .flatMap(_.immutableFields.keys)
+            .distinct
+            .zipWithIndex
+            .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
+        val sizes = testValues.flatMap(_.asList).map(_.size)
+        val maxSize = if (sizes.isEmpty) 0 else sizes.max
+        val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ColumnFetch.ByIndex(i)))
+        fieldSpecs ++ indexSpecs
+      }
       else
         Seq()
     val columnIds = columnSpecs.map(_._1).filterNot(hiddenColumns.contains)
