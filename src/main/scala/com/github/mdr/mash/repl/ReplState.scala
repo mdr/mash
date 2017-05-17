@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.printer.ViewConfig
-import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, ObjectsTableBrowserState, SingleObjectTableBrowserState }
+import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, TwoDTableBrowserState, SingleObjectTableBrowserState }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.MashObject
@@ -52,7 +52,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     objectBrowserStateStackOpt match {
       case Some(stack) ⇒
         stack.headState match {
-          case s: ObjectsTableBrowserState if s.searchStateOpt.isDefined      ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+          case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
           case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
           case s if s.expressionOpt.isDefined                                 ⇒ ReplMode.ObjectBrowser.ExpressionInput
           case _                                                              ⇒ ReplMode.ObjectBrowser

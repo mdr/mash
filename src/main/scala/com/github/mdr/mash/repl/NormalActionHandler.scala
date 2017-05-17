@@ -223,7 +223,7 @@ trait NormalActionHandler {
       val commandNumber = state.commandNumber - 1
       val path = s"${ReplState.Res}$commandNumber"
       val browserState = printModel match {
-        case model: ObjectsTableModel      ⇒ ObjectsTableBrowserState(model, path = path)
+        case model: TwoDTableModel         ⇒ TwoDTableBrowserState(model, path = path)
         case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
         case model: ObjectTreeModel        ⇒ ObjectTreeBrowserState.initial(model, path = path)
         case model: ValueModel             ⇒ new ValueBrowserState(model, path = path)

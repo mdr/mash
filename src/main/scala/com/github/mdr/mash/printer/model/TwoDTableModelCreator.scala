@@ -6,27 +6,27 @@ import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 
-object ObjectsTableModelCreator {
+object TwoDTableModelCreator {
 
   private val IndexColumnName = "#"
   private val IndexColumnId = ColumnId(-1)
 
 }
 
-class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
-                               showSelections: Boolean = false,
-                               viewConfig: ViewConfig,
-                               hiddenColumns: Seq[ColumnId] = Seq()) {
+class TwoDTableModelCreator(terminalInfo: TerminalInfo,
+                            showSelections: Boolean = false,
+                            viewConfig: ViewConfig,
+                            hiddenColumns: Seq[ColumnId] = Seq()) {
 
-  import ObjectsTableModelCreator._
+  import TwoDTableModelCreator._
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
-  def create(list: MashList): ObjectsTableModel = {
+  def create(list: MashList): TwoDTableModel = {
     val values = list.immutableElements
     val (columnIds, columnSpecs) = getColumnSpecs(values)
 
-    val tableRows: Seq[ObjectsTableModel.Row] =
+    val tableRows: Seq[TwoDTableModel.Row] =
       values.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
     def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
@@ -42,26 +42,26 @@ class ObjectsTableModelCreator(terminalInfo: TerminalInfo,
     val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
     val columns =
       for ((columnId, width) ← allocatedColumnWidths)
-        yield columnId -> ObjectsTableModel.Column(columnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
-    val indexColumn = IndexColumnId -> ObjectsTableModel.Column(IndexColumnName, indexColumnWidth)
+        yield columnId -> TwoDTableModel.Column(columnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
+    val indexColumn = IndexColumnId -> TwoDTableModel.Column(IndexColumnName, indexColumnWidth)
     val allColumns = columns + indexColumn
-    ObjectsTableModel(allColumnIds, allColumns, tableRows, list)
+    TwoDTableModel(allColumnIds, allColumns, tableRows, list)
   }
 
   private def createTableRow(rowValue: MashValue,
                              rowIndex: Int,
                              columnIds: Seq[ColumnId],
-                             columnSpecs: Map[ColumnId, ColumnSpec]): ObjectsTableModel.Row = {
+                             columnSpecs: Map[ColumnId, ColumnSpec]): TwoDTableModel.Row = {
     val pairs =
       for {
         columnId ← columnIds
         ColumnSpec(fetch, _) = columnSpecs(columnId)
         cellValueOpt = fetch.lookup(rowValue)
         renderedValue = cellValueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-        cell = ObjectsTableModel.Cell(renderedValue, cellValueOpt)
+        cell = TwoDTableModel.Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
-    val cells = (pairs :+ (IndexColumnId -> ObjectsTableModel.Cell(rowIndex.toString))).toMap
-    ObjectsTableModel.Row(cells, rowValue)
+    val cells = (pairs :+ (IndexColumnId -> TwoDTableModel.Cell(rowIndex.toString))).toMap
+    TwoDTableModel.Row(cells, rowValue)
   }
 
   private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {

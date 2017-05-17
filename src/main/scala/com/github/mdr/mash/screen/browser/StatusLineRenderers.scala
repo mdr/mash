@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.{ KeyHint, Line, Style }
 import com.github.mdr.mash.screen.Style.StylableString
 

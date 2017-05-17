@@ -1,17 +1,17 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.printer.model.ObjectsTableModel
+import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.screen.Style.StylableString
 
-class ObjectsTableStringifier(showSelections: Boolean = false) {
+class TwoDTableStringifier(showSelections: Boolean = false) {
 
   private val boxCharacterSupplier: BoxCharacterSupplier = UnicodeBoxCharacterSupplier
   import boxCharacterSupplier._
 
-  def renderTopRow(model: ObjectsTableModel): String = {
+  def renderTopRow(model: TwoDTableModel): String = {
     val sb = new StringBuilder()
     sb.append(doubleTopLeft)
     if (showSelections)
@@ -21,7 +21,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderHeaderRow(model: ObjectsTableModel): String = {
+  def renderHeaderRow(model: TwoDTableModel): String = {
     def renderColumn(id: ColumnId) = {
       val fit = StringUtils.fitToWidth(model.columnName(id), model.columnWidth(id))
       drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow, bold = true))
@@ -35,7 +35,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderBelowHeaderRow(model: ObjectsTableModel): String = {
+  def renderBelowHeaderRow(model: TwoDTableModel): String = {
     val sb = new StringBuilder()
     sb.append(doubleVerticalSingleRight)
     if (showSelections)
@@ -45,7 +45,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderObjectRow(model: ObjectsTableModel, row: ObjectsTableModel.Row): String = {
+  def renderObjectRow(model: TwoDTableModel, row: TwoDTableModel.Row): String = {
     def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
     new StringBuilder()
       .append(doubleVertical)
@@ -54,7 +54,7 @@ class ObjectsTableStringifier(showSelections: Boolean = false) {
       .toString
   }
 
-  def renderBottomRow(model: ObjectsTableModel): String = {
+  def renderBottomRow(model: TwoDTableModel): String = {
     val sb = new StringBuilder
     sb.append(doubleBottomLeft)
     if (showSelections)

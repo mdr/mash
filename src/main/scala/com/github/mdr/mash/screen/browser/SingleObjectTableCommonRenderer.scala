@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.CellSearchInfo
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.CellSearchInfo
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ Colour, _ }
 import com.github.mdr.mash.terminal.TerminalInfo

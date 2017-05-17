@@ -4,9 +4,9 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
-import com.github.mdr.mash.printer.model.ObjectsTableModel
+import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ CellSearchInfo, SearchState }
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.{ CellSearchInfo, SearchState }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -14,7 +14,7 @@ import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
-object ObjectsTableBrowserState {
+object TwoDTableBrowserState {
 
   case class CellSearchInfo(matches: Seq[Region])
 
@@ -24,15 +24,15 @@ object ObjectsTableBrowserState {
 
 }
 
-case class ObjectsTableBrowserState(model: ObjectsTableModel,
-                                    selectedRow: Int = 0,
-                                    firstRow: Int = 0,
-                                    currentColumnOpt: Option[Int] = None,
-                                    markedRows: Set[Int] = Set(),
-                                    path: String,
-                                    hiddenColumns: Seq[ColumnId] = Seq(),
-                                    searchStateOpt: Option[SearchState] = None,
-                                    expressionOpt: Option[String] = None) extends BrowserState {
+case class TwoDTableBrowserState(model: TwoDTableModel,
+                                 selectedRow: Int = 0,
+                                 firstRow: Int = 0,
+                                 currentColumnOpt: Option[Int] = None,
+                                 markedRows: Set[Int] = Set(),
+                                 path: String,
+                                 hiddenColumns: Seq[ColumnId] = Seq(),
+                                 searchStateOpt: Option[SearchState] = None,
+                                 expressionOpt: Option[String] = None) extends BrowserState {
 
   private def currentColumnIdOpt: Option[ColumnId] = currentColumnOpt.map(model.columnIds)
 
@@ -105,18 +105,18 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
   private val size = model.rows.size
   private val numberOfColumns = model.numberOfColumns
 
-  def previousItem(terminalRows: Int): ObjectsTableBrowserState = adjustSelectedRow(-1).adjustWindowToFit(terminalRows)
+  def previousItem(terminalRows: Int): TwoDTableBrowserState = adjustSelectedRow(-1).adjustWindowToFit(terminalRows)
 
-  def nextItem(terminalRows: Int): ObjectsTableBrowserState = adjustSelectedRow(1).adjustWindowToFit(terminalRows)
+  def nextItem(terminalRows: Int): TwoDTableBrowserState = adjustSelectedRow(1).adjustWindowToFit(terminalRows)
 
-  def adjustSelectedRow(delta: Int): ObjectsTableBrowserState =
+  def adjustSelectedRow(delta: Int): TwoDTableBrowserState =
     this.when(size > 0, _.copy(selectedRow = (selectedRow + delta + size) % size))
 
-  def nextColumn: ObjectsTableBrowserState = adjustSelectedColumn(1)
+  def nextColumn: TwoDTableBrowserState = adjustSelectedColumn(1)
 
-  def previousColumn: ObjectsTableBrowserState = adjustSelectedColumn(-1)
+  def previousColumn: TwoDTableBrowserState = adjustSelectedColumn(-1)
 
-  def adjustSelectedColumn(delta: Int): ObjectsTableBrowserState =
+  def adjustSelectedColumn(delta: Int): TwoDTableBrowserState =
     if (numberOfColumns == 0)
       this
     else {
@@ -124,21 +124,21 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       copy(currentColumnOpt = Some((currentColumn + delta + numberOfColumns) % numberOfColumns))
     }
 
-  def unfocusColumn: ObjectsTableBrowserState = copy(currentColumnOpt = None)
+  def unfocusColumn: TwoDTableBrowserState = copy(currentColumnOpt = None)
 
-  def lastColumn: ObjectsTableBrowserState = copy(currentColumnOpt = Some(numberOfColumns - 1))
+  def lastColumn: TwoDTableBrowserState = copy(currentColumnOpt = Some(numberOfColumns - 1))
 
-  def firstColumn: ObjectsTableBrowserState = copy(currentColumnOpt = Some(0))
+  def firstColumn: TwoDTableBrowserState = copy(currentColumnOpt = Some(0))
 
-  def adjustFirstRow(delta: Int): ObjectsTableBrowserState = copy(firstRow = firstRow + delta)
+  def adjustFirstRow(delta: Int): TwoDTableBrowserState = copy(firstRow = firstRow + delta)
 
-  def toggleMark: ObjectsTableBrowserState =
+  def toggleMark: TwoDTableBrowserState =
     if (markedRows contains selectedRow)
       copy(markedRows = markedRows - selectedRow)
     else
       copy(markedRows = markedRows + selectedRow)
 
-  def withPath(newPath: String): ObjectsTableBrowserState = copy(path = newPath)
+  def withPath(newPath: String): TwoDTableBrowserState = copy(path = newPath)
 
   def getInsertExpression: String = selectionInfo.path
 
@@ -170,7 +170,7 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
       case ColumnFetch.ByIndex(index)    ⇒ s"$rowPath[$index]"
     }
 
-  def adjustWindowToFit(terminalRows: Int): ObjectsTableBrowserState = {
+  def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {
     var newState = this
 
     val delta = selectedRow - (firstRow + windowSize(terminalRows) - 1)
@@ -186,20 +186,20 @@ case class ObjectsTableBrowserState(model: ObjectsTableModel,
 
   def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
-  def nextPage(terminalRows: Int): ObjectsTableBrowserState = {
+  def nextPage(terminalRows: Int): TwoDTableBrowserState = {
     val newRow = math.min(model.rows.size - 1, selectedRow + windowSize(terminalRows) - 1)
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def previousPage(terminalRows: Int): ObjectsTableBrowserState = {
+  def previousPage(terminalRows: Int): TwoDTableBrowserState = {
     val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def firstItem(terminalRows: Int): ObjectsTableBrowserState =
+  def firstItem(terminalRows: Int): TwoDTableBrowserState =
     copy(selectedRow = 0).adjustWindowToFit(terminalRows)
 
-  def lastItem(terminalRows: Int): ObjectsTableBrowserState =
+  def lastItem(terminalRows: Int): TwoDTableBrowserState =
     copy(selectedRow = size - 1).adjustWindowToFit(terminalRows)
 
 }

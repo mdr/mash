@@ -3,7 +3,7 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
-object ObjectsTableModel {
+object TwoDTableModel {
 
   case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
 
@@ -17,12 +17,12 @@ object ObjectsTableModel {
 
 }
 
-import ObjectsTableModel._
+import TwoDTableModel._
 
-case class ObjectsTableModel(columnIds: Seq[ColumnId],
-                             columns: Map[ColumnId, Column],
-                             rows: Seq[Row],
-                             rawValue: MashList) extends PrintModel {
+case class TwoDTableModel(columnIds: Seq[ColumnId],
+                          columns: Map[ColumnId, Column],
+                          rows: Seq[Row],
+                          rawValue: MashList) extends PrintModel {
 
   def columnName(columnId: ColumnId): String = columns(columnId).name
 

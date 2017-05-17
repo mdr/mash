@@ -1,8 +1,8 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.model.ObjectsTableModel
-import com.github.mdr.mash.printer.{ ColumnId, ObjectsTableStringifier, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState
+import com.github.mdr.mash.printer.model.TwoDTableModel
+import com.github.mdr.mash.printer.{ ColumnId, TwoDTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
@@ -11,11 +11,11 @@ import com.github.mdr.mash.utils.Utils.tupled
 
 import scala.collection.mutable.ArrayBuffer
 
-class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo)
+class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectTableStringifier = new ObjectsTableStringifier(showSelections = true)
+  private val objectTableStringifier = new TwoDTableStringifier(showSelections = true)
 
   protected def renderLines: Seq[Line] = {
     val upperStatusLine = renderUpperStatusLine
@@ -26,7 +26,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     Seq(upperStatusLine) ++ headerLines ++ dataLines ++ Seq(footerLine, statusLine)
   }
 
-  private def renderHeaderRow(model: ObjectsTableModel): Line = {
+  private def renderHeaderRow(model: TwoDTableModel): Line = {
     def renderColumn(columnId: ColumnId): StyledString = {
       val fit = StringUtils.fitToWidth(model.columnName(columnId), model.columnWidth(columnId))
       fit.style(Style(bold = true, foregroundColour = BasicColour.Yellow))
@@ -53,7 +53,7 @@ class ObjectsTableBrowserRenderer(state: ObjectsTableBrowserState, terminalInfo:
     } yield renderObject(row, actualIndex == state.selectedRow, state.currentColumnOpt, state.markedRows contains actualIndex, actualIndex)
   }
 
-  private def renderObject(row: ObjectsTableModel.Row,
+  private def renderObject(row: TwoDTableModel.Row,
                            isCursorRow: Boolean,
                            currentColumnIndexOpt: Option[Int],
                            isSelected: Boolean,

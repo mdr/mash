@@ -68,7 +68,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
     case obj: MashObject                                          ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
     case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList) ⇒
-      new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
+      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
     case xs: MashList                                             ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
     case _                                                        ⇒
@@ -91,10 +91,10 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
           val objects = xs.immutableElements
           val nonDataRows = 4 // 3 header rows + 1 footer
           if (objects.size > terminalInfo.rows - nonDataRows) {
-            val model = new ObjectsTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
+            val model = new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
             return PrintResult(Some(model))
           } else
-            new ObjectsTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
+            new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
         case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)             ⇒
           if (xs.length > terminalInfo.rows) {
             val model = new TextLinesModelCreator(viewConfig).create(xs)

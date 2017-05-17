@@ -44,8 +44,8 @@ object ReplRenderer {
     ReplRenderResult(screen, numberOfCompletionColumns)
   }
 
-  private def renderObjectTableBrowser(state: ObjectsTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
-    val screen = new ObjectsTableBrowserRenderer(state, terminalInfo).renderObjectBrowser
+  private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
+    val screen = new TwoDTableBrowserRenderer(state, terminalInfo).renderObjectBrowser
     ReplRenderResult(screen)
   }
 
@@ -71,7 +71,7 @@ object ReplRenderer {
 
   private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalInfo: TerminalInfo): ReplRenderResult =
     state.headState match {
-      case objectTableBrowserState: ObjectsTableBrowserState       ⇒ renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
+      case objectTableBrowserState: TwoDTableBrowserState          ⇒ renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
       case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
       case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
       case valueBrowserState: ValueBrowserState                    ⇒ renderValueBrowser(valueBrowserState, terminalInfo)

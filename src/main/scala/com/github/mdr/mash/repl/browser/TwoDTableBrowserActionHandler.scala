@@ -5,20 +5,20 @@ import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 
-trait ObjectsTableBrowserActionHandler {
+trait TwoDTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
 
-  protected def handleObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) =
+  protected def handleTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState) =
     browserState.searchStateOpt match {
       case Some(searchState) ⇒
         handleIncrementalSearchAction(action, browserState, searchState)
       case None              ⇒
-        handleDefaultObjectsTableBrowserAction(action, browserState)
+        handleDefaultTwoDTableBrowserAction(action, browserState)
     }
 
-  private def handleIncrementalSearchAction(action: InputAction, browserState: ObjectsTableBrowserState, searchState: SearchState): Unit = {
+  private def handleIncrementalSearchAction(action: InputAction, browserState: TwoDTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._
     action match {
       case SelfInsert(c)                   ⇒
@@ -40,7 +40,7 @@ trait ObjectsTableBrowserActionHandler {
     }
   }
 
-  protected def handleDefaultObjectsTableBrowserAction(action: InputAction, browserState: ObjectsTableBrowserState) =
+  protected def handleDefaultTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState) =
     action match {
       case NextColumn                      ⇒
         updateState(browserState.nextColumn)
@@ -80,7 +80,7 @@ trait ObjectsTableBrowserActionHandler {
       case ToggleMarked                    ⇒
         updateState(browserState.toggleMark)
       case Rerender                        ⇒
-        val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig)
+        val modelCreator = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig)
         val model = modelCreator.create(browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
@@ -95,15 +95,15 @@ trait ObjectsTableBrowserActionHandler {
       case _                               ⇒
     }
 
-  private def handleHideColumn(browserState: ObjectsTableBrowserState) =
+  private def handleHideColumn(browserState: TwoDTableBrowserState) =
     for (currentColumn <- browserState.currentColumnOpt if currentColumn > 0)
       updateState(hideColumn(browserState, currentColumn))
 
-  private def hideColumn(browserState: ObjectsTableBrowserState, currentColumn: Int): ObjectsTableBrowserState = {
+  private def hideColumn(browserState: TwoDTableBrowserState, currentColumn: Int): TwoDTableBrowserState = {
     val columnId = browserState.model.columnIds(currentColumn)
     val list = browserState.model.rawValue
     val hiddenColumns = browserState.hiddenColumns :+ columnId
-    val modelCreator = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
+    val modelCreator = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
     val model = modelCreator.create(list)
     val newColumn = if (currentColumn >= model.numberOfColumns) currentColumn - 1 else currentColumn
     browserState.copy(model = model, hiddenColumns = hiddenColumns, currentColumnOpt = Some(newColumn))

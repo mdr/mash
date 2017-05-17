@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
-import com.github.mdr.mash.repl.browser.ObjectsTableBrowserState.{ CellSearchInfo, SearchState }
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.{ CellSearchInfo, SearchState }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region

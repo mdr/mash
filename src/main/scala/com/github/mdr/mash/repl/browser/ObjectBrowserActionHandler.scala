@@ -14,7 +14,7 @@ trait ObjectBrowserActionHandler
     with ValueBrowserActionHandler
     with ObjectTreeBrowserActionHandler
     with SingleObjectTableBrowserActionHandler
-    with ObjectsTableBrowserActionHandler {
+    with TwoDTableBrowserActionHandler {
   self: Repl ⇒
 
   import ObjectBrowserActions._
@@ -54,16 +54,16 @@ trait ObjectBrowserActionHandler
   }
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
-    case obj: MashObject                                       ⇒
+    case obj: MashObject                                          ⇒
       val model = new SingleObjectTableModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList) ⇒
-      val model = new ObjectsTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(xs)
-      ObjectsTableBrowserState(model, path = path)
-    case xs: MashList                                          ⇒
+      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(xs)
+      TwoDTableBrowserState(model, path = path)
+    case xs: MashList                                             ⇒
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
-    case _                                                     ⇒
+    case _                                                        ⇒
       val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
       ValueBrowserState(model, path = path)
   }
@@ -85,7 +85,7 @@ trait ObjectBrowserActionHandler
         handleExpressionInputAction(action, browserStateStack.headState, expression)
       case None             ⇒
         browserStateStack.headState match {
-          case objectTableBrowserState: ObjectsTableBrowserState       ⇒ handleObjectsTableBrowserAction(action, objectTableBrowserState)
+          case twoDTableBrowserState: TwoDTableBrowserState            ⇒ handleTwoDTableBrowserAction(action, twoDTableBrowserState)
           case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectTableBrowserAction(action, singleObjectBrowserState)
           case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ handleObjectTreeBrowserAction(action, objectTreeBrowserState)
           case valueBrowserState: ValueBrowserState                    ⇒ handleValueBrowserAction(action, valueBrowserState)
