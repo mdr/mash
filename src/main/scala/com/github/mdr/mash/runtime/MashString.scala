@@ -33,7 +33,7 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
 
   def init = copy(s = s.init)
 
-  def length = MashNumber(s.length)
+  def length = s.length
 
   def startsWith(that: MashString) = this.s.startsWith(that.s)
 
@@ -50,5 +50,7 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
   override def toString = s
 
   def compareTo(that: MashString) = this.s.compareTo(that.s)
+
+  def withTag(tagClass: MashClass): MashString = copy(tagClassOpt = Some(tagClass))
 
 }

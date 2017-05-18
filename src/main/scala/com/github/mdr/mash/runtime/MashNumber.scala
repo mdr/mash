@@ -44,7 +44,7 @@ case class MashNumber(n: Double, tagClassOpt: Option[MashClass] = None) extends 
 
   def isInt = asInt.isDefined
 
-  def withTag(tagClass: MashClass) = copy(tagClassOpt = Some(tagClass))
+  def withTag(tagClass: MashClass): MashNumber = copy(tagClassOpt = Some(tagClass))
 
   def modify(f: Double ⇒ Double): MashNumber = copy(n = f(n))
 

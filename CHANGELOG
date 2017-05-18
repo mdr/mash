@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add core.Character tag class
 * Add List.naturalJoin
 * Add List.cartesianProduct
 * Support table rendering for list of lists

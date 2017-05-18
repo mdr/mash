@@ -10,7 +10,7 @@ object ToPathMethod extends MashMethod("toPath") {
   val params = ParameterModel()
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
-    target.asInstanceOf[MashString].copy(tagClassOpt = Some(PathClass))
+    target.asInstanceOf[MashString].withTag(PathClass)
   }
 
   override def summaryOpt = Some("Tag this string as a path")

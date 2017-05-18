@@ -172,7 +172,7 @@ object NumberClass extends MashClass("core.Number") {
     val params = ParameterModel()
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
-      target.asInstanceOf[MashNumber].copy(tagClassOpt = Some(BytesClass))
+      target.asInstanceOf[MashNumber].withTag(BytesClass)
     }
 
     override def typeInferenceStrategy = NumberClass taggedWith BytesClass

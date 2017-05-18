@@ -43,6 +43,7 @@ object StringClass extends MashClass("core.String") {
     ListClass.methodise(UniqueFunction),
     ListClass.methodise(WhereFunction),
     ListClass.methodise(WhereNotFunction),
+    CharMethod,
     ContainsMethod,
     EndsWithMethod,
     GlobMethod,

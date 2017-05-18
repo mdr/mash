@@ -35,6 +35,7 @@ object MashRoot {
     ObjectClass,
     AnyClass,
     StringClass,
+    CharacterClass,
     UnitClass)
 
   lazy private val OtherFunctions =

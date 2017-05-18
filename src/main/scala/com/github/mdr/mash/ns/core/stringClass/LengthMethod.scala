@@ -8,9 +8,8 @@ object LengthMethod extends MashMethod("length") {
 
   val params = ParameterModel()
 
-  def call(target: MashValue, boundParams: BoundParams): MashNumber = {
-    target.asInstanceOf[MashString].length
-  }
+  def call(target: MashValue, boundParams: BoundParams): MashNumber =
+    MashNumber(target.asInstanceOf[MashString].length)
 
   override def typeInferenceStrategy = NumberClass
 

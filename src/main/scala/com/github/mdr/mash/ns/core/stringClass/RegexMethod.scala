@@ -11,7 +11,7 @@ object RegexMethod extends MashMethod("regex") {
   val params = ParameterModel()
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
-    target.asInstanceOf[MashString].copy(tagClassOpt = Some(RegexClass))
+    target.asInstanceOf[MashString].withTag(RegexClass)
   }
 
   override def typeInferenceStrategy = StringClass taggedWith RegexClass
