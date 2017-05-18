@@ -22,8 +22,8 @@ object Type {
 
     object AnyString {
       def unapply(x: Any): Option[Type] = PartialFunction.condOpt(x) {
-        case Type.Instance(StringClass)            ⇒ Type.Instance(StringClass)
-        case Type.Tagged(StringClass, tagClassOpt) ⇒ Type.Tagged(StringClass, tagClassOpt)
+        case Type.Instance(StringClass)         ⇒ Type.Instance(StringClass)
+        case Type.Tagged(StringClass, tagClass) ⇒ StringClass taggedWith tagClass
       }
     }
 

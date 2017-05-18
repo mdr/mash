@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.{ CharacterClass, StringClass }
 import com.github.mdr.mash.ns.core.objectClass.MapMethod
 import com.github.mdr.mash.runtime._
 
@@ -110,7 +111,7 @@ object MapTypeInferenceStrategy extends TypeInferenceStrategy {
       sequenceType = sequenceTypeOpt getOrElse Type.Any.seq
       elementType ← condOpt(sequenceType) {
         case Type.Seq(elementType)               ⇒ elementType
-        case Type.Patterns.AnyString(stringType) ⇒ stringType
+        case Type.Patterns.AnyString(stringType) ⇒ StringClass taggedWith CharacterClass
         case _                                   ⇒ Type.Any
       }
       newElementType ← inferencer.applyFunction(functionType, elementType, functionValueOpt)

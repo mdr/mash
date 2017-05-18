@@ -41,7 +41,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "[1, 2, 3] 0" ==> NumberClass
 
-  " 'foo'[0] " ==> StringClass
+  " 'foo'[0] " ==> (StringClass taggedWith CharacterClass)
 
   // Addition
   " 'foo' + 'bar' " ==> StringClass
@@ -210,7 +210,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.key) " ==> NumberClass
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.values) " ==> Seq(obj("foo" -> NumberClass))
   " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " ==> NumberClass
-  " 'foo' | groupBy (_) " ==> Seq(Generic(collections.GroupClass, StringClass, StringClass))
+  " 'foo' | groupBy (_) " ==> Seq(Generic(collections.GroupClass, StringClass taggedWith CharacterClass, StringClass))
 
   // sliding
   "[1, 2, 3] | sliding 2" ==> Seq(Seq(NumberClass))

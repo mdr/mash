@@ -418,7 +418,7 @@ class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInf
     }
     condOpt((targetTypeOpt, indexTypeOpt)) {
       case (Some(Type.Seq(elementType)), Some(Type.Instance(NumberClass)))                  ⇒ elementType
-      case (Some(Type.Instance(StringClass)), Some(Type.Instance(NumberClass)))             ⇒ Type.Instance(StringClass)
+      case (Some(Type.Instance(StringClass)), Some(Type.Instance(NumberClass)))             ⇒ StringClass taggedWith CharacterClass
       case (Some(taggedType@Type.Tagged(StringClass, _)), Some(Type.Instance(NumberClass))) ⇒ taggedType
     }
   }

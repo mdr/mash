@@ -2,6 +2,7 @@ package com.github.mdr.mash.runtime
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.ns.core.CharacterClass
 
 import scala.PartialFunction.cond
 
@@ -16,7 +17,7 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
   
   def lookup(i: Int) = {
     val index = if (i < 0) i + s.size else i
-    copy(s(index).toString)
+    MashString(s(index).toString, CharacterClass)
   }
 
   def +(that: MashValue): MashString = copy(s = this.s + ToStringifier.stringify(that))

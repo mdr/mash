@@ -5,7 +5,7 @@ import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ CharacterClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
-object CharMethod extends MashMethod("char") {
+object ToCharacterMethod extends MashMethod("toCharacter") {
 
   override def aliases = Seq("c")
 
@@ -21,7 +21,7 @@ object CharMethod extends MashMethod("char") {
 
   override def typeInferenceStrategy = StringClass taggedWith CharacterClass
 
-  override def summaryOpt = Some("Confirm and tag this String as a character")
+  override def summaryOpt = Some("Tag this String, which must be a a single character, as a Character")
 
 }
 

@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
-import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.CharacterClass
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime._
@@ -34,9 +34,9 @@ case class BoundParams(boundNames: Map[String, MashValue],
     parameterToArguments.get(param).flatMap(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduceOption(mergeLocation))
 
   def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
-    case xs: MashList                          ⇒ xs.elements
-    case MashString(s, tagOpt) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case x                                     ⇒ throwInvalidArgumentType("sequence", x, param)
+    case xs: MashList                     ⇒ xs.elements
+    case MashString(s, _) if allowStrings ⇒ s.toSeq.map(c ⇒ MashString(c.toString, Some(CharacterClass)))
+    case x                                ⇒ throwInvalidArgumentType("sequence", x, param)
   }
 
   def validateString(param: Parameter): MashString = this (param) match {

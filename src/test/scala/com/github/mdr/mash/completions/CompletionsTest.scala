@@ -372,6 +372,9 @@ class CompletionsTest extends FlatSpec with Matchers {
   "import core.help.h▶" shouldContainCompletion "help"
   "import c▶" shouldContainCompletion "core"
 
+  "'1234'.all (.isD▶" shouldContainCompletion "isDigit"
+  "'1234'[0].isD▶" shouldContainCompletion "isDigit"
+
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =
     Compiler.compileForgiving(CompilationUnit(s), bindings = bindings).body
 
