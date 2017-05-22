@@ -374,6 +374,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" ==> NumberClass
   "class Point x y { def method = 42 }; Point.bless {x: 10, y: 20}| .method" ==> NumberClass
   "{ name: 'name', value: 42 }.bless core.FieldAndValue" ==> FieldAndValueClass
+//  "{ name: 'name', value: 42 } | core.FieldAndValue.bless" ==> FieldAndValueClass
 
   // .unbless
   "class Point x y; Point 3 4 | .unbless" ==> obj("x" -> Any, "y" -> Any)
