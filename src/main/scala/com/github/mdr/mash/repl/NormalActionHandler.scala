@@ -68,7 +68,7 @@ trait NormalActionHandler {
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {
       val commandNumber = state.commandNumber - 1
-      val path = s"${ReplState.Res}$commandNumber"
+      val path = s"${ReplState.ResultsListName}$commandNumber"
       for (value <- state.globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
         state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
@@ -221,7 +221,7 @@ trait NormalActionHandler {
 
     for (printModel ← printModelOpt) {
       val commandNumber = state.commandNumber - 1
-      val path = s"${ReplState.Res}$commandNumber"
+      val path = s"${ReplState.ResultsListName}$commandNumber"
       val browserState = printModel match {
         case model: TwoDTableModel         ⇒ TwoDTableBrowserState(model, path = path)
         case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
@@ -236,14 +236,14 @@ trait NormalActionHandler {
 
   private def saveResult(number: Int)(result: MashValue) {
     state.globalVariables.set(ReplState.It, result)
-    state.globalVariables.set(ReplState.Res + number, result)
-    val oldResults = state.globalVariables.get(ReplState.Res) match {
+    state.globalVariables.set(ReplState.ResultsListName + number, result)
+    val oldResults = state.globalVariables.get(ReplState.ResultsListName) match {
       case Some(MashList(oldResults@_*)) ⇒ oldResults
       case _                             ⇒ Seq()
     }
     val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(MashNull)
     val newResults = MashList(extendedResults.updated(number, result))
-    state.globalVariables.set(ReplState.Res, newResults)
+    state.globalVariables.set(ReplState.ResultsListName, newResults)
   }
 
   private def handleComplete() = {

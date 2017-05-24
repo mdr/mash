@@ -19,9 +19,9 @@ object ReplState {
   val It = "it"
 
   /**
-    * Name of the 'res' list, which stores the list of commands executed in the session.
+    * Name of the results list, which stores the list of commands executed in the session.
     */
-  val Res = "res"
+  val ResultsListName = "r"
 
 }
 
