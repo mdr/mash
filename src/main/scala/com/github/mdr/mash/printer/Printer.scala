@@ -20,7 +20,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
-case class ViewConfig(fuzzyTime: Boolean)
+case class ViewConfig(fuzzyTime: Boolean = true, browseLargeOutput: Boolean = true)
 
 object Printer {
 
@@ -75,57 +75,60 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
+  case class PrintConfig(disableCustomViews: Boolean = false,
+                         alwaysUseBrowser: Boolean = false,
+                         alwaysUseTreeBrowser: Boolean = false)
+
   def print(value: MashValue,
-            disableCustomViews: Boolean = false,
-            alwaysUseBrowser: Boolean = false,
-            alwaysUseTreeBrowser: Boolean = false): PrintResult =
-    if (alwaysUseBrowser) {
+            printConfig: PrintConfig = PrintConfig()): PrintResult =
+    if (printConfig.alwaysUseBrowser) {
       val model = getPrintModel(value)
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if alwaysUseTreeBrowser                               ⇒
+        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                               ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           return PrintResult(Some(model))
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAnObject || x.isAList)           ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAnObject || x.isAList)                       ⇒
           val objects = xs.immutableElements
           val nonDataRows = 4 // 3 header rows + 1 footer
-          if (objects.size > terminalInfo.rows - nonDataRows) {
+          if (objects.size > terminalInfo.rows - nonDataRows && viewConfig.browseLargeOutput) {
             val model = new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
             return PrintResult(Some(model))
           } else
             new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)             ⇒
-          if (xs.length > terminalInfo.rows) {
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                         ⇒
+          if (xs.length > terminalInfo.rows && viewConfig.browseLargeOutput) {
             val model = new TextLinesModelCreator(viewConfig).create(xs)
             return PrintResult(Some(model))
           } else
             xs.elements.foreach(output.println)
-        case obj: MashObject if obj.classOpt == Some(ViewClass)                                ⇒
-          val data = obj(ViewClass.Fields.Data)
-          val disableCustomViews = obj(ViewClass.Fields.DisableCustomViews) == MashBoolean.True
-          val alwaysUseBrowser = obj(ViewClass.Fields.UseBrowser) == MashBoolean.True
-          val alwaysUseTreeBrowser = obj(ViewClass.Fields.UseTree) == MashBoolean.True
-          return print(data, disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser, alwaysUseTreeBrowser = alwaysUseTreeBrowser)
-        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !disableCustomViews ⇒
+        case obj: MashObject if obj.classOpt == Some(ViewClass)                                            ⇒
+          val view = ViewClass.Wrapper(obj)
+          val printConfig = PrintConfig(
+            disableCustomViews = view.disableCustomViews,
+            alwaysUseBrowser = view.useBrowser,
+            alwaysUseTreeBrowser = view.useTree)
+          return print(view.data, printConfig)
+        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printFunctionHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews    ⇒
+        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printFieldHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !disableCustomViews    ⇒
+        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printClassHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews       ⇒
+        case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
-        case obj: MashObject                                                                   ⇒
+        case obj: MashObject                                                                               ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                         ⇒ // Don't print out sequence of unit
-        case f: MashFunction if !disableCustomViews                                            ⇒
-          print(HelpCreator.getHelp(f), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case method: BoundMethod if !disableCustomViews                                        ⇒
-          print(HelpCreator.getHelp(method), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case klass: MashClass if !disableCustomViews                                           ⇒
-          print(HelpCreator.getHelp(klass), disableCustomViews = disableCustomViews, alwaysUseBrowser = alwaysUseBrowser)
-        case MashUnit                                                                          ⇒ // Don't print out Unit
-        case _                                                                                 ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                     ⇒ // Don't print out sequence of unit
+        case f: MashFunction if !printConfig.disableCustomViews                                            ⇒
+          print(HelpCreator.getHelp(f), printConfig)
+        case method: BoundMethod if !printConfig.disableCustomViews                                        ⇒
+          print(HelpCreator.getHelp(method), printConfig)
+        case klass: MashClass if !printConfig.disableCustomViews                                           ⇒
+          print(HelpCreator.getHelp(klass), printConfig)
+        case MashUnit                                                                                      ⇒ // Don't print out Unit
+        case _                                                                                             ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
       }
       PrintResult()

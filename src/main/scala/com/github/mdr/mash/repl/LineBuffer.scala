@@ -151,6 +151,12 @@ case class LineBuffer(text: String, cursorOffset: Int) {
     copy(text = lineInfo.replaceLine(cursorPos.row, newLine))
   }
 
+  def deleteToBeginningOfLine: LineBuffer = {
+    val line = lineInfo.line(cursorPos.row)
+    val newLine = line.substring(cursorPos.column)
+    copy(text = lineInfo.replaceLine(cursorPos.row, newLine), cursorOffset = cursorOffset - cursorPos.column)
+  }
+
   def addCharacterAtCursor(c: Char): LineBuffer =
     insertCharacters(c.toString, cursorOffset)
 

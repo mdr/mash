@@ -13,6 +13,7 @@ case class Parameter(nameOpt: Option[String],
                      defaultValueGeneratorOpt: Option[ValueGenerator] = None, // Default value if none provided
                      isVariadic: Boolean = false, // Is a variadic parameter (can be bound to 0-to-many arguments)
                      variadicAtLeastOne: Boolean = false, // As a variadic parameter, must it have at least one argument?
+                     variadicFlatten: Boolean = false, // Variadic arguments get flattened if they are lists
                      isFlag: Boolean = false, // If true, can only be called in flag mode, not positional
                      isBooleanFlag: Boolean = false, // If true, flag represents a boolean value (only affects calling syntax generation)
                      isFlagValueMandatory: Boolean = false, // If true, flag must have a value (only affects calling syntax generation)

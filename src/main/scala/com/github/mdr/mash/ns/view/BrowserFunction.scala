@@ -1,9 +1,7 @@
 package com.github.mdr.mash.ns.view
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
-
-import scala.collection.immutable.ListMap
+import com.github.mdr.mash.runtime.MashObject
 
 object BrowserFunction extends MashFunction("view.browser") {
 
@@ -18,12 +16,7 @@ object BrowserFunction extends MashFunction("view.browser") {
 
   def call(boundParams: BoundParams): MashObject = {
     val data = boundParams(Data)
-    import ViewClass.Fields._
-    MashObject.of(ListMap(
-      Data -> data,
-      DisableCustomViews -> MashBoolean.False,
-      UseBrowser -> MashBoolean.True,
-      UseTree -> MashBoolean.False), ViewClass)
+    ViewClass.build(data, useBrowser = true)
   }
 
   override def typeInferenceStrategy = ViewClass

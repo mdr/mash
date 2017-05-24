@@ -26,6 +26,7 @@ object NormalKeyMap extends KeyMap(Map(
   KeyPress(Delete) -> DeleteChar,
   KeyPress(Backspace) -> BackwardDeleteChar,
   KeyPress(BasicKey('k'), control = true) -> KillLine,
+  KeyPress(BasicKey('u'), control = true) -> BackwardKillLine,
   KeyPress(BasicKey('d'), alt = true) -> KillWord,
   KeyPress(Backspace, alt = true) -> BackwardKillWord,
   KeyPress(Tab) -> Complete,

@@ -2,9 +2,8 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.ns.core.stringClass.SplitMethod
-import com.github.mdr.mash.runtime.{ MashList, MashNull }
+import com.github.mdr.mash.runtime.MashList
 
 object SplitFunction extends MashFunction("core.split") {
 
@@ -13,7 +12,7 @@ object SplitFunction extends MashFunction("core.split") {
     val String = Parameter(
       nameOpt = Some("string"),
       summaryOpt = Some("String to split"),
-      defaultValueGeneratorOpt = Some(NoArgValue))
+      isLast = true)
 
   }
 

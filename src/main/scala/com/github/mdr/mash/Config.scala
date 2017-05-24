@@ -26,6 +26,8 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
 
   def viewFuzzyTime: Boolean = getBooleanConfig(Config.View.FuzzyTime)
 
+  def browseLargeOutput: Boolean = getBooleanConfig(Config.View.BrowseLargeOutput)
+
   private def getBooleanConfig(configOption: ConfigOption): Boolean =
     getConfig(configOption).isTruthy
 
@@ -69,9 +71,10 @@ object Config {
 
   object View {
     val FuzzyTime = ConfigOption("view.fuzzyTime", defaultValue = MashBoolean.True)
+    val BrowseLargeOutput = ConfigOption("view.browseLargeOutput", defaultValue = MashBoolean.True)
   }
 
-  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips, View.FuzzyTime)
+  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips, View.FuzzyTime, View.BrowseLargeOutput)
 
   def defaultConfig = {
     val config = MashObject.empty

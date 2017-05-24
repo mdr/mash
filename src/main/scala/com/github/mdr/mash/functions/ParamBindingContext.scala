@@ -77,7 +77,14 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
               case x            ⇒
                 throw new ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
             }
-            case _                                                  ⇒ MashList(evalArgs.map(getArgValue(param, _)))
+            case _                                                  ⇒
+              val rawArgs = evalArgs.map(getArgValue(param, _))
+              val flattenedArgs =
+                rawArgs.flatMap {
+                  case xs: MashList if param.variadicFlatten ⇒ xs.immutableElements
+                  case x                                     ⇒ Seq(x)
+                }
+              MashList(flattenedArgs)
           }
       }
     for (name ← param.nameOpt)

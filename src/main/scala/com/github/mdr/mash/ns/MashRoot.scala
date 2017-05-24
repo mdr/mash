@@ -42,7 +42,10 @@ object MashRoot {
     GitNamespace.GitFunctions ++
       MathsFunctions ++
       Seq(BrowserFunction, RawFunction, TreeFunction) ++
-      Seq(xml.FromFileFunction, xml.FromStringFunction) ++
+      Seq(csv.WriteFunction) ++
+      Seq(
+        xml.FromFileFunction,
+        xml.FromStringFunction) ++
       Seq(
         json.DeleteFunction,
         json.FromFileFunction,

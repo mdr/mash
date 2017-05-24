@@ -150,6 +150,28 @@ class LineBufferTest extends FlatSpec with Matchers {
                    |def""".stripMargin))
   }
 
+  it should "let you delete from the cursor to the beginning of the line" in {
+    lineBuffer("▶").deleteToBeginningOfLine should equal(lineBuffer("▶"))
+    lineBuffer("abc▶").deleteToBeginningOfLine should equal(lineBuffer("▶"))
+    lineBuffer("▶abc").deleteToBeginningOfLine should equal(lineBuffer("▶abc"))
+    lineBuffer("foo▶bar").deleteToBeginningOfLine should equal(lineBuffer("▶bar"))
+    lineBuffer("""abc
+                 |def▶ghi""".stripMargin).deleteToBeginningOfLine should equal(
+      lineBuffer("""abc
+                   |▶ghi""".stripMargin))
+  }
+
+  it should "let you delete from the cursor to the end of the line" in {
+    lineBuffer("▶").deleteToEndOfLine should equal(lineBuffer("▶"))
+    lineBuffer("abc▶").deleteToEndOfLine should equal(lineBuffer("abc▶"))
+    lineBuffer("▶abc").deleteToEndOfLine should equal(lineBuffer("▶"))
+    lineBuffer("foo▶bar").deleteToEndOfLine should equal(lineBuffer("foo▶"))
+    lineBuffer("""abc
+                 |def▶ghi""".stripMargin).deleteToEndOfLine should equal(
+      lineBuffer("""abc
+                   |def▶""".stripMargin))
+  }
+
   private def lineBuffer(s: String) = LineBufferTestHelper.parseLineBuffer(s.stripMargin)
 
 }

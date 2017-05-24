@@ -72,5 +72,5 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
 
   def showStartupTips: Boolean = config.showStartupTips
 
-  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime)
+  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput)
 }

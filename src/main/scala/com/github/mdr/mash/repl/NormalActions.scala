@@ -19,6 +19,7 @@ object NormalActions {
   case object EndOfFile extends InputAction
   case object BackwardDeleteChar extends InputAction
   case object KillLine extends InputAction
+  case object BackwardKillLine extends InputAction
   case object KillWord extends InputAction
   case object BackwardKillWord extends InputAction
   case object Complete extends InputAction

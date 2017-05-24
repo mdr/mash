@@ -15,10 +15,13 @@ class StringMethodsTest extends AbstractEvaluatorTest {
 
   // String.split
   "'foo bar baz'.split" ==> "['foo', 'bar', 'baz']"
+  "'foo bar baz' | split" ==> "['foo', 'bar', 'baz']"
   "'foo  bar     baz'.split" ==> "['foo', 'bar', 'baz']"
   "'foo:bar:baz'.split ':'" ==> "['foo', 'bar', 'baz']"
   "'foo:bar:baz' | split ':'" ==> "['foo', 'bar', 'baz']"
   "'foo:bar:'.split ':'" ==> "['foo', 'bar', '']"
+  "'foo1bar2baz' | split --regex '[0-9]'" ==> "['foo', 'bar', 'baz']"
+  "'foo1bar2baz'.split --regex '[0-9]'" ==> "['foo', 'bar', 'baz']"
 
   // String.lines
   "'foo`nbar`r`nbaz buzz'.lines" ==> "['foo', 'bar', 'baz buzz']"

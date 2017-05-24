@@ -1,8 +1,11 @@
 package com.github.mdr.mash.ns.view
 
-import com.github.mdr.mash.classes.{ Field, MashClass, NewStaticMethod }
+import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.BooleanClass
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashValue }
+
+import scala.collection.immutable.ListMap
 
 object ViewClass extends MashClass("view.View") {
 
@@ -16,6 +19,27 @@ object ViewClass extends MashClass("view.View") {
   import Fields._
 
   override lazy val fields = Seq(Data, DisableCustomViews, UseBrowser, UseTree)
+
+  case class Wrapper(x: MashValue) extends AbstractObjectWrapper(x) {
+    def disableCustomViews: Boolean = getBooleanField(DisableCustomViews)
+
+    def useBrowser: Boolean = getBooleanField(UseBrowser)
+
+    def useTree: Boolean = getBooleanField(UseTree)
+
+    def data = getField(Data)
+  }
+
+  def build(data: MashValue,
+            disableCustomViews: Boolean = false,
+            useBrowser: Boolean = false,
+            useTree: Boolean = false) =
+    MashObject.of(ListMap(
+      Data -> data,
+      DisableCustomViews -> MashBoolean(disableCustomViews),
+      UseBrowser -> MashBoolean(useBrowser),
+      UseTree -> MashBoolean(useTree)), ViewClass)
+
 
   override val staticMethods = Seq(NewStaticMethod(this))
 

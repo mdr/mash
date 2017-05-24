@@ -44,6 +44,9 @@ trait NormalActionHandler {
       case KillLine                 ⇒ resetHistoryIfTextChanges {
         state.updateLineBuffer(_.deleteToEndOfLine)
       }
+      case BackwardKillLine         ⇒ resetHistoryIfTextChanges {
+        state.updateLineBuffer(_.deleteToBeginningOfLine)
+      }
       case KillWord                 ⇒ resetHistoryIfTextChanges {
         state.updateLineBuffer(_.deleteForwardWord)
       }

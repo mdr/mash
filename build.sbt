@@ -41,7 +41,8 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents" % "httpclient" % "4.5.2",
   "com.joestelmach" % "natty" % "0.12",
   "net.grey-panther" % "natural-comparator" % "1.1",
-  "org.json" % "json" % "20160810")
+  "org.json" % "json" % "20160810",
+  "org.apache.commons" % "commons-csv" % "1.4")
 
 // == Eclipse integration =====================================================================
 

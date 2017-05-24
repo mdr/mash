@@ -16,7 +16,8 @@ object StageFunction extends MashFunction("git.stage") {
     val Paths = Parameter(
       nameOpt = Some("paths"),
       summaryOpt = Some("Stage the given paths"),
-      isVariadic = true)
+      isVariadic = true,
+      variadicFlatten = true)
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Stage all unstaged files (default false)"),
