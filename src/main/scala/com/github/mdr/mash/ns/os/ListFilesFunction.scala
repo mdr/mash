@@ -19,6 +19,7 @@ object ListFilesFunction extends MashFunction("os.listFiles") {
       nameOpt = Some("paths"),
       summaryOpt = Some("Paths to list files"),
       isVariadic = true,
+      variadicFlatten = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashList.of(asPathString(""))),
       descriptionOpt = Some(s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects. 
 If a given path is a file, it will be included in the output. 

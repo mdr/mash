@@ -13,7 +13,8 @@ object AddFunction extends MashFunction("git.add") {
       nameOpt = Some("paths"),
       summaryOpt = Some("Add paths to the index"),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
   }
   import Params._
 

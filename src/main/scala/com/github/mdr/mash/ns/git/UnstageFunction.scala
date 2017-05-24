@@ -16,7 +16,8 @@ object UnstageFunction extends MashFunction("git.unstage") {
     val Paths = Parameter(
       nameOpt = Some("paths"),
       summaryOpt = Some("Unstage the given paths"),
-      isVariadic = true)
+      isVariadic = true,
+      variadicFlatten = true)
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Unstage all staged files (default false)"),

@@ -22,7 +22,8 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
       nameOpt = Some("paths"),
       summaryOpt = Some("Paths to create directories at"),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
   }
   import Params._
 

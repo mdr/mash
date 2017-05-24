@@ -18,6 +18,7 @@ object CopyFunction extends MashFunction("os.copy") {
       summaryOpt = Some("Paths to copy"),
       isVariadic = true,
       variadicAtLeastOne = true,
+      variadicFlatten = true,
       descriptionOpt = Some("""There must be at least one path provided.
 If there are multiple paths provided, the destination must be a directory.        
 If a path is a directory, it and all its contents (recursively) will be copied to the destination."""))

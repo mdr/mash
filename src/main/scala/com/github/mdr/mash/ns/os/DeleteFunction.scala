@@ -17,7 +17,8 @@ object DeleteFunction extends MashFunction("os.delete") {
       nameOpt = Some("paths"),
       summaryOpt = Some("Paths to delete"),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
   }
 
   import Params._

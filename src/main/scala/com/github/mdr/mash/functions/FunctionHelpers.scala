@@ -13,7 +13,7 @@ object FunctionHelpers {
 
   def interpretAsPaths(value: MashValue): Seq[Path] =
     value match {
-      case xs: MashList ⇒ xs.elements.flatMap(interpretAsPaths)
+      case xs: MashList ⇒ xs.elements.map(interpretAsPath)
       case _            ⇒ Seq(interpretAsPath(value))
     }
 

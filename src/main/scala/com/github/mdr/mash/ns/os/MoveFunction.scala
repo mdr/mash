@@ -18,7 +18,8 @@ object MoveFunction extends MashFunction("os.move") {
       summaryOpt = Some("Paths to move"),
       descriptionOpt = Some("At least one path must provided."),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
     val Destination = Parameter(
       nameOpt = Some("destination"),
       summaryOpt = Some("Location to move to"),

@@ -16,7 +16,8 @@ object RestoreFunction extends MashFunction("git.restore") {
     val Paths = Parameter(
       nameOpt = Some("paths"),
       summaryOpt = Some("Restore the given paths"),
-      isVariadic = true)
+      isVariadic = true,
+      variadicFlatten = true)
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Restore all modified paths (default false)"),
