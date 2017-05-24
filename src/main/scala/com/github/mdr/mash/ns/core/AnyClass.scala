@@ -34,6 +34,8 @@ object AnyClass extends MashClass("core.Any") {
 
     override def typeInferenceStrategy = BooleanClass
 
+    override val isShy = true
+
   }
 
   object IsTruthy extends MashMethod("isTruthy") {
@@ -54,6 +56,8 @@ object AnyClass extends MashClass("core.Any") {
   10.isTruthy    # true""")
 
     override def typeInferenceStrategy = BooleanClass
+
+    override val isShy = true
 
   }
 
@@ -85,6 +89,8 @@ object AnyClass extends MashClass("core.Any") {
   42.isA Any     # true
       """)
 
+    override val isShy = true
+
   }
 
   object GetClassMethod extends MashMethod("getClass") {
@@ -96,6 +102,8 @@ object AnyClass extends MashClass("core.Any") {
     override def typeInferenceStrategy = ClassClass
 
     override def summaryOpt = Some("The class of this object")
+
+    override val isShy = true
 
   }
 
@@ -136,6 +144,8 @@ object AnyClass extends MashClass("core.Any") {
   null.toString # "null"
       """)
 
+    override val isShy = true
+
   }
 
   object InMethod extends MashMethod("in") {
@@ -165,6 +175,8 @@ object AnyClass extends MashClass("core.Any") {
   4.in [1, 2, 3] # false
   "i".in "team"  # false
       """)
+
+    override val isShy = true
 
   }
 
