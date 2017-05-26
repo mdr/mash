@@ -17,7 +17,7 @@ object FromStringFunction extends MashFunction("json.fromString") {
 
   def call(boundParams: BoundParams): MashValue = {
     val s = boundParams.validateString(String).s
-    FromFileFunction.parseJson(s)
+    ReadFunction.parseJson(s)
   }
 
   override def typeInferenceStrategy = AnyClass

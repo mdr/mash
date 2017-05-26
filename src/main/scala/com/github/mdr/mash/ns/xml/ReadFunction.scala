@@ -11,7 +11,7 @@ import com.github.mdr.mash.runtime._
 import org.apache.commons.io.FileUtils
 import org.json.XML
 
-object FromFileFunction extends MashFunction("xml.fromFile") {
+object ReadFunction extends MashFunction("xml.read") {
 
   object Params {
     val File = Parameter(
@@ -31,7 +31,7 @@ object FromFileFunction extends MashFunction("xml.fromFile") {
 
   def fromString(xml: String): MashValue = {
     val jsonText = XML.toJSONObject(xml).toString(2)
-    json.FromFileFunction.parseJson(jsonText)
+    json.ReadFunction.parseJson(jsonText)
   }
 
 

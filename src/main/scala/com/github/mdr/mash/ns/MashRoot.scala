@@ -44,11 +44,11 @@ object MashRoot {
       Seq(BrowserFunction, RawFunction, TreeFunction) ++
       Seq(csv.WriteFunction) ++
       Seq(
-        xml.FromFileFunction,
+        xml.ReadFunction,
         xml.FromStringFunction) ++
       Seq(
         json.DeleteFunction,
-        json.FromFileFunction,
+        json.ReadFunction,
         json.FromStringFunction,
         json.GetFunction,
         json.PostFunction,

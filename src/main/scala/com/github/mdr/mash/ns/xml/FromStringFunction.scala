@@ -17,7 +17,7 @@ object FromStringFunction extends MashFunction("xml.fromString") {
 
   def call(boundParams: BoundParams): MashValue = {
     val xml = boundParams.validateString(String).s
-    FromFileFunction.fromString(xml)
+    ReadFunction.fromString(xml)
   }
 
   override def typeInferenceStrategy = ObjectClass

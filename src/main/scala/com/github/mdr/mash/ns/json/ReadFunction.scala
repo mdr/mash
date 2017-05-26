@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConverters._
 
-object FromFileFunction extends MashFunction("json.fromFile") {
+object ReadFunction extends MashFunction("json.read") {
 
   object Params {
     val File = Parameter(

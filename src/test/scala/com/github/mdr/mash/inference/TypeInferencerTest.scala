@@ -312,7 +312,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "'{ foo: 42 }' | json.fromString | .foo" ==> AnyClass
 
   // hint
-  "json.fromFile 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" ==>
+  "json.read 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" ==>
     obj(
       "name" -> StringClass,
       "addresses" ->
