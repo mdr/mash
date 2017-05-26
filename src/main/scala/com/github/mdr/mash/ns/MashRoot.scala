@@ -54,7 +54,7 @@ object MashRoot {
         json.PostFunction,
         json.PrettyPrintFunction,
         json.PutFunction,
-        json.WriteFileFunction) ++
+        json.WriteFunction) ++
       Seq(
         base64.DecodeFunction,
         base64.EncodeFunction) ++

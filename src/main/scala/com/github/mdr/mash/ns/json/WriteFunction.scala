@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConverters._
 
-object WriteFileFunction extends MashFunction("json.writeFile") {
+object WriteFunction extends MashFunction("json.write") {
 
   object Params {
     val File = Parameter(

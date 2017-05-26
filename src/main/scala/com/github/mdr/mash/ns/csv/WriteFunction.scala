@@ -1,13 +1,14 @@
 package com.github.mdr.mash.ns.csv
 
 import java.io.FileWriter
+import java.nio.file.Path
 
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.runtime.{ MashObject, MashUnit }
+import com.github.mdr.mash.runtime.{ MashObject, MashUnit, MashValue }
 import org.apache.commons.csv.{ CSVFormat, CSVPrinter }
 
 object WriteFunction extends MashFunction("csv.write") {
@@ -35,6 +36,11 @@ object WriteFunction extends MashFunction("csv.write") {
         case x               ⇒ boundParams.throwInvalidArgument(Values, s"Values to write must be objects, but found: ${x.typeName}")
       }.distinct
 
+    writeCsv(path, fields, values)
+    MashUnit
+  }
+
+  private def writeCsv(path: Path, fields: Seq[String], values: Seq[MashValue]) {
     val csvFileFormat = CSVFormat.DEFAULT.withHeader(fields: _*)
     val fileWriter = new FileWriter(path.toFile)
     val csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat)
@@ -50,7 +56,6 @@ object WriteFunction extends MashFunction("csv.write") {
 
     }
     csvFilePrinter.close()
-    MashUnit
   }
 
   override def typeInferenceStrategy = UnitClass
