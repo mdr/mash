@@ -4,7 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, MashMethod }
 import com.github.mdr.mash.inference.{ Type, TypedArgument, TypedArguments, ValueInfo }
 import com.github.mdr.mash.ns.collections.{ GrepFunction, MaxFunction, MinFunction, ReverseFunction }
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.runtime.MashValue
 
 case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[String] = Seq(), override val isShy: Boolean = false) extends MashMethod(function.name) {
 
@@ -20,7 +20,7 @@ case class FunctionWrappingMethod(function: MashFunction, methodAliases: Seq[Str
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val actualTarget = function match {
-      case MinFunction | MaxFunction ⇒ MashList.of(target)
+      case MinFunction | MaxFunction ⇒ target
       case _                         ⇒ target
     }
     val newBoundNames = boundParams.boundNames + (targetParamName -> actualTarget)

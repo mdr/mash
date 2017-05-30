@@ -163,13 +163,17 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // max
   "[1, 2, 3] | max" ==> NumberClass
+  "[1, 2, 3].max" ==> NumberClass
   "'abc' | max" ==> StringClass
+  "'abc'.max" ==> StringClass
   "max 1 2 3" ==> NumberClass
   "max 'a' 'b' 'c'" ==> StringClass
 
   // min
   "[1, 2, 3] | min" ==> NumberClass
+  "[1, 2, 3].min" ==> NumberClass
   "'abc' | min" ==> StringClass
+  "'abc'.min" ==> StringClass
   "min 1 2 3" ==> NumberClass
   "min 'a' 'b' 'c'" ==> StringClass
 

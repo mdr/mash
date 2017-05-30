@@ -5,7 +5,7 @@ class MinMaxTest extends AbstractEvaluatorTest {
   // max
   "max [1, 200, 3]" ==> 200
   "[1, 200, 3].max" ==> 200
-  "max 'abc'" ==> "'c'"
+  "max 'a' 'b' 'c'" ==> "'c'"
   "'abc'.max" ==> "'c'"
   "max 1 2 3" ==> 3
   "max [2, null, 1]" ==> 2
@@ -23,13 +23,13 @@ class MinMaxTest extends AbstractEvaluatorTest {
   // min
   "min [100, 2, 300]" ==> 2
   "[100, 2, 300].min" ==> 2
-  "min 'abc'" ==> "'a'"
+  "min 'a' 'b' 'c'" ==> "'a'"
   "'abc'.min" ==> "'a'"
   "min 1 2 3" ==> 1
   "min [2, null, 1]" ==> 1
   "min [] --default=0" ==> 0
   "[].min --default=0" ==> 0
-  "[].min [1, 2, 3]" shouldThrowAnException // used to be a bug where we leaked an argument
+  "[].min [1, 2, 3]".shouldThrowAnException // used to be a bug where we leaked an argument
 
   "a = now; b = 3.days.ago; min a b" ==> "b"
 

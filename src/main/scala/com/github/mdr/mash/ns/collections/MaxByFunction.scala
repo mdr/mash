@@ -21,6 +21,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
       isFlag = true,
       isFlagValueMandatory = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(Attribute, Sequence, Default))
@@ -29,7 +30,10 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
     val sequence = boundParams.validateSequence(Sequence)
     val attribute = boundParams.validateFunction(Attribute)
     val default = boundParams(Default)
+    maxBy(sequence, attribute, default)
+  }
 
+  private def maxBy(sequence: Seq[MashValue], attribute: MashValue ⇒ MashValue, default: MashValue): MashValue = {
     var maxValue: MashValue = null
     var maxElem: MashValue = null
     var first = true
@@ -55,7 +59,8 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
 
   override def summaryOpt = Some("Find the largest element of a sequence by an attribute")
 
-  override def descriptionOpt = Some("""The given function is applied to each element of the input sequence 
+  override def descriptionOpt = Some(
+    """The given function is applied to each element of the input sequence
   to compute a value, and the element with the largest value is returned. 
 If there are multiple elements with the maximum value, the first is returned.
 

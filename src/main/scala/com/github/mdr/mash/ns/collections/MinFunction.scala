@@ -12,7 +12,8 @@ object MinFunction extends MashFunction("collections.min") {
       descriptionOpt = Some("""If a single argument is provided, it must be a sequence; the smallest element of the sequence is returned.
 If multiple arguments are provided, the smallest argument is returned."""),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default value to return, if the items are empty"),
@@ -26,7 +27,7 @@ If multiple arguments are provided, the smallest argument is returned."""),
 
   def call(boundParams: BoundParams): MashValue = {
     val default = boundParams(Default)
-    val sequence = MaxFunction.getSequence(boundParams, Items)
+    val sequence = boundParams.validateSequence(Items)
     if (sequence.isEmpty)
       default
     else

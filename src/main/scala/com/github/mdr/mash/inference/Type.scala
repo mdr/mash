@@ -7,6 +7,7 @@ import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.DocComment
 
+import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
 import scala.language.implicitConversions
 
@@ -20,10 +21,12 @@ object Type {
 
   object Patterns {
 
+    /**
+      * Match either a tagged or untagged string
+      */
     object AnyString {
-      def unapply(x: Any): Option[Type] = PartialFunction.condOpt(x) {
-        case Type.Instance(StringClass)         ⇒ Type.Instance(StringClass)
-        case Type.Tagged(StringClass, tagClass) ⇒ StringClass taggedWith tagClass
+      def unapply(x: Any): Option[Type] = condOpt(x) {
+        case t@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ t.asInstanceOf[Type]
       }
     }
 

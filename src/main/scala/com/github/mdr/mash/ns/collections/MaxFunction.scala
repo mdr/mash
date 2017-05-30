@@ -16,7 +16,8 @@ object MaxFunction extends MashFunction("collections.max") {
         """If a single argument is provided, it must be a sequence; the largest element of the sequence is returned.
 If multiple arguments are provided, the largest argument is returned."""),
       isVariadic = true,
-      variadicAtLeastOne = true)
+      variadicAtLeastOne = true,
+      variadicFlatten = true)
     val Default = Parameter(
       nameOpt = Some("default"),
       summaryOpt = Some("Default value to return, if the items are empty"),
@@ -31,22 +32,12 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   def call(boundParams: BoundParams): MashValue = {
     val default = boundParams(Default)
-    val sequence = getSequence(boundParams, Items)
+    val sequence = boundParams.validateSequence(Items)
     if (sequence.isEmpty)
       default
     else
       sequence.filterNot(_ == MashNull).max(MashValueOrdering)
   }
-
-  def getSequence(boundParams: BoundParams, itemsParam: Parameter) =
-    boundParams.validateSequence(itemsParam) match {
-      case Seq(seq@(_: MashString | _: MashList)) ⇒
-        FunctionHelpers.interpretAsSequence(seq)
-      case Seq(other)                             ⇒
-        boundParams.throwInvalidArgument(Items, "A single argument must be a sequence")
-      case items                                  ⇒
-        items
-    }
 
   override def typeInferenceStrategy = MaxTypeInferenceStrategy
 
@@ -62,19 +53,11 @@ If multiple arguments are provided, the largest argument is returned."""),
 
 object MaxTypeInferenceStrategy extends TypeInferenceStrategy {
 
+  import MaxFunction.Params._
+
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
     val argBindings = MaxFunction.params.bindTypes(arguments)
-    import MaxFunction.Params._
-    if (arguments.positionArgs.size == 1)
-      for {
-        inputType ← argBindings.getType(Items).collect { case Type.Seq(inputType) ⇒ inputType }
-        elementType ← condOpt(inputType) {
-          case Type.Seq(elementType)               ⇒ elementType
-          case Type.Patterns.AnyString(stringType) ⇒ stringType
-        }
-      } yield elementType
-    else
-      argBindings.getType(Items).collect { case Type.Seq(elementType) ⇒ elementType }
+    argBindings.getType(Items).collect { case Type.Seq(elementType) ⇒ elementType }
   }
 
 }
