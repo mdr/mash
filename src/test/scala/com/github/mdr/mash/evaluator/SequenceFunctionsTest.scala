@@ -1,7 +1,5 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
 class SequenceFunctionsTest extends AbstractEvaluatorTest {
 
   // all
@@ -147,7 +145,7 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 4, 5] | reduce (x y => x + y) 10" ==> 25
   "[] | reduce (x y => x + y) 10" ==> 10
   "[] | reduce (x y => x + y) null" ==> null
-  "[] | reduce (x y => x + y)" shouldThrowAnException
+  "[] | reduce (x y => x + y)".shouldThrowAnException
 
   "'foo' | reduce (acc c => acc + [c]) []" ==> "['f', 'o', 'o']"
 

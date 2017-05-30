@@ -8,7 +8,7 @@ class LastParamTest extends AbstractEvaluatorTest {
 
   "def fun first (@last second = 10) = { first, second }; fun 1 2" ==> "{ first: 1, second: 2 }"
   "def fun first (@last second = 10) = { first, second }; fun --first=1" ==> "{ first: 1, second: 10 }"
-  "def fun first (@last second = 10) = { first, second }; fun 1" shouldThrowAnException
+  "def fun first (@last second = 10) = { first, second }; fun 1".shouldThrowAnException
 
   "def fun args... (@last arg = 10) = { args, arg }; fun" ==> "{ args: [], arg: 10 }"
   "def fun args... (@last arg = 10) = { args, arg }; fun 1" ==> "{ args: [], arg: 1 }"

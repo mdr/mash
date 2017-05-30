@@ -76,6 +76,6 @@ class ObjectMethodsTest extends AbstractEvaluatorTest {
 
   // Object.fields
   "{ foo: 42 }.fields.name" ==> "['foo']"
-  "42.fields" shouldThrowAnException
+  "42.fields".shouldThrowAnException
 
 }

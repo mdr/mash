@@ -5,8 +5,6 @@ import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
 
-import scala.language.postfixOps
-
 @RunWith(classOf[JUnitRunner])
 class TildeExpanderTest extends FlatSpec with Matchers {
 

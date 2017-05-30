@@ -1,7 +1,5 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
 class SortTest extends AbstractEvaluatorTest {
 
   // sort

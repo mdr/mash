@@ -9,6 +9,6 @@ class ImportTest extends AbstractEvaluatorTest {
   "x = {}; import x._; where.getClass" ==> "Function" // Object.where is a 'shy' method
   "x = {}; import x._; isNull.getClass" ==> "Function" // Any.isNull is a 'shy' method
   "x = {}; import x.where; where.getClass" ==> "BoundMethod"
-  "class A { @private def method = 42 }; a = A.new; import a.method" shouldThrowAnException
+  "class A { @private def method = 42 }; a = A.new; import a.method".shouldThrowAnException
 
 }

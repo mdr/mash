@@ -1,7 +1,5 @@
 package com.github.mdr.mash.evaluator
 
-import scala.language.postfixOps
-
 class EvaluatorTest extends AbstractEvaluatorTest {
 
   "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" ==> true
@@ -111,12 +109,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def add a b = a + b; add 1 2" ==> 3
   "def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'" ==> "'OOF'"
 
-  // varargs
-  "def mkList n... = n; mkList 1 2 3" ==> "[1, 2, 3]"
-  "def mkList n... = n; mkList" ==> "[]"
-  "def mkList a b c n... = n + [a, b, c]; mkList 1 2 3 4 5" ==> "[4, 5, 1, 2, 3]"
-  "def mkList (n...) = n; mkList 1 2 3" ==> "[1, 2, 3]"
-
   "a = ['aa', 'bbb', 'c'].sortBy; a length" ==> "['c', 'aa', 'bbb']"
 
   "[].sumBy.target" ==> "[]"
@@ -132,7 +124,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(-3.14).toInt" ==> -3
   "1485187640884.6155.toInt" ==> "1485187640884"
 
-  """ "foo" { foo: 42 } { foo: 42 }  """ shouldThrowAnException
+  """ "foo" { foo: 42 } { foo: 42 }  """.shouldThrowAnException
 
   // headless members
   "{ foo: 42 } | .foo" ==> 42
@@ -171,9 +163,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Lambdas with multiple parameters
   "(x y => x * y) 2 3" ==> 6
   "f = => 42; f" ==> 42
-
-  // lambdas with varargs
-  "(x... => x.sum) 1 2 3" ==> 6
 
   // holes
   "def baz = 128 + _; (baz) 72" ==> 200
@@ -258,8 +247,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // Check against exponential complexity parser problem
   "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}" ==> "{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"
-
-  "def mkList (xs...) = xs; mkList --xs=42" shouldThrowAnException
 
   "class A { def foo = [1, 2, 3] | where (_ > 1) }; A.new.foo" ==> "[2, 3]"
 

@@ -15,6 +15,6 @@ class PatternsTest extends AbstractEvaluatorTest {
   "[a, b, c] = [1, 2, 3]; a + b + c" ==> 6
   "[a, b] = [1, 2, 3]; a + b" ==> 3
   "[a, b] = [1]; b" ==> null
-  "{ baz } = 42" shouldThrowAnException
+  "{ baz } = 42".shouldThrowAnException
 
 }

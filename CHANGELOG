@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* @atLeastOne and @flatten attributes for variadic parameters
 * Add config option: config.view.browseLargeOutput
 * Fix bug in split
 * Support Ctrl-u = backwards kill line

@@ -16,12 +16,12 @@ class NamedArgsTest extends AbstractEvaluatorTest {
   "def makeObject varargs... (@namedArgs namedArgs) = { varargs, namedArgs }; makeObject 1 2 3 --foo=42" ==>
     "{ varargs: [1, 2, 3], namedArgs: { foo: 42} }"
 
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1" shouldThrowAnException
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject 1".shouldThrowAnException
 
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --arg --arg" shouldThrowAnException
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject --arg --arg".shouldThrowAnException
 
-  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -aa" shouldThrowAnException
+  "def makeObject (@namedArgs namedArgs) = namedArgs; makeObject -aa".shouldThrowAnException
 
-  "def makeObject arg (@namedArgs namedArgs) = namedArgs; makeObject 42 --arg=100" shouldThrowAnException
+  "def makeObject arg (@namedArgs namedArgs) = namedArgs; makeObject 42 --arg=100".shouldThrowAnException
 
 }

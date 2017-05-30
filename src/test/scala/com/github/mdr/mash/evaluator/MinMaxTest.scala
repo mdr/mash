@@ -11,6 +11,8 @@ class MinMaxTest extends AbstractEvaluatorTest {
   "max [2, null, 1]" ==> 2
   "max [] --default=0" ==> "0"
   "[].max --default=0" ==> "0"
+  "min --items=['abc']" ==> "'abc'"
+  "min --items=['abc', 'def']" ==> "'abc'"
 
   // maxBy
   "maxBy length [ 'a', 'bbb', 'cc'] " ==> " 'bbb' "
