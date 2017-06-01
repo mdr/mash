@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.random
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.NumberClass
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNumber }
 
@@ -15,7 +14,6 @@ object IntFunction extends MashFunction("random.int") {
     val To = Parameter(
       nameOpt = Some("to"),
       summaryOpt = Some("Largest number"),
-      defaultValueGeneratorOpt = Some(MashNumber(1)),
       isLast = true)
     val Inclusive = Parameter(
       nameOpt = Some("inclusive"),
