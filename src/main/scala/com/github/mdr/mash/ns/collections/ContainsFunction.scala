@@ -12,8 +12,7 @@ object ContainsFunction extends MashFunction("collections.contains") {
       summaryOpt = Some("Element to test for membership"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to check whether it contains the given element"),
-      isLast = true)
+      summaryOpt = Some("Sequence to check whether it contains the given element"))
   }
   import Params._
 

@@ -266,7 +266,7 @@ object Evaluator extends EvaluatorHelper {
       } yield paramComment.summary
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt, shortFlagOpt = shortFlagOpt,
-      isVariadic = isVariadic, isFlag = isFlag, isLast = isLast, isLazy = isLazy, isNamedArgsParam = isNamedArgsParam,
+      isVariadic = isVariadic, isFlag = isFlag, isLazy = isLazy, isNamedArgsParam = isNamedArgsParam,
       variadicAtLeastOne = variadicAtLeastOne, variadicFlatten = variadicFlatten,
       patternOpt = patternOpt.map(makeParamPattern))
   }

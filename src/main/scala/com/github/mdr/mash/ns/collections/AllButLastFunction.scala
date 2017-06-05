@@ -13,8 +13,7 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
       defaultValueGeneratorOpt = Some(MashNumber(1)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the value(s) of"),
-      isLast = true)
+      summaryOpt = Some("Sequence to find the value(s) of"))
   }
 
   import Params._
@@ -34,7 +33,7 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
       }
   }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 
   override def summaryOpt = Some("Take all but the last element(s) of a sequence")
 

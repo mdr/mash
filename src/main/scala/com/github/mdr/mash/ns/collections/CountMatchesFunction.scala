@@ -13,8 +13,7 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
       summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to count matches in"),
-      isLast = true)
+      summaryOpt = Some("Sequence to count matches in"))
   }
   import Params._
 

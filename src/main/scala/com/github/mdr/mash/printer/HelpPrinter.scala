@@ -68,8 +68,6 @@ class HelpPrinter(output: PrintStream) {
     output.print(indentSpace)
     var qualifiers: Seq[String] = Seq()
     val isFlag = paramHelp.isFlag
-    if (paramHelp.isLast)
-      qualifiers +:= "last"
     if (paramHelp.isLazy)
       qualifiers +:= "lazy"
     if (paramHelp.isNamedArgs)

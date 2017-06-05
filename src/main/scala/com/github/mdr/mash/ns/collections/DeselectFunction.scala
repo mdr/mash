@@ -16,8 +16,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
       variadicAtLeastOne = true)
     val Target = Parameter(
       nameOpt = Some("target"),
-      summaryOpt = Some("Object or sequence of objects to remove fields from"),
-      isLast = true)
+      summaryOpt = Some("Object or sequence of objects to remove fields from"))
   }
 
   import Params._

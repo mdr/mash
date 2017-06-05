@@ -12,8 +12,7 @@ object SortFunction extends MashFunction("collections.sort") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to sort"),
-      isLast = true)
+      summaryOpt = Some("Sequence to sort"))
     val Descending = Parameter(
       nameOpt = Some("descending"),
       shortFlagOpt = Some('d'),
@@ -72,7 +71,7 @@ object SortFunction extends MashFunction("collections.sort") {
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 
   override def summaryOpt = Some("Sort the elements of a sequence")
 

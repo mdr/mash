@@ -7,13 +7,11 @@ import com.github.mdr.mash.inference.TypedArguments
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   require(params.count(_.isVariadic) <= 1)
-  require(params.count(_.isLast) <= 1)
 
-  val lastParamOpt: Option[Parameter] = params.find(_.isLast)
-
-  val variadicParamOpt: Option[Parameter] = params.find(_.isVariadic)
-
-  val positionalParams = params.filterNot(p ⇒ p.isFlag || p.isNamedArgsParam || p.isAllArgsParam)
+  /**
+    * Parameters where arguments can be provided positionally
+    */
+  val positionalParams = params.filterNot(p ⇒ p.isFlag || p.isNamedArgsParam)
 
   // Lookup parameter by name or short flag (if it has one)
   val paramByName: Map[String, Parameter] = {
@@ -34,12 +32,19 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def flags: Seq[Flag] = params.map(param ⇒
     Flag(param.summaryOpt orElse param.nameOpt, param.shortFlagOpt.map(_.toString), param.nameOpt))
 
-  def allowsNullary: Boolean = params.forall(allowsNullary(_))
+  def allowsNullary: Boolean = params forall canBeOmitted
 
-  private def allowsNullary(p: Parameter): Boolean =
-    (p.isVariadic && !p.variadicAtLeastOne) || p.defaultValueGeneratorOpt.isDefined || p.isNamedArgsParam || p.isAllArgsParam
+  private def canBeOmitted(p: Parameter): Boolean =
+    (p.isVariadic && !p.variadicAtLeastOne) ||
+      p.defaultValueGeneratorOpt.isDefined ||
+      p.isNamedArgsParam ||
+      p.isAllArgsParam
 
-  def allowsBinary: Boolean = params.exists(_.isVariadic) || positionalParams.size >= 2
+  /**
+    * Whether or not this can be called with two positional arguments
+    */
+  def allowsBinaryPositional: Boolean =
+    params.exists(_.isVariadic) || params.exists(_.isAllArgsParam) || positionalParams.size >= 2
 
   def callingSyntax: String = {
     val positionalParams =
@@ -51,7 +56,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
             s"<$name>+..."
           else
             s"<$name>..."
-        else if (param.isOptional)
+        else if (param.hasDefault)
           s"[<$name>]"
         else
           s"<$name>"

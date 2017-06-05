@@ -18,8 +18,7 @@ object MapFunction extends MashFunction("collections.map") {
       descriptionOpt = Some("If the function can take two arguments, the index is supplied as the second argument"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to map over"),
-      isLast = true)
+      summaryOpt = Some("Sequence to map over"))
   }
 
   import Params._

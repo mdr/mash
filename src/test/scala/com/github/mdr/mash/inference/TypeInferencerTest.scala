@@ -281,8 +281,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // @lazy parameters
   "((@lazy block) => block) 42" ==> NumberClass
 
-  // @last parameters
-  "def foo a... (@last b) = b; foo 42" ==> NumberClass
+  // last parameters
+  "def foo a... b = b; foo 42" ==> NumberClass
 
   // @flag parameters
   "def foo (@flag a) b = a; foo [] --a=10" ==> NumberClass

@@ -9,8 +9,7 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to take values from"),
-      isLast = true)
+      summaryOpt = Some("Sequence to take values from"))
     val Predicate = Parameter(
       nameOpt = Some("predicate"),
       summaryOpt = Some("Predicate used to test elements of the sequence"))

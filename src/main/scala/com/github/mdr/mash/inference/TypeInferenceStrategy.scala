@@ -1,7 +1,8 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.ns.collections.MapFunction
+import com.github.mdr.mash.functions.{ Parameter, ParameterModel }
+import com.github.mdr.mash.ns.collections.{ MapFunction, ReverseFunction }
 
 import scala.language.implicitConversions
 
@@ -39,9 +40,9 @@ case class ConstantTypeInferenceStrategy(typ: Type) extends TypeInferenceStrateg
 
 }
 
-object SeqToSeqTypeInferenceStrategy extends TypeInferenceStrategy {
+case class SeqToSeqTypeInferenceStrategy(params: ParameterModel, sequenceParam: Parameter) extends TypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] =
-    MapFunction.params.bindTypes(arguments).getType(MapFunction.Params.Sequence)
+    params.bindTypes(arguments).getType(sequenceParam)
 
 }

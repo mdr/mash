@@ -9,8 +9,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to remove duplicates from"),
-      isLast = true)
+      summaryOpt = Some("Sequence to remove duplicates from"))
   }
   import Params._
 
@@ -23,7 +22,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
     WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 
   override def summaryOpt = Some("Find all the distinct elements in a sequence")
 

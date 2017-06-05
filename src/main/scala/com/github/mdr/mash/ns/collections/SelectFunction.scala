@@ -29,8 +29,7 @@ object SelectFunction extends MashFunction("collections.select") {
       isAllArgsParam = true)
     lazy val Target = Parameter(
       nameOpt = Some("target"),
-      summaryOpt = Some("Either an object or sequence of objects to select fields from"),
-      isLast = true)
+      summaryOpt = Some("Either an object or sequence of objects to select fields from"))
   }
 
   import Params._
@@ -52,27 +51,30 @@ object SelectFunction extends MashFunction("collections.select") {
     }
   }
 
-  private def getFieldAndFunction(argument: EvaluatedArgument[MashValue]): Option[(String, MashValue ⇒ MashValue)] = argument match {
-    case EvaluatedArgument.PositionArg(value, argumentNodeOpt) ⇒
-      value match {
-        case s: MashString ⇒
-          Some(s.s -> FunctionHelpers.interpretAsFunction(s))
-        case x             ⇒
-          throw new ArgumentException(s"Positional arguments must be a String, but was a ${x.typeName}", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
-      }
-    case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt)   ⇒
-      if (flags == Seq(AddShortFlag.toString))
-        None
-      else
-        throw new ArgumentException(s"Short flags not supported by select: ${flags.map(f ⇒ "-" + f).mkString(", ")}", argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
-    case EvaluatedArgument.LongFlag(flag, None, _)             ⇒
-      if (Add.nameOpt contains flag)
-        None
-      else
-        Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
-    case EvaluatedArgument.LongFlag(flag, Some(value), _)      ⇒
-      Some(flag -> FunctionHelpers.interpretAsFunction(value))
-  }
+  private def getFieldAndFunction(argument: EvaluatedArgument[MashValue]): Option[(String, MashValue ⇒ MashValue)] =
+    argument match {
+      case EvaluatedArgument.PositionArg(value, argumentNodeOpt) ⇒
+        value match {
+          case s: MashString ⇒
+            Some(s.s -> FunctionHelpers.interpretAsFunction(s))
+          case x             ⇒
+            throw new ArgumentException(s"Positional arguments must be a String, but was a ${x.typeName}",
+              argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+        }
+      case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt)   ⇒
+        if (flags == Seq(AddShortFlag.toString))
+          None
+        else
+          throw new ArgumentException(s"Short flags not supported by select: ${flags.map(f ⇒ "-" + f).mkString(", ")}",
+            argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+      case EvaluatedArgument.LongFlag(flag, None, _)             ⇒
+        if (Add.nameOpt contains flag)
+          None
+        else
+          Some(flag -> FunctionHelpers.interpretAsFunction(MashString(flag)))
+      case EvaluatedArgument.LongFlag(flag, Some(value), _)      ⇒
+        Some(flag -> FunctionHelpers.interpretAsFunction(value))
+    }
 
   private def doSelect(target: MashValue, fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)], add: Boolean): MashObject = {
     val (baseFields: ListMap[String, MashValue], newClassOpt: Option[MashClass]) =

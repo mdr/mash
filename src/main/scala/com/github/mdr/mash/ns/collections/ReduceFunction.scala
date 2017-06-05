@@ -21,8 +21,7 @@ object ReduceFunction extends MashFunction("collections.reduce") {
       defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence of items to reduce"),
-      isLast = true)
+      summaryOpt = Some("Sequence of items to reduce"))
   }
   import Params._
 

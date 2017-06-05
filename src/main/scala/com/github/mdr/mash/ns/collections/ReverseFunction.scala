@@ -23,7 +23,7 @@ object ReverseFunction extends MashFunction("collections.reverse") {
     }
   }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 
   override def summaryOpt = Some("Reverse a sequence")
 

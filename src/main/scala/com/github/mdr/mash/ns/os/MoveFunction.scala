@@ -22,8 +22,7 @@ object MoveFunction extends MashFunction("os.move") {
       variadicFlatten = true)
     val Destination = Parameter(
       nameOpt = Some("destination"),
-      summaryOpt = Some("Location to move to"),
-      isLast = true)
+      summaryOpt = Some("Location to move to"))
   }
   import Params._
 

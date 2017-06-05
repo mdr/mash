@@ -9,8 +9,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
   object Params {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the minimum of"),
-      isLast = true)
+      summaryOpt = Some("Sequence to find the minimum of"))
     val Attribute = Parameter(
       nameOpt = Some("attribute"),
       summaryOpt = Some("Function to extract a value to compare elements"))

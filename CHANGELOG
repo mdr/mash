@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Support last parameters without need for @last attribute
 * @atLeastOne and @flatten attributes for variadic parameters
 * Add config option: config.view.browseLargeOutput
 * Fix bug in split

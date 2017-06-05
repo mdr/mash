@@ -19,8 +19,7 @@ object EachFunction extends MashFunction("collections.each") {
       isBooleanFlag = true)
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to run an action over"),
-      isLast = true)
+      summaryOpt = Some("Sequence to run an action over"))
   }
   import Params._
 

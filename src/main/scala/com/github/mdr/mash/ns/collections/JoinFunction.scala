@@ -14,8 +14,7 @@ object JoinFunction extends MashFunction("collections.join") {
       defaultValueGeneratorOpt = Some(MashString("")))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to combine into a string"),
-      isLast = true)
+      summaryOpt = Some("Sequence to combine into a string"))
   }
   import Params._
 

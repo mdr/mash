@@ -14,8 +14,7 @@ object WhereFunction extends MashFunction("collections.where") {
       summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find values in"),
-      isLast = true)
+      summaryOpt = Some("Sequence to find values in"))
   }
 
   import Params._

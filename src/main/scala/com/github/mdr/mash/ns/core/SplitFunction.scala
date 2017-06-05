@@ -11,8 +11,7 @@ object SplitFunction extends MashFunction("core.split") {
 
     val String = Parameter(
       nameOpt = Some("string"),
-      summaryOpt = Some("String to split"),
-      isLast = true)
+      summaryOpt = Some("String to split"))
 
   }
 

@@ -17,8 +17,7 @@ object FirstFunction extends MashFunction("collections.first") {
       defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the first value(s) of"),
-      isLast = true)
+      summaryOpt = Some("Sequence to find the first value(s) of"))
   }
 
   import Params._

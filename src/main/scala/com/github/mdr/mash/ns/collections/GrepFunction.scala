@@ -18,8 +18,7 @@ object GrepFunction extends MashFunction("collections.grep") {
       summaryOpt = Some("Query to find in the given input"))
     val Input = Parameter(
       nameOpt = Some("input"),
-      summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."),
-      isLast = true)
+      summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."))
     val IgnoreCase = Parameter(
       nameOpt = Some("ignoreCase"),
       summaryOpt = Some("Perform a case-insensitive match"),

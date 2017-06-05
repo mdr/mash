@@ -13,8 +13,7 @@ object LastFunction extends MashFunction("collections.last") {
       defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the last value(s) of"),
-      isLast = true)
+      summaryOpt = Some("Sequence to find the last value(s) of"))
   }
 
   import Params._

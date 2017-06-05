@@ -79,9 +79,9 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateFunction1Or2(param: Parameter): Either[MashValue ⇒ MashValue, (MashValue, MashValue) ⇒ MashValue] =
     this (param) match {
-      case f: MashFunction if f.params.allowsBinary         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
-      case bm: BoundMethod if bm.method.params.allowsBinary ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
-      case arg                                              ⇒ Left(validateFunction(param, arg))
+      case f: MashFunction if f.params.allowsBinaryPositional         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
+      case bm: BoundMethod if bm.method.params.allowsBinaryPositional ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
+      case arg                                                        ⇒ Left(validateFunction(param, arg))
     }
 
   private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {

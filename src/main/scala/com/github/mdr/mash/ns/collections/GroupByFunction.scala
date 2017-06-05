@@ -40,8 +40,7 @@ If false (the default), exclude a group with a null key.
 If a non-boolean argument is given, that will be used as the key for the null group instead of null."""))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence from which to form groups"),
-      isLast = true)
+      summaryOpt = Some("Sequence from which to form groups"))
   }
 
   import Params._

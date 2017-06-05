@@ -6,9 +6,13 @@ class DefaultArgumentsTest extends AbstractEvaluatorTest {
   "def foo (x = 42) = x + 1; foo 100" ==> 101
   "def fun ({ foo } = { foo: 42 }) = foo + 1; fun" ==> 43
   "def fun ({ foo } = { foo: 42 }) = foo + 1; fun { foo: 100 }" ==> 101
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList" ==> "[1, 2, 3]"
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[]" ==> "[]"
-  "def mkList (xs... = [1, 2, 3]) = xs; mkList --xs=[4, 5, 6]" ==> "[4, 5, 6]"
+
+  havingFirstRun("def mkList (xs... = [1, 2, 3]) = xs") { implicit env ⇒
+    "mkList" ==> "[1, 2, 3]"
+    "mkList --xs=[]" ==> "[]"
+    "mkList --xs=[4, 5, 6]" ==> "[4, 5, 6]"
+  }
+
   "def mkList (xs... = null) = xs; mkList" ==> null
 
   // For methods

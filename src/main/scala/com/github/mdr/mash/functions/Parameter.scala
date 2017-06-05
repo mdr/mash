@@ -21,13 +21,11 @@ case class Parameter(nameOpt: Option[String],
                      isLast: Boolean = false, // If true, is the last parameter -- absorbs the last parameter in the list
                      isLazy: Boolean = false, // if true, don't evaluate argument
                      isNamedArgsParam: Boolean = false, // If true, receive a list of the named arguments
-                     isAllArgsParam: Boolean = false, // If true, receive a list of all argument
+                     isAllArgsParam: Boolean = false, // If true, receive a list of all arguments
                      patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 
-  def isOptional = defaultValueGeneratorOpt.isDefined
-
-  def isMandatory = !isOptional
+  def hasDefault: Boolean = defaultValueGeneratorOpt.isDefined
 
   override def toString = name
 
@@ -43,13 +41,17 @@ sealed trait ParamPattern {
 object ParamPattern {
 
   case class ObjectEntry(fieldName: String, patternOpt: Option[ParamPattern] = None)
+
   case class Object(entries: Seq[ObjectEntry]) extends ParamPattern {
     override def boundNames = entries.flatMap(_.patternOpt).flatMap(_.boundNames)
   }
+
   case class Ident(name: String) extends ParamPattern {
     override def boundNames = Seq(name)
   }
+
   case object Hole extends ParamPattern
+
   case class List(patterns: Seq[ParamPattern]) extends ParamPattern {
     override def boundNames = patterns.flatMap(_.boundNames)
   }

@@ -25,7 +25,6 @@ If a path is a directory, it and all its contents (recursively) will be copied t
     val Destination = Parameter(
       nameOpt = Some("destination"),
       summaryOpt = Some("Location to copy path(s)"),
-      isLast = true,
       descriptionOpt = Some("""If the destination is a directory, the source paths will be copied into it.
 If the destination is not a directory, only a single source path may be provided."""))
   }

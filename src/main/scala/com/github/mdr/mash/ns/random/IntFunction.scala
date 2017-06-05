@@ -13,8 +13,7 @@ object IntFunction extends MashFunction("random.int") {
       defaultValueGeneratorOpt = Some(MashNumber(0)))
     val To = Parameter(
       nameOpt = Some("to"),
-      summaryOpt = Some("Largest number"),
-      isLast = true)
+      summaryOpt = Some("Largest number"))
     val Inclusive = Parameter(
       nameOpt = Some("inclusive"),
       shortFlagOpt = Some('i'),

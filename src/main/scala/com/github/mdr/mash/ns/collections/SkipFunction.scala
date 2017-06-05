@@ -13,8 +13,7 @@ object SkipFunction extends MashFunction("collections.skip") {
       defaultValueGeneratorOpt = Some(MashNumber(1)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to skip values from"),
-      isLast = true)
+      summaryOpt = Some("Sequence to skip values from"))
   }
 
   import Params._
@@ -31,7 +30,7 @@ object SkipFunction extends MashFunction("collections.skip") {
     }
   }
 
-  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy
+  override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 
   override def summaryOpt = Some("Skip elements from the start of a sequence")
 

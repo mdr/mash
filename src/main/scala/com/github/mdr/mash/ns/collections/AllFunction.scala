@@ -13,8 +13,7 @@ object AllFunction extends MashFunction("collections.all") {
       summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence of elements to test"),
-      isLast = true)
+      summaryOpt = Some("Sequence of elements to test"))
   }
 
   import Params._

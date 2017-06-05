@@ -14,8 +14,7 @@ object FindFunction extends MashFunction("collections.find") {
       summaryOpt = Some("Predicate used to test elements of the sequence"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to search"),
-      isLast = true)
+      summaryOpt = Some("Sequence to search"))
   }
 
   import Params._
