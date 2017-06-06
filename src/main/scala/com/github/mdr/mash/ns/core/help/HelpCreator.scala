@@ -78,7 +78,7 @@ object HelpCreator {
 
   private def getName(param: Parameter): MashValue =
     param.nameOpt
-      .filterNot(_ == DesugarHoles.VariableName)
+      .filterNot(_ startsWith DesugarHoles.VariableNamePrefix)
       .map(MashString(_))
       .getOrElse(MashNull)
 

@@ -11,7 +11,6 @@ object NormalMashLexer {
     Set(IDENTIFIER, HOLE, RPAREN, RSQUARE, RBRACE, STRING_LITERAL, NUMBER_LITERAL, NULL, THIS)
 
   private final val Keywords: Map[String, TokenType] = Map(
-    "_" -> HOLE,
     "and" -> AND,
     "class" -> CLASS,
     "def" -> DEF,
@@ -343,7 +342,8 @@ trait NormalMashLexer { self: MashLexer ⇒
       nextChar()
       getIdentRest(tokenTypeOpt)
     case _ ⇒
-      val tokenType = tokenTypeOpt getOrElse Keywords.getOrElse(currentTokenText, IDENTIFIER)
+      lazy val holeOpt = if (currentTokenText matches "_([1-9][0-9]*)?") Some(HOLE) else None
+      val tokenType = tokenTypeOpt orElse holeOpt getOrElse Keywords.getOrElse(currentTokenText, IDENTIFIER)
       token(tokenType)
   }
 

@@ -33,7 +33,7 @@ class BareStringificationContext {
   def bareStringify(expr: Expr, bindings: Set[String]): Expr = expr match {
     case identifier: Identifier                                                            ⇒
       bareStringify(identifier, bindings)
-    case Hole(_) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _)
+    case Hole(_, _) | Literal(_, _) | StringLiteral(_, _, _, _) | MishFunction(_, _)
          | HeadlessMemberExpr(_, _, _) | ThisExpr(_) | _: NamespaceDeclaration             ⇒
       expr
     case InterpolatedString(start, parts, end, sourceInfoOpt)                              ⇒

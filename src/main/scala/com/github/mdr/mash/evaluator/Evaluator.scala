@@ -1,6 +1,7 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.classes.{ BoundMethod, UserDefinedClass, UserDefinedMethod }
+import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
@@ -66,35 +67,35 @@ object Evaluator extends EvaluatorHelper {
     */
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
-      case Hole(_) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
+      case Hole(_, _) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
         throw new EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
-      case thisExpr: ThisExpr                                        ⇒ evaluateThisExpr(thisExpr)
-      case interpolatedString: InterpolatedString                    ⇒ evaluateInterpolatedString(interpolatedString)
-      case ParenExpr(body, _)                                        ⇒ evaluate(body)
-      case blockExpr: BlockExpr                                      ⇒ evaluateBlockExpr(blockExpr)
-      case Literal(v, _)                                             ⇒ v
-      case memberExpr: MemberExpr                                    ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, invokeNullaryWhenVectorising = true).result
-      case lookupExpr: LookupExpr                                    ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
-      case invocationExpr: InvocationExpr                            ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
-      case LambdaExpr(params, body, _)                               ⇒ makeAnonymousFunction(params, body)
-      case binOp: BinOpExpr                                          ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
-      case chainedOpExpr: ChainedOpExpr                              ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
-      case assExpr: AssignmentExpr                                   ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
-      case assExpr: PatternAssignmentExpr                            ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
-      case ifExpr: IfExpr                                            ⇒ evaluateIfExpr(ifExpr)
-      case ListExpr(elements, _)                                     ⇒ MashList(elements.map(evaluate(_)))
-      case mishExpr: MishExpr                                        ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
-      case expr: MishInterpolation                                   ⇒ MishEvaluator.evaluateMishInterpolation(expr)
-      case MishFunction(command, _)                                  ⇒ SystemCommandFunction(command)
-      case decl: FunctionDeclaration                                 ⇒ evaluateFunctionDecl(decl)
-      case decl: ClassDeclaration                                    ⇒ evaluateClassDecl(decl)
-      case helpExpr: HelpExpr                                        ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
-      case StatementSeq(statements, _)                               ⇒ evaluateStatements(statements)
-      case lit: StringLiteral                                        ⇒ evaluateStringLiteral(lit)
-      case MinusExpr(subExpr, _)                                     ⇒ evaluateMinusExpr(subExpr)
-      case identifier: Identifier                                    ⇒ evaluateIdentifier(identifier)
-      case objectExpr: ObjectExpr                                    ⇒ evaluateObjectExpr(objectExpr)
-      case importStatement: ImportStatement                          ⇒ evaluateImportStatement(importStatement)
+      case thisExpr: ThisExpr                                           ⇒ evaluateThisExpr(thisExpr)
+      case interpolatedString: InterpolatedString                       ⇒ evaluateInterpolatedString(interpolatedString)
+      case ParenExpr(body, _)                                           ⇒ evaluate(body)
+      case blockExpr: BlockExpr                                         ⇒ evaluateBlockExpr(blockExpr)
+      case Literal(v, _)                                                ⇒ v
+      case memberExpr: MemberExpr                                       ⇒ MemberEvaluator.evaluateMemberExpr(memberExpr, invokeNullaryWhenVectorising = true).result
+      case lookupExpr: LookupExpr                                       ⇒ LookupEvaluator.evaluateLookupExpr(lookupExpr)
+      case invocationExpr: InvocationExpr                               ⇒ InvocationEvaluator.evaluateInvocationExpr(invocationExpr)
+      case LambdaExpr(params, body, _)                                  ⇒ makeAnonymousFunction(params, body)
+      case binOp: BinOpExpr                                             ⇒ BinaryOperatorEvaluator.evaluateBinOpExpr(binOp)
+      case chainedOpExpr: ChainedOpExpr                                 ⇒ BinaryOperatorEvaluator.evaluateChainedOp(chainedOpExpr)
+      case assExpr: AssignmentExpr                                      ⇒ AssignmentEvaluator.evaluateAssignment(assExpr)
+      case assExpr: PatternAssignmentExpr                               ⇒ AssignmentEvaluator.evaluatePatternAssignment(assExpr)
+      case ifExpr: IfExpr                                               ⇒ evaluateIfExpr(ifExpr)
+      case ListExpr(elements, _)                                        ⇒ MashList(elements.map(evaluate(_)))
+      case mishExpr: MishExpr                                           ⇒ MishEvaluator.evaluateMishExpr(mishExpr)
+      case expr: MishInterpolation                                      ⇒ MishEvaluator.evaluateMishInterpolation(expr)
+      case MishFunction(command, _)                                     ⇒ SystemCommandFunction(command)
+      case decl: FunctionDeclaration                                    ⇒ evaluateFunctionDecl(decl)
+      case decl: ClassDeclaration                                       ⇒ evaluateClassDecl(decl)
+      case helpExpr: HelpExpr                                           ⇒ HelpEvaluator.evaluateHelpExpr(helpExpr)
+      case StatementSeq(statements, _)                                  ⇒ evaluateStatements(statements)
+      case lit: StringLiteral                                           ⇒ evaluateStringLiteral(lit)
+      case MinusExpr(subExpr, _)                                        ⇒ evaluateMinusExpr(subExpr)
+      case identifier: Identifier                                       ⇒ evaluateIdentifier(identifier)
+      case objectExpr: ObjectExpr                                       ⇒ evaluateObjectExpr(objectExpr)
+      case importStatement: ImportStatement                             ⇒ evaluateImportStatement(importStatement)
     }
 
   private def evaluateImportStatement(importStatement: ImportStatement)(implicit context: EvaluationContext): MashValue = {
@@ -120,12 +121,12 @@ object Evaluator extends EvaluatorHelper {
   def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
     def getFieldName(fieldNameExpr: Expr): String =
       fieldNameExpr match {
-        case Identifier(name, _) ⇒
+        case Identifier(name, _) if !name.startsWith(DesugarHoles.VariableNamePrefix) ⇒
           name
         case _                   ⇒
           evaluate(fieldNameExpr) match {
             case MashString(s, _) ⇒ s
-            case x                ⇒ throw new EvaluatorException("Invalid object label of type " + x.typeName, sourceLocation(fieldNameExpr))
+            case x                ⇒ throw new EvaluatorException("Invalid field name of type " + x.typeName, sourceLocation(fieldNameExpr))
           }
       }
     val fields = objectExpr.fields.map {

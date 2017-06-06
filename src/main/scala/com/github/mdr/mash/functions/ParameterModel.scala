@@ -50,7 +50,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     val positionalParams =
       for (param ← params.filterNot(_.isFlag)) yield {
         val paramName = param.nameOpt getOrElse Parameter.AnonymousParamName
-        val name = if (paramName == DesugarHoles.VariableName) Parameter.AnonymousParamName else paramName
+        val name = if (paramName startsWith DesugarHoles.VariableNamePrefix) Parameter.AnonymousParamName else paramName
         if (param.isVariadic)
           if (param.variadicAtLeastOne)
             s"<$name>+..."

@@ -1,12 +1,15 @@
 package com.github.mdr.mash.compiler
 
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.utils.Utils
 
 import scala.collection.immutable.ListMap
 
 object DesugarHoles {
 
-  val VariableName = "$hole"
+  val VariableNamePrefix = "$hole"
+
+  private def makeVariableName(n: Int): String = VariableNamePrefix + n
 
   def desugarHoles(program: Program): Program =
     Program(program.namespaceOpt, desugarHoles(program.body), program.sourceInfoOpt)
@@ -14,18 +17,24 @@ object DesugarHoles {
   private def desugarHoles(expr: Expr): Expr = addLambdaIfNeeded(expr)
 
   private def addLambdaIfNeeded(expr: Expr): Expr = {
-    val Result(newExpr, hasHole) = desugarHoles_(expr)
-    if (hasHole) {
-      val params = ParamList(Seq(FunctionParam(nameOpt = Some(VariableName), patternOpt = Some(IdentPattern(VariableName)))))
+    val Result(newExpr, holeCount) = desugarHoles_(expr)
+    if (holeCount > 0) {
+      val params = ParamList(1.to(holeCount).map { n ⇒
+        val variableName = makeVariableName(n)
+        FunctionParam(nameOpt = Some(variableName), patternOpt = Some(IdentPattern(variableName)))
+      })
       LambdaExpr(params, newExpr, None)
     } else
       newExpr
   }
 
   private def addLambdaIfNeeded(argument: Argument.PositionArg): Argument.PositionArg = {
-    val Result(newArgument, hasHole) = desugarHoles_(argument)
-    if (hasHole) {
-      val params = ParamList(Seq(FunctionParam(nameOpt = Some(VariableName), patternOpt = Some(IdentPattern(VariableName)))))
+    val Result(newArgument, holeCount) = desugarHoles_(argument)
+    if (holeCount > 0) {
+      val params = ParamList(1.to(holeCount).map { n ⇒
+        val variableName = makeVariableName(n)
+        FunctionParam(nameOpt = Some(variableName), patternOpt = Some(IdentPattern(variableName)))
+      })
       Argument.PositionArg(LambdaExpr(params, newArgument.expr, None), newArgument.sourceInfoOpt)
     } else
       newArgument
@@ -42,8 +51,8 @@ object DesugarHoles {
   }
 
   private def desugarHoles_(expr: Expr): Result[Expr] = expr match {
-    case Hole(sourceInfoOpt)                                                                          ⇒
-      Result(Identifier(VariableName, sourceInfoOpt), hasHole = true)
+    case Hole(n, sourceInfoOpt)                                                                       ⇒
+      Result(Identifier(makeVariableName(n), sourceInfoOpt), holeCount = n)
     case InterpolatedString(start, parts, end, sourceInfoOpt)                                         ⇒
       val newPartsResult: Seq[Result[InterpolationPart]] = parts.map {
         case StringPart(s)  ⇒ Result(StringPart(s))
@@ -157,7 +166,7 @@ object DesugarHoles {
     case HelpExpr(expr, sourceInfoOpt)                                                                ⇒
       for (newExpr ← desugarHoles_(expr))
         yield HelpExpr(newExpr, sourceInfoOpt)
-    case ImportStatement(expr, importNameOpt, sourceInfoOpt)                                              ⇒
+    case ImportStatement(expr, importNameOpt, sourceInfoOpt)                                          ⇒
       for (newExpr ← desugarHoles_(expr))
         yield ImportStatement(newExpr, importNameOpt, sourceInfoOpt)
   }
@@ -168,13 +177,13 @@ object DesugarHoles {
   /**
     * A Result monad so we can ferry the information about the presence or absence of a hole with less plumbing.
     */
-  private case class Result[+T](value: T, hasHole: Boolean = false) {
+  private case class Result[+T](value: T, holeCount: Int = 0) {
 
-    def map[U](f: T ⇒ U) = Result(f(value), hasHole)
+    def map[U](f: T ⇒ U) = Result(f(value), holeCount)
 
     def flatMap[U](f: T ⇒ Result[U]) = {
-      val Result(newValue, hasHole) = f(value)
-      Result(newValue, hasHole = hasHole || this.hasHole)
+      val Result(newValue, holeCount) = f(value)
+      Result(newValue, holeCount = holeCount max this.holeCount)
     }
 
   }
@@ -197,16 +206,16 @@ object DesugarHoles {
   private def sequence[T](resultMap: ListMap[String, Result[T]]): Result[ListMap[String, T]] =
     Result(
       for ((k, result) ← resultMap)
-        yield k -> result.value, hasHole = resultMap.values.exists(_.hasHole))
+        yield k -> result.value, holeCount = Utils.max(resultMap.values.map(_.holeCount)).getOrElse(0))
 
   private def sequence[T](resultMap: Map[String, Result[T]]): Result[Map[String, T]] =
     Result(
       for ((k, result) ← resultMap)
-        yield k -> result.value, hasHole = resultMap.values.exists(_.hasHole))
+        yield k -> result.value, holeCount = Utils.max(resultMap.values.map(_.holeCount)).getOrElse(0))
 
   private def sequencePairs[U, T](results: Seq[(U, Result[T])]): Result[Seq[(U, T)]] =
     Result(
       for ((k, result) ← results)
-        yield k -> result.value, hasHole = results.exists(_._2.hasHole))
+        yield k -> result.value, holeCount = Utils.max(results.map(_._2.holeCount)).getOrElse(0))
 
 }

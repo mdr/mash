@@ -68,7 +68,7 @@ class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInf
 
   private def inferType_(expr: Expr, bindings: Map[String, Type], immediateExec: Boolean = true): Option[Type] =
     expr match {
-      case Hole(_) | PipeExpr(_, _, _)                  ⇒ None // should not be present in AST at this point
+      case Hole(_, _) | PipeExpr(_, _, _)               ⇒ None // should not be present in AST at this point
       case memberExpr: HeadlessMemberExpr               ⇒ None // should not be present in AST at this point
       case MishFunction(command, _)                     ⇒ Some(Type.BuiltinFunction(SystemCommandFunction(command)))
       case ParenExpr(body, _)                           ⇒ inferType(body, bindings)

@@ -35,6 +35,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "map [1, 2, 3].map [(_ * 2), (_ * _)]" ==> Seq(Seq(NumberClass))
 
+  // holes
+  "(_.foo) { foo: 42 }" ==> NumberClass
+  "(_1 + _2) { foo: 42 } { bar: 128 }" ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
+
   "(boundMethod => [(_ * 2), (_ * _)].map boundMethod) [1, 2, 3].map" ==> Seq(Seq(NumberClass))
 
   "[1, 2, 3][0]" ==> NumberClass

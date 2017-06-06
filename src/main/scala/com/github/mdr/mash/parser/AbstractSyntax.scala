@@ -46,7 +46,7 @@ object AbstractSyntax {
 
     var constantValueOpt: Option[MashValue] = None
 
-    override def toString: String = PrettyPrinter.pretty(this)
+//    override def toString: String = PrettyPrinter.pretty(this)
 
   }
 
@@ -148,7 +148,7 @@ object AbstractSyntax {
     def children = Seq()
   }
 
-  case class Hole(sourceInfoOpt: Option[SourceInfo]) extends Expr {
+  case class Hole(n: Int, sourceInfoOpt: Option[SourceInfo]) extends Expr {
     def withSourceInfoOpt(sourceInfoOpt: Option[SourceInfo]) = copy(sourceInfoOpt = sourceInfoOpt)
 
     def children = Seq()

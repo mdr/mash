@@ -6,15 +6,18 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 class DesugarHolesTest extends FlatSpec with Matchers {
 
-  "_" desugarsTo "x => x"
-  "foo _" desugarsTo "x => foo x"
-  "_ 42" desugarsTo "x => x 42"
-  "a | map (_.b)" desugarsTo "a | map (x => x.b)"
-  "ls | keepIf (_.isFile and _.size < 1000)" desugarsTo "ls | keepIf (x => x.isFile and x.size < 1000)"
-  "y => _.size" desugarsTo "y => x => x.size"
-  "_.foo | _.bar" desugarsTo "x => x.foo | x => x.bar"
-  "foo --bar=_" desugarsTo "x => foo --bar=x"
-  "_.foo (_.bar)" desugarsTo "x => x.foo (x => x.bar)"
+  "_" desugarsTo "x1 => x1"
+  "foo _" desugarsTo "x1 => foo x1"
+  "_ 42" desugarsTo "x1 => x1 42"
+  "a | map (_.b)" desugarsTo "a | map (x1 => x1.b)"
+  "ls | keepIf (_.isFile and _.size < 1000)" desugarsTo "ls | keepIf (x1 => x1.isFile and x1.size < 1000)"
+  "y => _.size" desugarsTo "y => x1 => x1.size"
+  "_.foo | _.bar" desugarsTo "x1 => x1.foo | x1 => x1.bar"
+  "foo --bar=_" desugarsTo "x1 => foo --bar=x1"
+  "_.foo (_.bar)" desugarsTo "x1 => x1.foo (x1 => x1.bar)"
+
+  "_1 * _2" desugarsTo "x1 x2 => x1 * x2"
+  "_2" desugarsTo "x1 x2 => x2"
 
   private implicit class RichString(source: String) {
 
@@ -35,11 +38,24 @@ class DesugarHolesTest extends FlatSpec with Matchers {
 
   private def removeSourceInfo(expr: Expr): Expr = expr.transform { case e ⇒ e.withSourceInfoOpt(None) }
 
+
+  object HoleVar {
+
+    def unapply(s: String): Option[Int] =
+      if (s startsWith DesugarHoles.VariableNamePrefix)
+        Some(s.drop(DesugarHoles.VariableNamePrefix.length).toInt)
+      else
+        None
+
+  }
+
   private def renameHoleVariable(e: Expr): Expr = e.transform {
-    case Identifier(DesugarHoles.VariableName, _) ⇒
-      Identifier("x", None)
-    case LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some(DesugarHoles.VariableName), isVariadic, defaultExprOpt, patternOpt, source))), body, _) ⇒
-      LambdaExpr(ParamList(Seq(FunctionParam(attributes, Some("x"), isVariadic, defaultExprOpt, Some(IdentPattern("x")), None))), body, None)
+    case Identifier(HoleVar(n), _)                                                                                                                                               ⇒
+      val newName = "x" + n
+      Identifier(newName, None)
+    case FunctionParam(attributes, Some(HoleVar(n)), isVariadic, defaultExprOpt, _, source) ⇒
+      val newName = "x" + n
+      FunctionParam(attributes, Some(newName), isVariadic, defaultExprOpt, Some(IdentPattern(newName)), None)
   }
 
 }

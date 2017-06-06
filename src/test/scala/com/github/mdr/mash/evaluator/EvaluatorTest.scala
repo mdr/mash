@@ -113,7 +113,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   "[].sumBy.target" ==> "[]"
 
-  "now.date.toString" shouldNotThrowAnException
+  "now.date.toString".shouldNotThrowAnException
 
   "[].toString" ==> "'[]'"
   "[1].toString" ==> "'[1]'"
@@ -138,9 +138,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Block expressions
   "{ a = 0; a = a + 1; a }" ==> 1
   "{ a = 42 }; a" ==> 42
-
-  // Holes in paren invocation args
-  "[{foo: 42}].map(_.foo)" ==> "[42]"
 
   // list subtraction
   "[1, 2, 3, 4] - [2, 4]" ==> "[1, 3]"
@@ -168,6 +165,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "def baz = 128 + _; (baz) 72" ==> 200
   "def foo (x = _) = 42; foo" ==> 42
   "((x = _) => 42) | x => x" ==> 42
+  "1.to 5 | reduce (_1 * _2)" ==> 120
+  "[{foo: 42}].map(_.foo)" ==> "[42]"
+  "'foo' | { _: 42 }" ==> "{ foo: 42 }"
 
   // Lambdas inside parens and blocks
   "a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]" ==> 42

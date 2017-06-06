@@ -35,7 +35,7 @@ class Abstractifier(provenance: Provenance) {
   private def abstractify(expr: Concrete.Expr): Abstract.Expr = expr match {
     case Concrete.Literal(token)                            ⇒ abstractifyLiteral(token, sourceInfo(expr))
     case Concrete.Identifier(token)                         ⇒ Abstract.Identifier(token.text, sourceInfo(expr))
-    case Concrete.Hole(_)                                   ⇒ Abstract.Hole(sourceInfo(expr))
+    case Concrete.Hole(holeToken)                           ⇒ Abstract.Hole(if (holeToken.text.length > 1) holeToken.text.drop(1).toInt else 1, sourceInfo(expr))
     case Concrete.PipeExpr(left, _, right)                  ⇒ Abstract.PipeExpr(abstractify(left), abstractify(right), sourceInfo(expr))
     case memberExpr@Concrete.MemberExpr(e, _, name)         ⇒ Abstract.MemberExpr(abstractify(e), name.text, memberExpr.isSafe, sourceInfo(expr))
     case memberExpr@Concrete.HeadlessMemberExpr(_, name)    ⇒ Abstract.HeadlessMemberExpr(name.text, memberExpr.isSafe, sourceInfo(expr))

@@ -27,7 +27,7 @@ object PrettyPrinter {
       "\"" + start + chunks.mkString + end + "\""
     case Identifier(n, _)                                                      ⇒ n.toString
     case MishFunction(w, _)                                                    ⇒ "!" + w.toString
-    case Hole(_)                                                               ⇒ "_"
+    case Hole(n, _)                                                            ⇒ "_" + (if (n > 0) n else "")
     case MinusExpr(subExpr, _)                                                 ⇒ "-" + parens(pretty(subExpr))
     case MemberExpr(left, member, isSafe, _)                                   ⇒ parens(pretty(left), simpleOmitParens(left)) + (if (isSafe) "?." else ".") + member
     case HeadlessMemberExpr(member, isSafe, _)                                 ⇒ (if (isSafe) "?." else ".") + member
@@ -117,7 +117,7 @@ object PrettyPrinter {
   private def parens(s: String, omitParens: Boolean = false): String = if (omitParens) s else "(" + s + ")"
 
   private def simpleOmitParens(expr: Expr): Boolean = cond(expr) {
-    case Identifier(_, _) | Literal(_, _) | Hole(_) | MemberExpr(_, _, _, _) | ParenExpr(_, _) ⇒ true
+    case Identifier(_, _) | Literal(_, _) | Hole(_, _) | MemberExpr(_, _, _, _) | ParenExpr(_, _) ⇒ true
   }
 
 }
