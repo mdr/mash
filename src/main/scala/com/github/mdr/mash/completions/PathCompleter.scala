@@ -1,6 +1,6 @@
 package com.github.mdr.mash.completions
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.{ Files, Path, Paths }
 
 import com.github.mdr.mash.evaluator.{ RetildeResult, TildeExpander }
 import com.github.mdr.mash.ns.os.FileTypeClass
@@ -90,7 +90,12 @@ class PathCompleter(fileSystem: FileSystem, envInteractions: EnvironmentInteract
   }
 
   private def makeCompletion(searchPath: Path, pathSummary: PathSummary, pos: Int): PathCompletion = {
-    val isDirectory = pathSummary.fileType == FileTypeClass.Values.Dir
+    val pathSummaryWithLinksDereferenced =
+      if (pathSummary.fileType == FileTypeClass.Values.Link)
+        Try(fileSystem.getPathSummary(Files.readSymbolicLink(pathSummary.path))).getOrElse(pathSummary)
+      else
+        pathSummary
+    val isDirectory = pathSummaryWithLinksDereferenced.fileType == FileTypeClass.Values.Dir
     val suffix = if (isDirectory) "/" else ""
     val path = searchPath.resolve(pathSummary.path.getFileName).toString + suffix
     val typeOpt = condOpt(pathSummary.fileType) {
