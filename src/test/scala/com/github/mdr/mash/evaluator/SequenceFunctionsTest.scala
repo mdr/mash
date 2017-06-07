@@ -110,12 +110,12 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
 
   // flatMap
   "[1, 2, 3].flatMap (n => [n * 10, n])" ==> "[10, 1, 20, 2, 30, 3]"
-  "flatMap (n => [n * 10, n]) [1, 2, 3]" ==> "[10, 1, 20, 2, 30, 3]"
-  "flatMap (_ + '!') 'abc'" ==> "'a!b!c!'"
-  "flatMap (.toString) [1, 22, 333]" ==> "'122333'"
+  "[1, 2, 3] | flatMap (n => [n * 10, n])" ==> "[10, 1, 20, 2, 30, 3]"
+  "'abc' | flatMap (_ + '!')" ==> "'a!b!c!'"
+  "[1, 22, 333] | flatMap (.toString)" ==> "'122333'"
   "'abc' | flatMap (c => [c])" ==> "['a', 'b', 'c']"
   "'abc'.flatMap (c => [c]) " ==> "['a', 'b', 'c']"
-  "flatMap (n i => [n, i]) [1, 2, 3]" ==> "[1, 0, 2, 1, 3, 2]"
+  "[1, 2, 3] | flatMap (n i => [n, i])" ==> "[1, 0, 2, 1, 3, 2]"
 
   // flatten
   "flatten [[], [1], [2, 3]]" ==> "[1, 2, 3]"
@@ -126,10 +126,9 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "[1, 2, 3].map (_ * 2)" ==> "[2, 4, 6]"
   "map --f=(_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
   "map (_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
-  "map --f=(_ * 2) [1, 2, 3]" ==> "[2, 4, 6]"
   "[1, 2, 3] | map --f=(_ * 2)" ==> "[2, 4, 6]"
   "'123' | map (_.toNumber)" ==> "[1, 2, 3]"
-  "map (n i => n + i) [1, 2, 3]" ==> "[1, 3, 5]"
+  "[1, 2, 3] | map (n i => n + i)" ==> "[1, 3, 5]"
   "'foo' | map (.toUpper)" ==> "'FOO'"
   "'foo'.map (.toUpper)" ==> "'FOO'"
 
@@ -202,7 +201,7 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
 
   // unique
   "unique [1, 2, 3, 2, 1]" ==> "[1, 2, 3]"
-  "unique 'abcba'" ==> "'abc'"
+  "'abcba' | unique" ==> "'abc'"
   "'abcba'.unique" ==> "'abc'"
 
   // where
