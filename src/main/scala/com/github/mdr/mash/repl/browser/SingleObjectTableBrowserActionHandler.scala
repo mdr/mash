@@ -40,6 +40,8 @@ trait SingleObjectTableBrowserActionHandler {
         handleInsertWholeItem(browserState)
       case Open                            ⇒
         handleOpenItem(browserState)
+      case Copy                            ⇒
+        handleCopyItem(browserState)
       case ViewAsTree                      ⇒
         viewAsTree(browserState)
       case IncrementalSearch.BeginSearch   ⇒

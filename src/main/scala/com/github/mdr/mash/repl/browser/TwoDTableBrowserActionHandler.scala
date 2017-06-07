@@ -73,6 +73,8 @@ trait TwoDTableBrowserActionHandler {
         handleInsertWholeItem(browserState)
       case Open                            ⇒
         handleOpenItem(browserState)
+      case Copy                            ⇒
+        handleCopyItem(browserState)
       case Back                            ⇒
         navigateBack()
       case Focus                           ⇒

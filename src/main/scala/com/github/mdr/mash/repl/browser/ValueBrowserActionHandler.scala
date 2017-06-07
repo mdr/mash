@@ -15,6 +15,8 @@ trait ValueBrowserActionHandler {
       handleInsertItem(browserState)
     case Open                            ⇒
       handleOpenItem(browserState)
+    case Copy                            ⇒
+      handleCopyItem(browserState)
     case InsertWholeItem                 ⇒
       handleInsertWholeItem(browserState)
     case ExpressionInput.BeginExpression ⇒

@@ -26,6 +26,7 @@ object ObjectBrowserActions {
   case object HideColumn extends InputAction
   case object Open extends InputAction
   case object FocusDirectory extends InputAction
+  case object Copy extends InputAction
 
   object IncrementalSearch {
     case object BeginSearch extends InputAction

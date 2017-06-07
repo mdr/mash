@@ -17,7 +17,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("r") -> UnfocusColumn,
   OtherSequence("f") -> Focus,
   KeyPress(Enter) -> Focus,
-  OtherSequence("c") -> FocusDirectory,
+  OtherSequence("d") -> FocusDirectory,
+  OtherSequence("d") -> Copy,
   OtherSequence("b") -> Back,
   KeyPress(BasicKey('n'), control = true) -> NextItem,
   KeyPress(Up) -> PreviousItem,
@@ -34,6 +35,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("t") -> ViewAsTree,
   OtherSequence("h") -> HideColumn,
   OtherSequence("o") -> Open,
+  OtherSequence("c") -> Copy,
   OtherSequence("/") -> BeginSearch,
   OtherSequence("e") -> BeginExpression,
   TerminalWindowChanged -> Rerender)) {

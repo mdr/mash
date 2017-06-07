@@ -14,6 +14,8 @@ trait TextLinesBrowserActionHandler {
       navigateBack()
     case Open                            ⇒
       handleOpenItem(browserState)
+    case Copy                            ⇒
+      handleCopyItem(browserState)
     case InsertItem                      ⇒
       handleInsertItem(browserState)
     case InsertWholeItem                 ⇒

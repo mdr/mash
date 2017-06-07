@@ -47,7 +47,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
 
   private def renderRegularStatusLine: Line = {
     import KeyHint._
-    val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table)
+    val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table, Open, Copy)
     Line(renderKeyHints(hints))
   }
 

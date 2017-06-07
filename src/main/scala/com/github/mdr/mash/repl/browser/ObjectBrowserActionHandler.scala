@@ -123,7 +123,7 @@ trait ObjectBrowserActionHandler
       case _                  ⇒
     }
   }
-  
+
   private def focusExpression(currentPath: String, currentValue: MashValue, furtherExpression: String): Unit = {
     val newPath = SafeParens.safeParens(currentPath, furtherExpression)
     val fullExpression = "it" + furtherExpression
@@ -139,6 +139,11 @@ trait ObjectBrowserActionHandler
     state.objectBrowserStateStackOpt = None
     updateScreenAfterAccept()
     val command = s"${browserState.getInsertExpression} | open"
+    runCommand(command)
+  }
+
+  protected def handleCopyItem(browserState: BrowserState) = {
+    val command = s"${browserState.getInsertExpression} | clipboard"
     runCommand(command)
   }
 

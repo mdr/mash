@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Copy current focus in object browser
 * Focus directory in object browser
 * Open function will call any nullary .open method, and accepts variadic params
 * Support nonunary anonymous function shortcuts using _1, _2, _3 "hole" syntax
