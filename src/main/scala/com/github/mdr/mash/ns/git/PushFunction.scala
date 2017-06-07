@@ -6,11 +6,13 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
-import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashUnit }
+import com.github.mdr.mash.runtime._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ ConfigConstants, Constants }
+import org.eclipse.jgit.transport.RemoteRefUpdate
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 object PushFunction extends MashFunction("git.push") {
 
@@ -40,11 +42,12 @@ object PushFunction extends MashFunction("git.push") {
       summaryOpt = Some("Local branch to push"),
       isVariadic = true)
   }
+
   import Params._
 
   val params = ParameterModel(Seq(SetUpstream, Force, Remote, Branches))
 
-  def call(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashList = {
     val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
 
@@ -58,11 +61,19 @@ object PushFunction extends MashFunction("git.push") {
       for (remote ← remoteOpt)
         cmd.setRemote(remote)
       cmd.setForce(force)
-      cmd.call()
+      val pushResults = cmd.call().asScala.toSeq
+      val results =
+        MashList(for {
+          pushResult ← pushResults
+          remoteUpdate <- pushResult.getRemoteUpdates.asScala
+        } yield MashObject.of(ListMap(
+          "remote" -> Option(remoteUpdate.getRemoteName).map(MashString(_)).getOrElse(MashNull),
+          "status" -> Option(remoteUpdate.getStatus.toString).map(MashString(_)).getOrElse(MashNull),
+          "message" -> Option(remoteUpdate.getMessage).map(MashString(_)).getOrElse(MashNull))))
       if (setUpstream)
         setUpstreamConfig(git, branches, remoteOpt)
+      results
     }
-    MashUnit
   }
 
   def setUpstreamConfig(git: Git, branches: Seq[String], remoteOpt: Option[String]) {
