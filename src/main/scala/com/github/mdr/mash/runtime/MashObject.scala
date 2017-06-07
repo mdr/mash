@@ -113,6 +113,8 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
     MashObject.of((this.fields ++ that.fields).toSeq, that.classOpt orElse this.classOpt)
   }
 
+  def reverse: MashObject = MashObject.of(immutableFields.toSeq.reverse).copy(classOpt = classOpt)
+
   override def toString = asString
 
   def asString = withLock {

@@ -150,9 +150,12 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "'foo' | reduce (acc c => acc + [c]) []" ==> "['f', 'o', 'o']"
 
   // reverse
-  "reverse 'trebor'" ==> " 'robert' "
-  "'trebor'.reverse" ==> " 'robert' "
+  "'trebor' | reverse" ==> "'robert'"
+  "'trebor'.reverse" ==> "'robert'"
   "[1, 2, 3].reverse" ==> "[3, 2, 1]"
+  "[1, 2, 3] | reverse" ==> "[3, 2, 1]"
+  "{ a: 1, b: 2, c: 3 }.reverse.fields.name.join" ==> "'cba'"
+  "{ a: 1, b: 2, c: 3 } | reverse | .fields.name | join" ==> "'cba'"
 
   // skip
   "[1, 2, 3, 4, 5] | skip 2" ==> "[3, 4, 5]"

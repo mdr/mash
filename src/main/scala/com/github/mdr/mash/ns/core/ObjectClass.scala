@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
-import com.github.mdr.mash.ns.collections.SortFunction
+import com.github.mdr.mash.ns.collections.{ ReverseFunction, SortFunction }
 import com.github.mdr.mash.ns.collections.listClass.FunctionWrappingMethod
 import com.github.mdr.mash.ns.core.objectClass._
 
@@ -26,6 +26,7 @@ object ObjectClass extends MashClass("core.Object") {
     WithFieldMethod,
     WhereMethod,
     WhereNotMethod,
+    methodise(ReverseFunction),
     methodise(SortFunction))
 
   override def summaryOpt = Some("The class of all objects")
