@@ -1,13 +1,15 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
 import com.github.mdr.mash.runtime._
-import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.{ Git, PushCommand }
+import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.lib.{ ConfigConstants, Constants }
 import org.eclipse.jgit.transport.RemoteRefUpdate
 
@@ -50,31 +52,47 @@ object PushFunction extends MashFunction("git.push") {
   def call(boundParams: BoundParams): MashList = {
     val branches = DeleteFunction.validateBranches(boundParams, Branches)
     val remoteOpt = boundParams.validateStringOpt(Remote).map(_.s)
-
     val setUpstream = boundParams(SetUpstream).isTruthy
     val force = boundParams(Force).isTruthy
 
     GitHelper.withGit { git ⇒
-      val cmd = git.push
-      for (branch ← branches)
-        cmd.add(branch)
-      for (remote ← remoteOpt)
-        cmd.setRemote(remote)
-      cmd.setForce(force)
-      val pushResults = cmd.call().asScala.toSeq
+      val cmd = makeCommand(git, branches, remoteOpt, force)
+
+      val pushResults =
+        try cmd.call().asScala.toSeq
+        catch {
+          case e: TransportException ⇒ throw new EvaluatorException(s"Error pushing: ${e.getMessage}")
+        }
       val results =
-        MashList(for {
+        for {
           pushResult ← pushResults
-          remoteUpdate <- pushResult.getRemoteUpdates.asScala
-        } yield MashObject.of(ListMap(
-          "remote" -> Option(remoteUpdate.getRemoteName).map(MashString(_)).getOrElse(MashNull),
-          "status" -> Option(remoteUpdate.getStatus.toString).map(MashString(_)).getOrElse(MashNull),
-          "message" -> Option(remoteUpdate.getMessage).map(MashString(_)).getOrElse(MashNull))))
+          remoteUpdate ← pushResult.getRemoteUpdates.asScala
+        } yield makeResultObject(remoteUpdate)
+
       if (setUpstream)
         setUpstreamConfig(git, branches, remoteOpt)
-      results
+
+      MashList(results)
     }
   }
+
+  private def makeCommand(git: Git, branches: Seq[String], remoteOpt: Option[String], force: Boolean): PushCommand = {
+    val cmd = git.push
+    for (branch ← branches)
+      cmd.add(branch)
+    for (remote ← remoteOpt)
+      cmd.setRemote(remote)
+    cmd.setForce(force)
+    cmd
+  }
+
+  private def makeResultObject(remoteUpdate: RemoteRefUpdate): MashObject =
+    MashObject.of(ListMap(
+      "remote" -> MashString(remoteUpdate.getRemoteName),
+      "status" -> MashString(remoteUpdate.getStatus.toString),
+      "message" -> Option(remoteUpdate.getMessage).map(MashString(_)).getOrElse(MashNull),
+      "isFastForward" -> MashBoolean(remoteUpdate.isFastForward),
+      "isForceUpdate" -> MashBoolean(remoteUpdate.isForceUpdate)))
 
   def setUpstreamConfig(git: Git, branches: Seq[String], remoteOpt: Option[String]) {
     val repo = git.getRepository
