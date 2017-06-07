@@ -11,7 +11,7 @@ abstract class MashMethod(val name: String) {
 
   def paramContext(target: MashValue): EvaluationContext = EvaluationContext.NotUsed
 
-  def applyNullary(target: MashValue): MashValue = call(target, params.bindTo(Arguments.EmptyArguments, paramContext(target)))
+  def callNullary(target: MashValue): MashValue = call(target, params.bindTo(Arguments.EmptyArguments, paramContext(target)))
 
   def params: ParameterModel
 

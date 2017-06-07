@@ -57,7 +57,7 @@ object Evaluator extends EvaluatorHelper {
         }
       case bm@BoundMethod(target, method, _) if method.allowsNullary ⇒
         InvocationEvaluator.addInvocationToStackOnException(locationOpt, Some(bm)) {
-          method.applyNullary(target)
+          method.callNullary(target)
         }
       case _                                                         ⇒ value
     }

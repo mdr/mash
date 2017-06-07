@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Open function will call any nullary .open method, and accepts variadic params
 * Support nonunary anonymous function shortcuts using _1, _2, _3 "hole" syntax
 * Support last parameters without need for @last attribute
 * @atLeastOne and @flatten attributes for variadic parameters

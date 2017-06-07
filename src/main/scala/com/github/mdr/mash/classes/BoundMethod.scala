@@ -5,6 +5,10 @@ import com.github.mdr.mash.runtime.MashValue
 
 case class BoundMethod(target: MashValue, method: MashMethod, klass: MashClass) extends MashValue with MashCallable {
 
+  def allowsNullary = method.allowsNullary
+
+  def callNullary() = method.callNullary(target)
+
   def fullyQualifiedName = klass.fullyQualifiedName + "." + method.name
 
   def name = method.name

@@ -10,7 +10,7 @@ object OpenMethod extends MashMethod("open") {
   val params = ParameterModel()
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit =
-    OpenFunction.open(target)
+    OpenFunction.openWithSystemOpener(target)
 
   override def typeInferenceStrategy = UnitClass
 

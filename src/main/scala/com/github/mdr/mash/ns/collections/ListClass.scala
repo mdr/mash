@@ -47,6 +47,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(WhereFunction),
     methodise(WhereNotFunction),
     CartesianProductMethod,
+    InnerJoinMethod,
     IntersectMethod,
     NaturalJoinMethod,
     SelectMethod)

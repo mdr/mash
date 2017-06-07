@@ -16,7 +16,6 @@ object NaturalJoinMethod extends MashMethod("naturalJoin") {
 
   override val params = ParameterModel(Seq(Sequence))
 
-
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val objects1: Seq[MashObject] =
       target.asInstanceOf[MashList].immutableElements.map {

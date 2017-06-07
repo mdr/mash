@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.evaluator.{ MemberEvaluator, ToStringifier }
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.UnitClass
@@ -9,18 +10,30 @@ import com.github.mdr.mash.runtime._
 object OpenFunction extends MashFunction("os.open") {
 
   object Params {
-    val Item = Parameter(
-      nameOpt = Some("item"),
-      summaryOpt = Some("Item to open"))
+    val Items = Parameter(
+      nameOpt = Some("items"),
+      summaryOpt = Some("Items to open"),
+      isVariadic = true,
+      variadicFlatten = true,
+      variadicAtLeastOne = true)
   }
+
   import Params._
 
-  val params = ParameterModel(Seq(Item))
+  val params = ParameterModel(Seq(Items))
 
-  override def call(boundParams: BoundParams): MashUnit =
-    open(boundParams(Item))
+  override def call(boundParams: BoundParams): MashUnit = {
+    val items = boundParams.validateSequence(Items)
+    for (item ← items)
+      MemberEvaluator.maybeLookup(item, "open") match {
+        case Some(f: MashFunction) if f.allowsNullary  ⇒ f.callNullary()
+        case Some(bm: BoundMethod) if bm.allowsNullary ⇒ bm.callNullary()
+        case _                                         ⇒ openWithSystemOpener(item)
+      }
+    MashUnit
+  }
 
-  def open(value: MashValue): MashUnit = {
+  def openWithSystemOpener(value: MashValue): MashUnit = {
     val process = new ProcessBuilder("open", ToStringifier.stringify(value)).start()
     process.waitFor()
     MashUnit
