@@ -77,6 +77,8 @@ trait TwoDTableBrowserActionHandler {
         navigateBack()
       case Focus                           ⇒
         focus(browserState)
+      case FocusDirectory                  ⇒
+        focusDirectory(browserState)
       case ToggleMarked                    ⇒
         updateState(browserState.toggleMark)
       case Rerender                        ⇒

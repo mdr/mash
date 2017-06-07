@@ -1,13 +1,18 @@
 package com.github.mdr.mash.repl.browser
 
+import java.nio.file.{ Files, Paths }
+
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+
+import scala.PartialFunction.condOpt
 
 trait ObjectBrowserActionHandler
   extends TextLinesBrowserActionHandler
@@ -38,6 +43,16 @@ trait ObjectBrowserActionHandler
   protected def focus(browserState: BrowserState, tree: Boolean = false): Unit = {
     val selectionInfo = browserState.selectionInfo
     focus(selectionInfo.rawObject, selectionInfo.path, tree)
+  }
+
+  protected def focusDirectory(browserState: BrowserState): Unit = {
+    val selectionInfo = browserState.selectionInfo
+    val isDirectory = condOpt(selectionInfo.rawObject) {
+      case s: MashString                                             ⇒ Paths.get(s.s)
+      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
+    }.exists(Files.isDirectory(_))
+    if (isDirectory)
+      focusExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
   }
 
   private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
@@ -103,16 +118,20 @@ trait ObjectBrowserActionHandler
         if (expression.nonEmpty)
           updateState(browserState.setExpression(expression.init))
       case Accept             ⇒
-        val newPath = SafeParens.safeParens(browserState.path, expression)
-        val fullExpression = "it" + expression
-        val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> browserState.rawValue))
-        val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
-        val compilationUnit = CompilationUnit(fullExpression)
         updateState(browserState.acceptExpression)
-        for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
-          focus(result, newPath, tree = false)
+        focusExpression(browserState.path, browserState.rawValue, expression)
       case _                  ⇒
     }
+  }
+  
+  private def focusExpression(currentPath: String, currentValue: MashValue, furtherExpression: String): Unit = {
+    val newPath = SafeParens.safeParens(currentPath, furtherExpression)
+    val fullExpression = "it" + furtherExpression
+    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> currentValue))
+    val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
+    val compilationUnit = CompilationUnit(fullExpression)
+    for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
+      focus(result, newPath, tree = false)
   }
 
   protected def handleOpenItem(browserState: BrowserState) = {

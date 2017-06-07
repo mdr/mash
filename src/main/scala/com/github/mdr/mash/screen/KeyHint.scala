@@ -16,6 +16,7 @@ object KeyHint {
   val HideColumn = KeyHint("h", "hide col")
   val Search = KeyHint("/", "find")
   val Expression = KeyHint("e", "expr")
+  val Children = KeyHint("c", "dir children")
 
   val NextHit = KeyHint("^N", "next")
   val PreviousHit = KeyHint("^P", "prev")

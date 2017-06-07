@@ -37,7 +37,7 @@ object PathSummaryClass extends MashClass("os.PathSummary") {
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
-  private case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     def path = getStringField(Fields.Path)
 
