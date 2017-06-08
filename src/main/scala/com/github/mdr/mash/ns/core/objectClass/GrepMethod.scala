@@ -23,7 +23,7 @@ object GrepMethod extends MashMethod("grep") {
     val query = ToStringifier.stringify(boundParams(Query))
     val negate = boundParams(Negate).isTruthy
     val items = obj.immutableFields.map(MashObject.of(_)).toSeq
-    val filteredItems = GrepFunction.runGrep(items, query, ignoreCase, regex, negate)
+    val filteredItems = GrepFunction.runGrep(items, query, ignoreCase, regex, negate, ignoreFields = false)
     filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ + _)
   }
 

@@ -82,6 +82,7 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'" ==> "['APPLE', 'ball']"
   "'foo`nbar`nbaz' | grep 'b'" ==> "['bar', 'baz']"
   "'foo`nbar`nbaz'.grep 'b'" ==> "['bar', 'baz']"
+  "[{ foo: 'bar' }, { foo: 'foo' }] | grep 'foo'" ==> "[{ foo: 'foo' }]"
 
   // isEmpty
   "isEmpty []" ==> true

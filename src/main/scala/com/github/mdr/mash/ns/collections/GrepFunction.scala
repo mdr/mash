@@ -62,18 +62,21 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   def getItems(s: MashString): Seq[MashString] = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
 
-  def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean): MashList =
-    MashList(items.filter(matches(_, query, ignoreCase, regex, negate)))
+  def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean, ignoreFields: Boolean = true): MashList =
+    MashList(items.filter(matches(_, query, ignoreCase, regex, negate, ignoreFields)))
 
   private def getInputItems(boundParams: BoundParams): Seq[MashValue] =
     boundParams(Input) match {
       case s: MashString ⇒ getItems(s)
       case xs: MashList  ⇒ xs.elements
-      case input         ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was '${input.typeName}'")
+      case input         ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was a '${input.typeName}'")
     }
 
-  private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean): Boolean = {
-    val valueString = ToStringifier.stringify(value)
+  private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean, ignoreFields: Boolean): Boolean = {
+    val valueString = value match {
+      case obj: MashObject if ignoreFields ⇒ obj.immutableFields.values.mkString("\n")
+      case _               ⇒ ToStringifier.stringify(value)
+    }
     val valueMatches =
       if (regex) {
         val pattern = Pattern.compile(query, if (ignoreCase) Pattern.CASE_INSENSITIVE else 0)
