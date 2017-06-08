@@ -45,7 +45,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   import Params._
 
-  val params = ParameterModel(Seq(Discriminator, Total, IncludeNull, Sequence))
+  val params = ParameterModel(Discriminator, Total, IncludeNull, Sequence)
 
   def call(boundParams: BoundParams): MashList = {
     val sequence = boundParams.validateSequence(Sequence)

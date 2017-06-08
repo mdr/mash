@@ -39,7 +39,7 @@ The default signal is TERM."""))
       descriptionOpt = Some("""Processes can be provided either as numbers (PIDs), or Process objects, or a sequence of numbers or Process objects."""))
   }
 
-  val params = ParameterModel(Seq(Params.Signal, Params.Processes))
+  val params = ParameterModel(Params.Signal, Params.Processes)
 
   def call(boundParams: BoundParams): MashUnit = {
     val signal = getSignal(boundParams, Params.Signal)

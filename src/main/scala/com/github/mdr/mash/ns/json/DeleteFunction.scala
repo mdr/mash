@@ -11,7 +11,7 @@ import org.apache.http.client.methods.HttpDelete
 object DeleteFunction extends MashFunction("json.delete") {
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, BasicAuth, Headers, QueryParams))
+  val params = ParameterModel(Url, BasicAuth, Headers, QueryParams)
 
   def call(boundParams: BoundParams): MashValue = {
     val headers = Header.getHeaders(boundParams, Headers)

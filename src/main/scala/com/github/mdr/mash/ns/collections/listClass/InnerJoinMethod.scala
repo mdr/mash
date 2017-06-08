@@ -27,7 +27,7 @@ object InnerJoinMethod extends MashMethod("innerJoin") {
 
   import Params._
 
-  override val params = ParameterModel(Seq(Sequence, On, Prefix1, Prefix2))
+  override val params = ParameterModel(Sequence, On, Prefix1, Prefix2)
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val objects1: Seq[MashObject] =

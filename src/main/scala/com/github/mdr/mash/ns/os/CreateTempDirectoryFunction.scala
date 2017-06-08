@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime.MashString
 
 object CreateTempDirectoryFunction extends MashFunction("os.createTempDirectory") {
 
-  val params = ParameterModel(Seq())
+  val params = ParameterModel()
 
   def call(boundParams: BoundParams): MashString = {
     val path = Files.createTempDirectory(null)

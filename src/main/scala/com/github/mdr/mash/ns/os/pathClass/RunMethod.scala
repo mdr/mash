@@ -16,7 +16,7 @@ object RunMethod extends MashMethod("run") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Args, RunFunction.Params.StandardIn))
+  val params = ParameterModel(Args, RunFunction.Params.StandardIn)
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val args =

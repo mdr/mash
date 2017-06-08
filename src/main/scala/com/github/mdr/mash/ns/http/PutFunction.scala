@@ -7,7 +7,7 @@ import org.apache.http.client.methods.HttpPut
 object PutFunction extends MashFunction("http.put") {
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, Body, File, Json, BasicAuth, Headers, QueryParams))
+  val params = ParameterModel(Url, Body, File, Json, BasicAuth, Headers, QueryParams)
 
   def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)

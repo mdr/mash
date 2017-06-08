@@ -45,7 +45,7 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Query, Input, IgnoreCase, Regex, Negate))
+  val params = ParameterModel(Query, Input, IgnoreCase, Regex, Negate)
 
   def call(boundParams: BoundParams): MashValue =
     boundParams(Input) match {

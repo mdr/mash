@@ -7,7 +7,7 @@ import org.eclipse.jgit.api.Git
 
 object InitFunction extends MashFunction("git.init") {
 
-  val params = ParameterModel(Seq())
+  val params = ParameterModel()
 
   def call(boundParams: BoundParams): MashUnit = {
     Git.init.call()

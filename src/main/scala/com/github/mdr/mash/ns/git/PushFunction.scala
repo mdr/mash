@@ -47,7 +47,7 @@ object PushFunction extends MashFunction("git.push") {
 
   import Params._
 
-  val params = ParameterModel(Seq(SetUpstream, Force, Remote, Branches))
+  val params = ParameterModel(SetUpstream, Force, Remote, Branches)
 
   def call(boundParams: BoundParams): MashList = {
     val branches = DeleteFunction.validateBranches(boundParams, Branches)

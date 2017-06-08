@@ -11,7 +11,7 @@ object ParseNumberFunction extends MashFunction("core.parseNumber") {
       summaryOpt = Some("String to parse as a number"))
   }
 
-  val params = ParameterModel(Seq(Params.String))
+  val params = ParameterModel(Params.String)
 
   def call(boundParams: BoundParams): MashNumber = {
     val s = boundParams.validateString(Params.String)

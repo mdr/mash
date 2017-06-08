@@ -6,9 +6,7 @@ import com.github.mdr.mash.inference.TypedArguments
 
 object ParameterModel {
 
-  def apply(param: Parameter): ParameterModel = ParameterModel(Seq(param))
-  def apply(param1: Parameter, param2: Parameter): ParameterModel = ParameterModel(Seq(param1, param2))
-  def apply(param1: Parameter, param2: Parameter, param3: Parameter): ParameterModel = ParameterModel(Seq(param1, param2, param3))
+  def apply(param1: Parameter, params: Parameter*): ParameterModel = ParameterModel(param1 +: params)
 
 }
 

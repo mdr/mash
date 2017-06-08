@@ -8,7 +8,7 @@ object DeleteFunction extends MashFunction("http.delete") {
 
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Seq(Url, BasicAuth, Headers, QueryParams, Json))
+  val params = ParameterModel(Url, BasicAuth, Headers, QueryParams, Json)
 
   def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)

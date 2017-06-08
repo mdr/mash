@@ -21,7 +21,7 @@ object RegexClass extends MashClass("core.Regex") {
 
     private val String = "string"
 
-    val params = ParameterModel(Seq(Params.String))
+    val params = ParameterModel(Params.String)
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val regex = target.asInstanceOf[MashString].s.r

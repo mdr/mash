@@ -18,7 +18,7 @@ object SortByFunction extends MashFunction("collections.sortBy") {
   import Params._
   import SortFunction.Params._
 
-  val params = ParameterModel(Seq(Descending, NaturalOrder, Attributes, Sequence))
+  val params = ParameterModel(Descending, NaturalOrder, Attributes, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
