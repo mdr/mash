@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.classes.BoundMethod
 import com.github.mdr.mash.evaluator.{ MemberEvaluator, ToStringifier }
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypeInferenceStrategy

@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
 import com.github.mdr.mash.ns.core.objectClass.GrepMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime._
@@ -47,18 +48,22 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   val params = ParameterModel(Query, Input, IgnoreCase, Regex, Negate)
 
-  def call(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue = {
+    val ignoreCase = boundParams(IgnoreCase).isTruthy
+    val regex = boundParams(Regex).isTruthy
+    val query = ToStringifier.stringify(boundParams(Query))
+    val negate = boundParams(Negate).isTruthy
     boundParams(Input) match {
       case obj: MashObject ⇒
-        GrepMethod.doGrep(obj, boundParams)
+        tryToList(obj) match {
+          case Some(items) ⇒ runGrep(items, query, ignoreCase, regex, negate)
+          case None        ⇒ GrepMethod.doGrep(obj, boundParams)
+        }
       case inSequence      ⇒
         val items = getInputItems(boundParams)
-        val ignoreCase = boundParams(IgnoreCase).isTruthy
-        val regex = boundParams(Regex).isTruthy
-        val query = ToStringifier.stringify(boundParams(Query))
-        val negate = boundParams(Negate).isTruthy
         runGrep(items, query, ignoreCase, regex, negate)
     }
+  }
 
   def getItems(s: MashString): Seq[MashString] = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
 
@@ -75,7 +80,7 @@ object GrepFunction extends MashFunction("collections.grep") {
   private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean, ignoreFields: Boolean): Boolean = {
     val valueString = value match {
       case obj: MashObject if ignoreFields ⇒ obj.immutableFields.values.mkString("\n")
-      case _               ⇒ ToStringifier.stringify(value)
+      case _                               ⇒ ToStringifier.stringify(value)
     }
     val valueMatches =
       if (regex) {

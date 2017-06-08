@@ -5,6 +5,7 @@ import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.objectClass.WhereMethod
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
 
 object WhereFunction extends MashFunction("collections.where") {
 
@@ -21,15 +22,20 @@ object WhereFunction extends MashFunction("collections.where") {
 
   val params = ParameterModel(Predicate, Sequence)
 
-  def call(boundParams: BoundParams): MashValue =
+  def call(boundParams: BoundParams): MashValue = {
+    val predicate = boundParams.validateFunction(Predicate)
     boundParams(Sequence) match {
-      case obj: MashObject ⇒ WhereMethod.doWhere(obj, boundParams)
+      case obj: MashObject ⇒
+        tryToList(obj) match {
+          case Some(items) ⇒ MashList(items.filter(x ⇒ predicate(x).isTruthy))
+          case None        ⇒ WhereMethod.doWhere(obj, boundParams)
+        }
       case inSequence      ⇒
         val sequence = boundParams.validateSequence(Sequence)
-        val predicate = boundParams.validateFunction(Predicate)
         val newSequence = sequence.filter(x ⇒ predicate(x).isTruthy)
         reassembleSequence(inSequence, newSequence)
     }
+  }
 
   def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =
     inSequence match {
