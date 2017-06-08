@@ -13,7 +13,7 @@ object FromStringFunction extends MashFunction("xml.fromString") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(String))
+  val params = ParameterModel(String)
 
   def call(boundParams: BoundParams): MashValue = {
     val xml = boundParams.validateString(String).s

@@ -15,7 +15,7 @@ object BlessMethod extends MashMethod("bless") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Class))
+  val params = ParameterModel(Class)
 
   override def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

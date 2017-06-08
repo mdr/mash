@@ -13,7 +13,7 @@ object FromStringFunction extends MashFunction("json.fromString") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(String))
+  val params = ParameterModel(String)
 
   def call(boundParams: BoundParams): MashValue = {
     val s = boundParams.validateString(String).s

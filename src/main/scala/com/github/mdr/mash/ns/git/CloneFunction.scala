@@ -23,7 +23,7 @@ object CloneFunction extends MashFunction("git.clone") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Repository, Directory))
+  val params = ParameterModel(Repository, Directory)
 
   def call(boundParams: BoundParams): MashString = {
     val repository = boundParams.validateString(Repository).s

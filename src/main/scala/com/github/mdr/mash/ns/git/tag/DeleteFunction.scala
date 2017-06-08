@@ -19,7 +19,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Tags))
+  val params = ParameterModel(Tags)
 
   def validateTag(boundParams: BoundParams, param: Parameter, tag: MashValue): String = {
     val tagName = tag match {

@@ -27,7 +27,7 @@ object CreateDirectoryFunction extends MashFunction("os.createDirectory") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(CreateIntermediates, Paths))
+  val params = ParameterModel(CreateIntermediates, Paths)
 
   def call(boundParams: BoundParams): MashValue = {
     val paths = interpretAsPaths(boundParams(Paths))

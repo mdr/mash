@@ -24,7 +24,7 @@ object MergeFunction extends MashFunction("git.merge") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Commit, Squash))
+  val params = ParameterModel(Commit, Squash)
 
   def validateCommit(boundParams: BoundParams, param: Parameter): ObjectId = {
     val commit = boundParams(param) match {

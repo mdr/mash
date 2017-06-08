@@ -14,7 +14,7 @@ object FromMillisSinceEpoch extends MashFunction("time.fromMillisSinceEpoch") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Millis))
+  val params = ParameterModel(Millis)
   
   def call(boundParams: BoundParams): MashWrapped = {
     val date = boundParams.validateNumber(Millis)

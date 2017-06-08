@@ -15,7 +15,7 @@ class StringFunction(s: String,
 
   import Params._
 
-  val params = ParameterModel(Seq(Target))
+  val params = ParameterModel(Target)
 
   def call(boundParams: BoundParams): MashValue = {
     val target = boundParams(Target)

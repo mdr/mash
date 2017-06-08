@@ -17,7 +17,7 @@ object TransformValuesMethod extends MashMethod("transformValues") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F))
+  val params = ParameterModel(F)
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

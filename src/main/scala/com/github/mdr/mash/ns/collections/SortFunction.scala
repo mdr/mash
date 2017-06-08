@@ -31,7 +31,7 @@ object SortFunction extends MashFunction("collections.sort") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Sequence, Descending, NaturalOrder))
+  val params = ParameterModel(Sequence, Descending, NaturalOrder)
 
   object NaturalMashValueOrdering extends Ordering[MashValue] {
 

@@ -23,7 +23,7 @@ If multiple arguments are provided, the smallest argument is returned."""),
   }
   import Params._
 
-  val params = ParameterModel(Seq(Items, Default))
+  val params = ParameterModel(Items, Default)
 
   def call(boundParams: BoundParams): MashValue = {
     val default = boundParams(Default)

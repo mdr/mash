@@ -18,7 +18,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Branches))
+  val params = ParameterModel(Branches)
 
   def validateBranch(boundParams: BoundParams, param: Parameter, branch: MashValue): String = {
     val branchName = branch match {

@@ -16,7 +16,7 @@ object EvalFunction extends MashFunction("mash.eval") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Mash))
+  val params = ParameterModel(Mash)
 
   def call(boundParams: BoundParams): MashValue = {
     val mash = boundParams.validateString(Mash).s

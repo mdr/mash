@@ -21,7 +21,7 @@ object UpFunction extends MashFunction("os.up") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(N))
+  val params = ParameterModel(N)
 
   def call(boundParams: BoundParams): MashUnit = {
     val times = boundParams.validateInteger(N)

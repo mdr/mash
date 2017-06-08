@@ -15,7 +15,7 @@ object MergeStaticMethod extends MashFunction("merge") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Objects))
+  val params = ParameterModel(Objects)
 
   override def call(boundParams: BoundParams): MashObject = {
     val xs = boundParams.validateSequence(Objects)

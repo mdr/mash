@@ -92,7 +92,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Name))
+    val params = ParameterModel(Name)
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val requestedName = boundParams.validateString(Name).s.toLowerCase
@@ -118,7 +118,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Name))
+    val params = ParameterModel(Name)
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val requestedName = boundParams.validateString(Name).s.toLowerCase

@@ -22,7 +22,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Attribute, EmptyValue, Sequence))
+  val params = ParameterModel(Attribute, EmptyValue, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)

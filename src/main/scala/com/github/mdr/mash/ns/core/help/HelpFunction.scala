@@ -15,7 +15,7 @@ object HelpFunction extends MashFunction("core.help.help") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Item))
+  val params = ParameterModel(Item)
 
   def call(boundParams: BoundParams): MashObject = {
     val item = boundParams(Item)

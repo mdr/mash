@@ -18,7 +18,7 @@ object GetFunction extends MashFunction("git.branch.get") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Branch))
+  val params = ParameterModel(Branch)
 
   def call(boundParams: BoundParams): MashValue = {
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))

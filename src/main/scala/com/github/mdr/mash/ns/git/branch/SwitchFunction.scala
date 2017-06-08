@@ -20,7 +20,7 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Branch))
+  val params = ParameterModel(Branch)
 
   def call(boundParams: BoundParams): MashUnit = {
     val branch = DeleteFunction.validateBranch(boundParams, Branch, boundParams(Branch))

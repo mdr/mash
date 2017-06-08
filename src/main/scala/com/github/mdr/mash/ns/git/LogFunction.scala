@@ -24,7 +24,7 @@ object LogFunction extends MashFunction("git.log") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Commit))
+  val params = ParameterModel(Commit)
 
   def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒

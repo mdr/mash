@@ -63,7 +63,7 @@ object ProcessClass extends MashClass("os.Process") {
     }
     import Params._
 
-    val params = ParameterModel(Seq(Signal))
+    val params = ParameterModel(Signal)
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val pid = Wrapper(target).pid

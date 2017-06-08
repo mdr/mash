@@ -149,7 +149,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Commit))
+  val params = ParameterModel(Commit)
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val commit = MergeFunction.validateCommit(boundParams, Commit)

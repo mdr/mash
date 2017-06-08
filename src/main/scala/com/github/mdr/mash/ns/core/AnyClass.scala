@@ -71,7 +71,7 @@ object AnyClass extends MashClass("core.Any") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Class))
+    val params = ParameterModel(Class)
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val klass = boundParams.validateClass(Class)
@@ -158,7 +158,7 @@ object AnyClass extends MashClass("core.Any") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Sequence))
+    val params = ParameterModel(Sequence)
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val sequence = boundParams.validateSequence(Sequence)

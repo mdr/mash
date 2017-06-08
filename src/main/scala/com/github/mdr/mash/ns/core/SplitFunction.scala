@@ -18,7 +18,7 @@ object SplitFunction extends MashFunction("core.split") {
   import Params._
   import SplitMethod.Params._
 
-  val params = ParameterModel(Seq(Regex, Separator, String))
+  val params = ParameterModel(Regex, Separator, String)
 
   def call(boundParams: BoundParams): MashList = {
     val string = boundParams.validateString(String)

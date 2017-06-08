@@ -16,7 +16,7 @@ object LookupFunction extends MashFunction("dns.lookup") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Host))
+  val params = ParameterModel(Host)
 
   def call(boundParams: BoundParams): MashList = {
     val host = boundParams.validateString(Host).s

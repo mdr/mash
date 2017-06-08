@@ -55,7 +55,7 @@ object UrlClass extends MashClass("net.Url") {
 
     import Params._
 
-    val params = ParameterModel(Seq(QueryParams, NamedQueryParams))
+    val params = ParameterModel(QueryParams, NamedQueryParams)
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uri = targetUri(target)

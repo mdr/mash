@@ -13,7 +13,7 @@ object IdentityFunction extends MashFunction("core.identity") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Item))
+  val params = ParameterModel(Item)
 
   def call(boundParams: BoundParams): MashValue = {
     boundParams(Item)

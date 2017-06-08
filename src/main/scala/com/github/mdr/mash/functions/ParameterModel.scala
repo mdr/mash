@@ -4,6 +4,14 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext }
 import com.github.mdr.mash.inference.TypedArguments
 
+object ParameterModel {
+
+  def apply(param: Parameter): ParameterModel = ParameterModel(Seq(param))
+  def apply(param1: Parameter, param2: Parameter): ParameterModel = ParameterModel(Seq(param1, param2))
+  def apply(param1: Parameter, param2: Parameter, param3: Parameter): ParameterModel = ParameterModel(Seq(param1, param2, param3))
+
+}
+
 case class ParameterModel(params: Seq[Parameter] = Seq()) {
 
   require(params.count(_.isVariadic) <= 1)

@@ -16,7 +16,7 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Predicate, Sequence))
+  val params = ParameterModel(Predicate, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)

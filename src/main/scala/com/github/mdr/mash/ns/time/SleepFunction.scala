@@ -18,7 +18,7 @@ object SleepFunction extends MashFunction("time.sleep") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Duration))
+  val params = ParameterModel(Duration)
 
   def call(boundParams: BoundParams): MashUnit = {
     val millis = boundParams(Duration) match {

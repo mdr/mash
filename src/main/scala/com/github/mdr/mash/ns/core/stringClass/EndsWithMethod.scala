@@ -14,7 +14,7 @@ object EndsWithMethod extends MashMethod("endsWith") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Suffix))
+  val params = ParameterModel(Suffix)
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString]

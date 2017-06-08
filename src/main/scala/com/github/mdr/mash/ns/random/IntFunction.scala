@@ -25,7 +25,7 @@ object IntFunction extends MashFunction("random.int") {
 
   import Params._
 
-  val params = ParameterModel(Seq(From, To, Inclusive))
+  val params = ParameterModel(From, To, Inclusive)
 
   def call(boundParams: BoundParams): MashNumber = {
     val from = boundParams.validateInteger(From)

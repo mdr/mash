@@ -22,7 +22,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F, Sequence))
+  val params = ParameterModel(F, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)

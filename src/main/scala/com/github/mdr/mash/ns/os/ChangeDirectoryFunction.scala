@@ -31,7 +31,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Directory))
+  val params = ParameterModel(Directory)
 
   def call(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(Directory)

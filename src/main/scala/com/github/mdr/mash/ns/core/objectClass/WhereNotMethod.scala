@@ -8,7 +8,7 @@ object WhereNotMethod extends MashMethod("whereNot") {
 
   import WhereMethod.Params._
 
-  val params = ParameterModel(Seq(Predicate))
+  val params = ParameterModel(Predicate)
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

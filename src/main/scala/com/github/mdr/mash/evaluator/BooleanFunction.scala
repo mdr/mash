@@ -19,7 +19,7 @@ class BooleanFunction(b: Boolean) extends MashFunction() {
 
   import Params._
 
-  val params = ParameterModel(Seq(Then, Else))
+  val params = ParameterModel(Then, Else)
 
   def call(boundParams: BoundParams): MashValue =
     if (b)

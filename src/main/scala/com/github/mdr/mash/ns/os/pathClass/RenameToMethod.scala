@@ -20,7 +20,7 @@ object RenameToMethod extends MashMethod("renameTo") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(NewName))
+  val params = ParameterModel(NewName)
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val path = FunctionHelpers.interpretAsPath(target)

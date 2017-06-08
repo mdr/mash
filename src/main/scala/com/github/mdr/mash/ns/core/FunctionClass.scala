@@ -40,7 +40,7 @@ object FunctionClass extends MashClass("core.Function") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Args, NamedArgs))
+    val params = ParameterModel(Args, NamedArgs)
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val function = target.asInstanceOf[MashFunction]

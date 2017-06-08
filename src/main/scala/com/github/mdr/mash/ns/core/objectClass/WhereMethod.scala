@@ -15,7 +15,7 @@ object WhereMethod extends MashMethod("where") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Predicate))
+  val params = ParameterModel(Predicate)
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

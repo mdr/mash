@@ -12,7 +12,7 @@ object IsNullFunction extends MashFunction("core.isNull") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Value))
+  val params = ParameterModel(Value)
 
   def call(boundParams: BoundParams): MashBoolean = {
     MashBoolean(boundParams(Value).isNull)

@@ -17,7 +17,7 @@ object PrintFunction extends MashFunction("core.print") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Item))
+  val params = ParameterModel(Item)
 
   def call(boundParams: BoundParams): MashUnit = {
     val item = boundParams(Item)

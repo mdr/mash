@@ -26,7 +26,7 @@ object MoveFunction extends MashFunction("os.move") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Paths, Destination))
+  val params = ParameterModel(Paths, Destination)
 
   def call(boundParams: BoundParams): MashUnit = {
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(Paths))

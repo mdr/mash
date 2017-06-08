@@ -14,7 +14,7 @@ object ErrorFunction extends MashFunction("core.error") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Message))
+  val params = ParameterModel(Message)
 
   def call(boundParams: BoundParams): MashValue = {
     val message = boundParams.validateString(Message)

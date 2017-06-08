@@ -94,7 +94,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
     import PushFunction.Params._
 
-    val params = ParameterModel(Seq(Force, SetUpstream, Remote))
+    val params = ParameterModel(Force, SetUpstream, Remote)
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val force = boundParams(Force).isTruthy
@@ -144,7 +144,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
     }
     import Params._
 
-    val params = ParameterModel(Seq(Commit))
+    val params = ParameterModel(Commit)
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val branch = Wrapper(target).name

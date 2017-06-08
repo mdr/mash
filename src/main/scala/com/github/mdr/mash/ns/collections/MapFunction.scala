@@ -23,7 +23,7 @@ object MapFunction extends MashFunction("collections.map") {
 
   import Params._
 
-  val params = ParameterModel(Seq(F, Sequence))
+  val params = ParameterModel(F, Sequence)
 
   def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {

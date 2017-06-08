@@ -13,7 +13,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Sequence))
+  val params = ParameterModel(Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)

@@ -23,7 +23,7 @@ object DeleteFunction extends MashFunction("os.delete") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Paths))
+  val params = ParameterModel(Paths)
 
   def call(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))

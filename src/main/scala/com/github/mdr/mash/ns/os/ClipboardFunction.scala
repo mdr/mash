@@ -21,7 +21,7 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Item))
+  val params = ParameterModel(Item)
 
   override def call(boundParams: BoundParams): MashValue = {
     NoArgFunction.option(boundParams(Item)) match {

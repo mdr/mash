@@ -92,6 +92,8 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object LinesMethod extends MashMethod("lines") {
 
+    override val aliases: Seq[String] = Seq("toList")
+
     val params = ParameterModel()
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {

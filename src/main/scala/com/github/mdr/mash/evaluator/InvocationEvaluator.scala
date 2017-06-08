@@ -3,15 +3,35 @@ package com.github.mdr.mash.evaluator
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator.MemberEvaluator.MemberExprEvalResult
 import com.github.mdr.mash.functions._
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.runtime._
 
 object InvocationEvaluator extends EvaluatorHelper {
 
+  object MishFunction {
+
+    object Params {
+      val StandardIn = Parameter(
+        nameOpt = Some("standardIn"),
+        summaryOpt = Some("What to send to standard input"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(StandardIn)
+  }
+
   def evaluateInvocationExpr(invocationExpr: InvocationExpr)(implicit context: EvaluationContext): MashValue = {
     val InvocationExpr(functionExpr, arguments, _, _) = invocationExpr
     val evaluatedArguments = Arguments(arguments.map(evaluateArgument(_)))
     functionExpr match {
+      case mishExpr: MishExpr     ⇒
+        val boundParams = translateArgumentException(sourceLocation(invocationExpr)) {
+          MishFunction.params.bindTo(evaluatedArguments, context)
+        }
+        val stdinValue = boundParams(MishFunction.Params.StandardIn)
+        MishEvaluator.evaluateMishExpr(mishExpr, Some(stdinValue))
       case memberExpr: MemberExpr ⇒
         val MemberExprEvalResult(result, wasVectorised) = MemberEvaluator.evaluateMemberExpr(memberExpr,
           invokeNullaryWhenVectorising = false)

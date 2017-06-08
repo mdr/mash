@@ -24,7 +24,7 @@ object MatchesMethod extends MashMethod("matches") {
 
   import Params._
 
-  val params = ParameterModel(Seq(_Pattern, IgnoreCase))
+  val params = ParameterModel(_Pattern, IgnoreCase)
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString].s

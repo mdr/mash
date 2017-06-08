@@ -18,7 +18,7 @@ object JoinFunction extends MashFunction("collections.join") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Separator, Sequence))
+  val params = ParameterModel(Separator, Sequence)
 
   def call(boundParams: BoundParams): MashString = {
     val sequence = boundParams.validateSequence(Sequence)

@@ -17,7 +17,7 @@ case class SystemCommandFunction(command: String) extends MashFunction(nameOpt =
   }
   import Params._
 
-  val params = ParameterModel(Seq(Args))
+  val params = ParameterModel(Args)
 
   def call(boundParams: BoundParams): MashUnit = {
     val args = boundParams(Args) match {

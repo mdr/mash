@@ -28,7 +28,7 @@ object StageFunction extends MashFunction("git.stage") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Paths, All))
+  val params = ParameterModel(Paths, All)
 
   def call(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))

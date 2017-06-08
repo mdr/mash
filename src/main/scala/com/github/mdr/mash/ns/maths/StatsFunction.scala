@@ -15,7 +15,7 @@ object StatsFunction extends MashFunction("maths.stats") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Sequence))
+  val params = ParameterModel(Sequence)
 
   def call(boundParams: BoundParams): MashObject = {
     val numbers: Seq[Double] =

@@ -17,7 +17,7 @@ object ZipFunction extends MashFunction("collections.zip") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Sequence1, Sequence2))
+  val params = ParameterModel(Sequence1, Sequence2)
 
   def call(boundParams: BoundParams): MashList = {
     MashList(for ((l, r) <- boundParams.validateSequence(Sequence1) zip boundParams.validateSequence(Sequence2))

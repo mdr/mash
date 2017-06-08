@@ -24,7 +24,7 @@ object WriteFunction extends MashFunction("csv.write") {
 
   import Params._
 
-  val params = ParameterModel(Seq(File, Values))
+  val params = ParameterModel(File, Values)
 
   def call(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(File)

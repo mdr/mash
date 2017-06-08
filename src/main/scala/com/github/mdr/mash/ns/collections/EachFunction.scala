@@ -23,7 +23,7 @@ object EachFunction extends MashFunction("collections.each") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Action, Sequence, WithIndex))
+  val params = ParameterModel(Action, Sequence, WithIndex)
 
   def call(boundParams: BoundParams): MashUnit = {
     val sequence = boundParams.validateSequence(Sequence)

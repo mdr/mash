@@ -29,7 +29,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Args, NamedArgs))
+    val params = ParameterModel(Args, NamedArgs)
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val args = boundParams.validateSequence(Args)

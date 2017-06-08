@@ -14,7 +14,7 @@ object ParseIso8601Function extends MashFunction("time.parseIso8601") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Date))
+  val params = ParameterModel(Date)
   
   def call(boundParams: BoundParams): MashWrapped = {
     val date = boundParams.validateString(Date).s

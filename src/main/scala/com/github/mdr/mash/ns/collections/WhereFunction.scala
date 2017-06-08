@@ -19,7 +19,7 @@ object WhereFunction extends MashFunction("collections.where") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Predicate, Sequence))
+  val params = ParameterModel(Predicate, Sequence)
 
   def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {

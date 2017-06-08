@@ -18,7 +18,7 @@ object AllFunction extends MashFunction("collections.all") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Predicate, Sequence))
+  val params = ParameterModel(Predicate, Sequence)
 
   def call(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)

@@ -20,7 +20,7 @@ object TryFunction extends MashFunction("core.try") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Body, Catch))
+  val params = ParameterModel(Body, Catch)
 
   def call(boundParams: BoundParams): MashValue = {
     val body = boundParams(Body).asInstanceOf[MashFunction]

@@ -16,7 +16,7 @@ object EncodeFunction extends MashFunction("base64.encode") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(String))
+  val params = ParameterModel(String)
 
   def call(boundParams: BoundParams): MashString = {
     val s = ToStringifier.stringify(boundParams(String))

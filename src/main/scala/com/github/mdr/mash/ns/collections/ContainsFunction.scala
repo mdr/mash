@@ -16,7 +16,7 @@ object ContainsFunction extends MashFunction("collections.contains") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Element, Sequence))
+  val params = ParameterModel(Element, Sequence)
 
   def call(boundParams: BoundParams): MashBoolean = {
     val sequence = boundParams.validateSequence(Sequence)

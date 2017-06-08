@@ -19,7 +19,7 @@ object WhileFunction extends MashFunction("core.while") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Condition, Block))
+  val params = ParameterModel(Condition, Block)
 
   def call(boundParams: BoundParams): MashUnit = {
     val cond = boundParams(Condition).asInstanceOf[MashFunction]

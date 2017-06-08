@@ -232,7 +232,7 @@ object Evaluator extends EvaluatorHelper {
 
   private def getShortFlag(evaluatedAttributes: Seq[EvaluatedAttribute])(implicit context: EvaluationContext): Option[Char] = {
     val ShortFlag = Parameter(Some("shortName"))
-    val params = ParameterModel(Seq(ShortFlag))
+    val params = ParameterModel(ShortFlag)
     for {
       attribute ← evaluatedAttributes.find(_.name == Attributes.ShortFlag)
       arguments = attribute.argumentsOpt getOrElse Seq()

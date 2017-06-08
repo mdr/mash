@@ -21,7 +21,7 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Block))
+  val params = ParameterModel(Block)
 
   def call(boundParams: BoundParams): MashObject = {
     val f = boundParams(Block).asInstanceOf[MashFunction]

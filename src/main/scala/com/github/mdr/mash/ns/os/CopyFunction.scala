@@ -30,7 +30,7 @@ If the destination is not a directory, only a single source path may be provided
   }
   import Params._
 
-  val params = ParameterModel(Seq(SourcePaths, Destination))
+  val params = ParameterModel(SourcePaths, Destination)
 
   def call(boundParams: BoundParams): MashUnit = {
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(SourcePaths))

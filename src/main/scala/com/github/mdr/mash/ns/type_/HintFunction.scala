@@ -21,7 +21,7 @@ object HintFunction extends MashFunction("type.hint") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Hint, Item))
+  val params = ParameterModel(Hint, Item)
 
   def call(boundParams: BoundParams): MashValue = {
     boundParams(Item)

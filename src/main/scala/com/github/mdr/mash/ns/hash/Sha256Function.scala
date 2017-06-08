@@ -24,7 +24,7 @@ object Sha256Function extends MashFunction("hash.sha256") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Data))
+  val params = ParameterModel(Data)
 
   def call(boundParams: BoundParams): MashString = {
     val data = boundParams(Data)

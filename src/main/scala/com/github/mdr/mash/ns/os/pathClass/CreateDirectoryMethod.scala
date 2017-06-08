@@ -13,7 +13,7 @@ object CreateDirectoryMethod extends MashMethod("createDirectory") {
 
   import CreateDirectoryFunction.Params._
 
-  val params = ParameterModel(Seq(CreateIntermediates))
+  val params = ParameterModel(CreateIntermediates)
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val createIntermediates = boundParams(CreateIntermediates).isTruthy

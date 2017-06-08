@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.BoundMethod
 import com.github.mdr.mash.evaluator.{ MemberEvaluator, ToStringifier }
-import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime._
@@ -20,15 +20,14 @@ object OpenFunction extends MashFunction("os.open") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Items))
+  val params = ParameterModel(Items)
 
   override def call(boundParams: BoundParams): MashUnit = {
     val items = boundParams.validateSequence(Items)
     for (item ← items)
       MemberEvaluator.maybeLookup(item, "open") match {
-        case Some(f: MashFunction) if f.allowsNullary  ⇒ f.callNullary()
-        case Some(bm: BoundMethod) if bm.allowsNullary ⇒ bm.callNullary()
-        case _                                         ⇒ openWithSystemOpener(item)
+        case Some(NullaryCallable(nc)) ⇒ nc.callNullary()
+        case _                         ⇒ openWithSystemOpener(item)
       }
     MashUnit
   }

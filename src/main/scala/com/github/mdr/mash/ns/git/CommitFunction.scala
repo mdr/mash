@@ -29,7 +29,7 @@ object CommitFunction extends MashFunction("git.commit") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Message, All, Amend))
+  val params = ParameterModel(Message, All, Amend)
 
   def call(boundParams: BoundParams): MashUnit = {
     val all = boundParams(All).isTruthy

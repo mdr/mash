@@ -16,7 +16,7 @@ object CopyMethod extends MashMethod("copy") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Destination))
+  val params = ParameterModel(Destination)
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val source = FunctionHelpers.interpretAsPath(target)

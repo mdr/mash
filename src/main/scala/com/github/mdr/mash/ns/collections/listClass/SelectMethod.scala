@@ -10,7 +10,7 @@ object SelectMethod extends MashMethod("select") {
 
   import SelectFunction.Params._
 
-  override val params = ParameterModel(Seq(Add, Selectors))
+  override val params = ParameterModel(Add, Selectors)
 
   override def call(target: MashValue, boundParams: BoundParams): MashValue =
     SelectFunction.doSelect(target, boundParams)

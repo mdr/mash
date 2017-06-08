@@ -18,15 +18,15 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   import Params._
 
-  val params = ParameterModel(Seq(N, Sequence))
+  val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)
     val sequence = boundParams(Sequence)
     val n = boundParams.validateInteger(N)
     sequence match {
-      case s: MashString ⇒ s.modify(_.drop(n))
-      case xs: MashList  ⇒ MashList(xs.elements.drop(n))
+      case s: MashString ⇒ s.modify(_ drop n)
+      case xs: MashList  ⇒ MashList(xs.immutableElements drop n)
     }
   }
 

@@ -22,7 +22,7 @@ object WithinFunction extends MashFunction("os.within") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Directory, Block))
+  val params = ParameterModel(Directory, Block)
 
   def call(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(Directory)

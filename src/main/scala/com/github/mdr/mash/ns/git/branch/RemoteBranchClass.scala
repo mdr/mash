@@ -59,7 +59,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Switch))
+    val params = ParameterModel(Switch)
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val switch = boundParams(Switch).isTruthy

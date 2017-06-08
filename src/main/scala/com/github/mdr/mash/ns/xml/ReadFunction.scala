@@ -21,7 +21,7 @@ object ReadFunction extends MashFunction("xml.read") {
 
   import Params._
 
-  val params = ParameterModel(Seq(File))
+  val params = ParameterModel(File)
 
   def call(boundParams: BoundParams): MashValue = {
     val path = boundParams.validatePath(File)

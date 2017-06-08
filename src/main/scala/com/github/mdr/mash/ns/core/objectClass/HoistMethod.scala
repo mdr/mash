@@ -25,7 +25,7 @@ object HoistMethod extends MashMethod("hoist") {
 
   import Params._
 
-  val params = ParameterModel(Seq(FieldName, Prefix))
+  val params = ParameterModel(FieldName, Prefix)
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]

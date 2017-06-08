@@ -19,7 +19,7 @@ object GetMethod extends MashMethod("get") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Name, Default))
+  val params = ParameterModel(Name, Default)
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]

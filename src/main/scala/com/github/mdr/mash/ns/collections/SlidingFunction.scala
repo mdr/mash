@@ -16,7 +16,7 @@ object SlidingFunction extends MashFunction("collections.sliding") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Size, Sequence))
+  val params = ParameterModel(Size, Sequence)
 
   def call(boundParams: BoundParams): MashList = {
     val n = boundParams.validateInteger(Size)

@@ -42,7 +42,7 @@ object NumberClass extends MashClass("core.Number") {
     }
     import Params._
 
-    val params = ParameterModel(Seq(End, Step))
+    val params = ParameterModel(End, Step)
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
@@ -71,7 +71,7 @@ object NumberClass extends MashClass("core.Number") {
     }
     import Params._
 
-    val params = ParameterModel(Seq(End, Step))
+    val params = ParameterModel(End, Step)
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
@@ -97,7 +97,7 @@ object NumberClass extends MashClass("core.Number") {
     }
     import Params._
 
-    val params = ParameterModel(Seq(Block))
+    val params = ParameterModel(Block)
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val f = boundParams(Block).asInstanceOf[MashFunction]

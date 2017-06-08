@@ -16,7 +16,7 @@ object UrlFunction extends MashFunction("net.url") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Url))
+  val params = ParameterModel(Url)
 
   def call(boundParams: BoundParams): MashString = {
     val s = ToStringifier.stringify(boundParams(Url))

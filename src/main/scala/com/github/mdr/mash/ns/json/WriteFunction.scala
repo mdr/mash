@@ -26,7 +26,7 @@ object WriteFunction extends MashFunction("json.write") {
 
   import Params._
 
-  val params = ParameterModel(Seq(File, Value))
+  val params = ParameterModel(File, Value)
 
   def call(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(File)

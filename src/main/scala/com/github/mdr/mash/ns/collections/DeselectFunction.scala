@@ -21,7 +21,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Fields, Target))
+  val params = ParameterModel(Fields, Target)
 
   def call(boundParams: BoundParams): MashValue = {
     val fields: Seq[String] = boundParams.validateSequence(Fields).collect {

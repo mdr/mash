@@ -19,7 +19,7 @@ object FindFunction extends MashFunction("collections.find") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Predicate, Sequence))
+  val params = ParameterModel(Predicate, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)

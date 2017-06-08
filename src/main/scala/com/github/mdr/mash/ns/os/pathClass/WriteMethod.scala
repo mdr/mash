@@ -26,7 +26,7 @@ Otherwise, write the item as a string."""))
 
   import Params._
 
-  val params = ParameterModel(Seq(Append, Data))
+  val params = ParameterModel(Append, Data)
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val append = boundParams(Append).isTruthy

@@ -12,7 +12,7 @@ object RawFunction extends MashFunction("view.raw") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Data))
+  val params = ParameterModel(Data)
 
   def call(boundParams: BoundParams): MashObject = {
     val data = boundParams(Data)

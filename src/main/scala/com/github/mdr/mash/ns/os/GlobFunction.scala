@@ -17,7 +17,7 @@ object GlobFunction extends MashFunction("os.glob") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Pattern))
+  val params = ParameterModel(Pattern)
 
   def call(boundParams: BoundParams): MashList = {
     val pattern = boundParams.validateString(Pattern).s

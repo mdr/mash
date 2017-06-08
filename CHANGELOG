@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Allow piping in and out of a !{mish expression}
 * Object.reverse reverses the order of fields in an object
 * Copy current focus in object browser
 * Focus directory in object browser

@@ -26,7 +26,7 @@ object RunFunction extends MashFunction("os.run") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Command, StandardIn))
+  val params = ParameterModel(Command, StandardIn)
 
   def call(boundParams: BoundParams): MashObject = {
     val args: Seq[MashValue] =

@@ -13,7 +13,7 @@ object ExitFunction extends MashFunction("core.exit") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Status))
+  val params = ParameterModel(Status)
 
   def call(boundParams: BoundParams): MashUnit = {
     val status = boundParams.validateInteger(Status)

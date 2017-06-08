@@ -18,7 +18,7 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Block))
+  val params = ParameterModel(Block)
 
   def call(boundParams: BoundParams): MashValue = {
     val f = boundParams(Block).asInstanceOf[MashFunction]

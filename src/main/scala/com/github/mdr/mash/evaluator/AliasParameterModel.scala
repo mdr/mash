@@ -8,6 +8,6 @@ object AliasParameterModel {
     val Name = Parameter(Some("name"))
   }
   import Params._
-  val params = ParameterModel(Seq(Name))
+  val params = ParameterModel(Name)
 
 }

@@ -1,6 +1,8 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.evaluator.MemberEvaluator
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
@@ -14,16 +16,24 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Sequence))
+  val params = ParameterModel(Sequence)
 
   def call(boundParams: BoundParams): MashValue =
     boundParams(Sequence) match {
       case s: MashString   ⇒ s.reverse
-      case xs: MashList    ⇒ MashList(xs.elements.reverse)
-      case obj: MashObject ⇒ obj.reverse
+      case xs: MashList    ⇒ MashList(xs.immutableElements.reverse)
+      case obj: MashObject ⇒
+        val toListResultOpt: Option[MashValue] =
+          MemberEvaluator.maybeLookup(obj, "toList") collect {
+            case NullaryCallable(nc) ⇒ nc.callNullary()
+          }
+        toListResultOpt match {
+          case Some(xs: MashList) ⇒ MashList(xs.immutableElements.reverse)
+          case _                  ⇒ obj.reverse
+        }
       case value           ⇒
         boundParams.throwInvalidArgument(Sequence, s"Invalid argument '${Sequence.name}'. Must be a List, String or Object, but was a ${value.typeName}")
-  }
+    }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
 

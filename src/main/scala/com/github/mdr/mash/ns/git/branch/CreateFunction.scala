@@ -36,7 +36,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Branch, Switch, FromRemote))
+  val params = ParameterModel(Branch, Switch, FromRemote)
 
   private def validateRemote(boundParams: BoundParams): Option[String] =
     NoArgFunction.option(boundParams(FromRemote)).map {

@@ -25,7 +25,7 @@ object ReplaceMethod extends MashMethod("replace") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Target, Replacement, Regex))
+  val params = ParameterModel(Target, Replacement, Regex)
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val s = target.asInstanceOf[MashString]

@@ -26,7 +26,7 @@ object ClassClass extends MashClass("core.Class") {
 
     import Params._
 
-    val params = ParameterModel(Seq(Object))
+    val params = ParameterModel(Object)
 
     override def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val obj = boundParams(Object) match {

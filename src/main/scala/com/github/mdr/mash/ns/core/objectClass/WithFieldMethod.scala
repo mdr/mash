@@ -18,7 +18,7 @@ object WithFieldMethod extends MashMethod("withField") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Name, Value))
+  val params = ParameterModel(Name, Value)
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

@@ -18,7 +18,7 @@ object LastFunction extends MashFunction("collections.last") {
 
   import Params._
 
-  val params = ParameterModel(Seq(N, Sequence))
+  val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     boundParams.validateSequence(Sequence)

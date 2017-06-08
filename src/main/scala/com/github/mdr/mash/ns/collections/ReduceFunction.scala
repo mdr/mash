@@ -25,7 +25,7 @@ object ReduceFunction extends MashFunction("collections.reduce") {
   }
   import Params._
 
-  val params = ParameterModel(Seq(Accumulator, Initial, Sequence))
+  val params = ParameterModel(Accumulator, Initial, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val (initial, sequence) = getInitialAndSequence(boundParams)

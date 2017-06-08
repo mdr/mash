@@ -34,7 +34,7 @@ object SelectFunction extends MashFunction("collections.select") {
 
   import Params._
 
-  val params = ParameterModel(Seq(Add, Selectors, Target))
+  val params = ParameterModel(Add, Selectors, Target)
 
   override def call(boundParams: BoundParams): MashValue = {
     val target = boundParams(Target)
