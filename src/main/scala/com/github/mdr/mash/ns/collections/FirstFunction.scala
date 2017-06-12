@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ Inferencer, TypeInferenceStrategy, _ }
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
+import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
@@ -39,7 +40,7 @@ object FirstFunction extends MashFunction("collections.first") {
     }
   }
 
-  private def validateCount(boundParams: BoundParams): Option[Int] = {
+  def validateCount(boundParams: BoundParams): Option[Int] = {
     val countOpt = boundParams.validateIntegerOpt(N)
     for (count ← countOpt if count < 0)
       boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
@@ -64,14 +65,14 @@ object FirstFunction extends MashFunction("collections.first") {
       case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields take 1)
     }
 
-  override def typeInferenceStrategy = FirstTypeInferenceStrategy
+  override def typeInferenceStrategy = FirstLastTypeInferenceStrategy(params, Sequence, N)
 
   override def summaryOpt = Some("Find the first element(s) of a sequence")
 
   override def descriptionOpt = Some(
-    s"""If a count ${N.nameOpt} is provided, the first ${N.nameOpt} items of the sequence will be returned.
-If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is returned.
-If a count ${N.nameOpt} is omitted, then the first item of the sequence is returned, if nonempty, else null.
+    s"""If a count ${N.name} is provided, the first ${N.name} items of the sequence will be returned.
+If there are fewer than ${N.name} in the sequence, the entire sequence is returned.
+If a count ${N.name} is omitted, then the first item of the sequence is returned, if nonempty, else null.
 
 Examples:
   first 3 [1, 2, 3, 4 5]  # [1, 2, 3]
@@ -82,16 +83,21 @@ Examples:
 
 }
 
-object FirstTypeInferenceStrategy extends TypeInferenceStrategy {
+case class FirstLastTypeInferenceStrategy(params: ParameterModel,
+                                          sequenceParam: Parameter,
+                                          countParam: Parameter) extends TypeInferenceStrategy {
 
   def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-    val argBindings = FirstFunction.params.bindTypes(arguments)
-    import FirstFunction.Params._
-    if (argBindings contains N)
-      argBindings.getType(Sequence)
+    val argBindings = params.bindTypes(arguments)
+    if (argBindings contains countParam)
+      argBindings.getType(sequenceParam) map {
+        case instance@Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒ instance.unbless
+        case instance: Type.UserClassInstance                                ⇒ instance.unbless
+        case type_                                                           ⇒ type_
+      }
     else
       for {
-        sequenceType ← argBindings.getType(Sequence)
+        sequenceType ← argBindings.getType(sequenceParam)
         elementType ← condOpt(sequenceType) {
           case Type.Seq(elementType)      ⇒ elementType
           case Type.Patterns.AnyString(_) ⇒ sequenceType

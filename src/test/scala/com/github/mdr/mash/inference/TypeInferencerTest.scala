@@ -114,30 +114,40 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[1, 2, 3] | grep 2" ==> Seq(NumberClass)
   "'foo`nbar' | grep 'b'" ==> Seq(StringClass)
 
+  // first
+  "[1, 2, 3] | first" ==> NumberClass
+  "[1, 2, 3].first" ==> NumberClass
+  "[1, 2, 3] | first 2" ==> Seq(NumberClass)
+  "[1, 2, 3].first 2" ==> Seq(NumberClass)
+
+  "'foo' | first" ==> StringClass
+  "'foo' | first 2" ==> StringClass
+  "'foo'.first" ==> StringClass
+  "'foo'.first 2" ==> StringClass
+
+  "{ a: 1, b: 2, c: 3 } | first 3" ==> obj("a" -> NumberClass, "b" -> NumberClass, "c" -> NumberClass)
+
   // last
-  "last [1, 2, 3]" ==> NumberClass
-  "last 2 [1, 2, 3]" ==> Seq(NumberClass)
+  "[1, 2, 3] | last" ==> NumberClass
+  "[1, 2, 3] | last 2" ==> Seq(NumberClass)
+  "[1, 2, 3].last" ==> NumberClass
+  "[1, 2, 3].last 2" ==> Seq(NumberClass)
   "last --n=2 --sequence=[1, 2, 3]" ==> Seq(NumberClass)
+
   "'foo' | last" ==> StringClass
   "'foo' | last 2" ==> StringClass
   "'foo'.last" ==> StringClass
   "'foo'.last 2" ==> StringClass
 
-  // first
-  "first [1, 2, 3]" ==> NumberClass
-  "first 2 [1, 2, 3]" ==> Seq(NumberClass)
-  " 'foo' | first " ==> StringClass
-  " 'foo' | first 2" ==> StringClass
-  " 'foo'.first " ==> StringClass
-  " 'foo'.first 2" ==> StringClass
+  "{ a: 1, b: 2, c: 3 } | last 3" ==> obj("a" -> NumberClass, "b" -> NumberClass, "c" -> NumberClass)
 
   // select
   "{ foo: 42 } | select 'foo' " ==> obj("foo" -> NumberClass)
   "[{ foo: 42 }] | select 'foo' " ==> Seq(obj("foo" -> NumberClass))
   "{ foo: 42 } | select --add --bar=(_.foo * 2) " ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
   "{ foo: 42, bar: 24 } | select --foo 'bar' " ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
-  " { foo: 42 } | select --bar='foo' " ==> obj("bar" -> NumberClass)
-  " { foo: 42 } | select --bar=(_.foo * 2) " ==> obj("bar" -> NumberClass)
+  "{ foo: 42 } | select --bar='foo'" ==> obj("bar" -> NumberClass)
+  "{ foo: 42 } | select --bar=(_.foo * 2)" ==> obj("bar" -> NumberClass)
 
   // reverse
   "reverse [42]" ==> Seq(NumberClass)
@@ -162,8 +172,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[{ foo: 42 }, {foo: 100 }].sumBy (.foo)" ==> NumberClass
   "[ls.first, ls.first] | sumBy identity" ==> PathSummaryClass
   "class Bob { def foo = 42 }; [Bob.new, Bob.new] | sumBy identity | .foo" ==> NumberClass
-  "['a', 'b'] | sumBy identity"  ==> StringClass
-  "['a'.r, 'b'.r] | sumBy identity"  ==> (StringClass taggedWith RegexClass)
+  "['a', 'b'] | sumBy identity" ==> StringClass
+  "['a'.r, 'b'.r] | sumBy identity" ==> (StringClass taggedWith RegexClass)
 
   // max
   "[1, 2, 3] | max" ==> NumberClass
@@ -382,7 +392,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" ==> NumberClass
   "class Point x y { def method = 42 }; Point.bless {x: 10, y: 20}| .method" ==> NumberClass
   "{ name: 'name', value: 42 }.bless core.FieldAndValue" ==> FieldAndValueClass
-//  "{ name: 'name', value: 42 } | core.FieldAndValue.bless" ==> FieldAndValueClass
+  //  "{ name: 'name', value: 42 } | core.FieldAndValue.bless" ==> FieldAndValueClass
 
   // .unbless
   "class Point x y; Point 3 4 | .unbless" ==> obj("x" -> Any, "y" -> Any)

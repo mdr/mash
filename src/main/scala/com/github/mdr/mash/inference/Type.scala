@@ -47,6 +47,8 @@ object Type {
 
   case class Instance(klass: MashClass) extends Type {
     override def toString = klass.toString
+
+    def unbless: Type.Object = Type.Object(klass.fields.map(f ⇒ f.name -> f.fieldType).toMap)
   }
 
   case class UserClass(name: String,
@@ -57,6 +59,15 @@ object Type {
 
   case class UserClassInstance(userClass: UserClass) extends Type {
     override def toString = s"${classOf[UserClassInstance].getSimpleName}(${userClass.name})"
+
+    def unbless: Type.Object = {
+      val pairs =
+        for {
+          param ← userClass.params.params
+          name ← param.nameOpt
+        } yield name -> Type.Any
+      Type.Object(pairs.toMap)
+    }
   }
 
   def obj(knownFields: (String, Type)*): Object = Object(knownFields.toMap)

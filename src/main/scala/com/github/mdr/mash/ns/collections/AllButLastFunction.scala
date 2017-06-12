@@ -38,9 +38,9 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
   override def summaryOpt = Some("Take all but the last element(s) of a sequence")
 
   override def descriptionOpt = Some(
-    s"""If a count ${N.nameOpt} is provided, the last ${N.nameOpt} items of the sequence will be omitted.
-If there are fewer than ${N.nameOpt} in the sequence, the the empty sequence is returned.
-If a count ${N.nameOpt} is omitted, then the last item of the sequence is omitted.
+    s"""If a count ${N.name} is provided, the last ${N.name} items of the sequence will be omitted.
+If there are fewer than ${N.name} in the sequence, the empty sequence is returned.
+If a count ${N.name} is omitted, the last item of the sequence is omitted.
 
 Examples:
    allButLast [1, 2, 3, 4, 5]   # [1, 2, 3, 4]

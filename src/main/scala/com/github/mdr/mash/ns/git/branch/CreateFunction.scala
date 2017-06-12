@@ -20,7 +20,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
       nameOpt = Some("branch"),
       summaryOpt = Some("Name to give the new local branch"),
       defaultValueGeneratorOpt = Some(NoArgValue),
-      descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.nameOpt}' is provided"))
+      descriptionOpt = Some(s"Can be omitted if '${Params.FromRemote.name}' is provided"))
     lazy val Switch = Parameter(
       nameOpt = Some("switch"),
       summaryOpt = Some("Switch to the new branch after creating it (default false)"),
@@ -55,7 +55,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     val fromRemoteOpt = validateRemote(boundParams)
     val switch = boundParams(Switch).isTruthy
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
-      throw new EvaluatorException(s"Must provide at least one of '${Branch.nameOpt}' and '${FromRemote.nameOpt}'")
+      throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
 
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
@@ -91,5 +91,5 @@ object CreateFunction extends MashFunction("git.branch.create") {
 
   override def summaryOpt = Some("Create a new local branch")
 
-  override def descriptionOpt = Some(s"""If '${Params.FromRemote.nameOpt}' is provided, '${Params.Branch.nameOpt}' can be omitted, with the same name used locally.""")
+  override def descriptionOpt = Some(s"""If '${Params.FromRemote.name}' is provided, '${Params.Branch.name}' can be omitted, with the same name used locally.""")
 }

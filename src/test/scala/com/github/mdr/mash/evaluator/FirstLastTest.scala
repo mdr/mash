@@ -5,6 +5,7 @@ class FirstLastTest extends AbstractEvaluatorTest {
   // first
   "[0] | first" ==> 0
   "[1, 2, 3] | first" ==> 1
+  "[1, 2, 3] | first 5" ==> "[1, 2, 3]"
   "[1, 2, 3] | first 2" ==> "[1, 2]"
   "[1, 2, 3] | first 1" ==> "[1]"
   "[1, 2, 3] | first 0" ==> "[]"
@@ -30,6 +31,7 @@ class FirstLastTest extends AbstractEvaluatorTest {
   "[1, 2, 3] | last" ==> 3
   "[1, 2, 3].last" ==> 3
   "[1, 2, 3] | last 2" ==> "[2, 3]"
+  "[1, 2, 3] | last 5" ==> "[1, 2, 3]"
   "[] | last" ==> null
 
   "'xyz' | last" ==> "'z'"
@@ -37,6 +39,11 @@ class FirstLastTest extends AbstractEvaluatorTest {
   "'xyz'.last" ==> "'z'"
   "'xyz'.last 2" ==> "'yz'"
   "'' | last" ==> null
+
+  "{ a: 1, b: 2, c: 3 } | last 2" ==> "{ b: 2, c: 3 }"
+  "{ a: 1, b: 2, c: 3 }.last 2" ==> "{ b: 2, c: 3 }"
+  "{ a: 1, b: 2, c: 3 } | last" ==> "{ c: 3 }"
+  "{} | last" ==> null
 
   // allButLast
   "[1, 2, 3, 4, 5] | allButLast" ==> "[1, 2, 3, 4]"
