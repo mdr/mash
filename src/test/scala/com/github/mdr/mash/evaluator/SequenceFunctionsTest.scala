@@ -46,6 +46,7 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "a = 0; [1, 2, 3] | each (a = a + _); a" ==> 6
   "a = ''; 'foo' | each (a = _ + a); a" ==> "'oof'"
   "a = ''; 'foo'.each (a = _ + a); a" ==> "'oof'"
+  """a = ''; 'abc'.each (c i => a += "$c$i"); a""" ==> "'a0b1c2'"
 
   // find
   "[1, 2, 300, 4, 5] | find (_ > 100)" ==> 300
