@@ -42,13 +42,15 @@ class GeneralArgBinder[T](params: ParameterModel,
 
   case class PositionArgAndPos(arg: GeneralArgument.PositionArg[T], pos: Int)
 
-  case class ParameterSet(initialMandatory: Seq[Parameter],
-                          initialOptional: Seq[Parameter],
-                          variadicOrAllArgsOpt: Option[Parameter],
-                          finalOptional: Seq[Parameter],
-                          finalMandatory: Seq[Parameter])
+  case class PositionalParameterSet(initialMandatory: Seq[Parameter],
+                                    initialOptional: Seq[Parameter],
+                                    variadicOrAllArgsOpt: Option[Parameter],
+                                    finalOptional: Seq[Parameter],
+                                    finalMandatory: Seq[Parameter]) {
+    def maxNumberOfPositionalArgs = initialMandatory.size + initialOptional.size + finalOptional.size + finalMandatory.size
+  }
 
-  private lazy val positionalParameterSet: ParameterSet = {
+  private lazy val positionalParameterSet: PositionalParameterSet = {
     def isRegular(p: Parameter) = !p.isVariadic && !p.isAllArgsParam
     def isOptional(p: Parameter) = isRegular(p) && p.hasDefault
     def isMandatory(p: Parameter) = isRegular(p) && !p.hasDefault
@@ -62,7 +64,7 @@ class GeneralArgBinder[T](params: ParameterModel,
       case _ if forgiving                             ⇒ None
       case _                                          ⇒ throw new ArgBindingException[T](s"Bad parameters")
     }
-    ParameterSet(initialMandatory, initialOptional, variadicOpt, finalOptional, finalMandatory)
+    PositionalParameterSet(initialMandatory, initialOptional, variadicOpt, finalOptional, finalMandatory)
   }
 
   private def handlePositional() {
@@ -91,16 +93,15 @@ class GeneralArgBinder[T](params: ParameterModel,
             for (argAndPos ← args5)
               addArgToParam(variadicOrAllArgsParam, argAndPos)
           // else: allArgs param is handled later
-        case None                ⇒
-          if (!hasAllArgsParam)
-            handleTooManyArguments()
+        case None ⇒
+          handleTooManyPositionalArguments()
       }
   }
 
-  private def handleTooManyArguments() {
-    val maxPositionArgs = params.positionalParams.size
+  private def handleTooManyPositionalArguments() {
+    val maxPositionArgs = positionalParameterSet.maxNumberOfPositionalArgs
     val providedArgs = positionArgAndPos.size
-    val firstExcessArgument = positionArgAndPos.drop(maxPositionArgs).head
+    val firstExcessArgument = positionArgAndPos.drop(maxPositionArgs).head // should be at least one if this is called
     val wasWere = if (providedArgs == 1) "was" else "were"
     val isAre = if (maxPositionArgs == 1) "is" else "are"
     val message = s"Too many positional arguments -- $providedArgs $wasWere provided, but at most $maxPositionArgs $isAre allowed"

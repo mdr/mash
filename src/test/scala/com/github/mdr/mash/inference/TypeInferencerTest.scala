@@ -420,6 +420,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // boolean functions
   "true 1 2" ==> NumberClass
 
+  // arg binding bug
+  "def add x y = x + y; add --x=1 2 3" ==> NumberClass
+
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =
