@@ -1,10 +1,9 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.{ Inferencer, TypeInferenceStrategy, _ }
-import com.github.mdr.mash.ns.core.NoArgFunction
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
-import com.github.mdr.mash.runtime.{ MashList, MashNull, MashString, MashValue }
+import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
 
@@ -17,7 +16,8 @@ object FirstFunction extends MashFunction("collections.first") {
       defaultValueGeneratorOpt = Some(NoArgValue))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the first value(s) of"))
+      summaryOpt = Some("Sequence to find the first value(s) of"),
+      descriptionOpt = Some("Must be a List, String or Object"))
   }
 
   import Params._
@@ -25,24 +25,44 @@ object FirstFunction extends MashFunction("collections.first") {
   val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
-    boundParams.validateSequence(Sequence)
-    val sequence = boundParams(Sequence)
-    boundParams.validateIntegerOpt(N) match {
-      case Some(count) ⇒
-        if (count < 0)
-          boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
-        else
-          sequence match {
-            case s: MashString ⇒ s.modify(_ take count)
-            case xs: MashList  ⇒ xs take count
-          }
-      case None        ⇒
-        sequence match {
-          case s: MashString ⇒ if (s.isEmpty) MashNull else s.first
-          case xs: MashList  ⇒ if (xs.isEmpty) MashNull else xs.head
+    val countOpt = validateCount(boundParams)
+    boundParams(Sequence) match {
+      case obj: MashObject ⇒
+        ToListHelper.tryToList(obj) match {
+          case Some(items) ⇒ first(items, countOpt)
+          case None        ⇒ first(obj, countOpt)
         }
+      case s: MashString   ⇒ first(s, countOpt)
+      case xs: MashList    ⇒ first(xs.immutableElements, countOpt)
+      case value           ⇒
+        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
     }
   }
+
+  private def validateCount(boundParams: BoundParams): Option[Int] = {
+    val countOpt = boundParams.validateIntegerOpt(N)
+    for (count ← countOpt if count < 0)
+      boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
+    countOpt
+  }
+
+  private def first(s: MashString, countOpt: Option[Int]): MashValue =
+    countOpt match {
+      case Some(count) ⇒ s.modify(_ take count)
+      case None        ⇒ if (s.isEmpty) MashNull else s.first
+    }
+
+  private def first(xs: Seq[MashValue], countOpt: Option[Int]): MashValue =
+    countOpt match {
+      case Some(count) ⇒ MashList(xs take count)
+      case None        ⇒ if (xs.isEmpty) MashNull else xs.head
+    }
+
+  private def first(obj: MashObject, countOpt: Option[Int]): MashValue =
+    countOpt match {
+      case Some(count) ⇒ MashObject.of(obj.immutableFields take count)
+      case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields take 1)
+    }
 
   override def typeInferenceStrategy = FirstTypeInferenceStrategy
 
@@ -54,10 +74,11 @@ If there are fewer than ${N.nameOpt} in the sequence, the entire sequence is ret
 If a count ${N.nameOpt} is omitted, then the first item of the sequence is returned, if nonempty, else null.
 
 Examples:
-   first 3 [1, 2, 3, 4 5] # [1, 2, 3]
-   first 5 [1, 2, 3]      # [1, 2, 3]
-   first [1, 2, 3]        # 1
-   first []               # null""")
+  first 3 [1, 2, 3, 4 5]  # [1, 2, 3]
+  first 5 [1, 2, 3]       # [1, 2, 3]
+  first [1, 2, 3]         # 1
+  first []                # null
+  first 3 'abcdef'        # 'abc'""")
 
 }
 

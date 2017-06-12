@@ -11,15 +11,6 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "'aaa' | all (_ == 'a')" ==> true
   "'aaa'.all (_ == 'a')" ==> true
 
-  // allButLast
-  "allButLast [1, 2, 3, 4, 5]" ==> "[1, 2, 3, 4]"
-  "[1, 2, 3, 4, 5].allButLast" ==> "[1, 2, 3, 4]"
-  "allButLast 3 [1, 2, 3, 4, 5]" ==> "[1, 2]"
-  "allButLast 5 [1, 2, 3]" ==> "[]"
-  "allButLast []" ==> "[]"
-  "allButLast 5 []" ==> "[]"
-  "allButLast 'abcde'" ==> "'abcd'"
-
   // any
   "[2, 4, 6] | any (_ > 10)" ==> false
   "[2, 4, 6] | any (_ > 5)" ==> true
@@ -62,17 +53,6 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "'xxxaxxx' | find (_ != 'x')" ==> "'a'"
   "'xxxaxxx'.find (_ != 'x')" ==> "'a'"
 
-  // first
-  "first [0]" ==> 0
-  "first [1, 2, 3]" ==> 1
-  "first 2 [1, 2, 3]" ==> "[1, 2]"
-  " first 'abc' " ==> " 'a' "
-  " first 2 'abc' " ==> " 'ab' "
-  " 'abc'.first " ==> " 'a' "
-  " 'abc'.first 2" ==> " 'ab' "
-  "first []" ==> null
-  "first ''" ==> null
-
   // grep
   "['foo', 'bar', 'baz'].grep 'b'" ==> "['bar', 'baz']"
   "['foo', 'bar', 'baz'].grep -n 'b'" ==> "['foo']"
@@ -89,16 +69,6 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "isEmpty [1, 2, 3]" ==> false
   "''.isEmpty" ==> true
   "'abc'.isEmpty" ==> false
-
-  // last
-  "last [1, 2, 3]" ==> 3
-  "last 2 [1, 2, 3]" ==> "[2, 3]"
-  "last 'xyz'" ==> " 'z' "
-  "last 2 'xyz'" ==> " 'yz' "
-  "'xyz'.last" ==> " 'z' "
-  "'xyz'.last 2" ==> " 'yz' "
-  "last []" ==> null
-  "last ''" ==> null
 
   // length
   "length []" ==> 0
@@ -156,15 +126,6 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "[1, 2, 3] | reverse" ==> "[3, 2, 1]"
   "{ a: 1, b: 2, c: 3 }.reverse.fields.name.join" ==> "'cba'"
   "{ a: 1, b: 2, c: 3 } | reverse | .fields.name | join" ==> "'cba'"
-
-  // skip
-  "[1, 2, 3, 4, 5] | skip 2" ==> "[3, 4, 5]"
-  "[1, 2] | skip 5" ==> "[]"
-  "[1, 2] | skip" ==> "[2]"
-  "'abcde' | skip 3" ==> "'de'"
-  "'abcde' | skip" ==> "'bcde'"
-  "'abcde'.skip 3" ==> "'de'"
-  "'abcde'.skip" ==> "'bcde'"
 
   // skipWhile
   "[1, 2, 3, 4, 5, 1] | skipWhile (_ < 3)" ==> "[3, 4, 5, 1]"

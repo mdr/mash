@@ -76,6 +76,8 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
 
   def withoutClass: MashObject = MashObject.of(fields)
 
+  def isEmpty: Boolean = withLock { fields.isEmpty }
+
   def set(fieldName: String, value: MashValue) = withLock {
     fields(fieldName) = value
   }

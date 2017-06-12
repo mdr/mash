@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
 import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
