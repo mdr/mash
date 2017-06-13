@@ -23,16 +23,10 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   def call(boundParams: BoundParams): MashValue = {
     val n = boundParams.validateNonNegativeInteger(N)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        ToListHelper.tryToList(obj) match {
-          case Some(items) ⇒ MashList(items drop n)
-          case None        ⇒ MashObject.of(obj.immutableFields drop n)
-        }
-      case s: MashString   ⇒ s.modify(_ drop n)
-      case xs: MashList    ⇒ MashList(xs.immutableElements drop n)
-      case value           ⇒
-        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items) ⇒ MashList(items drop n)
+      case SequenceLike.String(s)    ⇒ s.modify(_ drop n)
+      case SequenceLike.Object(obj)  ⇒ MashObject.of(obj.immutableFields drop n)
     }
   }
 
@@ -40,9 +34,10 @@ object SkipFunction extends MashFunction("collections.skip") {
 
   override def summaryOpt = Some("Skip elements from the start of a sequence")
 
-  override def descriptionOpt = Some("""If there are fewer elements in the sequence than are requested to 
-    skip, the empty sequence is returned.
-    
+  override def descriptionOpt = Some(
+    """If there are fewer elements in the sequence than are requested to
+  skip, the empty sequence is returned.
+
 Examples:
   skip 2 [1, 2, 3, 4] # [3, 4]
   skip 3 [1, 2]       # []

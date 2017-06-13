@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.objectClass.WhereNotMethod
+import com.github.mdr.mash.ns.core.objectClass.{ WhereMethod, WhereNotMethod }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
 
@@ -14,16 +14,10 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
 
   def call(boundParams: BoundParams): MashValue = {
     val predicate = boundParams.validateFunction(Predicate)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        tryToList(obj) match {
-          case Some(items) ⇒ MashList(items.filterNot(x ⇒ predicate(x).isTruthy))
-          case None        ⇒ WhereNotMethod.doWhereNot(obj, boundParams)
-        }
-      case inSequence      ⇒
-        val sequence = boundParams.validateSequence(Sequence)
-        val newSequence = sequence.filterNot(x ⇒ predicate(x).isTruthy)
-        WhereFunction.reassembleSequence(inSequence, newSequence)
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items)   ⇒ MashList(items.filterNot(x ⇒ predicate(x).isTruthy))
+      case string: SequenceLike.String ⇒ string.reassemble(string.characterSequence.filterNot(x ⇒ predicate(x).isTruthy))
+      case SequenceLike.Object(obj)    ⇒ WhereNotMethod.doWhereNot(obj, boundParams)
     }
   }
 

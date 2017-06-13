@@ -53,15 +53,10 @@ object GrepFunction extends MashFunction("collections.grep") {
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
     val negate = boundParams(Negate).isTruthy
-    boundParams(Input) match {
-      case obj: MashObject ⇒
-        tryToList(obj) match {
-          case Some(items) ⇒ runGrep(items, query, ignoreCase, regex, negate)
-          case None        ⇒ GrepMethod.doGrep(obj, boundParams)
-        }
-      case inSequence      ⇒
-        val items = getInputItems(boundParams)
-        runGrep(items, query, ignoreCase, regex, negate)
+    SequenceLikeAnalyser.analyse(boundParams, Input) {
+      case SequenceLike.Items(items) ⇒ runGrep(items, query, ignoreCase, regex, negate)
+      case SequenceLike.String(s)    ⇒ runGrep(getItems(s), query, ignoreCase, regex, negate)
+      case SequenceLike.Object(obj)  ⇒ GrepMethod.doGrep(obj, boundParams)
     }
   }
 
@@ -69,13 +64,6 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   def runGrep(items: Seq[MashValue], query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean, ignoreFields: Boolean = true): MashList =
     MashList(items.filter(matches(_, query, ignoreCase, regex, negate, ignoreFields)))
-
-  private def getInputItems(boundParams: BoundParams): Seq[MashValue] =
-    boundParams(Input) match {
-      case s: MashString ⇒ getItems(s)
-      case xs: MashList  ⇒ xs.elements
-      case input         ⇒ boundParams.throwInvalidArgument(Input, s"Expected a String or List, but was a '${input.typeName}'")
-    }
 
   private def matches(value: MashValue, query: String, ignoreCase: Boolean, regex: Boolean, negate: Boolean, ignoreFields: Boolean): Boolean = {
     val valueString = value match {

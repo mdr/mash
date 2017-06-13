@@ -2,8 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.ns.core.objectClass.WhereMethod
+import com.github.mdr.mash.ns.core.{ AnyClass, CharacterClass }
+import com.github.mdr.mash.ns.core.objectClass.{ GrepMethod, WhereMethod }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
 
@@ -24,16 +24,10 @@ object WhereFunction extends MashFunction("collections.where") {
 
   def call(boundParams: BoundParams): MashValue = {
     val predicate = boundParams.validateFunction(Predicate)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        tryToList(obj) match {
-          case Some(items) ⇒ MashList(items.filter(x ⇒ predicate(x).isTruthy))
-          case None        ⇒ WhereMethod.doWhere(obj, boundParams)
-        }
-      case inSequence      ⇒
-        val sequence = boundParams.validateSequence(Sequence)
-        val newSequence = sequence.filter(x ⇒ predicate(x).isTruthy)
-        reassembleSequence(inSequence, newSequence)
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items)   ⇒ MashList(items.filter(x ⇒ predicate(x).isTruthy))
+      case string: SequenceLike.String ⇒ string.reassemble(string.characterSequence.filter(x ⇒ predicate(x).isTruthy))
+      case SequenceLike.Object(obj)    ⇒ WhereMethod.doWhere(obj, boundParams)
     }
   }
 

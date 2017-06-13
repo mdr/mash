@@ -23,36 +23,21 @@ object LastFunction extends MashFunction("collections.last") {
 
   def call(boundParams: BoundParams): MashValue = {
     val countOpt = boundParams.validateNonNegativeIntegerOpt(N)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        ToListHelper.tryToList(obj) match {
-          case Some(items) ⇒ last(items, countOpt)
-          case None        ⇒ last(obj, countOpt)
-        }
-      case s: MashString   ⇒ last(s, countOpt)
-      case xs: MashList    ⇒ last(xs.immutableElements, countOpt)
-      case value           ⇒
-        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items) ⇒ countOpt match {
+        case Some(count) ⇒ MashList(items takeRight count)
+        case None        ⇒ if (items.isEmpty) MashNull else items.last
+      }
+      case SequenceLike.String(s)    ⇒ countOpt match {
+        case Some(count) ⇒ s.modify(_ takeRight count)
+        case None        ⇒ if (s.isEmpty) MashNull else s.last
+      }
+      case SequenceLike.Object(obj)  ⇒ countOpt match {
+        case Some(count) ⇒ MashObject.of(obj.immutableFields takeRight count)
+        case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields takeRight 1)
+      }
     }
   }
-
-  private def last(s: MashString, countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ s.modify(_ takeRight count)
-      case None        ⇒ if (s.isEmpty) MashNull else s.last
-    }
-
-  private def last(xs: Seq[MashValue], countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ MashList(xs takeRight count)
-      case None        ⇒ if (xs.isEmpty) MashNull else xs.last
-    }
-
-  private def last(obj: MashObject, countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ MashObject.of(obj.immutableFields takeRight count)
-      case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields takeRight 1)
-    }
 
   override def typeInferenceStrategy = FirstLastTypeInferenceStrategy(params, Sequence, N)
 

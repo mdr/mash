@@ -27,36 +27,21 @@ object FirstFunction extends MashFunction("collections.first") {
 
   def call(boundParams: BoundParams): MashValue = {
     val countOpt = boundParams.validateNonNegativeIntegerOpt(N)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        ToListHelper.tryToList(obj) match {
-          case Some(items) ⇒ first(items, countOpt)
-          case None        ⇒ first(obj, countOpt)
-        }
-      case s: MashString   ⇒ first(s, countOpt)
-      case xs: MashList    ⇒ first(xs.immutableElements, countOpt)
-      case value           ⇒
-        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items) ⇒ countOpt match {
+        case Some(count) ⇒ MashList(items take count)
+        case None        ⇒ if (items.isEmpty) MashNull else items.head
+      }
+      case SequenceLike.String(s)    ⇒ countOpt match {
+        case Some(count) ⇒ s.modify(_ take count)
+        case None        ⇒ if (s.isEmpty) MashNull else s.first
+      }
+      case SequenceLike.Object(obj)  ⇒ countOpt match {
+        case Some(count) ⇒ MashObject.of(obj.immutableFields take count)
+        case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields take 1)
+      }
     }
   }
-
-  private def first(s: MashString, countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ s.modify(_ take count)
-      case None        ⇒ if (s.isEmpty) MashNull else s.first
-    }
-
-  private def first(xs: Seq[MashValue], countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ MashList(xs take count)
-      case None        ⇒ if (xs.isEmpty) MashNull else xs.head
-    }
-
-  private def first(obj: MashObject, countOpt: Option[Int]): MashValue =
-    countOpt match {
-      case Some(count) ⇒ MashObject.of(obj.immutableFields take count)
-      case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields take 1)
-    }
 
   override def typeInferenceStrategy = FirstLastTypeInferenceStrategy(params, Sequence, N)
 

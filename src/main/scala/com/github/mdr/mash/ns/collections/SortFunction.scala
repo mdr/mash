@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashValue, MashValueOrdering }
+import com.github.mdr.mash.runtime.{ MashValue, _ }
 import com.github.mdr.mash.utils.Utils._
 import net.greypanther.natsort.SimpleNaturalComparator
 
@@ -46,13 +46,28 @@ object SortFunction extends MashFunction("collections.sort") {
   }
 
   def call(boundParams: BoundParams): MashValue = {
-    val sortable = boundParams(Sequence)
     val descending = boundParams(Descending).isTruthy
     val naturalOrder = boundParams(NaturalOrder).isTruthy
-    sortable match {
-      case obj: MashObject ⇒ sortObject(obj, descending, naturalOrder)
-      case _               ⇒ sortSequence(sortable, boundParams, descending, naturalOrder)
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items)         ⇒ sortItems(items, descending, naturalOrder)
+      case sequenceLike: SequenceLike.String ⇒ sortString(sequenceLike, descending, naturalOrder)
+      case SequenceLike.Object(obj)          ⇒ sortObject(obj, descending, naturalOrder)
     }
+  }
+
+  private def sortItems(items: Seq[MashValue], descending: Boolean, naturalOrder: Boolean): MashValue =
+    MashList(sortItems_(items, descending, naturalOrder))
+
+  private def sortString(sequenceLike: SequenceLike.String, descending: Boolean, naturalOrder: Boolean): MashValue = {
+    val items = sequenceLike.characterSequence
+    val newSequence = sortItems_(items, descending, naturalOrder)
+    sequenceLike.reassemble(newSequence)
+  }
+
+  private def sortItems_(items: Seq[MashValue], descending: Boolean, naturalOrder: Boolean): Seq[MashValue] = {
+    val ordering = if (naturalOrder) NaturalMashValueOrdering else MashValueOrdering
+    val sorted = items sortWith ordering.lt
+    sorted.when(descending, _.reverse)
   }
 
   private def sortObject(obj: MashObject, descending: Boolean, naturalOrder: Boolean): MashValue = {
@@ -61,14 +76,6 @@ object SortFunction extends MashFunction("collections.sort") {
     val ordering = fieldOrdering.on[(String, MashValue)](_._1)
     val newFields = obj.immutableFields.toSeq.sortWith(ordering.lt).when(descending, _.reverse)
     MashObject.of(newFields)
-  }
-
-  private def sortSequence(inSequence: MashValue, boundParams: BoundParams, descending: Boolean, naturalOrder: Boolean): MashValue = {
-    val sequence = boundParams.validateSequence(Sequence)
-    val ordering: Ordering[MashValue] = if (naturalOrder) NaturalMashValueOrdering else MashValueOrdering
-    val sorted = sequence.sortWith(ordering.lt)
-    val newSequence = sorted.when(descending, _.reverse)
-    WhereFunction.reassembleSequence(inSequence, newSequence)
   }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)

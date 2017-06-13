@@ -23,16 +23,10 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
 
   def call(boundParams: BoundParams): MashValue = {
     val n = boundParams.validateNonNegativeInteger(N)
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        ToListHelper.tryToList(obj) match {
-          case Some(items) ⇒ MashList(items dropRight n)
-          case None        ⇒ MashObject.of(obj.immutableFields dropRight n)
-        }
-      case s: MashString   ⇒ s.modify(_ dropRight n)
-      case xs: MashList    ⇒ MashList(xs.immutableElements dropRight n)
-      case value           ⇒
-        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items) ⇒ MashList(items dropRight n)
+      case SequenceLike.String(s)    ⇒ s.modify(_ dropRight n)
+      case SequenceLike.Object(obj)  ⇒ MashObject.of(obj.immutableFields dropRight n)
     }
   }
 

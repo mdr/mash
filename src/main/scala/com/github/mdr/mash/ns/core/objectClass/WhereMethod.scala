@@ -29,12 +29,11 @@ object WhereMethod extends MashMethod("where") {
         yield (field, value))
   }
 
-  def validatePredicate(boundParams: BoundParams): (String, MashValue) ⇒ Boolean = {
+  def validatePredicate(boundParams: BoundParams): (String, MashValue) ⇒ Boolean =
     boundParams.validateFunction1Or2(Predicate) match {
       case Left(f)  ⇒ (field: String, value: MashValue) ⇒ f(MashString(field)).isTruthy
       case Right(f) ⇒ (field: String, value: MashValue) ⇒ f(MashString(field), value).isTruthy
     }
-  }
 
   override def typeInferenceStrategy = ObjectClass
 

@@ -18,16 +18,10 @@ object ReverseFunction extends MashFunction("collections.reverse") {
   val params = ParameterModel(Sequence)
 
   def call(boundParams: BoundParams): MashValue =
-    boundParams(Sequence) match {
-      case s: MashString   ⇒ s.reverse
-      case xs: MashList    ⇒ MashList(xs.immutableElements.reverse)
-      case obj: MashObject ⇒
-        tryToList(obj) match {
-          case Some(items) ⇒ MashList(items.reverse)
-          case None        ⇒ obj.reverse
-        }
-      case value           ⇒
-        boundParams.throwInvalidArgument(Sequence, s"Invalid argument '${Sequence.name}'. Must be a List, String or Object, but was a ${value.typeName}")
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items) ⇒ MashList(items.reverse)
+      case SequenceLike.String(s)    ⇒ s.reverse
+      case SequenceLike.Object(obj)  ⇒ obj.reverse
     }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)
@@ -38,6 +32,6 @@ object ReverseFunction extends MashFunction("collections.reverse") {
     """Examples:
   reverse [1, 2, 3] # [3, 2, 1]
   reverse []        # []
-  reverse 'part'    # 'trap'""")
+  reverse "part"    # "trap""")
 
 }

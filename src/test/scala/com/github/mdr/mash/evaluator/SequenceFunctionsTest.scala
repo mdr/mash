@@ -61,9 +61,14 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "['foo', 'bar', 'BAZ'] | grep -i 'b'" ==> "['bar', 'BAZ']"
   "['apple', 'ball', 'cup'] | grep -r '(a|b)'" ==> "['apple', 'ball']"
   "['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'" ==> "['APPLE', 'ball']"
+
   "'foo`nbar`nbaz' | grep 'b'" ==> "['bar', 'baz']"
   "'foo`nbar`nbaz'.grep 'b'" ==> "['bar', 'baz']"
+
   "[{ foo: 'bar' }, { foo: 'foo' }] | grep 'foo'" ==> "[{ foo: 'foo' }]"
+  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
+  "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
+  "{ a: 42 } | grep 'name'" ==> "{}"
 
   // isEmpty
   "isEmpty []" ==> true
@@ -121,12 +126,14 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "'foo' | reduce (acc c => acc + [c]) []" ==> "['f', 'o', 'o']"
 
   // reverse
-  "'trebor' | reverse" ==> "'robert'"
-  "'trebor'.reverse" ==> "'robert'"
   "[1, 2, 3].reverse" ==> "[3, 2, 1]"
   "[1, 2, 3] | reverse" ==> "[3, 2, 1]"
+
+  "'trebor' | reverse" ==> "'robert'"
+  "'trebor'.reverse" ==> "'robert'"
+
   "{ a: 1, b: 2, c: 3 }.reverse.fields.name.join" ==> "'cba'"
-  "{ a: 1, b: 2, c: 3 } | reverse | .fields.name | join" ==> "'cba'"
+  "{ a: 1, b: 2, c: 3 } | reverse | .fields.name.join" ==> "'cba'"
 
   // skipWhile
   "[1, 2, 3, 4, 5, 1] | skipWhile (_ < 3)" ==> "[3, 4, 5, 1]"
@@ -163,19 +170,9 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "'abcded'.takeWhile (_ <= 'c')" ==> "'abc'"
 
   // unique
-  "unique [1, 2, 3, 2, 1]" ==> "[1, 2, 3]"
+  "[1, 2, 3, 2, 1] | unique" ==> "[1, 2, 3]"
   "'abcba' | unique" ==> "'abc'"
   "'abcba'.unique" ==> "'abc'"
-
-  // where
-  "[1, 2, 3] | where (_ > 2)" ==> "[3]"
-  "'foobar' | where (_ > 'm')" ==> "'oor'"
-  "'foobar'.where (_ > 'm')" ==> "'oor'"
-
-  // whereNot
-  "[1, 2, 3] | whereNot (_ > 2)" ==> "[1, 2]"
-  "'foobar' | whereNot (_ > 'm')" ==> "'fba'"
-  "'foobar'.whereNot (_ > 'm')" ==> "'fba'"
 
   // zip
   "zip [1, 2, 3] [4, 5]" ==> "[[1, 4], [2, 5]]"
