@@ -117,6 +117,25 @@ case class BoundParams(boundNames: Map[String, MashValue],
       case value      ⇒ Some(validateInteger(param, value))
     }
 
+  def validateNonNegativeInteger(param: Parameter): Int = {
+    val n = validateInteger(param)
+    checkNonNegative(n, param)
+    n
+  }
+
+  private def checkNonNegative(n: Int, param: Parameter): Unit = {
+    if (n < 0) {
+      val message = s"Invalid argument '${name(param)}'. Must be a positive integer, but was $n"
+      throw new ArgumentException(message, locationOpt(param))
+    }
+  }
+
+  def validateNonNegativeIntegerOpt(param: Parameter): Option[Int] = {
+    val countOpt = validateIntegerOpt(param)
+    countOpt.foreach(checkNonNegative(_, param))
+    countOpt
+  }
+
   private def validateInteger(param: Parameter, v: MashValue): Int = v match {
     case MashInteger(n) ⇒
       n

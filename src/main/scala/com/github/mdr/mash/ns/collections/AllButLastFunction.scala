@@ -13,7 +13,8 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
       defaultValueGeneratorOpt = Some(MashNumber(1)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to find the value(s) of"))
+      summaryOpt = Some("Sequence to find the value(s) of"),
+      descriptionOpt = Some("Can be a List, String or Object"))
   }
 
   import Params._
@@ -21,16 +22,18 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
   val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
-    boundParams.validateSequence(Sequence)
-    val sequence = boundParams(Sequence)
-    val count = boundParams.validateInteger(N)
-    if (count < 0)
-      boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
-    else
-      sequence match {
-        case s: MashString ⇒ s.modify(_ dropRight count)
-        case xs: MashList  ⇒ MashList(xs.elements dropRight count)
-      }
+    val n = boundParams.validateNonNegativeInteger(N)
+    boundParams(Sequence) match {
+      case obj: MashObject ⇒
+        ToListHelper.tryToList(obj) match {
+          case Some(items) ⇒ MashList(items dropRight n)
+          case None        ⇒ MashObject.of(obj.immutableFields dropRight n)
+        }
+      case s: MashString   ⇒ s.modify(_ dropRight n)
+      case xs: MashList    ⇒ MashList(xs.immutableElements dropRight n)
+      case value           ⇒
+        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
+    }
   }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
-import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashString, MashValue }
+import com.github.mdr.mash.runtime._
 
 object SkipFunction extends MashFunction("collections.skip") {
 
@@ -13,7 +13,8 @@ object SkipFunction extends MashFunction("collections.skip") {
       defaultValueGeneratorOpt = Some(MashNumber(1)))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to skip values from"))
+      summaryOpt = Some("Sequence to skip values from"),
+      descriptionOpt = Some("Can be a List, String or Object"))
   }
 
   import Params._
@@ -21,12 +22,17 @@ object SkipFunction extends MashFunction("collections.skip") {
   val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
-    boundParams.validateSequence(Sequence)
-    val sequence = boundParams(Sequence)
-    val n = boundParams.validateInteger(N)
-    sequence match {
-      case s: MashString ⇒ s.modify(_ drop n)
-      case xs: MashList  ⇒ MashList(xs.immutableElements drop n)
+    val n = boundParams.validateNonNegativeInteger(N)
+    boundParams(Sequence) match {
+      case obj: MashObject ⇒
+        ToListHelper.tryToList(obj) match {
+          case Some(items) ⇒ MashList(items drop n)
+          case None        ⇒ MashObject.of(obj.immutableFields drop n)
+        }
+      case s: MashString   ⇒ s.modify(_ drop n)
+      case xs: MashList    ⇒ MashList(xs.immutableElements drop n)
+      case value           ⇒
+        boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
     }
   }
 
@@ -39,6 +45,7 @@ object SkipFunction extends MashFunction("collections.skip") {
     
 Examples:
   skip 2 [1, 2, 3, 4] # [3, 4]
-  skip 3 [1, 2]       # []""")
+  skip 3 [1, 2]       # []
+  skip 3 "abcdef"     # "def"""")
 
 }

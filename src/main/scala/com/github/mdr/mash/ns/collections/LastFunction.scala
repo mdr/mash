@@ -14,7 +14,7 @@ object LastFunction extends MashFunction("collections.last") {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the last value(s) of"),
-      descriptionOpt = Some("Must be a List, String or Object"))
+      descriptionOpt = Some("Can be a List, String or Object"))
   }
 
   import Params._
@@ -22,7 +22,7 @@ object LastFunction extends MashFunction("collections.last") {
   val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
-    val countOpt = FirstFunction.validateCount(boundParams)
+    val countOpt = boundParams.validateNonNegativeIntegerOpt(N)
     boundParams(Sequence) match {
       case obj: MashObject ⇒
         ToListHelper.tryToList(obj) match {
@@ -68,5 +68,5 @@ Examples:
   last 5 [1, 2, 3]       # [1, 2, 3]
   last [1, 2, 3]         # 3
   last []                # null
-  last 3 'abcdef'        # 'def'""")
+  last 3 "abcdef"        # "def""")
 }

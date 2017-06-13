@@ -26,9 +26,11 @@ object ObjectClass extends MashClass("core.Object") {
     WithFieldMethod,
     WhereMethod,
     WhereNotMethod,
+    methodise(AllButLastFunction),
     methodise(FirstFunction),
     methodise(LastFunction),
     methodise(ReverseFunction),
+    methodise(SkipFunction),
     methodise(SortFunction))
 
   override def summaryOpt = Some("The class of all objects")

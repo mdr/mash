@@ -18,7 +18,7 @@ object FirstFunction extends MashFunction("collections.first") {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to find the first value(s) of"),
-      descriptionOpt = Some("Must be a List, String or Object"))
+      descriptionOpt = Some("Can be a List, String or Object"))
   }
 
   import Params._
@@ -26,7 +26,7 @@ object FirstFunction extends MashFunction("collections.first") {
   val params = ParameterModel(N, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
-    val countOpt = validateCount(boundParams)
+    val countOpt = boundParams.validateNonNegativeIntegerOpt(N)
     boundParams(Sequence) match {
       case obj: MashObject ⇒
         ToListHelper.tryToList(obj) match {
@@ -38,13 +38,6 @@ object FirstFunction extends MashFunction("collections.first") {
       case value           ⇒
         boundParams.throwInvalidArgument(Sequence, s"Must be a List, String, or Object, but was a ${value.typeName}")
     }
-  }
-
-  def validateCount(boundParams: BoundParams): Option[Int] = {
-    val countOpt = boundParams.validateIntegerOpt(N)
-    for (count ← countOpt if count < 0)
-      boundParams.throwInvalidArgument(N, s"Must be non-negative, but was $count")
-    countOpt
   }
 
   private def first(s: MashString, countOpt: Option[Int]): MashValue =
@@ -79,7 +72,7 @@ Examples:
   first 5 [1, 2, 3]       # [1, 2, 3]
   first [1, 2, 3]         # 1
   first []                # null
-  first 3 'abcdef'        # 'abc'""")
+  first 3 "abcdef"        # "abc""")
 
 }
 
