@@ -28,6 +28,7 @@ object ObjectClass extends MashClass("core.Object") {
     WhereNotMethod,
     methodise(AllButLastFunction),
     methodise(FirstFunction),
+    methodise(FlatMapFunction),
     methodise(LastFunction),
     methodise(ReverseFunction),
     methodise(SkipFunction),

@@ -1,8 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.functions.BoundParams.Function1Or2
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.collections.FlattenFunction.flatten
 import com.github.mdr.mash.ns.core.objectClass.MapMethod
 import com.github.mdr.mash.runtime._
 
@@ -24,15 +26,20 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
 
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
-    val sequence = boundParams.validateSequence(Sequence)
     val function1Or2 = boundParams.validateFunction1Or2(F)
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items)   ⇒ flatMap(items, function1Or2, inSequence)
+      case string: SequenceLike.String ⇒ flatMap(string.characterSequence, function1Or2, inSequence)
+      case SequenceLike.Object(obj)    ⇒ MapMethod.doMap(obj, boundParams)
+    }
+  }
 
-    val mapped: Seq[MashValue] =
-      function1Or2 match {
-        case Left(f)  ⇒ sequence map f
-        case Right(f) ⇒ zipWithMashIndex(sequence) map f.tupled
-      }
-    FlattenFunction.flatten(mapped, inSequence)
+  private def flatMap(items: Seq[MashValue], function1Or2: Function1Or2, inSequence: MashValue): MashValue = {
+    val mapped = function1Or2 match {
+      case Left(f)  ⇒ items map f
+      case Right(f) ⇒ zipWithMashIndex(items) map f.tupled
+    }
+    flatten(mapped, inSequence)
   }
 
   def zipWithMashIndex[T](items: Seq[T]): Seq[(T, MashNumber)] =

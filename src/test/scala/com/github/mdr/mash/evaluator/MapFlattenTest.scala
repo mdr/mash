@@ -14,6 +14,9 @@ class MapFlattenTest extends AbstractEvaluatorTest {
   "'abc'.flatMap (c => [c]) " ==> "['a', 'b', 'c']"
   "'abc' | flatMap (s i => { (s): i })" ==> "{ a: 0, b: 1, c: 2 }"
 
+  "{ apple: 1 }.flatMap (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
+  "{ apple: 1 } | flatMap (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
+
   // flatten
   "[[], [1], [2, 3]] | flatten" ==> "[1, 2, 3]"
   "[[], [1], [2, 3]].flatten" ==> "[1, 2, 3]"
