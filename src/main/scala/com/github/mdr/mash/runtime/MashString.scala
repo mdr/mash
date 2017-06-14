@@ -54,4 +54,5 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
 
   def withTag(tagClass: MashClass): MashString = copy(tagClassOpt = Some(tagClass))
 
+  def characterSequence: Seq[MashValue] = s.toSeq.map(c ⇒ MashString(c.toString, Some(CharacterClass)))
 }

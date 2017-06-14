@@ -16,7 +16,7 @@ object SequenceLike {
 
   case class String(s: MashString) extends SequenceLike {
 
-    def characterSequence = s.s.toSeq.map(c ⇒ MashString(c.toString, Some(CharacterClass)))
+    def characterSequence = s.characterSequence
 
     def reassemble(items: Seq[MashValue]) =
       if (items forall (_.isAString))

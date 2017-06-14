@@ -85,39 +85,6 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   " 'abc'.length " ==> 3
   " 'abc' | length " ==> 3
 
-  // flatMap
-  "[1, 2, 3].flatMap (n => [n * 10, n])" ==> "[10, 1, 20, 2, 30, 3]"
-  "[1, 2, 3] | flatMap (n => [n * 10, n])" ==> "[10, 1, 20, 2, 30, 3]"
-  "'abc' | flatMap (_ + '!')" ==> "'a!b!c!'"
-  "[1, 22, 333] | flatMap (.toString)" ==> "'122333'"
-  "'abc' | flatMap (c => [c])" ==> "['a', 'b', 'c']"
-  "'abc'.flatMap (c => [c]) " ==> "['a', 'b', 'c']"
-  "[1, 2, 3] | flatMap (n i => [n, i])" ==> "[1, 0, 2, 1, 3, 2]"
-
-  // flatten
-  "flatten [[], [1], [2, 3]]" ==> "[1, 2, 3]"
-  "flatten []" ==> "[]"
-  "flatten ['', 'a', 'bc']" ==> "'abc'"
-
-  // map
-  "[1, 2, 3].map (_ * 2)" ==> "[2, 4, 6]"
-  "map --f=(_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
-  "map (_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
-  "[1, 2, 3] | map --f=(_ * 2)" ==> "[2, 4, 6]"
-  "[1, 2, 3] | map (n i => n + i)" ==> "[1, 3, 5]"
-
-  "'123' | map (_.toNumber)" ==> "[1, 2, 3]"
-  "'foo' | map (.toUpper)" ==> "'FOO'"
-  "'foo'.map (.toUpper)" ==> "'FOO'"
-  "'abc'.map (c => c + c)" ==> "'aabbcc'"
-  "'a1b2'.map (.isDigit)" ==> "[false, true, false, true]"
-  "''.map (.isDigit)" ==> "''"
-
-  "{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-  "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-
   // nonEmpty
   "nonEmpty []" ==> false
   "nonEmpty [1, 2, 3]" ==> true

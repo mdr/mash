@@ -27,22 +27,25 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
   def call(boundParams: BoundParams): MashValue = {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
+    val function1Or2 = boundParams.validateFunction1Or2(F)
     val mapped: Seq[MashValue] =
-      boundParams.validateFunction1Or2(F) match {
-        case Left(f)  ⇒ sequence.map(f)
-        case Right(f) ⇒ zipWithMashIndex(sequence).map(f.tupled)
+      function1Or2 match {
+        case Left(f)  ⇒ sequence map f
+        case Right(f) ⇒ zipWithMashIndex(sequence) map f.tupled
       }
     flatten(mapped, inSequence)
   }
 
-  private def zipWithMashIndex[T](items: Seq[T]): Seq[(T, MashNumber)] =
+  def zipWithMashIndex[T](items: Seq[T]): Seq[(T, MashNumber)] =
     items.zipWithIndex.map { case (item, index) ⇒ item -> MashNumber(index) }
 
-  def flatten(mappedValues: Seq[MashValue], inSequence: MashValue): MashValue = {
+  def flatten(mappedValues: Seq[MashValue], inSequence: MashValue): MashValue =
     if (mappedValues.isEmpty)
       inSequence
     else if (mappedValues.forall(_.isAList))
       mappedValues.asInstanceOf[Seq[MashList]].fold(MashList.empty)(_ ++ _)
+    else if (mappedValues.forall(_.isAnObject))
+      mappedValues.asInstanceOf[Seq[MashObject]].fold(MashObject.empty)(_ + _)
     else if (mappedValues.forall(_.isAString)) {
       val tagOpt = condOpt(inSequence) { case MashString(_, Some(tag)) ⇒ tag }
       mappedValues.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
@@ -59,7 +62,6 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
       throw new EvaluatorException("Invalid item of type " + badItem.typeName)
 
     }
-  }
 
   override def typeInferenceStrategy = FlatMapTypeInferenceStrategy
 

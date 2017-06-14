@@ -4,6 +4,7 @@ import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.BoundParams.Function1Or2
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.collections.FlatMapFunction.zipWithMashIndex
 import com.github.mdr.mash.ns.core.objectClass.{ MapMethod, WhereMethod }
 import com.github.mdr.mash.runtime._
 
@@ -40,8 +41,8 @@ object MapFunction extends MashFunction("collections.map") {
 
   private def mapItems_(items: Seq[MashValue], function1Or2: Function1Or2): Seq[MashValue] =
     function1Or2 match {
-      case Left(f)  ⇒ items.map(f)
-      case Right(f) ⇒ items.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
+      case Left(f)  ⇒ items map f
+      case Right(f) ⇒ zipWithMashIndex(items) map f.tupled
     }
 
   override def typeInferenceStrategy = MapTypeInferenceStrategy

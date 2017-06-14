@@ -58,6 +58,7 @@ object StringClass extends MashClass("core.String") {
     TagMethod,
     ToDateMethod,
     ToDateTimeMethod,
+    ToListMethod,
     ToLowerMethod,
     ToNumberMethod,
     ToPathMethod,

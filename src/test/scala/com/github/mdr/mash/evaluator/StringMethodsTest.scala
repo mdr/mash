@@ -32,5 +32,8 @@ class StringMethodsTest extends AbstractEvaluatorTest {
   "'foo`n`nbar'.lines" ==> "['foo', '', 'bar']"
   "'`n`n'.lines" ==> "['', '']"
 
+  // String.toList
+  "'abc'.toList" ==> "['a', 'b', 'c']"
+  "''.toList" ==> "[]"
 
 }
