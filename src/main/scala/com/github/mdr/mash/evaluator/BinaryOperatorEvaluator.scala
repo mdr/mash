@@ -91,7 +91,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (s: MashString, _)                                                           ⇒ s + right
     case (_, s: MashString)                                                           ⇒ s.rplus(left)
     case (left: MashNumber, right: MashNumber)                                        ⇒ left + right
-    case (left: MashObject, right: MashObject)                                        ⇒ left + right
+    case (left: MashObject, right: MashObject)                                        ⇒ left ++ right
     case (MashWrapped(instant: Instant), MashNumber(n, Some(klass: ChronoUnitClass))) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒

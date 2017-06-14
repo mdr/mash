@@ -20,17 +20,16 @@ object MergeStaticMethod extends MashFunction("merge") {
   override def call(boundParams: BoundParams): MashObject = {
     val xs = boundParams.validateSequence(Objects)
     val items = xs match {
-      case Seq(list: MashList) ⇒ list.elements
+      case Seq(list: MashList) ⇒ list.immutableElements
       case _                   ⇒ xs
     }
     val objects = items.map {
       case item: MashObject ⇒ item
       case badItem          ⇒ boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
     }
-    objects.reduceOption(_ + _) getOrElse MashObject.empty
+    objects.reduceOption(_ ++ _) getOrElse MashObject.empty
   }
 
   override def summaryOpt = Some("Merge objects together")
-
 
 }

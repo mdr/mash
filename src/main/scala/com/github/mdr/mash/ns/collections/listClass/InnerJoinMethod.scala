@@ -48,7 +48,7 @@ object InnerJoinMethod extends MashMethod("innerJoin") {
         object1 ← objects1
         object2 ← objects2
         if on(object1, object2).isTruthy
-      } yield addPrefix(object1, prefix1) + addPrefix(object2, prefix2))
+      } yield addPrefix(object1, prefix1) ++ addPrefix(object2, prefix2))
   }
 
   private def addPrefix(obj: MashObject, prefix: String): MashObject =

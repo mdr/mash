@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.objectClass.MapMethod
 import com.github.mdr.mash.runtime._
 
 object FlatMapFunction extends MashFunction("collections.flatMap") {
@@ -25,6 +26,7 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     val inSequence = boundParams(Sequence)
     val sequence = boundParams.validateSequence(Sequence)
     val function1Or2 = boundParams.validateFunction1Or2(F)
+
     val mapped: Seq[MashValue] =
       function1Or2 match {
         case Left(f)  ⇒ sequence map f

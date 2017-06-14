@@ -31,7 +31,7 @@ object MapMethod extends MashMethod("map") {
         case x               ⇒ throw new EvaluatorException(s"Transformed value must be an Object, but was a ${x.typeName}")
       }
     }
-    objects.reduceOption(_ + _) getOrElse MashObject.empty
+    objects.reduceOption(_ ++ _) getOrElse MashObject.empty
   }
 
   override def typeInferenceStrategy = ObjectClass

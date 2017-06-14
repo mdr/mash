@@ -24,7 +24,7 @@ object GrepMethod extends MashMethod("grep") {
     val negate = boundParams(Negate).isTruthy
     val items = obj.immutableFields.map(MashObject.of(_)).toSeq
     val filteredItems = GrepFunction.runGrep(items, query, ignoreCase, regex, negate, ignoreFields = false)
-    filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ + _)
+    filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ ++ _)
   }
 
   override def summaryOpt: Option[String] = Some("Find all the fields in the object which match the given query somewhere in its String representation")

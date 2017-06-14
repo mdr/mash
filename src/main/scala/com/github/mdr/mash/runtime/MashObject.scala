@@ -111,7 +111,7 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
     result
   }
 
-  def +(that: MashObject): MashObject = withLock {
+  def ++(that: MashObject): MashObject = withLock {
     MashObject.of((this.fields ++ that.fields).toSeq, that.classOpt orElse this.classOpt)
   }
 

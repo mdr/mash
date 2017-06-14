@@ -31,7 +31,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
     else if (mappedValues.forall(_.isAList))
       mappedValues.asInstanceOf[Seq[MashList]].fold(MashList.empty)(_ ++ _)
     else if (mappedValues.forall(_.isAnObject))
-      mappedValues.asInstanceOf[Seq[MashObject]].fold(MashObject.empty)(_ + _)
+      mappedValues.asInstanceOf[Seq[MashObject]].fold(MashObject.empty)(_ ++ _)
     else if (mappedValues.forall(_.isAString)) {
       val tagOpt = condOpt(inSequence) { case MashString(_, Some(tag)) ⇒ tag }
       mappedValues.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)

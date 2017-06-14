@@ -45,7 +45,7 @@ object NaturalJoinMethod extends MashMethod("naturalJoin") {
         if sharedTuple.forall(_.nonEmpty)
         obj1 ← groups1(sharedTuple)
         obj2 ← groups2(sharedTuple)
-      } yield obj1 + obj2)
+      } yield obj1 ++ obj2)
     }
   }
 
