@@ -42,8 +42,8 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     flatten(mapped, inSequence)
   }
 
-  def zipWithMashIndex[T](items: Seq[T]): Seq[(T, MashNumber)] =
-    items.zipWithIndex.map { case (item, index) ⇒ item -> MashNumber(index) }
+  def zipWithMashIndex[T](items: Iterable[T]): Seq[(T, MashNumber)] =
+    items.zipWithIndex.toSeq.map { case (item, index) ⇒ item -> MashNumber(index) }
 
   override def typeInferenceStrategy = FlatMapTypeInferenceStrategy
 

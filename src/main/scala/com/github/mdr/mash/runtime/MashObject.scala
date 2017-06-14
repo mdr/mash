@@ -55,6 +55,7 @@ object MashObject {
 
   def empty = of(Seq())
 
+  def merge(objects: Seq[MashObject]) = objects.reduceOption(_ ++ _) getOrElse MashObject.empty
 }
 
 case class MashObject private(fields: LinkedHashMap[String, MashValue],

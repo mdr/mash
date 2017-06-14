@@ -25,19 +25,19 @@ object FlattenFunction extends MashFunction("collections.flatten") {
     flatten(sequence, inSequence)
   }
 
-  def flatten(mappedValues: Seq[MashValue], inSequence: MashValue): MashValue =
-    if (mappedValues.isEmpty)
+  def flatten(values: Seq[MashValue], inSequence: MashValue): MashValue =
+    if (values.isEmpty)
       inSequence
-    else if (mappedValues.forall(_.isAList))
-      mappedValues.asInstanceOf[Seq[MashList]].fold(MashList.empty)(_ ++ _)
-    else if (mappedValues.forall(_.isAnObject))
-      mappedValues.asInstanceOf[Seq[MashObject]].fold(MashObject.empty)(_ ++ _)
-    else if (mappedValues.forall(_.isAString)) {
+    else if (values.forall(_.isAList))
+      values.asInstanceOf[Seq[MashList]].fold(MashList.empty)(_ ++ _)
+    else if (values.forall(_.isAnObject))
+      MashObject.merge(values.asInstanceOf[Seq[MashObject]])
+    else if (values.forall(_.isAString)) {
       val tagOpt = condOpt(inSequence) { case MashString(_, Some(tag)) ⇒ tag }
-      mappedValues.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
+      values.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
     } else {
-      val first = mappedValues.head // safe, mappedValues not empty
-      val rest = mappedValues.tail
+      val first = values.head // safe, mappedValues not empty
+      val rest = values.tail
       val badItem =
         if (first.isAString)
           rest.find(x ⇒ !x.isAString).get // safe, because of above forall check

@@ -18,6 +18,19 @@ object BoundParams {
 
 }
 
+
+sealed trait Function1Or2Or3
+
+object Function1Or2Or3 {
+
+  case class One(f: MashValue ⇒ MashValue) extends Function1Or2Or3
+
+  case class Two(f: (MashValue, MashValue) ⇒ MashValue) extends Function1Or2Or3
+
+  case class Three(f: (MashValue, MashValue, MashValue) ⇒ MashValue) extends Function1Or2Or3
+
+}
+
 case class BoundParams(boundNames: Map[String, MashValue],
                        parameterToArguments: Map[Parameter, Seq[Argument]],
                        allResolvedArgs: Seq[EvaluatedArgument[MashValue]]) {
@@ -86,10 +99,25 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   def validateFunction1Or2(param: Parameter): Function1Or2 =
     this (param) match {
-      case f: MashFunction if f.params.allowsBinaryPositional         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
-      case bm: BoundMethod if bm.method.params.allowsBinaryPositional ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
-      case arg                                                        ⇒ Left(validateFunction(param, arg))
+      case f: MashFunction if f.params.allowsTwoPositionalArguments         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
+      case bm: BoundMethod if bm.method.params.allowsTwoPositionalArguments ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
+      case arg                                                              ⇒ Left(validateFunction(param, arg))
     }
+
+  def validateFunction1Or2Or3(param: Parameter): Function1Or2Or3 = {
+    val argument = this (param)
+    def detectArity(params: ParameterModel) =
+      if (params.allowsAtLeastThisManyPositionalArguments(3))
+        Function1Or2Or3.Three(FunctionHelpers.interpretAsFunction3(argument))
+      else if (params.allowsAtLeastThisManyPositionalArguments(2))
+        Function1Or2Or3.Two(FunctionHelpers.interpretAsFunction2(argument))
+      else
+        Function1Or2Or3.One(FunctionHelpers.interpretAsFunction(argument))
+    argument match {
+      case f: MashFunction ⇒ detectArity(f.params)
+      case bm: BoundMethod ⇒ detectArity(bm.params)
+    }
+  }
 
   private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {
     val message = s"Invalid argument '${name(param)}'. Must be a $desiredType, but was a ${value.typeName}"

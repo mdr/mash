@@ -49,8 +49,10 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   /**
     * Whether or not this can be called with two positional arguments
     */
-  def allowsBinaryPositional: Boolean =
-    params.exists(_.isVariadic) || params.exists(_.isAllArgsParam) || positionalParams.size >= 2
+  def allowsTwoPositionalArguments: Boolean = allowsAtLeastThisManyPositionalArguments(2)
+
+  def allowsAtLeastThisManyPositionalArguments(count: Int) =
+    params.exists(_.isVariadic) || params.exists(_.isAllArgsParam) || positionalParams.size >= count
 
   def callingSyntax: String = {
     val positionalParams =

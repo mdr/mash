@@ -27,7 +27,7 @@ object MergeStaticMethod extends MashFunction("merge") {
       case item: MashObject ⇒ item
       case badItem          ⇒ boundParams.throwInvalidArgument(Objects, "Cannot merge value of type " + badItem.typeName)
     }
-    objects.reduceOption(_ ++ _) getOrElse MashObject.empty
+    MashObject.merge(objects)
   }
 
   override def summaryOpt = Some("Merge objects together")

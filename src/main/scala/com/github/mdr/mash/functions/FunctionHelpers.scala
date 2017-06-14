@@ -43,6 +43,10 @@ object FunctionHelpers {
     InvocationEvaluator.callAsFunction(f, Arguments(Seq(makePositionArg(value1), makePositionArg(value2))))
   }
 
+  def interpretAsFunction3(f: MashValue): (MashValue, MashValue, MashValue) ⇒ MashValue = { (value1, value2, value3) ⇒
+    InvocationEvaluator.callAsFunction(f, Arguments(Seq(makePositionArg(value1), makePositionArg(value2), makePositionArg(value3))))
+  }
+
   private def makePositionArg(value: MashValue) = EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ value))
 
   def interpretAsSequence(value: MashValue): Seq[MashValue] = value match {

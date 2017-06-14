@@ -44,5 +44,7 @@ class MapFlattenTest extends AbstractEvaluatorTest {
   "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
   "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
   "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-
+  "{ a: 1, b: 2 } | map (f => f)" ==> "['a', 'b']"
+  "{ a: 1, b: 2 } | map (f v => f + v)" ==> "['a1', 'b2']"
+  "{ a: 1, b: 2 } | map (f v i => f + v + i)" ==> "['a10', 'b21']"
 }

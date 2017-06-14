@@ -5,7 +5,7 @@ import com.github.mdr.mash.functions.BoundParams.Function1Or2
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.collections.FlatMapFunction.zipWithMashIndex
-import com.github.mdr.mash.ns.core.objectClass.{ MapMethod, WhereMethod }
+import com.github.mdr.mash.ns.core.objectClass.MapMethod
 import com.github.mdr.mash.runtime._
 
 object MapFunction extends MashFunction("collections.map") {

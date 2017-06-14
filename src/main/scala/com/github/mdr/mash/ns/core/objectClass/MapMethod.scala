@@ -1,9 +1,9 @@
 package com.github.mdr.mash.ns.core.objectClass
 
-import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
+import com.github.mdr.mash.ns.collections.FlatMapFunction
 import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object MapMethod extends MashMethod("map") {
 
@@ -11,27 +11,43 @@ object MapMethod extends MashMethod("map") {
     val F = Parameter(
       nameOpt = Some("f"),
       summaryOpt = Some("Function used to transform fields of the object"),
-      descriptionOpt = Some("The function must take two arguments, the field name and value, and return an Object"))
+      descriptionOpt = Some(
+        """The function may take up to three positional arguments:
+          |  1) the field name,
+          |  2) the field value,
+          |  3) the index of the field.
+          |The function may return Objects, in which case they are merged into a single output Object.
+          |If it returns other types of values, then the map will return them in a List.""".stripMargin))
   }
 
   import Params._
 
   val params = ParameterModel(F)
 
-  def call(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
     doMap(obj, boundParams)
   }
 
-  def doMap(obj: MashObject, boundParams: BoundParams): MashObject = {
-    val f = boundParams.validateFunction2(F)
-    val objects = obj.immutableFields.map { case (field, value) ⇒
-      f(MashString(field), value) match {
-        case obj: MashObject ⇒ obj
-        case x               ⇒ throw new EvaluatorException(s"Transformed value must be an Object, but was a ${x.typeName}")
+  def doMap(obj: MashObject, boundParams: BoundParams): MashValue = {
+    val f = boundParams.validateFunction1Or2Or3(F)
+    val fieldValueIndexTriples =
+      FlatMapFunction.zipWithMashIndex(obj.immutableFields)
+        .map { case ((field, value), i) ⇒ (MashString(field), value, i) }
+    val mappedValues = fieldValueIndexTriples.map { case (field, value, i) ⇒
+      f match {
+        case Function1Or2Or3.One(f1)   ⇒ f1(field)
+        case Function1Or2Or3.Two(f2)   ⇒ f2(field, value)
+        case Function1Or2Or3.Three(f3) ⇒ f3(field, value, i)
       }
     }
-    objects.reduceOption(_ ++ _) getOrElse MashObject.empty
+    if (mappedValues.isEmpty)
+      MashObject.empty
+    else if (mappedValues.forall(_.isAnObject))
+      MashObject.merge(mappedValues.asInstanceOf[Seq[MashObject]])
+    else
+      MashList(mappedValues)
+
   }
 
   override def typeInferenceStrategy = ObjectClass
