@@ -15,10 +15,12 @@ class MapFlattenTest extends AbstractEvaluatorTest {
   "'abc' | flatMap (s i => { (s): i })" ==> "{ a: 0, b: 1, c: 2 }"
 
   // flatten
-  "flatten [[], [1], [2, 3]]" ==> "[1, 2, 3]"
+  "[[], [1], [2, 3]] | flatten" ==> "[1, 2, 3]"
+  "[[], [1], [2, 3]].flatten" ==> "[1, 2, 3]"
   "flatten []" ==> "[]"
   "flatten ['', 'a', 'bc']" ==> "'abc'"
   "flatten [{ a: 1, b: 2 }, { c: 3 }]" ==> "{ a: 1, b: 2, c: 3 }"
+  "flatten [{ a: 1 }, { a: 2 }, { a: 3 }]" ==> "{ a: 3 }"
 
   // map
   "[1, 2, 3].map (_ * 2)" ==> "[2, 4, 6]"
