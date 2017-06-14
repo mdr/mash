@@ -4,12 +4,19 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
+import com.github.mdr.mash.functions.BoundParams.Function1Or2
 import com.github.mdr.mash.ns.core.CharacterClass
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.parser.AbstractSyntax.Argument
 import com.github.mdr.mash.runtime._
 
 import scala.util.control.Exception._
+
+object BoundParams {
+
+  type Function1Or2 = Either[MashValue ⇒ MashValue, (MashValue, MashValue) ⇒ MashValue]
+
+}
 
 case class BoundParams(boundNames: Map[String, MashValue],
                        parameterToArguments: Map[Parameter, Seq[Argument]],
@@ -77,7 +84,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
       throwInvalidArgumentType("function", x, param)
   }
 
-  def validateFunction1Or2(param: Parameter): Either[MashValue ⇒ MashValue, (MashValue, MashValue) ⇒ MashValue] =
+  def validateFunction1Or2(param: Parameter): Function1Or2 =
     this (param) match {
       case f: MashFunction if f.params.allowsBinaryPositional         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
       case bm: BoundMethod if bm.method.params.allowsBinaryPositional ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))

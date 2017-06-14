@@ -1,9 +1,10 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.functions.BoundParams.Function1Or2
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.objectClass.MapMethod
+import com.github.mdr.mash.ns.core.objectClass.{ MapMethod, WhereMethod }
 import com.github.mdr.mash.runtime._
 
 object MapFunction extends MashFunction("collections.map") {
@@ -22,23 +23,25 @@ object MapFunction extends MashFunction("collections.map") {
 
   val params = ParameterModel(F, Sequence)
 
-  def call(boundParams: BoundParams): MashValue =
-    boundParams(Sequence) match {
-      case obj: MashObject ⇒
-        MapMethod.doMap(obj, boundParams)
-      case inSequence      ⇒
-        val sequence = boundParams.validateSequence(Sequence)
-        val mapped: Seq[MashValue] =
-          boundParams.validateFunction1Or2(F) match {
-            case Left(f)  ⇒ sequence.map(f)
-            case Right(f) ⇒ sequence.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
-          }
-        inSequence match {
-          case MashString(_, tagOpt) if mapped.forall(_.isAString) ⇒
-            mapped.asInstanceOf[Seq[MashString]].fold(MashString("", tagOpt))(_ + _)
-          case _                                                   ⇒
-            MashList(mapped)
-        }
+  def call(boundParams: BoundParams): MashValue = {
+    val function1Or2 = boundParams.validateFunction1Or2(F)
+    SequenceLikeAnalyser.analyse(boundParams, Sequence) {
+      case SequenceLike.Items(items)   ⇒ mapItems(items, function1Or2)
+      case string: SequenceLike.String ⇒ mapString(string, function1Or2)
+      case SequenceLike.Object(obj)    ⇒ MapMethod.doMap(obj, boundParams)
+    }
+  }
+
+  private def mapItems(items: Seq[MashValue], function1Or2: Function1Or2): MashValue =
+    MashList(mapItems_(items, function1Or2))
+
+  private def mapString(string: SequenceLike.String, function1Or2: Function1Or2): MashValue =
+    string.reassemble(mapItems_(string.characterSequence, function1Or2))
+
+  private def mapItems_(items: Seq[MashValue], function1Or2: Function1Or2): Seq[MashValue] =
+    function1Or2 match {
+      case Left(f)  ⇒ items.map(f)
+      case Right(f) ⇒ items.zipWithIndex.map { case (x, i) ⇒ f(x, MashNumber(i)) }
     }
 
   override def typeInferenceStrategy = MapTypeInferenceStrategy

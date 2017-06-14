@@ -104,10 +104,19 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "map --f=(_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
   "map (_ * 2) --sequence=[1, 2, 3]" ==> "[2, 4, 6]"
   "[1, 2, 3] | map --f=(_ * 2)" ==> "[2, 4, 6]"
-  "'123' | map (_.toNumber)" ==> "[1, 2, 3]"
   "[1, 2, 3] | map (n i => n + i)" ==> "[1, 3, 5]"
+
+  "'123' | map (_.toNumber)" ==> "[1, 2, 3]"
   "'foo' | map (.toUpper)" ==> "'FOO'"
   "'foo'.map (.toUpper)" ==> "'FOO'"
+  "'abc'.map (c => c + c)" ==> "'aabbcc'"
+  "'a1b2'.map (.isDigit)" ==> "[false, true, false, true]"
+  "''.map (.isDigit)" ==> "''"
+
+  "{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
+  "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
+  "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
+  "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
 
   // nonEmpty
   "nonEmpty []" ==> false

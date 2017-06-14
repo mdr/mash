@@ -2,12 +2,6 @@ package com.github.mdr.mash.evaluator
 
 class ObjectMethodsTest extends AbstractEvaluatorTest {
 
-  // Object.map
-  "{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-  "{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })" ==> "{ APPLE: 1, BOB: 4, CAT: 9 }"
-  "{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })" ==> "{ apple: 1, elppa: 1 }"
-
   // Object.transformValues
   "{ foo: 3, bar: 4 }.transformValues (n => n * n)" ==> "{ foo: 9, bar: 16 }"
   """{ foo: 3, bar: 4 }.transformValues (f v => "$f$v")""" ==> "{ foo: 'foo3', bar: 'bar4' }"
