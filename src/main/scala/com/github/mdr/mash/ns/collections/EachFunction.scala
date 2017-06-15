@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.{ MashNumber, MashUnit }
+import com.github.mdr.mash.ns.collections.FlatMapFunction.zipWithMashIndex
 
 object EachFunction extends MashFunction("collections.each") {
 
@@ -22,7 +23,7 @@ object EachFunction extends MashFunction("collections.each") {
     val sequence = boundParams.validateSequence(Sequence)
     boundParams.validateFunction1Or2(Action) match {
       case Left(action)  ⇒ sequence.foreach(action)
-      case Right(action) ⇒ sequence.zipWithIndex.foreach { case (v, i) ⇒ action(v, MashNumber(i)) }
+      case Right(action) ⇒ zipWithMashIndex(sequence).foreach(action.tupled)
     }
     MashUnit
   }

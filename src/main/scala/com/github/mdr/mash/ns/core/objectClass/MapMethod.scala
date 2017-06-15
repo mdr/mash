@@ -16,8 +16,8 @@ object MapMethod extends MashMethod("map") {
           |  1) the field name
           |  2) the field value
           |  3) the index of the field
-          |The function may return Objects, in which case they are merged into a single output Object.
-          |If it returns other types of values, then the map will return them in a List.""".stripMargin))
+          |If the function return Objects then they are merged into a single output Object.
+          |If it returns other types of values then they will be collected into a List.""".stripMargin))
   }
 
   import Params._

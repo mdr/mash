@@ -31,8 +31,6 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       None
   }
 
-  private def positionArg(typ: Type) = TypedArgument.PositionArg(ValueInfo(None, Some(typ)))
-
   def applyFunction2(functionType: Type, element1Type: Type, element2Type: Type): Option[Type] = functionType match {
     case Type.BuiltinFunction(f)                                                 ⇒
       val strategy = f.typeInferenceStrategy
@@ -58,6 +56,6 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
       None
   }
 
-  def memberLookup(typ: Type, name: String): Option[Type] = typeInferencer.memberLookup(typ, name, immediateExec = true)
+  private def positionArg(typ: Type) = TypedArgument.PositionArg(ValueInfo(None, Some(typ)))
 
 }
