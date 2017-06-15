@@ -1,8 +1,9 @@
 package com.github.mdr.mash.ns.core.objectClass
 
-import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.ns.core.objectClass.MapMethod.getFieldValueIndexTriples
+import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashString, MashValue }
 
 object WhereMethod extends MashMethod("where") {
 
@@ -10,29 +11,33 @@ object WhereMethod extends MashMethod("where") {
     val Predicate = Parameter(
       nameOpt = Some("predicate"),
       summaryOpt = Some("Predicate used to test fields"),
-      descriptionOpt = Some("If the function can take one argument, the field name is supplied. If it can take two, the field name and value are supplied."))
+      descriptionOpt = Some(
+        """May take up to three positional arguments:
+          |  1) the field name
+          |  2) the field value
+          |  3) the index of the field""".stripMargin))
   }
 
   import Params._
 
   val params = ParameterModel(Predicate)
 
-  def call(target: MashValue, boundParams: BoundParams): MashObject = {
-    val obj = target.asInstanceOf[MashObject]
-    doWhere(obj, boundParams)
-  }
+  def call(target: MashValue, boundParams: BoundParams): MashObject =
+    doWhere(target.asInstanceOf[MashObject], boundParams)
 
   def doWhere(obj: MashObject, boundParams: BoundParams): MashObject = {
-    val test: (String, MashValue) ⇒ Boolean = validatePredicate(boundParams)
+    val predicate = validatePredicate(boundParams)
     MashObject.of(
-      for ((field, value) <- obj.immutableFields if test(field, value))
-        yield (field, value))
+      getFieldValueIndexTriples(obj)
+        .filter(predicate.tupled)
+        .map { case (field, value, _) ⇒ field.s -> value })
   }
 
-  def validatePredicate(boundParams: BoundParams): (String, MashValue) ⇒ Boolean =
-    boundParams.validateFunction1Or2(Predicate) match {
-      case Left(f)  ⇒ (field: String, value: MashValue) ⇒ f(MashString(field)).isTruthy
-      case Right(f) ⇒ (field: String, value: MashValue) ⇒ f(MashString(field), value).isTruthy
+  def validatePredicate(boundParams: BoundParams): (MashString, MashValue, MashNumber) ⇒ Boolean =
+    boundParams.validateFunction1Or2Or3(Predicate) match {
+      case Function1Or2Or3.One(f1)   ⇒ (field, value, i) ⇒ f1(field).isTruthy
+      case Function1Or2Or3.Two(f2)   ⇒ (field, value, i) ⇒ f2(field, value).isTruthy
+      case Function1Or2Or3.Three(f3) ⇒ (field, value, i) ⇒ f3(field, value, i).isTruthy
     }
 
   override def typeInferenceStrategy = ObjectClass

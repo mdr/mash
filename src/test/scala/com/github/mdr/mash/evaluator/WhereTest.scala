@@ -15,6 +15,7 @@ class WhereTest extends AbstractEvaluatorTest {
   "{ apple: 1, bob: 2, aardvark: 3 }.where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
   "{ apple: 1, bob: 2, aardvark: 3 } | where (.startsWith 'a')" ==> "{ apple: 1, aardvark: 3 }"
   "{ apple: 1, bob: 2, aardvark: 3 } | where (f v => f.startsWith 'b' or v == 3)" ==> "{ bob: 2, aardvark: 3 }"
+  "{ apple: 1, bob: 2, aardvark: 3 }.where (f v i => i == 1)" ==> "{ bob: 2 }"
 
   // whereNot
   "[1, 2, 3, 2, 1] | whereNot (_ > 2)" ==> "[1, 2, 2, 1]"
@@ -27,5 +28,6 @@ class WhereTest extends AbstractEvaluatorTest {
   "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
   "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (.startsWith 'a')" ==> "{ bob: 2 }"
   "{ apple: 1, bob: 2, aardvark: 3 } | whereNot (f v => f.startsWith 'b' or v == 3)" ==> "{ apple: 1 }"
+  "{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v i => i == 1)" ==> "{ apple: 1, aardvark: 3 }"
 
 }

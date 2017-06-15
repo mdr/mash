@@ -2,6 +2,8 @@ package com.github.mdr.mash.ns.core.objectClass
 
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
+import com.github.mdr.mash.ns.core.objectClass.MapMethod.getFieldValueIndexTriples
+import com.github.mdr.mash.ns.core.objectClass.WhereMethod.validatePredicate
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 object WhereNotMethod extends MashMethod("whereNot") {
@@ -10,16 +12,15 @@ object WhereNotMethod extends MashMethod("whereNot") {
 
   val params = ParameterModel(Predicate)
 
-  def call(target: MashValue, boundParams: BoundParams): MashObject = {
-    val obj = target.asInstanceOf[MashObject]
-    doWhereNot(obj, boundParams)
-  }
+  def call(target: MashValue, boundParams: BoundParams): MashObject =
+    doWhereNot(target.asInstanceOf[MashObject], boundParams)
 
   def doWhereNot(obj: MashObject, boundParams: BoundParams): MashObject = {
-    val test: (String, MashValue) ⇒ Boolean = WhereMethod.validatePredicate(boundParams)
+    val predicate = validatePredicate(boundParams)
     MashObject.of(
-      for ((field, value) <- obj.immutableFields if !test(field, value))
-        yield (field, value))
+      getFieldValueIndexTriples(obj)
+        .filterNot(predicate.tupled)
+        .map { case (field, value, _) ⇒ field.s -> value })
   }
 
   override def typeInferenceStrategy = ObjectClass

@@ -2,10 +2,9 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.{ AnyClass, CharacterClass }
-import com.github.mdr.mash.ns.core.objectClass.{ GrepMethod, WhereMethod }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
-import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
+import com.github.mdr.mash.ns.core.AnyClass
+import com.github.mdr.mash.ns.core.objectClass.WhereMethod
+import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 
 object WhereFunction extends MashFunction("collections.where") {
 
