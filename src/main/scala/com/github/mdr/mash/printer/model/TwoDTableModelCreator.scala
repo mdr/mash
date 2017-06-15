@@ -68,16 +68,9 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
     val testValues = values.take(50)
     val columnSpecs =
       if (testValues.nonEmpty && testValues.forall(_ isA GroupClass))
-        Seq(
-          ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Key), weight = 10),
-          ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
-          ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Values), weight = 1))
+        groupColumnSpecs
       else if (testValues.nonEmpty && testValues.forall(_ isA CommitClass))
-        Seq(
-          ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Hash), weight = 1),
-          ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
-          ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Author), weight = 10),
-          ColumnId(3) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
+        commitColumnSpecs
       else if (testValues.nonEmpty && testValues.forall(v ⇒ v.isAnObject || v.isAList)) {
         val fieldSpecs =
           testValues
@@ -97,4 +90,16 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
     (columnIds, columnSpecs.toMap)
   }
 
+  private def commitColumnSpecs: Seq[(ColumnId, ColumnSpec)] =
+    Seq(
+      ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Hash), weight = 1),
+      ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
+      ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Author), weight = 10),
+      ColumnId(3) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
+
+  private def groupColumnSpecs: Seq[(ColumnId, ColumnSpec)] =
+    Seq(
+      ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Key), weight = 10),
+      ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
+      ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Values), weight = 1))
 }
