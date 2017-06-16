@@ -30,7 +30,7 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
       values.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
 
     def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
-      (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.size).max
+      (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.length).max
     val requestedColumnWidths: Map[ColumnId, Int] =
       (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
 
@@ -65,21 +65,21 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
   }
 
   private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
-    val testValues = values.take(50)
+    val sampleValues = values.take(50)
     val columnSpecs =
-      if (testValues.nonEmpty && testValues.forall(_ isA GroupClass))
+      if (sampleValues.nonEmpty && sampleValues.forall(_ isA GroupClass))
         groupColumnSpecs
-      else if (testValues.nonEmpty && testValues.forall(_ isA CommitClass))
+      else if (sampleValues.nonEmpty && sampleValues.forall(_ isA CommitClass))
         commitColumnSpecs
-      else if (testValues.nonEmpty && testValues.forall(v ⇒ v.isAnObject || v.isAList)) {
+      else if (sampleValues.nonEmpty && sampleValues.forall(v ⇒ v.isAnObject || v.isAList)) {
         val fieldSpecs =
-          testValues
+          sampleValues
             .flatMap(_.asObject)
             .flatMap(_.immutableFields.keys)
             .distinct
             .zipWithIndex
             .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
-        val sizes = testValues.flatMap(_.asList).map(_.size)
+        val sizes = sampleValues.flatMap(_.asList).map(_.size)
         val maxSize = if (sizes.isEmpty) 0 else sizes.max
         val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ColumnFetch.ByIndex(i)))
         fieldSpecs ++ indexSpecs

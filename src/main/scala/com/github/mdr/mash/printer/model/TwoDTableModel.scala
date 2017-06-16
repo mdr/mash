@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.printer.model.TwoDTableModel._
 
 object TwoDTableModel {
 
@@ -16,8 +17,6 @@ object TwoDTableModel {
   case class Column(name: String, width: Int, fetchOpt: Option[ColumnFetch] = None)
 
 }
-
-import TwoDTableModel._
 
 case class TwoDTableModel(columnIds: Seq[ColumnId],
                           columns: Map[ColumnId, Column],
