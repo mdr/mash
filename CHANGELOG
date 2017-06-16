@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Support groupBy --object
 * Add String.toList
 * Allow piping in and out of a !{mish expression}
 * Object.reverse reverses the order of fields in an object

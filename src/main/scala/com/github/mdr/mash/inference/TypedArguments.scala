@@ -1,22 +1,31 @@
 package com.github.mdr.mash.inference
 
+import com.github.mdr.mash.ns.core.BooleanClass
 import com.github.mdr.mash.parser.AbstractSyntax._
+import com.github.mdr.mash.runtime.MashBoolean
 
 sealed trait TypedArgument {
-  def valueOpt: Option[ValueInfo]
+
+  def argValueOpt: Option[ValueInfo]
+
 }
 
 object TypedArgument {
 
   case class PositionArg(arg: ValueInfo) extends TypedArgument {
-    def valueOpt = Some(arg)
+    def argValueOpt = Some(arg)
   }
 
-  case class LongFlag(flag: String, valueOpt: Option[ValueInfo]) extends TypedArgument
+  case class LongFlag(flag: String, valueOpt: Option[ValueInfo]) extends TypedArgument {
 
+    def argValueOpt = valueOpt orElse Some(ValueInfo(Some(MashBoolean.True), Some(BooleanClass)))
+
+  }
 
   case class ShortFlag(flags: Seq[String]) extends TypedArgument {
-    val valueOpt = None
+
+    val argValueOpt = Some(ValueInfo(Some(MashBoolean.True), Some(BooleanClass)))
+
   }
 
 }

@@ -61,10 +61,10 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
       else
         bindRegularParam(param, evalArgs)
 
-  private def bindRegularParam(param: Parameter, evalArgs: Seq[TypedArgument]) =
+  private def bindRegularParam(param: Parameter, args: Seq[TypedArgument]) =
     for {
-      arg ← evalArgs.headOption
-      value ← arg.valueOpt
+      arg ← args.headOption
+      value ← arg.argValueOpt
     } {
       val argTypeOpt = value.typeOpt
       val paramNames = bindParam(param, argTypeOpt)
@@ -73,7 +73,7 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
     }
 
   private def bindVariadicParam(param: Parameter, evalArgs: Seq[TypedArgument]) = {
-    val individualArgType = evalArgs.flatMap(_.valueOpt).flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
+    val individualArgType = evalArgs.flatMap(_.argValueOpt).flatMap(_.typeOpt).headOption.getOrElse(Type.Any)
     val varargType = individualArgType match {
       case Type.Seq(elementType) if param.variadicFlatten ⇒ elementType.seq
       case t                                              ⇒ t.seq

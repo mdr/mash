@@ -224,11 +224,17 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "'string'.lines" ==> Seq(StringClass)
 
   // groupBy and Group
-  " [ {foo: 42} ] | groupBy 'foo' " ==> Seq(Generic(collections.GroupClass, NumberClass, obj("foo" -> NumberClass)))
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.key) " ==> NumberClass
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.values) " ==> Seq(obj("foo" -> NumberClass))
-  " [ {foo: 42} ] | groupBy 'foo' | (_.first.count) " ==> NumberClass
-  " 'foo' | groupBy (_) " ==> Seq(Generic(collections.GroupClass, StringClass taggedWith CharacterClass, StringClass))
+  "[ {foo: 42} ] | groupBy 'foo'" ==> Seq(Generic(collections.GroupClass, NumberClass, obj("foo" -> NumberClass)))
+  "[ {foo: 42} ] | groupBy 'foo' | (_.first.key)" ==> NumberClass
+  "[ {foo: 42} ] | groupBy 'foo' | (_.first.values)" ==> Seq(obj("foo" -> NumberClass))
+  "[ {foo: 42} ] | groupBy 'foo' | (_.first.count)" ==> NumberClass
+
+  "[ { field: 'value' } ] | groupBy (.field) --object=true" ==> ObjectClass
+  "[ { field: 'value' } ] | groupBy (.field) --object" ==> ObjectClass
+  "[ { field: 'value' } ] | groupBy (.field) -o" ==> ObjectClass
+  "[ { field: 'value' } ] | groupBy (.field) --object=false" ==> Seq(Generic(collections.GroupClass, StringClass, obj("field" -> StringClass)))
+
+  "'foo' | groupBy (_)" ==> Seq(Generic(collections.GroupClass, StringClass taggedWith CharacterClass, StringClass))
 
   // sliding
   "[1, 2, 3] | sliding 2" ==> Seq(Seq(NumberClass))
