@@ -2,20 +2,23 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
+import com.github.mdr.mash.repl.browser.BrowserState
+import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 case class ColumnId(value: Int)
 
-sealed trait ColumnFetch {
+sealed trait ValueFetch {
 
   def lookup(value: MashValue): Option[MashValue]
 
   def name: String
 
+  def fetchPath(parentPath: String): String
 }
 
-object ColumnFetch {
+object ValueFetch {
 
   object ByMember {
 
@@ -23,15 +26,17 @@ object ColumnFetch {
 
   }
 
-  case class ByMember(name: String, isNullaryMethod: Boolean = false) extends ColumnFetch {
+  case class ByMember(name: String, isNullaryMethod: Boolean = false) extends ValueFetch {
 
     def lookup(value: MashValue) =
       MemberEvaluator.maybeLookup(value, name).map(
         _.when(isNullaryMethod, rawValue ⇒ Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None)))
 
+    def fetchPath(parentPath: String): String = safeProperty(parentPath, name)
+
   }
 
-  case class ByIndex(index: Int) extends ColumnFetch {
+  case class ByIndex(index: Int) extends ValueFetch {
 
     def lookup(value: MashValue) = value match {
       case xs: MashList ⇒ xs.immutableElements.lift(index)
@@ -40,11 +45,13 @@ object ColumnFetch {
 
     def name = index.toString
 
+    def fetchPath(parentPath: String): String = s"$parentPath[$index]"
+
   }
 
 }
 
-case class ColumnSpec(fetch: ColumnFetch, weight: Double = 1) {
+case class ColumnSpec(fetch: ValueFetch, weight: Double = 1) {
 
   def name = fetch.name
 

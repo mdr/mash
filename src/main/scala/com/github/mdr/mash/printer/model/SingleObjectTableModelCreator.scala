@@ -6,7 +6,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 
 class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
-  private val fieldRenderer: FieldRenderer = new FieldRenderer(viewConfig)
+  private val fieldRenderer = new FieldRenderer(viewConfig)
 
   def create(obj: MashObject): SingleObjectTableModel = {
     val classNameOpt = obj.classOpt.flatMap(_.nameOpt)
@@ -26,8 +26,8 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
 
     val fieldColumnId = ColumnId(0)
     val valueColumnId = ColumnId(1)
-    val fieldColumn = ColumnSpec(ColumnFetch.ByMember("field"), 10)
-    val valueColumn = ColumnSpec(ColumnFetch.ByMember("value"), 1)
+    val fieldColumn = ColumnSpec(ValueFetch.ByMember("field"), 10)
+    val valueColumn = ColumnSpec(ValueFetch.ByMember("value"), 1)
     val columnIds = Seq(fieldColumnId, valueColumnId)
     val columnSpecs = Map(fieldColumnId -> fieldColumn, valueColumnId -> valueColumn)
 

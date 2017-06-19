@@ -3,9 +3,8 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.SafeParens
-import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
+import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
-import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.{ CellSearchInfo, SearchState }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.screen.Point
@@ -146,29 +145,26 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
     val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
       val rowObject = model.rowValue(selectedRow)
-      val rowPath = s"$safePath[$selectedRow]"
+      val rowPath = model.rowFetch(selectedRow).fetchPath(safePath)
       val cellSelectionInfoOpt =
         for {
           columnId ← currentColumnIdOpt
           field = model.columnName(columnId)
           rawCellValue ← model.rows(selectedRow).cells(columnId).rawValueOpt
           fetch ← model.columns(columnId).fetchOpt
-          newPath = getCellPath(rowPath, fetch)
+          newPath = fetch.fetchPath(rowPath)
         } yield SelectionInfo(newPath, rawCellValue)
       cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))
     } else {
       val rowIndices = markedRows.toSeq.sorted
-      val rowsPath = rowIndices.map(i ⇒ s"$safePath[$i]").mkString("[", ", ", "]")
+      val rowsPath =
+        rowIndices
+          .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(safePath))
+          .mkString("[", ", ", "]")
       val rowObjects = MashList(rowIndices.map(model.rowValues))
       SelectionInfo(rowsPath, rowObjects)
     }
   }
-
-  private def getCellPath(rowPath: String, fetch: ColumnFetch): String =
-    fetch match {
-      case ColumnFetch.ByMember(name, _) ⇒ safeProperty(rowPath, name)
-      case ColumnFetch.ByIndex(index)    ⇒ s"$rowPath[$index]"
-    }
 
   def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {
     var newState = this

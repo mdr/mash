@@ -6,7 +6,7 @@ class ColumnAllocatorTest extends FlatSpec with Matchers {
 
   "Allocating columns" should "work" in {
     val fooColumnId = ColumnId(0)
-    val fooColumnSpec = ColumnSpec(ColumnFetch.ByMember("foo"), 1)
+    val fooColumnSpec = ColumnSpec(ValueFetch.ByMember("foo"), 1)
     val allocatedColumns =
       ColumnAllocator.allocateColumns(
         columnIds = Seq(fooColumnId),
@@ -19,8 +19,8 @@ class ColumnAllocatorTest extends FlatSpec with Matchers {
   "Allocating columns" should "work 2" in {
     val fooColumnId = ColumnId(0)
     val barColumnId = ColumnId(1)
-    val fooColumnSpec = ColumnSpec(ColumnFetch.ByMember("foo"), 1)
-    val barColumnSpec = ColumnSpec(ColumnFetch.ByMember("bar"), 100)
+    val fooColumnSpec = ColumnSpec(ValueFetch.ByMember("foo"), 1)
+    val barColumnSpec = ColumnSpec(ValueFetch.ByMember("bar"), 100)
     val allocatedColumns =
       ColumnAllocator.allocateColumns(
         columnIds = Seq(fooColumnId, barColumnId),

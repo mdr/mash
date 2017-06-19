@@ -79,6 +79,8 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
 
   def isEmpty: Boolean = withLock { fields.isEmpty }
 
+  def nonEmpty: Boolean = !isEmpty
+
   def set(fieldName: String, value: MashValue) = withLock {
     fields(fieldName) = value
   }
@@ -152,4 +154,7 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
   }
 
   override def compareTo(that: MashObject) = MashValueOrdering.compare(this.immutableFields, that.immutableFields)
+
+  def size: Int = immutableFields.size
+
 }

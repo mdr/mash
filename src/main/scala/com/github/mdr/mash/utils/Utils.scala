@@ -25,6 +25,12 @@ object Utils {
   def minBy[A, B](xs: Seq[A], f: A ⇒ B)(implicit cmp: Ordering[B]): Option[A] =
     if (xs.isEmpty) None else Some(xs.minBy(f))
 
+  def maxBy[A, B](xs: Seq[A], f: A ⇒ B)(implicit cmp: Ordering[B]): Option[A] =
+    if (xs.isEmpty) None else Some(xs.maxBy(f))
+
+  def maxBy[A, B](xs: Seq[A], f: A ⇒ B, default: A)(implicit cmp: Ordering[B]): A =
+    maxBy(xs, f) getOrElse default
+
   def itemBefore[T](items: Seq[T], item: T): Option[T] =
     Utils.indexOf(items, item)
       .collect { case n if n > 0 ⇒ n - 1 }

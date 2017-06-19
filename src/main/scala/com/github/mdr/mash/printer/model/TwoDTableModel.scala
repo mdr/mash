@@ -1,18 +1,18 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.printer.{ ColumnFetch, ColumnId }
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.printer.model.TwoDTableModel._
+import com.github.mdr.mash.printer.{ ColumnId, ValueFetch }
+import com.github.mdr.mash.runtime.MashValue
 
 object TwoDTableModel {
 
-  case class Row(cells: Map[ColumnId, Cell], rawValue: MashValue) {
+  case class Row(cells: Map[ColumnId, Cell], rawValue: MashValue, fetch: ValueFetch) {
 
     def renderedValue(columnId: ColumnId): String = cells(columnId).renderedValue
 
   }
 
-  case class Column(name: String, width: Int, fetchOpt: Option[ColumnFetch] = None)
+  case class Column(name: String, width: Int, fetchOpt: Option[ValueFetch] = None)
 
   case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
 
@@ -37,4 +37,5 @@ case class TwoDTableModel(columnIds: Seq[ColumnId],
 
   def rowValue(row: Int): MashValue = rowValues(row)
 
+  def rowFetch(row: Int): ValueFetch = rows(row).fetch
 }

@@ -67,19 +67,22 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private def getPrintModel(value: MashValue): PrintModel = value match {
     case obj: MashObject if obj.immutableFields.values.forall(x ⇒ x.isAnObject || x.isAList) ⇒
       new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(obj)
-    case obj: MashObject                                                                       ⇒
+    case obj: MashObject                                                                     ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
-    case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList)                              ⇒
+    case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList)                            ⇒
       new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
-    case xs: MashList                                                                          ⇒
+    case xs: MashList                                                                        ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                                                     ⇒
+    case _                                                                                   ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
   case class PrintConfig(disableCustomViews: Boolean = false,
                          alwaysUseBrowser: Boolean = false,
                          alwaysUseTreeBrowser: Boolean = false)
+
+  private def done = PrintResult()
+  private def browse(model: PrintModel) = PrintResult(Some(model))
 
   def print(value: MashValue,
             printConfig: PrintConfig = PrintConfig()): PrintResult =
@@ -88,53 +91,81 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                               ⇒
+        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                     ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
-          return PrintResult(Some(model))
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAnObject || x.isAList)                       ⇒
-          val objects = xs.immutableElements
-          val nonDataRows = 4 // 3 header rows + 1 footer
-          if (objects.size > terminalInfo.rows - nonDataRows && viewConfig.browseLargeOutput) {
-            val model = new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
-            return PrintResult(Some(model))
-          } else
-            new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(objects)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                         ⇒
-          if (xs.length > terminalInfo.rows && viewConfig.browseLargeOutput) {
-            val model = new TextLinesModelCreator(viewConfig).create(xs)
-            return PrintResult(Some(model))
-          } else
-            xs.elements.foreach(output.println)
-        case obj: MashObject if obj.classOpt == Some(ViewClass)                                            ⇒
-          val view = ViewClass.Wrapper(obj)
-          val printConfig = PrintConfig(
-            disableCustomViews = view.disableCustomViews,
-            alwaysUseBrowser = view.useBrowser,
-            alwaysUseTreeBrowser = view.useTree)
-          return print(view.data, printConfig)
-        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
+          browse(model)
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAnObject || x.isAList)                             ⇒
+          printTwoD(xs)
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                               ⇒
+          printTextLines(xs)
+        case obj: MashObject if obj.classOpt contains ViewClass                                                  ⇒
+          printView(obj)
+        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews      ⇒
           helpPrinter.printFunctionHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
+          done
+        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews         ⇒
           helpPrinter.printFieldHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
+          done
+        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews         ⇒
           helpPrinter.printClassHelp(obj)
-        case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
+          done
+        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews            ⇒
           new GitStatusPrinter(output).print(obj)
-        case obj: MashObject                                                                               ⇒
+          done
+        case obj: MashObject if obj.nonEmpty && obj.immutableFields.values.forall(x ⇒ x.isAnObject || x.isAList) ⇒
+          printTwoD(obj)
+        case obj: MashObject                                                                                     ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                     ⇒ // Don't print out sequence of unit
-        case f: MashFunction if !printConfig.disableCustomViews                                            ⇒
+          done
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                           ⇒
+          done // Don't print out sequence of unit
+        case f: MashFunction if !printConfig.disableCustomViews                                                  ⇒
           print(HelpCreator.getHelp(f), printConfig)
-        case method: BoundMethod if !printConfig.disableCustomViews                                        ⇒
+        case method: BoundMethod if !printConfig.disableCustomViews                                              ⇒
           print(HelpCreator.getHelp(method), printConfig)
-        case klass: MashClass if !printConfig.disableCustomViews                                           ⇒
+        case klass: MashClass if !printConfig.disableCustomViews                                                 ⇒
           print(HelpCreator.getHelp(klass), printConfig)
-        case MashUnit                                                                                      ⇒ // Don't print out Unit
-        case _                                                                                             ⇒
+        case MashUnit                                                                                            ⇒
+          // Don't print out Unit
+          done
+        case _                                                                                                   ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
+          done
       }
-      PrintResult()
     }
+
+  private def printView(obj: MashObject): PrintResult = {
+    val view = ViewClass.Wrapper(obj)
+    val printConfig = PrintConfig(
+      disableCustomViews = view.disableCustomViews,
+      alwaysUseBrowser = view.useBrowser,
+      alwaysUseTreeBrowser = view.useTree)
+    print(view.data, printConfig)
+  }
+
+  private def printTextLines(xs: MashList): PrintResult =
+    if (xs.length > terminalInfo.rows && viewConfig.browseLargeOutput) {
+      val model = new TextLinesModelCreator(viewConfig).create(xs)
+      browse(model)
+    } else {
+      xs.elements.foreach(output.println)
+      done
+    }
+
+  private def printTwoD(value: MashValue): PrintResult = {
+    val size = value match {
+      case xs: MashList    ⇒ xs.size
+      case obj: MashObject ⇒ obj.size
+    }
+    val nonDataRows = 4 // 3 header rows + 1 footer
+    if (size > terminalInfo.rows - nonDataRows && viewConfig.browseLargeOutput) {
+      val model = new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(value)
+      browse(model)
+    } else {
+      new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(value)
+      done
+    }
+  }
 
   def printBox(title: String, lines: Seq[String]) {
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)

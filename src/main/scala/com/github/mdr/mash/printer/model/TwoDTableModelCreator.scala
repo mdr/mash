@@ -30,20 +30,27 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
     case _               ⇒ throw new IllegalArgumentException(s"Could not render 2D table of type ${value.typeName}")
   }
 
-  def create(list: MashList): TwoDTableModel =
-    create(list, 0.until(list.size).map(_.toString), list.immutableElements)
-
-  def create(obj: MashObject): TwoDTableModel = {
-    val (fieldNames, fieldValues) = obj.immutableFields.toSeq.unzip
-    create(obj, fieldNames, fieldValues)
+  def create(list: MashList): TwoDTableModel = {
+    val rowInfos = list.immutableElements.zipWithIndex.map { case (element, index) ⇒
+      RowInfo(index.toString, element, ValueFetch.ByIndex(index))
+    }
+    create(list, rowInfos)
   }
 
-  private def create(rawValue: MashValue, rowLabels: Seq[String], values: Seq[MashValue]): TwoDTableModel = {
-    val (dataColumnIds, columnSpecs) = getColumnSpecs(values)
-
-    val tableRows: Seq[Row] = values.zip(rowLabels).map { case (row, rowLabel) ⇒
-      createTableRow(dataColumnIds, columnSpecs, row, rowLabel)
+  def create(obj: MashObject): TwoDTableModel = {
+    val rowInfos = obj.immutableFields.toSeq.map { case (field, value) ⇒
+      RowInfo(field, value, ValueFetch.ByMember(field))
     }
+    create(obj, rowInfos)
+  }
+
+  case class RowInfo(label: String, rawValue: MashValue, fetch: ValueFetch)
+
+  private def create(rawValue: MashValue, rowInfos: Seq[RowInfo]): TwoDTableModel = {
+    val (dataColumnIds, columnSpecs) = getColumnSpecs(rowInfos.map(_.rawValue))
+
+    val tableRows: Seq[Row] = rowInfos.map(rowInfo ⇒
+      createTableRow(dataColumnIds, columnSpecs, rowInfo))
 
     def desiredColumnWidth(columnId: ColumnId): Int = {
       val columnName = columnSpecs(columnId).name
@@ -54,7 +61,7 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
         yield columnId -> desiredColumnWidth(columnId)).toMap
 
     val allColumnIds = RowLabelColumnId +: dataColumnIds
-    val rowLabelWidth = Utils.max(rowLabels.map(_.length), default = 0)
+    val rowLabelWidth = Utils.max(rowInfos.map(_.label.length), default = 0)
     val selectionStateWidth = if (showSelections) 2 else 0
     val totalAvailableWidth = terminalInfo.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
     val allocatedColumnWidths = ColumnAllocator.allocateColumns(dataColumnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
@@ -73,19 +80,18 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
   private def createTableRow(columnIds: Seq[ColumnId],
                              columnSpecs: Map[ColumnId, ColumnSpec],
-                             rowValue: MashValue,
-                             rowLabel: String): Row = {
+                             rowInfo: RowInfo): Row = {
     val dataCells =
       for {
         columnId ← columnIds
         ColumnSpec(fetch, _) = columnSpecs(columnId)
-        cellValueOpt = fetch.lookup(rowValue)
+        cellValueOpt = fetch.lookup(rowInfo.rawValue)
         renderedValue = cellValueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
         cell = Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
-    val indexCell = RowLabelColumnId -> Cell(rowLabel)
+    val indexCell = RowLabelColumnId -> Cell(rowInfo.label)
     val allCells = (dataCells :+ indexCell).toMap
-    Row(allCells, rowValue)
+    Row(allCells, rowInfo.rawValue, rowInfo.fetch)
   }
 
   private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
@@ -102,10 +108,10 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
             .flatMap(_.immutableFields.keys)
             .distinct
             .zipWithIndex
-            .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ColumnFetch.ByMember(field)) }
+            .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ValueFetch.ByMember(field)) }
         val sizes = sampleValues.flatMap(_.asList).map(_.size)
         val maxSize = if (sizes.isEmpty) 0 else sizes.max
-        val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ColumnFetch.ByIndex(i)))
+        val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ValueFetch.ByIndex(i)))
         fieldSpecs ++ indexSpecs
       }
       else
@@ -116,14 +122,14 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
   private def commitColumnSpecs: Seq[(ColumnId, ColumnSpec)] =
     Seq(
-      ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Hash), weight = 1),
-      ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
-      ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Author), weight = 10),
-      ColumnId(3) -> ColumnSpec(ColumnFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
+      ColumnId(0) -> ColumnSpec(ValueFetch.ByMember(CommitClass.Fields.Hash), weight = 1),
+      ColumnId(1) -> ColumnSpec(ValueFetch.ByMember(CommitClass.Fields.CommitTime), weight = 10),
+      ColumnId(2) -> ColumnSpec(ValueFetch.ByMember(CommitClass.Fields.Author), weight = 10),
+      ColumnId(3) -> ColumnSpec(ValueFetch.ByMember(CommitClass.Fields.Summary), weight = 3))
 
   private def groupColumnSpecs: Seq[(ColumnId, ColumnSpec)] =
     Seq(
-      ColumnId(0) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Key), weight = 10),
-      ColumnId(1) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
-      ColumnId(2) -> ColumnSpec(ColumnFetch.ByMember(GroupClass.Fields.Values), weight = 1))
+      ColumnId(0) -> ColumnSpec(ValueFetch.ByMember(GroupClass.Fields.Key), weight = 10),
+      ColumnId(1) -> ColumnSpec(ValueFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
+      ColumnId(2) -> ColumnSpec(ValueFetch.ByMember(GroupClass.Fields.Values), weight = 1))
 }

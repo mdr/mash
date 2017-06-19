@@ -1,6 +1,7 @@
 package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.printer.model.TwoDTableModel
+import com.github.mdr.mash.printer.model.TwoDTableModel.Row
 import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils
@@ -45,7 +46,7 @@ class TwoDTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderObjectRow(model: TwoDTableModel, row: TwoDTableModel.Row): String = {
+  def renderObjectRow(model: TwoDTableModel, row: Row): String = {
     def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
     new StringBuilder()
       .append(doubleVertical)
