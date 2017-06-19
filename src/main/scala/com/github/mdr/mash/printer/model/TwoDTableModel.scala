@@ -6,8 +6,6 @@ import com.github.mdr.mash.printer.model.TwoDTableModel._
 
 object TwoDTableModel {
 
-  case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
-
   case class Row(cells: Map[ColumnId, Cell], rawValue: MashValue) {
 
     def renderedValue(columnId: ColumnId): String = cells(columnId).renderedValue
@@ -16,12 +14,14 @@ object TwoDTableModel {
 
   case class Column(name: String, width: Int, fetchOpt: Option[ColumnFetch] = None)
 
+  case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
+
 }
 
 case class TwoDTableModel(columnIds: Seq[ColumnId],
                           columns: Map[ColumnId, Column],
                           rows: Seq[Row],
-                          rawValue: MashList) extends PrintModel {
+                          rawValue: MashValue) extends PrintModel {
 
   def columnName(columnId: ColumnId): String = columns(columnId).name
 

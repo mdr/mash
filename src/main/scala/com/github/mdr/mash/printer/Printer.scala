@@ -65,13 +65,15 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
-    case obj: MashObject                                          ⇒
+    case obj: MashObject if obj.immutableFields.values.forall(x ⇒ x.isAnObject || x.isAList) ⇒
+      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(obj)
+    case obj: MashObject                                                                       ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
-    case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList) ⇒
+    case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList)                              ⇒
       new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
-    case xs: MashList                                             ⇒
+    case xs: MashList                                                                          ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                        ⇒
+    case _                                                                                     ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 

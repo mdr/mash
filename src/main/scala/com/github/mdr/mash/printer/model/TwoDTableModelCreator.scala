@@ -3,13 +3,15 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.printer._
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Utils
 
 object TwoDTableModelCreator {
 
   private val IndexColumnName = "#"
-  private val IndexColumnId = ColumnId(-1)
+  private val RowLabelColumnId = ColumnId(-1)
 
 }
 
@@ -22,46 +24,68 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
-  def create(list: MashList): TwoDTableModel = {
-    val values = list.immutableElements
-    val (columnIds, columnSpecs) = getColumnSpecs(values)
-
-    val tableRows: Seq[TwoDTableModel.Row] =
-      values.zipWithIndex.map { case (obj, rowIndex) ⇒ createTableRow(obj, rowIndex, columnIds, columnSpecs) }
-
-    def desiredColumnWidth(columnId: ColumnId, columnName: String): Int =
-      (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.length).max
-    val requestedColumnWidths: Map[ColumnId, Int] =
-      (for (columnId ← columnIds) yield columnId -> desiredColumnWidth(columnId, columnSpecs(columnId).name)).toMap
-
-    val allColumnIds = IndexColumnId +: columnIds
-    val indexColumnWidth = values.size.toString.length
-    val selectionStateWidth = if (showSelections) 2 else 0
-    val totalAvailableWidth = terminalInfo.columns - indexColumnWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
-    val allocatedColumnWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
-    val columnNames = (for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name) + (IndexColumnId -> IndexColumnName)
-    val columns =
-      for ((columnId, width) ← allocatedColumnWidths)
-        yield columnId -> TwoDTableModel.Column(columnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
-    val indexColumn = IndexColumnId -> TwoDTableModel.Column(IndexColumnName, indexColumnWidth)
-    val allColumns = columns + indexColumn
-    TwoDTableModel(allColumnIds, allColumns, tableRows, list)
+  def create(value: MashValue): TwoDTableModel = value match {
+    case list: MashList  ⇒ create(list)
+    case obj: MashObject ⇒ create(obj)
+    case _               ⇒ throw new IllegalArgumentException(s"Could not render 2D table of type ${value.typeName}")
   }
 
-  private def createTableRow(rowValue: MashValue,
-                             rowIndex: Int,
-                             columnIds: Seq[ColumnId],
-                             columnSpecs: Map[ColumnId, ColumnSpec]): TwoDTableModel.Row = {
-    val pairs =
+  def create(list: MashList): TwoDTableModel =
+    create(list, 0.until(list.size).map(_.toString), list.immutableElements)
+
+  def create(obj: MashObject): TwoDTableModel = {
+    val (fieldNames, fieldValues) = obj.immutableFields.toSeq.unzip
+    create(obj, fieldNames, fieldValues)
+  }
+
+  private def create(rawValue: MashValue, rowLabels: Seq[String], values: Seq[MashValue]): TwoDTableModel = {
+    val (dataColumnIds, columnSpecs) = getColumnSpecs(values)
+
+    val tableRows: Seq[Row] = values.zip(rowLabels).map { case (row, rowLabel) ⇒
+      createTableRow(dataColumnIds, columnSpecs, row, rowLabel)
+    }
+
+    def desiredColumnWidth(columnId: ColumnId): Int = {
+      val columnName = columnSpecs(columnId).name
+      (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.length).max
+    }
+    val requestedColumnWidths: Map[ColumnId, Int] =
+      (for (columnId ← dataColumnIds)
+        yield columnId -> desiredColumnWidth(columnId)).toMap
+
+    val allColumnIds = RowLabelColumnId +: dataColumnIds
+    val rowLabelWidth = Utils.max(rowLabels.map(_.length), default = 0)
+    val selectionStateWidth = if (showSelections) 2 else 0
+    val totalAvailableWidth = terminalInfo.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
+    val allocatedColumnWidths = ColumnAllocator.allocateColumns(dataColumnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
+
+    val dataColumnNames = for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name
+    val allColumnNames = dataColumnNames + (RowLabelColumnId -> IndexColumnName)
+
+    val dataColumns =
+      for ((columnId, width) ← allocatedColumnWidths)
+        yield columnId -> Column(allColumnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
+    val rowLabelColumn = RowLabelColumnId -> Column(IndexColumnName, rowLabelWidth)
+    val allColumns = dataColumns + rowLabelColumn
+
+    TwoDTableModel(allColumnIds, allColumns, tableRows, rawValue)
+  }
+
+  private def createTableRow(columnIds: Seq[ColumnId],
+                             columnSpecs: Map[ColumnId, ColumnSpec],
+                             rowValue: MashValue,
+                             rowLabel: String): Row = {
+    val dataCells =
       for {
         columnId ← columnIds
         ColumnSpec(fetch, _) = columnSpecs(columnId)
         cellValueOpt = fetch.lookup(rowValue)
         renderedValue = cellValueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
-        cell = TwoDTableModel.Cell(renderedValue, cellValueOpt)
+        cell = Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
-    val cells = (pairs :+ (IndexColumnId -> TwoDTableModel.Cell(rowIndex.toString))).toMap
-    TwoDTableModel.Row(cells, rowValue)
+    val indexCell = RowLabelColumnId -> Cell(rowLabel)
+    val allCells = (dataCells :+ indexCell).toMap
+    Row(allCells, rowValue)
   }
 
   private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {

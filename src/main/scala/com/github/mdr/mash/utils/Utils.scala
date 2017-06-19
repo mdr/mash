@@ -20,6 +20,8 @@ object Utils {
   def max[A](xs: Iterable[A])(implicit cmp: Ordering[A]): Option[A] =
     if (xs.isEmpty) None else Some(xs.max)
 
+  def max[A](xs: Iterable[A], default: A)(implicit cmp: Ordering[A]): A = max(xs) getOrElse default
+
   def minBy[A, B](xs: Seq[A], f: A ⇒ B)(implicit cmp: Ordering[B]): Option[A] =
     if (xs.isEmpty) None else Some(xs.minBy(f))
 
