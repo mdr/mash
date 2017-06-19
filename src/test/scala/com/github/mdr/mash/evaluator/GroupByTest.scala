@@ -27,6 +27,14 @@ class GroupByTest extends AbstractEvaluatorTest {
 
   // --object
   "[{ path: 'file.txt', type: 'file' }, { path: 'script.mash', type: 'file' }, { path: 'src', type: 'dir' }] | groupBy 'type' --object" ==>
-     "{ file: [{ path: 'file.txt', type: 'file' }, { path: 'script.mash', type: 'file' }], dir: [{ path: 'src', type: 'dir' }] }"
+    "{ file: [{ path: 'file.txt', type: 'file' }, { path: 'script.mash', type: 'file' }], dir: [{ path: 'src', type: 'dir' }] }"
+  "[{ path: 'file.txt', type: 'file' }, { path: '000', type: null }] | groupBy 'type' --object" ==>
+    "{ file: [{ path: 'file.txt', type: 'file' }] }"
+
+  "[].groupBy --total --object".shouldThrowAnException
+
+  // --select
+  "[{ path: 'file.txt', type: 'file' }, { path: 'src', type: 'dir' }] | groupBy 'type' --select='path' | select 'key' 'values' | sortBy 'key'" ==>
+    "[{ key: 'dir', values: ['src'] }, { key: 'file', values: ['file.txt'] }]"
 
 }

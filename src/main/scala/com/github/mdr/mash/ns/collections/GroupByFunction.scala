@@ -3,6 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.runtime._
 
 import scala.collection.immutable.ListMap
@@ -12,9 +13,6 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
   private val DefaultTotalKeyName = "Total"
 
   object Params {
-    val Discriminator = Parameter(
-      nameOpt = Some("discriminator"),
-      summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
     val Total = Parameter(
       nameOpt = Some("total"),
       summaryOpt = Some("Include a total group containing all the results (default false)"),
@@ -44,9 +42,19 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       shortFlagOpt = Some('o'),
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
+      isBooleanFlag = true,
       descriptionOpt = Some(
         """If true, output an object with a field for each group, using the key as the field name, and
           |  the matching values as the field value.""".stripMargin))
+    val Discriminator = Parameter(
+      nameOpt = Some("discriminator"),
+      summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
+    val Select = Parameter(
+      nameOpt = Some("select"),
+      defaultValueGeneratorOpt = Some(NoArgValue),
+      isFlag = true,
+      isFlagValueMandatory = true,
+      summaryOpt = Some("Function to apply to elements of the sequence to determine the final values of the output groups"))
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence from which to form groups"))
@@ -54,14 +62,18 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   import Params._
 
-  val params = ParameterModel(Discriminator, Total, IncludeNull, Object, Sequence)
+  val params = ParameterModel(Total, IncludeNull, Object, Discriminator, Select, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
+    val select: MashValue ⇒ MashValue = boundParams.validateFunctionOpt(Select).getOrElse(identity _)
     val includeNulls = boundParams(IncludeNull).isTruthy
     val includeTotalGroup = boundParams(Total).isTruthy
     val outputAnObject = boundParams(Object).isTruthy
+
+    if (includeTotalGroup && outputAnObject)
+      throw new ArgumentException(s"Cannot specify both --${Total.name} and --${Object.name}")
 
     val nullKey = boundParams(IncludeNull) match {
       case MashBoolean.True ⇒ MashNull
@@ -74,25 +86,26 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     if (outputAnObject)
       MashObject.of(for {
         (key, values) ← sequence.groupBy(discriminator)
+        if key != MashNull || includeNulls
         stringKey = key match {
           case s: MashString ⇒ s.s
           case x             ⇒ throw new EvaluatorException(s"Group keys must be strings when grouping into an Object, but was a ${x.typeName}")
         }
-      } yield stringKey -> MashList(values))
+      } yield stringKey -> MashList(values map select))
     else {
       var groups =
         for {
           (key, values) ← sequence.groupBy(discriminator).toSeq
           if key != MashNull || includeNulls
           groupKey = translateKey(key)
-        } yield makeGroup(groupKey, values)
+        } yield makeGroup(groupKey, values map select)
 
       if (includeTotalGroup) {
         val totalKey = boundParams(Total) match {
           case MashBoolean.True ⇒ MashString(DefaultTotalKeyName)
           case x                ⇒ x
         }
-        val totalGroup = makeGroup(totalKey, sequence)
+        val totalGroup = makeGroup(totalKey, sequence map select)
         groups = groups :+ totalGroup
       }
 
@@ -121,7 +134,8 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 a subset of the sequence  sharing the same key, as determined by the given 
 discriminator function.
 
-An Object can be output instead, if the ${Object.name} flag is true.
+If the --${Object.name} flag is true, an Object is output instead, with a field for every group key.
+--total cannot be used with --object.
 
 Example:
   groupBy first ["foo", "bar", "baz"]
