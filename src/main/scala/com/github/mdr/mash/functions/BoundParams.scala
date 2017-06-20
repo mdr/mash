@@ -82,7 +82,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   }
 
   def validateFunctionOpt(param: Parameter): Option[MashValue ⇒ MashValue] =
-    validateFunctionOpt(param, this(param))
+    validateFunctionOpt(param, this (param))
 
   private def validateFunctionOpt(param: Parameter, value: MashValue): Option[MashValue ⇒ MashValue] =
     value match {
@@ -124,6 +124,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     argument match {
       case f: MashFunction ⇒ detectArity(f.params)
       case bm: BoundMethod ⇒ detectArity(bm.params)
+      case _               ⇒ throwInvalidArgumentType("function", argument, param)
     }
   }
 
