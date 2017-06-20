@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add collections.transpose
 * Allow 2D tables to support objects of objects
 * Add --object and --select flags to groupBy
 * Add String.toList

@@ -180,6 +180,7 @@ object MashRoot {
     SumByFunction,
     SumFunction,
     TakeWhileFunction,
+    TransposeFunction,
     UniqueFunction,
     WhereFunction,
     WhereNotFunction,

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.model.TwoDTableModel
+import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
 import com.github.mdr.mash.printer.{ ColumnId, TwoDTableStringifier, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
@@ -29,7 +29,7 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
   private def renderHeaderRow(model: TwoDTableModel): Line = {
     def renderColumn(columnId: ColumnId): StyledString = {
       val fit = StringUtils.fitToWidth(model.columnName(columnId), model.columnWidth(columnId))
-      fit.style(Style(bold = true, foregroundColour = BasicColour.Yellow))
+      fit.style(Style(foregroundColour = BasicColour.Yellow))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
     buffer ++= boxCharacterSupplier.doubleVertical.style.chars
@@ -71,8 +71,12 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
       val buf = ArrayBuffer[StyledCharacter]()
       for ((c, offset) <- cellContents.zipWithIndex) {
         val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
-        val foregroundColour = if (isSearchMatch) BasicColour.Cyan else DefaultColour
-        val style = Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = foregroundColour)
+        val bold = isSearchMatch
+        val foregroundColour =
+          if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow
+          else if (isSearchMatch) BasicColour.Cyan
+          else DefaultColour
+        val style = Style(inverse = highlightCell, bold = bold, foregroundColour = foregroundColour)
         buf += StyledCharacter(c, style)
       }
       StyledString(buf)

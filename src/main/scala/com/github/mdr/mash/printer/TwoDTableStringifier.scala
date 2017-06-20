@@ -1,8 +1,8 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.printer.model.TwoDTableModel
+import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
 import com.github.mdr.mash.printer.model.TwoDTableModel.Row
-import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.{ BasicColour, DefaultColour, StyledString }
 import com.github.mdr.mash.screen.Screen._
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.screen.Style.StylableString
@@ -25,7 +25,7 @@ class TwoDTableStringifier(showSelections: Boolean = false) {
   def renderHeaderRow(model: TwoDTableModel): String = {
     def renderColumn(id: ColumnId) = {
       val fit = StringUtils.fitToWidth(model.columnName(id), model.columnWidth(id))
-      drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow, bold = true))
+      drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow))
     }
     val sb = new StringBuilder()
     sb.append(doubleVertical)
@@ -47,7 +47,11 @@ class TwoDTableStringifier(showSelections: Boolean = false) {
   }
 
   def renderObjectRow(model: TwoDTableModel, row: Row): String = {
-    def renderCell(columnId: ColumnId) = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
+    def renderCell(columnId: ColumnId): String = {
+      val foregroundColour = if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow else DefaultColour
+      val fittedCellValue = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
+      drawStyledChars(fittedCellValue.style(foregroundColour = foregroundColour))
+    }
     new StringBuilder()
       .append(doubleVertical)
       .append(model.columnIds.map(renderCell).mkString(singleVertical))

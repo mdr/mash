@@ -43,6 +43,7 @@ object ListClass extends MashClass("collections.List") {
     methodise(SumByFunction),
     methodise(SumFunction),
     methodise(TakeWhileFunction),
+    methodise(TransposeFunction),
     methodise(UniqueFunction),
     methodise(WhereFunction),
     methodise(WhereNotFunction),

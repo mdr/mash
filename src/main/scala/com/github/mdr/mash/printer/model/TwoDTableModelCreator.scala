@@ -11,7 +11,7 @@ import com.github.mdr.mash.utils.Utils
 object TwoDTableModelCreator {
 
   private val IndexColumnName = "#"
-  private val RowLabelColumnId = ColumnId(-1)
+  val RowLabelColumnId = ColumnId(-1)
 
 }
 
