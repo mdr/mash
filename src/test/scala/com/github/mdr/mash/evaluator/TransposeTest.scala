@@ -10,12 +10,14 @@ class TransposeTest extends AbstractEvaluatorTest {
   "[[1, 2, 3]] | transpose" ==> "[[1], [2], [3]]"
 
   "[[1, 2, 3], [4, 5], [6, 7, 8]] | transpose" ==> "[[1, 4, 6], [2, 5, 7], [3, null, 8]]"
+  "[[1, 2, 3], [4, 5], [6, 7, 8]] | transpose --skipGaps" ==> "[[1, 4, 6], [2, 5, 7], [3, 8]]"
 
   "[[]] | transpose" ==> "[]"
   "[[1]] | transpose" ==> "[[1]]"
 
   // list of objects
   "[{ foo: 42, bar: 100 }, { foo: 100, baz: 99 }] | transpose" ==> "{ foo: [42, 100], bar: [100, null], baz: [null, 99] }"
+  "[{ foo: 42, bar: 100 }, { foo: 100, baz: 99 }] | transpose --skipGaps" ==> "{ foo: [42, 100], bar: [100], baz: [99] }"
   "[{ foo: 42, bar: 100 }] | transpose" ==> "{ foo: [42], bar: [100] }"
   "[{ foo: 42 }] | transpose" ==> "{ foo: [42] }"
   "[{}] | transpose" ==> "{}"

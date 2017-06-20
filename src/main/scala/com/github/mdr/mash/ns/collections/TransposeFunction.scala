@@ -10,16 +10,24 @@ object TransposeFunction extends MashFunction("collections.transpose") {
     val Sequence = Parameter(
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence or Object to transpose"))
+    val SkipGaps = Parameter(
+      nameOpt = Some("skipGaps"),
+      summaryOpt = Some("If true, skip gaps in lists where an entry isn't available; if false, use null (default false)"),
+      shortFlagOpt = Some('s'),
+      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      isFlag = true,
+      isBooleanFlag = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Sequence)
+  val params = ParameterModel(Sequence, SkipGaps)
 
   def call(boundParams: BoundParams): MashValue = {
     val outer = boundParams(Sequence)
+    val skipGaps = boundParams(SkipGaps).isTruthy
     outer match {
-      case xs: MashList    ⇒ transposeList(boundParams, xs)
+      case xs: MashList    ⇒ transposeList(boundParams, xs, skipGaps)
       case obj: MashObject ⇒ transposeObject(boundParams, obj)
       case _               ⇒ boundParams.throwInvalidArgument(Sequence, "Must be a List or Object")
     }
@@ -67,27 +75,27 @@ object TransposeFunction extends MashFunction("collections.transpose") {
     headObject +: transposeObject(rest)
   }
 
-  private def transposeList(boundParams: BoundParams, xs: MashList): MashValue =
+  private def transposeList(boundParams: BoundParams, xs: MashList, skipGaps: Boolean): MashValue =
     if (xs.immutableElements.forall(_.isAList)) {
       val xss = xs.immutableElements.asInstanceOf[Seq[MashList]].map(_.immutableElements)
-      MashList(transposeListOfLists(xss))
+      MashList(transposeListOfLists(xss, skipGaps))
     } else if (xs.immutableElements.forall(_.isAnObject)) {
       val objects = xs.immutableElements.asInstanceOf[Seq[MashObject]]
-      transposeListOfObjects(objects)
+      transposeListOfObjects(objects, skipGaps)
     } else
       boundParams.throwInvalidArgument(Sequence, "List must contain either all Lists or Objects")
 
-  private def transposeListOfLists(xss: Seq[Seq[MashValue]]): Seq[MashList] =
+  private def transposeListOfLists(xss: Seq[Seq[MashValue]], skipGaps: Boolean): Seq[MashList] =
     if (xss.forall(_.isEmpty))
       Seq()
     else
-      MashList(xss.map(_.headOption getOrElse MashNull)) +: transposeListOfLists(xss.map(_ drop 1))
+      MashList(xss.flatMap(_.headOption orElse Some(MashNull).filterNot(_ ⇒ skipGaps))) +: transposeListOfLists(xss.map(_ drop 1), skipGaps)
 
-  private def transposeListOfObjects(objects: Seq[MashObject]): MashObject = {
+  private def transposeListOfObjects(objects: Seq[MashObject], skipGaps: Boolean): MashObject = {
     val allFields = objects.flatMap(_.immutableFields.keys).distinct
     def fieldList(field: String): MashList = {
-      MashList(objects.map { obj ⇒
-        MemberEvaluator.maybeLookup(obj, field) getOrElse MashNull
+      MashList(objects.flatMap { obj ⇒
+        MemberEvaluator.maybeLookup(obj, field) orElse Some(MashNull).filterNot(_ ⇒ skipGaps)
       })
     }
     MashObject.of(allFields.map(f => f -> fieldList(f)))
