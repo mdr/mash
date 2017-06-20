@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime._
 object LastFunction extends MashFunction("collections.last") {
 
   object Params {
-    val N = Parameter(
+    val N: Parameter = Parameter(
       nameOpt = Some("n"),
       summaryOpt = Some("Number of elements to take"),
       defaultValueGeneratorOpt = Some(NoArgValue))
