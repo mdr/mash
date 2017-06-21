@@ -23,6 +23,8 @@ object ObjectBrowserActions {
   case object ToggleMarked extends InputAction
   case object Rerender extends InputAction
   case object ViewAsTree extends InputAction
+  case object View1D extends InputAction
+  case object View2D extends InputAction
   case object HideColumn extends InputAction
   case object Open extends InputAction
   case object FocusDirectory extends InputAction

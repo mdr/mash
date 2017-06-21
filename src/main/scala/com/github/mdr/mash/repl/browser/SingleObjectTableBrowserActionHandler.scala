@@ -44,6 +44,10 @@ trait SingleObjectTableBrowserActionHandler {
         handleCopyItem(browserState)
       case ViewAsTree                      ⇒
         viewAsTree(browserState)
+      case View1D                          ⇒
+        view1D(browserState)
+      case View2D                          ⇒
+        view2D(browserState)
       case IncrementalSearch.BeginSearch   ⇒
         updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
       case ExpressionInput.BeginExpression ⇒

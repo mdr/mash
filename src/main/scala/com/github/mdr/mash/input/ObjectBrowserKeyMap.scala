@@ -32,6 +32,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("i") -> InsertItem,
   OtherSequence("I") -> InsertWholeItem,
   OtherSequence("t") -> ViewAsTree,
+  OtherSequence("1") -> View1D,
+  OtherSequence("2") -> View2D,
   OtherSequence("h") -> HideColumn,
   OtherSequence("o") -> Open,
   OtherSequence("c") -> Copy,
