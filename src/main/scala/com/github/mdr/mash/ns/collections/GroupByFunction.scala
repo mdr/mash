@@ -7,6 +7,7 @@ import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.runtime._
 
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.LinkedHashMap
 
 object GroupByFunction extends MashFunction("collections.groupBy") {
 
@@ -64,6 +65,15 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   val params = ParameterModel(Total, IncludeNull, Object, Discriminator, Select, Sequence)
 
+  private def groupBy[T, U](xs: Seq[T], f: T ⇒ U): Seq[(U, Seq[T])] = {
+    val map = LinkedHashMap[U, Seq[T]]()
+    for (x ← xs) {
+      val group = f(x)
+      map += group -> (map.getOrElse(group, Seq()) :+ x)
+    }
+    map.toSeq
+  }
+
   def call(boundParams: BoundParams): MashValue = {
     val sequence = boundParams.validateSequence(Sequence)
     val discriminator = boundParams.validateFunction(Discriminator)
@@ -85,7 +95,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     }
     if (outputAnObject)
       MashObject.of(for {
-        (key, values) ← sequence.groupBy(discriminator)
+        (key, values) ← groupBy(sequence, discriminator)
         if key != MashNull || includeNulls
         stringKey = key match {
           case s: MashString ⇒ s.s
@@ -95,7 +105,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     else {
       var groups =
         for {
-          (key, values) ← sequence.groupBy(discriminator).toSeq
+          (key, values) ← groupBy(sequence, discriminator).toSeq
           if key != MashNull || includeNulls
           groupKey = translateKey(key)
         } yield makeGroup(groupKey, values map select)

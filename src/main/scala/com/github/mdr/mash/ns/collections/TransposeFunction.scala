@@ -2,6 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
+import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime._
 
 object TransposeFunction extends MashFunction("collections.transpose") {
@@ -101,6 +103,44 @@ object TransposeFunction extends MashFunction("collections.transpose") {
     MashObject.of(allFields.map(f => f -> fieldList(f)))
   }
 
-  override def summaryOpt = Some("Transpose a nested structure")
+  override def typeInferenceStrategy = TransposeTypeInferenceStrategy
 
+  override def summaryOpt = Some("Transpose a nested structure, such as a list of lists")
+
+  override def descriptionOpt = Some(
+    """Examples:
+      |[["a", "b"], ["c", "d"], ["e", "f"]]
+      |╔═╤═╤═╗
+      |║#│0│1║
+      |╟─┼─┼─╢
+      |║0│a│b║
+      |║1│c│d║
+      |║2│e│f║
+      |╚═╧═╧═╝
+      |[["a", "b"], ["c", "d"], ["e", "f"]] | transpose
+      |╔═╤═╤═╤═╗
+      |║#│0│1│2║
+      |╟─┼─┼─┼─╢
+      |║0│a│c│e║
+      |║1│b│d│f║
+      |╚═╧═╧═╧═╝""".stripMargin)
+
+}
+
+object TransposeTypeInferenceStrategy extends TypeInferenceStrategy {
+
+  import TransposeFunction._
+
+  override def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+    params.bindTypes(arguments).getType(Params.Sequence).collect {
+      case Type.Seq(Type.Seq(x))         ⇒
+        x.seq.seq
+      case Type.Seq(Type.Object(fields)) ⇒
+        Type.Object(for ((field, fieldType) <- fields) yield field -> fieldType.seq)
+      case Type.Seq(Type.Instance(klass)) ⇒
+        Type.Object(for ((fieldName, field) <- klass.fieldsMap) yield fieldName -> field.fieldType.seq)
+      case Type.Seq(_)                   ⇒
+        Type.Any.seq.seq
+    }
+  }
 }
