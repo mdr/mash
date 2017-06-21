@@ -2,8 +2,8 @@ package com.github.mdr.mash.evaluator
 
 class GroupByTest extends AbstractEvaluatorTest {
 
-  "[1, 2, 3, 1] | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" ==>
-    "[ { key: 1, count: 2 }, { key: 2, count: 1 }, { key: 3, count: 1 } ] "
+  "[{ a: 1, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 3 }, { a: 1, b: 4 }] | groupBy (.a) | map (.unbless)" ==>
+    "[{ key: 1, values: [{ a: 1, b: 1 }, { a: 1, b: 2 }, { a: 1, b: 4 }] }, { key: 2, values: [{ a: 2, b: 3 }] }]"
 
   "'foo' | groupBy (x => x) | select 'key' 'count' | sortBy 'key'" ==>
     "[ { key: 'f', count: 1 }, { key: 'o', count: 2 } ] "
