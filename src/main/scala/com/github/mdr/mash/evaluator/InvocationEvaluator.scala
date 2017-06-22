@@ -77,8 +77,6 @@ object InvocationEvaluator extends EvaluatorHelper {
         callBoundMethod(boundMethod, arguments, invocationLocationOpt)
       case klass: MashClass         ⇒
         callClassAsFunction(klass, arguments, invocationLocationOpt, functionLocationOpt)
-      case obj: MashObject              ⇒
-        callObjectAsFunction(obj, arguments, invocationLocationOpt, functionLocationOpt)
       case x ⇒
         throwValueIsNotCallableException(x, functionLocationOpt)
     }
@@ -109,14 +107,6 @@ object InvocationEvaluator extends EvaluatorHelper {
       case None               ⇒
         throwValueIsNotCallableException(klass, functionLocationOpt)
     }
-
-  private def callObjectAsFunction(obj: MashObject,
-                                   arguments: Arguments,
-                                   invocationLocationOpt: Option[SourceLocation],
-                                   functionLocationOpt: Option[SourceLocation]): MashValue = {
-    val f = new ObjectFunction(obj, functionLocationOpt, invocationLocationOpt)
-    callFunction(f, arguments, invocationLocationOpt)
-  }
 
   private def callFunction(function: MashFunction,
                            arguments: Arguments,
