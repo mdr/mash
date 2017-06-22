@@ -1,6 +1,7 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference.{ Type, ValueInfo }
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 case class BoundTypeParams(boundArguments: Map[Parameter, ValueInfo],
                            boundNames: Map[String, Type],
@@ -10,7 +11,15 @@ case class BoundTypeParams(boundArguments: Map[Parameter, ValueInfo],
 
   def getArgument(param: Parameter): Option[ValueInfo] = boundArguments.get(param)
 
-  def contains(param: Parameter) = getArgument(param).isDefined
+  def getValue(param: Parameter): Option[MashValue] = getArgument(param).flatMap(_.valueOpt)
+
+  def getStringValue(param: Parameter): Option[String] =
+    getValue(param).flatMap {
+      case MashString(s, _) ⇒ Some(s)
+      case _                ⇒ None
+    }
+
+  def contains(param: Parameter): Boolean = getArgument(param).isDefined
 
   def paramAt(pos: Int): Option[Parameter] = posToParam get pos
 

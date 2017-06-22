@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.objectClass
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashValue }
 
 object GetMethod extends MashMethod("get") {
 
@@ -34,8 +34,7 @@ object GetMethod extends MashMethod("get") {
       val argBindings = params.bindTypes(arguments)
       val fieldTypeOpt =
         for {
-          ValueInfo(valueOpt, _) ← argBindings.getArgument(Name)
-          fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
+          fieldName ← argBindings.getStringValue(Name)
           targetType ← targetTypeOpt
           fieldType ← targetType match {
             case Type.Object(fields)  ⇒ fields.get(fieldName)
@@ -66,6 +65,15 @@ object GetMethod extends MashMethod("get") {
   }
 
   override def summaryOpt = Some("Get the value of the given field, else use a default (null by default)")
+
+  override def descriptionOpt = Some(
+    """Only fields are returned, not methods.
+      |
+      |Examples:
+      |  { name: 'Alice', age: 30 }.get 'age' # 30
+      |  {}.get 'age'                         # null
+      |  {}.get 'age' --default=18            # 18
+    """.stripMargin)
 
   override val isShy = true
 

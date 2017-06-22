@@ -297,6 +297,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // Object.get
   "{ foo: 42 }.get 'foo'" ==> NumberClass
+  "ls.first.get 'size'" ==> (NumberClass taggedWith BytesClass)
+  "json.get 'http://example.com' | .get 'foo' --default=42'" ==> NumberClass
 
   // @lazy parameters
   "((@lazy block) => block) 42" ==> NumberClass
