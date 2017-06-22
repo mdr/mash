@@ -25,7 +25,12 @@ class ObjectMethodsTest extends AbstractEvaluatorTest {
 
   // Object.fromPairs
   "[['a', 1], ['b', 2]] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
+  "[['a', 1, 100], ['b', 2, 200]] | Object.fromPairs 0 2" ==> "{ a: 100, b: 200 }"
+  "[] | Object.fromPairs" ==> "{}"
+
   "[{ name: 'a', value: 1 }, { name: 'b', value: 2 }] | Object.fromPairs" ==> "{ a: 1, b: 2 }"
+  "[{ name: 'a', value: 1, anotherValue: 100 }, { name: 'b', value: 2, anotherValue: 200 }] | Object.fromPairs 'name' 'anotherValue'" ==>
+    "{ a: 100, b: 200 }"
 
   // Object.withField
   "{}.withField 'foo' 42" ==> "{ foo: 42 }"

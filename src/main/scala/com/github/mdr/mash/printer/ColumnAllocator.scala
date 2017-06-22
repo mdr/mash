@@ -2,7 +2,6 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
-import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import com.github.mdr.mash.utils.Utils._
