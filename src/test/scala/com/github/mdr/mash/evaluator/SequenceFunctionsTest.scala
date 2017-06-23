@@ -70,6 +70,13 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
   "{ a: 42 } | grep 'name'" ==> "{}"
 
+  // indexOf
+  "[1, 2, 3, 2, 1].indexOf 2" ==> 1
+  "[1, 2, 3, 2, 1].indexOf 5" ==> null
+  "'abcba'.indexOf 'b'" ==> 1
+  "'abcba'.indexOf 'ba'" ==> 3
+  "'abcba'.indexOf 'z'" ==> null
+
   // isEmpty
   "isEmpty []" ==> true
   "isEmpty [1, 2, 3]" ==> false

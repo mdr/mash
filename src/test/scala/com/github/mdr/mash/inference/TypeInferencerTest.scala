@@ -141,6 +141,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "{ a: 1, b: 2, c: 3 } | last 3" ==> obj("a" -> NumberClass, "b" -> NumberClass, "c" -> NumberClass)
 
+  // indexOf
+  "[1, 2, 3].indexOf 2" ==> NumberClass
+  "'abc'.indexOf 'b'" ==> NumberClass
+
   // select
   "{ foo: 42 } | select 'foo' " ==> obj("foo" -> NumberClass)
   "[{ foo: 42 }] | select 'foo' " ==> Seq(obj("foo" -> NumberClass))
