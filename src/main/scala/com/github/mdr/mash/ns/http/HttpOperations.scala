@@ -1,9 +1,10 @@
 package com.github.mdr.mash.ns.http
 
+import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.evaluator.{ EvaluatorException, ToStringifier }
 import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils
@@ -11,6 +12,7 @@ import org.apache.http.client.CookieStore
 import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.conn.HttpHostConnectException
 import org.apache.http.cookie.Cookie
 import org.apache.http.entity.{ ContentType, FileEntity, StringEntity }
 import org.apache.http.impl.client.{ BasicCookieStore, CloseableHttpClient, HttpClients }
@@ -39,7 +41,7 @@ object HttpOperations {
       headers
 
   /**
-    * @param form  if set, body source must be a Value(MashObject)
+    * @param form if set, body source must be a Value(MashObject)
     */
   def runRequest(request: HttpUriRequest,
                  headers: Seq[Header],
@@ -56,7 +58,13 @@ object HttpOperations {
       setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodySource, json, form)
 
     val (cookieStore, client) = makeClient
-    val response = client.execute(request)
+    val response =
+      try
+        client.execute(request)
+      catch {
+        case e: UnknownHostException     ⇒ throw new EvaluatorException("Unknown host: " + e.getMessage)
+        case e: HttpHostConnectException ⇒ throw new EvaluatorException("Couldn't connect: " + e.getMessage)
+      }
 
     asMashObject(response, cookieStore)
   }
