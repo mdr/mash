@@ -6,6 +6,7 @@ object GitNamespace {
 
   val GitFunctions = Seq(
     AddFunction,
+    AmendFunction,
     CloneFunction,
     CommitFunction,
     FetchFunction,

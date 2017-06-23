@@ -2,12 +2,10 @@ package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.runtime.{ MashBoolean, MashUnit }
+import com.github.mdr.mash.ns.git.LogFunction.asCommitObject
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashUnit }
 
 object CommitFunction extends MashFunction("git.commit") {
-
-  private val filesystem = LinuxFileSystem
 
   object Params {
     val Message = Parameter(
@@ -31,17 +29,17 @@ object CommitFunction extends MashFunction("git.commit") {
 
   val params = ParameterModel(Message, All, Amend)
 
-  def call(boundParams: BoundParams): MashUnit = {
+  def call(boundParams: BoundParams): MashObject = {
     val all = boundParams(All).isTruthy
     val amend = boundParams(Amend).isTruthy
     val message = boundParams.validateString(Message).s
     GitHelper.withGit { git ⇒
-      git.commit.setMessage(message).setAll(all).setAmend(amend).call()
+      val newCommit = git.commit.setMessage(message).setAll(all).setAmend(amend).call()
+      asCommitObject(newCommit)
     }
-    MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = CommitClass
 
   override def summaryOpt = Some("Record changes to the repository")
 

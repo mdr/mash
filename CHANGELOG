@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add git.amend
 * Add field/value selectors to Object.fromPairs
 * Add collections.transpose
 * Allow 2D tables to support objects of objects
