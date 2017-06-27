@@ -86,7 +86,7 @@ object HttpOperations {
         case BodySource.Value(obj: MashObject) ⇒
           import scala.collection.JavaConverters._
           val nameValues = obj.immutableFields.map { case (key, value) ⇒
-            new BasicNameValuePair(key, ToStringifier.stringify(value))
+            new BasicNameValuePair(ToStringifier.stringify(key), ToStringifier.stringify(value))
           }.asJava
           new UrlEncodedFormEntity(nameValues)
         case _                                 ⇒

@@ -5,7 +5,7 @@ import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.editor.BracketMatcher
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
 
 import scala.collection.mutable.ArrayBuffer
@@ -48,7 +48,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
 
   private def getBareTokens(s: String, mish: Boolean): Option[Set[Token]] =
     globalVariablesOpt.map { globalVariables ⇒
-      val bindings = globalVariables.immutableFields.keySet
+      val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
       val concreteProgram = MashParser.parseForgiving(s, mish = mish)
       val provenance = Provenance("not required", s)
       val abstractExpr = new Abstractifier(provenance).abstractify(concreteProgram).body

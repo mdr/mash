@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.{ MashClass, UserDefinedClass }
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.AnyClass
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 import scala.PartialFunction.condOpt
 
@@ -57,8 +57,11 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
     case MashList(listValue)     ⇒ getType(listValue).map(_.seq)
     case obj: MashObject         ⇒
       val fieldTypes =
-        for ((fieldName, fieldValue) <- obj.immutableFields)
-          yield fieldName -> getType(fieldValue).getOrElse(Type.Instance(AnyClass))
+        for {
+          (fieldName, fieldValue) <- obj.immutableFields
+          stringFieldName ← condOpt(fieldName) { case s: MashString ⇒ s.s }
+          fieldType = getType(fieldValue) getOrElse Type.Instance(AnyClass)
+        } yield stringFieldName -> fieldType
       Some(Type.Object(fieldTypes))
     case _                       ⇒
       None

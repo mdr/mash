@@ -12,7 +12,7 @@ import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
@@ -148,6 +148,7 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
-  private def getBindings: Map[String, MashValue] = state.globalVariables.immutableFields
+  private def getBindings: Map[String, MashValue] =
+    state.globalVariables.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
 
 }

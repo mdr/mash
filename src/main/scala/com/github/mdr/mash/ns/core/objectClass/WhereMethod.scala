@@ -30,10 +30,10 @@ object WhereMethod extends MashMethod("where") {
     MashObject.of(
       getFieldValueIndexTriples(obj)
         .filter(predicate.tupled)
-        .map { case (field, value, _) ⇒ field.s -> value })
+        .map { case (field, value, _) ⇒ field -> value })
   }
 
-  def validatePredicate(boundParams: BoundParams): (MashString, MashValue, MashNumber) ⇒ Boolean =
+  def validatePredicate(boundParams: BoundParams): (MashValue, MashValue, MashNumber) ⇒ Boolean =
     boundParams.validateFunction1Or2Or3(Predicate) match {
       case Function1Or2Or3.One(f1)   ⇒ (field, value, i) ⇒ f1(field).isTruthy
       case Function1Or2Or3.Two(f2)   ⇒ (field, value, i) ⇒ f2(field, value).isTruthy

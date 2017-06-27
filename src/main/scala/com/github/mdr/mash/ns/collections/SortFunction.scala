@@ -40,11 +40,6 @@ object SortFunction extends MashFunction("collections.sort") {
 
   }
 
-  object NaturalStringOrdering extends Ordering[String] {
-    override def compare(v1: String, v2: String): Int =
-      SimpleNaturalComparator.getInstance[String].compare(v1, v2)
-  }
-
   def call(boundParams: BoundParams): MashValue = {
     val descending = boundParams(Descending).isTruthy
     val naturalOrder = boundParams(NaturalOrder).isTruthy
@@ -71,9 +66,8 @@ object SortFunction extends MashFunction("collections.sort") {
   }
 
   private def sortObject(obj: MashObject, descending: Boolean, naturalOrder: Boolean): MashValue = {
-    val ordinaryOrdering = implicitly[Ordering[String]]
-    val fieldOrdering = if (naturalOrder) NaturalStringOrdering else ordinaryOrdering
-    val ordering = fieldOrdering.on[(String, MashValue)](_._1)
+    val fieldOrdering = if (naturalOrder) NaturalMashValueOrdering else MashValueOrdering
+    val ordering = fieldOrdering.on[(MashValue, MashValue)](_._1)
     val newFields = obj.immutableFields.toSeq.sortWith(ordering.lt).when(descending, _.reverse)
     MashObject.of(newFields)
   }

@@ -17,12 +17,12 @@ object FieldsMethod extends MashMethod("fields") {
   }
 
   def getFieldObjects(obj: MashObject): Seq[MashObject] = {
-    def asObject(name: String, value: MashValue) = {
+    def asObject(name: MashValue, value: MashValue) = {
       MashObject.of(ListMap(
-        Name -> MashString(name),
+        Name -> name,
         Value -> value), FieldAndValueClass)
     }
-    obj.fields.toSeq.map((asObject _).tupled)
+    obj.immutableFields.toSeq.map((asObject _).tupled)
   }
 
   override def typeInferenceStrategy = Seq(FieldAndValueClass)

@@ -5,7 +5,7 @@ import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.{ Object, UserClass }
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core.{ BoundMethodClass, ClassClass, FunctionClass, ObjectClass }
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils
 
 import scala.PartialFunction._
@@ -79,10 +79,10 @@ object MemberFinder {
   private def getValueMembers(obj: MashObject): Seq[MemberInfo] =
     obj.classOpt match {
       case Some(klass) ⇒
-        val extraFieldMembers = obj.fields.keys.toSeq.filterNot(klass.fieldsMap.contains).map(MemberInfo(_, isField = true))
+        val extraFieldMembers = obj.immutableFields.keys.toSeq.collect { case s: MashString ⇒ s.s }.filterNot(klass.fieldsMap.contains).map(MemberInfo(_, isField = true))
         distinct(extraFieldMembers ++ getMembers(klass))
       case None        ⇒
-        val fieldMembers = obj.fields.keys.toSeq.map(MemberInfo(_, isField = true))
+        val fieldMembers = obj.immutableFields.keys.toSeq.collect { case s: MashString ⇒ s.s }.map(MemberInfo(_, isField = true))
         distinct(fieldMembers ++ getMembers(ObjectClass))
     }
 

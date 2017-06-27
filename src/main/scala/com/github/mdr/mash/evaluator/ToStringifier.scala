@@ -47,7 +47,7 @@ object ToStringifier {
     if (x.isAString)
       x.asInstanceOf[MashString].s
     else {
-      val toStringMethod = MemberEvaluator.lookup(x, AnyClass.ToStringMethod.name)
+      val toStringMethod = MemberEvaluator.lookupByString(x, AnyClass.ToStringMethod.name)
       val stringified = Evaluator.invokeNullaryFunctions(toStringMethod, locationOpt = None)
       stringified match {
         case MashString(s, _) ⇒ s

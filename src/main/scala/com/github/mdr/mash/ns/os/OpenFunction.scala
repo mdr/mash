@@ -24,7 +24,7 @@ object OpenFunction extends MashFunction("os.open") {
   override def call(boundParams: BoundParams): MashUnit = {
     val items = boundParams.validateSequence(Items)
     for (item ← items)
-      MemberEvaluator.maybeLookup(item, "open") match {
+      MemberEvaluator.maybeLookupByString(item, "open") match {
         case Some(NullaryCallable(nc)) ⇒ nc.callNullary()
         case _                         ⇒ openWithSystemOpener(item)
       }

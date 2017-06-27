@@ -6,14 +6,14 @@ import com.github.mdr.mash.compiler._
 import com.github.mdr.mash.lexer.MashLexer
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.{ PrettyPrinter, TreePrettyPrinter }
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.runtime.{ MashObject, MashString }
 
 class DebugCommandRunner(output: PrintStream, globals: MashObject) {
 
   def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
     val settings = CompilationSettings(inferTypes = true, bareWords = bareWords)
     def compile(s: String): Expr =
-      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.immutableFields, settings).body
+      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }, settings).body
     (keyword, args) match {
       case ("p" | "pretty", actualCmd)     ⇒
         TreePrettyPrinter.printTree(compile(actualCmd))

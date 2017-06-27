@@ -20,7 +20,7 @@ object WhereNotMethod extends MashMethod("whereNot") {
     MashObject.of(
       getFieldValueIndexTriples(obj)
         .filterNot(predicate.tupled)
-        .map { case (field, value, _) ⇒ field.s -> value })
+        .map { case (field, value, _) ⇒ field -> value })
   }
 
   override def typeInferenceStrategy = ObjectClass

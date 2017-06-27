@@ -1,9 +1,9 @@
 package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.classes.Field
-import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator }
+import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator, ToStringifier }
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 case class ColumnId(value: Int)
@@ -21,17 +21,21 @@ object ValueFetch {
 
   object ByMember {
 
-    def apply(field: Field): ByMember = ByMember(field.name)
+    def apply(field: Field): ByMember = ByMember(MashString(field.name))
+
+    def apply(field: String): ByMember = ByMember(MashString(field))
 
   }
 
-  case class ByMember(name: String, isNullaryMethod: Boolean = false) extends ValueFetch {
+  case class ByMember(member: MashValue, isNullaryMethod: Boolean = false) extends ValueFetch {
+
+    override def name = ToStringifier.stringify(member) // TODO_OBJ
 
     def lookup(value: MashValue) =
-      MemberEvaluator.maybeLookup(value, name).map(
+      MemberEvaluator.maybeLookup(value, member).map(
         _.when(isNullaryMethod, rawValue ⇒ Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None)))
 
-    def fetchPath(parentPath: String): String = safeProperty(parentPath, name)
+    def fetchPath(parentPath: String): String = safeProperty(parentPath, member)
 
   }
 

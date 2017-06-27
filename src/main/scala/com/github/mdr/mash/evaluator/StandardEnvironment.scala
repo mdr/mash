@@ -17,16 +17,16 @@ object StandardEnvironment {
 
   def createGlobalVariables(): MashObject = {
     val ns = NamespaceCreator.createNamespace
-    val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ f.name -> f)
-    val nameClassPairs = MashRoot.StandardClasses.map(c ⇒ c.name -> c)
-    val aliasPairs = MashRoot.Aliases.toSeq
+    val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ MashString(f.name) -> f)
+    val nameClassPairs = MashRoot.StandardClasses.map(c ⇒ MashString(c.name) -> c)
+    val aliasPairs = MashRoot.Aliases.toSeq.map { case (k, v) ⇒ MashString(k) -> v }
     val rootNsPairs = ns.fields.toSeq
-    val otherPairs: Seq[(String, MashValue)] =
+    val otherPairs =
       Seq(
         Env -> systemEnvironment,
         Config -> com.github.mdr.mash.Config.defaultConfig,
         ReplState.It -> MashNull,
-        Ns -> ns)
+        Ns -> ns).map { case (k, v) ⇒ MashString(k) -> v } // TODO_OBJ
     val allPairs = nameFunctionPairs ++ nameClassPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
     val global = MashObject.of(allPairs)
     global.set(Global, global)

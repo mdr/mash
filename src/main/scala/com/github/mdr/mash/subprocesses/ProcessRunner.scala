@@ -79,8 +79,8 @@ object ProcessRunner {
 
   private def setEnvironment(env: java.util.Map[String, String]) = {
     env.clear()
-    for ((k, v) ← Singletons.environment.fields)
-      env.put(k, ToStringifier.stringify(v))
+    for ((k, v) ← Singletons.environment.immutableFields)
+      env.put(ToStringifier.stringify(k), ToStringifier.stringify(v))
   }
 
 }

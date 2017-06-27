@@ -156,7 +156,7 @@ trait ObjectBrowserActionHandler
   private def focusExpression(currentPath: String, currentValue: MashValue, furtherExpression: String): Unit = {
     val newPath = SafeParens.safeParens(currentPath, furtherExpression)
     val fullExpression = "it" + furtherExpression
-    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + ("it" -> currentValue))
+    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + (MashString("it") -> currentValue))
     val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
     val compilationUnit = CompilationUnit(fullExpression)
     for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))

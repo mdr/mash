@@ -62,7 +62,7 @@ object UrlClass extends MashClass("net.Url") {
       val builder = new URIBuilder(uri)
       def addObject(obj: MashObject) =
         for ((field, value) ← obj.immutableFields)
-          builder.addParameter(field, ToStringifier.stringify(value))
+          builder.addParameter(ToStringifier.stringify(field), ToStringifier.stringify(value))
       boundParams.validateObjectOpt(QueryParams).foreach(addObject)
       addObject(boundParams.validateObject(NamedQueryParams))
       MashString(builder.build.toString, UrlClass)

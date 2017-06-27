@@ -101,30 +101,28 @@ object AssignmentEvaluator extends EvaluatorHelper {
                                          obj: MashObject,
                                          index: Expr,
                                          indexValue: MashValue,
-                                         operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
-    val fields = obj.fields
-    indexValue match {
-      case MashString(fieldName, _) ⇒
-        assignToField(obj, fieldName, operatorOpt, rightValue, lookupExpr, assignmentExpr)
-      case _                        ⇒
-        throw new EvaluatorException("Invalid object index of type " + indexValue.typeName, sourceLocation(index))
-    }
-  }
+                                         operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue =
+    assignToField(obj, indexValue, operatorOpt, rightValue, lookupExpr, assignmentExpr) // TODO_OBJ
 
   private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr, assignmentExpr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val MemberExpr(target, fieldName, _, _) = memberExpr
     Evaluator.evaluate(target) match {
       case obj: MashObject ⇒
-        assignToField(obj, fieldName, operatorOpt, rightValue, memberExpr, assignmentExpr)
+        assignToField(obj, MashString(fieldName), operatorOpt, rightValue, memberExpr, assignmentExpr)
       case targetValue     ⇒
         throw new EvaluatorException("Cannot assign to fields of a value of type " + targetValue.typeName, sourceLocation(assignmentExpr))
     }
   }
 
-  private def assignToField(obj: MashObject, fieldName: String, operatorOpt: Option[BinaryOperator], rightValue: MashValue, objectExpr: Expr, assignmentExpr: AssignmentExpr)(implicit context: EvaluationContext): MashValue = {
-    val fields = obj.fields
+  private def assignToField(obj: MashObject,
+                            fieldName: MashValue,
+                            operatorOpt: Option[BinaryOperator],
+                            rightValue: MashValue,
+                            objectExpr: Expr,
+                            assignmentExpr: AssignmentExpr)(implicit context: EvaluationContext): MashValue = {
+    val fields = obj.immutableFields
     if (operatorOpt.isDefined && !fields.contains(fieldName))
-      throw new EvaluatorException(s"No field '$fieldName' to update", sourceLocation(objectExpr))
+      throw new EvaluatorException(s"No field '$fieldName' to update", sourceLocation(objectExpr)) // TODO_OBJ`
     val actualRightValue = operatorOpt match {
       case Some(op) ⇒
         val currentValue = fields(fieldName)
@@ -132,7 +130,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case None     ⇒
         rightValue
     }
-    fields += fieldName -> actualRightValue
+    obj.set(fieldName, actualRightValue)
     actualRightValue
   }
 

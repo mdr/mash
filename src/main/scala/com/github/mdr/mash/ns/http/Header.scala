@@ -27,9 +27,9 @@ object Header {
     }
     NoArgFunction.option(boundParams(param)).toSeq.flatMap {
       case xs: MashList ⇒
-        xs.elements.map(getHeader)
+        xs.immutableElements.map(getHeader)
       case obj: MashObject ⇒
-        obj.fields.toSeq.map { case (fieldName, value) ⇒ Header(fieldName, ToStringifier.stringify(value)) }
+        obj.immutableFields.toSeq.map { case (fieldName, value) ⇒ Header(ToStringifier.stringify(fieldName), ToStringifier.stringify(value)) }
       case _            ⇒
         Seq()
     }

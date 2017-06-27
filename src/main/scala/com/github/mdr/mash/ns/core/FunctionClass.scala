@@ -48,8 +48,8 @@ object FunctionClass extends MashClass("core.Function") {
       val namedArgs = boundParams.validateObject(NamedArgs)
 
       val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
-      val namedArguments = namedArgs.fields.toSeq.map { case (field, value) ⇒
-        EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
+      val namedArguments = namedArgs.immutableFields.toSeq.map { case (field, value) ⇒
+        EvaluatedArgument.LongFlag(ToStringifier.stringify(field), Some(SuspendedMashValue(() ⇒ value))) // TODO_OBJ
       }
       val functionArguments = Arguments(positionalArguments ++ namedArguments)
       val functionBoundParams = function.params.bindTo(functionArguments, function.paramContext)

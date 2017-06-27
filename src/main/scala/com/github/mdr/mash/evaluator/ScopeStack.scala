@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 sealed abstract class Scope(val variables: MashObject) {
 
@@ -9,7 +9,7 @@ sealed abstract class Scope(val variables: MashObject) {
   private def thisGet(name: String): Option[MashValue] =
     for {
       thisValue ← thisOpt
-      memberValue ← MemberEvaluator.maybeLookup(thisValue, name, includePrivate = true, includeShyMembers = false)
+      memberValue ← MemberEvaluator.maybeLookupByString(thisValue, name, includePrivate = true, includeShyMembers = false)
     } yield memberValue
 
   def set(name: String, value: MashValue) = variables.set(name, value)
@@ -97,7 +97,7 @@ case class ScopeStack(scopes: List[Scope]) {
 
   private def bindings(scopes: List[Scope]): Map[String, MashValue] = scopes match {
     case Nil           ⇒ Map()
-    case scope :: rest ⇒ bindings(rest) ++ scope.variables.immutableFields
+    case scope :: rest ⇒ bindings(rest) ++ scope.variables.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
   }
 
 }

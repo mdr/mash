@@ -68,13 +68,13 @@ object MashValueOrdering extends Ordering[MashValue] {
           c
     }
 
-  def compare(xs: ListMap[String, MashValue], ys: ListMap[String, MashValue]): Int = {
-    def compareP(xs: List[(String, MashValue)], ys: List[(String, MashValue)]): Int = (xs, ys) match {
+  def compare(xs: ListMap[MashValue, MashValue], ys: ListMap[MashValue, MashValue]): Int = {
+    def compareP(xs: List[(MashValue, MashValue)], ys: List[(MashValue, MashValue)]): Int = (xs, ys) match {
       case (Nil, Nil)                             ⇒ 0
       case (_, Nil)                               ⇒ 1
       case (Nil, _)                               ⇒ -1
       case ((s1, v1) :: tailX, (s2, v2) :: tailY) ⇒
-        val c = s1 compareTo s2
+        val c = compare(s1, s2)
         if (c == 0) {
           val c2 = compare(v1, v2)
           if (c2 == 0)

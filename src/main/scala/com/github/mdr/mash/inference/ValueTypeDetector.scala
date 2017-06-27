@@ -66,7 +66,7 @@ class ValueTypeDetector {
     case _: MashClass                                      ⇒ ClassClass
     case MashUnit                                          ⇒ UnitClass
     case xs: MashList                                      ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
-    case obj@MashObject(_, None)                           ⇒ Type.Object(for ((field, value) ← obj.immutableFields) yield field -> getType(value))
+    case obj@MashObject(_, None)                           ⇒ Type.Object(for ((field, value) ← obj.immutableFields; fieldString ← PartialFunction.condOpt(field) { case s: MashString ⇒ s.s }) yield fieldString -> getType(value)) // TODO_OBJ
     case obj@MashObject(_, Some(GroupClass))               ⇒ getTypeOfGroup(obj)
     case obj@MashObject(_, Some(TimedResultClass))         ⇒ getTypeOfTimedResult(obj)
     case MashObject(_, Some(userClass: UserDefinedClass))  ⇒ Type.UserClassInstance(getUserClassType(userClass))

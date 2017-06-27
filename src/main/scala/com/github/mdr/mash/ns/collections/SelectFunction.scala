@@ -77,7 +77,7 @@ object SelectFunction extends MashFunction("collections.select") {
     }
 
   private def doSelect(target: MashValue, fieldsAndFunctions: Seq[(String, MashValue ⇒ MashValue)], add: Boolean): MashObject = {
-    val (baseFields: ListMap[String, MashValue], newClassOpt: Option[MashClass]) =
+    val (baseFields: ListMap[MashValue, MashValue], newClassOpt: Option[MashClass]) =
       if (add) {
         target match {
           case MashObject(fields, classOpt) ⇒ (ListMap(fields.toSeq: _*), classOpt)
@@ -87,7 +87,7 @@ object SelectFunction extends MashFunction("collections.select") {
         (ListMap(), None)
     val mapPairs =
       for ((field, f) ← fieldsAndFunctions)
-        yield field -> f(target)
+        yield MashString(field) -> f(target)
     val newFields = ListMap(mapPairs: _*)
     MashObject.of(baseFields ++ newFields, newClassOpt)
   }

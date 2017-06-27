@@ -61,7 +61,7 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
     case obj: MashObject   ⇒
       val jsonObj = new JsonObject
       for ((field, value) ← obj.fields)
-        jsonObj.add(field, asJson(value))
+        jsonObj.add(ToStringifier.stringify(field), asJson(value))
       jsonObj
     case _                 ⇒
       new JsonPrimitive(ToStringifier.stringify(value))

@@ -37,7 +37,7 @@ object TransposeFunction extends MashFunction("collections.transpose") {
 
   private def transposeObject(boundParams: BoundParams, obj: MashObject): MashValue =
     if (obj.immutableFields.forall(_._2.isAnObject)) {
-      val objectsByField: Seq[(String, MashObject)] = obj.immutableFields.toSeq.map { case (field, value) ⇒
+      val objectsByField: Seq[(MashValue, MashObject)] = obj.immutableFields.toSeq.map { case (field, value) ⇒
         field -> value.asInstanceOf[MashObject]
       }
       val allInnerFields = objectsByField.flatMap { case (_, innerObject) ⇒ innerObject.immutableFields.keys }.distinct
@@ -51,7 +51,7 @@ object TransposeFunction extends MashFunction("collections.transpose") {
         }
       }
     } else if (obj.immutableFields.forall(_._2.isAList)) {
-      val fields: Seq[(String, Seq[MashValue])] = obj.immutableFields.toSeq.map { case (field, value) ⇒
+      val fields: Seq[(MashValue, Seq[MashValue])] = obj.immutableFields.toSeq.map { case (field, value) ⇒
         field -> value.asInstanceOf[MashList].immutableElements
       }
       MashList(transposeObject(fields))
@@ -59,7 +59,7 @@ object TransposeFunction extends MashFunction("collections.transpose") {
       boundParams.throwInvalidArgument(Sequence, "Object values must be either all Lists or Objects")
 
 
-  private def transposeObject(fields: Seq[(String, Seq[MashValue])]): Seq[MashObject] = {
+  private def transposeObject(fields: Seq[(MashValue, Seq[MashValue])]): Seq[MashObject] = {
     if (fields.forall(_._2.isEmpty))
       return Seq()
     val headObject =
@@ -95,7 +95,7 @@ object TransposeFunction extends MashFunction("collections.transpose") {
 
   private def transposeListOfObjects(objects: Seq[MashObject], skipGaps: Boolean): MashObject = {
     val allFields = objects.flatMap(_.immutableFields.keys).distinct
-    def fieldList(field: String): MashList = {
+    def fieldList(field: MashValue): MashList = {
       MashList(objects.flatMap { obj ⇒
         MemberEvaluator.maybeLookup(obj, field) orElse Some(MashNull).filterNot(_ ⇒ skipGaps)
       })

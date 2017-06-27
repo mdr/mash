@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.objectClass
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 object TransformFieldsMethod extends MashMethod("transformFields") {
 
@@ -25,11 +25,11 @@ object TransformFieldsMethod extends MashMethod("transformFields") {
     boundParams.validateFunction1Or2(F) match {
       case Left(f)  ⇒
         MashObject.of(obj.immutableFields.map { case (name, value) ⇒
-          ToStringifier.stringify(f(MashString(name))) -> value
+          f(name) -> value
         })
       case Right(f) ⇒
         MashObject.of(obj.immutableFields.map { case (name, value) ⇒
-          ToStringifier.stringify(f(MashString(name), value)) -> value
+          f(name, value) -> value
         })
     }
   }

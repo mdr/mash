@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.{ Field, MashClass }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Type, TypedArguments }
 import com.github.mdr.mash.ns.core.AnyClass
@@ -25,7 +26,7 @@ object UidClass extends MashClass("os.Uid") {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
-      userSummary.fields(field.name)
+      userSummary.get(field.name).getOrElse(throw new EvaluatorException("No field found: " + field.name))
     }
 
     override def typeInferenceStrategy = UserSummaryClass.fieldsMap(field.name).fieldType

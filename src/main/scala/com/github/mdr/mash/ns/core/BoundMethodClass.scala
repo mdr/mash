@@ -36,7 +36,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val namedArgs = boundParams.validateObject(NamedArgs)
       val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
       val namedArguments = namedArgs.fields.toSeq.map { case (field, value) ⇒
-        EvaluatedArgument.LongFlag(field, Some(SuspendedMashValue(() ⇒ value)))
+        EvaluatedArgument.LongFlag(ToStringifier.stringify(field), Some(SuspendedMashValue(() ⇒ value))) // TODO_OBJ
       }
       val methodArguments = Arguments(positionalArguments ++ namedArguments)
       val boundMethod = target.asInstanceOf[BoundMethod]

@@ -33,16 +33,16 @@ object MapMethod extends MashMethod("map") {
     constructResult(mappedValues)
   }
 
-  private def validateMappingFunction(boundParams: BoundParams): (MashString, MashValue, MashNumber) ⇒ MashValue =
+  private def validateMappingFunction(boundParams: BoundParams): (MashValue, MashValue, MashNumber) ⇒ MashValue =
     boundParams.validateFunction1Or2Or3(F) match {
       case Function1Or2Or3.One(f1)   ⇒ (field, value, i) ⇒ f1(field)
       case Function1Or2Or3.Two(f2)   ⇒ (field, value, i) ⇒ f2(field, value)
       case Function1Or2Or3.Three(f3) ⇒ (field, value, i) ⇒ f3(field, value, i)
     }
 
-  def getFieldValueIndexTriples(obj: MashObject): Seq[(MashString, MashValue, MashNumber)] =
+  def getFieldValueIndexTriples(obj: MashObject): Seq[(MashValue, MashValue, MashNumber)] =
     zipWithMashIndex(obj.immutableFields)
-      .map { case ((field, value), i) ⇒ (MashString(field), value, i) }
+      .map { case ((field, value), i) ⇒ (field, value, i) }
 
   private def constructResult(mappedValues: Seq[MashValue]): MashValue =
     if (mappedValues.isEmpty)

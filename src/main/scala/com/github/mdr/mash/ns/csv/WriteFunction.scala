@@ -32,7 +32,7 @@ object WriteFunction extends MashFunction("csv.write") {
 
     val fields =
       values.flatMap {
-        case obj: MashObject ⇒ obj.immutableFields.keys.toSeq
+        case obj: MashObject ⇒ obj.immutableFields.keys.toSeq.map(ToStringifier.stringify)
         case x               ⇒ boundParams.throwInvalidArgument(Values, s"Values to write must be objects, but found: ${x.typeName}")
       }.distinct
 

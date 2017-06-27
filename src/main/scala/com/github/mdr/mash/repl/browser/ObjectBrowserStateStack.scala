@@ -1,5 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.model.PrintModel
@@ -7,9 +8,9 @@ import com.github.mdr.mash.runtime.MashValue
 
 object BrowserState {
 
-  def safeProperty(path: String, property: String): String = {
+  def safeProperty(path: String, property: MashValue): String = {
     val safePath = SafeParens.safeParens(path)
-    if (isLegalIdentifier(property))
+    if (isLegalIdentifier(ToStringifier.stringify(property))) // TODO_OBJ
       s"$safePath.$property"
     else
       s"$safePath['$property']"

@@ -24,17 +24,14 @@ object DeselectFunction extends MashFunction("collections.deselect") {
   val params = ParameterModel(Fields, Target)
 
   def call(boundParams: BoundParams): MashValue = {
-    val fields: Seq[String] = boundParams.validateSequence(Fields).collect {
-      case s: MashString ⇒ s.s
-      case field         ⇒ boundParams.throwInvalidArgument(Fields, "Invalid field name of type: " + field.typeName)
-    }
+    val fields: Seq[MashValue] = boundParams.validateSequence(Fields)
     boundParams(Target) match {
       case xs: MashList ⇒ xs.map(doDeselect(_, fields))
       case x            ⇒ doDeselect(x, fields)
     }
   }
 
-  private def doDeselect(value: MashValue, fields: Seq[String]): MashValue = value match {
+  private def doDeselect(value: MashValue, fields: Seq[MashValue]): MashValue = value match {
     case obj: MashObject ⇒ MashObject.of(obj.fields.filterNot(fields contains _._1))
     case _               ⇒ value
   }

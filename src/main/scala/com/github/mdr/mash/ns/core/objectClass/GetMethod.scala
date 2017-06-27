@@ -23,9 +23,9 @@ object GetMethod extends MashMethod("get") {
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
-    val field = boundParams.validateString(Name).s
+    val field = boundParams.validateString(Name)
     val default = boundParams(Default)
-    obj.fields.getOrElse(field, default)
+    obj.immutableFields.getOrElse(field, default)
   }
 
   object GetMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {

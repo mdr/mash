@@ -408,7 +408,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   // .unbless
   "class Point x y; Point 3 4 | .unbless" ==> obj("x" -> Any, "y" -> Any)
-  "{ foo: 42 }.fields.first.unbless" ==> obj("name" -> StringClass, "value" -> Any)
+  "{ foo: 42 }.fields.first.unbless" ==> obj("name" -> Any, "value" -> Any)
 
   // @alias
   "class A { @(alias 'a') def aardvark = 42 }; A.new.a" ==> NumberClass

@@ -1,5 +1,6 @@
 package com.github.mdr.mash.printer.model
 
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
@@ -16,7 +17,7 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
     val fields = obj.immutableFields
     val renderedFields =
       for ((field, value) ← fields)
-        yield field -> renderValue(value)
+        yield ToStringifier.stringify(field) -> renderValue(value) // TODO_OBJ
     SingleObjectTableModel(classNameOpt, renderedFields, fieldColumnWidth, valueColumnWidth, obj, fields)
   }
 
@@ -62,6 +63,6 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
   private def renderValue(value: MashValue): String = fieldRenderer.renderField(value, inCell = true)
 
   private def maxFieldWidth(obj: MashObject): Int =
-    if (obj.fields.isEmpty) 0 else obj.fields.keySet.map(_.size).max
+    if (obj.fields.isEmpty) 0 else obj.fields.keySet.map(k ⇒ ToStringifier.stringify(k).size).max
 
 }

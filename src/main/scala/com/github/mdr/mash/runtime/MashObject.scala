@@ -10,34 +10,54 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 trait ViewableAsFields {
-  def fields: LinkedHashMap[String, MashValue]
+  def fields: LinkedHashMap[MashValue, MashValue]
 }
 
 object ViewableAsFields {
 
   implicit def fromLinkedHashMap(map: LinkedHashMap[String, MashValue]): ViewableAsFields =
     new ViewableAsFields {
+      def fields = for ((k, v) <- map) yield MashString(k) -> v
+    }
+
+  implicit def fromLinkedHashMap2(map: LinkedHashMap[MashValue, MashValue]): ViewableAsFields =
+    new ViewableAsFields {
       def fields = map
     }
 
   implicit def fromMap(map: Map[String, MashValue]): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap((for ((k, v) <- map.toSeq) yield MashString(k) -> v): _*)
+    }
+
+  implicit def fromMap2(map: Map[MashValue, MashValue]): ViewableAsFields =
     new ViewableAsFields {
       def fields = LinkedHashMap(map.toSeq: _*)
     }
 
   implicit def fromListMap(map: Map[Field, MashValue]): ViewableAsFields =
     new ViewableAsFields {
-      def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ field.name -> v }: _*)
+      def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ MashString(field.name) -> v }: _*)
     }
 
   implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields =
     new ViewableAsFields {
+      def fields = LinkedHashMap((for ((k, v) <- pairs) yield MashString(k) -> v): _*)
+    }
+
+  implicit def fromPairs2(pairs: Seq[(MashValue, MashValue)]): ViewableAsFields =
+    new ViewableAsFields {
       def fields = LinkedHashMap(pairs: _*)
     }
 
-  implicit def fromPairs(pair: (String, MashValue)): ViewableAsFields =
+  implicit def fromPair(pair: (String, MashValue)): ViewableAsFields =
     new ViewableAsFields {
-      def fields = LinkedHashMap(pair)
+      def fields = LinkedHashMap(MashString(pair._1) -> pair._2)
+    }
+
+  implicit def fromPair2(pair: (MashValue, MashValue)): ViewableAsFields =
+    new ViewableAsFields {
+      def fields = LinkedHashMap(pair._1 -> pair._2)
     }
 
 }
@@ -53,17 +73,17 @@ object MashObject {
   def of[T <% ViewableAsFields](fields: T): MashObject =
     new MashObject(fields.fields, None)
 
-  def empty = of(Seq())
+  def empty = of(Seq[(MashString, MashString)]())
 
   def merge(objects: Seq[MashObject]) = objects.reduceOption(_ ++ _) getOrElse MashObject.empty
 }
 
-case class MashObject private(fields: LinkedHashMap[String, MashValue],
+case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
                               classOpt: Option[MashClass] = None) extends MashValue with Comparable[MashObject] {
 
   for (klass ← classOpt) {
     val classFields = klass.fields.map(_.name).toSet
-    val providedFields = fields.keySet
+    val providedFields = fields.keySet.collect { case s: MashString ⇒ s.s }
 
     val missingFields = classFields diff providedFields
     if (missingFields.nonEmpty)
@@ -71,7 +91,7 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
   }
 
   def withField(fieldName: String, value: MashValue): MashObject =
-    MashObject.of(fields.toSeq :+ (fieldName -> value), classOpt)
+    MashObject.of(fields.toSeq :+ (MashString(fieldName) -> value), classOpt)
 
   def withClass(klass: MashClass): MashObject = MashObject.of(fields, Some(klass))
 
@@ -81,30 +101,30 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
 
   def nonEmpty: Boolean = !isEmpty
 
-  def set(fieldName: String, value: MashValue) = withLock {
+  def set(fieldName: String, value: MashValue): Unit = set(MashString(fieldName), value)
+
+  def set(fieldName: MashValue, value: MashValue): Unit = withLock {
     fields(fieldName) = value
   }
 
   def apply(fieldName: String): MashValue = withLock {
-    fields(fieldName)
+    fields(MashString(fieldName))
   }
 
-  def apply(field: Field): MashValue = withLock {
-    fields(field.name)
-  }
+  def apply(field: Field): MashValue = apply(field.name)
 
-  def get(fieldName: String): Option[MashValue] = withLock {
+  def get(fieldName: String): Option[MashValue] = get(MashString(fieldName))
+
+  def get(fieldName: MashValue): Option[MashValue] = withLock {
     fields.get(fieldName)
   }
 
-  def get(field: Field): Option[MashValue] = withLock {
-    fields.get(field.name)
-  }
+  def get(field: Field): Option[MashValue] = get(field.name)
 
   def hasField(fieldName: String): Boolean = get(fieldName).isDefined
 
   def -(fieldName: String): MashObject = withLock {
-    MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
+    MashObject.of(fields.filterKeys(_ != MashString(fieldName)).toSeq)
   }
 
   def -(fieldNames: Seq[String]): MashObject = withLock {
@@ -129,7 +149,7 @@ case class MashObject private(fields: LinkedHashMap[String, MashValue],
     }
   }
 
-  def immutableFields: ListMap[String, MashValue] = withLock {
+  def immutableFields: ListMap[MashValue, MashValue] = withLock {
     ListMap(fields.toSeq: _*)
   }
 

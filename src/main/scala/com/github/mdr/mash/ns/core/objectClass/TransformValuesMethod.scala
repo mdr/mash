@@ -23,7 +23,7 @@ object TransformValuesMethod extends MashMethod("transformValues") {
     val obj = target.asInstanceOf[MashObject]
     boundParams.validateFunction1Or2(F) match {
       case Left(f)  ⇒ MashObject.of(obj.immutableFields.mapValues(f))
-      case Right(f) ⇒ MashObject.of(obj.immutableFields.map { case (name, value) ⇒ name -> f(MashString(name), value) })
+      case Right(f) ⇒ MashObject.of(obj.immutableFields.map { case (name, value) ⇒ name -> f(name, value) })
     }
   }
 

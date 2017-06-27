@@ -9,4 +9,4 @@ case class SingleObjectTableModel(classNameOpt: Option[String],
                                   fieldColumnWidth: Int,
                                   valueColumnWidth: Int,
                                   rawValue: MashObject,
-                                  rawValues: ListMap[String, MashValue]) extends PrintModel
+                                  rawValues: ListMap[MashValue, MashValue]) extends PrintModel

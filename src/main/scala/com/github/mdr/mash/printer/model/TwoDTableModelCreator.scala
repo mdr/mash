@@ -1,10 +1,11 @@
 package com.github.mdr.mash.printer.model
 
+import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.printer._
 import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils
 
@@ -39,7 +40,7 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
   def create(obj: MashObject): TwoDTableModel = {
     val rowInfos = obj.immutableFields.toSeq.map { case (field, value) ⇒
-      RowInfo(field, value, ValueFetch.ByMember(field))
+      RowInfo(ToStringifier.stringify(field), value, ValueFetch.ByMember(field)) // TODO_OBJ
     }
     create(obj, rowInfos)
   }
@@ -130,6 +131,6 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
   private def groupColumnSpecs: Seq[(ColumnId, ColumnSpec)] =
     Seq(
       ColumnId(0) -> ColumnSpec(ValueFetch.ByMember(GroupClass.Fields.Key), weight = 10),
-      ColumnId(1) -> ColumnSpec(ValueFetch.ByMember(GroupClass.CountMethod.name, isNullaryMethod = true), weight = 3),
+      ColumnId(1) -> ColumnSpec(ValueFetch.ByMember(MashString(GroupClass.CountMethod.name), isNullaryMethod = true), weight = 3),
       ColumnId(2) -> ColumnSpec(ValueFetch.ByMember(GroupClass.Fields.Values), weight = 1))
 }

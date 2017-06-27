@@ -46,7 +46,7 @@ object MemberEvaluator extends EvaluatorHelper {
                      invokeNullaryWhenVectorising: Boolean,
                      thisTarget: Boolean,
                      locationOpt: Option[SourceLocation]): MemberExprEvalResult = {
-    val scalarLookup = MemberEvaluator.maybeLookup(target, name, includePrivate = thisTarget).map(result ⇒
+    val scalarLookup = MemberEvaluator.maybeLookupByString(target, name, includePrivate = thisTarget).map(result ⇒
       MemberExprEvalResult(result))
     def vectorisedLookup = vectorisedMemberLookup(target, name, isSafe, invokeNullaryWhenVectorising, locationOpt)
       .map(result ⇒ MemberExprEvalResult(result, wasVectorised = true))
@@ -80,7 +80,7 @@ object MemberEvaluator extends EvaluatorHelper {
     target match {
       case xs: MashList ⇒
         val options = xs.elements.map { element ⇒
-          val memberOpt = MemberEvaluator.maybeLookup(element, name)
+          val memberOpt = MemberEvaluator.maybeLookupByString(element, name)
           val resolvedOpt =
             if (immediatelyResolveNullaryWhenVectorising)
               memberOpt.map(lookup ⇒ Evaluator.invokeNullaryFunctions(lookup, locationOpt))
@@ -108,20 +108,37 @@ object MemberEvaluator extends EvaluatorHelper {
     (directResultOpt orElse parentResultOpt).filter(includeShyMembers || !_.method.isShy)
   }
 
+  def lookupByString(target: MashValue,
+                     name: String,
+                     includePrivate: Boolean = false,
+                     locationOpt: Option[SourceLocation] = None): MashValue =
+    maybeLookupByString(target, name, includePrivate).getOrElse(
+      throwCannotFindMemberException(target, name, locationOpt))
+
   def lookup(target: MashValue,
-             name: String,
+             name: MashValue,
              includePrivate: Boolean = false,
              locationOpt: Option[SourceLocation] = None): MashValue =
     maybeLookup(target, name, includePrivate).getOrElse(
-      throwCannotFindMemberException(target, name, locationOpt))
+      throwCannotFindMemberException(target, ToStringifier.stringify(name), locationOpt)) // TODO_OBJ
+
+  def maybeLookup(target: MashValue,
+                  name: MashValue,
+                  includePrivate: Boolean = false,
+                  includeShyMembers: Boolean = true): Option[MashValue] = name match {
+    case s: MashString ⇒ maybeLookupByString(target, s.s, includePrivate, includeShyMembers)
+    case _             ⇒ target match {
+      case obj: MashObject ⇒ obj.get(name)
+    }
+  }
 
   /**
     * @return a bound method, a static method, or a field value corresponding to the given name in the target
     */
-  def maybeLookup(target: MashValue,
-                  name: String,
-                  includePrivate: Boolean = false,
-                  includeShyMembers: Boolean = true): Option[MashValue] =
+  def maybeLookupByString(target: MashValue,
+                          name: String,
+                          includePrivate: Boolean = false,
+                          includeShyMembers: Boolean = true): Option[MashValue] =
     target match {
       case MashNumber(n, tagClassOpt)     ⇒ maybeLookupInClass(target, NumberClass, name) orElse tagClassOpt.flatMap(maybeLookupInClass(target, _, name))
       case MashString(s, tagClassOpt)     ⇒ maybeLookupInClass(target, StringClass, name) orElse tagClassOpt.flatMap(maybeLookupInClass(target, _, name))
@@ -150,7 +167,8 @@ object MemberEvaluator extends EvaluatorHelper {
       case klass: MashClass               ⇒ ClassClass.memberNames(includePrivate)
       case dt@MashWrapped(_: Instant)     ⇒ DateTimeClass.memberNames(includePrivate)
       case date@MashWrapped(_: LocalDate) ⇒ DateClass.memberNames(includePrivate)
-      case obj: MashObject                ⇒ obj.immutableFields.keys.toSeq ++ (obj.classOpt getOrElse ObjectClass).memberNames(includePrivate)
+      case obj: MashObject                ⇒
+        obj.immutableFields.keys.toSeq.collect { case s: MashString ⇒ s.s } ++ (obj.classOpt getOrElse ObjectClass).memberNames(includePrivate)
     }
     (memberNames ++ AnyClass.memberNames(includePrivate)).distinct
   }

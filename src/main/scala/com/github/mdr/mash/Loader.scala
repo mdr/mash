@@ -12,7 +12,7 @@ import com.github.mdr.mash.functions.Namespace
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.parser.AbstractSyntax.NamespaceDeclaration
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
-import com.github.mdr.mash.runtime.{ MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import com.github.mdr.mash.screen.{ BasicColour, Screen }
 import com.github.mdr.mash.terminal.Terminal
 import org.apache.commons.io.FileUtils
@@ -34,7 +34,7 @@ class Loader(terminal: Terminal,
     for {
       path ← getMashFilePaths
       LoadResult(namespace, loadScope) ← load(path)
-      (name, value) ← loadScope.immutableFields
+      (name, value) ← loadScope.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
     } populate(ns, namespace.segments.toList, name, value)
     for ((name, value) <- ns.immutableFields)
       globals.set(name, value)
@@ -104,7 +104,7 @@ class Loader(terminal: Terminal,
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean, printErrors: Boolean = true): Option[AbstractSyntax.Program] = {
     val settings = CompilationSettings(bareWords = bareWords)
-    Compiler.compile(unit, globals.immutableFields, settings) match {
+    Compiler.compile(unit, globals.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }, settings) match {
       case Left(ParseError(msg, location)) ⇒
         if (printErrors) {
           val sourceLocation = SourceLocation(unit.provenance, location)

@@ -18,7 +18,7 @@ object QueryParameters {
   private def getQueryParams(boundParams: BoundParams): Seq[(String, String)] = {
     val queryParamsObj = boundParams.validateObject(HttpFunctions.Params.QueryParams)
     for ((field, value) ← queryParamsObj.immutableFields.toSeq)
-      yield field -> ToStringifier.stringify(value)
+      yield ToStringifier.stringify(field) -> ToStringifier.stringify(value)
   }
 
   private def addQueryParameters(url: URI, queryParams: Seq[(String, String)]): URI = {

@@ -55,7 +55,7 @@ object PidClass extends MashClass("os.Pid") {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
-      processObject.fields(field.name)
+      processObject.get(field.name).getOrElse(throw new EvaluatorException("No field found: " + field.name))
     }
 
     override def typeInferenceStrategy = ProcessClass.fieldsMap(field.name).fieldType

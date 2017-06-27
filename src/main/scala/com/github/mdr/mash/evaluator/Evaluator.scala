@@ -102,7 +102,7 @@ object Evaluator extends EvaluatorHelper {
     val target = Evaluator.evaluate(importStatement.expr)
     importStatement.importNameOpt match {
       case Some(name) ⇒
-        MemberEvaluator.maybeLookup(target, name) match {
+        MemberEvaluator.maybeLookupByString(target, name) match {
           case Some(value) ⇒
             context.scopeStack.set(name, value)
             value
@@ -112,7 +112,7 @@ object Evaluator extends EvaluatorHelper {
       case None       ⇒
         for {
           name ← MemberEvaluator.getMemberNames(target)
-          value ← MemberEvaluator.maybeLookup(target, name, includeShyMembers = false)
+          value ← MemberEvaluator.maybeLookupByString(target, name, includeShyMembers = false)
         } context.scopeStack.set(name, value)
         MashUnit
     }

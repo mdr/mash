@@ -34,7 +34,7 @@ object HelpEvaluator {
 
   private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
     val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpCreator.getFieldHelp(field, klass) }
-    lazy val memberHelpOpt = MemberEvaluator.maybeLookup(target, name).collect {
+    lazy val memberHelpOpt = MemberEvaluator.maybeLookupByString(target, name).collect {
       case method: BoundMethod ⇒ HelpCreator.getHelp(method)
     }
     fieldHelpOpt orElse memberHelpOpt
