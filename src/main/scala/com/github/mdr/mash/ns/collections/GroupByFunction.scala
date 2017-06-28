@@ -97,11 +97,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       MashObject.of(for {
         (key, values) ← groupBy(sequence, discriminator)
         if key != MashNull || includeNulls
-        stringKey = key match {
-          case s: MashString ⇒ s.s
-          case x             ⇒ throw new EvaluatorException(s"Group keys must be strings when grouping into an Object, but was a ${x.typeName}")
-        }
-      } yield stringKey -> MashList(values map select))
+      } yield key -> MashList(values map select))
     else {
       var groups =
         for {

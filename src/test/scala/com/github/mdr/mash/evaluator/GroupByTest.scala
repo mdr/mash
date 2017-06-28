@@ -31,6 +31,8 @@ class GroupByTest extends AbstractEvaluatorTest {
   "[{ path: 'file.txt', type: 'file' }, { path: '000', type: null }] | groupBy 'type' --object" ==>
     "{ file: [{ path: 'file.txt', type: 'file' }] }"
 
+  "['a', 'bb', 'c', 'ddd'] | groupBy length --object" ==> "{ (1): ['a', 'c'], (2): ['bb'], (3): ['ddd'] }"
+
   "[].groupBy --total --object".shouldThrowAnException
 
   // --select

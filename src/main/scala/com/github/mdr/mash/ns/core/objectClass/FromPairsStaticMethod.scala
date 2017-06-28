@@ -37,16 +37,15 @@ object FromPairsStaticMethod extends MashFunction("fromPairs") {
       case _               ⇒ throw new EvaluatorException(s"Invalid pair of type ${value.typeName}")
     }
 
-    private def select(elements: Seq[MashValue], collection: String): MashValue = {
+    private def select(elements: Seq[MashValue], collection: String): MashValue =
       if (elements.isEmpty)
         throw new EvaluatorException(s"No elements in $collection, at least two are required")
       else if (elements.size == 1)
-        throw new EvaluatorException("Only one element in $collection, at least two are required")
+        throw new EvaluatorException(s"Only one element in $collection, at least two are required")
       else if (elements.size <= i)
         throw new EvaluatorException(s"Cannot select element $i from $collection of length ${elements.size}")
       else
         elements(i)
-    }
 
   }
 

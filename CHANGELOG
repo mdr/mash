@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Allow non-String field names
 * Add distinct String.indexOf which can find substrings
 * Add git.amend
 * Add field/value selectors to Object.fromPairs
