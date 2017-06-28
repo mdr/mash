@@ -5,7 +5,7 @@ import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ Colour, KeyHint, Style, _ }
+import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
@@ -103,7 +103,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  private def printObject(printer: Printer, nodes: Seq[(MashValue, ObjectTreeNode)], prefix: String, currentPath: ObjectTreePath, connectUp: Boolean) {
+  private def printObject(printer: Printer, nodes: Seq[(String, ObjectTreeNode)], prefix: String, currentPath: ObjectTreePath, connectUp: Boolean) {
     for (((field, node), index) <- nodes.zipWithIndex) {
       val itemPath = currentPath.descend(field)
       val isLastNode = index == nodes.length - 1
@@ -112,7 +112,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       printer.print(connector, highlighted = itemPath == state.selectionPath)
       val fieldPath = itemPath.ontoFieldLabel
       printer.print("─ ")
-      printer.print(ToStringifier.stringify(field), yellow = true, highlighted = fieldPath == state.selectionPath)
+      printer.print(field, yellow = true, highlighted = fieldPath == state.selectionPath)
       printer.print(":")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {

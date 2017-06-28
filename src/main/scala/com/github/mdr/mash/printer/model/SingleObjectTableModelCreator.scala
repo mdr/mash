@@ -17,7 +17,7 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
     val fields = obj.immutableFields
     val renderedFields =
       for ((field, value) ← fields)
-        yield ToStringifier.stringify(field) -> renderValue(value) // TODO_OBJ
+        yield renderValue(field) -> renderValue(value)
     SingleObjectTableModel(classNameOpt, renderedFields, fieldColumnWidth, valueColumnWidth, obj, fields)
   }
 

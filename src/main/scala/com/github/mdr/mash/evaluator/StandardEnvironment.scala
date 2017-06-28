@@ -15,18 +15,21 @@ object StandardEnvironment {
 
   def create = Environment(createGlobalVariables())
 
+  private def wrapStringField(fv: (String, MashValue)): (MashString, MashValue) =
+    MashString(fv._1) -> fv._2
+
   def createGlobalVariables(): MashObject = {
     val ns = NamespaceCreator.createNamespace
     val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ MashString(f.name) -> f)
     val nameClassPairs = MashRoot.StandardClasses.map(c ⇒ MashString(c.name) -> c)
-    val aliasPairs = MashRoot.Aliases.toSeq.map { case (k, v) ⇒ MashString(k) -> v }
+    val aliasPairs = MashRoot.Aliases.toSeq.map(wrapStringField)
     val rootNsPairs = ns.fields.toSeq
     val otherPairs =
       Seq(
         Env -> systemEnvironment,
         Config -> com.github.mdr.mash.Config.defaultConfig,
         ReplState.It -> MashNull,
-        Ns -> ns).map { case (k, v) ⇒ MashString(k) -> v } // TODO_OBJ
+        Ns -> ns).map(wrapStringField)
     val allPairs = nameFunctionPairs ++ nameClassPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
     val global = MashObject.of(allPairs)
     global.set(Global, global)

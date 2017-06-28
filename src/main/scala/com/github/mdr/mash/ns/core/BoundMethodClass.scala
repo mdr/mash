@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 
@@ -35,8 +35,12 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val args = boundParams.validateSequence(Args)
       val namedArgs = boundParams.validateObject(NamedArgs)
       val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
-      val namedArguments = namedArgs.fields.toSeq.map { case (field, value) ⇒
-        EvaluatedArgument.LongFlag(ToStringifier.stringify(field), Some(SuspendedMashValue(() ⇒ value))) // TODO_OBJ
+      val namedArguments = namedArgs.immutableFields.toSeq.map { case (field, value) ⇒
+        val argumentName = field match {
+          case s: MashString ⇒ s.s
+          case _ ⇒ throw new EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
+        }
+        EvaluatedArgument.LongFlag(argumentName, Some(SuspendedMashValue(() ⇒ value)))
       }
       val methodArguments = Arguments(positionalArguments ++ namedArguments)
       val boundMethod = target.asInstanceOf[BoundMethod]

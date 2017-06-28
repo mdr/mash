@@ -11,7 +11,7 @@ sealed trait ObjectTreeChoice
 
 object ObjectTreeChoice {
 
-  case class FieldChoice(fieldName: MashValue) extends ObjectTreeChoice
+  case class FieldChoice(fieldName: String) extends ObjectTreeChoice
 
   case class IndexChoice(i: Int) extends ObjectTreeChoice
 
@@ -29,7 +29,7 @@ case class ObjectTreePath(choices: Seq[ObjectTreeChoice] = Seq()) {
 
   def descend(index: Int) = addChoice(IndexChoice(index))
 
-  def descend(field: MashValue) = addChoice(FieldChoice(field))
+  def descend(field: String) = addChoice(FieldChoice(field))
 
   def ontoValue = addChoice(OntoValue)
 

@@ -380,7 +380,7 @@ class CompletionsTest extends FlatSpec with Matchers {
 
   private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
     implicit val environment = StandardEnvironment.create
-    val expr = compile(s, environment.valuesMap)
+    val expr = compile(s, environment.bindings)
     implicit val context = EvaluationContext(ScopeStack(environment.globalVariables))
     Evaluator.evaluate(expr)
     f(environment)

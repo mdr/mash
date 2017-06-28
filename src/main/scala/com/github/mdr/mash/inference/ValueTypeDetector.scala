@@ -10,6 +10,7 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.runtime._
 
+import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.ArrayBuffer
 
@@ -66,12 +67,17 @@ class ValueTypeDetector {
     case _: MashClass                                      ⇒ ClassClass
     case MashUnit                                          ⇒ UnitClass
     case xs: MashList                                      ⇒ xs.elements.headOption.map(getType).getOrElse(Type.Any).seq
-    case obj@MashObject(_, None)                           ⇒ Type.Object(for ((field, value) ← obj.immutableFields; fieldString ← PartialFunction.condOpt(field) { case s: MashString ⇒ s.s }) yield fieldString -> getType(value)) // TODO_OBJ
+    case obj@MashObject(_, None)                           ⇒ getSimpleObjectType(obj)
     case obj@MashObject(_, Some(GroupClass))               ⇒ getTypeOfGroup(obj)
     case obj@MashObject(_, Some(TimedResultClass))         ⇒ getTypeOfTimedResult(obj)
     case MashObject(_, Some(userClass: UserDefinedClass))  ⇒ Type.UserClassInstance(getUserClassType(userClass))
     case MashObject(_, Some(klass))                        ⇒ klass
     case _                                                 ⇒ Type.Any
+  }
+
+  private def getSimpleObjectType(obj: MashObject) = {
+    val fields = for { (field, value) ← obj.stringFields } yield field -> getType(value)
+    Type.Object(fields)
   }
 
   private def getUserFunctionType(function: AnonymousFunction): Type.UserDefinedFunction = {

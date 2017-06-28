@@ -18,7 +18,7 @@ class SimpleEvaluatorTest extends FlatSpec with Matchers {
 
   private def check(s: String) = s"Simply evaluating '$s'" should "give the same result as fully evaluating it" in {
     val env = StandardEnvironment.create
-    val expr = compile(s, env.valuesMap)
+    val expr = compile(s, env.bindings)
     val context = EvaluationContext(ScopeStack(env.globalVariables))
     val actual = SimpleEvaluator.evaluate(expr)(context)
     val expected = Evaluator.evaluate(expr)(context)

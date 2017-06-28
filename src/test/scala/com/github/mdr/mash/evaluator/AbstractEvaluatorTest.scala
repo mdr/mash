@@ -12,7 +12,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 
   protected def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
     implicit val environment = StandardEnvironment.create
-    val expr = compile(s, environment.valuesMap, Config())
+    val expr = compile(s, environment.bindings, Config())
     implicit val context = EvaluationContext(ScopeStack(environment.globalVariables))
     Evaluator.evaluate(expr)
     f(environment)
@@ -32,7 +32,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 
     def shouldThrowAnException =
       "Evaluator" should s"throw an exception when evaluating '$s'" in {
-        val expr = compile(s, env.valuesMap, config)
+        val expr = compile(s, env.bindings, config)
         try {
           val result = Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
           fail("Expected an exception during evaluation, but got a result of: " + result)
@@ -43,7 +43,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
 
     def shouldNotThrowAnException =
       "Evaluator" should s"not throw an exception when evaluating '$s'" in {
-        val expr = compile(s, env.valuesMap, config)
+        val expr = compile(s, env.bindings, config)
         Evaluator.evaluate(expr)(EvaluationContext(ScopeStack(env.globalVariables)))
       }
 
@@ -58,11 +58,11 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
     def ==>(expectedString: String): Unit =
       "Evaluator" should s"evaluate '$s' to '$expectedString'" in {
 
-        val expr1 = compile(s, env.valuesMap, config)
+        val expr1 = compile(s, env.bindings, config)
         val ctx1 = EvaluationContext(ScopeStack(env.globalVariables))
         val actual = Evaluator.evaluate(expr1)(ctx1)
 
-        val expr2 = compile(expectedString, env.valuesMap, config)
+        val expr2 = compile(expectedString, env.bindings, config)
         val ctx2 = EvaluationContext(ScopeStack(env.globalVariables))
         val expected = Evaluator.evaluate(expr2)(ctx2)
 

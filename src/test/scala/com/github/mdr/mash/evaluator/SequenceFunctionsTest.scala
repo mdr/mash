@@ -140,6 +140,8 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "['foo', 'bar'] | sum" ==> "'foobar'"
   "[[1, 2], [3]] | sum" ==> "[1, 2, 3]"
   "sum '' []" ==> "''"
+  "[{ foo: 42 }, { bar: 100 }, { foo: 10 }] | sum" ==> "{ bar: 100, foo: 10 }"
+  "[{ foo: 42 }, { (42): 'foo' }] | sum" ==> "{ foo: 42, (42): 'foo'}"
 
   // sumBy
   " ['a', 'bb', 'ccc'] | sumBy length " ==> 6

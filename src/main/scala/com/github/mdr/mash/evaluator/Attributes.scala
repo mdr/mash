@@ -4,7 +4,6 @@ object Attributes {
 
   val Alias = "alias"
   val Private = "private"
-  val Last = "last"
   val Flag = "flag"
   val Lazy = "lazy"
   val Args = "args"

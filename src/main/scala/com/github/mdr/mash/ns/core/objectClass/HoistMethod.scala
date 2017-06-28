@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
-import com.github.mdr.mash.ns.core.{ NoArgFunction, ObjectClass }
+import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction._
@@ -30,7 +30,7 @@ object HoistMethod extends MashMethod("hoist") {
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
-    val field = boundParams.validateString(FieldName).s
+    val field = boundParams(FieldName)
     val prefixOpt = boundParams.validateStringOpt(Prefix).map(_.s)
     val fieldValue = obj.get(field).getOrElse(
       boundParams.throwInvalidArgument(FieldName, s"No '$field' field in value of type ${obj.typeName}"))
@@ -48,13 +48,13 @@ object HoistMethod extends MashMethod("hoist") {
     }
   }
 
-  private def hoist(obj: MashObject, field: String, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
+  private def hoist(obj: MashObject, field: MashValue, subObject: MashObject, prefixOpt: Option[String]): MashObject = {
     val subFields = subObject.immutableFields.toSeq.map { case (subfield, value) ⇒
       val newField = MashString(prefixOpt.getOrElse("") + ToStringifier.stringify(subfield))
       newField -> value
     }
     val originalFields = obj.immutableFields.toSeq
-    val index = originalFields.indexWhere(_._1 == MashString(field)) // TODO_OBJ
+    val index = originalFields.indexWhere(_._1 == field)
     val newFields = originalFields.take(index) ++ subFields ++ originalFields.drop(index + 1)
     MashObject.of(newFields)
   }

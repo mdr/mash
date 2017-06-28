@@ -40,7 +40,7 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
   def create(obj: MashObject): TwoDTableModel = {
     val rowInfos = obj.immutableFields.toSeq.map { case (field, value) ⇒
-      RowInfo(ToStringifier.stringify(field), value, ValueFetch.ByMember(field)) // TODO_OBJ
+      RowInfo(renderValue(field), value, ValueFetch.ByMember(field))
     }
     create(obj, rowInfos)
   }
@@ -87,13 +87,15 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
         columnId ← columnIds
         ColumnSpec(fetch, _) = columnSpecs(columnId)
         cellValueOpt = fetch.lookup(rowInfo.rawValue)
-        renderedValue = cellValueOpt.map(value ⇒ fieldRenderer.renderField(value, inCell = true)).getOrElse("")
+        renderedValue = cellValueOpt.map(renderValue).getOrElse("")
         cell = Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
     val indexCell = RowLabelColumnId -> Cell(rowInfo.label)
     val allCells = (dataCells :+ indexCell).toMap
     Row(allCells, rowInfo.rawValue, rowInfo.fetch)
   }
+
+  private def renderValue(value: MashValue): String = fieldRenderer.renderField(value, inCell = true)
 
   private def getColumnSpecs(values: Seq[MashValue]): (Seq[ColumnId], Map[ColumnId, ColumnSpec]) = {
     val sampleValues = values.take(50)

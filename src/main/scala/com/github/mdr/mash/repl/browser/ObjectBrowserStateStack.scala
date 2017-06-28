@@ -10,7 +10,7 @@ object BrowserState {
 
   def safeProperty(path: String, property: MashValue): String = {
     val safePath = SafeParens.safeParens(path)
-    if (isLegalIdentifier(ToStringifier.stringify(property))) // TODO_OBJ
+    if (isLegalIdentifier(ToStringifier.stringify(property)))
       s"$safePath.$property"
     else
       s"$safePath['$property']"

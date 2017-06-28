@@ -10,10 +10,16 @@ class ObjectTreeModelCreator(viewConfig: ViewConfig) {
   def create(value: MashValue): ObjectTreeModel =
     ObjectTreeModel(createNode(value), value)
 
-  private def createNode(value: MashValue): ObjectTreeNode = value match {
-    case xs: MashList    ⇒ ObjectTreeNode.List(xs.immutableElements.map(createNode), xs)
-    case obj: MashObject ⇒ ObjectTreeNode.Object(obj.immutableFields.toSeq.map { case (field, value) ⇒ field -> createNode(value) }, obj)
-    case _               ⇒ ObjectTreeNode.Leaf(fieldRenderer.renderField(value, inCell = true), value)
+  private def createNode(nodeValue: MashValue): ObjectTreeNode = nodeValue match {
+    case xs: MashList    ⇒
+      ObjectTreeNode.List(xs.immutableElements.map(createNode), xs)
+    case obj: MashObject ⇒
+      val values = obj.immutableFields.toSeq.map { case (field, value) ⇒ renderField(field) -> createNode(value) }
+      ObjectTreeNode.Object(values, obj)
+    case _               ⇒
+      ObjectTreeNode.Leaf(renderField(nodeValue), nodeValue)
   }
+
+  private def renderField(nodeValue: MashValue): String = fieldRenderer.renderField(nodeValue, inCell = true)
 
 }

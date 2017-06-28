@@ -23,7 +23,7 @@ object GetMethod extends MashMethod("get") {
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
-    val field = boundParams.validateString(Name)
+    val field = boundParams(Name)
     val default = boundParams(Default)
     obj.immutableFields.getOrElse(field, default)
   }

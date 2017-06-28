@@ -2,13 +2,6 @@ package com.github.mdr.mash.evaluator
 
 class EvaluatorTest extends AbstractEvaluatorTest {
 
-  "{ foo: 42, bar: 100 } == { bar: 100, foo: 42 }" ==> true
-  "class Box n; Box 42 == { n: 42 }" ==> false
-  "class Box n; b1 = Box 42; class Box n; b2 = Box 42; b1 == b2" ==> false
-
-  "(class Box n) == (class Box n)" ==> false
-  "class Box n; Box == Box" ==> true
-
   "42 | _ < 100" ==> true
 
   "(x => x) | (f => f 42)" ==> "42"
@@ -23,13 +16,6 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "[1, 2, 3, 4, 5] | filter (_ >= 3)" ==> "[3, 4, 5]"
 
   "{ foo: 42, bar: 24 } | [_.foo, _.bar]" ==> "[42, 24]"
-
-  // Indexing
-  "[1, 2, 3][0]" ==> 1
-  "[1, 2, 3][-1]" ==> 3
-  "[1, 2, 3] | _[0]" ==> 1
-  " 'bar'[0] " ==> " 'b' "
-  "{ foo: 42 }['foo'] " ==> 42
 
   // deselect
   "{ foo: 42, bar: 1 } | deselect 'foo'" ==> "{ bar: 1 }"

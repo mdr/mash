@@ -119,22 +119,19 @@ object Evaluator extends EvaluatorHelper {
   }
 
   def evaluateObjectExpr(objectExpr: ObjectExpr)(implicit context: EvaluationContext): MashObject = {
-    def getFieldName(fieldNameExpr: Expr): String =
+    def getFieldName(fieldNameExpr: Expr): MashValue =
       fieldNameExpr match {
         case Identifier(name, _) if !name.startsWith(DesugarHoles.VariableNamePrefix) ⇒
-          name
+          MashString(name)
         case _                   ⇒
-          evaluate(fieldNameExpr) match {
-            case MashString(s, _) ⇒ s
-            case x                ⇒ throw new EvaluatorException("Invalid field name of type " + x.typeName, sourceLocation(fieldNameExpr))
-          }
+          evaluate(fieldNameExpr)
       }
     val fields = objectExpr.fields.map {
       case FullObjectEntry(field, value, _)                 ⇒ getFieldName(field) -> evaluate(value)
       case entry@ShorthandObjectEntry(field, sourceInfoOpt) ⇒
         val evaluatedIdentifier = evaluateIdentifier(field, sourceInfoOpt.map(_.location))
         val finalResult = invokeNullaryFunctions(evaluatedIdentifier, sourceLocation(entry))
-        field -> finalResult
+        MashString(field) -> finalResult
     }
     MashObject.of(fields)
   }
@@ -251,7 +248,6 @@ object Evaluator extends EvaluatorHelper {
       getShortFlag(evaluateAttributes(attributes))
     }
     val isLazy = attributes.exists(_.name == Attributes.Lazy)
-    val isLast = attributes.exists(_.name == Attributes.Last)
     val isFlag = attributes.exists(_.name == Attributes.Flag)
     val variadicAtLeastOne = attributes.exists(_.name == Attributes.AtLeastOne)
     val variadicFlatten = attributes.exists(_.name == Attributes.Flatten)

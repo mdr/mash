@@ -59,18 +59,27 @@ object MemberEvaluator extends EvaluatorHelper {
     }
   }
 
-  def throwCannotFindMemberException(target: MashValue, name: String, locationOpt: Option[SourceLocation]) = {
+  def throwCannotFindMemberException(target: MashValue, name: String, locationOpt: Option[SourceLocation]): Nothing = {
     val names = getMemberNames(target)
     val message = s"Cannot find member '$name' in value of type ${target.typeName}${Suggestor.suggestionSuffix(names, name)}"
     throw new EvaluatorException(message, locationOpt)
   }
 
-  def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] = {
+  private def throwCannotFindMemberException(target: MashValue, field: MashValue, locationOpt: Option[SourceLocation]): Nothing =
+    field match {
+      case s: MashString ⇒
+        throwCannotFindMemberException(target, s, locationOpt)
+      case _             ⇒
+        val name = ToStringifier.safeStringify(field)
+        val message = s"Cannot find member '$name' in value of type ${target.typeName}"
+        throw new EvaluatorException(message, locationOpt)
+    }
+
+  def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] =
     memberExpr.sourceInfoOpt.flatMap(info ⇒ condOpt(info.node) {
       case ConcreteSyntax.MemberExpr(_, _, nameToken) ⇒
         SourceLocation(info.provenance, PointedRegion(nameToken.offset, nameToken.region))
     })
-  }
 
   private def vectorisedMemberLookup(target: MashValue,
                                      name: String,
@@ -120,7 +129,7 @@ object MemberEvaluator extends EvaluatorHelper {
              includePrivate: Boolean = false,
              locationOpt: Option[SourceLocation] = None): MashValue =
     maybeLookup(target, name, includePrivate).getOrElse(
-      throwCannotFindMemberException(target, ToStringifier.stringify(name), locationOpt)) // TODO_OBJ
+      throwCannotFindMemberException(target, name, locationOpt))
 
   def maybeLookup(target: MashValue,
                   name: MashValue,

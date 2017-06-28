@@ -48,12 +48,12 @@ class ObjectTreePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewCon
     }
   }
 
-  private def printObject(nodes: Seq[(MashValue, ObjectTreeNode)], prefix: String, connectUp: Boolean) {
+  private def printObject(nodes: Seq[(String, ObjectTreeNode)], prefix: String, connectUp: Boolean) {
     for (((field, node), index) <- nodes.zipWithIndex) {
       val isLastNode = index == nodes.length - 1
       val stuff = getStuff(index, nodes.map(_._2), connectUp, prefix)
       output.print(s"$stuff─ ")
-      output.print(drawStyledChars(ToStringifier.stringify(field).style(foregroundColour = BasicColour.Green)))
+      output.print(drawStyledChars(field.style(foregroundColour = BasicColour.Green)))
       output.print(":")
       val nestingPrefix = prefix + (if (isLastNode) "   " else "│  ")
       node match {

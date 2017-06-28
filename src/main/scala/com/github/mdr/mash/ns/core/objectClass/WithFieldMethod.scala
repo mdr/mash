@@ -22,7 +22,7 @@ object WithFieldMethod extends MashMethod("withField") {
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]
-    val field = boundParams.validateString(Name).s
+    val field = boundParams(Name)
     val value = boundParams(Value)
     obj.withField(field, value)
   }

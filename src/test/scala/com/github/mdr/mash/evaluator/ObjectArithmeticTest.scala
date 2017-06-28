@@ -13,9 +13,11 @@ class ObjectArithmeticTest extends AbstractEvaluatorTest {
   // object field subtraction
   "{ foo: 42, bar: 100 } - 'foo'" ==> "{ bar: 100 }"
   "{ foo: 42 } - 'bar'" ==> "{ foo: 42 }"
+  "{ (42): 'foo' } - 42" ==> "{}"
 
   "{ foo: 42 } - []" ==> "{ foo: 42 }"
   "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo']" ==> "{ bar: 2 }"
   "{ foo: 1, bar: 2, baz: 3 } - ['baz', 'foo', 'notInObject']" ==> "{ bar: 2 }"
+  "{ (42): 'foo' } - [42]" ==> "{}"
 
 }

@@ -29,7 +29,7 @@ object ValueFetch {
 
   case class ByMember(member: MashValue, isNullaryMethod: Boolean = false) extends ValueFetch {
 
-    override def name = ToStringifier.stringify(member) // TODO_OBJ
+    override def name = ToStringifier.stringify(member)
 
     def lookup(value: MashValue) =
       MemberEvaluator.maybeLookup(value, member).map(

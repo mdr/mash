@@ -110,16 +110,12 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
         val duration = Duration.between(instant2, instant1)
         val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
         MashNumber(millis, Some(MillisecondsClass))
-      case (left: MashObject, right: MashString)                                        ⇒
-        left - right.s
       case (left: MashList, right: MashList)                                            ⇒
         left.diff(right)
       case (left: MashObject, right: MashList)                                          ⇒
-        left - right.elements.map {
-          case MashString(s, _) ⇒ s
-          case element          ⇒
-            throw new EvaluatorException(s"Cannot subtract a value of type ${element.typeName} from an object", locationOpt)
-        }
+        left - right.immutableElements
+      case (left: MashObject, right)                                                    ⇒
+        left - right
       case _                                                                            ⇒
         throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }

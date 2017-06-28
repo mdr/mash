@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.core.objectClass
 
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.evaluator.ToStringifier.stringify
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashObject, MashValue }
@@ -66,7 +65,7 @@ object FromPairsStaticMethod extends MashFunction("fromPairs") {
         item ← items
         field = fieldSelector.select(item)
         value = valueSelector.select(item)
-      } yield stringify(field) -> value
+      } yield field -> value
     MashObject.of(pairs)
   }
 

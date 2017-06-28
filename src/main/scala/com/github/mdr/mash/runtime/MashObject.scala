@@ -4,63 +4,11 @@ import com.github.mdr.mash.GlobalInterpreterLock.withLock
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.evaluator.{ EvaluatorException, ToStringifier }
 
+import scala.PartialFunction._
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
-
-trait ViewableAsFields {
-  def fields: LinkedHashMap[MashValue, MashValue]
-}
-
-object ViewableAsFields {
-
-  implicit def fromLinkedHashMap(map: LinkedHashMap[String, MashValue]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = for ((k, v) <- map) yield MashString(k) -> v
-    }
-
-  implicit def fromLinkedHashMap2(map: LinkedHashMap[MashValue, MashValue]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = map
-    }
-
-  implicit def fromMap(map: Map[String, MashValue]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap((for ((k, v) <- map.toSeq) yield MashString(k) -> v): _*)
-    }
-
-  implicit def fromMap2(map: Map[MashValue, MashValue]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap(map.toSeq: _*)
-    }
-
-  implicit def fromListMap(map: Map[Field, MashValue]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap(map.toSeq.map { case (field, v) ⇒ MashString(field.name) -> v }: _*)
-    }
-
-  implicit def fromPairs(pairs: Seq[(String, MashValue)]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap((for ((k, v) <- pairs) yield MashString(k) -> v): _*)
-    }
-
-  implicit def fromPairs2(pairs: Seq[(MashValue, MashValue)]): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap(pairs: _*)
-    }
-
-  implicit def fromPair(pair: (String, MashValue)): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap(MashString(pair._1) -> pair._2)
-    }
-
-  implicit def fromPair2(pair: (MashValue, MashValue)): ViewableAsFields =
-    new ViewableAsFields {
-      def fields = LinkedHashMap(pair._1 -> pair._2)
-    }
-
-}
 
 object MashObject {
 
@@ -90,8 +38,8 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
       throw new EvaluatorException(s"Missing fields for class '$klass': ${missingFields.map(f ⇒ s"'$f'").mkString(", ")}")
   }
 
-  def withField(fieldName: String, value: MashValue): MashObject =
-    MashObject.of(fields.toSeq :+ (MashString(fieldName) -> value), classOpt)
+  def withField(fieldName: MashValue, value: MashValue): MashObject =
+    MashObject.of(fields.toSeq :+ (fieldName -> value), classOpt)
 
   def withClass(klass: MashClass): MashObject = MashObject.of(fields, Some(klass))
 
@@ -123,11 +71,13 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
 
   def hasField(fieldName: String): Boolean = get(fieldName).isDefined
 
-  def -(fieldName: String): MashObject = withLock {
-    MashObject.of(fields.filterKeys(_ != MashString(fieldName)).toSeq)
+  def -(fieldName: MashValue): MashObject = withLock {
+    MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
   }
 
-  def -(fieldNames: Seq[String]): MashObject = withLock {
+  def -(fieldName: String): MashObject = this - MashString(fieldName)
+
+  def -(fieldNames: Seq[MashValue]): MashObject = withLock {
     var result = this
     for (fieldName ← fieldNames)
       result -= fieldName
@@ -152,6 +102,12 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
   def immutableFields: ListMap[MashValue, MashValue] = withLock {
     ListMap(fields.toSeq: _*)
   }
+
+  def stringFields: ListMap[String, MashValue] =
+    for {
+      (field, value) ← immutableFields
+      fieldString ← condOpt(field) { case s: MashString ⇒ s.s }
+    } yield fieldString -> value
 
   def fieldAs[T: ClassTag](field: Field): T = withLock {
     val klass = implicitly[ClassTag[T]].runtimeClass

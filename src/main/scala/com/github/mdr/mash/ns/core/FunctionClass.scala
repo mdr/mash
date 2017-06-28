@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object FunctionClass extends MashClass("core.Function") {
 
@@ -49,7 +49,11 @@ object FunctionClass extends MashClass("core.Function") {
 
       val positionalArguments = args.map(v ⇒ EvaluatedArgument.PositionArg(SuspendedMashValue(() ⇒ v)))
       val namedArguments = namedArgs.immutableFields.toSeq.map { case (field, value) ⇒
-        EvaluatedArgument.LongFlag(ToStringifier.stringify(field), Some(SuspendedMashValue(() ⇒ value))) // TODO_OBJ
+        val argumentName = field match {
+          case s: MashString ⇒ s.s
+          case _ ⇒ throw new EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
+        }
+        EvaluatedArgument.LongFlag(argumentName, Some(SuspendedMashValue(() ⇒ value)))
       }
       val functionArguments = Arguments(positionalArguments ++ namedArguments)
       val functionBoundParams = function.params.bindTo(functionArguments, function.paramContext)
