@@ -129,20 +129,19 @@ If a non-boolean argument is given, that will be used as the key for the null gr
   override def summaryOpt = Some("Group together the elements of a sequence sharing a common key")
 
   override def descriptionOpt = Some(
-    s"""Returns a sequence of Group objects, where each group contains
-a subset of the sequence  sharing the same key, as determined by the given
-discriminator function.
+    s"""Collects groups from the input sequence, where a group is a subset of the sequence sharing the same key,
+  as determined by the given discriminator function. The groups are returned, by default, as an Object, with a field
+  per key, with a list of values as its value.
 
-If the --${Groups.name} flag is true, an Object is output instead, with a field for every group key.
---total cannot be used with --object.
+If the --${Groups.name} flag is true, an list of Groups is returned instead, with a field for every group key.
 
 Example:
   groupBy first ["foo", "bar", "baz"]
-  ╔═══╤═════╤════════╗
-  ║key│count│values  ║
-  ╟───┼─────┼────────╢
-  ║b  │2    │bar, baz║
-  ║f  │1    │foo     ║
-  ╚═══╧═════╧════════╝""")
+  ╔═╤═══╤═══╗
+  ║#│0  │1  ║
+  ╟─┼───┼───╢
+  ║f│foo│   ║
+  ║b│bar│baz║
+  ╚═╧═══╧═══╝╝""")
 
 }
