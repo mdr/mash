@@ -8,12 +8,11 @@ object ToDateMethod extends MashMethod("toDate") {
 
   val params = ParameterModel()
 
-  def call(target: MashValue, boundParams: BoundParams): MashValue = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue =
     ToDateTimeMethod.parseInstant(target.asInstanceOf[MashString].s)
-      .map(DateTimeClass.DateMethod.toLocalDate)
+      .map(instant ⇒ DateTimeClass.Wrapper(MashWrapped(instant)).localDate)
       .map(MashWrapped)
       .getOrElse(MashNull)
-  }
 
   override def summaryOpt = Some("Parse this string as a Date")
 

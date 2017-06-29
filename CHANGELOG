@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add .hour/minute/second method to DateTime
 * Change groupBy --total to --all
 * groupBy groups into an object by default, and takes a --groups parameter to emit a List
 * http.* functions now take a --cookies parameter

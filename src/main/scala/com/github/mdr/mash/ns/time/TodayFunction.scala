@@ -3,8 +3,8 @@ package com.github.mdr.mash.ns.time
 import java.time._
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
-import com.github.mdr.mash.ns.time.DateTimeClass.DateMethod
 import com.github.mdr.mash.runtime.MashWrapped
+import com.github.mdr.mash.utils.TimeUtils
 
 object TodayFunction extends MashFunction("time.today") {
 
@@ -13,7 +13,7 @@ object TodayFunction extends MashFunction("time.today") {
   val params = ParameterModel()
 
   def call(boundParams: BoundParams): MashWrapped =
-    MashWrapped(DateMethod.toLocalDate(clock.instant))
+    MashWrapped(TimeUtils.localDate(clock.instant))
 
   override def typeInferenceStrategy = DateClass
 

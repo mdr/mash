@@ -65,15 +65,15 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
-    case obj: MashObject if obj.immutableFields.values.forall(x ⇒ x.isAnObject || x.isAList) ⇒
+    case obj: MashObject if obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList) ⇒
       new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(obj)
-    case obj: MashObject                                                                     ⇒
+    case obj: MashObject                                                                                                    ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
-    case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList)                            ⇒
+    case xs: MashList if xs.forall(_.isAnObject) || xs.forall(_.isAList)                                                 ⇒
       new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
-    case xs: MashList                                                                        ⇒
+    case xs: MashList                                                                                                       ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                                                   ⇒
+    case _                                                                                                                  ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
@@ -82,6 +82,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
                          alwaysUseTreeBrowser: Boolean = false)
 
   private def done = PrintResult()
+
   private def browse(model: PrintModel) = PrintResult(Some(model))
 
   def print(value: MashValue,
@@ -94,7 +95,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
         case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                     ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           browse(model)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAnObject || x.isAList)                             ⇒
+        case xs: MashList if xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))                             ⇒
           printTwoD(xs)
         case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                               ⇒
           printTextLines(xs)
@@ -112,7 +113,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
         case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews            ⇒
           new GitStatusPrinter(output).print(obj)
           done
-        case obj: MashObject if obj.nonEmpty && obj.immutableFields.values.forall(x ⇒ x.isAnObject || x.isAList) ⇒
+        case obj: MashObject if obj.nonEmpty && (obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList)) ⇒
           printTwoD(obj)
         case obj: MashObject                                                                                     ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
