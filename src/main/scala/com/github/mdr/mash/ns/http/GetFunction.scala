@@ -8,14 +8,15 @@ object GetFunction extends MashFunction("http.get") {
 
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Url, BasicAuth, Headers, QueryParams, Json, QueryParams)
+  val params = ParameterModel(Url, BasicAuth, Headers, Cookies, QueryParams, Json, QueryParams)
 
   def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
+    val cookies = Cookie.getCookies(boundParams, Cookies)
     val url = QueryParameters.getUrl(boundParams)
     val json = boundParams(Json).isTruthy
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpGet(url), headers, basicCredentialsOpt, json = json)
+    HttpOperations.runRequest(new HttpGet(url), headers, cookies, basicCredentialsOpt, json = json)
   }
 
   override def typeInferenceStrategy = ResponseClass

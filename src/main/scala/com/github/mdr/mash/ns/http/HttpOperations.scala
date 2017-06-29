@@ -4,7 +4,8 @@ import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import com.github.mdr.mash.evaluator.{ EvaluatorException, ToStringifier }
+import com.github.mdr.mash.evaluator.ToStringifier.stringify
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils
@@ -13,7 +14,6 @@ import org.apache.http.client.config.{ CookieSpecs, RequestConfig }
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.conn.HttpHostConnectException
-import org.apache.http.cookie.Cookie
 import org.apache.http.entity.{ ContentType, FileEntity, StringEntity }
 import org.apache.http.impl.client.{ BasicCookieStore, CloseableHttpClient, HttpClients }
 import org.apache.http.message.BasicNameValuePair
@@ -34,30 +34,30 @@ object BodySource {
 
 object HttpOperations {
 
-  def addAcceptApplicationJsonIfRequired(json: Boolean, headers: Seq[Header]): Seq[Header] =
-    if (json && !headers.exists(_.name.toLowerCase == "accept"))
-      Header("Accept", "application/json") +: headers
-    else
-      headers
-
   /**
     * @param form if set, body source must be a Value(MashObject)
     */
   def runRequest(request: HttpUriRequest,
                  headers: Seq[Header],
+                 cookies: Map[String, String],
                  basicCredentialsOpt: Option[BasicCredentials],
                  bodySourceOpt: Option[BodySource] = None,
                  json: Boolean = false,
                  form: Boolean = false): MashObject = {
+    request.setHeader("Cookie", cookies.map { case (name, value) ⇒ s"$name=$value" }.mkString(";"))
+
     val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
+
     for (header <- actualHeaders)
       request.setHeader(header.name, header.value)
+
     basicCredentialsOpt.foreach(_.addCredentials(request))
 
     for (bodySource ← bodySourceOpt)
       setBody(request.asInstanceOf[HttpEntityEnclosingRequest], bodySource, json, form)
 
     val (cookieStore, client) = makeClient
+
     val response =
       try
         client.execute(request)
@@ -68,6 +68,12 @@ object HttpOperations {
 
     asMashObject(response, cookieStore)
   }
+
+  private def addAcceptApplicationJsonIfRequired(json: Boolean, headers: Seq[Header]): Seq[Header] =
+    if (json && !headers.exists(_.name.toLowerCase == "accept"))
+      Header("Accept", "application/json") +: headers
+    else
+      headers
 
   private def makeClient: (BasicCookieStore, CloseableHttpClient) = {
     val cookieStore = new BasicCookieStore
@@ -81,31 +87,33 @@ object HttpOperations {
   }
 
   private def setBody(request: HttpEntityEnclosingRequest, bodySource: BodySource, json: Boolean, form: Boolean) {
-    if (form) {
-      val entity = bodySource match {
-        case BodySource.Value(obj: MashObject) ⇒
-          import scala.collection.JavaConverters._
-          val nameValues = obj.immutableFields.map { case (key, value) ⇒
-            new BasicNameValuePair(ToStringifier.stringify(key), ToStringifier.stringify(value))
-          }.asJava
-          new UrlEncodedFormEntity(nameValues)
-        case _                                 ⇒
-          throw new AssertionError(s"Unexpected body source: $bodySource")
+    val entity =
+      if (form)
+        encodeForm(bodySource)
+      else {
+        val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.APPLICATION_OCTET_STREAM
+        bodySource match {
+          case BodySource.Value(value) ⇒
+            val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else stringify(value)
+            new StringEntity(bodyString, contentType)
+          case BodySource.File(path)   ⇒
+            new FileEntity(path.toFile, contentType)
+        }
       }
-      request.setEntity(entity)
-    } else {
-      val contentType = if (json) ContentType.APPLICATION_JSON else ContentType.APPLICATION_OCTET_STREAM
-
-      val entity = bodySource match {
-        case BodySource.Value(value) ⇒
-          val bodyString = if (json) PrettyPrintFunction.asJsonString(value) else ToStringifier.stringify(value)
-          new StringEntity(bodyString, contentType)
-        case BodySource.File(path)   ⇒
-          new FileEntity(path.toFile, contentType)
-      }
-      request.setEntity(entity)
-    }
+    request.setEntity(entity)
   }
+
+  private def encodeForm(bodySource: BodySource): UrlEncodedFormEntity =
+    bodySource match {
+      case BodySource.Value(obj: MashObject) ⇒
+        import scala.collection.JavaConverters._
+        val nameValues = obj.immutableFields.map { case (key, value) ⇒
+          new BasicNameValuePair(stringify(key), stringify(value))
+        }.asJava
+        new UrlEncodedFormEntity(nameValues)
+      case _                                 ⇒
+        throw new AssertionError(s"Unexpected body source: $bodySource")
+    }
 
   private def asMashObject(response: HttpResponse, cookieStore: CookieStore): MashObject = {
     val code = response.getStatusLine.getStatusCode
@@ -121,18 +129,11 @@ object HttpOperations {
       Cookies -> MashList(cookies)), ResponseClass)
   }
 
-  private def asMashObject(cookie: Cookie): MashObject = {
+  private def asMashObject(cookie: org.apache.http.cookie.Cookie): MashObject = {
     import CookieClass.Fields._
     MashObject.of(ListMap(
       Name -> MashString(cookie.getName),
       Value -> MashString(cookie.getValue)), CookieClass)
-  }
-
-  private def asMashObject(headers: Seq[org.apache.http.Header]): MashObject = {
-    val pairs =
-      for (header ← headers)
-        yield header.getName -> MashString(header.getValue)
-    MashObject.of(pairs)
   }
 
   private def asMashObject(header: org.apache.http.Header): MashObject = {

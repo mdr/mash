@@ -148,7 +148,6 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
-  private def getBindings: Map[String, MashValue] =
-    state.globalVariables.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
+  private def getBindings: Map[String, MashValue] = state.globalVariables.stringFields
 
 }

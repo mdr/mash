@@ -19,7 +19,7 @@ object HasFieldMethod extends MashMethod("hasField") {
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val obj = target.asInstanceOf[MashObject]
     val field = boundParams(Name)
-    MashBoolean(obj.fields contains field)
+    MashBoolean(obj hasField field)
   }
 
   override def typeInferenceStrategy = BooleanClass

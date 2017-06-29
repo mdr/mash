@@ -13,7 +13,7 @@ class DebugCommandRunner(output: PrintStream, globals: MashObject) {
   def runDebugCommand(keyword: String, args: String, bareWords: Boolean) {
     val settings = CompilationSettings(inferTypes = true, bareWords = bareWords)
     def compile(s: String): Expr =
-      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }, settings).body
+      Compiler.compileForgiving(CompilationUnit(s, mish = false), globals.stringFields, settings).body
     (keyword, args) match {
       case ("p" | "pretty", actualCmd)     ⇒
         TreePrettyPrinter.printTree(compile(actualCmd))

@@ -23,7 +23,7 @@ object StandardEnvironment {
     val nameFunctionPairs = MashRoot.StandardFunctions.map(f ⇒ MashString(f.name) -> f)
     val nameClassPairs = MashRoot.StandardClasses.map(c ⇒ MashString(c.name) -> c)
     val aliasPairs = MashRoot.Aliases.toSeq.map(wrapStringField)
-    val rootNsPairs = ns.fields.toSeq
+    val rootNsPairs = ns.immutableFields.toSeq
     val otherPairs =
       Seq(
         Env -> systemEnvironment,

@@ -41,7 +41,7 @@ trait MashValue {
 
   def isFalsey: Boolean = cond(this) {
     case MashBoolean.False | MashNull | MashNumber(0, _) | MashString("", _) | MashList() ⇒ true
-    case MashObject(fields, None)                                                         ⇒ fields.isEmpty
+    case obj: MashObject                                                                  ⇒ obj.isEmpty
   }
 
   def isNull: Boolean = this == MashNull

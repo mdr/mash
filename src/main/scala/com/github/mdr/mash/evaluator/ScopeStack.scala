@@ -97,7 +97,7 @@ case class ScopeStack(scopes: List[Scope]) {
 
   private def bindings(scopes: List[Scope]): Map[String, MashValue] = scopes match {
     case Nil           ⇒ Map()
-    case scope :: rest ⇒ bindings(rest) ++ scope.variables.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
+    case scope :: rest ⇒ bindings(rest) ++ scope.variables.stringFields
   }
 
 }

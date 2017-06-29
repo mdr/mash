@@ -8,14 +8,15 @@ object DeleteFunction extends MashFunction("http.delete") {
 
   import HttpFunctions.Params._
 
-  val params = ParameterModel(Url, BasicAuth, Headers, QueryParams, Json)
+  val params = ParameterModel(Url, BasicAuth, Headers, Cookies, QueryParams, Json)
 
   def call(boundParams: BoundParams): MashObject = {
     val headers = Header.getHeaders(boundParams, Headers)
+    val cookies = Cookie.getCookies(boundParams, Cookies)
     val url = QueryParameters.getUrl(boundParams)
     val json = boundParams(Json).isTruthy
     val basicCredentialsOpt = BasicCredentials.getBasicCredentials(boundParams, BasicAuth)
-    HttpOperations.runRequest(new HttpDelete(url), headers, basicCredentialsOpt, json = json)
+    HttpOperations.runRequest(new HttpDelete(url), headers, cookies, basicCredentialsOpt, json = json)
   }
 
   override def typeInferenceStrategy = ResponseClass

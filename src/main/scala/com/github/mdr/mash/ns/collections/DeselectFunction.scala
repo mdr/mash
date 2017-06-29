@@ -32,7 +32,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
   }
 
   private def doDeselect(value: MashValue, fields: Seq[MashValue]): MashValue = value match {
-    case obj: MashObject ⇒ MashObject.of(obj.fields.filterNot(fields contains _._1))
+    case obj: MashObject ⇒ MashObject.of(obj.immutableFields.filterNot(fields contains _._1))
     case _               ⇒ value
   }
 

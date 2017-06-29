@@ -47,6 +47,15 @@ object HttpFunctions {
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue))
 
+    val Cookies = Parameter(
+      nameOpt = Some("cookies"),
+      summaryOpt = Some("Cookies to add to the request"),
+      descriptionOpt = Some(
+        """Cookies can be provided as an object. Examples:
+          |  --cookies={ sessionId: 'xyz'}""".stripMargin),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(NoArgValue))
+
     val QueryParams = Parameter(
       nameOpt = Some("queryParams"),
       summaryOpt = Some("Query parameters to add to the URL"),

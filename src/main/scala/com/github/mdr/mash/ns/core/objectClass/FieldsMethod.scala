@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.objectClass
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.FieldAndValueClass
 import com.github.mdr.mash.ns.core.FieldAndValueClass.Fields._
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 import scala.collection.immutable.ListMap
 
@@ -17,11 +17,10 @@ object FieldsMethod extends MashMethod("fields") {
   }
 
   def getFieldObjects(obj: MashObject): Seq[MashObject] = {
-    def asObject(name: MashValue, value: MashValue) = {
+    def asObject(name: MashValue, value: MashValue) =
       MashObject.of(ListMap(
         Name -> name,
         Value -> value), FieldAndValueClass)
-    }
     obj.immutableFields.toSeq.map((asObject _).tupled)
   }
 

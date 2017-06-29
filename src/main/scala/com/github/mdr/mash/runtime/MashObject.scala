@@ -71,6 +71,8 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
 
   def hasField(fieldName: String): Boolean = get(fieldName).isDefined
 
+  def hasField(fieldName: MashValue): Boolean = get(fieldName).isDefined
+
   def -(fieldName: MashValue): MashObject = withLock {
     MashObject.of(fields.filterKeys(_ != fieldName).toSeq)
   }

@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.objectClass
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.ns.core.objectClass.MapMethod.getFieldValueIndexTriples
-import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashNumber, MashObject, MashValue }
 
 object WhereMethod extends MashMethod("where") {
 

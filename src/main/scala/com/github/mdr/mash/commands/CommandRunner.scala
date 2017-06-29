@@ -82,7 +82,7 @@ class CommandRunner(output: PrintStream,
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean, printErrors: Boolean = true): Option[AbstractSyntax.Program] = {
     val settings = CompilationSettings(bareWords = bareWords)
-    Compiler.compile(unit, globals.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }, settings) match {
+    Compiler.compile(unit, globals.stringFields, settings) match {
       case Left(ParseError(msg, location)) ⇒
         if (printErrors) {
           val sourceLocation = SourceLocation(unit.provenance, location)
