@@ -36,16 +36,17 @@ Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
         """If true, include a group with null keys, if any elements exist for such a group.
 If false, exclude a group with a null key.
 If a non-boolean argument is given, that will be used as the key for the null group instead of null."""))
-    val Object = Parameter(
-      nameOpt = Some("object"),
-      summaryOpt = Some("Output an Object with a field for each group (default false)"),
-      shortFlagOpt = Some('o'),
+    val Groups = Parameter(
+      nameOpt = Some("groups"),
+      summaryOpt = Some("Output a List of Group objects (default false)"),
+      shortFlagOpt = Some('g'),
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
       isBooleanFlag = true,
       descriptionOpt = Some(
-        """If true, output an object with a field for each group, using the key as the field name, and
-          |  the matching values as the field value.""".stripMargin))
+        """If true, output a list of Group objects, one for each group. If false (the default), output a single
+          | object with a field for each group.
+        """.stripMargin))
     val Discriminator = Parameter(
       nameOpt = Some("discriminator"),
       summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
@@ -62,7 +63,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   import Params._
 
-  val params = ParameterModel(Total, IncludeNull, Object, Discriminator, Select, Sequence)
+  val params = ParameterModel(Total, IncludeNull, Groups, Discriminator, Select, Sequence)
 
   private def groupBy[T, U](xs: Seq[T], f: T ⇒ U): Seq[(U, Seq[T])] = {
     val map = LinkedHashMap[U, Seq[T]]()
@@ -79,7 +80,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val select: MashValue ⇒ MashValue = boundParams.validateFunctionOpt(Select).getOrElse(identity _)
     val includeNulls = boundParams(IncludeNull).isTruthy
     val includeTotalGroup = boundParams(Total).isTruthy
-    val outputAnObject = boundParams(Object).isTruthy
+    val outputListOfGroups = boundParams(Groups).isTruthy
 
     val nullKey = boundParams(IncludeNull) match {
       case MashBoolean.True ⇒ MashNull
@@ -105,10 +106,10 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     if (includeTotalGroup)
       groupsByKey ++= Seq(totalKey -> (sequence map select))
 
-    if (outputAnObject)
-      MashObject.of(groupsByKey.map { case (k, g) ⇒ k -> MashList(g) })
-    else
+    if (outputListOfGroups)
       MashList(groupsByKey.map((makeGroupObject _).tupled))
+    else
+      MashObject.of(groupsByKey.map { case (k, g) ⇒ k -> MashList(g) })
   }
 
   private def makeGroupObject(key: MashValue, values: Seq[MashValue]): MashObject = {
@@ -129,10 +130,10 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   override def descriptionOpt = Some(
     s"""Returns a sequence of Group objects, where each group contains
-a subset of the sequence  sharing the same key, as determined by the given 
+a subset of the sequence  sharing the same key, as determined by the given
 discriminator function.
 
-If the --${Object.name} flag is true, an Object is output instead, with a field for every group key.
+If the --${Groups.name} flag is true, an Object is output instead, with a field for every group key.
 --total cannot be used with --object.
 
 Example:

@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* groupBy groups into an object by default, and takes a --groups parameter to emit a List
 * http.* functions now take a --cookies parameter
 * Allow non-String field names
 * Add distinct String.indexOf which can find substrings
