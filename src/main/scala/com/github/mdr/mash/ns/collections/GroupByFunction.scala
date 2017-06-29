@@ -10,12 +10,12 @@ import scala.collection.mutable.LinkedHashMap
 
 object GroupByFunction extends MashFunction("collections.groupBy") {
 
-  private val DefaultTotalKeyName = "Total"
+  private val DefaultAllKeyName = "All"
 
   object Params {
-    val Total = Parameter(
-      nameOpt = Some("total"),
-      summaryOpt = Some("Include a total group containing all the results (default false)"),
+    val All = Parameter(
+      nameOpt = Some("all"),
+      summaryOpt = Some("Include a group containing all the results (default false)"),
       shortFlagOpt = Some('t'),
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isFlag = true,
@@ -24,7 +24,7 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
         s"""If true, include an additional group containing all the elements.
 If false, this group is not included.
 If a non-boolean argument is given, that is used as the key for the additional group.
-Otherwise, a default key of "$DefaultTotalKeyName" is used. """))
+Otherwise, a default key of "$DefaultAllKeyName" is used. """))
     val IncludeNull = Parameter(
       nameOpt = Some("includeNull"),
       summaryOpt = Some("Include groups that have null keys (default false)"),
@@ -63,7 +63,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 
   import Params._
 
-  val params = ParameterModel(Total, IncludeNull, Groups, Discriminator, Select, Sequence)
+  val params = ParameterModel(All, IncludeNull, Groups, Discriminator, Select, Sequence)
 
   private def groupBy[T, U](xs: Seq[T], f: T ⇒ U): Seq[(U, Seq[T])] = {
     val map = LinkedHashMap[U, Seq[T]]()
@@ -79,7 +79,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val discriminator = boundParams.validateFunction(Discriminator)
     val select: MashValue ⇒ MashValue = boundParams.validateFunctionOpt(Select).getOrElse(identity _)
     val includeNulls = boundParams(IncludeNull).isTruthy
-    val includeTotalGroup = boundParams(Total).isTruthy
+    val includeAllGroup = boundParams(All).isTruthy
     val outputListOfGroups = boundParams(Groups).isTruthy
 
     val nullKey = boundParams(IncludeNull) match {
@@ -87,8 +87,8 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       case v                ⇒ v
     }
 
-    val totalKey = boundParams(Total) match {
-      case MashBoolean.True ⇒ MashString(DefaultTotalKeyName)
+    val allKey = boundParams(All) match {
+      case MashBoolean.True ⇒ MashString(DefaultAllKeyName)
       case x                ⇒ x
     }
 
@@ -103,8 +103,8 @@ If a non-boolean argument is given, that will be used as the key for the null gr
         if key != MashNull || includeNulls
         groupKey = translateKey(key)
       } yield groupKey -> (values map select)
-    if (includeTotalGroup)
-      groupsByKey ++= Seq(totalKey -> (sequence map select))
+    if (includeAllGroup)
+      groupsByKey ++= Seq(allKey -> (sequence map select))
 
     if (outputListOfGroups)
       MashList(groupsByKey.map((makeGroupObject _).tupled))

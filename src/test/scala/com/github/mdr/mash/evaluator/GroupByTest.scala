@@ -24,10 +24,10 @@ class GroupByTest extends AbstractEvaluatorTest {
   "[null] | groupBy --includeNull='nope' (x => x) --groups | select 'key'" ==>
     "[ { key: 'nope' } ]"
 
-  // --total
-  "[1, 2, 1] | groupBy --total (x => x) --groups | select 'key' 'count' | sortBy 'count'" ==>
-    "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'Total', count: 3 } ]"
-  "[1, 2, 1] | groupBy --total='totalCount' (x => x) --groups | select 'key' 'count' | sortBy 'count'" ==>
+  // --all
+  "[1, 2, 1] | groupBy --all (x => x) --groups | select 'key' 'count' | sortBy 'count'" ==>
+    "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'All', count: 3 } ]"
+  "[1, 2, 1] | groupBy --all='totalCount' (x => x) --groups | select 'key' 'count' | sortBy 'count'" ==>
     "[ { key: 2, count: 1 }, { key: 1, count: 2 }, { key: 'totalCount', count: 3 } ]"
 
   // Group.count
