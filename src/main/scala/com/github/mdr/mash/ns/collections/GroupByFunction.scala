@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.collections
 
-import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.NoArgFunction._
@@ -82,44 +81,37 @@ If a non-boolean argument is given, that will be used as the key for the null gr
     val includeTotalGroup = boundParams(Total).isTruthy
     val outputAnObject = boundParams(Object).isTruthy
 
-    if (includeTotalGroup && outputAnObject)
-      throw new ArgumentException(s"Cannot specify both --${Total.name} and --${Object.name}")
-
     val nullKey = boundParams(IncludeNull) match {
       case MashBoolean.True ⇒ MashNull
       case v                ⇒ v
     }
+
+    val totalKey = boundParams(Total) match {
+      case MashBoolean.True ⇒ MashString(DefaultTotalKeyName)
+      case x                ⇒ x
+    }
+
     def translateKey(k: MashValue) = k match {
       case MashNull ⇒ nullKey
       case _        ⇒ k
     }
-    if (outputAnObject)
-      MashObject.of(for {
+
+    var groupsByKey: Seq[(MashValue, Seq[MashValue])] =
+      for {
         (key, values) ← groupBy(sequence, discriminator)
         if key != MashNull || includeNulls
-      } yield key -> MashList(values map select))
-    else {
-      var groups =
-        for {
-          (key, values) ← groupBy(sequence, discriminator).toSeq
-          if key != MashNull || includeNulls
-          groupKey = translateKey(key)
-        } yield makeGroup(groupKey, values map select)
+        groupKey = translateKey(key)
+      } yield groupKey -> (values map select)
+    if (includeTotalGroup)
+      groupsByKey ++= Seq(totalKey -> (sequence map select))
 
-      if (includeTotalGroup) {
-        val totalKey = boundParams(Total) match {
-          case MashBoolean.True ⇒ MashString(DefaultTotalKeyName)
-          case x                ⇒ x
-        }
-        val totalGroup = makeGroup(totalKey, sequence map select)
-        groups = groups :+ totalGroup
-      }
-
-      MashList(groups)
-    }
+    if (outputAnObject)
+      MashObject.of(groupsByKey.map { case (k, g) ⇒ k -> MashList(g) })
+    else
+      MashList(groupsByKey.map((makeGroupObject _).tupled))
   }
 
-  private def makeGroup(key: MashValue, values: Seq[MashValue]) = {
+  private def makeGroupObject(key: MashValue, values: Seq[MashValue]): MashObject = {
     import GroupClass.Fields._
     MashObject.of(
       ListMap(
