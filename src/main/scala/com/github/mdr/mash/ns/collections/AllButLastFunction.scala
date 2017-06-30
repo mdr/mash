@@ -24,9 +24,9 @@ object AllButLastFunction extends MashFunction("collections.allButLast") {
   def call(boundParams: BoundParams): MashValue = {
     val n = boundParams.validateNonNegativeInteger(N)
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items) ⇒ MashList(items dropRight n)
-      case SequenceLike.String(s)    ⇒ s.modify(_ dropRight n)
-      case SequenceLike.Object(obj)  ⇒ MashObject.of(obj.immutableFields dropRight n)
+      case SequenceLike.List(items) ⇒ MashList(items dropRight n)
+      case SequenceLike.String(s)   ⇒ s.modify(_ dropRight n)
+      case SequenceLike.Object(obj) ⇒ MashObject.of(obj.immutableFields dropRight n)
     }
   }
 

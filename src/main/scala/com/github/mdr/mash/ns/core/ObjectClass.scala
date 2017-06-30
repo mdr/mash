@@ -20,6 +20,7 @@ object ObjectClass extends MashClass("core.Object") {
     HasFieldMethod,
     HoistMethod,
     MapMethod,
+    SortByMethod,
     TransformFieldsMethod,
     TransformValuesMethod,
     UnblessMethod,

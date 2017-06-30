@@ -19,9 +19,9 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   def call(boundParams: BoundParams): MashValue =
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items) ⇒ MashList(items.reverse)
-      case SequenceLike.String(s)    ⇒ s.reverse
-      case SequenceLike.Object(obj)  ⇒ obj.reverse
+      case SequenceLike.List(items) ⇒ MashList(items.reverse)
+      case SequenceLike.String(s)   ⇒ s.reverse
+      case SequenceLike.Object(obj) ⇒ obj.reverse
     }
 
   override def typeInferenceStrategy = SeqToSeqTypeInferenceStrategy(params, Sequence)

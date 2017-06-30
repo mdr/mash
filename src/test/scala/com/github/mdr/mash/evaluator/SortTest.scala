@@ -28,4 +28,8 @@ class SortTest extends AbstractEvaluatorTest {
   "'123' | sortBy (-_.toNumber)" ==> "'321'"
   "'123'.sortBy (-_.toNumber)" ==> "'321'"
 
+  "{ a: 3, b: 2, c: 1 }.sortBy (_2) | .fields.name.join" ==> "'cba'"
+  "{ a: 3, b: 2, c: 1 } | sortBy (_2) | .fields.name.join" ==> "'cba'"
+  "{ a: 3, b: 2, d: 1, c: 1 }.sortBy (f v => [v, f]) | .fields.name.join" ==> "'cdba'"
+
 }

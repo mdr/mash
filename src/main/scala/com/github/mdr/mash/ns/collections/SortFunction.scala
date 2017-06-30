@@ -44,7 +44,7 @@ object SortFunction extends MashFunction("collections.sort") {
     val descending = boundParams(Descending).isTruthy
     val naturalOrder = boundParams(NaturalOrder).isTruthy
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items)         ⇒ sortItems(items, descending, naturalOrder)
+      case SequenceLike.List(items)          ⇒ sortItems(items, descending, naturalOrder)
       case sequenceLike: SequenceLike.String ⇒ sortString(sequenceLike, descending, naturalOrder)
       case SequenceLike.Object(obj)          ⇒ sortObject(obj, descending, naturalOrder)
     }
@@ -54,7 +54,7 @@ object SortFunction extends MashFunction("collections.sort") {
     MashList(sortItems_(items, descending, naturalOrder))
 
   private def sortString(sequenceLike: SequenceLike.String, descending: Boolean, naturalOrder: Boolean): MashValue = {
-    val items = sequenceLike.characterSequence
+    val items = sequenceLike.items
     val newSequence = sortItems_(items, descending, naturalOrder)
     sequenceLike.reassemble(newSequence)
   }

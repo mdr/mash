@@ -28,15 +28,15 @@ object FirstFunction extends MashFunction("collections.first") {
   def call(boundParams: BoundParams): MashValue = {
     val countOpt = boundParams.validateNonNegativeIntegerOpt(N)
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items) ⇒ countOpt match {
+      case SequenceLike.List(items) ⇒ countOpt match {
         case Some(count) ⇒ MashList(items take count)
         case None        ⇒ if (items.isEmpty) MashNull else items.head
       }
-      case SequenceLike.String(s)    ⇒ countOpt match {
+      case SequenceLike.String(s)   ⇒ countOpt match {
         case Some(count) ⇒ s.modify(_ take count)
         case None        ⇒ if (s.isEmpty) MashNull else s.first
       }
-      case SequenceLike.Object(obj)  ⇒ countOpt match {
+      case SequenceLike.Object(obj) ⇒ countOpt match {
         case Some(count) ⇒ MashObject.of(obj.immutableFields take count)
         case None        ⇒ if (obj.isEmpty) MashNull else MashObject.of(obj.immutableFields take 1)
       }

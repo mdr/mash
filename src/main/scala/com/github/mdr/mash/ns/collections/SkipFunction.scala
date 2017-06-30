@@ -24,9 +24,9 @@ object SkipFunction extends MashFunction("collections.skip") {
   def call(boundParams: BoundParams): MashValue = {
     val n = boundParams.validateNonNegativeInteger(N)
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items) ⇒ MashList(items drop n)
-      case SequenceLike.String(s)    ⇒ s.modify(_ drop n)
-      case SequenceLike.Object(obj)  ⇒ MashObject.of(obj.immutableFields drop n)
+      case SequenceLike.List(items) ⇒ MashList(items drop n)
+      case SequenceLike.String(s)   ⇒ s.modify(_ drop n)
+      case SequenceLike.Object(obj) ⇒ MashObject.of(obj.immutableFields drop n)
     }
   }
 

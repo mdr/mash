@@ -54,9 +54,9 @@ object GrepFunction extends MashFunction("collections.grep") {
     val query = ToStringifier.stringify(boundParams(Query))
     val negate = boundParams(Negate).isTruthy
     SequenceLikeAnalyser.analyse(boundParams, Input) {
-      case SequenceLike.Items(items) ⇒ runGrep(items, query, ignoreCase, regex, negate)
-      case SequenceLike.String(s)    ⇒ runGrep(getItems(s), query, ignoreCase, regex, negate)
-      case SequenceLike.Object(obj)  ⇒ GrepMethod.doGrep(obj, boundParams)
+      case SequenceLike.List(items) ⇒ runGrep(items, query, ignoreCase, regex, negate)
+      case SequenceLike.String(s)   ⇒ runGrep(getItems(s), query, ignoreCase, regex, negate)
+      case SequenceLike.Object(obj) ⇒ GrepMethod.doGrep(obj, boundParams)
     }
   }
 

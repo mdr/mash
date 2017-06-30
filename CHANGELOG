@@ -31,7 +31,7 @@ v0.0.9 (..)
 * Add List.cartesianProduct
 * Support table rendering for list of lists
 * random.int
-* Object.sort
+* Object.sort, sortBy
 * noArg for default argument sentinels
 * base64.decode
 * collections.allButLast

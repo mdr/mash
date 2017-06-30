@@ -22,10 +22,8 @@ object WhereMethod extends MashMethod("where") {
 
   val params = ParameterModel(Predicate)
 
-  def call(target: MashValue, boundParams: BoundParams): MashObject =
-    doWhere(target.asInstanceOf[MashObject], boundParams)
-
-  def doWhere(obj: MashObject, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashObject = {
+    val obj = target.asInstanceOf[MashObject]
     val predicate = validatePredicate(boundParams)
     MashObject.of(
       getFieldValueIndexTriples(obj)

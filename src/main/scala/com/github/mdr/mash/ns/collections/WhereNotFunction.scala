@@ -11,13 +11,16 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
 
   import WhereFunction.Params._
 
-  def call(boundParams: BoundParams): MashValue = {
-    val predicate = boundParams.validateFunction(Predicate)
+  def call(boundParams: BoundParams): MashValue =
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items)   ⇒ MashList(items.filterNot(x ⇒ predicate(x).isTruthy))
-      case string: SequenceLike.String ⇒ string.reassemble(string.characterSequence.filterNot(x ⇒ predicate(x).isTruthy))
+      case list: SequenceLike.List     ⇒ list.reassemble(doWhereNot(list.items, boundParams))
+      case string: SequenceLike.String ⇒ string.reassemble(doWhereNot(string.items, boundParams))
       case SequenceLike.Object(obj)    ⇒ WhereNotMethod.doWhereNot(obj, boundParams)
     }
+
+  private def doWhereNot(items: Seq[MashValue], boundParams: BoundParams): Seq[MashValue] = {
+    val predicate = boundParams.validateFunction(Predicate)
+    items.filterNot(x ⇒ predicate(x).isTruthy)
   }
 
   override def typeInferenceStrategy = WhereTypeInferenceStrategy

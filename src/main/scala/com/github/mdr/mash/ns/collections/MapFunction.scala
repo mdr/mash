@@ -27,7 +27,7 @@ object MapFunction extends MashFunction("collections.map") {
   def call(boundParams: BoundParams): MashValue = {
     val function1Or2 = boundParams.validateFunction1Or2(F)
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items)   ⇒ mapItems(items, function1Or2)
+      case SequenceLike.List(items)    ⇒ mapItems(items, function1Or2)
       case string: SequenceLike.String ⇒ mapString(string, function1Or2)
       case SequenceLike.Object(obj)    ⇒ MapMethod.doMap(obj, boundParams)
     }
@@ -37,7 +37,7 @@ object MapFunction extends MashFunction("collections.map") {
     MashList(mapItems_(items, function1Or2))
 
   private def mapString(string: SequenceLike.String, function1Or2: Function1Or2): MashValue =
-    string.reassemble(mapItems_(string.characterSequence, function1Or2))
+    string.reassemble(mapItems_(string.items, function1Or2))
 
   private def mapItems_(items: Seq[MashValue], function1Or2: Function1Or2): Seq[MashValue] =
     function1Or2 match {

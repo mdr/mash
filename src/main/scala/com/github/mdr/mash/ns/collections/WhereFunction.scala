@@ -21,13 +21,16 @@ object WhereFunction extends MashFunction("collections.where") {
 
   val params = ParameterModel(Predicate, Sequence)
 
-  def call(boundParams: BoundParams): MashValue = {
-    val predicate = boundParams.validateFunction(Predicate)
+  def call(boundParams: BoundParams): MashValue =
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items)   ⇒ MashList(items.filter(x ⇒ predicate(x).isTruthy))
-      case string: SequenceLike.String ⇒ string.reassemble(string.characterSequence.filter(x ⇒ predicate(x).isTruthy))
-      case SequenceLike.Object(obj)    ⇒ WhereMethod.doWhere(obj, boundParams)
+      case list: SequenceLike.List     ⇒ list.reassemble(doWhere(list.items, boundParams))
+      case string: SequenceLike.String ⇒ string.reassemble(doWhere(string.items, boundParams))
+      case SequenceLike.Object(obj)    ⇒ WhereMethod.call(obj, boundParams)
     }
+
+  private def doWhere(items: Seq[MashValue], boundParams: BoundParams): Seq[MashValue] = {
+    val predicate = boundParams.validateFunction(Predicate)
+    items.filter(x ⇒ predicate(x).isTruthy)
   }
 
   def reassembleSequence(inSequence: MashValue, newSequence: Seq[_ <: MashValue]): MashValue =

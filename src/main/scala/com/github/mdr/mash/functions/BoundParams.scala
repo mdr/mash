@@ -105,8 +105,10 @@ case class BoundParams(boundNames: Map[String, MashValue],
       throwInvalidArgumentType("function", x, param)
   }
 
-  def validateFunction1Or2(param: Parameter): Function1Or2 =
-    this (param) match {
+  def validateFunction1Or2(param: Parameter): Function1Or2 = validateFunction1Or2(this (param), param)
+
+  def validateFunction1Or2(argument: MashValue, param: Parameter): Function1Or2 =
+    argument match {
       case f: MashFunction if f.params.allowsTwoPositionalArguments         ⇒ Right(FunctionHelpers.interpretAsFunction2(f))
       case bm: BoundMethod if bm.method.params.allowsTwoPositionalArguments ⇒ Right(FunctionHelpers.interpretAsFunction2(bm))
       case arg                                                              ⇒ Left(validateFunction(param, arg))

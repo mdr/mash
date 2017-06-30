@@ -28,8 +28,8 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
     val inSequence = boundParams(Sequence)
     val function1Or2 = boundParams.validateFunction1Or2(F)
     SequenceLikeAnalyser.analyse(boundParams, Sequence) {
-      case SequenceLike.Items(items)   ⇒ flatMap(items, function1Or2, inSequence)
-      case string: SequenceLike.String ⇒ flatMap(string.characterSequence, function1Or2, inSequence)
+      case SequenceLike.List(items)    ⇒ flatMap(items, function1Or2, inSequence)
+      case string: SequenceLike.String ⇒ flatMap(string.items, function1Or2, inSequence)
       case SequenceLike.Object(obj)    ⇒ MapMethod.doMap(obj, boundParams)
     }
   }

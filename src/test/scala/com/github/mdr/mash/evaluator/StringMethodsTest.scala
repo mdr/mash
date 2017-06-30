@@ -34,6 +34,8 @@ class StringMethodsTest extends AbstractEvaluatorTest {
 
   // String.toList
   "'abc'.toList" ==> "['a', 'b', 'c']"
+  "'abc'.characters" ==> "['a', 'b', 'c']"
+  "'abc'.characters.first.tag" ==> "Character"
   "''.toList" ==> "[]"
 
 }
