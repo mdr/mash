@@ -6,4 +6,6 @@ class DateTimeTest extends AbstractEvaluatorTest {
 
   "now.date" ==> "today"
 
+  "t = now; t0 = t.format.toDateTime; t0 == t0.format.toDateTime" ==> true
+
 }

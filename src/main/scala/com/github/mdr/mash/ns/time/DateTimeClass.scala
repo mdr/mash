@@ -1,7 +1,8 @@
 package com.github.mdr.mash.ns.time
 
 import java.time._
-import java.util.Date
+import java.time.format.{ DateTimeFormatter, FormatStyle }
+import java.util.{ Date, Locale }
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.EvaluatorException
@@ -15,9 +16,10 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   override val methods = Seq(
     DateMethod,
+    FormatMethod,
     FuzzyMethod,
     HourMethod,
-    MillisSinceEpoch,
+    MillisSinceEpochMethod,
     MinuteMethod,
     SecondMethod)
 
@@ -34,7 +36,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   }
 
-  object MillisSinceEpoch extends MashMethod("millisSinceEpoch") {
+  object MillisSinceEpochMethod extends MashMethod("millisSinceEpoch") {
 
     val params = ParameterModel()
 
@@ -44,6 +46,24 @@ object DateTimeClass extends MashClass("time.DateTime") {
     override def typeInferenceStrategy = NumberClass
 
     override def summaryOpt = Some("Date portion of this date and time")
+
+  }
+
+  object FormatMethod extends MashMethod("format") {
+
+    private val formatter =
+      DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
+        .withLocale(Locale.getDefault).
+        withZone(ZoneId.systemDefault())
+
+    val params = ParameterModel()
+
+    def call(target: MashValue, boundParams: BoundParams): MashString =
+      MashString(formatter.format(Wrapper(target).instant))
+
+    override def typeInferenceStrategy = StringClass
+
+    override def summaryOpt = Some("Format as a human-friendly absolute time, e.g. June 30, 2017 6:29:09 PM BST")
 
   }
 

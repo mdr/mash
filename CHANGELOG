@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add .format method to DateTime
 * Add .hour/minute/second method to DateTime
 * Change groupBy --total to --all
 * groupBy groups into an object by default, and takes a --groups parameter to emit a List
