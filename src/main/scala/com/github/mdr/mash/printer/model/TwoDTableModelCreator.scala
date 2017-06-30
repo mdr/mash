@@ -1,6 +1,5 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.printer._
