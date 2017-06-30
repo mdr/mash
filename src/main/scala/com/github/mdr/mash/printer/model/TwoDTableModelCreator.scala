@@ -8,10 +8,17 @@ import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils
 
+import scala.PartialFunction.cond
+
 object TwoDTableModelCreator {
 
   private val IndexColumnName = "#"
   val RowLabelColumnId = ColumnId(-1)
+
+  def isSuitableForTwoDTable(value: MashValue) = cond(value) {
+    case xs: MashList    ⇒ xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))
+    case obj: MashObject ⇒ obj.nonEmpty && (obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList))
+  }
 
 }
 

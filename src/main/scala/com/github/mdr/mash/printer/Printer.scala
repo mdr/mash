@@ -14,10 +14,11 @@ import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
 import com.github.mdr.mash.ns.time.{ MillisecondsClass, SecondsClass }
 import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.{ NumberUtils, StringUtils }
+import com.github.mdr.mash.utils.NumberUtils
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true, browseLargeOutput: Boolean = true)
@@ -65,15 +66,13 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
-    case obj: MashObject if obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList) ⇒
-      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(obj)
-    case obj: MashObject                                                                                                    ⇒
+    case _ if isSuitableForTwoDTable(value)                              ⇒
+      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(value)
+    case obj: MashObject                                                 ⇒
       new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
-    case xs: MashList if xs.forall(_.isAnObject) || xs.forall(_.isAList)                                                 ⇒
-      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(xs)
-    case xs: MashList                                                                                                       ⇒
+    case xs: MashList                                                    ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                                                                                  ⇒
+    case _                                                               ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
@@ -92,44 +91,42 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                     ⇒
+        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                                                      ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           browse(model)
-        case xs: MashList if xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))                             ⇒
-          printTwoD(xs)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                               ⇒
+        case _ if isSuitableForTwoDTable(value)                                                                                                   ⇒
+          printTwoD(value)
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                                                                ⇒
           printTextLines(xs)
-        case obj: MashObject if obj.classOpt contains ViewClass                                                  ⇒
+        case obj: MashObject if obj.classOpt contains ViewClass                                                                                   ⇒
           printView(obj)
-        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews      ⇒
+        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews                                       ⇒
           helpPrinter.printFunctionHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews         ⇒
+        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews                                          ⇒
           helpPrinter.printFieldHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews         ⇒
+        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews                                          ⇒
           helpPrinter.printClassHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews            ⇒
+        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews                                             ⇒
           new GitStatusPrinter(output).print(obj)
           done
-        case obj: MashObject if obj.nonEmpty && (obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList)) ⇒
-          printTwoD(obj)
-        case obj: MashObject                                                                                     ⇒
+        case obj: MashObject                                                                                                                      ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
           done
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                           ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                                                            ⇒
           done // Don't print out sequence of unit
-        case f: MashFunction if !printConfig.disableCustomViews                                                  ⇒
+        case f: MashFunction if !printConfig.disableCustomViews                                                                                   ⇒
           print(HelpCreator.getHelp(f), printConfig)
-        case method: BoundMethod if !printConfig.disableCustomViews                                              ⇒
+        case method: BoundMethod if !printConfig.disableCustomViews                                                                               ⇒
           print(HelpCreator.getHelp(method), printConfig)
-        case klass: MashClass if !printConfig.disableCustomViews                                                 ⇒
+        case klass: MashClass if !printConfig.disableCustomViews                                                                                  ⇒
           print(HelpCreator.getHelp(klass), printConfig)
-        case MashUnit                                                                                            ⇒
+        case MashUnit                                                                                                                             ⇒
           // Don't print out Unit
           done
-        case _                                                                                                   ⇒
+        case _                                                                                                                                    ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
           done
       }
@@ -166,18 +163,6 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(value)
       done
     }
-  }
-
-  def printBox(title: String, lines: Seq[String]) {
-    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
-    val innerWidth = boxWidth - 4
-    val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
-    val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))
-    val topLine = "┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐"
-    val bottomLine = "└─" + "─" * innerWidth + "─┘"
-    val contentLines = displayLines.map(l ⇒ "│ " + l + " " * (innerWidth - l.length) + " │")
-    for (line ← topLine +: contentLines :+ bottomLine)
-      output.println(line)
   }
 
 }

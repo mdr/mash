@@ -7,6 +7,7 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.parser.SafeParens
+import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
@@ -81,33 +82,32 @@ trait ObjectBrowserActionHandler
       case _               ⇒
     }
 
-  protected def view2D(browserState: BrowserState) =
+  protected def view2D(browserState: BrowserState) = {
+    def view2D(value: MashValue): Unit = {
+      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(value)
+      val newState = TwoDTableBrowserState(model, path = browserState.path)
+      updateState(newState)
+    }
     browserState.rawValue match {
       case obj: MashObject if obj.immutableFields.values.forall(v ⇒ v.isAnObject || v.isAList) ⇒
-        val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(obj)
-        val newState = TwoDTableBrowserState(model, path = browserState.path)
-        updateState(newState)
+        view2D(obj)
       case xs: MashList if xs.forall(x ⇒ x.isAnObject || x.isAList)                            ⇒
-        val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(xs)
-        val newState = TwoDTableBrowserState(model, path = browserState.path)
-        updateState(newState)
+        view2D(xs)
       case _                                                                                   ⇒
     }
+  }
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
-    case obj: MashObject if obj.nonEmpty && (obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList)) ⇒
-      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(obj)
+    case _ if isSuitableForTwoDTable(value) ⇒
+      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(value)
       TwoDTableBrowserState(model, path = path)
-    case obj: MashObject                                                                                                                      ⇒
+    case obj: MashObject                    ⇒
       val model = new SingleObjectTableModelCreator(terminal.info, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
-    case xs: MashList if xs.forall(_.isAnObject) || xs.forall(_.isAList)                                                                      ⇒
-      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(xs)
-      TwoDTableBrowserState(model, path = path)
-    case xs: MashList                                                                                                                         ⇒
+    case xs: MashList                       ⇒
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)
       TextLinesBrowserState(model, path = path)
-    case _                                                                                                                                    ⇒
+    case _                                  ⇒
       val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
       ValueBrowserState(model, path = path)
   }
