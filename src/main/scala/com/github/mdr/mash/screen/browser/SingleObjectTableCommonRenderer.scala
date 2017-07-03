@@ -5,14 +5,12 @@ import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.CellSearchInfo
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Region, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 
 class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
-                                      terminalInfo: TerminalInfo,
                                       searchHitsByPoint: Map[Point, CellSearchInfo] = Map()) {
 
   private val boxCharacterSupplier = UnicodeBoxCharacterSupplier

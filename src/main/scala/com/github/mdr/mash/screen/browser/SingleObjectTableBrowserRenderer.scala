@@ -8,7 +8,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
   private val searchHitsByPoint = state.searchStateOpt.map(_.byPoint).getOrElse(Map())
-  private val commonRenderer = new SingleObjectTableCommonRenderer(state.model, terminalInfo, searchHitsByPoint)
+  private val commonRenderer = new SingleObjectTableCommonRenderer(state.model, searchHitsByPoint)
 
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 

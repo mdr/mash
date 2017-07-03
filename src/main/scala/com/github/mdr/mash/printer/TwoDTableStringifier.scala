@@ -1,11 +1,6 @@
 package com.github.mdr.mash.printer
 
-import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
-import com.github.mdr.mash.printer.model.TwoDTableModel.Row
-import com.github.mdr.mash.screen.{ BasicColour, DefaultColour, StyledString }
-import com.github.mdr.mash.screen.Screen._
-import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.printer.model.TwoDTableModel
 
 class TwoDTableStringifier(showSelections: Boolean = false) {
 
@@ -22,20 +17,6 @@ class TwoDTableStringifier(showSelections: Boolean = false) {
     sb.toString
   }
 
-  def renderHeaderRow(model: TwoDTableModel): String = {
-    def renderColumn(id: ColumnId) = {
-      val fit = StringUtils.fitToWidth(model.columnName(id), model.columnWidth(id))
-      drawStyledChars(fit.style(foregroundColour = BasicColour.Yellow))
-    }
-    val sb = new StringBuilder()
-    sb.append(doubleVertical)
-    if (showSelections)
-      sb.append(" " + singleVertical)
-    sb.append(model.columnIds.map(renderColumn).mkString(singleVertical))
-    sb.append(doubleVertical)
-    sb.toString
-  }
-
   def renderBelowHeaderRow(model: TwoDTableModel): String = {
     val sb = new StringBuilder()
     sb.append(doubleVerticalSingleRight)
@@ -44,19 +25,6 @@ class TwoDTableStringifier(showSelections: Boolean = false) {
     sb.append(model.columnIds.map(columnId ⇒ singleHorizontal * model.columnWidth(columnId)).mkString(singleIntersect))
     sb.append(doubleVerticalSingleLeft)
     sb.toString
-  }
-
-  def renderObjectRow(model: TwoDTableModel, row: Row): String = {
-    def renderCell(columnId: ColumnId): String = {
-      val foregroundColour = if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow else DefaultColour
-      val fittedCellValue = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
-      drawStyledChars(fittedCellValue.style(foregroundColour = foregroundColour))
-    }
-    new StringBuilder()
-      .append(doubleVertical)
-      .append(model.columnIds.map(renderCell).mkString(singleVertical))
-      .append(doubleVertical)
-      .toString
   }
 
   def renderBottomRow(model: TwoDTableModel): String = {
