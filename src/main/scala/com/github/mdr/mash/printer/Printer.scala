@@ -49,8 +49,8 @@ class FieldRenderer(viewConfig: ViewConfig) {
     case MashNumber(n, _)                                 ⇒ NumberUtils.prettyString(n)
     case MashWrapped(i: Instant) if viewConfig.fuzzyTime  ⇒ Printer.prettyTime.format(Date.from(i))
     case MashWrapped(i: Instant)                          ⇒ dateTimeFormatter.format(ZonedDateTime.ofInstant(i, ZoneId.systemDefault))
-    case xs: MashList if inCell                           ⇒ xs.elements.map(renderField(_)).mkString(", ")
-    case xs: MashList                                     ⇒ xs.elements.map(renderField(_)).mkString("[", ", ", "]")
+    case xs: MashList if inCell                           ⇒ xs.elements.map(renderField(_, inCell = inCell)).mkString(", ")
+    case xs: MashList                                     ⇒ xs.elements.map(renderField(_, inCell = inCell)).mkString("[", ", ", "]")
     case _                                                ⇒
       val s = ToStringifier.safeStringify(value)
       if (inCell) Printer.replaceProblematicChars(s) else s
