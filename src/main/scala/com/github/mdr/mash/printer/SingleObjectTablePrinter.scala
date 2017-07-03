@@ -12,8 +12,8 @@ class SingleObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, 
 
   def printObject(obj: MashObject) = {
     val model = new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
-    val commonRenderer = new SingleObjectTableCommonRenderer(model, terminalInfo)
-    val lines = commonRenderer.renderTableLines(model.fields.toSeq)
+    val renderer = new SingleObjectTableCommonRenderer(model, terminalInfo)
+    val lines = renderer.renderAllTableLines
     for (line ← lines)
       output.println(Screen.drawStyledChars(line.string))
   }

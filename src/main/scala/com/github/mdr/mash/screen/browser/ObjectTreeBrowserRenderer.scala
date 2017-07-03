@@ -1,9 +1,7 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
-import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
