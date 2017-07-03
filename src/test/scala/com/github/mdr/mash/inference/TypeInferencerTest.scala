@@ -436,6 +436,10 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "[[1, 2], [3, 4]] | transpose" ==> Seq(Seq(NumberClass))
   "[{ foo: 1, bar: '2' }, { foo: 3, bar: '4' }] | transpose" ==> obj("foo" -> Seq(NumberClass), "bar" -> Seq(StringClass))
 
+  // String.deleteUpTo/deleteAfter
+  "'abc'.deleteUpTo 'b'" ==> StringClass
+  "'abc'.deleteAfter 'b'" ==> StringClass
+
   private lazy val TaggedStringType = StringClass taggedWith PathClass
 
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =

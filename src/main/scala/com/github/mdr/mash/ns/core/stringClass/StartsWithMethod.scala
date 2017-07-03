@@ -18,8 +18,8 @@ object StartsWithMethod extends MashMethod("startsWith") {
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString]
-    val pattern = boundParams(Prefix).asInstanceOf[MashString]
-    MashBoolean(s.startsWith(pattern))
+    val pattern = boundParams.validateString(Prefix)
+    MashBoolean(s startsWith pattern)
   }
 
   override def typeInferenceStrategy = BooleanClass

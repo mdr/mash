@@ -38,4 +38,15 @@ class StringMethodsTest extends AbstractEvaluatorTest {
   "'abc'.characters.first.tag" ==> "Character"
   "''.toList" ==> "[]"
 
+  // .deleteUpTo
+  "'foo bar: baz'.deleteUpTo 'bar: '" ==> "'bar: baz'"
+  "'foo bar: baz'.deleteUpTo --andIncluding 'bar: '" ==> "'baz'"
+  """'result: { "value": 10 }'.deleteUpTo '{'""" ==> """'{ "value": 10 }'"""
+  "'value: 10'.deleteUpTo --andIncluding 'value: '" ==> "'10'"
+  "'abc'.deleteUpTo 'not found'" ==> "'abc'"
+
+  // .deleteAfter
+  """'{ "value": 10 } # comment'.deleteAfter '}'""" ==> """'{ "value": 10 }'"""
+  "'10 # comment'.deleteAfter --andIncluding ' #'" ==> "'10'"
+  "'abc'.deleteAfter 'not found'" ==> "'abc'"
 }

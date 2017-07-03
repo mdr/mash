@@ -41,12 +41,16 @@ object Utils {
     case n  ⇒ Some(n)
   }
 
-  def indexOf(s: String, s2: String): Option[Int] = s.indexOf(s2) match {
-    case -1 ⇒ None
-    case n  ⇒ Some(n)
-  }
+  def indexOf(superstring: String, substring: String): Option[Int] =
+    superstring.indexOf(substring) match {
+      case -1 ⇒ None
+      case n  ⇒ Some(n)
+    }
 
-  def indexWhere[T](xs: Seq[T], f: T ⇒ Boolean): Option[Int] = xs.indexWhere(f) match { case -1 ⇒ None; case i ⇒ Some(i) }
+  def indexWhere[T](xs: Seq[T], f: T ⇒ Boolean): Option[Int] = xs.indexWhere(f) match {
+    case -1 ⇒ None;
+    case i ⇒ Some(i)
+  }
 
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {
     val result = ArrayBuffer[T]()
@@ -58,9 +62,9 @@ object Utils {
   }
 
   /**
-   * Zip two sequences together, but instead of truncating to the shortest of the two if the lengths are unequal, extend
-   * using the given padding value.
-   */
+    * Zip two sequences together, but instead of truncating to the shortest of the two if the lengths are unequal, extend
+    * using the given padding value.
+    */
   def zipPad[T](xs: Seq[T], ys: Seq[T], padding: T): Seq[(T, T)] =
     if (xs.length > ys.length)
       xs.zip(ys ++ Seq.fill(xs.length - ys.length)(padding))
@@ -68,8 +72,8 @@ object Utils {
       (xs ++ Seq.fill(ys.length - xs.length)(padding)).zip(ys)
 
   def commonPrefix[T](xs: Seq[T], ys: Seq[T]): Seq[T] = (xs, ys) match {
-    case (Seq(x, xsRest @ _*), Seq(y, ysRest @ _*)) if x == y ⇒ x +: commonPrefix(xsRest, ysRest)
-    case _ ⇒ Nil
+    case (Seq(x, xsRest@_*), Seq(y, ysRest@_*)) if x == y ⇒ x +: commonPrefix(xsRest, ysRest)
+    case _                                                ⇒ Nil
   }
 
   def initOpt[T](xs: Seq[T]): Option[Seq[T]] = if (xs.isEmpty) None else Some(xs.init)
@@ -83,9 +87,11 @@ object Utils {
   def distinctBy[T, U](items: Seq[T], f: T ⇒ U): Seq[T] = {
     case class Wrapper(item: T) {
       val key: U = f(item)
+
       override def hashCode = key.hashCode
+
       override def equals(other: Any) = cond(other) {
-        case that @ Wrapper(_) ⇒ this.key == that.key
+        case that@Wrapper(_) ⇒ this.key == that.key
       }
     }
     items.map(Wrapper).distinct.map(_.item)

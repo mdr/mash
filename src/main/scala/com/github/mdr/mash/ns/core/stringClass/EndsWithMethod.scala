@@ -18,7 +18,7 @@ object EndsWithMethod extends MashMethod("endsWith") {
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val s = target.asInstanceOf[MashString]
-    val pattern = boundParams(Suffix).asInstanceOf[MashString]
+    val pattern = boundParams.validateString(Suffix)
     MashBoolean(s.reverse.startsWith(pattern.reverse))
   }
 
