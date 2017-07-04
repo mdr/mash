@@ -4,7 +4,6 @@ import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.Utils._
 
 class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
@@ -12,18 +11,9 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val windowRows = model.rows.window(state.firstRow, windowSize)
-    val currentRow = state.currentRow - state.firstRow
-    val markedRows = state.markedRows.map(_ - state.firstRow)
-    val searchStateOpt = state.searchStateOpt.map { searchState ⇒
-      val newByPoint =
-        for ((point, cellSearchInfo) <- searchState.byPoint)
-          yield point.up(state.firstRow) -> cellSearchInfo
-      searchState.copy(byPoint = newByPoint)
-    }
-    val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(markedRows), Some(currentRow),
-      state.currentColumnOpt, searchStateOpt)
-    commonRenderer.renderTableLines(windowRows)
+    val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),
+      Some(state.currentRow), state.currentColumnOpt, state.searchStateOpt)
+    commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 
   private def renderRegularStatusLine: Line = {

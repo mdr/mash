@@ -1,12 +1,12 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.model.TwoDTableModel.Row
 import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
 import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -18,11 +18,11 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
 
   private val boxChars = UnicodeBoxCharacterSupplier
 
-  def renderAllTableLines: Seq[Line] = renderTableLines(model.rows)
+  def renderAllTableLines: Seq[Line] = renderTableLines(0, model.numberOfRows)
 
-  def renderTableLines(rows: Seq[Row]): Seq[Line] = {
+  def renderTableLines(rowOffset: Int, rowCount: Int): Seq[Line] = {
     val headerLines = renderHeaderLines
-    val dataLines = renderDataLines(rows)
+    val dataLines = renderDataLines(rowOffset: Int, rowCount: Int)
     val footerLine = renderFooterLine(model)
     headerLines ++ dataLines ++ Seq(footerLine)
   }
@@ -47,8 +47,8 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       renderHeaderRow(model),
       renderBelowHeaderRow(model))
 
-  private def renderDataLines(rows: Seq[Row]): Seq[Line] =
-    for ((row, rowIndex) ← rows.zipWithIndex)
+  private def renderDataLines(rowOffset: Int, rowCount: Int): Seq[Line] =
+    for ((row, rowIndex) ← model.rows.zipWithIndex.window(rowOffset, rowCount))
       yield renderRow(row, rowIndex = rowIndex)
 
   private def renderRow(row: TwoDTableModel.Row,
