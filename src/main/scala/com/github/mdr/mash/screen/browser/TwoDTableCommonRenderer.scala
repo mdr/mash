@@ -18,9 +18,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
 
   private val boxChars = UnicodeBoxCharacterSupplier
 
-  def renderAllTableLines: Seq[Line] = renderTableLines(0, model.numberOfRows)
-
-  def renderTableLines(rowOffset: Int, rowCount: Int): Seq[Line] = {
+  def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
     val headerLines = renderHeaderLines
     val dataLines = renderDataLines(rowOffset: Int, rowCount: Int)
     val footerLine = renderFooterLine(model)

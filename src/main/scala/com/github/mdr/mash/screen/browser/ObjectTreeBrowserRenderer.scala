@@ -6,6 +6,7 @@ import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -15,7 +16,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   protected def renderLines: Seq[Line] = {
     val printer = new Printer
     print(printer, state.model.root)
-    renderUpperStatusLine +: printer.getLines.drop(state.firstRow).take(windowSize) :+ renderStatusLine
+    renderUpperStatusLine +: printer.getLines.window(state.firstRow, windowSize) :+ renderStatusLine
   }
 
   private class Printer() {

@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
-import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.CellSearchInfo
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
@@ -11,18 +11,18 @@ import com.github.mdr.mash.utils.{ Region, StringUtils }
 import scala.collection.mutable.ArrayBuffer
 
 class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
-                                      searchHitsByPoint: Map[Point, CellSearchInfo] = Map()) {
+                                      selectedIndexOpt: Option[Int] = None,
+                                      moreDataItemsAboveWindow: Boolean = false,
+                                      moreDataItemsBelowWindow: Boolean = false,
+                                      searchStateOpt: Option[SearchState] = None) {
 
-  private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
+  private val searchHitsByPoint = searchStateOpt.map(_.byPoint).getOrElse(Map())
 
-  def renderAllTableLines: Seq[Line] = renderTableLines(model.fields.toSeq)
+  private val boxChars = UnicodeBoxCharacterSupplier
 
-  def renderTableLines(fieldValuePairs: Seq[(String, String)],
-                       selectedIndexOpt: Option[Int] = None,
-                       moreDataItemsAboveWindow: Boolean = false,
-                       moreDataItemsBelowWindow: Boolean = false): Seq[Line] =
+  def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] =
     renderHeaderLines(moreDataItemsAboveWindow) ++
-      renderFieldLines(fieldValuePairs, selectedIndexOpt) ++
+      renderFieldLines(rowOffset, rowCount) ++
       Seq(renderFooterLine(break = hasFields, addArrow = moreDataItemsBelowWindow))
 
   private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
@@ -48,7 +48,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╔════════════╤═════════════╗
     */
   private def renderTopRow(break: Boolean = true, addArrow: Boolean): Line = {
-    import boxCharacterSupplier._
+    import boxChars._
     val chars = new StringBuilder()
       .append(doubleTopLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)
@@ -66,9 +66,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val fit = StringUtils.ellipsisise(StringUtils.centre(className, fullRowWidth), fullRowWidth)
     val renderedClassName = fit.style(classNameStyle)
     val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
+    buffer ++= boxChars.doubleVertical.style.chars
     buffer ++= renderedClassName.chars
-    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
+    buffer ++= boxChars.doubleVertical.style.chars
     Line(StyledString(buffer))
   }
 
@@ -76,7 +76,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╟────────────┬─────────────╢
     */
   private def renderBelowHeaderLine(addArrow: Boolean): Line = {
-    import boxCharacterSupplier._
+    import boxChars._
     val chars = new StringBuilder()
       .append(doubleVerticalSingleRight)
       .append(singleHorizontal * model.fieldColumnWidth)
@@ -87,9 +87,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     Line(chars.when(addArrow, addUpArrow).style)
   }
 
-  private def renderFieldLines(fieldValuePairs: Seq[(String, String)], selectedIndexOpt: Option[Int]): Seq[Line] =
+  private def renderFieldLines(rowOffset: Int, rowCount: Int): Seq[Line] =
     for {
-      ((renderedField, renderedValue), row) ← fieldValuePairs.zipWithIndex
+      ((renderedField, renderedValue), row) ← model.fields.toSeq.zipWithIndex.window(rowOffset, rowCount)
       isCursorRow = selectedIndexOpt contains row
       fieldSearchHitRegions = searchHitsByPoint.get(Point(row, 0)).map(_.matches).getOrElse(Seq())
       valueSearchHitRegions = searchHitsByPoint.get(Point(row, 1)).map(_.matches).getOrElse(Seq())
@@ -103,8 +103,8 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
                               isCursorRow: Boolean,
                               fieldSearchHitRegions: Seq[Region],
                               valueSearchHitRegions: Seq[Region]): Line = {
-    val side = boxCharacterSupplier.doubleVertical.style
-    val internalVertical = boxCharacterSupplier.singleVertical.style(internalRowStyle(isCursorRow))
+    val side = boxChars.doubleVertical.style
+    val internalVertical = boxChars.singleVertical.style(internalRowStyle(isCursorRow))
     val fieldChars = renderFieldCell(renderedField, isCursorRow, fieldSearchHitRegions)
     val valueChars = renderValueCell(renderedValue, isCursorRow, valueSearchHitRegions)
     Line(side + fieldChars + internalVertical + valueChars + side)
@@ -138,7 +138,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╚══════════════════════════╝
     */
   private def renderFooterLine(break: Boolean, addArrow: Boolean): Line = {
-    import boxCharacterSupplier._
+    import boxChars._
     val chars = new StringBuilder()
       .append(doubleBottomLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)

@@ -13,7 +13,7 @@ class SingleObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, 
   def printObject(obj: MashObject) = {
     val model = new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
     val renderer = new SingleObjectTableCommonRenderer(model)
-    val lines = renderer.renderAllTableLines
+    val lines = renderer.renderTableLines()
     for (line ← lines)
       output.println(Screen.drawStyledChars(line.string))
   }
