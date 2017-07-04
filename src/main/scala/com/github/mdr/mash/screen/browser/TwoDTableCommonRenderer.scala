@@ -16,7 +16,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
                               currentColumnIndexOpt: Option[Int] = None,
                               searchStateOpt: Option[SearchState] = None) {
 
-  private val boxChars = UnicodeBoxCharacterSupplier
+  import UnicodeBoxCharacterSupplier._
 
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
     val headerLines = renderHeaderLines
@@ -31,11 +31,11 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       fit.style(Style(foregroundColour = BasicColour.Yellow))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= boxChars.doubleVertical.style.chars
+    buffer ++= doubleVertical.style.chars
     if (showMarkedRows)
-      buffer ++= (" " + boxChars.singleVertical).style.chars
-    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), boxChars.singleVertical.style).chars
-    buffer ++= boxChars.doubleVertical.style.chars
+      buffer ++= (" " + singleVertical).style.chars
+    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), singleVertical.style).chars
+    buffer ++= doubleVertical.style.chars
     Line(StyledString(buffer))
   }
 
@@ -58,7 +58,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     val markChar = if (isMarked) "◈" else " "
     val markCell: StyledString =
       if (showMarkedRows)
-        (markChar + boxChars.singleVertical).style(Style(inverse = shouldHighlightRow))
+        (markChar + singleVertical).style(Style(inverse = shouldHighlightRow))
       else
         StyledString.empty
 
@@ -66,9 +66,9 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       val cellContents = row.renderedValue(columnId)
       renderCell(cellContents, rowIndex, columnIndex, columnId)
     }
-    val internalVertical = boxChars.singleVertical.style(Style(inverse = shouldHighlightRow))
+    val internalVertical = singleVertical.style(Style(inverse = shouldHighlightRow))
     val innerChars = StyledString.mkString(renderedCells, internalVertical)
-    val tableSide = boxChars.doubleVertical.style
+    val tableSide = doubleVertical.style
     Line(tableSide + markCell + innerChars + tableSide)
   }
 
@@ -91,8 +91,6 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
         }
     StyledString(renderedChars)
   }
-
-  import UnicodeBoxCharacterSupplier._
 
   def renderTopRow(model: TwoDTableModel): Line =
     renderBorderRow(model, doubleTopLeft, doubleHorizontal, doubleHorizontalSingleDown, doubleTopRight)

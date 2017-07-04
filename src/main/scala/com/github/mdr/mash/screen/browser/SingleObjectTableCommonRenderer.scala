@@ -18,7 +18,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private val searchHitsByPoint = searchStateOpt.map(_.byPoint).getOrElse(Map())
 
-  private val boxChars = UnicodeBoxCharacterSupplier
+  import UnicodeBoxCharacterSupplier._
 
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] =
     renderHeaderLines(moreDataItemsAboveWindow) ++
@@ -48,7 +48,6 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╔════════════╤═════════════╗
     */
   private def renderTopRow(break: Boolean = true, addArrow: Boolean): Line = {
-    import boxChars._
     val chars = new StringBuilder()
       .append(doubleTopLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)
@@ -66,9 +65,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val fit = StringUtils.ellipsisise(StringUtils.centre(className, fullRowWidth), fullRowWidth)
     val renderedClassName = fit.style(classNameStyle)
     val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= boxChars.doubleVertical.style.chars
+    buffer ++= doubleVertical.style.chars
     buffer ++= renderedClassName.chars
-    buffer ++= boxChars.doubleVertical.style.chars
+    buffer ++= doubleVertical.style.chars
     Line(StyledString(buffer))
   }
 
@@ -76,7 +75,6 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╟────────────┬─────────────╢
     */
   private def renderBelowHeaderLine(addArrow: Boolean): Line = {
-    import boxChars._
     val chars = new StringBuilder()
       .append(doubleVerticalSingleRight)
       .append(singleHorizontal * model.fieldColumnWidth)
@@ -103,8 +101,8 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
                               isCursorRow: Boolean,
                               fieldSearchHitRegions: Seq[Region],
                               valueSearchHitRegions: Seq[Region]): Line = {
-    val side = boxChars.doubleVertical.style
-    val internalVertical = boxChars.singleVertical.style(internalRowStyle(isCursorRow))
+    val side = doubleVertical.style
+    val internalVertical = singleVertical.style(internalRowStyle(isCursorRow))
     val fieldChars = renderFieldCell(renderedField, isCursorRow, fieldSearchHitRegions)
     val valueChars = renderValueCell(renderedValue, isCursorRow, valueSearchHitRegions)
     Line(side + fieldChars + internalVertical + valueChars + side)
@@ -138,7 +136,6 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╚══════════════════════════╝
     */
   private def renderFooterLine(break: Boolean, addArrow: Boolean): Line = {
-    import boxChars._
     val chars = new StringBuilder()
       .append(doubleBottomLeft)
       .append(doubleHorizontal * model.fieldColumnWidth)

@@ -18,6 +18,8 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
                                          searchStateOpt: Option[SearchState] = None,
                                          expressionOpt: Option[String] = None) extends BrowserState {
 
+  def lastRow = size - 1
+
   def setSearch(query: String, terminalRows: Int): BrowserState = {
     val ignoreCase = searchStateOpt.forall(_.ignoreCase)
     runSearch(query, ignoreCase, terminalRows)
