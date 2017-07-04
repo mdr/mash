@@ -4,17 +4,16 @@ import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Utils._
 
 class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
-  private val commonRenderer = new TwoDTableCommonRenderer(state.model, showSelections = true)
-
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val windowRows = model.rows.drop(state.firstRow).take(windowSize)
-    val selectedRow = state.selectedRow - state.firstRow
+    val windowRows = model.rows.window(state.firstRow, windowSize)
+    val currentRow = state.currentRow - state.firstRow
     val markedRows = state.markedRows.map(_ - state.firstRow)
     val searchStateOpt = state.searchStateOpt.map { searchState ⇒
       val newByPoint =
@@ -22,8 +21,9 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
           yield point.up(state.firstRow) -> cellSearchInfo
       searchState.copy(byPoint = newByPoint)
     }
-    commonRenderer.renderTableLines(windowRows, Some(selectedRow), state.currentColumnOpt, markedRows = markedRows,
-      searchStateOpt = searchStateOpt)
+    val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(markedRows), Some(currentRow),
+      state.currentColumnOpt, searchStateOpt)
+    commonRenderer.renderTableLines(windowRows)
   }
 
   private def renderRegularStatusLine: Line = {
@@ -46,7 +46,7 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
 
   private def model = state.model
 
-  private def currentRow = state.selectedRow
+  private def currentRow = state.currentRow
 
   protected val windowSize = state.windowSize(terminalInfo.rows)
 

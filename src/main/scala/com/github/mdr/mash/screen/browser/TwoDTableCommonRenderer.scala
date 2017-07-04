@@ -2,30 +2,28 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.model.TwoDTableModel.Row
 import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
-import com.github.mdr.mash.printer.{ ColumnId, TwoDTableStringifier, UnicodeBoxCharacterSupplier }
+import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.StringUtils
-import com.github.mdr.mash.utils.Utils.tupled
 
 import scala.collection.mutable.ArrayBuffer
 
-class TwoDTableCommonRenderer(model: TwoDTableModel, showSelections: Boolean) {
+class TwoDTableCommonRenderer(model: TwoDTableModel,
+                              markedRowsOpt: Option[Set[Int]] = None,
+                              currentRowIndexOpt: Option[Int] = None,
+                              currentColumnIndexOpt: Option[Int] = None,
+                              searchStateOpt: Option[SearchState] = None) {
 
-  private val boxCharacterSupplier = UnicodeBoxCharacterSupplier
-  private val objectTableStringifier = new TwoDTableStringifier(showSelections = showSelections)
+  private val boxChars = UnicodeBoxCharacterSupplier
 
   def renderAllTableLines: Seq[Line] = renderTableLines(model.rows)
 
-  def renderTableLines(rows: Seq[Row],
-                       selectedIndexOpt: Option[Int] = None,
-                       currentColumnIndexOpt: Option[Int] = None,
-                       markedRows: Set[Int] = Set(),
-                       searchStateOpt: Option[SearchState] = None): Seq[Line] = {
+  def renderTableLines(rows: Seq[Row]): Seq[Line] = {
     val headerLines = renderHeaderLines
-    val dataLines = renderDataLines(rows, selectedIndexOpt, currentColumnIndexOpt, markedRows, searchStateOpt)
-    val footerLine = renderFooterLine
+    val dataLines = renderDataLines(rows)
+    val footerLine = renderFooterLine(model)
     headerLines ++ dataLines ++ Seq(footerLine)
   }
 
@@ -35,73 +33,92 @@ class TwoDTableCommonRenderer(model: TwoDTableModel, showSelections: Boolean) {
       fit.style(Style(foregroundColour = BasicColour.Yellow))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
-    if (showSelections)
-      buffer ++= (" " + boxCharacterSupplier.singleVertical).style.chars
-    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), boxCharacterSupplier.singleVertical.style).chars
-    buffer ++= boxCharacterSupplier.doubleVertical.style.chars
+    buffer ++= boxChars.doubleVertical.style.chars
+    if (showMarkedRows)
+      buffer ++= (" " + boxChars.singleVertical).style.chars
+    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), boxChars.singleVertical.style).chars
+    buffer ++= boxChars.doubleVertical.style.chars
     Line(StyledString(buffer))
   }
 
   private def renderHeaderLines: Seq[Line] =
     Seq(
-      Line(objectTableStringifier.renderTopRow(model).style),
+      renderTopRow(model),
       renderHeaderRow(model),
-      Line(objectTableStringifier.renderBelowHeaderRow(model).style))
+      renderBelowHeaderRow(model))
 
-  private def renderDataLines(rows: Seq[Row],
-                              selectedIndexOpt: Option[Int],
-                              currentColumnIndexOpt: Option[Int],
-                              markedRows: Set[Int],
-                              searchStateOpt: Option[SearchState]): Seq[Line] = {
-    for {
-      (row, rowIndex) ← rows.zipWithIndex
-    } yield renderRow(row,
-      isCursorRow = selectedIndexOpt contains rowIndex,
-      currentColumnIndexOpt,
-      isSelected = markedRows contains rowIndex,
-      rowIndex = rowIndex, searchStateOpt)
-  }
+  private def renderDataLines(rows: Seq[Row]): Seq[Line] =
+    for ((row, rowIndex) ← rows.zipWithIndex)
+      yield renderRow(row, rowIndex = rowIndex)
 
   private def renderRow(row: TwoDTableModel.Row,
-                        isCursorRow: Boolean,
-                        currentColumnIndexOpt: Option[Int],
-                        isSelected: Boolean,
-                        rowIndex: Int,
-                        searchStateOpt: Option[SearchState]): Line = {
-    val side = boxCharacterSupplier.doubleVertical.style
-    val selectedChar = if (isSelected) "◈" else " "
-    val highlightRow = isCursorRow && currentColumnIndexOpt.isEmpty
-    val selected =
-      if (showSelections)
-        (selectedChar + boxCharacterSupplier.singleVertical).style(Style(inverse = highlightRow))
+                        rowIndex: Int): Line = {
+    val isCursorRow = currentRowIndexOpt contains rowIndex
+    val shouldHighlightRow = isCursorRow && currentColumnIndexOpt.isEmpty
+
+    val isMarked = markedRowsOpt exists (_ contains rowIndex)
+    val markChar = if (isMarked) "◈" else " "
+    val markCell: StyledString =
+      if (showMarkedRows)
+        (markChar + boxChars.singleVertical).style(Style(inverse = shouldHighlightRow))
       else
         StyledString.empty
-    val internalVertical = boxCharacterSupplier.singleVertical.style(Style(inverse = highlightRow))
 
-    def renderCell(columnId: ColumnId, columnIndex: Int): StyledString = {
-      val searchInfoOpt = searchStateOpt.flatMap(_.byPoint.get(Point(rowIndex, columnIndex)))
-      val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == columnIndex)
-      val cellContents = StringUtils.fitToWidth(row.renderedValue(columnId), model.columnWidth(columnId))
-      val buf = ArrayBuffer[StyledCharacter]()
-      for ((c, offset) <- cellContents.zipWithIndex) {
-        val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
-        val bold = isSearchMatch
-        val foregroundColour =
-          if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow
-          else if (isSearchMatch) BasicColour.Cyan
-          else DefaultColour
-        val style = Style(inverse = highlightCell, bold = bold, foregroundColour = foregroundColour)
-        buf += StyledCharacter(c, style)
-      }
-      StyledString(buf)
+    val renderedCells = model.columnIds.zipWithIndex.map { case (columnId, columnIndex) ⇒
+      val cellContents = row.renderedValue(columnId)
+      renderCell(cellContents, rowIndex, columnIndex, columnId)
     }
-
-    val renderedCells = model.columnIds.zipWithIndex.map(tupled(renderCell))
+    val internalVertical = boxChars.singleVertical.style(Style(inverse = shouldHighlightRow))
     val innerChars = StyledString.mkString(renderedCells, internalVertical)
-    Line(side + selected + innerChars + side)
+    val tableSide = boxChars.doubleVertical.style
+    Line(tableSide + markCell + innerChars + tableSide)
   }
 
-  private def renderFooterLine = Line(objectTableStringifier.renderBottomRow(model).style)
+  def renderCell(cellContents: String, rowIndex: Int, columnIndex: Int, columnId: ColumnId): StyledString = {
+    val searchInfoOpt = searchStateOpt.flatMap(_.byPoint.get(Point(rowIndex, columnIndex)))
+    val isCursorRow = currentRowIndexOpt contains rowIndex
+    val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == columnIndex)
+    val fitCellContents = StringUtils.fitToWidth(cellContents, model.columnWidth(columnId))
+    val renderedChars =
+      for ((c, offset) <- fitCellContents.zipWithIndex)
+        yield {
+          val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
+          val bold = isSearchMatch
+          val foregroundColour =
+            if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow
+            else if (isSearchMatch) BasicColour.Cyan
+            else DefaultColour
+          val style = Style(inverse = highlightCell, bold = bold, foregroundColour = foregroundColour)
+          StyledCharacter(c, style)
+        }
+    StyledString(renderedChars)
+  }
+
+  import UnicodeBoxCharacterSupplier._
+
+  def renderTopRow(model: TwoDTableModel): Line =
+    renderBorderRow(model, doubleTopLeft, doubleHorizontal, doubleHorizontalSingleDown, doubleTopRight)
+
+  def renderBelowHeaderRow(model: TwoDTableModel): Line =
+    renderBorderRow(model, doubleVerticalSingleRight, singleHorizontal, singleIntersect, doubleVerticalSingleLeft)
+
+  def renderFooterLine(model: TwoDTableModel): Line =
+    renderBorderRow(model, doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight)
+
+  private def renderBorderRow(model: TwoDTableModel,
+                              first: String,
+                              internal: String,
+                              internalColumn: String,
+                              last: String): Line = {
+    val sb = new StringBuilder
+    sb.append(first)
+    if (showMarkedRows)
+      sb.append(internal + internalColumn)
+    sb.append(model.columnIds.map(columnId ⇒ internal * model.columnWidth(columnId)).mkString(internalColumn))
+    sb.append(last)
+    Line(sb.toString.style)
+  }
+
+  private def showMarkedRows = markedRowsOpt.isDefined
 
 }

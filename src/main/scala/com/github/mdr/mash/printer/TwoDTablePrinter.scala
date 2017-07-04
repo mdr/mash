@@ -13,7 +13,7 @@ class TwoDTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConf
   def printTable(value: MashValue) = {
     val creator = new TwoDTableModelCreator(terminalInfo, showSelections = false, viewConfig)
     val model = creator.create(value)
-    val lines = new TwoDTableCommonRenderer(model, showSelections = false).renderAllTableLines
+    val lines = new TwoDTableCommonRenderer(model).renderAllTableLines
     for (line ← lines)
       output.println(Screen.drawStyledChars(line.string))
   }

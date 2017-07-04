@@ -3,6 +3,7 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.{ KeyHint, _ }
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Utils._
 
 class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
@@ -13,7 +14,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val objects = state.model.fields.drop(state.firstRow).take(windowSize).toSeq
+    val objects = state.model.fields.toSeq.window(state.firstRow, windowSize)
     val selectedRow = state.selectedRow - state.firstRow
     commonRenderer.renderTableLines(objects, Some(selectedRow), moreItemsAboveWindow, moreDataItemsBelowWindow)
   }
@@ -33,7 +34,8 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderStatusLine: Line =
     state.searchStateOpt match {
-      case Some(searchState) ⇒ StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
+      case Some(searchState) ⇒
+        StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
       case None              ⇒
         state.expressionOpt match {
           case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)

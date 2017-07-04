@@ -41,6 +41,12 @@ object Utils {
     case n  ⇒ Some(n)
   }
 
+  def window[T](xs: Seq[T], offset: Int, count: Int): Seq[T] = xs.slice(offset, offset + count)
+
+  implicit class RichSeq[T](xs: Seq[T]) {
+    def window(offset: Int, count: Int): Seq[T] = Utils.window(xs, offset, count)
+  }
+
   def indexOf(superstring: String, substring: String): Option[Int] =
     superstring.indexOf(substring) match {
       case -1 ⇒ None

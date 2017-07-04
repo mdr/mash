@@ -24,7 +24,7 @@ object TwoDTableBrowserState {
 }
 
 case class TwoDTableBrowserState(model: TwoDTableModel,
-                                 selectedRow: Int = 0,
+                                 currentRow: Int = 0,
                                  firstRow: Int = 0,
                                  currentColumnOpt: Option[Int] = None,
                                  markedRows: Set[Int] = Set(),
@@ -42,14 +42,14 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def nextHit(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     val rows = searchState.rows
-    val nextRow = rows.find(_ > selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
-    copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
+    val nextRow = rows.find(_ > currentRow).orElse(rows.headOption).getOrElse(currentRow)
+    copy(currentRow = nextRow).adjustWindowToFit(terminalRows)
   }
 
   def previousHit(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
     val rows = searchState.rows.reverse
-    val nextRow = rows.find(_ < selectedRow).orElse(rows.headOption).getOrElse(selectedRow)
-    copy(selectedRow = nextRow).adjustWindowToFit(terminalRows)
+    val nextRow = rows.find(_ < currentRow).orElse(rows.headOption).getOrElse(currentRow)
+    copy(currentRow = nextRow).adjustWindowToFit(terminalRows)
   }
 
   def toggleCase(terminalRows: Int): BrowserState = ifSearching { searchState ⇒
@@ -75,11 +75,11 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
         cellInfo <- getCellSearchInfo(pattern, row, column)
       } yield point -> cellInfo
     val newRow =
-      tuples.collectFirst { case (point, _) if point.row >= selectedRow ⇒ point.row }
+      tuples.collectFirst { case (point, _) if point.row >= currentRow ⇒ point.row }
         .orElse(tuples.collectFirst { case (point, _) ⇒ point.row })
-        .getOrElse(selectedRow)
+        .getOrElse(currentRow)
     val searchInfo = SearchState(query, tuples.toMap, ignoreCase)
-    copy(searchStateOpt = Some(searchInfo), selectedRow = newRow).adjustWindowToFit(terminalRows)
+    copy(searchStateOpt = Some(searchInfo), currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   private def getCellSearchInfo(pattern: Pattern, rowIndex: Int, column: Int): Option[CellSearchInfo] = {
@@ -109,7 +109,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def nextItem(terminalRows: Int): TwoDTableBrowserState = adjustSelectedRow(1).adjustWindowToFit(terminalRows)
 
   def adjustSelectedRow(delta: Int): TwoDTableBrowserState =
-    this.when(size > 0, _.copy(selectedRow = (selectedRow + delta + size) % size))
+    this.when(size > 0, _.copy(currentRow = (currentRow + delta + size) % size))
 
   def nextColumn: TwoDTableBrowserState = adjustSelectedColumn(1)
 
@@ -132,10 +132,10 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def adjustFirstRow(delta: Int): TwoDTableBrowserState = copy(firstRow = firstRow + delta)
 
   def toggleMark: TwoDTableBrowserState =
-    if (markedRows contains selectedRow)
-      copy(markedRows = markedRows - selectedRow)
+    if (markedRows contains currentRow)
+      copy(markedRows = markedRows - currentRow)
     else
-      copy(markedRows = markedRows + selectedRow)
+      copy(markedRows = markedRows + currentRow)
 
   def withPath(newPath: String): TwoDTableBrowserState = copy(path = newPath)
 
@@ -144,13 +144,13 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def selectionInfo: SelectionInfo = {
     val safePath = SafeParens.safeParens(path)
     if (markedRows.isEmpty) {
-      val rowObject = model.rowValue(selectedRow)
-      val rowPath = model.rowFetch(selectedRow).fetchPath(safePath)
+      val rowObject = model.rowValue(currentRow)
+      val rowPath = model.rowFetch(currentRow).fetchPath(safePath)
       val cellSelectionInfoOpt =
         for {
           columnId ← currentColumnIdOpt
           field = model.columnName(columnId)
-          rawCellValue ← model.rows(selectedRow).cells(columnId).rawValueOpt
+          rawCellValue ← model.rows(currentRow).cells(columnId).rawValueOpt
           fetch ← model.columns(columnId).fetchOpt
           newPath = fetch.fetchPath(rowPath)
         } yield SelectionInfo(newPath, rawCellValue)
@@ -169,11 +169,11 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {
     var newState = this
 
-    val delta = selectedRow - (firstRow + windowSize(terminalRows) - 1)
+    val delta = currentRow - (firstRow + windowSize(terminalRows) - 1)
     if (delta >= 0)
       newState = newState.adjustFirstRow(delta)
 
-    val delta2 = firstRow - selectedRow
+    val delta2 = firstRow - currentRow
     if (delta2 >= 0)
       newState = newState.adjustFirstRow(-delta2)
 
@@ -183,19 +183,19 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
   def nextPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.min(model.rows.size - 1, selectedRow + windowSize(terminalRows) - 1)
-    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+    val newRow = math.min(model.rows.size - 1, currentRow + windowSize(terminalRows) - 1)
+    copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def previousPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
-    copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
+    val newRow = math.max(0, currentRow - windowSize(terminalRows) - 1)
+    copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def firstItem(terminalRows: Int): TwoDTableBrowserState =
-    copy(selectedRow = 0).adjustWindowToFit(terminalRows)
+    copy(currentRow = 0).adjustWindowToFit(terminalRows)
 
   def lastItem(terminalRows: Int): TwoDTableBrowserState =
-    copy(selectedRow = size - 1).adjustWindowToFit(terminalRows)
+    copy(currentRow = size - 1).adjustWindowToFit(terminalRows)
 
 }
