@@ -12,16 +12,16 @@ import scala.collection.mutable.ArrayBuffer
 
 class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
                                       selectedIndexOpt: Option[Int] = None,
-                                      moreDataItemsAboveWindow: Boolean = false,
-                                      moreDataItemsBelowWindow: Boolean = false,
                                       searchStateOpt: Option[SearchState] = None) {
 
   import UnicodeBoxCharacterSupplier._
 
-  def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] =
-    renderHeaderLines(moreDataItemsAboveWindow) ++
+  def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
+    val moreDataItemsBelowWindow = rowOffset + rowCount < model.numberOfRows
+    renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0) ++
       renderFieldLines(rowOffset, rowCount) ++
       Seq(renderFooterLine(break = hasFields, addArrow = moreDataItemsBelowWindow))
+  }
 
   private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
     model.classNameOpt match {

@@ -10,13 +10,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val moreItemsAboveWindow: Boolean = state.firstRow > 0
-    val moreDataItemsBelowWindow: Boolean = {
-      val lastVisibleRow = state.firstRow + windowSize - 1
-      lastVisibleRow < state.lastRow
-    }
-    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, Some(state.selectedRow), moreItemsAboveWindow,
-      moreDataItemsBelowWindow, state.searchStateOpt)
+    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, Some(state.selectedRow), state.searchStateOpt)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 
