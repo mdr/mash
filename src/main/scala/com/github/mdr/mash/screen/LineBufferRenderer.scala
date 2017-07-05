@@ -41,7 +41,7 @@ object LineBufferRenderer {
                             globalVariables: MashObject,
                             bareWords: Boolean): Seq[Line] = {
     val mashRenderer = new MashRenderer(Some(globalVariables), bareWords)
-    val renderedMash: StyledString = mashRenderer.renderChars(rawChars, cursorOffset, mishByDefault)
+    val renderedMash: StyledString = mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault)
     val continuationPrefix = if (prompt.isEmpty) "" else "." * (prompt.length - 1) + " "
     val lineRegions = new LineInfo(rawChars).lineRegions
     lineRegions.zipWithIndex.map {

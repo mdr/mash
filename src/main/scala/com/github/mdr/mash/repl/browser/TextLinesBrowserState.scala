@@ -14,10 +14,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
   override def withPath(newPath: String): TextLinesBrowserState = copy(path = newPath)
 
-  override def getInsertExpression: String = {
-    val safePath = SafeParens.safeParens(path)
-    s"$safePath[$selectedRow]"
-  }
+  override def getInsertExpression: String = SafeParens.safeParens(path, s"[$selectedRow]")
 
   override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, model.rawValue.elements(selectedRow))
 

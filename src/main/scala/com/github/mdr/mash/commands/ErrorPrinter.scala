@@ -41,7 +41,7 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
         val (firstLineIndex, lastLineIndex) = lineInfo.linesOfRegion(region)
         for (lineIndex ← firstLineIndex to lastLineIndex) {
           val line = lineInfo.lines(lineIndex)
-          val renderedLine = new MashRenderer().renderChars(line, cursorOffset = line.length, mishByDefault = false)
+          val renderedLine = new MashRenderer().renderChars(line, cursorOffsetOpt = None, mishByDefault = false)
           val drawnLine = drawStyledChars(renderedLine)
           val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
           val actualPrefix = if (lineIndex == firstLineIndex) prefix else " " * prefix.length

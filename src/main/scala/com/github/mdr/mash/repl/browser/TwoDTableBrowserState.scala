@@ -155,10 +155,9 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
     }
 
   private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo = {
-    val safePath = SafeParens.safeParens(path)
     val rowsPath =
       rowIndices
-        .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(safePath))
+        .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(path))
         .mkString("[", ", ", "]")
     val rowObjects = MashList(rowIndices.map(model.rowValues))
     SelectionInfo(rowsPath, rowObjects)
@@ -166,8 +165,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def selectionInfo(rowIndex: Int, includeCellSelection: Boolean): SelectionInfo = {
     val rowValue = model.rowValue(rowIndex)
-    val safePath = SafeParens.safeParens(path)
-    val rowPath = model.rowFetch(rowIndex).fetchPath(safePath)
+    val rowPath = model.rowFetch(rowIndex).fetchPath(path)
     val cellSelectionInfoOpt =
       for {
         columnId ← currentColumnIdOpt

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.parser.SafeParens
+import com.github.mdr.mash.parser.SafeParens.safeParens
 import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
 import com.github.mdr.mash.repl.browser.ObjectTreeChoice.{ FieldChoice, IndexChoice, OntoFieldLabel, OntoValue }
 import com.github.mdr.mash.runtime.MashValue
@@ -63,13 +63,13 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def getSelectedValue: MashValue = getNode(selectionPath).rawValue
 
   def getNewPath: String = {
-    val sb = new StringBuilder(SafeParens.safeParens(path))
+    val sb = new StringBuilder(path)
     @tailrec
     def rec(choices: Seq[ObjectTreeChoice]): Unit =
       if (choices.nonEmpty) {
         choices.head match {
-          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(s"[$i]")
-          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(s".$field")
+          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(safeParens(path, s"[$i]"))
+          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(safeParens(path, s".$field"))
           case _                                   ⇒
         }
         rec(choices.tail)

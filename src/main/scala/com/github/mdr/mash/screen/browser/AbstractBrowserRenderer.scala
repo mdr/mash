@@ -32,8 +32,8 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
       case Some(expression) ⇒ state.path + expression
       case None             ⇒ state.path
     }
-    val cursorOffset = renderCursor._1.column
-    Line(new MashRenderer().renderChars(fullExpression, cursorOffset, mishByDefault = false))
+    val cursorOffsetOpt = if (state.expressionOpt.isDefined) Some(renderCursor._1.column) else None
+    Line(new MashRenderer().renderChars(fullExpression, cursorOffsetOpt, mishByDefault = false))
   }
 
 }

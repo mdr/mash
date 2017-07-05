@@ -13,14 +13,15 @@ import scala.collection.mutable.ArrayBuffer
 class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boolean = false) {
 
   def renderChars(rawChars: String,
-                  cursorOffset: Int,
+                  cursorOffsetOpt: Option[Int],
                   mishByDefault: Boolean): StyledString = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
       val bareTokensOpt = getBareTokens(s, mish)
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
-      val matchingBracketOffsetOpt = BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish)
+      val matchingBracketOffsetOpt = cursorOffsetOpt.flatMap(cursorOffset ⇒
+        BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish))
       TokenInfo(tokens, bareTokensOpt, matchingBracketOffsetOpt)
     }
 
