@@ -54,17 +54,17 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     val isCursorRow = currentRowIndexOpt contains rowIndex
     val shouldHighlightRow = isCursorRow && currentColumnIndexOpt.isEmpty
 
-    val isMarked = markedRowsOpt exists (_ contains rowIndex)
-    val markChar = if (isMarked) "◈" else " "
     val markCell: StyledString =
-      if (showMarkedRows)
+      if (showMarkedRows) {
+        val isMarked = markedRowsOpt exists (_ contains rowIndex)
+        val markChar = if (isMarked) "◈" else " "
         (markChar + singleVertical).style(Style(inverse = shouldHighlightRow))
-      else
+      } else
         StyledString.empty
 
     val renderedCells = model.columnIds.zipWithIndex.map { case (columnId, columnIndex) ⇒
       val cellContents = row.renderedValue(columnId)
-      renderCell(cellContents, rowIndex, columnIndex, columnId)
+      renderCell(cellContents, Point(rowIndex, columnIndex), columnId)
     }
     val internalVertical = singleVertical.style(Style(inverse = shouldHighlightRow))
     val innerChars = StyledString.mkString(renderedCells, internalVertical)
@@ -72,24 +72,28 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     Line(tableSide + markCell + innerChars + tableSide)
   }
 
-  def renderCell(cellContents: String, rowIndex: Int, columnIndex: Int, columnId: ColumnId): StyledString = {
-    val searchInfoOpt = searchStateOpt.flatMap(_.byPoint.get(Point(rowIndex, columnIndex)))
-    val isCursorRow = currentRowIndexOpt contains rowIndex
-    val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == columnIndex)
+  def renderCell(cellContents: String, cellLocation: Point, columnId: ColumnId): StyledString = {
+    val searchInfoOpt = searchStateOpt.flatMap(_.getCellSearchInfo(cellLocation))
+    val isCursorRow = currentRowIndexOpt contains cellLocation.row
+    val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == cellLocation.column)
     val fitCellContents = StringUtils.fitToWidth(cellContents, model.columnWidth(columnId))
     val renderedChars =
       for ((c, offset) <- fitCellContents.zipWithIndex)
         yield {
-          val isSearchMatch = searchInfoOpt exists (_.matches exists (_ contains offset))
-          val bold = isSearchMatch
-          val foregroundColour =
-            if (columnId == TwoDTableModelCreator.RowLabelColumnId) BasicColour.Yellow
-            else if (isSearchMatch) BasicColour.Cyan
-            else DefaultColour
-          val style = Style(inverse = highlightCell, bold = bold, foregroundColour = foregroundColour)
+          val isSearchMatch = searchInfoOpt exists (_ isMatched offset)
+          val isLabel = columnId == TwoDTableModelCreator.RowLabelColumnId
+          val style = getCellCharacterStyle(highlightCell, isSearchMatch, isLabel)
           StyledCharacter(c, style)
         }
     StyledString(renderedChars)
+  }
+
+  private def getCellCharacterStyle(highlightCell: Boolean, isSearchMatch: Boolean, isLabel: Boolean): Style = {
+    val foregroundColour =
+      if (isLabel) BasicColour.Yellow
+      else if (isSearchMatch) BasicColour.Cyan
+      else DefaultColour
+    Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = foregroundColour)
   }
 
   def renderTopRow(model: TwoDTableModel): Line =

@@ -13,4 +13,7 @@ case class SingleObjectTableModel(classNameOpt: Option[String],
 
   def numberOfRows: Int = fields.size
 
+  def isEmpty = numberOfRows == 0
+
+  def nonEmpty = !isEmpty
 }

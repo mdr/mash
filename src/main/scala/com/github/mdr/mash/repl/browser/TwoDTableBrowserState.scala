@@ -15,10 +15,16 @@ import scala.collection.mutable.ArrayBuffer
 
 object TwoDTableBrowserState {
 
-  case class CellSearchInfo(matches: Seq[Region])
+  case class CellSearchInfo(matches: Seq[Region]) {
+    def isMatched(offset: Int): Boolean = matches exists (_ contains offset)
+  }
 
   case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map(), ignoreCase: Boolean = true) {
-    lazy val rows = byPoint.map(_._1.row).toSeq.distinct.sorted
+
+    lazy val rows: Seq[Int] = byPoint.map(_._1.row).toSeq.distinct.sorted
+
+    def getCellSearchInfo(point: Point): Option[CellSearchInfo] = byPoint.get(point)
+
   }
 
 }

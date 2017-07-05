@@ -16,8 +16,6 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
                                       moreDataItemsBelowWindow: Boolean = false,
                                       searchStateOpt: Option[SearchState] = None) {
 
-  private val searchHitsByPoint = searchStateOpt.map(_.byPoint).getOrElse(Map())
-
   import UnicodeBoxCharacterSupplier._
 
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] =
@@ -85,13 +83,18 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     Line(chars.when(addArrow, addUpArrow).style)
   }
 
-  private def renderFieldLines(rowOffset: Int, rowCount: Int): Seq[Line] =
+  private def renderFieldLines(rowOffset: Int, rowCount: Int): Seq[Line] = {
+    def getMatchRegions(rowIndex: Int, columnIndex: Int): Seq[Region] = {
+      val cellLocation = Point(rowIndex, columnIndex)
+      searchStateOpt.flatMap(_.getCellSearchInfo(cellLocation)).map(_.matches).getOrElse(Seq())
+    }
     for {
-      ((renderedField, renderedValue), row) ← model.fields.toSeq.zipWithIndex.window(rowOffset, rowCount)
-      isCursorRow = selectedIndexOpt contains row
-      fieldSearchHitRegions = searchHitsByPoint.get(Point(row, 0)).map(_.matches).getOrElse(Seq())
-      valueSearchHitRegions = searchHitsByPoint.get(Point(row, 1)).map(_.matches).getOrElse(Seq())
+      ((renderedField, renderedValue), rowIndex) ← model.fields.toSeq.zipWithIndex.window(rowOffset, rowCount)
+      isCursorRow = selectedIndexOpt contains rowIndex
+      fieldSearchHitRegions = getMatchRegions(rowIndex, 0)
+      valueSearchHitRegions = getMatchRegions(rowIndex, 1)
     } yield renderFieldLine(renderedField, renderedValue, isCursorRow, fieldSearchHitRegions, valueSearchHitRegions)
+  }
 
   /**
     * ║fieldName   │fieldValue   ║
@@ -155,7 +158,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private def fullRowWidth = model.fieldColumnWidth + model.valueColumnWidth + 1
 
-  private def hasFields: Boolean = model.fields.nonEmpty
+  private def hasFields: Boolean = model.nonEmpty
 
   private val classNameStyle: Style = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
