@@ -5,6 +5,7 @@ import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
+import com.github.mdr.mash.screen.browser.ArrowHelper._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Region, StringUtils }
 
@@ -18,9 +19,10 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
     val moreDataItemsBelowWindow = rowOffset + rowCount < model.numberOfRows
-    renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0) ++
-      renderFieldLines(rowOffset, rowCount) ++
-      Seq(renderFooterLine(break = hasFields, addArrow = moreDataItemsBelowWindow))
+    val headerLines = renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0)
+    val fieldLines = renderFieldLines(rowOffset, rowCount)
+    val footerLine = renderFooterLine(break = hasFields, addArrow = moreDataItemsBelowWindow)
+    headerLines ++ fieldLines ++ Seq(footerLine)
   }
 
   private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
@@ -148,13 +150,6 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
       .toString
     Line(chars.when(addArrow, addDownArrow).style)
   }
-
-  private def addUpArrow(s: String): String = setMiddleCharacter(s, '↑')
-
-  private def addDownArrow(s: String): String = setMiddleCharacter(s, '↓')
-
-  private def setMiddleCharacter(s: String, c: Char): String =
-    if (s.isEmpty) s else s.updated(s.length / 2, c)
 
   private def fullRowWidth = model.fieldColumnWidth + model.valueColumnWidth + 1
 

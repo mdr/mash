@@ -5,6 +5,7 @@ import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
+import com.github.mdr.mash.screen.browser.ArrowHelper._
 import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils._
 
@@ -19,9 +20,10 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
   import UnicodeBoxCharacterSupplier._
 
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
-    val headerLines = renderHeaderLines
+    val moreDataItemsBelowWindow = rowOffset + rowCount < model.numberOfRows
+    val headerLines = renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0)
     val dataLines = renderDataLines(rowOffset: Int, rowCount: Int)
-    val footerLine = renderFooterLine(model)
+    val footerLine = renderFooterLine(model, addArrow = moreDataItemsBelowWindow)
     headerLines ++ dataLines ++ Seq(footerLine)
   }
 
@@ -39,11 +41,11 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     Line(StyledString(buffer))
   }
 
-  private def renderHeaderLines: Seq[Line] =
+  private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
     Seq(
       renderTopRow(model),
       renderHeaderRow(model),
-      renderBelowHeaderRow(model))
+      renderBelowHeaderRow(model, moreDataItemsAboveWindow))
 
   private def renderDataLines(rowOffset: Int, rowCount: Int): Seq[Line] =
     for ((row, rowIndex) ← model.rows.zipWithIndex.window(rowOffset, rowCount))
@@ -99,24 +101,27 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
   def renderTopRow(model: TwoDTableModel): Line =
     renderBorderRow(model, doubleTopLeft, doubleHorizontal, doubleHorizontalSingleDown, doubleTopRight)
 
-  def renderBelowHeaderRow(model: TwoDTableModel): Line =
-    renderBorderRow(model, doubleVerticalSingleRight, singleHorizontal, singleIntersect, doubleVerticalSingleLeft)
+  def renderBelowHeaderRow(model: TwoDTableModel, addArrow: Boolean): Line =
+    renderBorderRow(model, doubleVerticalSingleRight, singleHorizontal, singleIntersect, doubleVerticalSingleLeft, upArrow = addArrow)
 
-  def renderFooterLine(model: TwoDTableModel): Line =
-    renderBorderRow(model, doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight)
+  def renderFooterLine(model: TwoDTableModel, addArrow: Boolean): Line =
+    renderBorderRow(model, doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight, downArrow = addArrow)
 
   private def renderBorderRow(model: TwoDTableModel,
                               first: String,
                               internal: String,
                               internalColumn: String,
-                              last: String): Line = {
+                              last: String,
+                              downArrow: Boolean = false,
+                              upArrow: Boolean = false): Line = {
     val sb = new StringBuilder
     sb.append(first)
     if (showMarkedRows)
       sb.append(internal + internalColumn)
     sb.append(model.columnIds.map(columnId ⇒ internal * model.columnWidth(columnId)).mkString(internalColumn))
     sb.append(last)
-    Line(sb.toString.style)
+    val chars = sb.toString.when(downArrow, addDownArrow).when(upArrow, addUpArrow)
+    Line(chars.style)
   }
 
   private def showMarkedRows = markedRowsOpt.isDefined
