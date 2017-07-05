@@ -147,29 +147,36 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def getInsertExpression: String = selectionInfo.path
 
-  def selectionInfo: SelectionInfo = {
-    val safePath = SafeParens.safeParens(path)
-    if (markedRows.isEmpty) {
-      val rowObject = model.rowValue(currentRow)
-      val rowPath = model.rowFetch(currentRow).fetchPath(safePath)
-      val cellSelectionInfoOpt =
-        for {
-          columnId ← currentColumnIdOpt
-          field = model.columnName(columnId)
-          rawCellValue ← model.rows(currentRow).cells(columnId).rawValueOpt
-          fetch ← model.columns(columnId).fetchOpt
-          newPath = fetch.fetchPath(rowPath)
-        } yield SelectionInfo(newPath, rawCellValue)
-      cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowObject))
-    } else {
-      val rowIndices = markedRows.toSeq.sorted
-      val rowsPath =
-        rowIndices
-          .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(safePath))
-          .mkString("[", ", ", "]")
-      val rowObjects = MashList(rowIndices.map(model.rowValues))
-      SelectionInfo(rowsPath, rowObjects)
+  def selectionInfo: SelectionInfo =
+    markedRows.toSeq.sorted match {
+      case Seq()         ⇒ selectionInfo(currentRow, includeCellSelection = true)
+      case Seq(rowIndex) ⇒ selectionInfo(rowIndex, includeCellSelection = false)
+      case rowIndices    ⇒ selectionInfo(rowIndices)
     }
+
+  private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo = {
+    val safePath = SafeParens.safeParens(path)
+    val rowsPath =
+      rowIndices
+        .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(safePath))
+        .mkString("[", ", ", "]")
+    val rowObjects = MashList(rowIndices.map(model.rowValues))
+    SelectionInfo(rowsPath, rowObjects)
+  }
+
+  private def selectionInfo(rowIndex: Int, includeCellSelection: Boolean): SelectionInfo = {
+    val rowValue = model.rowValue(rowIndex)
+    val safePath = SafeParens.safeParens(path)
+    val rowPath = model.rowFetch(rowIndex).fetchPath(safePath)
+    val cellSelectionInfoOpt =
+      for {
+        columnId ← currentColumnIdOpt
+        if includeCellSelection
+        cellValue ← model.rows(rowIndex).cells(columnId).rawValueOpt
+        fetch ← model.columns(columnId).fetchOpt
+        newPath = fetch.fetchPath(rowPath)
+      } yield SelectionInfo(newPath, cellValue)
+    cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowValue))
   }
 
   def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {

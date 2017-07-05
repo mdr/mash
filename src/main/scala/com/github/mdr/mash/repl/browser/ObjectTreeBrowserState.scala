@@ -65,7 +65,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def getNewPath: String = {
     val sb = new StringBuilder(SafeParens.safeParens(path))
     @tailrec
-    def rec(choices: Seq[ObjectTreeChoice]): Unit = {
+    def rec(choices: Seq[ObjectTreeChoice]): Unit =
       if (choices.nonEmpty) {
         choices.head match {
           case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(s"[$i]")
@@ -74,7 +74,6 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
         }
         rec(choices.tail)
       }
-    }
     rec(selectionPath.choices)
     sb.toString
   }
@@ -165,7 +164,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     case (_, Seq(OntoValue, tail@_*))                                         ⇒ node
     case (ObjectTreeNode.List(values, _), Seq(IndexChoice(i), tail@_*))       ⇒ getNode(values(i), tail)
     case (ObjectTreeNode.Object(values, _), Seq(FieldChoice(field), tail@_*)) ⇒
-      getNode(values.collectFirst { case (`field`, node) ⇒ node }.get, tail)
+      getNode(values.collectFirst { case (`field`, childNode) ⇒ childNode }.get, tail)
   }
 
   private def getNode(path: ObjectTreePath): ObjectTreeNode =
@@ -231,7 +230,9 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
     newState
   }
+
   def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+
   def acceptExpression: BrowserState = copy(expressionOpt = None)
 
 }

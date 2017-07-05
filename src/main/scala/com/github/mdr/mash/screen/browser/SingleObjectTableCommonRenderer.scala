@@ -6,6 +6,7 @@ import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.browser.ArrowHelper._
+import com.github.mdr.mash.utils.StringUtils.{ centre, ellipsisise }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Region, StringUtils }
 
@@ -62,13 +63,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ║           Class          ║
     **/
   private def renderClassNameLine(className: String): Line = {
-    val fit = StringUtils.ellipsisise(StringUtils.centre(className, fullRowWidth), fullRowWidth)
+    val fit = ellipsisise(centre(className, fullRowWidth), fullRowWidth)
     val renderedClassName = fit.style(classNameStyle)
-    val buffer = ArrayBuffer[StyledCharacter]()
-    buffer ++= doubleVertical.style.chars
-    buffer ++= renderedClassName.chars
-    buffer ++= doubleVertical.style.chars
-    Line(StyledString(buffer))
+    Line(doubleVertical.style + renderedClassName + doubleVertical.style)
   }
 
   /**
