@@ -125,7 +125,6 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
   // an upper status line, one (or three with a class) header row(s), a footer row, a status line
   def windowSize(terminalRows: Int) = terminalRows - 3 - (if (model.classNameOpt.isDefined) 3 else 1)
 
-
   def nextPage(terminalRows: Int): SingleObjectTableBrowserState = {
     val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)

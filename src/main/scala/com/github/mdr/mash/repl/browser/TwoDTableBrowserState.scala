@@ -2,10 +2,11 @@ package com.github.mdr.mash.repl.browser
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
+import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.{ CellSearchInfo, SearchState }
-import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
@@ -152,14 +153,21 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
       case rowIndices    ⇒ selectionInfo(rowIndices)
     }
 
-  private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo = {
-    val rowsPath =
-      rowIndices
-        .map(rowIndex ⇒ model.rowFetch(rowIndex).fetchPath(path))
-        .mkString("[", ", ", "]")
-    val rowObjects = MashList(rowIndices.map(model.rowValues))
-    SelectionInfo(rowsPath, rowObjects)
-  }
+  private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo =
+    model.rawValue match {
+      case xs: MashList    ⇒
+        val selectionExpression = rowIndices.map(i ⇒ s"_[$i]").mkString(" | [", ", ", "]")
+        val selectedPath = combineSafely(path, selectionExpression)
+        val selectedValue = MashList(rowIndices.map(model.rowValue))
+        SelectionInfo(selectedPath, selectedValue)
+      case obj: MashObject ⇒
+        val fields = obj.immutableFields.toSeq
+        val selectedFields = rowIndices.map(fields)
+        val selectionExpression = selectedFields.map("--" + _._1).mkString(" | select ", " ", "")
+        val selectedPath = combineSafely(path, selectionExpression)
+        val selectedValue = MashObject.of(selectedFields)
+        SelectionInfo(selectedPath, selectedValue)
+    }
 
   private def selectionInfo(rowIndex: Int, includeCellSelection: Boolean): SelectionInfo = {
     val rowValue = model.rowValue(rowIndex)
@@ -192,7 +200,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
   def nextPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.min(model.numberOfRows- 1, currentRow + windowSize(terminalRows) - 1)
+    val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
