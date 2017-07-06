@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.parser.SafeParens
+import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.printer.model.TextLinesModel
 import com.github.mdr.mash.runtime.MashValue
 
@@ -14,9 +14,10 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
   override def withPath(newPath: String): TextLinesBrowserState = copy(path = newPath)
 
-  override def getInsertExpression: String = SafeParens.safeParens(path, s"[$selectedRow]")
-
-  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, model.rawValue.elements(selectedRow))
+  override def selectionInfo: SelectionInfo = {
+    val selectionPath = ExpressionCombiner.combineSafely(path, s"[$selectedRow]")
+    SelectionInfo(selectionPath, model.rawValue.elements(selectedRow))
+  }
 
   def size = model.renderedLines.size
 

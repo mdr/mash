@@ -5,7 +5,7 @@ import com.github.mdr.mash.lexer.TokenType.{ DIVIDE, MINUS, PLUS, TIMES }
 import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.utils.Utils._
 
-object SafeParens {
+object ExpressionCombiner {
 
   /**
     * Add parentheses around the given prefix expression if required to allow it to be safely followed by
@@ -13,7 +13,7 @@ object SafeParens {
     *
     * For example: safeParens("1 + 2", " * 3") ==> "(1 + 2) * 3"
     */
-  def safeParens(prefix: String, suffix: String): String = {
+  def combineSafely(prefix: String, suffix: String): String = {
     val prefixExpr = MashParser.parseForgiving(prefix).body
     val suffixExpr = MashParser.parseForgiving("it" + suffix).body
     val needsParens = (prefixExpr, suffixExpr) match {

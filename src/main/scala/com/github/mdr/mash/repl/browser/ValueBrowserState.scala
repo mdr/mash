@@ -11,8 +11,6 @@ case class ValueBrowserState(model: ValueModel,
 
   override def withPath(newPath: String): ValueBrowserState = copy(path = newPath)
 
-  override def getInsertExpression: String = path
-
   override def selectionInfo: SelectionInfo = SelectionInfo(path, model.rawValue)
 
   def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))

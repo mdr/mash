@@ -6,7 +6,7 @@ import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.PathSummaryClass
-import com.github.mdr.mash.parser.SafeParens
+import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
@@ -112,8 +112,8 @@ trait ObjectBrowserActionHandler
       ValueBrowserState(model, path = path)
   }
 
-  private def insert(s: String): Unit = {
-    state.lineBuffer = LineBuffer(s)
+  private def insert(expression: String): Unit = {
+    state.lineBuffer = LineBuffer(expression)
     state.objectBrowserStateStackOpt = None
   }
 
@@ -154,7 +154,7 @@ trait ObjectBrowserActionHandler
   }
 
   private def focusExpression(currentPath: String, currentValue: MashValue, furtherExpression: String): Unit = {
-    val newPath = SafeParens.safeParens(currentPath, furtherExpression)
+    val newPath = ExpressionCombiner.combineSafely(currentPath, furtherExpression)
     val fullExpression = "it" + furtherExpression
     val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + (MashString("it") -> currentValue))
     val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
@@ -167,12 +167,12 @@ trait ObjectBrowserActionHandler
     state.lineBuffer = LineBuffer.Empty
     state.objectBrowserStateStackOpt = None
     updateScreenAfterAccept()
-    val command = s"${browserState.getInsertExpression} | open"
+    val command = ExpressionCombiner.combineSafely(browserState.getInsertExpression, " | open")
     runCommand(command)
   }
 
   protected def handleCopyItem(browserState: BrowserState) = {
-    val command = s"${browserState.getInsertExpression} | clipboard"
+    val command = ExpressionCombiner.combineSafely(browserState.getInsertExpression, " | clipboard")
     runCommand(command)
   }
 

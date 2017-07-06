@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.parser.SafeParens.safeParens
+import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
 import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
 import com.github.mdr.mash.repl.browser.ObjectTreeChoice.{ FieldChoice, IndexChoice, OntoFieldLabel, OntoValue }
 import com.github.mdr.mash.runtime.MashValue
@@ -68,8 +68,8 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     def rec(choices: Seq[ObjectTreeChoice]): Unit =
       if (choices.nonEmpty) {
         choices.head match {
-          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(safeParens(path, s"[$i]"))
-          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(safeParens(path, s".$field"))
+          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(combineSafely(path, s"[$i]"))
+          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(combineSafely(path, s".$field"))
           case _                                   ⇒
         }
         rec(choices.tail)
@@ -210,8 +210,6 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def nextItem(terminalRows: Int): ObjectTreeBrowserState = upDown(1, terminalRows)
 
   def previousItem(terminalRows: Int): ObjectTreeBrowserState = upDown(-1, terminalRows)
-
-  override def getInsertExpression: String = getNewPath
 
   override def selectionInfo: SelectionInfo = SelectionInfo(getNewPath, getSelectedValue)
 

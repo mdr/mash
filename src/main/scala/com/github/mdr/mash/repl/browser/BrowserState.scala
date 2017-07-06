@@ -2,7 +2,7 @@ package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
-import com.github.mdr.mash.parser.SafeParens.safeParens
+import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
 import com.github.mdr.mash.printer.model.PrintModel
 import com.github.mdr.mash.runtime._
 
@@ -12,12 +12,12 @@ object BrowserState {
     property match {
       case MashString(s, _)                          ⇒
         if (isLegalIdentifier(s))
-          safeParens(path, s".$property")
+          combineSafely(path, s".$property")
         else
-          safeParens(path, s"['$property']")
+          combineSafely(path, s"['$property']")
       case MashNull | _: MashBoolean | _: MashNumber ⇒
         val propertyName = ToStringifier.stringify(property)
-        safeParens(path, s"['$propertyName']")
+        combineSafely(path, s"['$propertyName']")
       case _                                         ⇒
         path
     }
@@ -36,7 +36,7 @@ trait BrowserState {
 
   def withPath(newPath: String): BrowserState
 
-  def getInsertExpression: String
+  def getInsertExpression: String = selectionInfo.path
 
   def selectionInfo: SelectionInfo
 

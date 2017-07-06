@@ -145,8 +145,6 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def withPath(newPath: String): TwoDTableBrowserState = copy(path = newPath)
 
-  def getInsertExpression: String = selectionInfo.path
-
   def selectionInfo: SelectionInfo =
     markedRows.toSeq.sorted match {
       case Seq()         ⇒ selectionInfo(currentRow, includeCellSelection = true)

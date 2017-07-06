@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator, ToStringifier }
-import com.github.mdr.mash.parser.SafeParens._
+import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
 import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
@@ -49,7 +49,7 @@ object ValueFetch {
 
     def name = index.toString
 
-    def fetchPath(parentPath: String): String = safeParens(parentPath, s"[$index]")
+    def fetchPath(parentPath: String): String = combineSafely(parentPath, s"[$index]")
 
   }
 

@@ -102,13 +102,11 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
 
   def withPath(newPath: String): SingleObjectTableBrowserState = copy(path = newPath)
 
-  def getInsertExpression: String = {
+  override def selectionInfo: SelectionInfo = {
     val field = model.rawValues.toSeq(currentRow)._1
-    val command = path
-    BrowserState.safeProperty(command, field)
+    val selectionPath = BrowserState.safeProperty(path, field)
+    SelectionInfo(selectionPath, selectedRawValue)
   }
-
-  override def selectionInfo: SelectionInfo = SelectionInfo(getInsertExpression, selectedRawValue)
 
   def adjustWindowToFit(terminalRows: Int): SingleObjectTableBrowserState = {
     var newState = this
