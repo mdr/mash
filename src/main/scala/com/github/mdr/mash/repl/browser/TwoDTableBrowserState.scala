@@ -2,7 +2,6 @@ package com.github.mdr.mash.repl.browser
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
-import com.github.mdr.mash.parser.SafeParens
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.{ CellSearchInfo, SearchState }
@@ -75,7 +74,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
       }
     val tuples: Seq[(Point, CellSearchInfo)] =
       for {
-        row <- 0 until size
+        row <- 0 until numberOfRows
         column <- 0 until numberOfColumns
         point = Point(row, column)
         cellInfo <- getCellSearchInfo(pattern, row, column)
@@ -107,15 +106,16 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def rawValue: MashValue = model.rawValue
 
-  private val size = model.rows.size
-  private val numberOfColumns = model.numberOfColumns
+  private def numberOfRows = model.numberOfRows
+
+  private def numberOfColumns = model.numberOfColumns
 
   def previousItem(terminalRows: Int): TwoDTableBrowserState = adjustSelectedRow(-1).adjustWindowToFit(terminalRows)
 
   def nextItem(terminalRows: Int): TwoDTableBrowserState = adjustSelectedRow(1).adjustWindowToFit(terminalRows)
 
   def adjustSelectedRow(delta: Int): TwoDTableBrowserState =
-    this.when(size > 0, _.copy(currentRow = (currentRow + delta + size) % size))
+    this.when(numberOfRows > 0, _.copy(currentRow = (currentRow + delta + numberOfRows) % numberOfRows))
 
   def nextColumn: TwoDTableBrowserState = adjustSelectedColumn(1)
 
@@ -194,7 +194,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
 
   def nextPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.min(model.rows.size - 1, currentRow + windowSize(terminalRows) - 1)
+    val newRow = math.min(model.numberOfRows- 1, currentRow + windowSize(terminalRows) - 1)
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
@@ -207,6 +207,6 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
     copy(currentRow = 0).adjustWindowToFit(terminalRows)
 
   def lastItem(terminalRows: Int): TwoDTableBrowserState =
-    copy(currentRow = size - 1).adjustWindowToFit(terminalRows)
+    copy(currentRow = numberOfRows - 1).adjustWindowToFit(terminalRows)
 
 }

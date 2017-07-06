@@ -38,4 +38,5 @@ case class TwoDTableModel(columnIds: Seq[ColumnId],
   def rowValue(row: Int): MashValue = rowValues(row)
 
   def rowFetch(row: Int): ValueFetch = rows(row).fetch
+
 }

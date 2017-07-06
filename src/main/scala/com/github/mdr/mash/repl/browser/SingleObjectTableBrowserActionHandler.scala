@@ -24,6 +24,10 @@ trait SingleObjectTableBrowserActionHandler {
       case PreviousItem                    ⇒
         val newState = browserState.previousItem(terminalRows)
         updateState(newState)
+      case NextPage                        ⇒
+        updateState(browserState.nextPage(terminalRows))
+      case PreviousPage                    ⇒
+        updateState(browserState.previousPage(terminalRows))
       case FirstItem                       ⇒
         updateState(browserState.firstItem(terminalRows))
       case LastItem                        ⇒

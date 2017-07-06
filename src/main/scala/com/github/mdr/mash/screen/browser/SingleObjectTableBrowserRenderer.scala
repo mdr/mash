@@ -10,7 +10,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, Some(state.selectedRow), state.searchStateOpt)
+    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, Some(state.currentRow), state.searchStateOpt)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 
@@ -32,6 +32,6 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   override protected val windowSize: Int = state.windowSize(terminalInfo.rows)
 
-  private def currentRow = state.selectedRow
+  private def currentRow = state.currentRow
 
 }
