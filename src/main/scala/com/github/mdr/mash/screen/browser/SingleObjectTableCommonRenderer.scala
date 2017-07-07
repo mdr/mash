@@ -83,7 +83,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val sb = new StringBuilder()
     sb.append(doubleVerticalSingleRight)
     if (showMarkedRows)
-      sb.append(doubleVerticalSingleRight)
+      sb.append(singleHorizontal)
         .append(singleHorizontalSingleDown)
     sb
       .append(singleHorizontal * model.fieldColumnWidth)
