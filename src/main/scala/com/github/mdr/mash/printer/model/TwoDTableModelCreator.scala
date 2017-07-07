@@ -23,7 +23,7 @@ object TwoDTableModelCreator {
 }
 
 class TwoDTableModelCreator(terminalInfo: TerminalInfo,
-                            showSelections: Boolean = false,
+                            supportMarking: Boolean = false,
                             viewConfig: ViewConfig,
                             hiddenColumns: Seq[ColumnId] = Seq()) {
 
@@ -69,8 +69,8 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
 
     val allColumnIds = RowLabelColumnId +: dataColumnIds
     val rowLabelWidth = Utils.max(rowInfos.map(_.label.length), default = 0)
-    val selectionStateWidth = if (showSelections) 2 else 0
-    val totalAvailableWidth = terminalInfo.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - selectionStateWidth // accounting for the table and column borders
+    val markingStateWidth = if (supportMarking) 2 else 0
+    val totalAvailableWidth = terminalInfo.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - markingStateWidth // accounting for the table and column borders
     val allocatedColumnWidths = ColumnAllocator.allocateColumns(dataColumnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
 
     val dataColumnNames = for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name

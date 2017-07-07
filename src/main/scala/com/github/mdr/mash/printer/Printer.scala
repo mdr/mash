@@ -67,9 +67,9 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
     case _ if isSuitableForTwoDTable(value)                              ⇒
-      new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(value)
+      new TwoDTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(value)
     case obj: MashObject                                                 ⇒
-      new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
+      new SingleObjectTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(obj)
     case xs: MashList                                                    ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
     case _                                                               ⇒
@@ -157,7 +157,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
     }
     val nonDataRows = 4 // 3 header rows + 1 footer
     if (size > terminalInfo.rows - nonDataRows && viewConfig.browseLargeOutput) {
-      val model = new TwoDTableModelCreator(terminalInfo, showSelections = true, viewConfig).create(value)
+      val model = new TwoDTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(value)
       browse(model)
     } else {
       new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(value)

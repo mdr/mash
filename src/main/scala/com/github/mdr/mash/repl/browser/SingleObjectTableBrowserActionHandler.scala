@@ -35,6 +35,8 @@ trait SingleObjectTableBrowserActionHandler {
         state.objectBrowserStateStackOpt = None
       case Focus                           ⇒
         focus(browserState)
+      case ToggleMarked                    ⇒
+        updateState(browserState.toggleMark)
       case Back                            ⇒
         navigateBack()
       case InsertItem                      ⇒

@@ -72,7 +72,7 @@ trait ObjectBrowserActionHandler
   protected def view1D(browserState: BrowserState): Unit =
     browserState.rawValue match {
       case obj: MashObject ⇒
-        val model = new SingleObjectTableModelCreator(terminal.info, state.viewConfig).create(obj)
+        val model = new SingleObjectTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(obj)
         val newState = SingleObjectTableBrowserState(model, path = browserState.path)
         updateState(newState)
       case xs: MashList    ⇒
@@ -84,7 +84,7 @@ trait ObjectBrowserActionHandler
 
   protected def view2D(browserState: BrowserState) = {
     def view2D(value: MashValue): Unit = {
-      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(value)
+      val model = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(value)
       val newState = TwoDTableBrowserState(model, path = browserState.path)
       updateState(newState)
     }
@@ -99,10 +99,10 @@ trait ObjectBrowserActionHandler
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
     case _ if isSuitableForTwoDTable(value) ⇒
-      val model = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig).create(value)
+      val model = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(value)
       TwoDTableBrowserState(model, path = path)
     case obj: MashObject                    ⇒
-      val model = new SingleObjectTableModelCreator(terminal.info, state.viewConfig).create(obj)
+      val model = new SingleObjectTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList                       ⇒
       val model = new TextLinesModelCreator(state.viewConfig).create(xs)

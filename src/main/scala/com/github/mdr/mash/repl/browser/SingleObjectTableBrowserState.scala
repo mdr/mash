@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl.browser
 
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
+import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.Point
@@ -13,6 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
                                          currentRow: Int = 0,
                                          firstRow: Int = 0,
+                                         markedRows: Set[Int] = Set(),
                                          path: String,
                                          searchStateOpt: Option[SearchState] = None,
                                          expressionOpt: Option[String] = None) extends BrowserState {
@@ -89,6 +91,12 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
 
   def adjustFirstRow(delta: Int): SingleObjectTableBrowserState = copy(firstRow = firstRow + delta)
 
+  def toggleMark: SingleObjectTableBrowserState =
+    if (markedRows contains currentRow)
+      copy(markedRows = markedRows - currentRow)
+    else
+      copy(markedRows = markedRows + currentRow)
+
   def firstItem(terminalRows: Int): SingleObjectTableBrowserState =
     copy(currentRow = 0).adjustWindowToFit(terminalRows)
 
@@ -101,10 +109,26 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
 
   def withPath(newPath: String): SingleObjectTableBrowserState = copy(path = newPath)
 
-  override def selectionInfo: SelectionInfo = {
-    val field = model.rawValues.toSeq(currentRow)._1
+  override def selectionInfo: SelectionInfo =
+    markedRows.toSeq.sorted match {
+      case Seq()         ⇒ selectionInfo(currentRow)
+      case Seq(rowIndex) ⇒ selectionInfo(rowIndex)
+      case rowIndices    ⇒ selectionInfo(rowIndices)
+    }
+
+  private def selectionInfo(rowIndex: Int): SelectionInfo = {
+    val field = model.rawValues.toSeq(rowIndex)._1
     val selectionPath = BrowserState.safeProperty(path, field)
     SelectionInfo(selectionPath, selectedRawValue)
+  }
+
+  private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo = {
+    val fields = model.rawValue.immutableFields.toSeq
+    val selectedFields = rowIndices.map(fields)
+    val selectionExpression = selectedFields.map("--" + _._1).mkString(" | select ", " ", "")
+    val selectedPath = combineSafely(path, selectionExpression)
+    val selectedValue = MashObject.of(selectedFields)
+    SelectionInfo(selectedPath, selectedValue)
   }
 
   def adjustWindowToFit(terminalRows: Int): SingleObjectTableBrowserState = {

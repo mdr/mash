@@ -11,7 +11,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 class TwoDTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
   def printTable(value: MashValue) = {
-    val creator = new TwoDTableModelCreator(terminalInfo, showSelections = false, viewConfig)
+    val creator = new TwoDTableModelCreator(terminalInfo, supportMarking = false, viewConfig)
     val model = creator.create(value)
     val lines = new TwoDTableCommonRenderer(model).renderTableLines()
     for (line ← lines)

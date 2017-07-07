@@ -5,7 +5,9 @@ import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 
-class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
+class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
+                                    supportMarking: Boolean = false,
+                                    viewConfig: ViewConfig) {
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
@@ -33,7 +35,9 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo, viewConfig: View
     val columnSpecs = Map(fieldColumnId -> fieldColumn, valueColumnId -> valueColumn)
 
     val requestedWidths = Map(fieldColumnId -> requestedFieldWidth, valueColumnId -> requestedValueWidth)
-    val allocatedWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedWidths, terminalInfo.columns - 3)
+    val markingStateWidth = if (supportMarking) 2 else 0
+    val totalAvailableWidth = terminalInfo.columns - 3 - markingStateWidth
+    val allocatedWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedWidths, totalAvailableWidth)
 
     val fieldColumnWidth = allocatedWidths(fieldColumnId)
     val valueColumnWidth = allocatedWidths(valueColumnId)

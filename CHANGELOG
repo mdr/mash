@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Single object browser now supports marking
 * Add String.deleteUpTo/deleteAfter
 * Add .format method to DateTime
 * Add .hour/minute/second method to DateTime

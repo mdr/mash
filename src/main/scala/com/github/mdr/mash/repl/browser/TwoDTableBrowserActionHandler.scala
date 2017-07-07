@@ -83,7 +83,7 @@ trait TwoDTableBrowserActionHandler {
       case ToggleMarked                    ⇒
         updateState(browserState.toggleMark)
       case Rerender                        ⇒
-        val modelCreator = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig)
+        val modelCreator = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig)
         val model = modelCreator.create(browserState.model.rawValue)
         updateState(browserState.copy(model = model))
         previousReplRenderResultOpt = None
@@ -110,7 +110,7 @@ trait TwoDTableBrowserActionHandler {
     val columnId = browserState.model.columnIds(currentColumn)
     val list = browserState.model.rawValue
     val hiddenColumns = browserState.hiddenColumns :+ columnId
-    val modelCreator = new TwoDTableModelCreator(terminal.info, showSelections = true, state.viewConfig, hiddenColumns)
+    val modelCreator = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig, hiddenColumns)
     val model = modelCreator.create(list)
     val newColumn = if (currentColumn >= model.numberOfColumns) currentColumn - 1 else currentColumn
     browserState.copy(model = model, hiddenColumns = hiddenColumns, currentColumnOpt = Some(newColumn))

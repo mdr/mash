@@ -10,13 +10,14 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
   protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
 
   private def renderTableLines: Seq[Line] = {
-    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, Some(state.currentRow), state.searchStateOpt)
+    val commonRenderer = new SingleObjectTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),
+      Some(state.currentRow), state.searchStateOpt)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 
   private def renderRegularStatusLine = {
     import KeyHint._
-    Line(renderKeyHints(Seq(Exit, Focus, Back, Insert, InsertWhole, Tree, Open, Copy)))
+    Line(renderKeyHints(Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy)))
   }
 
   private def renderStatusLine: Line =

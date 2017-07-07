@@ -13,6 +13,7 @@ import com.github.mdr.mash.utils.{ Region, StringUtils }
 import scala.collection.mutable.ArrayBuffer
 
 class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
+                                      markedRowsOpt: Option[Set[Int]] = None,
                                       selectedIndexOpt: Option[Int] = None,
                                       searchStateOpt: Option[SearchState] = None) {
 
@@ -47,22 +48,27 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╔══════════════════════════╗
     * or
     * ╔════════════╤═════════════╗
+    * or
+    * ╔═╤══════════╤═════════════╗
     */
   private def renderTopRow(break: Boolean = true, addArrow: Boolean): Line = {
-    val chars = new StringBuilder()
-      .append(doubleTopLeft)
-      .append(doubleHorizontal * model.fieldColumnWidth)
+    val sb = new StringBuilder()
+    sb.append(doubleTopLeft)
+    if (showMarkedRows)
+      sb.append(doubleHorizontal)
+        .append(if (break) doubleHorizontalSingleDown else doubleHorizontal)
+    sb.append(doubleHorizontal * model.fieldColumnWidth)
       .append(if (break) doubleHorizontalSingleDown else doubleHorizontal)
       .append(doubleHorizontal * model.valueColumnWidth)
       .append(doubleTopRight)
-      .toString
-    Line(chars.when(addArrow, addUpArrow).style)
+    Line(sb.toString.when(addArrow, addUpArrow).style)
   }
 
   /**
     * ║           Class          ║
     **/
   private def renderClassNameLine(className: String): Line = {
+    val fullRowWidth = model.fieldColumnWidth + model.valueColumnWidth + (if (showMarkedRows) 3 else 1)
     val fit = ellipsisise(centre(className, fullRowWidth), fullRowWidth)
     val renderedClassName = fit.style(classNameStyle)
     Line(doubleVertical.style + renderedClassName + doubleVertical.style)
@@ -70,16 +76,21 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   /**
     * ╟────────────┬─────────────╢
+    * or
+    * ╟─┬──────────┬─────────────╢
     */
   private def renderBelowHeaderLine(addArrow: Boolean): Line = {
-    val chars = new StringBuilder()
-      .append(doubleVerticalSingleRight)
+    val sb = new StringBuilder()
+    sb.append(doubleVerticalSingleRight)
+    if (showMarkedRows)
+      sb.append(doubleVerticalSingleRight)
+        .append(singleHorizontalSingleDown)
+    sb
       .append(singleHorizontal * model.fieldColumnWidth)
       .append(singleHorizontalSingleDown)
       .append(singleHorizontal * model.valueColumnWidth)
       .append(doubleVerticalSingleLeft)
-      .toString
-    Line(chars.when(addArrow, addUpArrow).style)
+    Line(sb.toString.when(addArrow, addUpArrow).style)
   }
 
   private def renderFieldLines(rowOffset: Int, rowCount: Int): Seq[Line] = {
@@ -90,24 +101,34 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     for {
       ((renderedField, renderedValue), rowIndex) ← model.fields.toSeq.zipWithIndex.window(rowOffset, rowCount)
       isCursorRow = selectedIndexOpt contains rowIndex
+      isMarked = markedRowsOpt exists (_ contains rowIndex)
       fieldSearchHitRegions = getMatchRegions(rowIndex, 0)
       valueSearchHitRegions = getMatchRegions(rowIndex, 1)
-    } yield renderFieldLine(renderedField, renderedValue, isCursorRow, fieldSearchHitRegions, valueSearchHitRegions)
+    } yield renderFieldLine(renderedField, renderedValue, isCursorRow, isMarked, fieldSearchHitRegions, valueSearchHitRegions)
   }
 
   /**
-    * ║fieldName   │fieldValue   ║
+    * ║fieldName   │fieldValue  ║
+    * or
+    * ║◈│fieldName │fieldValue  ║
     */
   private def renderFieldLine(renderedField: String,
                               renderedValue: String,
                               isCursorRow: Boolean,
+                              isMarked: Boolean,
                               fieldSearchHitRegions: Seq[Region],
                               valueSearchHitRegions: Seq[Region]): Line = {
     val side = doubleVertical.style
+    val markCell: StyledString =
+      if (showMarkedRows) {
+        val markChar = if (isMarked) "◈" else " "
+        (markChar + singleVertical).style(internalRowStyle(isCursorRow))
+      } else
+        StyledString.empty
     val internalVertical = singleVertical.style(internalRowStyle(isCursorRow))
     val fieldChars = renderFieldCell(renderedField, isCursorRow, fieldSearchHitRegions)
     val valueChars = renderValueCell(renderedValue, isCursorRow, valueSearchHitRegions)
-    Line(side + fieldChars + internalVertical + valueChars + side)
+    Line(side + markCell + fieldChars + internalVertical + valueChars + side)
   }
 
   private def renderFieldCell(renderedField: String, isCursorRow: Boolean, searchHitRegions: Seq[Region]): StyledString = {
@@ -135,20 +156,22 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
   /**
     * ╚════════════╧═════════════╝
     * or
+    * ╚═╧══════════╧═════════════╝
+    * or
     * ╚══════════════════════════╝
     */
   private def renderFooterLine(break: Boolean, addArrow: Boolean): Line = {
-    val chars = new StringBuilder()
-      .append(doubleBottomLeft)
-      .append(doubleHorizontal * model.fieldColumnWidth)
+    val sb = new StringBuilder()
+    sb.append(doubleBottomLeft)
+    if (showMarkedRows)
+      sb.append(doubleHorizontal)
+        .append(if (break) doubleHorizontalSingleUp else doubleHorizontal)
+    sb.append(doubleHorizontal * model.fieldColumnWidth)
       .append(if (break) doubleHorizontalSingleUp else doubleHorizontal)
       .append(doubleHorizontal * model.valueColumnWidth)
       .append(doubleBottomRight)
-      .toString
-    Line(chars.when(addArrow, addDownArrow).style)
+    Line(sb.toString.when(addArrow, addDownArrow).style)
   }
-
-  private def fullRowWidth = model.fieldColumnWidth + model.valueColumnWidth + 1
 
   private def hasFields: Boolean = model.nonEmpty
 
@@ -159,5 +182,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private def fieldStyle(isCursorRow: Boolean, isSearchHit: Boolean): Style =
     Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else BasicColour.Yellow)
+
+  private def showMarkedRows = markedRowsOpt.isDefined
 
 }

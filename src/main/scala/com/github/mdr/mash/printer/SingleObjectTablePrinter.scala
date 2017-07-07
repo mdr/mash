@@ -11,7 +11,7 @@ import com.github.mdr.mash.terminal.TerminalInfo
 class SingleObjectTablePrinter(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
 
   def printObject(obj: MashObject) = {
-    val model = new SingleObjectTableModelCreator(terminalInfo, viewConfig).create(obj)
+    val model = new SingleObjectTableModelCreator(terminalInfo, supportMarking = false, viewConfig).create(obj)
     val renderer = new SingleObjectTableCommonRenderer(model)
     val lines = renderer.renderTableLines()
     for (line ← lines)
