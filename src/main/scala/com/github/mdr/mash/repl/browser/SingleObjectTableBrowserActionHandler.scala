@@ -54,7 +54,7 @@ trait SingleObjectTableBrowserActionHandler {
       case View2D                          ⇒
         view2D(browserState)
       case IncrementalSearch.BeginSearch   ⇒
-        updateState(browserState.copy(searchStateOpt = Some(SearchState(""))))
+        updateState(browserState.beginSearch)
       case ExpressionInput.BeginExpression ⇒
         updateState(browserState.setExpression(""))
       case _                               ⇒

@@ -24,6 +24,8 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def currentColumnIdOpt: Option[ColumnId] = currentColumnOpt.map(model.columnIds)
 
+  def beginSearch: BrowserState = copy(searchStateOpt = Some(SearchState("")), currentColumnOpt = None)
+
   def setSearch(query: String, terminalRows: Int): BrowserState = {
     val ignoreCase = searchStateOpt.forall(_.ignoreCase)
     runSearch(query, ignoreCase, terminalRows)
