@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
 import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
-import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
+import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.browser.ArrowHelper._

@@ -5,7 +5,6 @@ import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
-import com.github.mdr.mash.repl.browser.TwoDTableBrowserState.SearchState
 
 trait TwoDTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
