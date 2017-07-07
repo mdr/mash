@@ -44,7 +44,16 @@ object Utils {
   def window[T](xs: Seq[T], offset: Int, count: Int): Seq[T] = xs.slice(offset, offset + count)
 
   implicit class RichSeq[T](xs: Seq[T]) {
+
     def window(offset: Int, count: Int): Seq[T] = Utils.window(xs, offset, count)
+
+  }
+
+  implicit class RichTraversableOnce[T](xs: TraversableOnce[T]) {
+
+    def maxOpt(implicit cmp: Ordering[T]): Option[T] = if (xs.isEmpty) None else Some(xs.max)
+
+    def maxOr(default: T)(implicit cmp: Ordering[T]): T = maxOpt getOrElse default
   }
 
   def indexOf(superstring: String, substring: String): Option[Int] =
@@ -55,7 +64,7 @@ object Utils {
 
   def indexWhere[T](xs: Seq[T], f: T ⇒ Boolean): Option[Int] = xs.indexWhere(f) match {
     case -1 ⇒ None;
-    case i ⇒ Some(i)
+    case i  ⇒ Some(i)
   }
 
   def sequence[T](xs: Seq[Option[T]]): Option[Seq[T]] = {

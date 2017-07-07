@@ -68,6 +68,6 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
   private def renderValue(value: MashValue): String = fieldRenderer.renderField(value, inCell = true)
 
   private def maxFieldWidth(obj: MashObject): Int =
-    if (obj.isEmpty) 0 else obj.immutableFields.keySet.map(k ⇒ ToStringifier.stringify(k).size).max
+    obj.immutableFields.keySet.map(k ⇒ ToStringifier.stringify(k).size).max // safe, obj is nonempty
 
 }

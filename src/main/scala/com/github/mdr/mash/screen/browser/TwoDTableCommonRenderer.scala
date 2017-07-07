@@ -30,7 +30,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
   private def renderHeaderRow(model: TwoDTableModel): Line = {
     def renderColumn(columnId: ColumnId): StyledString = {
       val fit = StringUtils.fitToWidth(model.columnName(columnId), model.columnWidth(columnId))
-      fit.style(Style(foregroundColour = BasicColour.Yellow))
+      fit.style(getStyle(isLabel = true))
     }
     val buffer = ArrayBuffer[StyledCharacter]()
     buffer ++= doubleVertical.style.chars
@@ -60,7 +60,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       if (showMarkedRows) {
         val isMarked = markedRowsOpt exists (_ contains rowIndex)
         val markChar = if (isMarked) "◈" else " "
-        (markChar + singleVertical).style(Style(inverse = shouldHighlightRow))
+        (markChar + singleVertical).style(getStyle(highlight = shouldHighlightRow))
       } else
         StyledString.empty
 
@@ -68,7 +68,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       val cellContents = row.renderedValue(columnId)
       renderCell(cellContents, Point(rowIndex, columnIndex), columnId)
     }
-    val internalVertical = singleVertical.style(Style(inverse = shouldHighlightRow))
+    val internalVertical = singleVertical.style(getStyle(highlight = shouldHighlightRow))
     val innerChars = StyledString.mkString(renderedCells, internalVertical)
     val tableSide = doubleVertical.style
     Line(tableSide + markCell + innerChars + tableSide)
@@ -84,18 +84,18 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
         yield {
           val isSearchMatch = searchInfoOpt exists (_ isMatched offset)
           val isLabel = columnId == TwoDTableModelCreator.RowLabelColumnId
-          val style = getCellCharacterStyle(highlightCell, isSearchMatch, isLabel)
+          val style = getStyle(highlight = highlightCell, isSearchMatch = isSearchMatch, isLabel = isLabel)
           StyledCharacter(c, style)
         }
     StyledString(renderedChars)
   }
 
-  private def getCellCharacterStyle(highlightCell: Boolean, isSearchMatch: Boolean, isLabel: Boolean): Style = {
+  private def getStyle(highlight: Boolean = false, isSearchMatch: Boolean = false, isLabel: Boolean = false): Style = {
     val foregroundColour =
-      if (isLabel) BasicColour.Yellow
-      else if (isSearchMatch) BasicColour.Cyan
+      if (isSearchMatch) BasicColour.Cyan
+      else if (isLabel) BasicColour.Yellow
       else DefaultColour
-    Style(inverse = highlightCell, bold = isSearchMatch, foregroundColour = foregroundColour)
+    Style(inverse = highlight, bold = isSearchMatch, foregroundColour = foregroundColour)
   }
 
   def renderTopRow(model: TwoDTableModel): Line =
