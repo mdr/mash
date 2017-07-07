@@ -23,25 +23,21 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val moreDataItemsBelowWindow = rowOffset + rowCount < model.numberOfRows
     val headerLines = renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0)
     val fieldLines = renderFieldLines(rowOffset, rowCount)
-    val footerLine = renderFooterLine(break = hasFields, addArrow = moreDataItemsBelowWindow)
+    val footerLine = renderFooterLine(addArrow = moreDataItemsBelowWindow)
     headerLines ++ fieldLines ++ Seq(footerLine)
   }
 
   private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
     model.classNameOpt match {
       case Some(className) ⇒ renderClassHeaderLines(className, moreDataItemsAboveWindow)
-      case None            ⇒ Seq(renderTopRow(break = hasFields, addArrow = moreDataItemsAboveWindow))
+      case None            ⇒ Seq(renderTopRow(break = true, addArrow = moreDataItemsAboveWindow))
     }
 
   private def renderClassHeaderLines(className: String, moreDataItemsAboveWindow: Boolean): Seq[Line] = {
     val topLine = renderTopRow(break = false, addArrow = false)
     val classNameLine = renderClassNameLine(className)
-    val belowHeaderLineOpt =
-      if (model.fields.isEmpty)
-        None
-      else
-        Some(renderBelowHeaderLine(addArrow = moreDataItemsAboveWindow))
-    Seq(topLine, classNameLine) ++ belowHeaderLineOpt
+    val belowHeaderLine = renderBelowHeaderLine(addArrow = moreDataItemsAboveWindow)
+    Seq(topLine, classNameLine, belowHeaderLine)
   }
 
   /**
@@ -51,17 +47,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * or
     * ╔═╤══════════╤═════════════╗
     */
-  private def renderTopRow(break: Boolean = true, addArrow: Boolean): Line = {
-    val sb = new StringBuilder()
-    sb.append(doubleTopLeft)
-    if (showMarkedRows)
-      sb.append(doubleHorizontal)
-        .append(if (break) doubleHorizontalSingleDown else doubleHorizontal)
-    sb.append(doubleHorizontal * model.fieldColumnWidth)
-      .append(if (break) doubleHorizontalSingleDown else doubleHorizontal)
-      .append(doubleHorizontal * model.valueColumnWidth)
-      .append(doubleTopRight)
-    Line(sb.toString.when(addArrow, addUpArrow).style)
+  private def renderTopRow(break: Boolean, addArrow: Boolean): Line = {
+    val internalColumn = if (break) doubleHorizontalSingleDown else doubleHorizontal
+    renderBorderRow(doubleTopLeft, doubleHorizontal, internalColumn, doubleTopRight, downArrow = addArrow)
   }
 
   /**
@@ -79,19 +67,8 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * or
     * ╟─┬──────────┬─────────────╢
     */
-  private def renderBelowHeaderLine(addArrow: Boolean): Line = {
-    val sb = new StringBuilder()
-    sb.append(doubleVerticalSingleRight)
-    if (showMarkedRows)
-      sb.append(singleHorizontal)
-        .append(singleHorizontalSingleDown)
-    sb
-      .append(singleHorizontal * model.fieldColumnWidth)
-      .append(singleHorizontalSingleDown)
-      .append(singleHorizontal * model.valueColumnWidth)
-      .append(doubleVerticalSingleLeft)
-    Line(sb.toString.when(addArrow, addUpArrow).style)
-  }
+  private def renderBelowHeaderLine(addArrow: Boolean): Line =
+    renderBorderRow(doubleVerticalSingleRight, singleHorizontal, singleHorizontalSingleDown, doubleVerticalSingleLeft, downArrow = addArrow)
 
   private def renderFieldLines(rowOffset: Int, rowCount: Int): Seq[Line] = {
     def getMatchRegions(rowIndex: Int, columnIndex: Int): Seq[Region] = {
@@ -157,23 +134,9 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     * ╚════════════╧═════════════╝
     * or
     * ╚═╧══════════╧═════════════╝
-    * or
-    * ╚══════════════════════════╝
     */
-  private def renderFooterLine(break: Boolean, addArrow: Boolean): Line = {
-    val sb = new StringBuilder()
-    sb.append(doubleBottomLeft)
-    if (showMarkedRows)
-      sb.append(doubleHorizontal)
-        .append(if (break) doubleHorizontalSingleUp else doubleHorizontal)
-    sb.append(doubleHorizontal * model.fieldColumnWidth)
-      .append(if (break) doubleHorizontalSingleUp else doubleHorizontal)
-      .append(doubleHorizontal * model.valueColumnWidth)
-      .append(doubleBottomRight)
-    Line(sb.toString.when(addArrow, addDownArrow).style)
-  }
-
-  private def hasFields: Boolean = model.nonEmpty
+  private def renderFooterLine(addArrow: Boolean): Line =
+    renderBorderRow(doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight, downArrow = addArrow)
 
   private val classNameStyle: Style = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
@@ -182,6 +145,24 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private def fieldStyle(isCursorRow: Boolean, isSearchHit: Boolean): Style =
     Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else BasicColour.Yellow)
+
+  private def renderBorderRow(first: String,
+                              internal: String,
+                              internalColumn: String,
+                              last: String,
+                              downArrow: Boolean = false,
+                              upArrow: Boolean = false): Line = {
+    val sb = new StringBuilder
+    sb.append(first)
+    if (showMarkedRows)
+      sb.append(internal + internalColumn)
+    sb.append(internal * model.fieldColumnWidth)
+      .append(internalColumn)
+      .append(internal * model.valueColumnWidth)
+      .append(last)
+    val chars = sb.toString.when(downArrow, addDownArrow).when(upArrow, addUpArrow)
+    Line(chars.style)
+  }
 
   private def showMarkedRows = markedRowsOpt.isDefined
 

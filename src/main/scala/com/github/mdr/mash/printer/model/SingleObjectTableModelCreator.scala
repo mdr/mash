@@ -12,6 +12,7 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   def create(obj: MashObject): SingleObjectTableModel = {
+    require(obj.nonEmpty)
     val classNameOpt = obj.classOpt.flatMap(_.nameOpt)
 
     val (fieldColumnWidth, valueColumnWidth) = calculateColumnWidths(obj, classNameOpt)

@@ -22,7 +22,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
   def renderTableLines(rowOffset: Int = 0, rowCount: Int = model.numberOfRows): Seq[Line] = {
     val moreDataItemsBelowWindow = rowOffset + rowCount < model.numberOfRows
     val headerLines = renderHeaderLines(moreDataItemsAboveWindow = rowOffset > 0)
-    val dataLines = renderDataLines(rowOffset: Int, rowCount: Int)
+    val dataLines = renderDataLines(rowOffset, rowCount)
     val footerLine = renderFooterLine(model, addArrow = moreDataItemsBelowWindow)
     headerLines ++ dataLines ++ Seq(footerLine)
   }

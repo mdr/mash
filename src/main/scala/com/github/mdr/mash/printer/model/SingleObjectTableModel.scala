@@ -10,10 +10,8 @@ case class SingleObjectTableModel(classNameOpt: Option[String],
                                   valueColumnWidth: Int,
                                   rawValue: MashObject,
                                   rawValues: ListMap[MashValue, MashValue]) extends PrintModel {
+  require(fields.nonEmpty)
 
   def numberOfRows: Int = fields.size
 
-  def isEmpty = numberOfRows == 0
-
-  def nonEmpty = !isEmpty
 }

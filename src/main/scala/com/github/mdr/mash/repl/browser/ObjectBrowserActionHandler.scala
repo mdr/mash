@@ -71,15 +71,15 @@ trait ObjectBrowserActionHandler
 
   protected def view1D(browserState: BrowserState): Unit =
     browserState.rawValue match {
-      case obj: MashObject ⇒
+      case obj: MashObject if obj.nonEmpty ⇒
         val model = new SingleObjectTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(obj)
         val newState = SingleObjectTableBrowserState(model, path = browserState.path)
         updateState(newState)
-      case xs: MashList    ⇒
+      case xs: MashList                    ⇒
         val model = new TextLinesModelCreator(state.viewConfig).create(xs)
         val newState = TextLinesBrowserState(model, path = browserState.path)
         updateState(newState)
-      case _               ⇒
+      case _                               ⇒
     }
 
   protected def view2D(browserState: BrowserState) = {
@@ -101,7 +101,7 @@ trait ObjectBrowserActionHandler
     case _ if isSuitableForTwoDTable(value) ⇒
       val model = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(value)
       TwoDTableBrowserState(model, path = path)
-    case obj: MashObject                    ⇒
+    case obj: MashObject if obj.nonEmpty    ⇒
       val model = new SingleObjectTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(obj)
       SingleObjectTableBrowserState(model, path = path)
     case xs: MashList                       ⇒

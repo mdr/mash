@@ -66,13 +66,13 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   private val fieldRenderer = new FieldRenderer(viewConfig)
 
   private def getPrintModel(value: MashValue): PrintModel = value match {
-    case _ if isSuitableForTwoDTable(value)                              ⇒
+    case _ if isSuitableForTwoDTable(value) ⇒
       new TwoDTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(value)
-    case obj: MashObject                                                 ⇒
+    case obj: MashObject if obj.nonEmpty    ⇒
       new SingleObjectTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(obj)
-    case xs: MashList                                                    ⇒
+    case xs: MashList                       ⇒
       new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                                               ⇒
+    case _                                  ⇒
       new ValueModelCreator(terminalInfo, viewConfig).create(value)
   }
 
@@ -91,42 +91,42 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                                                      ⇒
+        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           browse(model)
-        case _ if isSuitableForTwoDTable(value)                                                                                                   ⇒
+        case _ if isSuitableForTwoDTable(value)                                                             ⇒
           printTwoD(value)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                                                                ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                          ⇒
           printTextLines(xs)
-        case obj: MashObject if obj.classOpt contains ViewClass                                                                                   ⇒
+        case obj: MashObject if obj.classOpt contains ViewClass                                             ⇒
           printView(obj)
-        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews                                       ⇒
+        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printFunctionHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews                                          ⇒
+        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printFieldHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews                                          ⇒
+        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printClassHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews                                             ⇒
+        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
           done
-        case obj: MashObject                                                                                                                      ⇒
+        case obj: MashObject if obj.nonEmpty                                                                ⇒
           new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
           done
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                                                            ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                      ⇒
           done // Don't print out sequence of unit
-        case f: MashFunction if !printConfig.disableCustomViews                                                                                   ⇒
+        case f: MashFunction if !printConfig.disableCustomViews                                             ⇒
           print(HelpCreator.getHelp(f), printConfig)
-        case method: BoundMethod if !printConfig.disableCustomViews                                                                               ⇒
+        case method: BoundMethod if !printConfig.disableCustomViews                                         ⇒
           print(HelpCreator.getHelp(method), printConfig)
-        case klass: MashClass if !printConfig.disableCustomViews                                                                                  ⇒
+        case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
           print(HelpCreator.getHelp(klass), printConfig)
-        case MashUnit                                                                                                                             ⇒
+        case MashUnit                                                                                       ⇒
           // Don't print out Unit
           done
-        case _                                                                                                                                    ⇒
+        case _                                                                                              ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
           done
       }
