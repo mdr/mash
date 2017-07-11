@@ -99,10 +99,10 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val markCell: StyledString =
       if (showMarkedRows) {
         val markChar = if (isMarked) "◈" else " "
-        (markChar + singleVertical).style(internalRowStyle(isCursorRow))
+        (markChar + singleVertical).style(getStyle(highlight = isCursorRow))
       } else
         StyledString.empty
-    val internalVertical = singleVertical.style(internalRowStyle(isCursorRow))
+    val internalVertical = singleVertical.style(getStyle(highlight = isCursorRow))
     val fieldChars = renderFieldCell(renderedField, isCursorRow, fieldSearchHitRegions)
     val valueChars = renderValueCell(renderedValue, isCursorRow, valueSearchHitRegions)
     Line(side + markCell + fieldChars + internalVertical + valueChars + side)
@@ -113,7 +113,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val buf = ArrayBuffer[StyledCharacter]()
     for ((c, offset) <- chars.zipWithIndex) {
       val isSearchMatch = searchHitRegions exists (_ contains offset)
-      val style = fieldStyle(isCursorRow, isSearchMatch)
+      val style = getStyle(highlight = isCursorRow, isLabel = true, isSearchMatch = isSearchMatch)
       buf += StyledCharacter(c, style)
     }
     StyledString(buf)
@@ -124,7 +124,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     val buf = ArrayBuffer[StyledCharacter]()
     for ((c, offset) <- chars.zipWithIndex) {
       val isSearchMatch = searchHitRegions exists (_ contains offset)
-      val style = internalRowStyle(isCursorRow, isSearchMatch)
+      val style = getStyle(highlight = isCursorRow, isSearchMatch = isSearchMatch)
       buf += StyledCharacter(c, style)
     }
     StyledString(buf)
@@ -140,11 +140,13 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
 
   private val classNameStyle: Style = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
-  private def internalRowStyle(isCursorRow: Boolean, isSearchHit: Boolean = false): Style =
-    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else DefaultColour)
-
-  private def fieldStyle(isCursorRow: Boolean, isSearchHit: Boolean): Style =
-    Style(inverse = isCursorRow, foregroundColour = if (isSearchHit) BasicColour.Cyan else BasicColour.Yellow)
+  private def getStyle(highlight: Boolean = false, isSearchMatch: Boolean = false, isLabel: Boolean = false): Style = {
+    val foregroundColour =
+      if (isSearchMatch) BasicColour.Cyan
+      else if (isLabel) BasicColour.Yellow
+      else DefaultColour
+    Style(inverse = highlight, bold = isSearchMatch, foregroundColour = foregroundColour)
+  }
 
   private def renderBorderRow(first: String,
                               internal: String,
