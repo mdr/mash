@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.Field
 import com.github.mdr.mash.evaluator.{ Evaluator, MemberEvaluator, ToStringifier }
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.repl.browser.BrowserState.safeProperty
-import com.github.mdr.mash.runtime.{ MashList, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashNumber, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils._
 
 case class ColumnId(value: Int)
@@ -14,6 +14,8 @@ sealed trait ValueFetch {
   def lookup(value: MashValue): Option[MashValue]
 
   def name: String
+
+  def value: MashValue
 
   def fetchPath(parentPath: String): String
 }
@@ -38,6 +40,7 @@ object ValueFetch {
 
     def fetchPath(parentPath: String): String = safeProperty(parentPath, member)
 
+    def value = member
   }
 
   case class ByIndex(index: Int) extends ValueFetch {
@@ -51,6 +54,7 @@ object ValueFetch {
 
     def fetchPath(parentPath: String): String = combineSafely(parentPath, s"[$index]")
 
+    def value = MashNumber(index)
   }
 
 }

@@ -12,7 +12,7 @@ import scala.PartialFunction.cond
 
 object TwoDTableModelCreator {
 
-  private val IndexColumnName = "#"
+  private val RowLabelColumnName = "#"
   val RowLabelColumnId = ColumnId(-1)
 
   def isSuitableForTwoDTable(value: MashValue) = cond(value) {
@@ -74,12 +74,12 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
     val allocatedColumnWidths = ColumnAllocator.allocateColumns(dataColumnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
 
     val dataColumnNames = for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name
-    val allColumnNames = dataColumnNames + (RowLabelColumnId -> IndexColumnName)
+    val allColumnNames = dataColumnNames + (RowLabelColumnId -> RowLabelColumnName)
 
     val dataColumns =
       for ((columnId, width) ← allocatedColumnWidths)
         yield columnId -> Column(allColumnNames(columnId), width, columnSpecs.get(columnId).map(_.fetch))
-    val rowLabelColumn = RowLabelColumnId -> Column(IndexColumnName, rowLabelWidth)
+    val rowLabelColumn = RowLabelColumnId -> Column(RowLabelColumnName, rowLabelWidth)
     val allColumns = dataColumns + rowLabelColumn
 
     TwoDTableModel(allColumnIds, allColumns, tableRows, rawValue)
@@ -93,10 +93,10 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
         columnId ← columnIds
         ColumnSpec(fetch, _) = columnSpecs(columnId)
         cellValueOpt = fetch.lookup(rowInfo.rawValue)
-        renderedValue = cellValueOpt.map(renderValue).getOrElse("")
+        renderedValue = cellValueOpt.map(renderValue) getOrElse ""
         cell = Cell(renderedValue, cellValueOpt)
       } yield columnId -> cell
-    val indexCell = RowLabelColumnId -> Cell(rowInfo.label)
+    val indexCell = RowLabelColumnId -> Cell(rowInfo.label, Some(rowInfo.fetch.value))
     val allCells = (dataCells :+ indexCell).toMap
     Row(allCells, rowInfo.rawValue, rowInfo.fetch)
   }
@@ -110,23 +110,28 @@ class TwoDTableModelCreator(terminalInfo: TerminalInfo,
         groupColumnSpecs
       else if (sampleValues.nonEmpty && sampleValues.forall(_ isA CommitClass))
         commitColumnSpecs
-      else if (sampleValues.nonEmpty && sampleValues.forall(v ⇒ v.isAnObject || v.isAList)) {
-        val fieldSpecs =
-          sampleValues
-            .flatMap(_.asObject)
-            .flatMap(_.immutableFields.keys)
-            .distinct
-            .zipWithIndex
-            .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ValueFetch.ByMember(field)) }
-        val sizes = sampleValues.flatMap(_.asList).map(_.size)
-        val maxSize = if (sizes.isEmpty) 0 else sizes.max
-        val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ValueFetch.ByIndex(i)))
-        fieldSpecs ++ indexSpecs
-      }
+      else if (sampleValues.nonEmpty && sampleValues.forall(v ⇒ v.isAnObject || v.isAList))
+        getColumnSpecsFromSample(sampleValues)
       else
         Seq()
     val columnIds = columnSpecs.map(_._1).filterNot(hiddenColumns.contains)
     (columnIds, columnSpecs.toMap)
+  }
+
+  private def getColumnSpecsFromSample(sampleValues: Seq[MashValue]): Seq[(ColumnId, ColumnSpec)] = {
+    val fieldSpecs =
+      sampleValues
+        .flatMap(_.asObject)
+        .flatMap(_.immutableFields.keys)
+        .distinct
+        .zipWithIndex
+        .map { case (field, columnIndex) ⇒ ColumnId(columnIndex) -> ColumnSpec(ValueFetch.ByMember(field)) }
+
+    val sizes = sampleValues.flatMap(_.asList).map(_.size)
+    val maxSize = if (sizes.isEmpty) 0 else sizes.max
+    val indexSpecs = 0.until(maxSize).map(i ⇒ ColumnId(fieldSpecs.length + i) -> ColumnSpec(ValueFetch.ByIndex(i)))
+
+    fieldSpecs ++ indexSpecs
   }
 
   private def commitColumnSpecs: Seq[(ColumnId, ColumnSpec)] =

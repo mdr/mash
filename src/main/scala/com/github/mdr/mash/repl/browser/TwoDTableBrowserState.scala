@@ -3,9 +3,10 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.ExpressionCombiner._
+import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.printer.ColumnId
-import com.github.mdr.mash.printer.model.TwoDTableModel
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
+import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
@@ -21,6 +22,8 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
                                  hiddenColumns: Seq[ColumnId] = Seq(),
                                  searchStateOpt: Option[SearchState] = None,
                                  expressionOpt: Option[String] = None) extends BrowserState {
+
+  require(currentColumnOpt.forall(col ⇒ col >= 0 && col <= numberOfColumns))
 
   private def currentColumnIdOpt: Option[ColumnId] = currentColumnOpt.map(model.columnIds)
 
@@ -162,11 +165,20 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
         columnId ← currentColumnIdOpt
         if includeCellSelection
         cellValue ← model.rows(rowIndex).cells(columnId).rawValueOpt
-        fetch ← model.columns(columnId).fetchOpt
-        newPath = fetch.fetchPath(rowPath)
+        newPath ← getNewPath(rowPath, columnId, cellValue)
       } yield SelectionInfo(newPath, cellValue)
     cellSelectionInfoOpt.getOrElse(SelectionInfo(rowPath, rowValue))
   }
+
+  private def getNewPath(rowPath: String, columnId: ColumnId, cellValue: MashValue): Option[String] =
+    columnId match {
+      case TwoDTableModelCreator.RowLabelColumnId ⇒
+        PartialFunction.condOpt(cellValue) {
+          case n: MashNumber ⇒ combineSafely(path, s" | _ => $n")
+          case s: MashString ⇒ combineSafely(path, s" | _ => '${StringEscapes.escapeChars(s.s)}'")
+        }
+      case _                                      ⇒ model.columns(columnId).fetchOpt.map(_.fetchPath(rowPath))
+    }
 
   def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {
     var newState = this

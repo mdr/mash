@@ -108,12 +108,11 @@ trait TwoDTableBrowserActionHandler {
 
   private def hideColumn(browserState: TwoDTableBrowserState, currentColumn: Int): TwoDTableBrowserState = {
     val columnId = browserState.model.columnIds(currentColumn)
-    val list = browserState.model.rawValue
-    val hiddenColumns = browserState.hiddenColumns :+ columnId
-    val modelCreator = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig, hiddenColumns)
-    val model = modelCreator.create(list)
-    val newColumn = if (currentColumn >= model.numberOfColumns) currentColumn - 1 else currentColumn
-    browserState.copy(model = model, hiddenColumns = hiddenColumns, currentColumnOpt = Some(newColumn))
+    val newHiddenColumns = browserState.hiddenColumns :+ columnId
+    val modelCreator = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig, newHiddenColumns)
+    val newModel = modelCreator.create(browserState.model.rawValue)
+    val newCurrentColumn = if (currentColumn >= newModel.numberOfColumns) currentColumn - 1 else currentColumn
+    browserState.copy(model = newModel, hiddenColumns = newHiddenColumns, currentColumnOpt = Some(newCurrentColumn))
   }
 
 }
