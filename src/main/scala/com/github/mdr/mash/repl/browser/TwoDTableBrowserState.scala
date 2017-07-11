@@ -5,7 +5,7 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.printer.ColumnId
-import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
+import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
@@ -15,6 +15,11 @@ import com.github.mdr.mash.utils.Utils._
 import scala.PartialFunction.condOpt
 import scala.collection.mutable.ArrayBuffer
 
+/**
+  * State of a 2D table browser.
+  *
+  * @param currentColumnOpt Column 0 is the row label column; data columns are 1..N
+  */
 case class TwoDTableBrowserState(model: TwoDTableModel,
                                  currentRow: Int = 0,
                                  firstRow: Int = 0,
@@ -112,12 +117,15 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def previousColumn: TwoDTableBrowserState = adjustSelectedColumn(-1)
 
-  def adjustSelectedColumn(delta: Int): TwoDTableBrowserState =
+  private def adjustSelectedColumn(delta: Int): TwoDTableBrowserState =
     if (numberOfColumns == 0)
       this
     else {
-      val currentColumn = currentColumnOpt.getOrElse(if (delta == 1) -1 else 0)
-      copy(currentColumnOpt = Some((currentColumn + delta + numberOfColumns) % numberOfColumns))
+      val newColumn = currentColumnOpt match {
+        case Some(currentColumn) ⇒ (currentColumn + delta + numberOfColumns) % numberOfColumns
+        case None                ⇒ if (delta > 0) delta - 1 else (numberOfColumns + delta) % numberOfColumns
+      }
+      copy(currentColumnOpt = Some(newColumn))
     }
 
   def unfocusColumn: TwoDTableBrowserState = copy(currentColumnOpt = None)
@@ -179,7 +187,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
           case n: MashNumber ⇒ combineSafely(path, s" | _ => $n")
           case s: MashString ⇒ combineSafely(path, s" | _ => '${StringEscapes.escapeChars(s.s)}'")
         }
-      case _                                      ⇒ model.columns(columnId).fetchOpt.map(_.fetchPath(rowPath))
+      case _                ⇒ model.columns(columnId).fetchOpt.map(_.fetchPath(rowPath))
     }
 
   def adjustWindowToFit(terminalRows: Int): TwoDTableBrowserState = {

@@ -1,12 +1,14 @@
 package com.github.mdr.mash.repl
 
-import java.io.{ OutputStream, PrintStream }
+import java.io.PrintStream
 import java.util.UUID
 
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextColumn, PreviousColumn, UnfocusColumn }
+import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.runtime._
@@ -34,7 +36,7 @@ class ReplTest extends FlatSpec with Matchers {
   "Two tabs" should "enter completions browsing mode" in {
     val repl = makeRepl()
     repl.input("where").complete().complete()
-    val Some(completionState: BrowserCompletionState) = repl.state.completionStateOpt
+    val Some(_: BrowserCompletionState) = repl.state.completionStateOpt
   }
 
   "Completion bug after a hyphen" should "not happen" in {
@@ -100,18 +102,18 @@ class ReplTest extends FlatSpec with Matchers {
   }
 
   "Type inference loop bug" should "not happen" in {
-    val repl = makeRepl()
-    repl.input("a => a").acceptLine()
-    repl.complete() // previously blew up here
+    makeRepl()
+      .input("a => a").acceptLine()
+      .complete() // previously blew up here
   }
 
   "Local variables" should "not collide with global" in {
-    val repl = makeRepl()
-    repl.input("a = 0").acceptLine()
-    repl.input("def setA n = { a = n }").acceptLine()
-    repl.input("setA 42").acceptLine()
-    repl.input("a").acceptLine()
-    repl.it should equal(MashNumber(0))
+    makeRepl()
+      .input("a = 0").acceptLine()
+      .input("def setA n = { a = n }").acceptLine()
+      .input("setA 42").acceptLine()
+      .input("a").acceptLine()
+      .it should equal(MashNumber(0))
   }
 
   "Completing dotfiles" should "not have a bug where the original input is truncated" in {
@@ -142,7 +144,18 @@ class ReplTest extends FlatSpec with Matchers {
       .incrementalHistorySearch()
       .input("FOO")
       .text should equal("foobar = 42")
+  }
 
+  "Two D table browser" should "allow column selection" in {
+    val twoDBrowser =
+      makeRepl()
+        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").acceptLine()
+        .affirmInTwoDBrowser
+    twoDBrowser.currentRow should equal(0)
+    twoDBrowser.currentColumnOpt should equal(None)
+    twoDBrowser.nextColumn().currentColumnOpt should equal (Some(0))
+    twoDBrowser.unfocusColumn().currentColumnOpt should equal (None)
+    twoDBrowser.previousColumn().currentColumnOpt should equal (Some(2))
   }
 
 }
@@ -154,6 +167,29 @@ object ReplTest {
     val globalVariables = StandardEnvironment.createGlobalVariables()
     new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
       sessionId = UUID.randomUUID, globalVariables = globalVariables)
+  }
+
+  case class TwoDBrowser(repl: Repl) {
+
+    def currentRow: Int = repl.getTwoDBrowserState.currentRow
+
+    def currentColumnOpt: Option[Int] = repl.getTwoDBrowserState.currentColumnOpt
+
+    def nextColumn() = {
+      repl.handleAction(NextColumn)
+      this
+    }
+
+    def previousColumn() = {
+      repl.handleAction(PreviousColumn)
+      this
+    }
+
+    def unfocusColumn() = {
+      repl.handleAction(UnfocusColumn)
+      this
+    }
+
   }
 
   implicit class RichRepl(repl: Repl) {
@@ -228,6 +264,18 @@ object ReplTest {
       case state: IncrementalCompletionState ⇒ state
     }.getOrElse(throw new AssertionError("Not in incremental completion mode"))
 
+    def affirmInTwoDBrowser = {
+      getTwoDBrowserState
+      TwoDBrowser(repl)
+    }
+
+    def getTwoDBrowserState: TwoDTableBrowserState = {
+      val browserStateStack = repl.state.objectBrowserStateStackOpt.getOrElse(throw new AssertionError("Expected 2D browser, but no browser active"))
+      browserStateStack.headState match {
+        case state: TwoDTableBrowserState ⇒ state
+        case state                        ⇒ throw new AssertionError(s"Was not a 2D browser, but a ${state.getClass.getSimpleName}")
+      }
+    }
   }
 
 }
