@@ -1,6 +1,6 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
+import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString

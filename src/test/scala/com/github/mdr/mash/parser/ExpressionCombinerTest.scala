@@ -23,6 +23,7 @@ class ExpressionCombinerTest extends FlatSpec with Matchers {
     combineSafely("1 + 2", " | f") shouldEqual "1 + 2 | f"
     combineSafely("1 * 2", " + 3") shouldEqual "1 * 2 + 3"
     combineSafely("1 - 2", " - 3") shouldEqual "1 - 2 - 3"
+    combineSafely("r4.sortBy(.x)", ".reverse") shouldEqual "r4.sortBy(.x).reverse"
   }
 
 }

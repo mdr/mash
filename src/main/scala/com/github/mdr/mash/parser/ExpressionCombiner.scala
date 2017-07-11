@@ -19,7 +19,7 @@ object ExpressionCombiner {
     val needsParens = (prefixExpr, suffixExpr) match {
       case (prefixOp: BinOpExpr, suffixOp: BinOpExpr)                    ⇒ needsParensBinOp(prefixOp, suffixOp)
       case (_, _: InvocationExpr)                                        ⇒ true
-      case (_: ParenExpr | _: MemberExpr | _: LookupExpr | _: BlockExpr |
+      case (_: ParenExpr | _: MemberExpr | _: ParenInvocationExpr | _: LookupExpr | _: BlockExpr |
             _: ListExpr | _: ObjectExpr | _: Identifier | _: Literal, _) ⇒ false
       case (_: LambdaExpr, _: PipeExpr)                                  ⇒ true
       case (_, _: PipeExpr)                                              ⇒ false
