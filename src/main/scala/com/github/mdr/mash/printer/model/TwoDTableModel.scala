@@ -6,6 +6,8 @@ import com.github.mdr.mash.runtime.MashValue
 
 object TwoDTableModel {
 
+  val RowLabelColumnId = ColumnId(-1)
+
   case class Row(cells: Map[ColumnId, Cell], rawValue: MashValue, fetch: ValueFetch) {
 
     def renderedValue(columnId: ColumnId): String = cells(columnId).renderedValue

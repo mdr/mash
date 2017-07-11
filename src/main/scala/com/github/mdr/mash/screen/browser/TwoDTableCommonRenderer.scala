@@ -10,6 +10,7 @@ import com.github.mdr.mash.utils.StringUtils
 import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 
 class TwoDTableCommonRenderer(model: TwoDTableModel,
                               markedRowsOpt: Option[Set[Int]] = None,
@@ -83,7 +84,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       for ((c, offset) <- fitCellContents.zipWithIndex)
         yield {
           val isSearchMatch = searchInfoOpt exists (_ isMatched offset)
-          val isLabel = columnId == TwoDTableModelCreator.RowLabelColumnId
+          val isLabel = columnId == RowLabelColumnId
           val style = getStyle(highlight = highlightCell, isSearchMatch = isSearchMatch, isLabel = isLabel)
           StyledCharacter(c, style)
         }

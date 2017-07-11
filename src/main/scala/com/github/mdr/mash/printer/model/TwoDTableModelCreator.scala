@@ -7,13 +7,13 @@ import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 
 import scala.PartialFunction.cond
 
 object TwoDTableModelCreator {
 
   private val RowLabelColumnName = "#"
-  val RowLabelColumnId = ColumnId(-1)
 
   def isSuitableForTwoDTable(value: MashValue) = cond(value) {
     case xs: MashList    ⇒ xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))

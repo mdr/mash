@@ -6,11 +6,13 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.{ TwoDTableModel, TwoDTableModelCreator }
+import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
 
+import scala.PartialFunction.condOpt
 import scala.collection.mutable.ArrayBuffer
 
 case class TwoDTableBrowserState(model: TwoDTableModel,
@@ -172,8 +174,8 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def getNewPath(rowPath: String, columnId: ColumnId, cellValue: MashValue): Option[String] =
     columnId match {
-      case TwoDTableModelCreator.RowLabelColumnId ⇒
-        PartialFunction.condOpt(cellValue) {
+      case RowLabelColumnId ⇒
+        condOpt(cellValue) {
           case n: MashNumber ⇒ combineSafely(path, s" | _ => $n")
           case s: MashString ⇒ combineSafely(path, s" | _ => '${StringEscapes.escapeChars(s.s)}'")
         }
