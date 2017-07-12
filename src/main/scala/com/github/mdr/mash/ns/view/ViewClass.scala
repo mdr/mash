@@ -9,6 +9,11 @@ import scala.collection.immutable.ListMap
 
 object ViewClass extends MashClass("view.View") {
 
+  def unpackView(value: MashValue): MashValue = value match {
+    case obj@MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).map(unpackView).getOrElse(obj)
+    case result                             ⇒ value
+  }
+
   object Fields {
     val Data = Field("data", Some("Data to display"), Type.Any)
     val DisableCustomViews = Field("disableCustomViews", Some("If true, disable custom views for this data"), BooleanClass)

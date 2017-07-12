@@ -3,8 +3,11 @@ package com.github.mdr.mash.repl.browser
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
+import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.runtime._
+
+import scala.PartialFunction.condOpt
 
 object BrowserState {
 
@@ -15,12 +18,14 @@ object BrowserState {
           combineSafely(path, s".$property")
         else
           combineSafely(path, s"['$property']")
-      case MashNull | _: MashBoolean | _: MashNumber ⇒
-        val propertyName = ToStringifier.stringify(property)
-        combineSafely(path, s"['$propertyName']")
-      case _                                         ⇒
-        path
+      case _ ⇒
+        expressionFor(property).map(combineSafely(path, _)).getOrElse(path)
     }
+
+  def expressionFor(value: MashValue): Option[String] = condOpt(value) {
+    case MashNull | _: MashBoolean | _: MashNumber ⇒ ToStringifier.stringify(value)
+    case s: MashString                             ⇒ s"'${StringEscapes.escapeChars(s.s)}'"
+  }
 
   def fromModel(displayModel: DisplayModel, path: String): BrowserState =
     displayModel match {
@@ -31,7 +36,6 @@ object BrowserState {
       case model: TextLinesModel         ⇒ new TextLinesBrowserState(model, path = path)
       case _                             ⇒ throw new RuntimeException("Unknown type of print model: " + displayModel)
     }
-
 
 }
 

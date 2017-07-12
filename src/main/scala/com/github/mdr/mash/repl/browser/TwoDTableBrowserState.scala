@@ -7,6 +7,7 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
+import com.github.mdr.mash.repl.browser.BrowserState.expressionFor
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -182,11 +183,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def getNewPath(rowPath: String, columnId: ColumnId, cellValue: MashValue): Option[String] =
     columnId match {
-      case RowLabelColumnId ⇒
-        condOpt(cellValue) {
-          case n: MashNumber ⇒ combineSafely(path, s" | _ => $n")
-          case s: MashString ⇒ combineSafely(path, s" | _ => '${StringEscapes.escapeChars(s.s)}'")
-        }
+      case RowLabelColumnId ⇒ expressionFor(cellValue).map(expr ⇒ combineSafely(path, s" | _ => $expr"))
       case _                ⇒ model.columns(columnId).fetchOpt.map(_.fetchPath(rowPath))
     }
 
