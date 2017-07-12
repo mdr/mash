@@ -1,5 +1,6 @@
 package com.github.mdr.mash.lexer
 
+import com.github.mdr.mash.lexer.NormalMashLexer.Keywords
 import com.github.mdr.mash.parser.MashParserException
 import com.github.mdr.mash.utils.{ PointedRegion, Region }
 
@@ -10,7 +11,8 @@ case class LexerResult(tokens: Seq[Token],
 
 object MashLexer {
 
-  def isLegalIdentifier(s: String) = s matches "^[A-Za-z_][A-Za-z0-9]+$"
+  def isLegalIdentifier(s: String): Boolean =
+    s.matches("^[A-Za-z_][A-Za-z0-9_]*$") && !Keywords.contains(s) && !s.matches(NormalMashLexer.HoleRegex)
 
   private final val EOF_CHAR = '\u001A' // Dummy character used after EOF (in lookaheads etc)
 

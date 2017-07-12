@@ -3,17 +3,15 @@ package com.github.mdr.mash.repl.browser
 import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.ExpressionCombiner._
-import com.github.mdr.mash.parser.StringEscapes
+import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
-import com.github.mdr.mash.repl.browser.BrowserState.expressionFor
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
 
-import scala.PartialFunction.condOpt
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -183,7 +181,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def getNewPath(rowPath: String, columnId: ColumnId, cellValue: MashValue): Option[String] =
     columnId match {
-      case RowLabelColumnId ⇒ expressionFor(cellValue).map(expr ⇒ combineSafely(path, s" | _ => $expr"))
+      case RowLabelColumnId ⇒ ValueToExpression(cellValue).map(expr ⇒ combineSafely(path, s" | _ => $expr"))
       case _                ⇒ model.columns(columnId).fetchOpt.map(_.fetchPath(rowPath))
     }
 

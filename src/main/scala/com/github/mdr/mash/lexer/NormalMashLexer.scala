@@ -7,10 +7,10 @@ import scala.annotation._
 
 object NormalMashLexer {
 
-  private final val LookupStartTokens: Set[TokenType] =
+  private val LookupStartTokens: Set[TokenType] =
     Set(IDENTIFIER, HOLE, RPAREN, RSQUARE, RBRACE, STRING_LITERAL, NUMBER_LITERAL, NULL, THIS)
 
-  private final val Keywords: Map[String, TokenType] = Map(
+  val Keywords: Map[String, TokenType] = Map(
     "and" -> AND,
     "class" -> CLASS,
     "def" -> DEF,
@@ -24,6 +24,8 @@ object NormalMashLexer {
     "then" -> THEN,
     "this" -> THIS,
     "true" -> TRUE)
+
+  val HoleRegex = "^_[1-9]?$"
 
 }
 
@@ -342,7 +344,7 @@ trait NormalMashLexer { self: MashLexer ⇒
       nextChar()
       getIdentRest(tokenTypeOpt)
     case _ ⇒
-      lazy val holeOpt = if (currentTokenText matches "_([1-9][0-9]*)?") Some(HOLE) else None
+      lazy val holeOpt = if (currentTokenText matches HoleRegex) Some(HOLE) else None
       val tokenType = tokenTypeOpt orElse holeOpt getOrElse Keywords.getOrElse(currentTokenText, IDENTIFIER)
       token(tokenType)
   }

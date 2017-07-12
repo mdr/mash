@@ -3,11 +3,9 @@ package com.github.mdr.mash.repl.browser
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.parser.StringEscapes
+import com.github.mdr.mash.parser.{ StringEscapes, ValueToExpression }
 import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.runtime._
-
-import scala.PartialFunction.condOpt
 
 object BrowserState {
 
@@ -19,13 +17,8 @@ object BrowserState {
         else
           combineSafely(path, s"['$property']")
       case _ ⇒
-        expressionFor(property).map(combineSafely(path, _)).getOrElse(path)
+        ValueToExpression(property).map(combineSafely(path, _)).getOrElse(path)
     }
-
-  def expressionFor(value: MashValue): Option[String] = condOpt(value) {
-    case MashNull | _: MashBoolean | _: MashNumber ⇒ ToStringifier.stringify(value)
-    case s: MashString                             ⇒ s"'${StringEscapes.escapeChars(s.s)}'"
-  }
 
   def fromModel(displayModel: DisplayModel, path: String): BrowserState =
     displayModel match {

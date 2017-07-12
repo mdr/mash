@@ -242,7 +242,7 @@ trait NormalActionHandler {
     state.globalVariables.set(ResultsListName, newResults)
   }
 
-  private def handleComplete() = {
+  private def handleComplete() =
     for (result ← complete) {
       history.resetHistoryPosition()
       result.completions match {
@@ -250,14 +250,12 @@ trait NormalActionHandler {
         case _               ⇒ enterIncrementalCompletionState(result)
       }
     }
-  }
 
-  private def handleAssistInvocation() {
+  private def handleAssistInvocation() =
     if (state.assistanceStateOpt.isDefined)
       state.assistanceStateOpt = None
     else
       updateInvocationAssistance()
-  }
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
