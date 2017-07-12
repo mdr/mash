@@ -44,7 +44,8 @@ object HttpOperations {
                  bodySourceOpt: Option[BodySource] = None,
                  json: Boolean = false,
                  form: Boolean = false): MashObject = {
-    request.setHeader("Cookie", cookies.map { case (name, value) ⇒ s"$name=$value" }.mkString(";"))
+    if (cookies.nonEmpty)
+      request.setHeader("Cookie", cookies.map { case (name, value) ⇒ s"$name=$value" }.mkString(";"))
 
     val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
 
