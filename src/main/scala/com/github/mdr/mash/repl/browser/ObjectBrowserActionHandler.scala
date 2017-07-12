@@ -56,7 +56,7 @@ trait ObjectBrowserActionHandler
       focusExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
   }
 
-  private def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
+  protected def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
     navigateForward(
       if (tree && (value.isInstanceOf[MashList] || value.isAnObject)) {
         val model = new ObjectTreeModelCreator(state.viewConfig).create(value)

@@ -7,7 +7,6 @@ import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class MashParserTest extends FlatSpec with Matchers {
 
   private def parse(s: String) = MashParser.parseForgiving(s).body

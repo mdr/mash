@@ -1,9 +1,14 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
+import com.github.mdr.mash.parser.LookupDecomposer.{ NumericLookup, decomposeNumericLookup }
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
+import com.github.mdr.mash.runtime.MashList
+
+import scala.PartialFunction.condOpt
 
 trait SingleObjectTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
@@ -31,6 +36,15 @@ trait SingleObjectTableBrowserActionHandler {
         updateState(browserState.firstItem(terminalRows))
       case LastItem                        ⇒
         updateState(browserState.lastItem(terminalRows))
+      case NextParentItem                  ⇒
+        for {
+          NumericLookup(prefix, i) ← decomposeNumericLookup(browserState.path)
+            stack <- state.objectBrowserStateStackOpt
+          parentState ← stack.browserStates.tail.headOption
+          list ← condOpt(parentState.rawValue) { case xs: MashList ⇒ xs}
+          newIndex = i + 1
+          if newIndex < list.size
+        } focus(list.immutableElements(newIndex), combineSafely(prefix, s"[$newIndex]"), tree = false)
       case ExitBrowser                     ⇒
         state.objectBrowserStateStackOpt = None
       case Focus                           ⇒

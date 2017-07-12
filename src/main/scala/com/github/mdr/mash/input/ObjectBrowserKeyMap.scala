@@ -4,7 +4,7 @@ import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions._
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(Right) -> NextColumn,
@@ -39,6 +39,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("c") -> Copy,
   OtherSequence("/") -> BeginSearch,
   OtherSequence("e") -> BeginExpression,
+  OtherSequence("N") -> NextParentItem,
   TerminalWindowChanged -> Rerender)) {
 
   object ExpressionInput extends KeyMap(Map(

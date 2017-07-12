@@ -1,9 +1,8 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.parser.{ StringEscapes, ValueToExpression }
+import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.runtime._
 

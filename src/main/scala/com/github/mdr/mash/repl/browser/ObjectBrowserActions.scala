@@ -11,6 +11,7 @@ object ObjectBrowserActions {
   case object PreviousColumn extends InputAction
   case object NextColumn extends InputAction
   case object UnfocusColumn extends InputAction
+  case object NextParentItem extends InputAction
   case object Focus extends InputAction
   case object Back extends InputAction
   case object FirstColumn extends InputAction
