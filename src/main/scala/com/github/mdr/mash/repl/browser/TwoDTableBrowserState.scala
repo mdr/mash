@@ -148,12 +148,12 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
     markedRows.toSeq.sorted match {
       case Seq()         ⇒ selectionInfo(currentRow, includeCellSelection = true)
       case Seq(rowIndex) ⇒ selectionInfo(rowIndex, includeCellSelection = false)
-      case rowIndices    ⇒ selectionInfo(rowIndices)
+      case rowIndices    ⇒ selectionInfoForMultiple(rowIndices)
     }
 
-  private def selectionInfo(rowIndices: Seq[Int]): SelectionInfo =
+  private def selectionInfoForMultiple(rowIndices: Seq[Int]): SelectionInfo =
     model.rawValue match {
-      case xs: MashList    ⇒
+      case _: MashList    ⇒
         val selectionExpression = rowIndices.map(i ⇒ s"_[$i]").mkString(" | [", ", ", "]")
         val selectedPath = combineSafely(path, selectionExpression)
         val selectedValue = MashList(rowIndices.map(model.rowValue))

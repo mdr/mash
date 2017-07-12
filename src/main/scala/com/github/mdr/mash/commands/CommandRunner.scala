@@ -52,8 +52,8 @@ class CommandRunner(output: PrintStream,
 
   private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
     val printer = new Printer(output, terminalInfo, viewConfig)
-    val PrintResult(printModelOpt) = printer.print(result)
-    CommandResult(Some(result), printModelOpt = printModelOpt)
+    val PrintResult(displayModelOpt) = printer.print(result)
+    CommandResult(Some(result), displayModelOpt = displayModelOpt)
   }
 
   private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashValue] =

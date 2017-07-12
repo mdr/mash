@@ -23,7 +23,7 @@ object TwoDTableModel {
 case class TwoDTableModel(columnIds: Seq[ColumnId],
                           columns: Map[ColumnId, Column],
                           rows: Seq[Row],
-                          rawValue: MashValue) extends PrintModel {
+                          rawValue: MashValue) extends DisplayModel {
 
   def columnName(columnId: ColumnId): String = columns(columnId).name
 

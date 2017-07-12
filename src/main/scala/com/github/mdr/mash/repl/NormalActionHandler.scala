@@ -208,7 +208,7 @@ trait NormalActionHandler {
   }
 
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
-    val CommandResult(resultOpt, toggleMish, printModelOpt) = commandResult
+    val CommandResult(resultOpt, toggleMish, displayModelOpt) = commandResult
     val actualResultOpt = resultOpt.map {
       case obj@MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
       case result                             ⇒ result
@@ -222,17 +222,8 @@ trait NormalActionHandler {
     }
     actualResultOpt.foreach(saveResult(commandNumber))
 
-    for (printModel ← printModelOpt) {
-      val commandNumber = state.commandNumber - 1
-      val path = s"${ReplState.ResultsListName}$commandNumber"
-      val browserState = printModel match {
-        case model: TwoDTableModel         ⇒ TwoDTableBrowserState(model, path = path)
-        case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
-        case model: ObjectTreeModel        ⇒ ObjectTreeBrowserState.initial(model, path = path)
-        case model: ValueModel             ⇒ new ValueBrowserState(model, path = path)
-        case model: TextLinesModel         ⇒ new TextLinesBrowserState(model, path = path)
-        case _                             ⇒ throw new RuntimeException("Unknown type of print model: " + printModel)
-      }
+    for (displayModel ← displayModelOpt) {
+      val browserState = BrowserState.fromModel(displayModel, cmd)
       state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }
   }

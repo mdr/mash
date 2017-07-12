@@ -58,23 +58,12 @@ class FieldRenderer(viewConfig: ViewConfig) {
 
 }
 
-case class PrintResult(printModelOpt: Option[PrintModel] = None)
+case class PrintResult(displayModelOpt: Option[DisplayModel] = None)
 
 class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
 
   private val helpPrinter = new HelpPrinter(output)
   private val fieldRenderer = new FieldRenderer(viewConfig)
-
-  private def getPrintModel(value: MashValue): PrintModel = value match {
-    case _ if isSuitableForTwoDTable(value) ⇒
-      new TwoDTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(value)
-    case obj: MashObject if obj.nonEmpty    ⇒
-      new SingleObjectTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(obj)
-    case xs: MashList                       ⇒
-      new TextLinesModelCreator(viewConfig).create(xs)
-    case _                                  ⇒
-      new ValueModelCreator(terminalInfo, viewConfig).create(value)
-  }
 
   case class PrintConfig(disableCustomViews: Boolean = false,
                          alwaysUseBrowser: Boolean = false,
@@ -82,12 +71,12 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
 
   private def done = PrintResult()
 
-  private def browse(model: PrintModel) = PrintResult(Some(model))
+  private def browse(model: DisplayModel) = PrintResult(Some(model))
 
   def print(value: MashValue,
             printConfig: PrintConfig = PrintConfig()): PrintResult =
     if (printConfig.alwaysUseBrowser) {
-      val model = getPrintModel(value)
+      val model = DisplayModel.getDisplayModel(value, viewConfig, terminalInfo)
       PrintResult(Some(model))
     } else {
       value match {

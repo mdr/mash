@@ -9,7 +9,7 @@ case class SingleObjectTableModel(classNameOpt: Option[String],
                                   fieldColumnWidth: Int,
                                   valueColumnWidth: Int,
                                   rawValue: MashObject,
-                                  rawValues: ListMap[MashValue, MashValue]) extends PrintModel {
+                                  rawValues: ListMap[MashValue, MashValue]) extends DisplayModel {
   require(fields.nonEmpty)
 
   def numberOfRows: Int = fields.size

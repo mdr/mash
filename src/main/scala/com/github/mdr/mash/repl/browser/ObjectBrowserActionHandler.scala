@@ -97,20 +97,8 @@ trait ObjectBrowserActionHandler
     }
   }
 
-  protected def getNewBrowserState(value: MashValue, path: String): BrowserState = value match {
-    case _ if isSuitableForTwoDTable(value) ⇒
-      val model = new TwoDTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(value)
-      TwoDTableBrowserState(model, path = path)
-    case obj: MashObject if obj.nonEmpty    ⇒
-      val model = new SingleObjectTableModelCreator(terminal.info, supportMarking = true, state.viewConfig).create(obj)
-      SingleObjectTableBrowserState(model, path = path)
-    case xs: MashList                       ⇒
-      val model = new TextLinesModelCreator(state.viewConfig).create(xs)
-      TextLinesBrowserState(model, path = path)
-    case _                                  ⇒
-      val model = new ValueModelCreator(terminal.info, state.viewConfig).create(value)
-      ValueBrowserState(model, path = path)
-  }
+  protected def getNewBrowserState(value: MashValue, path: String): BrowserState =
+    BrowserState.fromModel(DisplayModel.getDisplayModel(value, state.viewConfig, terminal.info), path)
 
   private def insert(expression: String): Unit = {
     state.lineBuffer = LineBuffer(expression)

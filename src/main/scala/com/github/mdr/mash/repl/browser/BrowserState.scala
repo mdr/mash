@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.browser
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.printer.model.PrintModel
+import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.runtime._
 
 object BrowserState {
@@ -22,6 +22,17 @@ object BrowserState {
         path
     }
 
+  def fromModel(displayModel: DisplayModel, path: String): BrowserState =
+    displayModel match {
+      case model: TwoDTableModel         ⇒ TwoDTableBrowserState(model, path = path)
+      case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
+      case model: ObjectTreeModel        ⇒ ObjectTreeBrowserState.initial(model, path = path)
+      case model: ValueModel             ⇒ new ValueBrowserState(model, path = path)
+      case model: TextLinesModel         ⇒ new TextLinesBrowserState(model, path = path)
+      case _                             ⇒ throw new RuntimeException("Unknown type of print model: " + displayModel)
+    }
+
+
 }
 
 trait BrowserState {
@@ -30,7 +41,7 @@ trait BrowserState {
 
   def path: String
 
-  def model: PrintModel
+  def model: DisplayModel
 
   def rawValue: MashValue
 
