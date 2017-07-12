@@ -9,13 +9,14 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.utils.Region
+
+import scala.PartialFunction.cond
 
 trait NormalActionHandler {
   self: Repl ⇒
@@ -207,12 +208,14 @@ trait NormalActionHandler {
     processCommandResult(cmd, commandResult, workingDirectory = fileSystem.pwd)
   }
 
+  private def unpackView(value: MashValue): MashValue = value match {
+    case obj@MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).map(unpackView).getOrElse(obj)
+    case result                             ⇒ value
+  }
+
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
     val CommandResult(resultOpt, toggleMish, displayModelOpt) = commandResult
-    val actualResultOpt = resultOpt.map {
-      case obj@MashObject(_, Some(ViewClass)) ⇒ obj.get(ViewClass.Fields.Data).getOrElse(obj)
-      case result                             ⇒ result
-    }
+    val actualResultOpt = resultOpt.map(unpackView)
     val commandNumber = state.commandNumber
     if (toggleMish)
       state.mish = !state.mish
@@ -223,7 +226,9 @@ trait NormalActionHandler {
     actualResultOpt.foreach(saveResult(commandNumber))
 
     for (displayModel ← displayModelOpt) {
-      val browserState = BrowserState.fromModel(displayModel, cmd)
+      val isView = resultOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
+      val path = if (isView) s"${ReplState.ResultsListName}$commandNumber" else cmd
+      val browserState = BrowserState.fromModel(displayModel, path)
       state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }
   }
