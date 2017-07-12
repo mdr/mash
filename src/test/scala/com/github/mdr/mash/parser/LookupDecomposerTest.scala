@@ -8,10 +8,12 @@ class LookupDecomposerTest extends FlatSpec with Matchers {
   "Lookup decomposer" should "decompose numeric lookups" in {
 
     decomposeNumericLookup("xs[10]") shouldEqual Some(NumericLookup("xs", 10))
-    decomposeNumericLookup("r0[0]") shouldEqual Some(NumericLookup("r0", 0))
-    decomposeNumericLookup("r0[1]") shouldEqual Some(NumericLookup("r0", 1))
+    decomposeNumericLookup("xs[0]") shouldEqual Some(NumericLookup("xs", 0))
+    decomposeNumericLookup("xs[1]") shouldEqual Some(NumericLookup("xs", 1))
     decomposeNumericLookup("foo.bar[10]") shouldEqual Some(NumericLookup("foo.bar", 10))
+
     decomposeNumericLookup("xs.foo") shouldEqual None
+    decomposeNumericLookup("xs[1.2]") shouldEqual None
 
   }
 

@@ -2,6 +2,7 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.parser.MashParser.parseForgiving
+import com.github.mdr.mash.utils.NumberUtils.isInt
 
 import scala.PartialFunction.condOpt
 
@@ -11,7 +12,7 @@ object LookupDecomposer {
 
   def decomposeNumericLookup(expr: String): Option[NumericLookup] =
     condOpt(parseForgiving(expr).body) {
-      case LookupExpr(prefixExpr, _, Literal(token), _) if token.text matches "0|([1-9][0-9]*)" ⇒
+      case LookupExpr(prefixExpr, _, Literal(token), _) if isInt(token.text) ⇒
         NumericLookup(prefixExpr.region.of(expr), token.text.toInt)
     }
 

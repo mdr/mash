@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Browser: can navigate in parent list using P/N
 * Single object browser now supports marking
 * Add String.deleteUpTo/deleteAfter
 * Add .format method to DateTime

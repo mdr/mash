@@ -40,6 +40,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("/") -> BeginSearch,
   OtherSequence("e") -> BeginExpression,
   OtherSequence("N") -> NextParentItem,
+  OtherSequence("P") -> PreviousParentItem,
   TerminalWindowChanged -> Rerender)) {
 
   object ExpressionInput extends KeyMap(Map(

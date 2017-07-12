@@ -128,7 +128,9 @@ object Utils {
   }
 
   implicit class RichBoolean(b: Boolean) {
+
     def option[A](a: ⇒ A): Option[A] = if (b) Some(a) else None
+
   }
 
 }

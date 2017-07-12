@@ -7,7 +7,8 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.parser.ExpressionCombiner
-import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
+import com.github.mdr.mash.parser.ExpressionCombiner._
+import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
@@ -163,6 +164,17 @@ trait ObjectBrowserActionHandler
     val command = ExpressionCombiner.combineSafely(browserState.getInsertExpression, " | clipboard")
     runCommand(command)
   }
+
+  protected def selectParentItem(browserState: BrowserState, delta: Int) =
+    for {
+      NumericLookup(prefix, i) ← decomposeNumericLookup(browserState.path)
+      stack <- state.objectBrowserStateStackOpt
+      parentState ← stack.parentState
+      list ← parentState.rawValue.asList
+      newIndex = (i + delta + list.size) % list.size
+      newItem ← list.immutableElements.lift(newIndex)
+      newPath = combineSafely(prefix, s"[$newIndex]")
+    } updateState(getNewBrowserState(newItem, newPath))
 
   protected def terminalRows: Int = terminal.info.rows
 

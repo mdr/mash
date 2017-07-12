@@ -15,4 +15,5 @@ object NumberUtils {
 
   def asIntOpt(s: String): Option[Int] = Try(s.toInt).toOption
 
+  def isInt(s: String): Boolean = asIntOpt(s).isDefined
 }
