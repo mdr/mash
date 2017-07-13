@@ -17,13 +17,24 @@ class LookupDecomposerTest extends FlatSpec with Matchers {
 
   }
 
-  "Lookup decomposer" should "decompose lookups with string indices" in {
+  it should "decompose lookups with string indices" in {
+
     decomposeLookupWithStringIndex("obj['foo']") shouldEqual Some(LookupWithStringIndex("obj", "foo"))
     decomposeLookupWithStringIndex("obj['foo`nbar']") shouldEqual Some(LookupWithStringIndex("obj", "foo\nbar"))
     decomposeLookupWithStringIndex("""obj["foo"]""") shouldEqual Some(LookupWithStringIndex("obj", "foo"))
 
     decomposeLookupWithStringIndex("""obj[42]""") shouldEqual None
     decomposeLookupWithStringIndex("""obj.foo""") shouldEqual None
+
+  }
+
+  it should "decompose member expressions" in {
+
+    decomposeMember("obj.foo") shouldEqual Some(LookupWithStringIndex("obj", "foo"))
+
+    decomposeMember("obj.class") shouldEqual None
+    decomposeMember("obj['foo']") shouldEqual None
+    decomposeMember("""obj[42]""") shouldEqual None
 
   }
 
