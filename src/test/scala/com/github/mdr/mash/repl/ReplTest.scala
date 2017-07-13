@@ -7,8 +7,8 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextColumn, PreviousColumn, UnfocusColumn }
-import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions._
+import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistoryImpl
 import com.github.mdr.mash.runtime._
@@ -153,9 +153,39 @@ class ReplTest extends FlatSpec with Matchers {
         .affirmInTwoDBrowser
     twoDBrowser.currentRow should equal(0)
     twoDBrowser.currentColumnOpt should equal(None)
-    twoDBrowser.nextColumn().currentColumnOpt should equal (Some(0))
-    twoDBrowser.unfocusColumn().currentColumnOpt should equal (None)
-    twoDBrowser.previousColumn().currentColumnOpt should equal (Some(2))
+    twoDBrowser.nextColumn().currentColumnOpt should equal(Some(0))
+    twoDBrowser.unfocusColumn().currentColumnOpt should equal(None)
+    twoDBrowser.previousColumn().currentColumnOpt should equal(Some(2))
+  }
+
+  "Browser" should "allow moving backwards and forwards through parent item list" in {
+    val browser =
+      makeRepl()
+        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }, { a: 5, b: 6 }]")
+        .acceptLine()
+        .affirmInTwoDBrowser
+        .focus()
+        .affirmInSingleObjectBrowser
+    browser.rows should equal(Seq("a" -> "1", "b" -> "2"))
+    browser.path should equal("r0[0]")
+
+    browser.nextParentItem()
+    browser.rows should equal(Seq("a" -> "3", "b" -> "4"))
+    browser.path should equal("r0[1]")
+
+    browser.nextParentItem()
+    browser.path should equal("r0[2]")
+
+    browser.nextParentItem()
+    browser.path should equal("r0[0]")
+
+    browser.previousParentItem()
+    browser.path should equal("r0[2]")
+
+    browser.previousParentItem()
+    browser.path should equal("r0[1]")
+
+    browser.back().affirmInTwoDBrowser.path should equal("r0")
   }
 
 }
@@ -169,11 +199,43 @@ object ReplTest {
       sessionId = UUID.randomUUID, globalVariables = globalVariables)
   }
 
+  case class SingleObjectBrowser(repl: Repl) {
+
+    def path = getState.path
+
+    def rows: Seq[(String, String)] = getState.model.fields.toSeq
+
+    private def getState: SingleObjectTableBrowserState = repl.getSingleObjectBrowserState
+
+    def nextParentItem(): SingleObjectBrowser = {
+      repl.handleAction(NextParentItem)
+      this
+    }
+
+    def previousParentItem(): SingleObjectBrowser = {
+      repl.handleAction(PreviousParentItem)
+      this
+    }
+
+    def back(): Repl = {
+      repl.handleAction(Back)
+      repl
+    }
+
+  }
+
   case class TwoDBrowser(repl: Repl) {
 
-    def currentRow: Int = repl.getTwoDBrowserState.currentRow
+    def path = getState.path
 
-    def currentColumnOpt: Option[Int] = repl.getTwoDBrowserState.currentColumnOpt
+    def focus() = {
+      repl.handleAction(Focus)
+      repl
+    }
+
+    def currentRow: Int = getState.currentRow
+
+    def currentColumnOpt: Option[Int] = getState.currentColumnOpt
 
     def nextColumn() = {
       repl.handleAction(NextColumn)
@@ -189,6 +251,8 @@ object ReplTest {
       repl.handleAction(UnfocusColumn)
       this
     }
+
+    private def getState: TwoDTableBrowserState = repl.getTwoDBrowserState
 
   }
 
@@ -269,13 +333,25 @@ object ReplTest {
       TwoDBrowser(repl)
     }
 
-    def getTwoDBrowserState: TwoDTableBrowserState = {
-      val browserStateStack = repl.state.objectBrowserStateStackOpt.getOrElse(throw new AssertionError("Expected 2D browser, but no browser active"))
-      browserStateStack.headState match {
+    def affirmInSingleObjectBrowser = {
+      getSingleObjectBrowserState
+      SingleObjectBrowser(repl)
+    }
+
+    def getTwoDBrowserState: TwoDTableBrowserState =
+      getBrowserStateStack.headState match {
         case state: TwoDTableBrowserState ⇒ state
         case state                        ⇒ throw new AssertionError(s"Was not a 2D browser, but a ${state.getClass.getSimpleName}")
       }
-    }
+
+    private def getBrowserStateStack: ObjectBrowserStateStack =
+      repl.state.objectBrowserStateStackOpt.getOrElse(throw new AssertionError("Expected browser, but no browser active"))
+
+    def getSingleObjectBrowserState: SingleObjectTableBrowserState =
+      getBrowserStateStack.headState match {
+        case state: SingleObjectTableBrowserState ⇒ state
+        case state                                ⇒ throw new AssertionError(s"Was not a single object browser, but a ${state.getClass.getSimpleName}")
+      }
   }
 
 }
