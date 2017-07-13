@@ -92,9 +92,9 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
 
   def reverse: MashObject = MashObject.of(immutableFields.toSeq.reverse).copy(classOpt = classOpt)
 
-  override def toString = asString
+  override def toString = renderAsString
 
-  def asString = withLock {
+  def renderAsString = withLock {
     ToStringifier.visit(this, "{…}") {
       val fieldString = if (fields.isEmpty) "" else fields.map { case (field, value) ⇒ s"$field: $value" }.mkString(", ")
       if (fields.isEmpty) "{}" else s"{ $fieldString }"

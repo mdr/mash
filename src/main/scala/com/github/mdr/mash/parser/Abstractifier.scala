@@ -2,7 +2,7 @@ package com.github.mdr.mash.parser
 
 import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.lexer.{ Token, TokenType }
-import com.github.mdr.mash.parser.AbstractSyntax.Argument
+import com.github.mdr.mash.parser.AbstractSyntax.{ Argument, StringLiteral }
 import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashNumber }
 
 import scala.PartialFunction.condOpt
@@ -91,15 +91,18 @@ class Abstractifier(provenance: Provenance) {
       case TokenType.TRUE           ⇒ Abstract.Literal(MashBoolean.True, sourceInfoOpt)
       case TokenType.FALSE          ⇒ Abstract.Literal(MashBoolean.False, sourceInfoOpt)
       case TokenType.NULL           ⇒ Abstract.Literal(MashNull, sourceInfoOpt)
-      case TokenType.STRING_LITERAL ⇒
-        val s = token.text
-        val quotationType = if (s.startsWith("\"")) QuotationType.Double else QuotationType.Single
-        val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double,
-          pruneInitial = true, pruneFinal = true)
-        Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
+      case TokenType.STRING_LITERAL ⇒ abstractifyStringLiteral(token, sourceInfoOpt)
       case _                        ⇒
         throw new RuntimeException("Unexpected token type: " + token.tokenType)
     }
+
+  def abstractifyStringLiteral(token: Token, sourceInfoOpt: Option[SourceInfo] = None): StringLiteral = {
+    val s = token.text
+    val quotationType = if (s startsWith "\"") QuotationType.Double else QuotationType.Single
+    val (literalText, hasTildePrefix) = getStringText(s, maybeTilde = quotationType == QuotationType.Double,
+      pruneInitial = true, pruneFinal = true)
+    Abstract.StringLiteral(literalText, quotationType, hasTildePrefix, sourceInfoOpt)
+  }
 
   private def abstractifyFunctionDeclaration(decl: Concrete.FunctionDeclaration): Abstract.FunctionDeclaration = {
     val Concrete.FunctionDeclaration(_, attributesOpt, _, name, params, _, body) = decl

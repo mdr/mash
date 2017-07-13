@@ -117,8 +117,8 @@ object AnyClass extends MashClass("core.Any") {
     }
 
     private def stringify(value: MashValue): String = value match {
-      case obj: MashObject ⇒ obj.asString
-      case xs: MashList    ⇒ xs.asString
+      case obj: MashObject ⇒ obj.renderAsString
+      case xs: MashList    ⇒ xs.renderAsString
       case value           ⇒ quickStringify(value) getOrElse "???"
     }
 

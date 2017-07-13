@@ -60,9 +60,9 @@ class MashList(val elements: ArrayBuffer[MashValue]) extends MashValue with Comp
 
   override def hashCode = withLock { this.elements.hashCode }
 
-  override def toString = asString
+  override def toString = renderAsString
 
-  def asString = withLock {
+  def renderAsString = withLock {
     ToStringifier.visit(this, "[…]") {
       elements.mkString("[", ", ", "]")
     }

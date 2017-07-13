@@ -5,14 +5,17 @@ import java.nio.file.{ Files, Paths }
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
+import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.utils.Utils.indexOf
 
 import scala.PartialFunction.condOpt
 
@@ -165,16 +168,42 @@ trait ObjectBrowserActionHandler
     runCommand(command)
   }
 
-  protected def selectParentItem(browserState: BrowserState, delta: Int) =
+  private case class ItemAndPath(item: MashValue, path: String)
+
+  protected def selectParentItem(browserState: BrowserState, delta: Int) = {
+    val newItemAndPath = selectParentItemByIntegerIndex(browserState, delta) orElse selectParentItemByName(browserState, delta)
+    for (ItemAndPath(newItem, newPath) <- newItemAndPath)
+      updateState(getNewBrowserState(newItem, newPath))
+  }
+
+  private def getParentValue: Option[MashValue] =
     for {
-      NumericLookup(prefix, i) ← decomposeNumericLookup(browserState.path)
       stack <- state.objectBrowserStateStackOpt
       parentState ← stack.parentState
-      list ← parentState.rawValue.asList
+    } yield parentState.rawValue
+
+  private def selectParentItemByName(browserState: BrowserState, delta: Int): Option[ItemAndPath] =
+    for {
+      LookupWithStringIndex(prefix, name) <- decomposeLookupWithStringIndex(browserState.path) orElse decomposeMember(browserState.path)
+      parentValue ← getParentValue
+      obj ← parentValue.asObject
+      fields = obj.immutableFields.keys.toSeq
+      i ← indexOf(fields, MashString(name))
+      newIndex = (i + delta + fields.size) % fields.size
+      newField ← fields(newIndex).asString.map(_.s)
+      newItem ← obj.get(newField)
+      newPath = combineSafely(prefix, if (isLegalIdentifier(newField)) s".$newField" else s"['${escapeChars(newField)}']")
+    } yield ItemAndPath(newItem, newPath)
+
+  private def selectParentItemByIntegerIndex(browserState: BrowserState, delta: Int): Option[ItemAndPath] =
+    for {
+      LookupWithIntegerIndex(prefix, i) ← decomposeLookupWithIntegerIndex(browserState.path)
+      parentValue ← getParentValue
+      list ← parentValue.asList
       newIndex = (i + delta + list.size) % list.size
-      newItem ← list.immutableElements.lift(newIndex)
+      newItem = list.immutableElements(newIndex)
       newPath = combineSafely(prefix, s"[$newIndex]")
-    } updateState(getNewBrowserState(newItem, newPath))
+    } yield ItemAndPath(newItem, newPath)
 
   protected def terminalRows: Int = terminal.info.rows
 

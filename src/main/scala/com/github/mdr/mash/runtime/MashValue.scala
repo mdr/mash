@@ -12,13 +12,11 @@ import scala.PartialFunction._
 
 trait MashValue {
 
-  def asObject: Option[MashObject] = condOpt(this) {
-    case obj: MashObject ⇒ obj
-  }
+  def asObject: Option[MashObject] = condOpt(this) { case obj: MashObject ⇒ obj }
 
-  def asList: Option[MashList] = condOpt(this) {
-    case list: MashList ⇒ list
-  }
+  def asList: Option[MashList] = condOpt(this) { case list: MashList ⇒ list }
+
+  def asString: Option[MashString] = condOpt(this) { case s: MashString ⇒ s }
 
   def typeName: String = primaryClass.name
 
