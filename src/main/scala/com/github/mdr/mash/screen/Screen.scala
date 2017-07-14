@@ -4,6 +4,12 @@ import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.ansi.{ Ansi, StyleToAnsi }
 import com.github.mdr.mash.utils.Utils
 
+object Point {
+
+  def apply(rowAndColumn: (Int, Int)): Point = Point(rowAndColumn._1, rowAndColumn._2)
+
+}
+
 case class Point(row: Int, column: Int) {
 
   def up(rows: Int = 1): Point = copy(row = row - rows)

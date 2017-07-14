@@ -23,6 +23,11 @@ object ReplState {
     */
   val ResultsListName = "r"
 
+  /**
+    * Prefix to give to the variables holding results, e.g. r0, r1
+    */
+  val ResultVarPrefix = "r"
+
 }
 
 class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
@@ -50,13 +55,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
 
   def mode: ReplMode =
     objectBrowserStateStackOpt match {
-      case Some(stack) ⇒
-        stack.headState match {
-          case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
-          case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
-          case s if s.expressionOpt.isDefined                                 ⇒ ReplMode.ObjectBrowser.ExpressionInput
-          case _                                                              ⇒ ReplMode.ObjectBrowser
-        }
+      case Some(stack) ⇒ getBrowserMode(stack)
       case None        ⇒
         completionStateOpt match {
           case Some(_: IncrementalCompletionState)     ⇒ ReplMode.IncrementalCompletions
@@ -64,6 +63,14 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
           case None if historySearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
           case None                                    ⇒ ReplMode.Normal
         }
+    }
+
+  private def getBrowserMode(stack: ObjectBrowserStateStack): ReplMode =
+    stack.headState match {
+      case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+      case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+      case s if s.expressionOpt.isDefined                                 ⇒ ReplMode.ObjectBrowser.ExpressionInput
+      case _                                                              ⇒ ReplMode.ObjectBrowser
     }
 
   private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)

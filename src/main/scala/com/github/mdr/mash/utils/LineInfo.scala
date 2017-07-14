@@ -1,5 +1,7 @@
 package com.github.mdr.mash.utils
 
+import com.github.mdr.mash.screen.Point
+
 import scala.annotation.tailrec
 
 class LineInfo(s: String) {
@@ -40,18 +42,18 @@ class LineInfo(s: String) {
   /**
    * @return number of the line (0-indexed) containing the given pos in the original string
    */
-  def lineAndColumn(pos: Int): (Int, Int) = {
+  def lineAndColumn(pos: Int): Point = {
     val line = Utils.indexWhere[Int](lineStarts, _ > pos).getOrElse(lineStarts.length) - 1
     val column = pos - lineStarts(line)
-    (line, column)
+    Point(line, column)
   }
 
   /**
     * @return pair of the first and last line index that cover the region
     */
   def linesOfRegion(region: Region): (Int, Int) = {
-    val firstLine = lineAndColumn(region.offset)._1
-    val lastLine = lineAndColumn(region.lastPos)._1
+    val firstLine = lineAndColumn(region.offset).row
+    val lastLine = lineAndColumn(region.lastPos).row
     (firstLine, lastLine)
   }
 

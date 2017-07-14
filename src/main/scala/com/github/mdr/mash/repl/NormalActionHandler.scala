@@ -10,7 +10,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
-import com.github.mdr.mash.repl.ReplState.{ It, ResultsListName }
+import com.github.mdr.mash.repl.ReplState.{ It, ResultsListName, ResultVarPrefix }
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
@@ -74,7 +74,7 @@ trait NormalActionHandler {
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {
       val commandNumber = state.commandNumber - 1
-      val path = s"$ResultsListName$commandNumber"
+      val path = s"$ResultVarPrefix$commandNumber"
       for (value <- state.globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
         state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
@@ -224,21 +224,25 @@ trait NormalActionHandler {
 
     for (displayModel ← displayModelOpt) {
       val isView = resultOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
-      val path = if (isView) s"$ResultsListName$commandNumber" else cmd
+      val path = if (isView) s"$ResultVarPrefix$commandNumber" else cmd
       val browserState = BrowserState.fromModel(displayModel, path)
       state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
     }
   }
 
-  private def saveResult(number: Int)(result: MashValue) {
+  private def saveResult(commandNumber: Int)(result: MashValue) {
     state.globalVariables.set(It, result)
-    state.globalVariables.set(ResultsListName + number, result)
-    val oldResults = state.globalVariables.get(ResultsListName) match {
-      case Some(MashList(oldResults@_*)) ⇒ oldResults
-      case _                             ⇒ Seq()
-    }
-    val extendedResults = oldResults ++ Seq.fill(number - oldResults.length + 1)(MashNull)
-    val newResults = MashList(extendedResults.updated(number, result))
+    state.globalVariables.set(ResultVarPrefix + commandNumber, result)
+    saveResultInList(result, commandNumber)
+  }
+
+  private def saveResultInList(result: MashValue, commandNumber: Int) {
+    val oldResults =
+      state.globalVariables.get(ResultsListName)
+        .collect { case xs: MashList ⇒ xs.immutableElements }
+        .getOrElse(Seq())
+    val extendedResults = oldResults ++ Seq.fill(commandNumber - oldResults.length + 1)(MashNull)
+    val newResults = MashList(extendedResults.updated(commandNumber, result))
     state.globalVariables.set(ResultsListName, newResults)
   }
 

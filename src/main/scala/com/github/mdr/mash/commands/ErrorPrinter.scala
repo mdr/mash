@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpa
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.screen.Screen.drawStyledChars
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, MashRenderer }
+import com.github.mdr.mash.screen.{ BasicColour, MashRenderer, Point }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
 
@@ -33,7 +33,7 @@ class ErrorPrinter(output: PrintStream, terminalInfo: TerminalInfo) {
     sourceLocationOpt match {
       case Some(SourceLocation(provenance, PointedRegion(point, region))) ⇒
         val lineInfo = new LineInfo(provenance.source)
-        val (pointLineIndex, _) = lineInfo.lineAndColumn(point)
+        val Point(pointLineIndex, _) = lineInfo.lineAndColumn(point)
         val isImmediateError = unit.provenance == provenance && unit.interactive
         val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
         val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${pointLineIndex + 1}$functionName: "

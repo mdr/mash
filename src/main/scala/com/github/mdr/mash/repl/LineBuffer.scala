@@ -1,39 +1,32 @@
 package com.github.mdr.mash.repl
 
+import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.LineInfo
-
-object CursorPos {
-
-  def apply(rowAndColumn: (Int, Int)): CursorPos = CursorPos(rowAndColumn._1, rowAndColumn._2)
-
-}
-
-case class CursorPos(row: Int = 0, column: Int = 0)
 
 object LineBuffer {
 
   val Empty = LineBuffer("")
 
-  def apply(s: String): LineBuffer = LineBuffer(s, s. size)
+  def apply(s: String): LineBuffer = LineBuffer(s, s.size)
 
 }
 
 /**
- * The text entered by a user while editing a command
- *
- * @param text -- the contents of the buffer
- * @param cursorOffset -- position of the cursor, either within the text, or one position past the end.
- */
+  * The text entered by a user while editing a command
+  *
+  * @param text         -- the contents of the buffer
+  * @param cursorOffset -- position of the cursor, either within the text, or one position past the end.
+  */
 case class LineBuffer(text: String, cursorOffset: Int) {
-
-  private val lineInfo = new LineInfo(text)
-
-  val cursorPos = CursorPos(lineInfo.lineAndColumn(cursorOffset))
-
-  def cursorRow = cursorPos.row
 
   require(cursorOffset >= 0 && cursorOffset <= text.length,
     s"Cursor row out of range: offset = cursorOffset, text length = ${text.length}")
+
+  private lazy val lineInfo = new LineInfo(text)
+
+  lazy val cursorPos = lineInfo.lineAndColumn(cursorOffset)
+
+  def cursorRow = cursorPos.row
 
   def isEmpty = text.isEmpty
 
@@ -66,7 +59,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
 
   private def withCursorOffset(offset: Int) = copy(cursorOffset = offset)
 
-  private def withCursorPos(pos: CursorPos) = withCursorOffset(lineInfo.offset(pos.row, pos.column))
+  private def withCursorPos(pos: Point) = withCursorOffset(lineInfo.offset(pos.row, pos.column))
 
   private def withCursorColumn(column: Int) = withCursorOffset(lineInfo.offset(cursorPos.row, column))
 
@@ -106,7 +99,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
 
   def moveCursorToEndOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
-    withCursorColumn(line.size)
+    withCursorColumn(line.length)
   }
 
   private def isAtStartOfLine: Boolean = lineInfo.lineStart(cursorPos.row) == cursorOffset
@@ -119,7 +112,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
 
   def up: LineBuffer =
     cursorPos.row match {
-      case 0 ⇒ this
+      case 0   ⇒ this
       case row ⇒
         val newRow = row - 1
         val line = lineInfo.line(newRow)
@@ -128,7 +121,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
             line.length
           else
             cursorPos.column
-        withCursorPos(CursorPos(newRow, newColumn))
+        withCursorPos(Point(newRow, newColumn))
     }
 
   def down: LineBuffer =
@@ -142,7 +135,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
           line.length
         else
           cursorPos.column
-      withCursorPos(CursorPos(newRow, newColumn))
+      withCursorPos(Point(newRow, newColumn))
     }
 
   def deleteToEndOfLine: LineBuffer = {
