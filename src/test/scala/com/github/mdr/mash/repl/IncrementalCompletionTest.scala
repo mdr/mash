@@ -7,12 +7,10 @@ import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.utils.Region
 import org.scalatest._
 
-class IncrementalCompletionTest extends FlatSpec with Matchers {
-
-  import ReplTest._
+class IncrementalCompletionTest extends AbstractReplTest {
 
   "Incremental completion" should "stay incremental as you type characters" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("whe")
     repl.complete().text should equal("where")
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
@@ -26,19 +24,19 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
   }
 
   it should "leave incremental completion mode if you type an exact match" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().input("Not")
     repl.state.completionStateOpt should equal(None)
   }
 
   it should "leave incremental completion mode if no longer have any matches" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().input("a")
     repl.state.completionStateOpt should equal(None)
   }
 
   it should "should remove added characters by pressing backspace" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().input("N").backspace()
 
     repl.text should equal("where")
@@ -49,7 +47,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
   }
 
   it should "should allow further tab completions" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().input("N").complete()
 
     repl.text should equal("whereNot")
@@ -57,13 +55,13 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
   }
 
   it should "leave incremental completion mode if backspace past the first completion" in {
-    val repl = newRepl
+    val repl = makeRepl()
     repl.input("where").complete().input("N").backspace().backspace()
     repl.state.completionStateOpt should equal(None)
   }
 
   it should "partially complete a common prefix, handling any required escaping" in {
-    val repl = ReplTest.makeRepl(
+    val repl = makeRepl(
       new MockFileSystem(Directory(
         "foo$bar" -> File(),
         "foo$baz" -> File())))
@@ -78,7 +76,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
   }
 
   it should "partially complete a common fragment" in {
-    val repl = ReplTest.makeRepl(
+    val repl = makeRepl(
       new MockFileSystem(Directory(
         "---foobar---" -> File(),
         "--goobab--" -> File())))
@@ -94,7 +92,7 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
   }
 
   it should "handle escaped characters in a common fragment" in {
-    val repl = ReplTest.makeRepl(new MockFileSystem(Directory(
+    val repl = makeRepl(new MockFileSystem(Directory(
       "---foob$ar---" -> File(),
       "--goob$ab--" -> File())))
     repl.input("ob")
@@ -134,7 +132,5 @@ class IncrementalCompletionTest extends FlatSpec with Matchers {
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("/etc/foobar", "/etc/gooban"))
   }
-
-  private def newRepl = ReplTest.makeRepl()
 
 }

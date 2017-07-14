@@ -1,34 +1,28 @@
 package com.github.mdr.mash.repl
 
 import java.io.PrintStream
-import java.util.UUID
 
 import com.github.mdr.mash.Config
-import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
+import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions._
-import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
-import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState }
-import com.github.mdr.mash.repl.history.HistoryImpl
+import com.github.mdr.mash.repl.completions.BrowserCompletionState
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.terminal.{ Terminal, TerminalInfo }
-import org.scalatest._
 
-class ReplTest extends FlatSpec with Matchers {
-
-  import ReplTest._
+class ReplTest extends AbstractReplTest {
 
   "Repl" should "work" in {
-    val repl = makeRepl()
-    repl.input("1")
-    repl.acceptLine()
-    repl.state.globalVariables.get(ReplState.It) should equal(Some(MashNumber(1)))
+    makeRepl()
+      .input("1")
+      .acceptLine()
+      .lastValue should equal(MashNumber(1))
   }
 
   "Single tab" should "complete a unique completion" in {
     val repl = makeRepl()
-    repl.input("whereNo").complete()
+    repl
+      .input("whereNo")
+      .complete()
     repl.text should equal("whereNot")
     repl.lineBuffer should equal(parseLineBuffer("whereNot▶"))
   }
@@ -94,11 +88,11 @@ class ReplTest extends FlatSpec with Matchers {
     val repl = makeRepl()
     repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
     repl.input("foo").acceptLine()
-    repl.it should equal(MashString("foo"))
+    repl.lastValue should equal(MashString("foo"))
 
     repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
     repl.input("foo").acceptLine()
-    repl.it should equal(MashBoolean.False /* Repl should have emitted an error */)
+    repl.lastValue should equal(MashBoolean.False /* Repl should have emitted an error */)
   }
 
   "Type inference loop bug" should "not happen" in {
@@ -113,7 +107,7 @@ class ReplTest extends FlatSpec with Matchers {
       .input("def setA n = { a = n }").acceptLine()
       .input("setA 42").acceptLine()
       .input("a").acceptLine()
-      .it should equal(MashNumber(0))
+      .lastValue should equal(MashNumber(0))
   }
 
   "Completing dotfiles" should "not have a bug where the original input is truncated" in {
@@ -128,7 +122,7 @@ class ReplTest extends FlatSpec with Matchers {
       .input("{").acceptLine()
       .input("  42").acceptLine()
       .input("}").acceptLine()
-    repl.it should equal(MashNumber(42))
+    repl.lastValue should equal(MashNumber(42))
   }
 
   "Type inferencer" should "handle previously-defined user-defined nullary functions" in {
@@ -188,173 +182,27 @@ class ReplTest extends FlatSpec with Matchers {
     browser.back().affirmInTwoDBrowser.path should equal("r0")
   }
 
+
+  "Browser" should "allow moving backwards and forwards through parent fields" in {
+    val browser =
+      makeRepl()
+        .input("view.browser { first: { a: 1, b: 2 }, 'second-item': { a: 3, b: 4 } }")
+        .acceptLine()
+        .affirmInTwoDBrowser
+        .focus()
+        .affirmInSingleObjectBrowser
+    browser.rows should equal(Seq("a" -> "1", "b" -> "2"))
+    browser.path should equal("r0.first")
+
+    browser.nextParentItem()
+    browser.rows should equal(Seq("a" -> "3", "b" -> "4"))
+    browser.path should equal("r0['second-item']")
+
+    browser.previousParentItem()
+    browser.path should equal("r0.first")
+  }
 }
 
-object ReplTest {
-
-  def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
-    val history = new HistoryImpl(new InMemoryHistoryStorage())
-    val globalVariables = StandardEnvironment.createGlobalVariables()
-    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
-      sessionId = UUID.randomUUID, globalVariables = globalVariables)
-  }
-
-  case class SingleObjectBrowser(repl: Repl) {
-
-    def path = getState.path
-
-    def rows: Seq[(String, String)] = getState.model.fields.toSeq
-
-    private def getState: SingleObjectTableBrowserState = repl.getSingleObjectBrowserState
-
-    def nextParentItem(): SingleObjectBrowser = {
-      repl.handleAction(NextParentItem)
-      this
-    }
-
-    def previousParentItem(): SingleObjectBrowser = {
-      repl.handleAction(PreviousParentItem)
-      this
-    }
-
-    def back(): Repl = {
-      repl.handleAction(Back)
-      repl
-    }
-
-  }
-
-  case class TwoDBrowser(repl: Repl) {
-
-    def path = getState.path
-
-    def focus() = {
-      repl.handleAction(Focus)
-      repl
-    }
-
-    def currentRow: Int = getState.currentRow
-
-    def currentColumnOpt: Option[Int] = getState.currentColumnOpt
-
-    def nextColumn() = {
-      repl.handleAction(NextColumn)
-      this
-    }
-
-    def previousColumn() = {
-      repl.handleAction(PreviousColumn)
-      this
-    }
-
-    def unfocusColumn() = {
-      repl.handleAction(UnfocusColumn)
-      this
-    }
-
-    private def getState: TwoDTableBrowserState = repl.getTwoDBrowserState
-
-  }
-
-  implicit class RichRepl(repl: Repl) {
-
-    import com.github.mdr.mash.repl.NormalActions._
-
-    def input(s: String): Repl = {
-      repl.handleAction(SelfInsert(s))
-      repl
-    }
-
-    def incrementalHistorySearch(): Repl = {
-      repl.handleAction(IncrementalHistorySearch)
-      repl
-    }
-
-    def complete(): Repl = {
-      repl.handleAction(Complete)
-      repl
-    }
-
-    def previousHistory(): Repl = {
-      repl.handleAction(PreviousHistory)
-      repl
-    }
-
-    def nextHistory(): Repl = {
-      repl.handleAction(NextHistory)
-      repl
-    }
-
-    def acceptLine(): Repl = {
-      repl.handleAction(AcceptLine)
-      repl
-    }
-
-    def toggleQuote(): Repl = {
-      repl.handleAction(ToggleQuote)
-      repl
-    }
-
-    def text: String = lineBuffer.text
-
-    def lineBuffer: LineBuffer = repl.state.lineBuffer
-
-    def left(n: Int = 1): Repl = {
-      for (i ← 1 to n)
-        repl.handleAction(BackwardChar)
-      repl
-    }
-
-    def delete(): Repl = {
-      repl.handleAction(DeleteChar)
-      repl
-    }
-
-    def backspace(): Repl = {
-      repl.handleAction(BackwardDeleteChar)
-      repl
-    }
-
-    def draw(): Repl = {
-      repl.draw()
-      repl
-    }
-
-    def it: MashValue = {
-      repl.state.globalVariables.get(ReplState.It).get
-    }
-
-    def incrementalCompletionState = repl.state.completionStateOpt.collect {
-      case state: IncrementalCompletionState ⇒ state
-    }.getOrElse(throw new AssertionError("Not in incremental completion mode"))
-
-    def affirmInTwoDBrowser = {
-      getTwoDBrowserState
-      TwoDBrowser(repl)
-    }
-
-    def affirmInSingleObjectBrowser = {
-      getSingleObjectBrowserState
-      SingleObjectBrowser(repl)
-    }
-
-    def getTwoDBrowserState: TwoDTableBrowserState =
-      getBrowserStateStack.headState match {
-        case state: TwoDTableBrowserState ⇒ state
-        case state                        ⇒ throw new AssertionError(s"Was not a 2D browser, but a ${state.getClass.getSimpleName}")
-      }
-
-    private def getBrowserStateStack: ObjectBrowserStateStack =
-      repl.state.objectBrowserStateStackOpt.getOrElse(throw new AssertionError("Expected browser, but no browser active"))
-
-    def getSingleObjectBrowserState: SingleObjectTableBrowserState =
-      getBrowserStateStack.headState match {
-        case state: SingleObjectTableBrowserState ⇒ state
-        case state                                ⇒ throw new AssertionError(s"Was not a single object browser, but a ${state.getClass.getSimpleName}")
-      }
-  }
-
-}
 
 case class DummyTerminal(width: Int = 80) extends Terminal {
 
