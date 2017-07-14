@@ -4,6 +4,7 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
+import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -160,7 +161,9 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
+  def beginExpression: BrowserState = copy(expressionStateOpt = Some(ExpressionState(LineBuffer.Empty)))
+
+  def setExpression(expressionState: ExpressionState): BrowserState = copy(expressionStateOpt = Some(expressionState))
 
   def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 

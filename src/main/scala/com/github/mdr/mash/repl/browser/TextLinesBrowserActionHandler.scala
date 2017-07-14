@@ -24,7 +24,7 @@ trait TextLinesBrowserActionHandler {
       case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
       case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
       case Focus                           ⇒ focus(browserState, tree = false)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
 }

@@ -43,9 +43,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("P") -> PreviousParentItem,
   TerminalWindowChanged -> Rerender)) {
 
-  object ExpressionInput extends KeyMap(Map(
-    KeyPress(Enter) -> Accept,
-    KeyPress(Backspace) -> BackwardDeleteChar
+  object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
+    KeyPress(Enter) -> Accept
   ))
 
   object IncrementalSearch extends KeyMap(Map(

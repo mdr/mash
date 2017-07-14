@@ -1,3 +1,5 @@
 package com.github.mdr.mash.repl.browser
 
-case class ExpressionState(expression: String)
+import com.github.mdr.mash.repl.LineBuffer
+
+case class ExpressionState(lineBuffer: LineBuffer)

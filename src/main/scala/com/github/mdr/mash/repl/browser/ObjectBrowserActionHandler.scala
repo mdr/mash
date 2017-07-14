@@ -12,7 +12,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
-import com.github.mdr.mash.repl.NormalActions.SelfInsert
+import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils.indexOf
@@ -119,7 +119,7 @@ trait ObjectBrowserActionHandler
     browserStateStack.headState.expressionStateOpt match {
       case Some(expressionState) ⇒
         handleExpressionInputAction(action, browserStateStack.headState, expressionState)
-      case None             ⇒
+      case None                  ⇒
         browserStateStack.headState match {
           case twoDTableBrowserState: TwoDTableBrowserState            ⇒ handleTwoDTableBrowserAction(action, twoDTableBrowserState)
           case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectTableBrowserAction(action, singleObjectBrowserState)
@@ -132,17 +132,27 @@ trait ObjectBrowserActionHandler
 
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     import ExpressionInput._
-    val expression = expressionState.expression
+    def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
+      updateState(browserState.setExpression(ExpressionState(f(expressionState.lineBuffer))))
     action match {
-      case SelfInsert(c)      ⇒
-        updateState(browserState.setExpression(expression + c))
-      case BackwardDeleteChar ⇒
-        if (expression.nonEmpty)
-          updateState(browserState.setExpression(expression.init))
-      case Accept             ⇒
+      case SelfInsert(c)      ⇒ updateExpressionBuffer(_.addCharactersAtCursor(c))
+      case BeginningOfLine    ⇒ updateExpressionBuffer(_.moveCursorToStart)
+      case EndOfLine          ⇒ updateExpressionBuffer(_.moveCursorToEnd)
+      case ForwardChar        ⇒ updateExpressionBuffer(_.cursorRight)
+      case BackwardChar       ⇒ updateExpressionBuffer(_.cursorLeft)
+      case ForwardWord        ⇒ updateExpressionBuffer(_.forwardWord)
+      case BackwardWord       ⇒ updateExpressionBuffer(_.backwardWord)
+      case DeleteChar         ⇒ updateExpressionBuffer(_.delete)
+      case BackwardDeleteChar ⇒ updateExpressionBuffer(_.backspace)
+      case KillLine           ⇒ updateExpressionBuffer(_.deleteToEndOfLine)
+      case BackwardKillLine   ⇒ updateExpressionBuffer(_.deleteToBeginningOfLine)
+      case KillWord           ⇒ updateExpressionBuffer(_.deleteForwardWord)
+      case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
+      case ToggleQuote        ⇒ // TODO
+      case Accept ⇒
         updateState(browserState.acceptExpression)
-        focusExpression(browserState.path, browserState.rawValue, expression)
-      case _                  ⇒
+        focusExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
+      case _      ⇒
     }
   }
 

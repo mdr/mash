@@ -21,7 +21,7 @@ trait ObjectTreeBrowserActionHandler {
       case Open                            ⇒ handleOpenItem(browserState)
       case Copy                            ⇒ handleCopyItem(browserState)
       case InsertWholeItem                 ⇒ handleInsertWholeItem(browserState)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
 }

@@ -38,7 +38,7 @@ trait SingleObjectTableBrowserActionHandler {
       case View1D                          ⇒ view1D(browserState)
       case View2D                          ⇒ view2D(browserState)
       case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
 
@@ -51,7 +51,7 @@ trait SingleObjectTableBrowserActionHandler {
       case NextHit                         ⇒ updateState(browserState.nextHit(terminalRows))
       case PreviousHit                     ⇒ updateState(browserState.previousHit(terminalRows))
       case ExitSearch                      ⇒ updateState(browserState.stopSearching)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
   }

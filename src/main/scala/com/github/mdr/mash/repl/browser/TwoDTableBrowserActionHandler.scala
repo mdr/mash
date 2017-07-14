@@ -26,7 +26,7 @@ trait TwoDTableBrowserActionHandler {
       case NextHit                         ⇒ updateState(browserState.nextHit(terminalRows))
       case PreviousHit                     ⇒ updateState(browserState.previousHit(terminalRows))
       case ExitSearch                      ⇒ updateState(browserState.stopSearching)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
   }
@@ -61,7 +61,7 @@ trait TwoDTableBrowserActionHandler {
       case View2D                          ⇒ view2D(browserState)
       case HideColumn                      ⇒ handleHideColumn(browserState)
       case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.setExpression(""))
+      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }
 

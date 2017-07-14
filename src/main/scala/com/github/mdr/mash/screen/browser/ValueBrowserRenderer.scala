@@ -36,7 +36,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
 
   private def renderStatusLine: Line =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
       case None                  ⇒ renderRegularStatusLine
     }
 

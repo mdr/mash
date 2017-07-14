@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.printer.model.TextLinesModel
+import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime.MashValue
 
 case class TextLinesBrowserState(model: TextLinesModel,
@@ -60,7 +61,9 @@ case class TextLinesBrowserState(model: TextLinesModel,
     newState
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
+  def beginExpression: BrowserState = copy(expressionStateOpt = Some(ExpressionState(LineBuffer.Empty)))
+
+  def setExpression(expressionState: ExpressionState): BrowserState = copy(expressionStateOpt = Some(expressionState))
 
   def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 

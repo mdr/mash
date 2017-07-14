@@ -5,9 +5,24 @@ import com.github.mdr.mash.input.Key._
 import com.github.mdr.mash.repl.NormalActions
 import com.github.mdr.mash.repl.NormalActions._
 
-object NormalKeyMap extends KeyMap(Map(
+object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   KeyPress(BasicKey('l'), control = true) -> ClearScreen,
   KeyPress(Enter) -> AcceptLine,
+  KeyPress(BasicKey('p'), control = true) -> PreviousHistory,
+  KeyPress(Up) -> PreviousHistory,
+  KeyPress(BasicKey('n'), control = true) -> NextHistory,
+  KeyPress(Down) -> NextHistory,
+  KeyPress(Tab) -> Complete,
+  KeyPress(Tab, shift = true) -> BackwardComplete,
+  KeyPress(Space, shift = true) -> AssistInvocation,
+  KeyPress(BasicKey('r'), control = true) -> IncrementalHistorySearch,
+  KeyPress(Key.PageUp) -> NormalActions.PageUp,
+  KeyPress(Key.PageDown) -> NormalActions.PageDown,
+  KeyPress(BasicKey('.'), alt = true) -> InsertLastArg,
+  KeyPress(BasicKey(','), alt = true) -> ToggleMish,
+  KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))
+
+object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('a'), control = true) -> BeginningOfLine,
   KeyPress(Home) -> BeginningOfLine,
   KeyPress(BasicKey('e'), control = true) -> EndOfLine,
@@ -18,10 +33,6 @@ object NormalKeyMap extends KeyMap(Map(
   KeyPress(Left) -> BackwardChar,
   KeyPress(BasicKey('f'), alt = true) -> ForwardWord,
   KeyPress(BasicKey('b'), alt = true) -> BackwardWord,
-  KeyPress(BasicKey('p'), control = true) -> PreviousHistory,
-  KeyPress(Up) -> PreviousHistory,
-  KeyPress(BasicKey('n'), control = true) -> NextHistory,
-  KeyPress(Down) -> NextHistory,
   KeyPress(BasicKey('d'), control = true) -> DeleteChar,
   KeyPress(Delete) -> DeleteChar,
   KeyPress(Backspace) -> BackwardDeleteChar,
@@ -29,13 +40,4 @@ object NormalKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('u'), control = true) -> BackwardKillLine,
   KeyPress(BasicKey('d'), alt = true) -> KillWord,
   KeyPress(Backspace, alt = true) -> BackwardKillWord,
-  KeyPress(Tab) -> Complete,
-  KeyPress(Tab, shift = true) -> BackwardComplete,
-  KeyPress(Space, shift = true) -> AssistInvocation,
-  KeyPress(BasicKey('r'), control = true) -> IncrementalHistorySearch,
-  KeyPress(Key.PageUp) -> NormalActions.PageUp,
-  KeyPress(Key.PageDown) -> NormalActions.PageDown,
-  KeyPress(BasicKey('.'), alt = true) -> InsertLastArg,
-  KeyPress(BasicKey(','), alt = true) -> ToggleMish,
-  KeyPress(BasicKey('q'), control = true) -> ToggleQuote,
-  KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))
+  KeyPress(BasicKey('q'), control = true) -> ToggleQuote))

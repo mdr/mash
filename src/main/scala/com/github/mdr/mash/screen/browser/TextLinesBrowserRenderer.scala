@@ -4,12 +4,13 @@ import com.github.mdr.mash.repl.browser.TextLinesBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Utils._
 
 class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
   protected def renderDataLines: Seq[Line] =
-    for ((l, index) <- state.model.renderedLines.drop(state.firstRow).take(windowSize).zipWithIndex)
+    for ((l, index) <- state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
       yield Line(l.style(Style(inverse = index == (state.selectedRow - state.firstRow))))
 
   protected def renderLines: Seq[Line] = {
@@ -28,7 +29,7 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
 
   private def renderStatusLine: Line =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
       case None                  ⇒ renderRegularStatusLine
     }
 

@@ -54,7 +54,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
 
   private def renderStatusLine: Line =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
       case None                  ⇒ renderRegularStatusLine
     }
 

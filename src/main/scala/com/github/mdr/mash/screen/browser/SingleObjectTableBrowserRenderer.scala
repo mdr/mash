@@ -26,7 +26,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
         StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
       case None              ⇒
         state.expressionStateOpt match {
-          case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+          case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
           case None                  ⇒ renderRegularStatusLine
         }
     }

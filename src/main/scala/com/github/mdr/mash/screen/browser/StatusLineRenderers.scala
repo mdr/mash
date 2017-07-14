@@ -1,13 +1,13 @@
 package com.github.mdr.mash.screen.browser
 
-import com.github.mdr.mash.repl.browser.SearchState
+import com.github.mdr.mash.repl.browser.{ ExpressionState, SearchState }
 import com.github.mdr.mash.screen.{ KeyHint, Line, Style }
 import com.github.mdr.mash.screen.Style.StylableString
 
 object StatusLineRenderers {
     import KeyHint._
 
-  def renderExpressionInputStatusLine(expression: String): Line = {
+  def renderExpressionInputStatusLine: Line = {
     val hints = Seq(DoneSearch)
     Line("(".style + renderKeyHints(hints) + ")".style)
   }

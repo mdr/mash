@@ -45,9 +45,11 @@ trait BrowserState {
 
   def selectionInfo: SelectionInfo
 
+  def beginExpression: BrowserState
+
   def expressionStateOpt: Option[ExpressionState]
 
-  def setExpression(expression: String): BrowserState
+  def setExpression(expression: ExpressionState): BrowserState
 
   def acceptExpression: BrowserState
 

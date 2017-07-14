@@ -7,6 +7,7 @@ import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
+import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -95,7 +96,9 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
 
-  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
+  def beginExpression: BrowserState = copy(expressionStateOpt = Some(ExpressionState(LineBuffer.Empty)))
+
+  def setExpression(expressionState: ExpressionState): BrowserState = copy(expressionStateOpt = Some(expressionState))
 
   def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
