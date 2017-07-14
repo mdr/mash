@@ -50,7 +50,7 @@ trait BrowserState {
 
   def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState
 
-  def beginExpression: BrowserState = withExpressionState(Some(ExpressionState(LineBuffer.Empty)))
+  def beginExpression: BrowserState = setExpression(ExpressionState(LineBuffer(path)))
 
   def setExpression(expressionState: ExpressionState): BrowserState = withExpressionState(Some(expressionState))
 

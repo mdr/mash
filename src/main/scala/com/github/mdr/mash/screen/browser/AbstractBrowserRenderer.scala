@@ -22,13 +22,13 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
 
   private def renderCursor: (Point, Boolean) =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ Point(0, expressionState.lineBuffer.cursorOffset + state.path.length) -> true
+      case Some(expressionState) ⇒ Point(0, expressionState.lineBuffer.cursorOffset) -> true
       case _                     ⇒ Point(0, 0) -> false
     }
 
   protected def renderUpperStatusLine: Line = {
     val fullExpression = state.expressionStateOpt match {
-      case Some(expressionState) ⇒ state.path + expressionState.lineBuffer.text
+      case Some(expressionState) ⇒ expressionState.lineBuffer.text
       case None                  ⇒ state.path
     }
     val cursorOffsetOpt = if (state.expressionStateOpt.isDefined) Some(renderCursor._1.column) else None

@@ -3,7 +3,6 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, Type, TypeInferenceStrategy, TypedArguments }
-import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.runtime._
 
 object TransposeFunction extends MashFunction("collections.transpose") {

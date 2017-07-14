@@ -7,7 +7,6 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.ns.os.PathSummaryClass
-import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
@@ -29,21 +28,19 @@ trait ObjectBrowserActionHandler
 
   import ObjectBrowserActions._
 
-  protected def updateState(newState: BrowserState) {
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
-      state.objectBrowserStateStackOpt = Some(objectBrowserState.replaceCurrentState(newState))
-    }
+  private def updateObjectBrowserStateStack(f: ObjectBrowserStateStack ⇒ Option[ObjectBrowserStateStack]) =
+    state.objectBrowserStateStackOpt.foreach { stack ⇒ state.objectBrowserStateStackOpt = f(stack) }
+
+  protected def updateState(newState: BrowserState) = updateObjectBrowserStateStack { stack ⇒
+    Some(stack.replaceCurrentState(newState))
   }
 
   protected def navigateForward(newState: BrowserState) =
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
-      state.objectBrowserStateStackOpt = Some(objectBrowserState.pushNewState(newState))
+    updateObjectBrowserStateStack { stack ⇒
+      Some(stack.pushNewState(newState))
     }
 
-  protected def navigateBack() =
-    state.objectBrowserStateStackOpt.foreach { objectBrowserState ⇒
-      state.objectBrowserStateStackOpt = if (objectBrowserState.browserStates.size == 1) None else Some(objectBrowserState.pop)
-    }
+  protected def navigateBack() = updateObjectBrowserStateStack(_.pop)
 
   protected def focus(browserState: BrowserState, tree: Boolean = false): Unit = {
     val selectionInfo = browserState.selectionInfo
@@ -57,20 +54,24 @@ trait ObjectBrowserActionHandler
       case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
     }.exists(Files.isDirectory(_))
     if (isDirectory)
-      focusExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
+      acceptFollowOnExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
   }
 
-  protected def focus(value: MashValue, newPath: String, tree: Boolean): Unit =
-    navigateForward(
-      if (tree && (value.isInstanceOf[MashList] || value.isAnObject)) {
-        val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
-        ObjectTreeBrowserState.initial(model, newPath)
-      } else
-        getNewBrowserState(value, newPath))
+  protected def focus(value: MashValue, path: String, tree: Boolean): Unit = {
+    val newBrowserState =
+      if (tree && (value.isAList || value.isAnObject))
+        makeObjectTreeBrowserState(value, path)
+      else
+        getNewBrowserState(value, path)
+    navigateForward(newBrowserState)
+  }
 
-  protected def viewAsTree(browserState: BrowserState): Unit = {
-    val model = new ObjectTreeModelCreator(state.viewConfig).create(browserState.rawValue)
-    updateState(ObjectTreeBrowserState.initial(model, browserState.path))
+  protected def viewAsTree(browserState: BrowserState): Unit =
+    updateState(makeObjectTreeBrowserState(browserState.rawValue, browserState.path))
+
+  private def makeObjectTreeBrowserState(value: MashValue, path: String): ObjectTreeBrowserState = {
+    val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
+    ObjectTreeBrowserState.initial(model, path)
   }
 
   protected def view1D(browserState: BrowserState): Unit =
@@ -149,33 +150,47 @@ trait ObjectBrowserActionHandler
       case KillWord           ⇒ updateExpressionBuffer(_.deleteForwardWord)
       case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
       case ToggleQuote        ⇒ // TODO
-      case Accept ⇒
+      case Accept             ⇒
         updateState(browserState.acceptExpression)
-        focusExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
-      case _      ⇒
+        acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
+      case _                  ⇒
     }
   }
 
-  private def focusExpression(currentPath: String, currentValue: MashValue, furtherExpression: String): Unit = {
-    val newPath = ExpressionCombiner.combineSafely(currentPath, furtherExpression)
-    val fullExpression = "it" + furtherExpression
-    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields + (MashString("it") -> currentValue))
-    val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
-    val compilationUnit = CompilationUnit(fullExpression)
-    for (result <- commandRunner.runCompilationUnit(compilationUnit, state.bareWords))
+  private def acceptExpression(currentPath: String, currentValue: MashValue, expression: String) =
+    if (expression startsWith currentPath)
+      acceptFollowOnExpression(currentPath, currentValue, expression drop currentPath.length)
+    else
+      acceptReplacementExpression(expression)
+
+  private def acceptReplacementExpression(expression: String): Unit =
+    for (result <- run(expression))
+      focus(result, expression, tree = false)
+
+  private def acceptFollowOnExpression(currentPath: String, currentValue: MashValue, followOnExpression: String): Unit = {
+    val newPath = combineSafely(currentPath, followOnExpression)
+    val expressionToEvaluate = combineSafely("it", followOnExpression)
+    for (result <- run(expressionToEvaluate, Map(MashString("it") -> currentValue)))
       focus(result, newPath, tree = false)
+  }
+
+  private def run(expression: String, extraGlobals: Map[MashValue, MashValue] = Map()): Option[MashValue] = {
+    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields ++ extraGlobals)
+    val commandRunner = new CommandRunner(output, terminal.info, isolatedGlobals, sessionId, printErrors = false)
+    val compilationUnit = CompilationUnit(expression)
+    commandRunner.runCompilationUnit(compilationUnit, state.bareWords)
   }
 
   protected def handleOpenItem(browserState: BrowserState) = {
     state.lineBuffer = LineBuffer.Empty
     state.objectBrowserStateStackOpt = None
     updateScreenAfterAccept()
-    val command = ExpressionCombiner.combineSafely(browserState.getInsertExpression, " | open")
+    val command = combineSafely(browserState.getInsertExpression, " | open")
     runCommand(command)
   }
 
   protected def handleCopyItem(browserState: BrowserState) = {
-    val command = ExpressionCombiner.combineSafely(browserState.getInsertExpression, " | clipboard")
+    val command = combineSafely(browserState.getInsertExpression, " | clipboard")
     runCommand(command)
   }
 

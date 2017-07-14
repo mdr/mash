@@ -11,8 +11,11 @@ case class ObjectBrowserStateStack(browserStates: List[BrowserState]) {
   def pushNewState(newState: BrowserState): ObjectBrowserStateStack =
     copy(browserStates = newState :: browserStates)
 
-  def pop: ObjectBrowserStateStack =
-    copy(browserStates = browserStates.tail)
+  def pop: Option[ObjectBrowserStateStack] =
+    if (browserStates.size == 1)
+      None
+    else
+      Some(copy(browserStates = browserStates.tail))
 
   def headState: BrowserState = browserStates.head
 
