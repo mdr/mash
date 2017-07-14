@@ -4,6 +4,7 @@ import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
 import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
+import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
 
 object BrowserState {
@@ -45,13 +46,15 @@ trait BrowserState {
 
   def selectionInfo: SelectionInfo
 
-  def beginExpression: BrowserState
-
   def expressionStateOpt: Option[ExpressionState]
 
-  def setExpression(expression: ExpressionState): BrowserState
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState
 
-  def acceptExpression: BrowserState
+  def beginExpression: BrowserState = withExpressionState(Some(ExpressionState(LineBuffer.Empty)))
+
+  def setExpression(expressionState: ExpressionState): BrowserState = withExpressionState(Some(expressionState))
+
+  def acceptExpression: BrowserState = withExpressionState(None)
 
 }
 

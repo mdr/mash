@@ -96,12 +96,6 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
 
-  def beginExpression: BrowserState = copy(expressionStateOpt = Some(ExpressionState(LineBuffer.Empty)))
-
-  def setExpression(expressionState: ExpressionState): BrowserState = copy(expressionStateOpt = Some(expressionState))
-
-  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
-
   def rawValue: MashValue = model.rawValue
 
   private def numberOfRows = model.numberOfRows
@@ -155,7 +149,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def selectionInfoForMultiple(rowIndices: Seq[Int]): SelectionInfo =
     model.rawValue match {
-      case _: MashList    ⇒
+      case _: MashList     ⇒
         val selectionExpression = rowIndices.map(i ⇒ s"_[$i]").mkString(" | [", ", ", "]")
         val selectedPath = combineSafely(path, selectionExpression)
         val selectedValue = MashList(rowIndices.map(model.rowValue))
@@ -219,5 +213,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def lastItem(terminalRows: Int): TwoDTableBrowserState =
     copy(currentRow = numberOfRows - 1).adjustWindowToFit(terminalRows)
+
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
 
 }

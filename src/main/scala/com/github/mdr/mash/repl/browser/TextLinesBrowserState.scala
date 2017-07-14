@@ -61,11 +61,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
     newState
   }
 
-  def beginExpression: BrowserState = copy(expressionStateOpt = Some(ExpressionState(LineBuffer.Empty)))
-
-  def setExpression(expressionState: ExpressionState): BrowserState = copy(expressionStateOpt = Some(expressionState))
-
-  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
 
   def windowSize(terminalRows: Int) = terminalRows - 2
 
