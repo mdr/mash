@@ -4,6 +4,8 @@ import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
+import com.github.mdr.mash.repl.NormalActions.SelfInsert
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.{ Accept, BeginExpression }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
@@ -49,6 +51,11 @@ class AbstractReplTest extends FlatSpec with Matchers {
 
     def path = getState.path
 
+    def rows: Seq[Seq[String]] = {
+      val model = getState.model
+      model.rows.map(row ⇒ model.columnIds.map(columnId ⇒ row.cells(columnId).renderedValue))
+    }
+
     def focus() = {
       repl.handleAction(Focus)
       repl
@@ -71,6 +78,26 @@ class AbstractReplTest extends FlatSpec with Matchers {
     def unfocusColumn() = {
       repl.handleAction(UnfocusColumn)
       this
+    }
+
+    def beginExpression() = {
+      repl.handleAction(BeginExpression)
+      this
+    }
+
+    def input(s: String) = {
+      repl.handleAction(SelfInsert(s))
+      this
+    }
+
+    def accept() = {
+      repl.handleAction(Accept)
+      repl
+    }
+
+    def back(): Repl = {
+      repl.handleAction(Back)
+      repl
     }
 
     private def getState: TwoDTableBrowserState = repl.getTwoDBrowserState

@@ -201,8 +201,26 @@ class ReplTest extends AbstractReplTest {
     browser.previousParentItem()
     browser.path should equal("r0.first")
   }
-}
 
+  "Browser" should "allow navigation to a follow-on expression" in {
+    var browser =
+      makeRepl()
+        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]")
+        .acceptLine()
+        .affirmInTwoDBrowser
+        .beginExpression()
+        .input(" | reverse")
+        .accept()
+        .affirmInTwoDBrowser
+    browser.path should equal("r0 | reverse")
+    browser.rows should equal(Seq(Seq("0", "3", "4"), Seq("1", "1", "2")))
+
+    browser = browser.back().affirmInTwoDBrowser
+    browser.path should equal("r0")
+    browser.rows should equal(Seq(Seq("0", "1", "2"), Seq("1", "3", "4")))
+  }
+
+}
 
 case class DummyTerminal(width: Int = 80) extends Terminal {
 
