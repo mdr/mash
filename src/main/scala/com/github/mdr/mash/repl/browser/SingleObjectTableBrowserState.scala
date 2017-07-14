@@ -17,7 +17,7 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
                                          markedRows: Set[Int] = Set(),
                                          path: String,
                                          searchStateOpt: Option[SearchState] = None,
-                                         expressionOpt: Option[String] = None) extends BrowserState {
+                                         expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
   def beginSearch: BrowserState = copy(searchStateOpt = Some(SearchState("")))
 
@@ -160,8 +160,8 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
 
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
+  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
 }

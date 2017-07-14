@@ -69,7 +69,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     stack.headState match {
       case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
       case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
-      case s if s.expressionOpt.isDefined                                 ⇒ ReplMode.ObjectBrowser.ExpressionInput
+      case s if s.expressionStateOpt.isDefined                            ⇒ ReplMode.ObjectBrowser.ExpressionInput
       case _                                                              ⇒ ReplMode.ObjectBrowser
     }
 

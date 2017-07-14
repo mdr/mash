@@ -27,9 +27,9 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
   }
 
   private def renderStatusLine: Line =
-    state.expressionOpt match {
-      case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
-      case None             ⇒ renderRegularStatusLine
+    state.expressionStateOpt match {
+      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+      case None                  ⇒ renderRegularStatusLine
     }
 
   protected val windowSize = state.windowSize(terminalInfo.rows)

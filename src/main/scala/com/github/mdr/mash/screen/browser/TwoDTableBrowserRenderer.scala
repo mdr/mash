@@ -28,9 +28,9 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
     state.searchStateOpt match {
       case Some(searchState) ⇒ StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
       case None              ⇒
-        state.expressionOpt match {
-          case Some(expression) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expression)
-          case None             ⇒ renderRegularStatusLine
+        state.expressionStateOpt match {
+          case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine(expressionState.expression)
+          case None                  ⇒ renderRegularStatusLine
         }
     }
 

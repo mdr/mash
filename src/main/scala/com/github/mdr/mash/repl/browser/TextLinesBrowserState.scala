@@ -8,7 +8,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
                                  path: String,
                                  selectedRow: Int = 0,
                                  firstRow: Int = 0,
-                                 expressionOpt: Option[String] = None) extends BrowserState {
+                                 expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
   override def rawValue: MashValue = model.rawValue
 
@@ -60,9 +60,9 @@ case class TextLinesBrowserState(model: TextLinesModel,
     newState
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
 
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
+  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
   def windowSize(terminalRows: Int) = terminalRows - 2
 

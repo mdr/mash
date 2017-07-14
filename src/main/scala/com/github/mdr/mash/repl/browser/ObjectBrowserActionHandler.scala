@@ -116,9 +116,9 @@ trait ObjectBrowserActionHandler
     insert(browserState.getInsertExpression)
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
-    browserStateStack.headState.expressionOpt match {
-      case Some(expression) ⇒
-        handleExpressionInputAction(action, browserStateStack.headState, expression)
+    browserStateStack.headState.expressionStateOpt match {
+      case Some(expressionState) ⇒
+        handleExpressionInputAction(action, browserStateStack.headState, expressionState)
       case None             ⇒
         browserStateStack.headState match {
           case twoDTableBrowserState: TwoDTableBrowserState            ⇒ handleTwoDTableBrowserAction(action, twoDTableBrowserState)
@@ -130,8 +130,9 @@ trait ObjectBrowserActionHandler
         }
     }
 
-  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expression: String): Unit = {
+  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     import ExpressionInput._
+    val expression = expressionState.expression
     action match {
       case SelfInsert(c)      ⇒
         updateState(browserState.setExpression(expression + c))

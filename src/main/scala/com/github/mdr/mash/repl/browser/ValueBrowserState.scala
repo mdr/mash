@@ -5,7 +5,7 @@ import com.github.mdr.mash.runtime.MashValue
 
 case class ValueBrowserState(model: ValueModel,
                              path: String,
-                             expressionOpt: Option[String] = None) extends BrowserState {
+                             expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
   override def rawValue: MashValue = model.rawValue
 
@@ -13,8 +13,8 @@ case class ValueBrowserState(model: ValueModel,
 
   override def selectionInfo: SelectionInfo = SelectionInfo(path, model.rawValue)
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
 
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
+  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
 }

@@ -27,7 +27,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
                                  path: String,
                                  hiddenColumns: Seq[ColumnId] = Seq(),
                                  searchStateOpt: Option[SearchState] = None,
-                                 expressionOpt: Option[String] = None) extends BrowserState {
+                                 expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
   require(currentColumnOpt.forall(col ⇒ col >= 0 && col <= numberOfColumns))
 
@@ -95,9 +95,9 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   private def ifSearching(f: SearchState ⇒ BrowserState): BrowserState = searchStateOpt.map(f).getOrElse(this)
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
 
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
+  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
   def rawValue: MashValue = model.rawValue
 

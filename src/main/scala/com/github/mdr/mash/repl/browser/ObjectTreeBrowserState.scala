@@ -56,7 +56,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
                                   selectionPath: ObjectTreePath,
                                   path: String,
                                   firstRow: Int,
-                                  expressionOpt: Option[String] = None) extends BrowserState {
+                                  expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
   private lazy val scanData = new DepthScan().scan
 
@@ -229,8 +229,8 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     newState
   }
 
-  def setExpression(expression: String): BrowserState = copy(expressionOpt = Some(expression))
+  def setExpression(expression: String): BrowserState = copy(expressionStateOpt = Some(ExpressionState(expression)))
 
-  def acceptExpression: BrowserState = copy(expressionOpt = None)
+  def acceptExpression: BrowserState = copy(expressionStateOpt = None)
 
 }

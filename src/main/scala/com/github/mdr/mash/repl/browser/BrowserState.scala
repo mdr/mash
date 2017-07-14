@@ -33,8 +33,6 @@ object BrowserState {
 
 trait BrowserState {
 
-  def expressionOpt: Option[String]
-
   def path: String
 
   def model: DisplayModel
@@ -46,6 +44,8 @@ trait BrowserState {
   def getInsertExpression: String = selectionInfo.path
 
   def selectionInfo: SelectionInfo
+
+  def expressionStateOpt: Option[ExpressionState]
 
   def setExpression(expression: String): BrowserState
 

@@ -21,17 +21,17 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
   }
 
   private def renderCursor: (Point, Boolean) =
-    state.expressionOpt match {
-      case Some(expression) ⇒ Point(0, expression.length + state.path.length) -> true
-      case _                ⇒ Point(0, 0) -> false
+    state.expressionStateOpt match {
+      case Some(expressionState) ⇒ Point(0, expressionState.expression.length + state.path.length) -> true
+      case _                     ⇒ Point(0, 0) -> false
     }
 
   protected def renderUpperStatusLine: Line = {
-    val fullExpression = state.expressionOpt match {
-      case Some(expression) ⇒ state.path + expression
-      case None             ⇒ state.path
+    val fullExpression = state.expressionStateOpt match {
+      case Some(expressionState) ⇒ state.path + expressionState.expression
+      case None                  ⇒ state.path
     }
-    val cursorOffsetOpt = if (state.expressionOpt.isDefined) Some(renderCursor._1.column) else None
+    val cursorOffsetOpt = if (state.expressionStateOpt.isDefined) Some(renderCursor._1.column) else None
     Line(new MashRenderer().renderChars(fullExpression, cursorOffsetOpt, mishByDefault = false))
   }
 
