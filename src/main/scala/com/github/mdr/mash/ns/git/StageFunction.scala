@@ -35,6 +35,8 @@ object StageFunction extends MashFunction("git.stage") {
     val all = boundParams(All).isTruthy
     if (paths.isEmpty && !all)
       throw new EvaluatorException(s"Must provide either '$Paths' or '$All'")
+    if (paths.nonEmpty && all)
+      boundParams.throwInvalidArgument(All, s"Cannot provide both '$Paths' and '$All'")
 
     GitHelper.withGit { git ⇒
       val status = git.status.call()
