@@ -13,12 +13,8 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
     for ((l, index) <- state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
       yield Line(l.style(Style(inverse = index == (state.selectedRow - state.firstRow))))
 
-  protected def renderLines: Seq[Line] = {
-    val upperStatusLine = renderUpperStatusLine
-    val dataLines = renderDataLines
-    val statusLine = renderStatusLine
-    Seq(upperStatusLine) ++ dataLines ++ Seq(statusLine)
-  }
+  protected def renderLines: Seq[Line] =
+    combineUpperStatusLines(renderUpperStatusLines, renderDataLines ++ Seq(renderStatusLine))
 
   private def renderRegularStatusLine = {
     import KeyHint._

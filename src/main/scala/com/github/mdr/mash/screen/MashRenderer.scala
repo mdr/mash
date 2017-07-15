@@ -13,8 +13,8 @@ import scala.collection.mutable.ArrayBuffer
 class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boolean = false) {
 
   def renderChars(rawChars: String,
-                  cursorOffsetOpt: Option[Int],
-                  mishByDefault: Boolean): StyledString = {
+                  cursorOffsetOpt: Option[Int] = None,
+                  mishByDefault: Boolean = false): StyledString = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {

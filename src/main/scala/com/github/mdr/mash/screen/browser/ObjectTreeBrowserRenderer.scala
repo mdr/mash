@@ -16,7 +16,8 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
   protected def renderLines: Seq[Line] = {
     val printer = new Printer
     print(printer, state.model.root)
-    renderUpperStatusLine +: printer.getLines.window(state.firstRow, windowSize) :+ renderStatusLine
+    val treeLines = printer.getLines.window(state.firstRow, windowSize)
+    combineUpperStatusLines(renderUpperStatusLines, treeLines :+ renderStatusLine)
   }
 
   private class Printer() {

@@ -2,7 +2,6 @@ package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
 import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
-import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.repl.browser.ObjectTreeChoice.{ FieldChoice, IndexChoice, OntoFieldLabel, OntoValue }
 import com.github.mdr.mash.runtime.MashValue
 
@@ -230,5 +229,6 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     newState
   }
 
-  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
+    copy(expressionStateOpt = expressionStateOpt)
 }

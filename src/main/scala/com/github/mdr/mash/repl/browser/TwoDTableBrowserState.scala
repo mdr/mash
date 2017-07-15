@@ -7,7 +7,6 @@ import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
-import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Point
 import com.github.mdr.mash.utils.Region
@@ -196,7 +195,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
     newState
   }
 
-  def windowSize(terminalRows: Int) = terminalRows - 6 // three header rows, a footer row, two status lines
+  def windowSize(terminalRows: Int) = terminalRows - 6 // upper status line, three header rows, a footer row, lower status line
 
   def nextPage(terminalRows: Int): TwoDTableBrowserState = {
     val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
@@ -214,6 +213,7 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def lastItem(terminalRows: Int): TwoDTableBrowserState =
     copy(currentRow = numberOfRows - 1).adjustWindowToFit(terminalRows)
 
-  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
+    copy(expressionStateOpt = expressionStateOpt)
 
 }

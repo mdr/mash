@@ -2,7 +2,6 @@ package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.parser.ExpressionCombiner
 import com.github.mdr.mash.printer.model.TextLinesModel
-import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime.MashValue
 
 case class TextLinesBrowserState(model: TextLinesModel,
@@ -61,7 +60,8 @@ case class TextLinesBrowserState(model: TextLinesModel,
     newState
   }
 
-  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
+    copy(expressionStateOpt = expressionStateOpt)
 
   def windowSize(terminalRows: Int) = terminalRows - 2
 

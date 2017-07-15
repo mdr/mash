@@ -11,7 +11,6 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   KeyPress(Up) -> PreviousHistory,
   KeyPress(BasicKey('n'), control = true) -> NextHistory,
   KeyPress(Down) -> NextHistory,
-  KeyPress(Tab) -> Complete,
   KeyPress(Tab, shift = true) -> BackwardComplete,
   KeyPress(Space, shift = true) -> AssistInvocation,
   KeyPress(BasicKey('r'), control = true) -> IncrementalHistorySearch,
@@ -22,6 +21,7 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))
 
 object LineBufferKeyMap extends KeyMap(Map(
+  KeyPress(Tab) -> Complete,
   KeyPress(Enter) -> AcceptLine,
   KeyPress(BasicKey('a'), control = true) -> BeginningOfLine,
   KeyPress(Home) -> BeginningOfLine,

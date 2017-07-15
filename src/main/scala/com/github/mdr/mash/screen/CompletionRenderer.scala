@@ -6,6 +6,7 @@ import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, Completion
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
 
@@ -62,7 +63,7 @@ object CompletionRenderer {
       val commonPrefixStyled = commonPrefix.style(commonFragmentStyle)
 
       val beforeAfterStyle = Style(foregroundColour = colour, inverse = active)
-      val before = truncatedText.drop(completionFragment.prefix.length).take(location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
+      val before = truncatedText.window(completionFragment.prefix.length, location.displayPos - completionFragment.before.length - completionFragment.prefix.length)
       val beforeStyled = before.style(beforeAfterStyle)
       val after = truncatedText.drop(location.displayPos + completionFragment.after.length)
       val afterStyled = after.style(beforeAfterStyle)
@@ -84,7 +85,7 @@ object CompletionRenderer {
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)
     val activeRow = activeIndex / numberOfCompletionColumns
     val firstRow = math.max(0, activeRow - terminalInfo.rows + 1)
-    val truncatedLines = allLines.drop(firstRow).take(terminalInfo.rows)
+    val truncatedLines = allLines.window(firstRow, terminalInfo.rows)
     (truncatedLines, numberOfCompletionColumns)
   }
 

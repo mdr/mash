@@ -4,6 +4,7 @@ import java.nio.file.{ Files, Paths }
 
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
+import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
@@ -26,8 +27,6 @@ trait ObjectBrowserActionHandler
     with SingleObjectTableBrowserActionHandler
     with TwoDTableBrowserActionHandler {
   self: Repl ⇒
-
-  import ObjectBrowserActions._
 
   private def updateObjectBrowserStateStack(f: ObjectBrowserStateStack ⇒ Option[ObjectBrowserStateStack]) =
     state.objectBrowserStateStackOpt.foreach { stack ⇒ state.objectBrowserStateStackOpt = f(stack) }
@@ -134,7 +133,7 @@ trait ObjectBrowserActionHandler
 
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
-      updateState(browserState.setExpression(ExpressionState(f(expressionState.lineBuffer))))
+      updateState(browserState.setExpression(expressionState.copy(lineBuffer = f(expressionState.lineBuffer))))
     action match {
       case SelfInsert(c)      ⇒ updateExpressionBuffer(_.addCharactersAtCursor(c))
       case BeginningOfLine    ⇒ updateExpressionBuffer(_.moveCursorToStart)
@@ -150,11 +149,30 @@ trait ObjectBrowserActionHandler
       case KillWord           ⇒ updateExpressionBuffer(_.deleteForwardWord)
       case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
       case ToggleQuote        ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
+      case Complete           ⇒
+
+        for (result ← complete(expressionState.lineBuffer, mish = false)) {
+          result.completions match {
+            case Seq(completion) ⇒ immediateInsert(browserState, expressionState.lineBuffer, completion, result)
+            case _               ⇒ enterIncrementalCompletionState(browserState, result, expressionState.lineBuffer)
+          }
+        }
       case AcceptLine         ⇒
         updateState(browserState.acceptExpression)
         acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
       case _                  ⇒
     }
+  }
+
+  private def enterIncrementalCompletionState(browserState: BrowserState, result: CompletionResult, lineBuffer: LineBuffer) = {
+    val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, lineBuffer)
+    updateState(browserState.setExpression(ExpressionState(newLineBuffer, Some(completionState))))
+  }
+
+  private def immediateInsert(browserState: BrowserState, lineBuffer: LineBuffer, completion: Completion, result: CompletionResult) {
+    val newText = result.replacementLocation.replace(lineBuffer.text, completion.replacement)
+    val newOffset = result.replacementLocation.offset + completion.replacement.length
+    updateState(browserState.setExpression(ExpressionState(LineBuffer(newText, newOffset))))
   }
 
   private def acceptExpression(currentPath: String, currentValue: MashValue, expression: String) =

@@ -13,5 +13,6 @@ case class ValueBrowserState(model: ValueModel,
 
   override def selectionInfo: SelectionInfo = SelectionInfo(path, model.rawValue)
 
-  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
+    copy(expressionStateOpt = expressionStateOpt)
 }

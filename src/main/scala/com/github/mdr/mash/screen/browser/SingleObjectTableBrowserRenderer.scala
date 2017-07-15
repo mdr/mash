@@ -7,7 +7,8 @@ import com.github.mdr.mash.terminal.TerminalInfo
 class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
-  protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
+  protected def renderLines: Seq[Line] =
+    combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
 
   private def renderTableLines: Seq[Line] = {
     val commonRenderer = new SingleObjectTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),

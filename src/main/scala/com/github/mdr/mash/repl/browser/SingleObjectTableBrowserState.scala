@@ -161,6 +161,7 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
-  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState = copy(expressionStateOpt = expressionStateOpt)
+  def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
+    copy(expressionStateOpt = expressionStateOpt)
 
 }

@@ -22,10 +22,11 @@ object ReplRenderer {
 
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = state.objectBrowserStateStackOpt match {
-    case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalInfo)
-    case None                     ⇒ renderRegularRepl(state, terminalInfo)
-  }
+  def render(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult =
+    state.objectBrowserStateStackOpt match {
+      case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalInfo)
+      case None                     ⇒ renderRegularRepl(state, terminalInfo)
+    }
 
   private def renderRegularRepl(state: ReplState, terminalInfo: TerminalInfo): ReplRenderResult = {
     val bufferScreen = LineBufferRenderer.renderLineBuffer(state, terminalInfo)

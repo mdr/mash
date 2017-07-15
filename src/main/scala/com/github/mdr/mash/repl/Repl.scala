@@ -45,10 +45,10 @@ class Repl(protected val terminal: Terminal,
   }
 
   def draw() {
-    val screenRenderResult = ReplRenderer.render(state, terminal.info)
+    val replRenderResult = ReplRenderer.render(state, terminal.info)
     val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
-    val drawn = screenRenderResult.screen.draw(previousScreenOpt, terminal.columns)
-    previousReplRenderResultOpt = Some(screenRenderResult)
+    val drawn = replRenderResult.screen.draw(previousScreenOpt, terminal.columns)
+    previousReplRenderResultOpt = Some(replRenderResult)
 
     output.write(drawn.getBytes)
     output.flush()
@@ -131,9 +131,11 @@ class Repl(protected val terminal: Terminal,
   /**
     * Attempt completions at the current position (doesn't change the state).
     */
-  protected def complete: Option[CompletionResult] = {
-    val text = state.lineBuffer.text
-    val pos = state.lineBuffer.cursorOffset
+  protected def complete: Option[CompletionResult] = complete(state.lineBuffer, state.mish)
+
+  protected def complete(lineBuffer: LineBuffer, mish: Boolean): Option[CompletionResult] = {
+    val text = lineBuffer.text
+    val pos = lineBuffer.cursorOffset
 
     text match {
       case MishCommand(prefix, mishCmd) ⇒
@@ -144,7 +146,7 @@ class Repl(protected val terminal: Terminal,
         else
           None
       case _                            ⇒
-        completer.complete(text, pos, getBindings, mish = state.mish)
+        completer.complete(text, pos, getBindings, mish = mish)
     }
   }
 

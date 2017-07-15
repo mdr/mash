@@ -49,6 +49,12 @@ object Utils {
 
   }
 
+  implicit class RichString(s: String) {
+
+    def window(offset: Int, count: Int): String = s.slice(offset, offset + count)
+
+  }
+
   implicit class RichTraversableOnce[T](xs: TraversableOnce[T]) {
 
     def maxOpt(implicit cmp: Ordering[T]): Option[T] = if (xs.isEmpty) None else Some(xs.max)

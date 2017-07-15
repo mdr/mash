@@ -22,12 +22,8 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
     } yield Line(group.style, endsInNewline)
   }
 
-  protected def renderLines: Seq[Line] = {
-    val upperStatusLine = renderUpperStatusLine
-    val dataLines = renderDataLines
-    val statusLine = renderStatusLine
-    Seq(upperStatusLine) ++ dataLines ++ Seq(statusLine)
-  }
+  protected def renderLines: Seq[Line] =
+    combineUpperStatusLines(renderUpperStatusLines,  renderDataLines ++ Seq(renderStatusLine))
 
   private def renderRegularStatusLine = {
     import KeyHint._

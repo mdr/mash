@@ -8,7 +8,8 @@ import com.github.mdr.mash.terminal.TerminalInfo
 class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: TerminalInfo)
   extends AbstractBrowserRenderer(state, terminalInfo) {
 
-  protected def renderLines: Seq[Line] = renderUpperStatusLine +: renderTableLines :+ renderStatusLine
+  protected def renderLines: Seq[Line] =
+    combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
 
   private def renderTableLines: Seq[Line] = {
     val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),

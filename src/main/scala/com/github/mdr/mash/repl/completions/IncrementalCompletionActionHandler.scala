@@ -9,16 +9,22 @@ import com.github.mdr.mash.utils.Region
 trait IncrementalCompletionActionHandler { self: Repl ⇒
 
   protected def enterIncrementalCompletionState(result: CompletionResult) {
-    val CompletionResult(completions, replacementLocation @ Region(offset, _)) = result
+    val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, state.lineBuffer)
+    state.completionStateOpt = Some(completionState)
+    state.lineBuffer = newLineBuffer
+    state.assistanceStateOpt = None
+  }
+
+  protected def initialIncrementalCompletionState(result: CompletionResult, lineBuffer: LineBuffer): (IncrementalCompletionState, LineBuffer) = {
+    val CompletionResult(completions, replacementLocation@Region(offset, _)) = result
     val common = result.getCommonInsertText
     val newReplacementLocation = Region(offset, common.length)
     val completionState = IncrementalCompletionState(completions, newReplacementLocation,
       immediatelyAfterCompletion = true)
-    state.completionStateOpt = Some(completionState)
-    val newText = replacementLocation.replace(state.lineBuffer.text, common)
+    val newText = replacementLocation.replace(lineBuffer.text, common)
     val newCursorPos = newReplacementLocation.posAfter - (if (result.allQuoted) 1 else 0)
-    state.lineBuffer = LineBuffer(newText, newCursorPos)
-    state.assistanceStateOpt = None
+    val newLineBuffer = LineBuffer(newText, newCursorPos)
+    (completionState, newLineBuffer)
   }
 
   protected def handleIncrementalCompletionAction(action: InputAction, completionState: IncrementalCompletionState) =
