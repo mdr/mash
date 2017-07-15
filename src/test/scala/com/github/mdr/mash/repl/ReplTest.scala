@@ -210,7 +210,7 @@ class ReplTest extends AbstractReplTest {
         .affirmInTwoDBrowser
         .beginExpression()
         .input(" | reverse")
-        .accept()
+        .acceptLine()
         .affirmInTwoDBrowser
     browser.path should equal("r0 | reverse")
     browser.rows should equal(Seq(Seq("0", "3", "4"), Seq("1", "1", "2")))
@@ -218,6 +218,21 @@ class ReplTest extends AbstractReplTest {
     browser = browser.back().affirmInTwoDBrowser
     browser.path should equal("r0")
     browser.rows should equal(Seq(Seq("0", "1", "2"), Seq("1", "3", "4")))
+  }
+
+  "Browser" should "allow replacement expression" in {
+    val browser =
+      makeRepl()
+        .input("view.browser [{ a: 1, b: 2 }]")
+        .acceptLine()
+        .affirmInTwoDBrowser
+        .beginExpression()
+        .backwardKillLine()
+        .input("[{ a: 3, b: 4 }]")
+        .acceptLine
+        .affirmInTwoDBrowser
+    browser.path should equal("[{ a: 3, b: 4 }]")
+    browser.rows should equal(Seq(Seq("0", "3", "4")))
   }
 
 }

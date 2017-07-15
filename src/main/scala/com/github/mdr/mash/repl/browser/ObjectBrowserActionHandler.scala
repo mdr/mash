@@ -4,6 +4,7 @@ import java.nio.file.{ Files, Paths }
 
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
+import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.ns.os.PathSummaryClass
@@ -132,7 +133,6 @@ trait ObjectBrowserActionHandler
     }
 
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
-    import ExpressionInput._
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(ExpressionState(f(expressionState.lineBuffer))))
     action match {
@@ -149,8 +149,8 @@ trait ObjectBrowserActionHandler
       case BackwardKillLine   ⇒ updateExpressionBuffer(_.deleteToBeginningOfLine)
       case KillWord           ⇒ updateExpressionBuffer(_.deleteForwardWord)
       case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
-      case ToggleQuote        ⇒ // TODO
-      case Accept             ⇒
+      case ToggleQuote        ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
+      case AcceptLine         ⇒
         updateState(browserState.acceptExpression)
         acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
       case _                  ⇒

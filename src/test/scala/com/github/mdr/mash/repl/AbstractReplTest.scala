@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
-import com.github.mdr.mash.repl.NormalActions.SelfInsert
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.{ Accept, BeginExpression }
+import com.github.mdr.mash.repl.NormalActions.{ AcceptLine, BackwardKillLine, SelfInsert }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
@@ -85,13 +85,18 @@ class AbstractReplTest extends FlatSpec with Matchers {
       this
     }
 
+    def backwardKillLine() = {
+      repl.handleAction(BackwardKillLine)
+      this
+    }
+
     def input(s: String) = {
       repl.handleAction(SelfInsert(s))
       this
     }
 
-    def accept() = {
-      repl.handleAction(Accept)
+    def acceptLine() = {
+      repl.handleAction(AcceptLine)
       repl
     }
 

@@ -7,7 +7,6 @@ import com.github.mdr.mash.repl.NormalActions._
 
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   KeyPress(BasicKey('l'), control = true) -> ClearScreen,
-  KeyPress(Enter) -> AcceptLine,
   KeyPress(BasicKey('p'), control = true) -> PreviousHistory,
   KeyPress(Up) -> PreviousHistory,
   KeyPress(BasicKey('n'), control = true) -> NextHistory,
@@ -23,6 +22,7 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   KeyPress(BasicKey('v'), control = true) -> BrowseLastResult))
 
 object LineBufferKeyMap extends KeyMap(Map(
+  KeyPress(Enter) -> AcceptLine,
   KeyPress(BasicKey('a'), control = true) -> BeginningOfLine,
   KeyPress(Home) -> BeginningOfLine,
   KeyPress(BasicKey('e'), control = true) -> EndOfLine,

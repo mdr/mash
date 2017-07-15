@@ -43,6 +43,5 @@ object ObjectBrowserActions {
 
   object ExpressionInput {
     case object BeginExpression extends InputAction
-    case object Accept extends InputAction
   }
 }

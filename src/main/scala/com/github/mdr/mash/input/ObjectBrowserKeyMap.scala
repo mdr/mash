@@ -43,9 +43,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("P") -> PreviousParentItem,
   TerminalWindowChanged -> Rerender)) {
 
-  object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
-    KeyPress(Enter) -> Accept
-  ))
+  object ExpressionInput extends KeyMap(LineBufferKeyMap.map)
 
   object IncrementalSearch extends KeyMap(Map(
     KeyPress(Enter) -> ExitSearch,

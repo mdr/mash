@@ -85,7 +85,10 @@ object QuoteToggler {
     StripResult(inner, initialQuoteRemoved, finalQuoteRemoved)
   }
 
-  private def calculateCursorOffsetAfterQuoting(escapesOccurred: Boolean, cursorOffset: Int, replacementRegion: Region, stripResult: StripResult, quoted: String) =
+  private def calculateCursorOffsetAfterQuoting(escapesOccurred: Boolean,
+                                                cursorOffset: Int,
+                                                replacementRegion: Region,
+                                                stripResult: StripResult, quoted: String) =
     if (escapesOccurred) // Keeping track of the cursor if there has been escapes is more complex; for now we move the cursor to the end of the string
       replacementRegion.offset + quoted.length
     else {
