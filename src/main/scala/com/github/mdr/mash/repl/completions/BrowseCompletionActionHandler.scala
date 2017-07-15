@@ -28,19 +28,25 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
    * Browse completions with the given active completion index
    */
   protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
+    val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion, state.lineBuffer)
+    state.lineBuffer = newLineBuffer
+    state.completionStateOpt = Some(newCompletionState)
+  }
+
+  protected def getBrowseCompletionState(completionState: CompletionState, activeCompletion: Int, lineBuffer: LineBuffer): (BrowserCompletionState, LineBuffer) = {
+    val text = lineBuffer.text
     val offset = completionState.replacementLocation.offset
     val completion = completionState.completions(activeCompletion)
     val replacement = completion.replacement
     val newReplacementLocation = Region(offset, replacement.length)
-    val text = state.lineBuffer.text
     val newText = StringUtils.replace(text, completionState.replacementLocation, replacement)
     val newCursorPos = newReplacementLocation.posAfter
-    state.lineBuffer = LineBuffer(newText, newCursorPos)
     val newCompletionState = BrowserCompletionState(
       completions = completionState.completions,
       activeCompletion = activeCompletion,
       replacementLocation = newReplacementLocation)
-    state.completionStateOpt = Some(newCompletionState)
+    val newLineBuffer = LineBuffer(newText, newCursorPos)
+    (newCompletionState, newLineBuffer)
   }
 
   private def gridNavigator(completionState: BrowserCompletionState): RaggedGridNavigator = {

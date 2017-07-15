@@ -14,6 +14,7 @@ import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions._
+import com.github.mdr.mash.repl.completions.{ IncrementalCompletionState, ReplStateMemento }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils.indexOf
@@ -131,7 +132,38 @@ trait ObjectBrowserActionHandler
         }
     }
 
-  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
+  private def handleIncrementalCompletionAction(action: InputAction,
+                                                browserState: BrowserState,
+                                                expressionState: ExpressionState,
+                                                completionState: IncrementalCompletionState) =
+    action match {
+      case SelfInsert(s)                                              ⇒
+        val (newLineBuffer, newCompletionStateOpt) = getNewIncrementalSearchState(s, expressionState.lineBuffer, completionState, mish = false)
+        val newExpressionState = expressionState.copy(completionStateOpt = newCompletionStateOpt, lineBuffer = newLineBuffer)
+        updateState(browserState.setExpression(newExpressionState))
+      case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒ // restore previous state
+        for (ReplStateMemento(lineBuffer, completionState) ← completionState.mementoOpt) {
+          val newExpressionState = expressionState.copy(completionStateOpt = Some(completionState), lineBuffer = lineBuffer)
+          updateState(browserState.setExpression(newExpressionState))
+        }
+      case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
+        val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = 0, state.lineBuffer)
+        val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
+        updateState(browserState.setExpression(newExpressionState))
+      case _                                                          ⇒ // exit back to normal mode, and handle there
+        val newExpressionState = expressionState.copy(completionStateOpt = None)
+        updateState(browserState.setExpression(newExpressionState))
+        handleNormalExpressionInputAction(action, browserState.setExpression(newExpressionState), newExpressionState)
+    }
+
+
+  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
+    expressionState.completionStateOpt match {
+      case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
+      case _                                                 ⇒ handleNormalExpressionInputAction(action, browserState, expressionState)
+    }
+
+  private def handleNormalExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.copy(lineBuffer = f(expressionState.lineBuffer))))
     action match {
@@ -150,7 +182,6 @@ trait ObjectBrowserActionHandler
       case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
       case ToggleQuote        ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
       case Complete           ⇒
-
         for (result ← complete(expressionState.lineBuffer, mish = false)) {
           result.completions match {
             case Seq(completion) ⇒ immediateInsert(browserState, expressionState.lineBuffer, completion, result)

@@ -6,7 +6,8 @@ import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.{ LineBuffer, Repl }
 import com.github.mdr.mash.utils.Region
 
-trait IncrementalCompletionActionHandler { self: Repl ⇒
+trait IncrementalCompletionActionHandler {
+  self: Repl ⇒
 
   protected def enterIncrementalCompletionState(result: CompletionResult) {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, state.lineBuffer)
@@ -29,38 +30,46 @@ trait IncrementalCompletionActionHandler { self: Repl ⇒
 
   protected def handleIncrementalCompletionAction(action: InputAction, completionState: IncrementalCompletionState) =
     action match {
-      case SelfInsert(s) ⇒
+      case SelfInsert(s)                                              ⇒
         handleInsert(s, completionState)
       case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒ // restore previous state
         completionState.mementoOpt.foreach(_.restoreInto(state))
-      case Complete if completionState.immediatelyAfterCompletion ⇒ // enter browse completions mode
+      case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
         browseCompletions(completionState)
-      case _ ⇒ // exit back to normal mode, and handle there
+      case _                                                          ⇒ // exit back to normal mode, and handle there
         state.completionStateOpt = None
         handleNormalAction(action)
     }
 
-  private def handleInsert(s: String, completionState: IncrementalCompletionState) {
-    val memento = ReplStateMemento(state.lineBuffer, completionState.copy(immediatelyAfterCompletion = false))
-    for (c ← s)
-      state.updateLineBuffer(_.addCharacterAtCursor(c))
+  private def handleInsert(characters: String, completionState: IncrementalCompletionState) {
+    val (newLineBuffer, newCompletionStateOpt) = getNewIncrementalSearchState(characters, state.lineBuffer, completionState, state.mish)
+    state.completionStateOpt = newCompletionStateOpt
+    state.lineBuffer = newLineBuffer
+  }
 
-    state.completionStateOpt = None
-    for (CompletionResult(completions, location) ← complete) {
+  protected def getNewIncrementalSearchState(insertedCharacters: String,
+                                             lineBuffer: LineBuffer,
+                                             completionState: IncrementalCompletionState,
+                                             mish: Boolean): (LineBuffer, Option[IncrementalCompletionState]) = {
+    val memento = ReplStateMemento(lineBuffer, completionState.copy(immediatelyAfterCompletion = false))
+    val newLineBuffer = lineBuffer.addCharactersAtCursor(insertedCharacters)
+    var newCompletionStateOpt: Option[IncrementalCompletionState] = None
+    for (CompletionResult(completions, location) ← complete(newLineBuffer, mish)) {
       val previousLocation = completionState.replacementLocation
       val stillReplacingSameLocation = location.offset == previousLocation.offset
       if (stillReplacingSameLocation) {
-        val replacedText = location.of(state.lineBuffer.text)
+        val replacedText = location.of(newLineBuffer.text)
         completions match {
           case Seq(completion) if replacedText == completion.replacement ⇒
           // ... we leave incremental mode if what the user has typed is an exact much for the sole completion
           case _ ⇒
             val newCompletionState = IncrementalCompletionState(completions, location,
               immediatelyAfterCompletion = false, Some(memento))
-            state.completionStateOpt = Some(newCompletionState)
+            newCompletionStateOpt = Some(newCompletionState)
         }
       }
     }
+    (newLineBuffer, newCompletionStateOpt)
   }
 
 }
