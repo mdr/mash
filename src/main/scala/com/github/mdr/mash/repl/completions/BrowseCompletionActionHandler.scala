@@ -5,7 +5,8 @@ import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
 import com.github.mdr.mash.utils.{ RaggedGridNavigator, Region, StringUtils }
 
-trait BrowseCompletionActionHandler { self: Repl ⇒
+trait BrowseCompletionActionHandler {
+  self: Repl ⇒
 
   protected def handleBrowserCompletionAction(action: InputAction, completionState: BrowserCompletionState) {
     val navigator = gridNavigator(completionState)
@@ -16,24 +17,26 @@ trait BrowseCompletionActionHandler { self: Repl ⇒
       case NavigateLeft       ⇒ browseCompletions(completionState, navigator.left)
       case NavigateDown       ⇒ browseCompletions(completionState, navigator.down)
       case NavigateUp         ⇒ browseCompletions(completionState, navigator.up)
-      case AcceptCompletion ⇒
+      case AcceptCompletion   ⇒
         state.completionStateOpt = None
-      case _ ⇒
+      case _                  ⇒
         state.completionStateOpt = None
         handleNormalAction(action)
     }
   }
 
   /**
-   * Browse completions with the given active completion index
-   */
+    * Browse completions with the given active completion index
+    */
   protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
     val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion, state.lineBuffer)
     state.lineBuffer = newLineBuffer
     state.completionStateOpt = Some(newCompletionState)
   }
 
-  protected def getBrowseCompletionState(completionState: CompletionState, activeCompletion: Int, lineBuffer: LineBuffer): (BrowserCompletionState, LineBuffer) = {
+  protected def getBrowseCompletionState(completionState: CompletionState,
+                                         activeCompletion: Int,
+                                         lineBuffer: LineBuffer): (BrowserCompletionState, LineBuffer) = {
     val text = lineBuffer.text
     val offset = completionState.replacementLocation.offset
     val completion = completionState.completions(activeCompletion)

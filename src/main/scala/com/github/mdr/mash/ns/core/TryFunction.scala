@@ -3,7 +3,10 @@ package com.github.mdr.mash.ns.core
 import com.github.mdr.mash.evaluator.EvaluationInterruptedException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
+
+import scala.util.control.NonFatal
 
 object TryFunction extends MashFunction("core.try") {
 
@@ -15,6 +18,7 @@ object TryFunction extends MashFunction("core.try") {
     val Catch = Parameter(
       nameOpt = Some("catch"),
       summaryOpt = Some("Code to execute if an exception is thrown in the body"),
+      defaultValueGeneratorOpt = Some(NoArgValue),
       isLazy = true)
   }
 
@@ -24,12 +28,16 @@ object TryFunction extends MashFunction("core.try") {
 
   def call(boundParams: BoundParams): MashValue = {
     val body = boundParams(Body).asInstanceOf[MashFunction]
-    val catchBlock = boundParams(Catch).asInstanceOf[MashFunction]
     try
       body.callNullary()
     catch {
       case e: EvaluationInterruptedException ⇒ throw e
-      case _: Throwable ⇒ catchBlock.callNullary()
+      case NonFatal(_)                       ⇒
+        NoArgFunction.option(boundParams(Catch)) match {
+          case Some(catchBlock) ⇒ catchBlock.asInstanceOf[MashFunction].callNullary()
+          case None             ⇒ MashUnit
+        }
+
     }
   }
 

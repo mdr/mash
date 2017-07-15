@@ -243,4 +243,8 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // Url.host
   "net.url 'http://example.com' | .host" ==> "'example.com'"
 
+  // try
+  "try (error 'bang')" ==> "()"
+  "try (error 'bang') --catch='recovered'" ==> "'recovered'"
+  "a = 0; try 'no probs' --catch=(a += 1); a" ==> 0
 }
