@@ -10,7 +10,7 @@ import com.github.mdr.mash.utils.Utils._
 
 import scala.PartialFunction._
 
-case class CompletionRenderResult(lines: Seq[Line], numberOfCompletionColumns: Int)
+case class CompletionRenderResult(lines: Seq[Line])
 
 object CompletionRenderer {
 
@@ -18,10 +18,10 @@ object CompletionRenderer {
     completionStateOpt.map { completionState ⇒
       val completionDescriptionLines = renderCompletionDescription(completionState, terminalInfo)
       val remainingRows = math.max(0, terminalInfo.rows - completionDescriptionLines.size)
-      val (completionLines, numberOfCompletionColumns) = renderCompletionOptions(completionState, terminalInfo.copy(rows = remainingRows))
+      val completionLines = renderCompletionOptions(completionState, terminalInfo.copy(rows = remainingRows))
       val lines = completionLines ++ completionDescriptionLines
-      CompletionRenderResult(lines, numberOfCompletionColumns)
-    }.getOrElse(CompletionRenderResult(Seq(), 0))
+      CompletionRenderResult(lines)
+    }.getOrElse(CompletionRenderResult(Seq()))
 
   private def getCompletionColour(completionTypeOpt: Option[CompletionType]): Colour =
     completionTypeOpt.collect {
@@ -35,10 +35,15 @@ object CompletionRenderer {
       case CompletionType.Method    ⇒ BasicColour.Green
     }.getOrElse(BasicColour.Blue)
 
-  /**
-    * Return the lines for the completion, and the number of completion columns
-    */
-  private def renderCompletionOptions(completionState: CompletionState, terminalInfo: TerminalInfo): (Seq[Line], Int) = {
+  def getNumberOfCompletionColumns(completionState: CompletionState, terminalInfo: TerminalInfo): Int = {
+    val completions = completionState.completions
+    val terminalWidth = math.max(0, terminalInfo.columns)
+    val longestCompletionLength = completions.map(_.displayText.length).max
+    val columnGap = " " * 2
+    math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
+  }
+
+  private def renderCompletionOptions(completionState: CompletionState, terminalInfo: TerminalInfo): Seq[Line] = {
     val completions = completionState.completions
     val completionFragment = completionState match {
       case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "", "")
@@ -47,7 +52,7 @@ object CompletionRenderer {
     val terminalWidth = math.max(0, terminalInfo.columns)
     val longestCompletionLength = completions.map(_.displayText.length).max
     val columnGap = " " * 2
-    val numberOfCompletionColumns = math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
+    val numberOfCompletionColumns = getNumberOfCompletionColumns(completionState, terminalInfo)
     val columnWidth = math.min(terminalWidth, longestCompletionLength)
 
     def renderCompletion(completion: Completion, index: Int): StyledString = {
@@ -85,8 +90,7 @@ object CompletionRenderer {
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)
     val activeRow = activeIndex / numberOfCompletionColumns
     val firstRow = math.max(0, activeRow - terminalInfo.rows + 1)
-    val truncatedLines = allLines.window(firstRow, terminalInfo.rows)
-    (truncatedLines, numberOfCompletionColumns)
+    allLines.window(firstRow, terminalInfo.rows)
   }
 
   private def renderCompletionDescription(completionState: CompletionState, terminalInfo: TerminalInfo): Seq[Line] =

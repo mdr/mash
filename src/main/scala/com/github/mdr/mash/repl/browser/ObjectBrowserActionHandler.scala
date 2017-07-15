@@ -14,7 +14,8 @@ import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions._
-import com.github.mdr.mash.repl.completions.{ IncrementalCompletionState, ReplStateMemento }
+import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
+import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils.indexOf
@@ -132,6 +133,35 @@ trait ObjectBrowserActionHandler
         }
     }
 
+  protected def handleBrowserCompletionAction(action: InputAction,
+                                              browserState: BrowserState,
+                                              expressionState: ExpressionState,
+                                              completionState: BrowserCompletionState) {
+    val navigator = gridNavigator(completionState)
+    def navigate(activeCompletion: Int) = {
+      val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = activeCompletion, expressionState.lineBuffer)
+      val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
+      updateState(browserState.setExpression(newExpressionState))
+    }
+    action match {
+      case NextCompletion     ⇒ navigate(navigator.next)
+      case PreviousCompletion ⇒ navigate(navigator.previous)
+      case NavigateRight      ⇒ navigate(navigator.right)
+      case NavigateLeft       ⇒ navigate(navigator.left)
+      case NavigateDown       ⇒ navigate(navigator.down)
+      case NavigateUp         ⇒ navigate(navigator.up)
+      case AcceptCompletion   ⇒
+        val newExpressionState = expressionState.copy(completionStateOpt = None)
+        updateState(browserState.setExpression(newExpressionState))
+      case _                  ⇒
+        val newExpressionState = expressionState.copy(completionStateOpt = None)
+        val newBrowserState = browserState.setExpression(newExpressionState)
+        updateState(newBrowserState)
+        handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
+    }
+  }
+
+
   private def handleIncrementalCompletionAction(action: InputAction,
                                                 browserState: BrowserState,
                                                 expressionState: ExpressionState,
@@ -147,19 +177,21 @@ trait ObjectBrowserActionHandler
           updateState(browserState.setExpression(newExpressionState))
         }
       case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
-        val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = 0, state.lineBuffer)
+        val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = 0, expressionState.lineBuffer)
         val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
         updateState(browserState.setExpression(newExpressionState))
       case _                                                          ⇒ // exit back to normal mode, and handle there
         val newExpressionState = expressionState.copy(completionStateOpt = None)
-        updateState(browserState.setExpression(newExpressionState))
-        handleNormalExpressionInputAction(action, browserState.setExpression(newExpressionState), newExpressionState)
+        val newBrowserState = browserState.setExpression(newExpressionState)
+        updateState(newBrowserState)
+        handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
     }
 
 
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
     expressionState.completionStateOpt match {
       case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
+      case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, browserState, expressionState, completionState)
       case _                                                 ⇒ handleNormalExpressionInputAction(action, browserState, expressionState)
     }
 
@@ -267,7 +299,10 @@ trait ObjectBrowserActionHandler
       newIndex = (i + delta + fields.size) % fields.size
       newField ← fields(newIndex).asString.map(_.s)
       newItem ← obj.get(newField)
-      newPath = combineSafely(prefix, if (isLegalIdentifier(newField)) s".$newField" else s"['${escapeChars(newField)}']")
+      newPath = combineSafely(prefix, if (isLegalIdentifier(newField)) s".$newField"
+      else s"['${
+        escapeChars(newField)
+      }']")
     } yield ItemAndPath(newItem, newPath)
 
   private def selectParentItemByIntegerIndex(browserState: BrowserState, delta: Int): Option[ItemAndPath] =

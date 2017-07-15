@@ -3,6 +3,7 @@ package com.github.mdr.mash.repl.completions
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
+import com.github.mdr.mash.screen.CompletionRenderer
 import com.github.mdr.mash.utils.{ RaggedGridNavigator, Region, StringUtils }
 
 trait BrowseCompletionActionHandler {
@@ -52,10 +53,10 @@ trait BrowseCompletionActionHandler {
     (newCompletionState, newLineBuffer)
   }
 
-  private def gridNavigator(completionState: BrowserCompletionState): RaggedGridNavigator = {
+  protected def gridNavigator(completionState: BrowserCompletionState): RaggedGridNavigator = {
     val pos = completionState.activeCompletion
     val total = completionState.completions.length
-    val columns = previousReplRenderResultOpt.map(_.completionColumns).getOrElse(1)
+    val columns = CompletionRenderer.getNumberOfCompletionColumns(completionState, terminal.info)
     RaggedGridNavigator(total, columns, pos)
   }
 

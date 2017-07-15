@@ -10,7 +10,7 @@ import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils.StringUtils
 
-case class ReplRenderResult(screen: Screen, completionColumns: Int = 0)
+case class ReplRenderResult(screen: Screen)
 
 case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
 
@@ -35,14 +35,14 @@ object ReplRenderer {
     val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalInfo)
     val remainingRows = math.max(0, terminalInfo.rows - bufferLines.size - assistanceLines.size - historySearchLines.size)
-    val CompletionRenderResult(completionLines, numberOfCompletionColumns) =
+    val CompletionRenderResult(completionLines) =
       CompletionRenderer.renderCompletions(state.completionStateOpt, terminalInfo.copy(rows = remainingRows))
     val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalInfo.rows)
     val newCursorPos = historySearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
     val title = fileSystem.pwd.toString
     val screen = Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
-    ReplRenderResult(screen, numberOfCompletionColumns)
+    ReplRenderResult(screen)
   }
 
   private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalInfo: TerminalInfo): ReplRenderResult = {
@@ -72,12 +72,12 @@ object ReplRenderer {
 
   private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalInfo: TerminalInfo): ReplRenderResult =
     state.headState match {
-      case objectTableBrowserState: TwoDTableBrowserState          ⇒ renderObjectTableBrowser(objectTableBrowserState, terminalInfo)
-      case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(singleObjectBrowserState, terminalInfo)
-      case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ renderObjectTreeBrowser(objectTreeBrowserState, terminalInfo)
-      case valueBrowserState: ValueBrowserState                    ⇒ renderValueBrowser(valueBrowserState, terminalInfo)
-      case textLinesBrowserState: TextLinesBrowserState            ⇒ renderTextLinesBrowserState(textLinesBrowserState, terminalInfo)
-      case _                                                       ⇒ ???
+      case browserState: TwoDTableBrowserState         ⇒ renderObjectTableBrowser(browserState, terminalInfo)
+      case browserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(browserState, terminalInfo)
+      case browserState: ObjectTreeBrowserState        ⇒ renderObjectTreeBrowser(browserState, terminalInfo)
+      case browserState: ValueBrowserState             ⇒ renderValueBrowser(browserState, terminalInfo)
+      case browserState: TextLinesBrowserState         ⇒ renderTextLinesBrowserState(browserState, terminalInfo)
+      case browserState                                ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
     }
 
   private def renderHistorySearchState(searchState: HistorySearchState, terminalInfo: TerminalInfo): LinesAndCursorPos = {

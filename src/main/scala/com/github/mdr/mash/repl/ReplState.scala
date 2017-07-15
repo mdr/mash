@@ -65,13 +65,19 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
         }
     }
 
-  private def getBrowserMode(stack: ObjectBrowserStateStack): ReplMode =
-    stack.headState match {
-      case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
-      case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
-      case s if s.expressionStateOpt.isDefined                            ⇒ ReplMode.ObjectBrowser.ExpressionInput
-      case _                                                              ⇒ ReplMode.ObjectBrowser
+  private def getBrowserMode(stack: ObjectBrowserStateStack): ReplMode = {
+    val browserState = stack.headState
+    browserState.expressionStateOpt.flatMap(_.completionStateOpt) match {
+      case Some(_: BrowserCompletionState) ⇒ ReplMode.BrowseCompletions
+      case _                               ⇒
+        browserState match {
+          case s: TwoDTableBrowserState if s.searchStateOpt.isDefined         ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+          case s: SingleObjectTableBrowserState if s.searchStateOpt.isDefined ⇒ ReplMode.ObjectBrowser.IncrementalSearch
+          case s if s.expressionStateOpt.isDefined                            ⇒ ReplMode.ObjectBrowser.ExpressionInput
+          case _                                                              ⇒ ReplMode.ObjectBrowser
+        }
     }
+  }
 
   private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
 
