@@ -28,7 +28,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
       case Some(expressionState) ⇒
         val cursorOffset = expressionState.lineBuffer.cursorOffset
         val line = Line(new MashRenderer().renderChars(expressionState.lineBuffer.text, cursorOffsetOpt = Some(cursorOffset)))
-        val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, terminalInfo).lines
+        val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, terminalInfo.copy(terminalInfo.rows - 1)).lines
         Seq(line) ++ completionLines
       case None                  ⇒
         Seq(Line(new MashRenderer().renderChars(state.path)))

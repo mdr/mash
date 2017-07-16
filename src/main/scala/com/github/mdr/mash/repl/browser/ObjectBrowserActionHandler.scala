@@ -15,7 +15,7 @@ import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
-import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
+import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils.indexOf
@@ -299,10 +299,7 @@ trait ObjectBrowserActionHandler
       newIndex = (i + delta + fields.size) % fields.size
       newField ← fields(newIndex).asString.map(_.s)
       newItem ← obj.get(newField)
-      newPath = combineSafely(prefix, if (isLegalIdentifier(newField)) s".$newField"
-      else s"['${
-        escapeChars(newField)
-      }']")
+      newPath = combineSafely(prefix, if (isLegalIdentifier(newField)) s".$newField" else s"['${escapeChars(newField)}']")
     } yield ItemAndPath(newItem, newPath)
 
   private def selectParentItemByIntegerIndex(browserState: BrowserState, delta: Int): Option[ItemAndPath] =
