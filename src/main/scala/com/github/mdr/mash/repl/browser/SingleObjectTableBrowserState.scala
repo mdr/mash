@@ -6,8 +6,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.screen.Point
-import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.{ Point, Region }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer

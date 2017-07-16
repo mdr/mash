@@ -8,7 +8,7 @@ import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.browser.ArrowHelper._
 import com.github.mdr.mash.utils.StringUtils.{ centre, ellipsisise }
 import com.github.mdr.mash.utils.Utils._
-import com.github.mdr.mash.utils.{ Region, StringUtils }
+import com.github.mdr.mash.utils.{ Point, Region, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 

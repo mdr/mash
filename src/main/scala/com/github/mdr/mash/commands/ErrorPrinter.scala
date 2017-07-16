@@ -7,7 +7,7 @@ import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpa
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.screen.Screen.drawStyledChars
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, MashRenderer, Point }
+import com.github.mdr.mash.screen.{ BasicColour, MashRenderer }
 import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.utils._
 

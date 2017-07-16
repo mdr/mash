@@ -1,7 +1,5 @@
 package com.github.mdr.mash.utils
 
-import com.github.mdr.mash.screen.Point
-
 import scala.annotation.tailrec
 
 class LineInfo(s: String) {

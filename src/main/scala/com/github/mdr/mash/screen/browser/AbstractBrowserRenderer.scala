@@ -4,6 +4,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Point
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: TerminalInfo) {
 

@@ -8,7 +8,7 @@ import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ Point, StringUtils }
 
 case class ReplRenderResult(screen: Screen)
 

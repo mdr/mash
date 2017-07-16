@@ -1,4 +1,4 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.utils
 
 case class Point(row: Int, column: Int) {
 

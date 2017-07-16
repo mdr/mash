@@ -1,6 +1,5 @@
 package com.github.mdr.mash.utils
 
-import com.github.mdr.mash.screen.Point
 import org.scalatest.{ FlatSpec, Matchers }
 
 class LineInfoTest extends FlatSpec with Matchers {

@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.LineInfo
+import com.github.mdr.mash.utils.{ LineInfo, Point }
 
 object LineBufferRenderer {
 

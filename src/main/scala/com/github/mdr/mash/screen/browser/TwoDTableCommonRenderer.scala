@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.browser.ArrowHelper._
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ Point, StringUtils }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer

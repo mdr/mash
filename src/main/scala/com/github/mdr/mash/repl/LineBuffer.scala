@@ -1,7 +1,6 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.screen.Point
-import com.github.mdr.mash.utils.LineInfo
+import com.github.mdr.mash.utils.{ LineInfo, Point }
 
 object LineBuffer {
 

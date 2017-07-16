@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.ansi.{ Ansi, StyleToAnsi }
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.utils.{ Point, Utils }
 
 case class Line(string: StyledString, endsInNewline: Boolean = true) {
 

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.screen.Point
-import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.{ Point, Region }
 
 case class SearchState(query: String, byPoint: Map[Point, CellSearchInfo] = Map(), ignoreCase: Boolean = true) {
 
