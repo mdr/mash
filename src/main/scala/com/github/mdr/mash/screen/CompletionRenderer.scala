@@ -13,11 +13,11 @@ case class CompletionRenderResult(lines: Seq[Line])
 
 object CompletionRenderer {
 
-  def renderCompletions(completionStateOpt: Option[CompletionState], terminalSize: Dimension): CompletionRenderResult =
+  def renderCompletions(completionStateOpt: Option[CompletionState], availableSpace: Dimension): CompletionRenderResult =
     completionStateOpt.map { completionState ⇒
-      val completionDescriptionLines = renderCompletionDescription(completionState, terminalSize)
-      val remainingRows = math.max(0, terminalSize.rows - completionDescriptionLines.size)
-      val completionLines = renderCompletionOptions(completionState, terminalSize.copy(rows = remainingRows))
+      val completionDescriptionLines = renderCompletionDescription(completionState, availableSpace)
+      val remainingRows = math.max(0, availableSpace.rows - completionDescriptionLines.size)
+      val completionLines = renderCompletionOptions(completionState, availableSpace.copy(rows = remainingRows))
       val lines = completionLines ++ completionDescriptionLines
       CompletionRenderResult(lines)
     }.getOrElse(CompletionRenderResult(Seq()))
@@ -42,16 +42,16 @@ object CompletionRenderer {
     math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
   }
 
-  private def renderCompletionOptions(completionState: CompletionState, terminalSize: Dimension): Seq[Line] = {
+  private def renderCompletionOptions(completionState: CompletionState, availableSpace: Dimension): Seq[Line] = {
     val completions = completionState.completions
     val completionFragment = completionState match {
       case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "", "")
       case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayFragment
     }
-    val terminalWidth = math.max(0, terminalSize.columns)
+    val terminalWidth = math.max(0, availableSpace.columns)
     val longestCompletionLength = completions.map(_.displayText.length).max
     val columnGap = " " * 2
-    val numberOfCompletionColumns = getNumberOfCompletionColumns(completionState, terminalSize)
+    val numberOfCompletionColumns = getNumberOfCompletionColumns(completionState, availableSpace)
     val columnWidth = math.min(terminalWidth, longestCompletionLength)
 
     def renderCompletion(completion: Completion, index: Int): StyledString = {
@@ -88,8 +88,8 @@ object CompletionRenderer {
 
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)
     val activeRow = activeIndex / numberOfCompletionColumns
-    val firstRow = math.max(0, activeRow - terminalSize.rows + 1)
-    allLines.window(firstRow, terminalSize.rows)
+    val firstRow = math.max(0, activeRow - availableSpace.rows + 1)
+    allLines.window(firstRow, availableSpace.rows)
   }
 
   private def renderCompletionDescription(completionState: CompletionState, terminalSize: Dimension): Seq[Line] =
