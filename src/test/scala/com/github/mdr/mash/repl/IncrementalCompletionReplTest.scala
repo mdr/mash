@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.utils.Region
 
-class IncrementalCompletionTest extends AbstractReplTest {
+class IncrementalCompletionReplTest extends AbstractReplTest {
 
   "Incremental completion" should "stay incremental as you type characters" in {
     val repl = makeRepl()
