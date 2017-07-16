@@ -8,8 +8,8 @@ import com.github.mdr.mash.printer.ColumnId
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.utils.{ Point, Region }
 import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.utils.{ Point, Region }
 
 import scala.collection.mutable.ArrayBuffer
 

@@ -4,10 +4,9 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
-import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.utils.{ Point, Region }
 import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.utils.{ Point, Region }
 
 import scala.collection.mutable.ArrayBuffer
 

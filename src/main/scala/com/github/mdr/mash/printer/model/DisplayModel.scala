@@ -1,8 +1,8 @@
 package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.printer.ViewConfig
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.utils.Dimensions
 
 trait DisplayModel

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.completions
 
-import com.github.mdr.mash.os.{ MockEnvironmentInteractions, MockFileObject, MockFileSystem }
 import com.github.mdr.mash.os.MockFileObject._
+import com.github.mdr.mash.os.{ MockEnvironmentInteractions, MockFileObject, MockFileSystem }
 import org.scalatest.{ FlatSpec, Matchers }
 
 class PathCompleterTest extends FlatSpec with Matchers {

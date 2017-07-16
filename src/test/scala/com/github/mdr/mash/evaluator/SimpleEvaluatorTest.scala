@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
+import com.github.mdr.mash.compiler.{ CompilationUnit, Compiler }
 import com.github.mdr.mash.inference.SimpleEvaluator
 import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.parser.ParseError

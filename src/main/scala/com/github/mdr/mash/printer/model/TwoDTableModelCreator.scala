@@ -3,10 +3,9 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
 import com.github.mdr.mash.printer._
-import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row }
+import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row, RowLabelColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.{ Dimensions, Utils }
-import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 
 import scala.PartialFunction.cond
 

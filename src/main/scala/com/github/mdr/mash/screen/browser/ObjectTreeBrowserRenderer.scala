@@ -4,8 +4,8 @@ import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
-import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 

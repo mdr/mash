@@ -3,7 +3,7 @@ package com.github.mdr.mash.assist
 import com.github.mdr.mash.assist.InvocationAssistance.getTypeOfNearestFunction
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.inference.Type
-import com.github.mdr.mash.ns.collections.{ ListClass, ReverseFunction }
+import com.github.mdr.mash.ns.collections.ReverseFunction
 import com.github.mdr.mash.ns.core.stringClass.StartsWithMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.os.{ HomeFunction, ListFilesFunction }

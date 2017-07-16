@@ -3,7 +3,6 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
@@ -17,6 +16,7 @@ import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderer, Screen }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
+import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 
 import scala.annotation.tailrec
 

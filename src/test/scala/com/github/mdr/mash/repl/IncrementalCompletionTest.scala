@@ -5,7 +5,6 @@ import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.utils.Region
-import org.scalatest._
 
 class IncrementalCompletionTest extends AbstractReplTest {
 

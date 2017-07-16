@@ -14,8 +14,8 @@ import com.github.mdr.mash.parser.AbstractSyntax.Expr
 import com.github.mdr.mash.runtime.MashValue
 import org.apache.commons.lang3.SystemUtils
 import org.junit.runner.RunWith
-import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
 
 @RunWith(classOf[JUnitRunner])
 class TypeInferencerTest extends FlatSpec with Matchers {

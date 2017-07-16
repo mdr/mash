@@ -2,8 +2,8 @@ package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.os.MockEnvironmentInteractions
 import org.junit.runner.RunWith
-import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
 
 @RunWith(classOf[JUnitRunner])
 class TildeExpanderTest extends FlatSpec with Matchers {

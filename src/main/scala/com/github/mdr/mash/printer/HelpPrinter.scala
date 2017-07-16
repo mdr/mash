@@ -1,13 +1,14 @@
 package com.github.mdr.mash.printer
 
 import java.io.PrintStream
+
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.screen.Screen._
-import com.github.mdr.mash.utils.StringUtils.indent
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.utils.StringUtils.indent
 
 /**
   * Render function/method/field help objects in a similar style to man pages

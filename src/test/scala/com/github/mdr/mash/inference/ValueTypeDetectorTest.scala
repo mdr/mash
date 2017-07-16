@@ -4,7 +4,7 @@ import java.time.{ Instant, LocalDate }
 
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.{ PathClass, PermissionsSectionClass }
-import com.github.mdr.mash.ns.time.{ DateTimeClass, DaysClass, DateClass }
+import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass, DaysClass }
 import com.github.mdr.mash.runtime._
 import org.scalatest.{ FlatSpec, Matchers }
 

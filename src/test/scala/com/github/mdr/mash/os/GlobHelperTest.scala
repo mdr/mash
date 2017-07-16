@@ -4,8 +4,8 @@ import java.nio.file.Paths
 
 import com.github.mdr.mash.os.linux.GlobHelper
 import org.junit.runner.RunWith
-import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
 
 @RunWith(classOf[JUnitRunner])
 class GlobHelperTest extends FlatSpec with Matchers {

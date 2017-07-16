@@ -1,16 +1,16 @@
 package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.printer.model.TwoDTableModel
+import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.browser.ArrowHelper._
-import com.github.mdr.mash.utils.{ Point, StringUtils }
 import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.utils.{ Point, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
-import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
 
 class TwoDTableCommonRenderer(model: TwoDTableModel,
                               markedRowsOpt: Option[Set[Int]] = None,

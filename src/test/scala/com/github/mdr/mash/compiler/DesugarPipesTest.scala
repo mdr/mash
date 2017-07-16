@@ -2,8 +2,8 @@ package com.github.mdr.mash.compiler
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import org.junit.runner.RunWith
-import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
 
 @RunWith(classOf[JUnitRunner])
 class DesugarPipesTest extends FlatSpec with Matchers {
