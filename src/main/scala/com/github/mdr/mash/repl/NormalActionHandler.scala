@@ -132,7 +132,7 @@ trait NormalActionHandler {
   private def handleClearScreen() {
     output.write(Terminal.ClearScreenEscapeSequence.getBytes)
     output.flush()
-    previousReplRenderResultOpt = None
+    previousScreenOpt = None
   }
 
   private def handleToggleMish(): Unit = resetHistoryIfTextChanges {
@@ -161,7 +161,7 @@ trait NormalActionHandler {
   private def handleAcceptLine() =
     if (canAcceptBuffer) {
       updateScreenAfterAccept()
-      previousReplRenderResultOpt = None
+      previousScreenOpt = None
 
       history.resetHistoryPosition()
 
@@ -189,8 +189,8 @@ trait NormalActionHandler {
     state.updateLineBuffer(_.moveCursorToEndOfLine) // To make sure we don't highlight any matching brackets
     draw()
 
-    for (renderResult ← previousReplRenderResultOpt) {
-      output.write(renderResult.screen.acceptScreen.getBytes)
+    for (previousScreen ← previousScreenOpt) {
+      output.write(previousScreen.acceptScreen.getBytes)
       output.flush()
     }
   }

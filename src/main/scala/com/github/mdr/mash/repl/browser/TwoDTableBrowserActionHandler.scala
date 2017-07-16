@@ -73,7 +73,7 @@ trait TwoDTableBrowserActionHandler {
     val modelCreator = new TwoDTableModelCreator(terminal.size, supportMarking = true, state.viewConfig)
     val model = modelCreator.create(browserState.model.rawValue)
     updateState(browserState.copy(model = model))
-    previousReplRenderResultOpt = None
+    previousScreenOpt = None
   }
 
   private def handleHideColumn(browserState: TwoDTableBrowserState) =

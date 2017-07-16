@@ -13,7 +13,7 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.screen.{ ReplRenderResult, ReplRenderer }
+import com.github.mdr.mash.screen.{ ReplRenderer, Screen }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.tips.Tips
 
@@ -36,7 +36,7 @@ class Repl(protected val terminal: Terminal,
   protected val completer = new Completer(fileSystem, envInteractions)
 
   val state = new ReplState(globalVariables = globalVariables)
-  protected var previousReplRenderResultOpt: Option[ReplRenderResult] = None
+  protected var previousScreenOpt: Option[Screen] = None
 
   def run() {
     if (state.showStartupTips)
@@ -45,10 +45,10 @@ class Repl(protected val terminal: Terminal,
   }
 
   def draw() {
-    val replRenderResult = ReplRenderer.render(state, terminal.size)
-    val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
-    val drawn = replRenderResult.screen.draw(previousScreenOpt, terminal.columns)
-    previousReplRenderResultOpt = Some(replRenderResult)
+    val newScreen = ReplRenderer.render(state, terminal.size)
+    val previousScreenOpt = previousScreenOpt
+    val drawn = newScreen.draw(previousScreenOpt, terminal.columns)
+    previousScreenOpt = Some(newScreen)
 
     output.write(drawn.getBytes)
     output.flush()
