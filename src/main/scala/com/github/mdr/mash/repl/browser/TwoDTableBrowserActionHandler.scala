@@ -77,7 +77,7 @@ trait TwoDTableBrowserActionHandler {
   }
 
   private def handleHideColumn(browserState: TwoDTableBrowserState) =
-    for (currentColumn <- browserState.currentColumnOpt if currentColumn > 0)
+    for (currentColumn ← browserState.currentColumnOpt if currentColumn > 0)
       updateState(hideColumn(browserState, currentColumn))
 
   private def hideColumn(browserState: TwoDTableBrowserState, currentColumn: Int): TwoDTableBrowserState = {

@@ -10,7 +10,7 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimen
   extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderDataLines: Seq[Line] =
-    for ((l, index) <- state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
+    for ((l, index) ← state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
       yield Line(l.style(Style(inverse = index == (state.selectedRow - state.firstRow))))
 
   protected def renderLines: Seq[Line] =

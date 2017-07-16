@@ -230,13 +230,13 @@ trait ObjectBrowserActionHandler
       acceptReplacementExpression(expression)
 
   private def acceptReplacementExpression(expression: String): Unit =
-    for (result <- run(expression))
+    for (result ← run(expression))
       focus(result, expression, tree = false)
 
   private def acceptFollowOnExpression(currentPath: String, currentValue: MashValue, followOnExpression: String): Unit = {
     val newPath = combineSafely(currentPath, followOnExpression)
     val expressionToEvaluate = combineSafely("it", followOnExpression)
-    for (result <- run(expressionToEvaluate, Map(MashString("it") -> currentValue)))
+    for (result ← run(expressionToEvaluate, Map(MashString("it") -> currentValue)))
       focus(result, newPath, tree = false)
   }
 
@@ -264,19 +264,19 @@ trait ObjectBrowserActionHandler
 
   protected def selectParentItem(browserState: BrowserState, delta: Int) = {
     val newItemAndPath = selectParentItemByIntegerIndex(browserState, delta) orElse selectParentItemByName(browserState, delta)
-    for (ItemAndPath(newItem, newPath) <- newItemAndPath)
+    for (ItemAndPath(newItem, newPath) ← newItemAndPath)
       updateState(getNewBrowserState(newItem, newPath))
   }
 
   private def getParentValue: Option[MashValue] =
     for {
-      stack <- state.objectBrowserStateStackOpt
+      stack ← state.objectBrowserStateStackOpt
       parentState ← stack.parentState
     } yield parentState.rawValue
 
   private def selectParentItemByName(browserState: BrowserState, delta: Int): Option[ItemAndPath] =
     for {
-      LookupWithStringIndex(prefix, name) <- decomposeLookupWithStringIndex(browserState.path) orElse decomposeMember(browserState.path)
+      LookupWithStringIndex(prefix, name) ← decomposeLookupWithStringIndex(browserState.path) orElse decomposeMember(browserState.path)
       parentValue ← getParentValue
       obj ← parentValue.asObject
       fields = obj.immutableFields.keys.toSeq

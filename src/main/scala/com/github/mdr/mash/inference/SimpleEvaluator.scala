@@ -125,7 +125,7 @@ object SimpleEvaluator {
   }
 
   private def pairOfOptionToOptionPair[X, Y](pair: (Option[X], Option[Y])): Option[(X, Y)] =
-    for (x <- pair._1;
-         y <- pair._2) yield (x, y)
+    for (x ← pair._1;
+         y ← pair._2) yield (x, y)
 
 }

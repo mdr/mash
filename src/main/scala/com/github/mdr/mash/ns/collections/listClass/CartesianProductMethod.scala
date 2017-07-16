@@ -20,7 +20,7 @@ object CartesianProductMethod extends MashMethod("cartesianProduct") {
     val sequence = boundParams.validateSequence(Sequence)
     MashList(
       for {
-        element1 <- target.asInstanceOf[MashList].immutableElements
+        element1 ← target.asInstanceOf[MashList].immutableElements
         element2 ← sequence
       } yield MashList.of(element1, element2))
   }

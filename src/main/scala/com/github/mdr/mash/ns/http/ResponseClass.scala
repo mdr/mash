@@ -71,7 +71,7 @@ object ResponseClass extends MashClass("http.Response") {
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val pairs =
-        for (Header(name, value) <- Wrapper(target).headers)
+        for (Header(name, value) ← Wrapper(target).headers)
           yield name -> MashString(value)
       MashObject.of(pairs)
     }
@@ -97,7 +97,7 @@ object ResponseClass extends MashClass("http.Response") {
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val requestedName = boundParams.validateString(Name).s.toLowerCase
       val elements =
-        for (Header(name, value) <- Wrapper(target).headers if name.toLowerCase == requestedName)
+        for (Header(name, value) ← Wrapper(target).headers if name.toLowerCase == requestedName)
           yield MashString(value)
       MashList(elements)
     }

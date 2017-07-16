@@ -175,7 +175,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   // tap
   "x = 0; 42 | tap (x = _) | [x, _]" ==> "[42, 42]"
 
-  "def foo (n = 0) = n * 2; foo -2" ==> -4 // <-- negative number literal confusion bug
+  "def foo (n = 0) = n * 2; foo -2" ==> -4 // ←- negative number literal confusion bug
 
   // scope
   "a = 0; while (a < 10) { a = a + 1 }; a" ==> 10

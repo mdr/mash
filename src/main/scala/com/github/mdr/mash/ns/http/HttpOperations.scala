@@ -49,7 +49,7 @@ object HttpOperations {
 
     val actualHeaders = addAcceptApplicationJsonIfRequired(json, headers)
 
-    for (header <- actualHeaders)
+    for (header ← actualHeaders)
       request.setHeader(header.name, header.value)
 
     basicCredentialsOpt.foreach(_.addCredentials(request))

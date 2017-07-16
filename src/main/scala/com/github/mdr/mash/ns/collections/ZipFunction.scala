@@ -20,7 +20,7 @@ object ZipFunction extends MashFunction("collections.zip") {
   val params = ParameterModel(Sequence1, Sequence2)
 
   def call(boundParams: BoundParams): MashList = {
-    MashList(for ((l, r) <- boundParams.validateSequence(Sequence1) zip boundParams.validateSequence(Sequence2))
+    MashList(for ((l, r) ← boundParams.validateSequence(Sequence1) zip boundParams.validateSequence(Sequence2))
       yield MashList.of(l, r))
   }
 

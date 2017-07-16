@@ -45,7 +45,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case ObjectPattern(entries, _) ⇒
         value match {
           case obj: MashObject ⇒
-            for (entry <- entries)
+            for (entry ← entries)
               bindPattern(entry.valuePattern, obj.get(entry.field) getOrElse MashNull, locationOpt)
           case _               ⇒
             throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)

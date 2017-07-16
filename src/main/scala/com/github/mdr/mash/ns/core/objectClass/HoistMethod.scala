@@ -68,13 +68,13 @@ object HoistMethod extends MashMethod("hoist") {
       for {
         ValueInfo(valueOpt, _) ← argBindings.getArgument(HoistMethod.Params.FieldName)
         fieldName ← valueOpt.collect { case MashString(s, _) ⇒ s }
-        fields <- targetTypeOpt.flatMap(getFields)
-        fieldType <- fields.get(fieldName)
+        fields ← targetTypeOpt.flatMap(getFields)
+        fieldType ← fields.get(fieldName)
         (newFieldsOpt, isList) = fieldType match {
           case Type.Seq(elementType) ⇒ (getFields(elementType), true)
           case _                     ⇒ (getFields(fieldType), false)
         }
-        newFields <- newFieldsOpt
+        newFields ← newFieldsOpt
         newObjectType = Type.Object((fields - fieldName) ++ newFields)
       } yield if (isList) Type.Seq(newObjectType) else newObjectType
     }

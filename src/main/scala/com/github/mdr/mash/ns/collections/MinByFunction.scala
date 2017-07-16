@@ -36,7 +36,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
     var minValue: MashValue = null
     var minElem: MashValue = null
     var first = true
-    for (elem <- sequence) {
+    for (elem ← sequence) {
       val value = attribute(elem)
       if (value != MashNull)
         if (first || MashValueOrdering.lt(value, minValue)) {

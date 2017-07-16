@@ -81,7 +81,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     val highlightCell = isCursorRow && currentColumnIndexOpt.forall(_ == cellLocation.column)
     val fitCellContents = StringUtils.fitToWidth(cellContents, model.columnWidth(columnId))
     val renderedChars =
-      for ((c, offset) <- fitCellContents.zipWithIndex)
+      for ((c, offset) ← fitCellContents.zipWithIndex)
         yield {
           val isSearchMatch = searchInfoOpt exists (_ isMatched offset)
           val isLabel = columnId == RowLabelColumnId

@@ -13,7 +13,7 @@ object ViewableAsFields {
 
   implicit def fromLinkedHashMapStrings(map: LinkedHashMap[String, MashValue]): ViewableAsFields =
     new ViewableAsFields {
-      def fields = for ((k, v) <- map) yield MashString(k) -> v
+      def fields = for ((k, v) ← map) yield MashString(k) -> v
     }
 
   implicit def fromLinkedHashMap(map: LinkedHashMap[MashValue, MashValue]): ViewableAsFields =
@@ -23,7 +23,7 @@ object ViewableAsFields {
 
   implicit def fromMapStrings(map: Map[String, MashValue]): ViewableAsFields =
     new ViewableAsFields {
-      def fields = LinkedHashMap((for ((k, v) <- map.toSeq) yield MashString(k) -> v): _*)
+      def fields = LinkedHashMap((for ((k, v) ← map.toSeq) yield MashString(k) -> v): _*)
     }
 
   implicit def fromMap(map: Map[MashValue, MashValue]): ViewableAsFields =
@@ -38,7 +38,7 @@ object ViewableAsFields {
 
   implicit def fromPairsStrings(pairs: Seq[(String, MashValue)]): ViewableAsFields =
     new ViewableAsFields {
-      def fields = LinkedHashMap((for ((k, v) <- pairs) yield MashString(k) -> v): _*)
+      def fields = LinkedHashMap((for ((k, v) ← pairs) yield MashString(k) -> v): _*)
     }
 
   implicit def fromPairs(pairs: Seq[(MashValue, MashValue)]): ViewableAsFields =

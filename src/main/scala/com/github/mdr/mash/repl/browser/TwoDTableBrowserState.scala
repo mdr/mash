@@ -68,10 +68,10 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
       }
     val tuples: Seq[(Point, CellSearchInfo)] =
       for {
-        row <- 0 until numberOfRows
-        column <- 0 until numberOfColumns
+        row ← 0 until numberOfRows
+        column ← 0 until numberOfColumns
         point = Point(row, column)
-        cellInfo <- getCellSearchInfo(pattern, row, column)
+        cellInfo ← getCellSearchInfo(pattern, row, column)
       } yield point -> cellInfo
     val newRow =
       tuples.collectFirst { case (point, _) if point.row >= currentRow ⇒ point.row }

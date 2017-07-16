@@ -155,7 +155,7 @@ class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInf
 
   private def inferType(statementSeq: StatementSeq, bindings: Map[String, Type]): Option[Type] = {
     var latestBindings = bindings
-    for (statement <- statementSeq.statements) {
+    for (statement ← statementSeq.statements) {
       inferType(statement, latestBindings)
       statement match {
         case AssignmentExpr(Identifier(name, _), _, _, _) ⇒

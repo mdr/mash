@@ -34,7 +34,7 @@ object ProcessRunner {
       val start = Instant.now
       val process = builder.start()
 
-      for (stdinImmediate <- stdinImmediateOpt)
+      for (stdinImmediate ← stdinImmediateOpt)
         writeStdinImmediate(process, stdinImmediate)
 
       val stdout = if (captureProcess) IOUtils.toString(process.getInputStream, StandardCharsets.UTF_8) else ""

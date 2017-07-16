@@ -42,7 +42,7 @@ object DeselectFunction extends MashFunction("collections.deselect") {
       for {
         param ← argBindings.paramAt(argPos)
         if param == Fields
-        targetType <- argBindings.getType(Target)
+        targetType ← argBindings.getType(Target)
         actualTargetType = targetType match {
           case Type.Seq(elemType) ⇒ elemType
           case _                  ⇒ targetType

@@ -135,9 +135,9 @@ object TransposeTypeInferenceStrategy extends TypeInferenceStrategy {
       case Type.Seq(Type.Seq(x))         ⇒
         x.seq.seq
       case Type.Seq(Type.Object(fields)) ⇒
-        Type.Object(for ((field, fieldType) <- fields) yield field -> fieldType.seq)
+        Type.Object(for ((field, fieldType) ← fields) yield field -> fieldType.seq)
       case Type.Seq(Type.Instance(klass)) ⇒
-        Type.Object(for ((fieldName, field) <- klass.fieldsMap) yield fieldName -> field.fieldType.seq)
+        Type.Object(for ((fieldName, field) ← klass.fieldsMap) yield fieldName -> field.fieldType.seq)
       case Type.Seq(_)                   ⇒
         Type.Any.seq.seq
     }

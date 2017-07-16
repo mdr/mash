@@ -273,7 +273,7 @@ class MashParse(lexerResult: LexerResult, initialForgiving: Boolean)
       listExpr()
     else if (LBRACE) {
       if ((lookahead(1) == IDENTIFIER || lookahead(1) == STRING_LITERAL) && lookahead(2) == COLON)
-        objectExpr() // <-- better error messages if we can positively commit to this being an objectExpr
+        objectExpr() // ←- better error messages if we can positively commit to this being an objectExpr
       else
         speculate("objectExpr")(objectExpr()) getOrElse blockExpr()
     } else if (MISH_INTERPOLATION_START || MISH_INTERPOLATION_START_NO_CAPTURE)

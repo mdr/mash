@@ -8,7 +8,7 @@ class TextLinesModelCreator(viewConfig: ViewConfig) {
 
   def create(list: MashList): TextLinesModel = {
     val lines =
-      for (line <- list.elements)
+      for (line ← list.elements)
         yield ToStringifier.stringify(line)
     TextLinesModel(lines, list)
   }

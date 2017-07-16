@@ -53,7 +53,7 @@ object InnerJoinMethod extends MashMethod("innerJoin") {
 
   private def addPrefix(obj: MashObject, prefix: String): MashObject =
     MashObject.of(
-      for ((f, v) <- obj.immutableFields)
+      for ((f, v) ← obj.immutableFields)
         yield (prefix + f) -> v)
 
   override def summaryOpt: Option[String] = Some("Inner join with a list of other objects")

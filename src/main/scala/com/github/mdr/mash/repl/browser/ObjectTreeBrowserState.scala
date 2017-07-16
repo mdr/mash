@@ -103,7 +103,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
     private def scan(node: ObjectTreeNode, path: ObjectTreePath, depth: Int): Unit = node match {
 
       case ObjectTreeNode.List(values, _) if values.nonEmpty ⇒
-        for ((value, index) <- values.zipWithIndex) {
+        for ((value, index) ← values.zipWithIndex) {
           val itemPath = path.descend(index)
           rows += (itemPath -> row)
           recordPathDepth(itemPath, depth)
@@ -125,7 +125,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
         recordPathDepth(path.ontoValue, depth + 1)
 
       case ObjectTreeNode.Object(values, _) if values.nonEmpty ⇒
-        for ((field, value) <- values) {
+        for ((field, value) ← values) {
           val itemPath = path.descend(field)
           rows += (itemPath -> row)
           recordPathDepth(itemPath, depth)

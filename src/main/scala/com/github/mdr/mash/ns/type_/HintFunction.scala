@@ -58,7 +58,7 @@ object HintTypeInferenceStrategy extends TypeInferenceStrategy {
     case obj: MashObject         ⇒
       val fieldTypes =
         for {
-          (fieldName, fieldValue) <- obj.immutableFields
+          (fieldName, fieldValue) ← obj.immutableFields
           stringFieldName ← condOpt(fieldName) { case s: MashString ⇒ s.s }
           fieldType = getType(fieldValue) getOrElse Type.Instance(AnyClass)
         } yield stringFieldName -> fieldType

@@ -70,19 +70,19 @@ class GeneralArgBinder[T](params: ParameterModel,
   private def handlePositional() {
     val args1 = positionArgAndPos
 
-    for ((param, argAndPos) <- positionalParameterSet.initialMandatory zip args1)
+    for ((param, argAndPos) ← positionalParameterSet.initialMandatory zip args1)
       addArgToParam(param, argAndPos)
     val args2 = args1.drop(positionalParameterSet.initialMandatory.length)
 
-    for ((param, argAndPos) <- positionalParameterSet.finalMandatory.reverse zip args2.reverse)
+    for ((param, argAndPos) ← positionalParameterSet.finalMandatory.reverse zip args2.reverse)
       addArgToParam(param, argAndPos)
     val args3 = args2.dropRight(positionalParameterSet.finalMandatory.length)
 
-    for ((param, argAndPos) <- positionalParameterSet.initialOptional zip args3)
+    for ((param, argAndPos) ← positionalParameterSet.initialOptional zip args3)
       addArgToParam(param, argAndPos)
     val args4 = args3.drop(positionalParameterSet.initialOptional.length)
 
-    for ((param, argAndPos) <- positionalParameterSet.finalOptional.reverse zip args4.reverse)
+    for ((param, argAndPos) ← positionalParameterSet.finalOptional.reverse zip args4.reverse)
       addArgToParam(param, argAndPos)
     val args5 = args4.dropRight(positionalParameterSet.finalOptional.length)
 

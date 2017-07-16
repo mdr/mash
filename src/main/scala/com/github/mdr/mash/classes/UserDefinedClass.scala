@@ -24,7 +24,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
     override def call(boundParams: BoundParams): MashObject = {
       val fields =
         for {
-          param <- params.params
+          param ← params.params
           boundName ← param.boundNames
         } yield boundName -> boundParams(boundName)
       MashObject.of(fields, UserDefinedClass.this)

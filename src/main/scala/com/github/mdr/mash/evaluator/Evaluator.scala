@@ -283,7 +283,7 @@ object Evaluator extends EvaluatorHelper {
                      docCommentOpt: Option[DocComment] = None): ParameterModel = {
     val evaluationContext = evaluationContextOpt.getOrElse(EvaluationContext(ScopeStack(Nil)))
     val parameters: Seq[Parameter] = paramList.params.map(makeParameter(_, Some(evaluationContext), docCommentOpt))
-    for (context <- evaluationContextOpt)
+    for (context ← evaluationContextOpt)
       verifyParameters(paramList)(context)
     ParameterModel(parameters)
   }

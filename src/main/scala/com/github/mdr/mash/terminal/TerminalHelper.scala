@@ -24,7 +24,7 @@ object TerminalHelper {
     val method = terminal.getClass.getDeclaredMethod("getSettings")
     method.setAccessible(true)
     method.invoke(terminal).asInstanceOf[TerminalLineSettings]
-    //	val settings =  terminal.getSettings // <-- would prefer to use
+    //	val settings =  terminal.getSettings // ←- would prefer to use
   }
 
 }

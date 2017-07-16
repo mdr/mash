@@ -23,7 +23,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   val paramByName: Map[String, Parameter] = {
     var paramMap: Map[String, Parameter] = Map()
     for (param ← params) {
-      for (paramName <- param.nameOpt)
+      for (paramName ← param.nameOpt)
         paramMap += paramName -> param
       for (shortFlag ← param.shortFlagOpt)
         paramMap += shortFlag.toString -> param

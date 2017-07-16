@@ -111,7 +111,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
   private def renderFieldCell(renderedField: String, isCursorRow: Boolean, searchHitRegions: Seq[Region]): StyledString = {
     val chars = StringUtils.fitToWidth(renderedField, model.fieldColumnWidth)
     val buf = ArrayBuffer[StyledCharacter]()
-    for ((c, offset) <- chars.zipWithIndex) {
+    for ((c, offset) ← chars.zipWithIndex) {
       val isSearchMatch = searchHitRegions exists (_ contains offset)
       val style = getStyle(highlight = isCursorRow, isLabel = true, isSearchMatch = isSearchMatch)
       buf += StyledCharacter(c, style)
@@ -122,7 +122,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
   private def renderValueCell(renderedValue: String, isCursorRow: Boolean, searchHitRegions: Seq[Region]): StyledString = {
     val chars = StringUtils.fitToWidth(renderedValue, model.valueColumnWidth)
     val buf = ArrayBuffer[StyledCharacter]()
-    for ((c, offset) <- chars.zipWithIndex) {
+    for ((c, offset) ← chars.zipWithIndex) {
       val isSearchMatch = searchHitRegions exists (_ contains offset)
       val style = getStyle(highlight = isCursorRow, isSearchMatch = isSearchMatch)
       buf += StyledCharacter(c, style)

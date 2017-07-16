@@ -36,7 +36,7 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
     var maxValue: MashValue = null
     var maxElem: MashValue = null
     var first = true
-    for (elem <- sequence) {
+    for (elem ← sequence) {
       val value = attribute(elem)
       if (value != MashNull)
         if (first || MashValueOrdering.gt(value, maxValue)) {

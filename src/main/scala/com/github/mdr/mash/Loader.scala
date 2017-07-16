@@ -36,7 +36,7 @@ class Loader(terminal: Terminal,
       LoadResult(namespace, loadScope) ← load(path)
       (name, value) ← loadScope.immutableFields.collect { case (s: MashString, v) ⇒ s.s -> v }
     } populate(ns, namespace.segments.toList, name, value)
-    for ((name, value) <- ns.immutableFields)
+    for ((name, value) ← ns.immutableFields)
       globals.set(name, value)
   }
 

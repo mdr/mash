@@ -18,7 +18,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
     bindParams(parameterToArgs)
 
     val parameterToArguments =
-      for ((param, evalArgs) <- parameterToArgs)
+      for ((param, evalArgs) ← parameterToArgs)
         yield param -> evalArgs.flatMap(_.argumentNodeOpt)
 
     BoundParams(boundNames, parameterToArguments, allResolvedArgs)
@@ -157,7 +157,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
   private def bindObjectPattern(objectPattern: Object, locationOpt: Option[SourceLocation], value: MashValue) =
     value match {
       case obj: MashObject ⇒
-        for (entry <- objectPattern.entries)
+        for (entry ← objectPattern.entries)
           entry match {
             case ParamPattern.ObjectEntry(fieldName, None)               ⇒
               boundNames += fieldName -> obj.get(fieldName).getOrElse(MashNull)

@@ -71,7 +71,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
   }
 
   private def printList(printer: Printer, nodes: Seq[ObjectTreeNode], prefix: String, currentPath: ObjectTreePath, connectUp: Boolean) {
-    for ((node, index) <- nodes.zipWithIndex) {
+    for ((node, index) ← nodes.zipWithIndex) {
       val itemPath = currentPath.descend(index)
       val isLastNode = index == nodes.length - 1
       val (nodePrefix, connector) = getPrefixAndConnector(index, nodes, connectUp, prefix)
@@ -103,7 +103,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
   }
 
   private def printObject(printer: Printer, nodes: Seq[(String, ObjectTreeNode)], prefix: String, currentPath: ObjectTreePath, connectUp: Boolean) {
-    for (((field, node), index) <- nodes.zipWithIndex) {
+    for (((field, node), index) ← nodes.zipWithIndex) {
       val itemPath = currentPath.descend(field)
       val isLastNode = index == nodes.length - 1
       val (nodePrefix, connector) = getPrefixAndConnector(index, nodes.map(_._2), connectUp, prefix)
