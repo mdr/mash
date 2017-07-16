@@ -6,9 +6,9 @@ import com.github.mdr.mash.printer.model.SingleObjectTableModelCreator
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Screen
 import com.github.mdr.mash.screen.browser.SingleObjectTableCommonRenderer
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimension, viewConfig: ViewConfig) {
+class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {
 
   def printObject(obj: MashObject) = {
     val model = new SingleObjectTableModelCreator(terminalSize, supportMarking = false, viewConfig).create(obj)

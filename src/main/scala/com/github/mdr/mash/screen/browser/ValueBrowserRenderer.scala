@@ -3,9 +3,9 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.ValueBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimension)
+class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
   def renderDataLines: Seq[Line] = {

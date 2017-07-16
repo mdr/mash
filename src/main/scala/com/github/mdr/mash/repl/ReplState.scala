@@ -37,6 +37,18 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
                 var insertLastArgStateOpt: Option[InsertLastArgState] = None,
                 var objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
 
+  def cloneFrom(that: ReplState): Unit = {
+    this.lineBuffer = that.lineBuffer
+    this.commandNumber = that.commandNumber
+    this.completionStateOpt = that.completionStateOpt
+    this.assistanceStateOpt = that.assistanceStateOpt
+    this.continue = that.continue
+    this.historySearchStateOpt = that.historySearchStateOpt
+    this.mish = that.mish
+    this.insertLastArgStateOpt = that.insertLastArgStateOpt
+    this.objectBrowserStateStackOpt = that.objectBrowserStateStackOpt
+  }
+
   def reset() {
     lineBuffer = LineBuffer.Empty
     completionStateOpt = None

@@ -11,10 +11,10 @@ import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.{ BasicColour, Screen }
 import com.github.mdr.mash.{ DebugLogger, Singletons }
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
 class CommandRunner(output: PrintStream,
-                    terminalSize: Dimension,
+                    terminalSize: Dimensions,
                     globals: MashObject,
                     sessionId: UUID,
                     printErrors: Boolean = true) {

@@ -3,10 +3,10 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.TextLinesBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 import com.github.mdr.mash.utils.Utils._
 
-class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimension)
+class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderDataLines: Seq[Line] =

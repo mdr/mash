@@ -3,9 +3,9 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, _ }
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimension)
+class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderLines: Seq[Line] =

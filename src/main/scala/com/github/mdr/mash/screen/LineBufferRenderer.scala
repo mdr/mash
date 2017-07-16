@@ -5,14 +5,14 @@ import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSys
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.utils.{ Dimension, LineInfo, Point }
+import com.github.mdr.mash.utils.{ Dimensions, LineInfo, Point }
 
 object LineBufferRenderer {
 
   private val envInteractions = LinuxEnvironmentInteractions
   private val fileSystem = LinuxFileSystem
 
-  def renderLineBuffer(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): LinesAndCursorPos = {
+  def renderLineBuffer(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
     val cursorPos = lineBuffer.cursorPos

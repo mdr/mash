@@ -2,12 +2,12 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 import com.github.mdr.mash.utils.StringUtils.ellipsisise
 
 object AssistanceRenderer {
 
-  def render(assistanceState: AssistanceState, terminalSize: Dimension): Seq[Line] = {
+  def render(assistanceState: AssistanceState, terminalSize: Dimensions): Seq[Line] = {
     val title = assistanceState.title
     val lines = assistanceState.lines
     val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 6), terminalSize.columns)

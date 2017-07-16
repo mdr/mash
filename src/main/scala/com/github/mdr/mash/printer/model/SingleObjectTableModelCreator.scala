@@ -3,9 +3,9 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class SingleObjectTableModelCreator(terminalSize: Dimension,
+class SingleObjectTableModelCreator(terminalSize: Dimensions,
                                     supportMarking: Boolean = false,
                                     viewConfig: ViewConfig) {
 

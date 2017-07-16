@@ -1,6 +1,6 @@
 package com.github.mdr.mash.terminal
 
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
 object Terminal {
 
@@ -10,7 +10,7 @@ object Terminal {
 
 trait Terminal {
 
-  def size: Dimension
+  def size: Dimensions
 
   def rows = size.rows
 
@@ -20,7 +20,7 @@ trait Terminal {
 
 class JLineTerminalWrapper(terminal: jline.Terminal) extends Terminal {
 
-  override def size = Dimension(terminal.getHeight, terminal.getWidth)
+  override def size = Dimensions(terminal.getHeight, terminal.getWidth)
 
 }
 

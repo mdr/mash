@@ -6,9 +6,9 @@ import com.github.mdr.mash.printer.model.TwoDTableModelCreator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Screen
 import com.github.mdr.mash.screen.browser.TwoDTableCommonRenderer
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class TwoDTablePrinter(output: PrintStream, terminalSize: Dimension, viewConfig: ViewConfig) {
+class TwoDTablePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {
 
   def printTable(value: MashValue) = {
     val creator = new TwoDTableModelCreator(terminalSize, supportMarking = false, viewConfig)

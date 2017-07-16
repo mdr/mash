@@ -8,7 +8,7 @@ import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.browser._
-import com.github.mdr.mash.utils.{ Dimension, Point }
+import com.github.mdr.mash.utils.{ Dimensions, Point }
 
 case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
 
@@ -20,13 +20,13 @@ object ReplRenderer {
 
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): Screen =
+  def render(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen =
     state.objectBrowserStateStackOpt match {
       case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalSize)
       case None                     ⇒ renderRegularRepl(state, terminalSize, globalVariables, bareWords)
     }
 
-  private def renderRegularRepl(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): Screen = {
+  private def renderRegularRepl(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen = {
     val LinesAndCursorPos(bufferLines, bufferCursorPos) = LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
     val historySearchScreenOpt = state.historySearchStateOpt.map(renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
@@ -42,22 +42,22 @@ object ReplRenderer {
     Screen(truncatedLines, Some(newCursorPos), title)
   }
 
-  private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalSize: Dimension): Screen =
+  private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalSize: Dimensions): Screen =
     new TwoDTableBrowserRenderer(state, terminalSize).renderObjectBrowser
 
-  private def renderSingleObjectBrowser(state: SingleObjectTableBrowserState, terminalSize: Dimension): Screen =
+  private def renderSingleObjectBrowser(state: SingleObjectTableBrowserState, terminalSize: Dimensions): Screen =
     new SingleObjectTableBrowserRenderer(state, terminalSize).renderObjectBrowser
 
-  private def renderObjectTreeBrowser(state: ObjectTreeBrowserState, terminalSize: Dimension): Screen =
+  private def renderObjectTreeBrowser(state: ObjectTreeBrowserState, terminalSize: Dimensions): Screen =
     new ObjectTreeBrowserRenderer(state, terminalSize).renderObjectBrowser
 
-  private def renderValueBrowser(state: ValueBrowserState, terminalSize: Dimension): Screen =
+  private def renderValueBrowser(state: ValueBrowserState, terminalSize: Dimensions): Screen =
     new ValueBrowserRenderer(state, terminalSize).renderObjectBrowser
 
-  private def renderTextLinesBrowserState(state: TextLinesBrowserState, terminalSize: Dimension): Screen =
+  private def renderTextLinesBrowserState(state: TextLinesBrowserState, terminalSize: Dimensions): Screen =
     new TextLinesBrowserRenderer(state, terminalSize).renderObjectBrowser
 
-  private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalSize: Dimension): Screen =
+  private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalSize: Dimensions): Screen =
     state.headState match {
       case browserState: TwoDTableBrowserState         ⇒ renderObjectTableBrowser(browserState, terminalSize)
       case browserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(browserState, terminalSize)
@@ -67,7 +67,7 @@ object ReplRenderer {
       case browserState                                ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
     }
 
-  private def renderHistorySearchState(searchState: HistorySearchState, terminalSize: Dimension): LinesAndCursorPos = {
+  private def renderHistorySearchState(searchState: HistorySearchState, terminalSize: Dimensions): LinesAndCursorPos = {
     val prefixChars: StyledString = "Incremental history search: ".style
     val searchChars: StyledString = searchState.searchString.style(Style(foregroundColour = BasicColour.Cyan))
     val chars = (prefixChars + searchChars).take(terminalSize.columns)
@@ -76,7 +76,7 @@ object ReplRenderer {
     LinesAndCursorPos(Seq(line), cursorPos)
   }
 
-  private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalSize: Dimension): Seq[Line] =
+  private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalSize: Dimensions): Seq[Line] =
     assistanceStateOpt.toSeq.flatMap(AssistanceRenderer.render(_, terminalSize))
 
 }

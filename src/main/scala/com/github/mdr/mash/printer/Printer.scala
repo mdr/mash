@@ -17,7 +17,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.utils.{ Dimension, NumberUtils }
+import com.github.mdr.mash.utils.{ Dimensions, NumberUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true, browseLargeOutput: Boolean = true)
@@ -59,7 +59,7 @@ class FieldRenderer(viewConfig: ViewConfig) {
 
 case class PrintResult(displayModelOpt: Option[DisplayModel] = None)
 
-class Printer(output: PrintStream, terminalSize: Dimension, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
+class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
 
   private val helpPrinter = new HelpPrinter(output)
   private val fieldRenderer = new FieldRenderer(viewConfig)

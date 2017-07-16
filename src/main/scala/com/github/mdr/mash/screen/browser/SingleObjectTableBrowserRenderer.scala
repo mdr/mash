@@ -2,9 +2,9 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.{ KeyHint, _ }
-import com.github.mdr.mash.utils.Dimension
+import com.github.mdr.mash.utils.Dimensions
 
-class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimension)
+class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderLines: Seq[Line] =

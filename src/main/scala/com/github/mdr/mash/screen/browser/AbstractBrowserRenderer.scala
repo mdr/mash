@@ -3,9 +3,9 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.utils.{ Dimension, Point }
+import com.github.mdr.mash.utils.{ Dimensions, Point }
 
-abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimension) {
+abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimensions) {
 
   protected val fileSystem = LinuxFileSystem
 
