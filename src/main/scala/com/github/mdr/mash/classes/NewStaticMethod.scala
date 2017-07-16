@@ -1,10 +1,10 @@
 package com.github.mdr.mash.classes
 
-import com.github.mdr.mash.evaluator.Arguments
+import com.github.mdr.mash.classes.MashClass.ConstructorMethodName
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-case class NewStaticMethod(klass: MashClass) extends MashFunction(MashClass.ConstructorMethodName) {
+case class NewStaticMethod(klass: MashClass) extends MashFunction(ConstructorMethodName) {
 
   override def params: ParameterModel = {
     val params =

@@ -40,7 +40,9 @@ object AssignmentEvaluator extends EvaluatorHelper {
     rightValue
   }
 
-  private def bindPattern(pattern: Pattern, value: MashValue, locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): Unit =
+  private def bindPattern(pattern: Pattern,
+                          value: MashValue,
+                          locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): Unit =
     pattern match {
       case ObjectPattern(entries, _) ⇒
         value match {
@@ -80,7 +82,12 @@ object AssignmentEvaluator extends EvaluatorHelper {
     }
   }
 
-  private def evaluateAssignmentToListIndex(lookupExpr: LookupExpr, xs: MashList, index: Expr, indexValue: MashValue, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue =
+  private def evaluateAssignmentToListIndex(lookupExpr: LookupExpr,
+                                            xs: MashList,
+                                            index: Expr,
+                                            indexValue: MashValue,
+                                            operatorOpt: Option[BinaryOperator],
+                                            rightValue: MashValue)(implicit context: EvaluationContext): MashValue =
     indexValue match {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(
@@ -100,7 +107,10 @@ object AssignmentEvaluator extends EvaluatorHelper {
         throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
     }
 
-  private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr, assignmentExpr: AssignmentExpr, operatorOpt: Option[BinaryOperator], rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
+  private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr,
+                                             assignmentExpr: AssignmentExpr,
+                                             operatorOpt: Option[BinaryOperator],
+                                             rightValue: MashValue)(implicit context: EvaluationContext): MashValue = {
     val MemberExpr(target, fieldName, _, _) = memberExpr
     Evaluator.evaluate(target) match {
       case obj: MashObject ⇒

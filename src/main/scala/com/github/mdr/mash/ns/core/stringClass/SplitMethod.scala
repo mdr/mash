@@ -40,7 +40,7 @@ object SplitMethod extends MashMethod("split") {
     MashList(pieces.map(MashString(_, string.tagClassOpt)))
   }
 
-  override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) =>
+  override def typeInferenceStrategy = (inferencer, targetTypeOpt, arguments) ⇒
     targetTypeOpt orElse Some(Type.Instance(StringClass)) map (_.seq)
 
   override def summaryOpt = Some("Split this string into a sequence of substrings using a separator")
