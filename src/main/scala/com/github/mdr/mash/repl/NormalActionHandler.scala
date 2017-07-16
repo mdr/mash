@@ -51,7 +51,7 @@ trait NormalActionHandler {
     if (state.commandNumber > 0) {
       val commandNumber = state.commandNumber - 1
       val path = s"$ResultVarPrefix$commandNumber"
-      for (value ← state.globalVariables.get(path)) {
+      for (value ← globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
         state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
       }
@@ -167,11 +167,11 @@ trait NormalActionHandler {
   }
 
   protected def runCommand(cmd: String) {
-    val commandRunner = new CommandRunner(output, terminal.size, state.globalVariables, sessionId)
+    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
     val unitName = s"command-${state.commandNumber}"
     val commandResult =
       try
-        commandRunner.run(cmd, unitName, state.mish, state.bareWords, state.viewConfig)
+        commandRunner.run(cmd, unitName, state.mish, bareWords, viewConfig)
       catch {
         case e: Exception ⇒
           e.printStackTrace()
@@ -202,19 +202,19 @@ trait NormalActionHandler {
   }
 
   private def saveResult(commandNumber: Int)(result: MashValue) {
-    state.globalVariables.set(It, result)
-    state.globalVariables.set(ResultVarPrefix + commandNumber, result)
+    globalVariables.set(It, result)
+    globalVariables.set(ResultVarPrefix + commandNumber, result)
     saveResultInList(result, commandNumber)
   }
 
   private def saveResultInList(result: MashValue, commandNumber: Int) {
     val oldResults =
-      state.globalVariables.get(ResultsListName)
+      globalVariables.get(ResultsListName)
         .collect { case xs: MashList ⇒ xs.immutableElements }
         .getOrElse(Seq())
     val extendedResults = oldResults ++ Seq.fill(commandNumber - oldResults.length + 1)(MashNull)
     val newResults = MashList(extendedResults.updated(commandNumber, result))
-    state.globalVariables.set(ResultsListName, newResults)
+    globalVariables.set(ResultsListName, newResults)
   }
 
   private def handleComplete() =

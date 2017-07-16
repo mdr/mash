@@ -12,12 +12,12 @@ object LineBufferRenderer {
   private val envInteractions = LinuxEnvironmentInteractions
   private val fileSystem = LinuxFileSystem
 
-  def renderLineBuffer(state: ReplState, terminalSize: Dimension): LinesAndCursorPos = {
+  def renderLineBuffer(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
     val cursorPos = lineBuffer.cursorPos
     val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prompt,
-      state.mish, state.globalVariables, state.bareWords)
+      state.mish, globalVariables, bareWords)
 
     def wrap(line: Line): Seq[Line] = {
       val groups = line.string.grouped(terminalSize.columns).toSeq

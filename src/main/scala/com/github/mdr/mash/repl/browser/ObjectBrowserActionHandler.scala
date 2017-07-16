@@ -72,18 +72,18 @@ trait ObjectBrowserActionHandler
     updateState(makeObjectTreeBrowserState(browserState.rawValue, browserState.path))
 
   private def makeObjectTreeBrowserState(value: MashValue, path: String): ObjectTreeBrowserState = {
-    val model = new ObjectTreeModelCreator(state.viewConfig).create(value)
+    val model = new ObjectTreeModelCreator(viewConfig).create(value)
     ObjectTreeBrowserState.initial(model, path)
   }
 
   protected def view1D(browserState: BrowserState): Unit =
     browserState.rawValue match {
       case obj: MashObject if obj.nonEmpty ⇒
-        val model = new SingleObjectTableModelCreator(terminal.size, supportMarking = true, state.viewConfig).create(obj)
+        val model = new SingleObjectTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(obj)
         val newState = SingleObjectTableBrowserState(model, path = browserState.path)
         updateState(newState)
       case xs: MashList                    ⇒
-        val model = new TextLinesModelCreator(state.viewConfig).create(xs)
+        val model = new TextLinesModelCreator(viewConfig).create(xs)
         val newState = TextLinesBrowserState(model, path = browserState.path)
         updateState(newState)
       case _                               ⇒
@@ -91,7 +91,7 @@ trait ObjectBrowserActionHandler
 
   protected def view2D(browserState: BrowserState) = {
     def view2D(value: MashValue): Unit = {
-      val model = new TwoDTableModelCreator(terminal.size, supportMarking = true, state.viewConfig).create(value)
+      val model = new TwoDTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(value)
       val newState = TwoDTableBrowserState(model, path = browserState.path)
       updateState(newState)
     }
@@ -105,7 +105,7 @@ trait ObjectBrowserActionHandler
   }
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState =
-    BrowserState.fromModel(DisplayModel.getDisplayModel(value, state.viewConfig, terminal.size), path)
+    BrowserState.fromModel(DisplayModel.getDisplayModel(value, viewConfig, terminal.size), path)
 
   private def insert(expression: String): Unit = {
     state.lineBuffer = LineBuffer(expression)
@@ -241,10 +241,10 @@ trait ObjectBrowserActionHandler
   }
 
   private def run(expression: String, extraGlobals: Map[MashValue, MashValue] = Map()): Option[MashValue] = {
-    val isolatedGlobals = MashObject.of(state.globalVariables.immutableFields ++ extraGlobals)
+    val isolatedGlobals = MashObject.of(globalVariables.immutableFields ++ extraGlobals)
     val commandRunner = new CommandRunner(output, terminal.size, isolatedGlobals, sessionId, printErrors = false)
     val compilationUnit = CompilationUnit(expression)
-    commandRunner.runCompilationUnit(compilationUnit, state.bareWords)
+    commandRunner.runCompilationUnit(compilationUnit, bareWords)
   }
 
   protected def handleOpenItem(browserState: BrowserState) = {

@@ -1,12 +1,9 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.ConfigWrapper
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.printer.ViewConfig
-import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, TwoDTableBrowserState, SingleObjectTableBrowserState }
+import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistorySearchState
-import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Region
 
 case class InsertLastArgState(count: Int, region: Region)
@@ -35,7 +32,6 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
                 var completionStateOpt: Option[CompletionState] = None,
                 var assistanceStateOpt: Option[AssistanceState] = None,
                 var continue: Boolean = true, // Whether to loop or exit
-                var globalVariables: MashObject,
                 var historySearchStateOpt: Option[HistorySearchState] = None,
                 var mish: Boolean = false,
                 var insertLastArgStateOpt: Option[InsertLastArgState] = None,
@@ -79,11 +75,4 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     }
   }
 
-  private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
-
-  def bareWords: Boolean = config.bareWords
-
-  def showStartupTips: Boolean = config.showStartupTips
-
-  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput)
 }

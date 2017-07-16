@@ -5,6 +5,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.history.HistorySearchState
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.utils.{ Dimension, Point }
@@ -19,14 +20,14 @@ object ReplRenderer {
 
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalSize: Dimension): Screen =
+  def render(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): Screen =
     state.objectBrowserStateStackOpt match {
       case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalSize)
-      case None                     ⇒ renderRegularRepl(state, terminalSize)
+      case None                     ⇒ renderRegularRepl(state, terminalSize, globalVariables, bareWords)
     }
 
-  private def renderRegularRepl(state: ReplState, terminalSize: Dimension): Screen = {
-    val LinesAndCursorPos(bufferLines, bufferCursorPos) = LineBufferRenderer.renderLineBuffer(state, terminalSize)
+  private def renderRegularRepl(state: ReplState, terminalSize: Dimension, globalVariables: MashObject, bareWords: Boolean): Screen = {
+    val LinesAndCursorPos(bufferLines, bufferCursorPos) = LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
     val historySearchScreenOpt = state.historySearchStateOpt.map(renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalSize)

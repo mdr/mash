@@ -3,12 +3,13 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.DebugLogger
+import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 import com.github.mdr.mash.assist.InvocationAssistance
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
@@ -25,7 +26,7 @@ class Repl(protected val terminal: Terminal,
            envInteractions: EnvironmentInteractions,
            protected val history: History,
            protected val sessionId: UUID,
-           globalVariables: MashObject)
+           val globalVariables: MashObject)
   extends NormalActionHandler
     with IncrementalCompletionActionHandler
     with HistorySearchActionHandler
@@ -35,17 +36,26 @@ class Repl(protected val terminal: Terminal,
   protected val debugLogger = new DebugLogger(sessionId.toString)
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  val state = new ReplState(globalVariables = globalVariables)
+  val state = new ReplState()
+
   protected var previousScreenOpt: Option[Screen] = None
 
+  private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
+
+  def bareWords: Boolean = config.bareWords
+
+  def showStartupTips: Boolean = config.showStartupTips
+
+  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput)
+
   def run() {
-    if (state.showStartupTips)
+    if (showStartupTips)
       Tips.showTip(output, terminal.size)
     inputLoop()
   }
 
   def draw() {
-    val newScreen = ReplRenderer.render(state, terminal.size)
+    val newScreen = ReplRenderer.render(state, terminal.size, globalVariables, bareWords)
     val drawn = newScreen.draw(previousScreenOpt, terminal.columns)
     previousScreenOpt = Some(newScreen)
 
@@ -149,6 +159,6 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
-  private def getBindings: Map[String, MashValue] = state.globalVariables.stringFields
+  private def getBindings: Map[String, MashValue] = globalVariables.stringFields
 
 }
