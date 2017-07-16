@@ -1,7 +1,6 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.classes.BoundMethod
-import com.github.mdr.mash.evaluator.MemberEvaluator
 import com.github.mdr.mash.runtime.MashValue
 
 import scala.PartialFunction._

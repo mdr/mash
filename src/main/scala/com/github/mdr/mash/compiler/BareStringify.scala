@@ -1,7 +1,6 @@
 package com.github.mdr.mash.compiler
 
 import com.github.mdr.mash.lexer.Token
-import com.github.mdr.mash.ns.core.{ AnyClass, ObjectClass }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.{ BinaryOperator, QuotationType }
 

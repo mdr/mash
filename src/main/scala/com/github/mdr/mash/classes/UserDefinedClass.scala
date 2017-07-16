@@ -1,6 +1,5 @@
 package com.github.mdr.mash.classes
 
-import com.github.mdr.mash.evaluator.Arguments
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Namespace, ParameterModel }
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.parser.DocComment

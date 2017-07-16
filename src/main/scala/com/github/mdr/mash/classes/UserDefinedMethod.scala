@@ -1,6 +1,6 @@
 package com.github.mdr.mash.classes
 
-import com.github.mdr.mash.evaluator.{ Arguments, EvaluationContext, Evaluator }
+import com.github.mdr.mash.evaluator.{ EvaluationContext, Evaluator }
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.parser.AbstractSyntax.{ Expr, ParamList }
 import com.github.mdr.mash.parser.DocComment

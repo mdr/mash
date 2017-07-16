@@ -1,6 +1,6 @@
 package com.github.mdr.mash.evaluator
 
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 case class Environment(globalVariables: MashObject) {
 

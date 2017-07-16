@@ -10,7 +10,6 @@ import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.time.{ DateClass, DateTimeClass }
 import com.github.mdr.mash.runtime._
 
-import scala.PartialFunction.condOpt
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.ArrayBuffer
 

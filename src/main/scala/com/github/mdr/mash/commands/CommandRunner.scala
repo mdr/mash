@@ -8,10 +8,10 @@ import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.screen.{ BasicColour, Screen }
-import com.github.mdr.mash.{ DebugLogger, Singletons }
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, Screen }
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.{ DebugLogger, Singletons }
 
 class CommandRunner(output: PrintStream,
                     terminalSize: Dimensions,

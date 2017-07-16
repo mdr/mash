@@ -2,10 +2,10 @@ package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.BooleanFunction
+import com.github.mdr.mash.inference.TypeInferencer._
 import com.github.mdr.mash.ns.core.{ BooleanClass, ClassClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ Argument, Expr, InvocationExpr }
 import com.github.mdr.mash.runtime.MashString
-import TypeInferencer._
 
 trait InvocationTypeInferencer { self: TypeInferencer ⇒
 
