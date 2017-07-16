@@ -17,7 +17,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
     val lines = renderLines.map(_.truncate(terminalSize.columns))
     val title = "mash " + fileSystem.pwd.toString
     val cursorPosOpt = getCursorPointOpt
-    Screen(lines, cursorPos = cursorPosOpt getOrElse Point(0, 0), cursorVisible = cursorPosOpt.isDefined, title = title)
+    Screen(lines, cursorPosOpt, title = title)
   }
 
   private def getCursorPointOpt: Option[Point] =

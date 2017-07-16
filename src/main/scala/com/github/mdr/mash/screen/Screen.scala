@@ -36,8 +36,13 @@ object Screen {
 
 }
 
-case class Screen(lines: Seq[Line], cursorPos: Point, cursorVisible: Boolean = true, title: String) {
+case class Screen(lines: Seq[Line],
+                  cursorPosOpt: Option[Point],
+                  title: String) {
 
+  private def cursorPos = cursorPosOpt getOrElse Point(0, 0)
+
+  private val cursorVisible = cursorPosOpt.isDefined
 
   /**
     * Advance past the entire screen, leaving it untouched.

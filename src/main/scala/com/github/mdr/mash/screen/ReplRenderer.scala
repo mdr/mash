@@ -26,8 +26,7 @@ object ReplRenderer {
     }
 
   private def renderRegularRepl(state: ReplState, terminalSize: Dimension): Screen = {
-    val bufferScreen = LineBufferRenderer.renderLineBuffer(state, terminalSize)
-    val bufferLines = bufferScreen.lines
+    val LinesAndCursorPos(bufferLines, bufferCursorPos) = LineBufferRenderer.renderLineBuffer(state, terminalSize)
     val historySearchScreenOpt = state.historySearchStateOpt.map(renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalSize)
@@ -37,9 +36,9 @@ object ReplRenderer {
       CompletionRenderer.renderCompletions(state.completionStateOpt, remainingSpace)
     val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalSize.rows)
-    val newCursorPos = historySearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferScreen.cursorPos)
+    val newCursorPos = historySearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferCursorPos)
     val title = fileSystem.pwd.toString
-    Screen(truncatedLines, newCursorPos, cursorVisible = true, title)
+    Screen(truncatedLines, Some(newCursorPos), title)
   }
 
   private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalSize: Dimension): Screen =

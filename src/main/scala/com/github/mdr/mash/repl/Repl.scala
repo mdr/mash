@@ -46,7 +46,6 @@ class Repl(protected val terminal: Terminal,
 
   def draw() {
     val newScreen = ReplRenderer.render(state, terminal.size)
-    val previousScreenOpt = previousScreenOpt
     val drawn = newScreen.draw(previousScreenOpt, terminal.columns)
     previousScreenOpt = Some(newScreen)
 
