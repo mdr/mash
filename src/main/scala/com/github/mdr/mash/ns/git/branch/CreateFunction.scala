@@ -7,7 +7,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.NoArgFunction
 import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashObject, MashString }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString }
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 

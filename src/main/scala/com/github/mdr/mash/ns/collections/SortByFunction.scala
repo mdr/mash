@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.collections.SortFunction.NaturalMashValueOrdering
-import com.github.mdr.mash.ns.core.objectClass.{ SortByMethod, WhereMethod }
+import com.github.mdr.mash.ns.core.objectClass.SortByMethod
 import com.github.mdr.mash.runtime._
 
 object SortByFunction extends MashFunction("collections.sortBy") {

@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.core.stringClass
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.ns.core.{ CharacterClass, StringClass }
-import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object ToCharacterMethod extends MashMethod("toCharacter") {
 

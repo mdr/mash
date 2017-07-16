@@ -1,9 +1,8 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.LogFunction.asCommitObject
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashUnit }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
 
 object CommitFunction extends MashFunction("git.commit") {
 

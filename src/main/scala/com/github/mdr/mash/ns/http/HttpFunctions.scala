@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.http
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
 import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.http.HttpFunctions.Params._
-import com.github.mdr.mash.runtime.{ MashBoolean, MashNull, MashObject, MashString }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString }
 
 object HttpFunctions {
 

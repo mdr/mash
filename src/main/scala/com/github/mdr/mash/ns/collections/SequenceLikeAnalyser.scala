@@ -1,12 +1,7 @@
 package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.inference.{ Inferencer, TypeInferenceStrategy, _ }
-import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
-import com.github.mdr.mash.ns.core.{ CharacterClass, ObjectClass }
 import com.github.mdr.mash.runtime.{ MashString, _ }
-
-import scala.PartialFunction.condOpt
 
 sealed trait SequenceLike
 

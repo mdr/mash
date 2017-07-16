@@ -8,8 +8,8 @@ import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.git.branch.{ DeleteFunction, SwitchFunction }
 import com.github.mdr.mash.runtime._
-import org.eclipse.jgit.api.{ Git, PushCommand }
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.api.{ Git, PushCommand }
 import org.eclipse.jgit.lib.{ ConfigConstants, Constants }
 import org.eclipse.jgit.transport.RemoteRefUpdate
 

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.collections.listClass
 
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
 object CartesianProductMethod extends MashMethod("cartesianProduct") {

@@ -5,7 +5,7 @@ import java.nio.charset.Charset
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, Parameter }
 import com.github.mdr.mash.ns.core.NoArgFunction
-import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString }
+import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.{ HttpHeaders, HttpRequest }
 

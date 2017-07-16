@@ -2,8 +2,7 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.SeqToSeqTypeInferenceStrategy
-import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
 object ReverseFunction extends MashFunction("collections.reverse") {
 

@@ -5,7 +5,6 @@ import java.util.regex.Pattern
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.collections.ToListHelper.tryToList
 import com.github.mdr.mash.ns.core.objectClass.GrepMethod
 import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime._

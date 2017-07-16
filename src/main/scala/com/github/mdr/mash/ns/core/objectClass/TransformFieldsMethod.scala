@@ -1,6 +1,5 @@
 package com.github.mdr.mash.ns.core.objectClass
 
-import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.ObjectClass
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }

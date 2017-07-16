@@ -1,10 +1,8 @@
 package com.github.mdr.mash.ns.os
 
-import java.time.Instant
-
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.os.Permissions
-import com.github.mdr.mash.runtime.{ MashObject, MashValue, MashWrapped }
+import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 import scala.collection.immutable.ListMap
 

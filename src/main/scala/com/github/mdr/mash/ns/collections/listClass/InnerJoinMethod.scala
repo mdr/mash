@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.collections.listClass
 
-import com.github.mdr.mash.evaluator.{ EvaluatorException, MemberEvaluator }
+import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 

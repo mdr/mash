@@ -4,8 +4,6 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime._
 
-import scala.PartialFunction.condOpt
-
 object MaxFunction extends MashFunction("collections.max") {
 
   object Params {

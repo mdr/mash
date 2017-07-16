@@ -4,8 +4,8 @@ import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import com.github.mdr.mash.evaluator.ToStringifier.stringify
 import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.evaluator.ToStringifier.stringify
 import com.github.mdr.mash.ns.json.PrettyPrintFunction
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils

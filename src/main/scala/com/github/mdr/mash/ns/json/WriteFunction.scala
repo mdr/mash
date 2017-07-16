@@ -3,15 +3,11 @@ package com.github.mdr.mash.ns.json
 import java.nio.charset.StandardCharsets
 
 import com.github.mdr.mash.completions.CompletionSpec
-import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.{ AnyClass, UnitClass }
+import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime._
-import com.google.gson._
 import org.apache.commons.io.FileUtils
-
-import scala.collection.JavaConverters._
 
 object WriteFunction extends MashFunction("json.write") {
 

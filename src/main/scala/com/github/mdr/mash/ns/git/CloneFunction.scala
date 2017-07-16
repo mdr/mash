@@ -6,7 +6,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.os.PathClass
-import com.github.mdr.mash.runtime.{ MashNull, MashString }
+import com.github.mdr.mash.runtime.MashString
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.URIish
 

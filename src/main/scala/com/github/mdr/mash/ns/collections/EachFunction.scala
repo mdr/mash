@@ -2,8 +2,8 @@ package com.github.mdr.mash.ns.collections
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.runtime.{ MashNumber, MashUnit }
 import com.github.mdr.mash.ns.collections.FlatMapFunction.zipWithMashIndex
+import com.github.mdr.mash.runtime.MashUnit
 
 object EachFunction extends MashFunction("collections.each") {
 
