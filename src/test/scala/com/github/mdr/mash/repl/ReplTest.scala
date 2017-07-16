@@ -230,7 +230,7 @@ class ReplTest extends AbstractReplTest {
         .beginExpression()
         .backwardKillLine()
         .input("[{ a: 3, b: 4 }]")
-        .acceptLine
+        .acceptLine()
         .affirmInTwoDBrowser
     browser.path should equal("[{ a: 3, b: 4 }]")
     browser.rows should equal(Seq(Seq("0", "3", "4")))
@@ -244,6 +244,4 @@ case class DummyTerminal(width: Int = 80) extends Terminal {
 
 }
 
-object NullPrintStream extends PrintStream(_ => {
-  /* no-op */
-})
+object NullPrintStream extends PrintStream(_ => ())

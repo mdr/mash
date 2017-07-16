@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.repl.NormalActions.{ BackwardKillLine, BackwardKillWord, KillWord, _ }
+import com.github.mdr.mash.repl.NormalActions._
 
 import scala.PartialFunction.condOpt
 

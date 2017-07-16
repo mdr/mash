@@ -27,12 +27,12 @@ trait NormalActionHandler {
   def handleNormalAction(action: InputAction) = {
     action match {
       case AcceptLine               ⇒ handleAcceptLine()
+      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.updateLineBuffer(f))
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
       case PreviousHistory          ⇒ handlePreviousHistory()
       case NextHistory              ⇒ handleNextHistory()
-      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.updateLineBuffer(f))
       case AssistInvocation         ⇒ handleAssistInvocation()
       case InsertLastArg            ⇒ handleInsertLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
@@ -106,7 +106,7 @@ trait NormalActionHandler {
     previousScreenOpt = None
   }
 
-  private def handleToggleMish(): Unit = resetHistoryIfTextChanges {
+  private def handleToggleMish() = resetHistoryIfTextChanges {
     state.lineBuffer =
       if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
@@ -114,7 +114,7 @@ trait NormalActionHandler {
         state.lineBuffer.insertCharacters("!", 0)
   }
 
-  private def handleInsertLastArg(): Unit = resetHistoryIfTextChanges {
+  private def handleInsertLastArg() = resetHistoryIfTextChanges {
     val (argIndex, oldRegion) = state.insertLastArgStateOpt match {
       case Some(InsertLastArgState(n, region)) ⇒ (n + 1, region)
       case None                                ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))

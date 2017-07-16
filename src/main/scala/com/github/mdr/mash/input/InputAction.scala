@@ -6,12 +6,12 @@ trait InputAction
 
 object InputAction {
 
-  def fetchAction(isLineEmpty: Boolean, keyMap: KeyMap = NormalKeyMap): InputAction = {
+  def fetchAction(isLineEmpty: Boolean, keyMap: KeyMap): InputAction = {
     val inputSequence = InputSequenceReader.fetchInputSequence()
     inputSequenceToAction(inputSequence, isLineEmpty, keyMap)
   }
 
-  private def inputSequenceToAction(inputSequence: InputSequence, isLineEmpty: Boolean, keyMap: KeyMap = NormalKeyMap): InputAction =
+  private def inputSequenceToAction(inputSequence: InputSequence, isLineEmpty: Boolean, keyMap: KeyMap): InputAction =
     if (inputSequence == InputSequence.ControlD && isLineEmpty)
       EndOfFile
     else

@@ -63,4 +63,8 @@ class ObjectMethodsTest extends AbstractEvaluatorTest {
   "{ (42): 'foo'}.fields.name" ==> "[42]"
   "42.fields".shouldThrowAnException
 
+  // Object.values
+  "{ foo: 42, bar: true }.values" ==> "[42, true]"
+  "{}.values" ==> "[]"
+
 }

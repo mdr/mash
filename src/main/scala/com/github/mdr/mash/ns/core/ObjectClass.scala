@@ -24,6 +24,7 @@ object ObjectClass extends MashClass("core.Object") {
     TransformFieldsMethod,
     TransformValuesMethod,
     UnblessMethod,
+    ValuesMethod,
     WithFieldMethod,
     WhereMethod,
     WhereNotMethod,

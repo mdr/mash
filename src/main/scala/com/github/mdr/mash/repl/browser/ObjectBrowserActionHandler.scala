@@ -112,16 +112,14 @@ trait ObjectBrowserActionHandler
     state.objectBrowserStateStackOpt = None
   }
 
-  protected def handleInsertWholeItem(browserState: BrowserState) =
-    insert(browserState.path)
+  protected def handleInsertWholeItem(browserState: BrowserState) = insert(browserState.path)
 
-  protected def handleInsertItem(browserState: BrowserState) =
-    insert(browserState.getInsertExpression)
+  protected def handleInsertItem(browserState: BrowserState) = insert(browserState.getInsertExpression)
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
     browserStateStack.headState.expressionStateOpt match {
       case Some(expressionState) ⇒
-        handleExpressionInputAction(action, browserStateStack.headState, expressionState)
+        handleBrowserExpressionInputAction(action, browserStateStack.headState, expressionState)
       case None                  ⇒
         browserStateStack.headState match {
           case twoDTableBrowserState: TwoDTableBrowserState            ⇒ handleTwoDTableBrowserAction(action, twoDTableBrowserState)
@@ -187,7 +185,7 @@ trait ObjectBrowserActionHandler
         handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
     }
 
-  private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
+  private def handleBrowserExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
     expressionState.completionStateOpt match {
       case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
       case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, browserState, expressionState, completionState)
