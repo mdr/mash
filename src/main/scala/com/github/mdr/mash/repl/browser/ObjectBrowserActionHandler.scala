@@ -187,7 +187,6 @@ trait ObjectBrowserActionHandler
         handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
     }
 
-
   private def handleExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
     expressionState.completionStateOpt match {
       case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
@@ -199,31 +198,19 @@ trait ObjectBrowserActionHandler
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.copy(lineBuffer = f(expressionState.lineBuffer))))
     action match {
-      case SelfInsert(c)      ⇒ updateExpressionBuffer(_.addCharactersAtCursor(c))
-      case BeginningOfLine    ⇒ updateExpressionBuffer(_.moveCursorToStart)
-      case EndOfLine          ⇒ updateExpressionBuffer(_.moveCursorToEnd)
-      case ForwardChar        ⇒ updateExpressionBuffer(_.cursorRight)
-      case BackwardChar       ⇒ updateExpressionBuffer(_.cursorLeft)
-      case ForwardWord        ⇒ updateExpressionBuffer(_.forwardWord)
-      case BackwardWord       ⇒ updateExpressionBuffer(_.backwardWord)
-      case DeleteChar         ⇒ updateExpressionBuffer(_.delete)
-      case BackwardDeleteChar ⇒ updateExpressionBuffer(_.backspace)
-      case KillLine           ⇒ updateExpressionBuffer(_.deleteToEndOfLine)
-      case BackwardKillLine   ⇒ updateExpressionBuffer(_.deleteToBeginningOfLine)
-      case KillWord           ⇒ updateExpressionBuffer(_.deleteForwardWord)
-      case BackwardKillWord   ⇒ updateExpressionBuffer(_.deleteBackwardWord)
-      case ToggleQuote        ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
-      case Complete           ⇒
+      case LineBufferAction(f) ⇒ updateExpressionBuffer(f)
+      case ToggleQuote         ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
+      case Complete            ⇒
         for (result ← complete(expressionState.lineBuffer, mish = false)) {
           result.completions match {
             case Seq(completion) ⇒ immediateInsert(browserState, expressionState.lineBuffer, completion, result)
             case _               ⇒ enterIncrementalCompletionState(browserState, result, expressionState.lineBuffer)
           }
         }
-      case AcceptLine         ⇒
+      case AcceptLine          ⇒
         updateState(browserState.acceptExpression)
         acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
-      case _                  ⇒
+      case _                   ⇒
     }
   }
 

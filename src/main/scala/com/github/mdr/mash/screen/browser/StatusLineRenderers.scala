@@ -20,5 +20,4 @@ object StatusLineRenderers {
     Line(countChars + s" Find: ${searchState.query}".style + " (".style + renderKeyHints(hints) + ")".style)
   }
 
-
 }

@@ -32,31 +32,7 @@ trait NormalActionHandler {
       case EndOfFile                ⇒ handleEof()
       case PreviousHistory          ⇒ handlePreviousHistory()
       case NextHistory              ⇒ handleNextHistory()
-      case BeginningOfLine          ⇒ state.updateLineBuffer(_.moveCursorToStart)
-      case EndOfLine                ⇒ state.updateLineBuffer(_.moveCursorToEnd)
-      case ForwardChar              ⇒ state.updateLineBuffer(_.cursorRight)
-      case BackwardChar             ⇒ state.updateLineBuffer(_.cursorLeft)
-      case ForwardWord              ⇒ state.updateLineBuffer(_.forwardWord)
-      case BackwardWord             ⇒ state.updateLineBuffer(_.backwardWord)
-      case DeleteChar               ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.delete)
-      }
-      case BackwardDeleteChar       ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.backspace)
-      }
-      case KillLine                 ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.deleteToEndOfLine)
-      }
-      case BackwardKillLine         ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.deleteToBeginningOfLine)
-      }
-      case KillWord                 ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.deleteForwardWord)
-      }
-      case BackwardKillWord         ⇒ resetHistoryIfTextChanges {
-        state.updateLineBuffer(_.deleteBackwardWord)
-      }
-      case SelfInsert(s)            ⇒ handleSelfInsert(s)
+      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.updateLineBuffer(f))
       case AssistInvocation         ⇒ handleAssistInvocation()
       case InsertLastArg            ⇒ handleInsertLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
@@ -75,17 +51,12 @@ trait NormalActionHandler {
     if (state.commandNumber > 0) {
       val commandNumber = state.commandNumber - 1
       val path = s"$ResultVarPrefix$commandNumber"
-      for (value <- state.globalVariables.get(path)) {
+      for (value ← state.globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
         state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
       }
     }
   }
-
-  private def handleSelfInsert(s: String) =
-    resetHistoryIfTextChanges {
-      for (c ← s) state.updateLineBuffer(_.addCharacterAtCursor(c))
-    }
 
   private def handleIncrementalHistorySearch() {
     state.assistanceStateOpt = None
@@ -120,7 +91,7 @@ trait NormalActionHandler {
     else
       state.updateLineBuffer(_.down)
 
-  private def handleToggleQuote(): Unit = resetHistoryIfTextChanges {
+  private def handleToggleQuote() = resetHistoryIfTextChanges {
     state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
   }
 
@@ -158,19 +129,19 @@ trait NormalActionHandler {
     }
   }
 
-  private def handleAcceptLine() =
+  private def handleAcceptLine() = {
+    history.resetHistoryPosition()
     if (canAcceptBuffer) {
       updateScreenAfterAccept()
       previousScreenOpt = None
-
-      history.resetHistoryPosition()
 
       val cmd = state.lineBuffer.text
       state.lineBuffer = LineBuffer.Empty
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
-      handleSelfInsert("\n")
+      state.updateLineBuffer(_.addCharacterAtCursor('\n'))
+  }
 
   def canAcceptBuffer: Boolean = {
     val tokens = MashLexer.tokenise(state.lineBuffer.text, forgiving = true, mish = state.mish).tokens

@@ -38,5 +38,4 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimension)
 
   protected val windowSize = terminalSize.rows - 2 // two status lines
 
-
 }
