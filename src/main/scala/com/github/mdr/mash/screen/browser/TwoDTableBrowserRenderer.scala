@@ -3,10 +3,10 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, _ }
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 
-class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: TerminalInfo)
-  extends AbstractBrowserRenderer(state, terminalInfo) {
+class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimension)
+  extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderLines: Seq[Line] =
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
@@ -39,6 +39,6 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalInfo: Termi
 
   private def currentRow = state.currentRow
 
-  protected val windowSize = state.windowSize(terminalInfo.rows)
+  protected val windowSize = state.windowSize(terminalSize.rows)
 
 }

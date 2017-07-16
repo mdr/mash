@@ -55,7 +55,7 @@ class TwoDTableBrowserStateTest extends FlatSpec with Matchers {
 
   def initBrowser(s: String): TwoDTableBrowserState = {
     val tableValue = evaluate(s)
-    val creator = new TwoDTableModelCreator(terminalInfo = DummyTerminal().info, viewConfig = ViewConfig())
+    val creator = new TwoDTableModelCreator(DummyTerminal().size, viewConfig = ViewConfig())
     val model = creator.create(tableValue)
     new TwoDTableBrowserState(model, path = "result")
   }

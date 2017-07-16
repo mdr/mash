@@ -7,7 +7,8 @@ import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.BrowserCompletionState
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.terminal.{ Terminal, TerminalInfo }
+import com.github.mdr.mash.terminal.Terminal
+import com.github.mdr.mash.utils.Dimension
 
 class ReplTest extends AbstractReplTest {
 
@@ -239,7 +240,7 @@ class ReplTest extends AbstractReplTest {
 
 case class DummyTerminal(width: Int = 80) extends Terminal {
 
-  override def info = TerminalInfo(width, 40)
+  override def size = Dimension(width, 40)
 
 }
 

@@ -27,7 +27,7 @@ class Loader(terminal: Terminal,
              ns: MashObject) {
 
   private val fileSystem = LinuxFileSystem
-  private val errorPrinter = new ErrorPrinter(output, terminal.info)
+  private val errorPrinter = new ErrorPrinter(output)
   private val debugLogger = new DebugLogger(sessionId.toString)
 
   def load() {

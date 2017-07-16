@@ -13,7 +13,7 @@ class ScriptExecutor(output: PrintStream, terminal: Terminal, sessionId: UUID, g
   private val debugLogger = new DebugLogger(sessionId.toString)
 
   def runUnit(unit: CompilationUnit): MashValue = {
-    val commandRunner = new CommandRunner(output, terminal.info, globalVariables, sessionId)
+    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
     val config = ConfigWrapper.fromGlobals(globalVariables)
     try
       commandRunner.runCompilationUnit(unit, config.bareWords).getOrElse(MashUnit)

@@ -3,10 +3,10 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.ValueBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 
-class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
-  extends AbstractBrowserRenderer(state, terminalInfo) {
+class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimension)
+  extends AbstractBrowserRenderer(state, terminalSize) {
 
   def renderDataLines: Seq[Line] = {
     val renderedValue = state.model.renderedValue
@@ -15,7 +15,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
   }
 
   private def renderLine(stringLine: String): Seq[Line] = {
-    val groups = stringLine.grouped(terminalInfo.columns).toSeq
+    val groups = stringLine.grouped(terminalSize.columns).toSeq
     for {
       (group, index) ← groups.zipWithIndex
       endsInNewline = index == groups.size - 1
@@ -36,7 +36,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalInfo: TerminalInfo)
       case None                  ⇒ renderRegularStatusLine
     }
 
-  protected val windowSize = terminalInfo.rows - 2 // two status lines
+  protected val windowSize = terminalSize.rows - 2 // two status lines
 
 
 }

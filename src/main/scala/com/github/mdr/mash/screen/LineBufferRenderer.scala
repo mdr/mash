@@ -5,15 +5,14 @@ import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSys
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.{ LineInfo, Point }
+import com.github.mdr.mash.utils.{ Dimension, LineInfo, Point }
 
 object LineBufferRenderer {
 
   private val envInteractions = LinuxEnvironmentInteractions
   private val fileSystem = LinuxFileSystem
 
-  def renderLineBuffer(state: ReplState, terminalInfo: TerminalInfo): LinesAndCursorPos = {
+  def renderLineBuffer(state: ReplState, terminalSize: Dimension): LinesAndCursorPos = {
     val prompt = getPrompt(state.commandNumber, state.mish)
     val lineBuffer = state.lineBuffer
     val cursorPos = lineBuffer.cursorPos
@@ -21,7 +20,7 @@ object LineBufferRenderer {
       state.mish, state.globalVariables, state.bareWords)
 
     def wrap(line: Line): Seq[Line] = {
-      val groups = line.string.grouped(terminalInfo.columns).toSeq
+      val groups = line.string.grouped(terminalSize.columns).toSeq
       for {
         (group, index) ← groups.zipWithIndex
         endsInNewline = index == groups.size - 1
@@ -29,8 +28,8 @@ object LineBufferRenderer {
     }
 
     val wrappedLines = unwrappedLines.flatMap(wrap)
-    val row = unwrappedLines.take(cursorPos.row).flatMap(wrap).length + (prompt.length + cursorPos.column) / terminalInfo.columns
-    val column = (prompt.length + cursorPos.column) % terminalInfo.columns
+    val row = unwrappedLines.take(cursorPos.row).flatMap(wrap).length + (prompt.length + cursorPos.column) / terminalSize.columns
+    val column = (prompt.length + cursorPos.column) % terminalSize.columns
     LinesAndCursorPos(wrappedLines, Point(row, column))
   }
 

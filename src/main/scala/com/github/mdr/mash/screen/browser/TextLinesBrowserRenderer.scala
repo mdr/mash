@@ -3,11 +3,11 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.repl.browser.TextLinesBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 import com.github.mdr.mash.utils.Utils._
 
-class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: TerminalInfo)
-  extends AbstractBrowserRenderer(state, terminalInfo) {
+class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimension)
+  extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderDataLines: Seq[Line] =
     for ((l, index) <- state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
@@ -29,6 +29,6 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalInfo: Termi
       case None                  ⇒ renderRegularStatusLine
     }
 
-  protected val windowSize = state.windowSize(terminalInfo.rows)
+  protected val windowSize = state.windowSize(terminalSize.rows)
 
 }

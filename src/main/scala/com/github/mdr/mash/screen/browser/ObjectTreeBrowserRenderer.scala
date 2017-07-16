@@ -4,14 +4,13 @@ import com.github.mdr.mash.printer.model.ObjectTreeNode
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ Dimension, StringUtils }
 import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo: TerminalInfo)
-  extends AbstractBrowserRenderer(state, terminalInfo) {
+case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize: Dimension)
+  extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderLines: Seq[Line] = {
     val printer = new Printer
@@ -82,7 +81,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print("─ ")
-          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalSize.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = itemPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      ⇒
@@ -118,7 +117,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
       node match {
         case ObjectTreeNode.Leaf(value, _)      ⇒
           printer.print(" ")
-          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalInfo.columns - printer.currentColumn, 0))
+          val truncatedValue = StringUtils.ellipsisise(value, math.max(terminalSize.columns - printer.currentColumn, 0))
           printer.print(truncatedValue, highlighted = fieldPath.ontoValue == state.selectionPath)
           printer.println()
         case ObjectTreeNode.List(Seq(), _)      ⇒
@@ -164,6 +163,6 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalInfo
     }
   }
 
-  protected val windowSize = terminalInfo.rows - 2 // two status lines
+  protected val windowSize = terminalSize.rows - 2 // two status lines
 
 }

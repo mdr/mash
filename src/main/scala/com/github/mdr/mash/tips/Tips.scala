@@ -4,8 +4,7 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.os.{ GlobFunction, OldDirsFunction, UpFunction }
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.{ Dimension, StringUtils }
 
 import scala.util.Random
 
@@ -31,12 +30,12 @@ object Tips {
 
   private def randomTip = Tips(Random.nextInt(Tips.length))
 
-  def showTip(output: PrintStream, terminalInfo: TerminalInfo) {
-    printBox("Tip", Seq(randomTip), output, terminalInfo)
+  def showTip(output: PrintStream, terminalSize: Dimension) {
+    printBox("Tip", Seq(randomTip), output, terminalSize)
   }
 
-  private def printBox(title: String, lines: Seq[String], output: PrintStream, terminalInfo: TerminalInfo) {
-    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalInfo.columns)
+  private def printBox(title: String, lines: Seq[String], output: PrintStream, terminalSize: Dimension) {
+    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 4), terminalSize.columns)
     val innerWidth = boxWidth - 4
     val displayTitle = " " + StringUtils.ellipsisise(title, innerWidth) + " "
     val displayLines = lines.map(l ⇒ StringUtils.ellipsisise(l, innerWidth))

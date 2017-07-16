@@ -3,10 +3,9 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.Point
+import com.github.mdr.mash.utils.{ Dimension, Point }
 
-abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: TerminalInfo) {
+abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimension) {
 
   protected val fileSystem = LinuxFileSystem
 
@@ -15,7 +14,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
   protected def renderLines: Seq[Line]
 
   def renderObjectBrowser: Screen = {
-    val lines = renderLines.map(_.truncate(terminalInfo.columns))
+    val lines = renderLines.map(_.truncate(terminalSize.columns))
     val title = "mash " + fileSystem.pwd.toString
     val cursorPosOpt = getCursorPointOpt
     Screen(lines, cursorPos = cursorPosOpt getOrElse Point(0, 0), cursorVisible = cursorPosOpt.isDefined, title = title)
@@ -29,7 +28,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalInfo: Termin
       case Some(expressionState) ⇒
         val cursorOffset = expressionState.lineBuffer.cursorOffset
         val line = Line(new MashRenderer().renderChars(expressionState.lineBuffer.text, cursorOffsetOpt = Some(cursorOffset)))
-        val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, terminalInfo.copy(terminalInfo.rows - 1)).lines
+        val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, terminalSize.copy(terminalSize.rows - 1)).lines
         Seq(line) ++ completionLines
       case None                  ⇒
         Seq(Line(new MashRenderer().renderChars(state.path)))

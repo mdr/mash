@@ -40,12 +40,12 @@ class Repl(protected val terminal: Terminal,
 
   def run() {
     if (state.showStartupTips)
-      Tips.showTip(output, terminal.info)
+      Tips.showTip(output, terminal.size)
     inputLoop()
   }
 
   def draw() {
-    val replRenderResult = ReplRenderer.render(state, terminal.info)
+    val replRenderResult = ReplRenderer.render(state, terminal.size)
     val previousScreenOpt = previousReplRenderResultOpt.map(_.screen)
     val drawn = replRenderResult.screen.draw(previousScreenOpt, terminal.columns)
     previousReplRenderResultOpt = Some(replRenderResult)

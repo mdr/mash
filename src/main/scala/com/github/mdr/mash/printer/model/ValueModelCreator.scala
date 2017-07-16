@@ -2,9 +2,9 @@ package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.printer.{ FieldRenderer, ViewConfig }
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 
-class ValueModelCreator(terminalInfo: TerminalInfo, viewConfig: ViewConfig) {
+class ValueModelCreator(viewConfig: ViewConfig) {
 
   private val fieldRenderer = new FieldRenderer(viewConfig)
 

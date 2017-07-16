@@ -1,5 +1,7 @@
 package com.github.mdr.mash.terminal
 
+import com.github.mdr.mash.utils.Dimension
+
 object Terminal {
 
   val ClearScreenEscapeSequence = "\u001b[H\u001b[2J"
@@ -8,19 +10,17 @@ object Terminal {
 
 trait Terminal {
 
-  def info: TerminalInfo
+  def size: Dimension
 
-  def rows = info.rows
+  def rows = size.rows
 
-  def columns = info.columns
+  def columns = size.columns
 
 }
 
-case class TerminalInfo(rows: Int, columns: Int)
-
 class JLineTerminalWrapper(terminal: jline.Terminal) extends Terminal {
 
-  override def info = TerminalInfo(terminal.getHeight, terminal.getWidth)
+  override def size = Dimension(terminal.getHeight, terminal.getWidth)
 
 }
 

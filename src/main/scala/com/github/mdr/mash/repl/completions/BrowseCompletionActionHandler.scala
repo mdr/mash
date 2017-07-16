@@ -56,7 +56,7 @@ trait BrowseCompletionActionHandler {
   protected def gridNavigator(completionState: BrowserCompletionState): RaggedGridNavigator = {
     val pos = completionState.activeCompletion
     val total = completionState.completions.length
-    val columns = CompletionRenderer.getNumberOfCompletionColumns(completionState, terminal.info)
+    val columns = CompletionRenderer.getNumberOfCompletionColumns(completionState, terminal.size)
     RaggedGridNavigator(total, columns, pos)
   }
 

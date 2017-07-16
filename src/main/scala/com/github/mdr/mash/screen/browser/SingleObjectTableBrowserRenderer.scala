@@ -2,10 +2,10 @@ package com.github.mdr.mash.screen.browser
 
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
 import com.github.mdr.mash.screen.{ KeyHint, _ }
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 
-class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalInfo: TerminalInfo)
-  extends AbstractBrowserRenderer(state, terminalInfo) {
+class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimension)
+  extends AbstractBrowserRenderer(state, terminalSize) {
 
   protected def renderLines: Seq[Line] =
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
@@ -32,7 +32,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
         }
     }
 
-  override protected val windowSize: Int = state.windowSize(terminalInfo.rows)
+  override protected val windowSize: Int = state.windowSize(terminalSize.rows)
 
   private def currentRow = state.currentRow
 

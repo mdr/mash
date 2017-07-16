@@ -196,7 +196,7 @@ trait NormalActionHandler {
   }
 
   protected def runCommand(cmd: String) {
-    val commandRunner = new CommandRunner(output, terminal.info, state.globalVariables, sessionId)
+    val commandRunner = new CommandRunner(output, terminal.size, state.globalVariables, sessionId)
     val unitName = s"command-${state.commandNumber}"
     val commandResult =
       try

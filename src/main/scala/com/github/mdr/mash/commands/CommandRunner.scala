@@ -9,17 +9,17 @@ import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.{ BasicColour, Screen }
-import com.github.mdr.mash.terminal.TerminalInfo
 import com.github.mdr.mash.{ DebugLogger, Singletons }
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.utils.Dimension
 
 class CommandRunner(output: PrintStream,
-                    terminalInfo: TerminalInfo,
+                    terminalSize: Dimension,
                     globals: MashObject,
                     sessionId: UUID,
                     printErrors: Boolean = true) {
 
-  private val errorPrinter = new ErrorPrinter(output, terminalInfo)
+  private val errorPrinter = new ErrorPrinter(output)
   private val debugCommandRunner = new DebugCommandRunner(output, globals)
   private val debugLogger = new DebugLogger(sessionId.toString)
 
@@ -51,7 +51,7 @@ class CommandRunner(output: PrintStream,
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
 
   private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
-    val printer = new Printer(output, terminalInfo, viewConfig)
+    val printer = new Printer(output, terminalSize, viewConfig)
     val PrintResult(displayModelOpt) = printer.print(result)
     CommandResult(Some(result), displayModelOpt = displayModelOpt)
   }

@@ -17,8 +17,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.terminal.TerminalInfo
-import com.github.mdr.mash.utils.NumberUtils
+import com.github.mdr.mash.utils.{ Dimension, NumberUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true, browseLargeOutput: Boolean = true)
@@ -60,7 +59,7 @@ class FieldRenderer(viewConfig: ViewConfig) {
 
 case class PrintResult(displayModelOpt: Option[DisplayModel] = None)
 
-class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
+class Printer(output: PrintStream, terminalSize: Dimension, viewConfig: ViewConfig = ViewConfig(fuzzyTime = true)) {
 
   private val helpPrinter = new HelpPrinter(output)
   private val fieldRenderer = new FieldRenderer(viewConfig)
@@ -76,7 +75,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   def print(value: MashValue,
             printConfig: PrintConfig = PrintConfig()): PrintResult =
     if (printConfig.alwaysUseBrowser) {
-      val model = DisplayModel.getDisplayModel(value, viewConfig, terminalInfo)
+      val model = DisplayModel.getDisplayModel(value, viewConfig, terminalSize)
       PrintResult(Some(model))
     } else {
       value match {
@@ -102,7 +101,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
           new GitStatusPrinter(output).print(obj)
           done
         case obj: MashObject if obj.nonEmpty                                                                ⇒
-          new SingleObjectTablePrinter(output, terminalInfo, viewConfig).printObject(obj)
+          new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
           done
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                      ⇒
           done // Don't print out sequence of unit
@@ -131,7 +130,7 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
   }
 
   private def printTextLines(xs: MashList): PrintResult =
-    if (xs.length > terminalInfo.rows && viewConfig.browseLargeOutput) {
+    if (xs.length > terminalSize.rows && viewConfig.browseLargeOutput) {
       val model = new TextLinesModelCreator(viewConfig).create(xs)
       browse(model)
     } else {
@@ -145,11 +144,11 @@ class Printer(output: PrintStream, terminalInfo: TerminalInfo, viewConfig: ViewC
       case obj: MashObject ⇒ obj.size
     }
     val nonDataRows = 4 // 3 header rows + 1 footer
-    if (size > terminalInfo.rows - nonDataRows && viewConfig.browseLargeOutput) {
-      val model = new TwoDTableModelCreator(terminalInfo, supportMarking = true, viewConfig).create(value)
+    if (size > terminalSize.rows - nonDataRows && viewConfig.browseLargeOutput) {
+      val model = new TwoDTableModelCreator(terminalSize, supportMarking = true, viewConfig).create(value)
       browse(model)
     } else {
-      new TwoDTablePrinter(output, terminalInfo, viewConfig).printTable(value)
+      new TwoDTablePrinter(output, terminalSize, viewConfig).printTable(value)
       done
     }
   }

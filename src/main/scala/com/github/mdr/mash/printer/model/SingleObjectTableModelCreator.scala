@@ -3,9 +3,9 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.terminal.TerminalInfo
+import com.github.mdr.mash.utils.Dimension
 
-class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
+class SingleObjectTableModelCreator(terminalSize: Dimension,
                                     supportMarking: Boolean = false,
                                     viewConfig: ViewConfig) {
 
@@ -37,7 +37,7 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
 
     val requestedWidths = Map(fieldColumnId -> requestedFieldWidth, valueColumnId -> requestedValueWidth)
     val markingStateWidth = if (supportMarking) 2 else 0
-    val totalAvailableWidth = terminalInfo.columns - 3 - markingStateWidth
+    val totalAvailableWidth = terminalSize.columns - 3 - markingStateWidth
     val allocatedWidths = ColumnAllocator.allocateColumns(columnIds, columnSpecs, requestedWidths, totalAvailableWidth)
 
     val fieldColumnWidth = allocatedWidths(fieldColumnId)
@@ -53,7 +53,7 @@ class SingleObjectTableModelCreator(terminalInfo: TerminalInfo,
   private def extraWidthForClassName(classNameOpt: Option[String], fieldColumnWidth: Int, valueColumnWidth: Int): Int = {
     val classNameWidth = classNameOpt.getOrElse("").size
     val extraNeededForClassName = classNameWidth - (fieldColumnWidth + valueColumnWidth + 1)
-    val remainingSpare = terminalInfo.columns - (fieldColumnWidth + valueColumnWidth + 3)
+    val remainingSpare = terminalSize.columns - (fieldColumnWidth + valueColumnWidth + 3)
     math.max(0, math.min(extraNeededForClassName, remainingSpare))
   }
 
