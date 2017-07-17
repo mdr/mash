@@ -27,15 +27,15 @@ object ReplState {
 
 }
 
-class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
-                var commandNumber_ : Int = 0,
-                var completionStateOpt_ : Option[CompletionState] = None,
-                var assistanceStateOpt_ : Option[AssistanceState] = None,
-                var continue_ : Boolean = true, // Whether to loop or exit
-                var historySearchStateOpt_ : Option[HistorySearchState] = None,
-                var mish_ : Boolean = false,
-                var insertLastArgStateOpt_ : Option[InsertLastArgState] = None,
-                var objectBrowserStateStackOpt_ : Option[ObjectBrowserStateStack] = None) {
+class ReplState(private var lineBuffer_ : LineBuffer = LineBuffer.Empty,
+                private var commandNumber_ : Int = 0,
+                private var completionStateOpt_ : Option[CompletionState] = None,
+                private var assistanceStateOpt_ : Option[AssistanceState] = None,
+                private var continue_ : Boolean = true, // Whether to loop or exit
+                private var historySearchStateOpt_ : Option[HistorySearchState] = None,
+                private var mish_ : Boolean = false,
+                private var insertLastArgStateOpt_ : Option[InsertLastArgState] = None,
+                private var objectBrowserStateStackOpt_ : Option[ObjectBrowserStateStack] = None) {
 
   def continue = continue_
 
@@ -53,8 +53,10 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
 
   def objectBrowserStateStackOpt = objectBrowserStateStackOpt_
 
+  def lineBuffer = lineBuffer_
+
   def cloneFrom(that: ReplState): Unit = {
-    this.lineBuffer = that.lineBuffer
+    this.lineBuffer_ = that.lineBuffer
     this.commandNumber_ = that.commandNumber
     this.completionStateOpt_ = that.completionStateOpt
     this.assistanceStateOpt_ = that.assistanceStateOpt
@@ -85,7 +87,7 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     insertLastArgStateOpt = None)
 
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer) {
-    this.lineBuffer = transformation(this.lineBuffer)
+    cloneFrom(copy(lineBuffer = transformation(this.lineBuffer)))
   }
 
   def mode: ReplMode =

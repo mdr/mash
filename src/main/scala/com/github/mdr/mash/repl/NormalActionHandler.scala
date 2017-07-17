@@ -77,7 +77,7 @@ trait NormalActionHandler {
   private def handlePreviousHistory() =
     if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
       history.goBackwards(state.lineBuffer.text) match {
-        case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
+        case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
         case None      ⇒ state.updateLineBuffer(_.up)
       }
     else
@@ -86,7 +86,7 @@ trait NormalActionHandler {
   private def handleNextHistory() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
-        case Some(cmd) ⇒ state.lineBuffer = LineBuffer(cmd)
+        case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
         case None      ⇒ state.updateLineBuffer(_.down)
       }
     else
@@ -107,11 +107,11 @@ trait NormalActionHandler {
   }
 
   private def handleToggleMish() = resetHistoryIfTextChanges {
-    state.lineBuffer =
+    state.cloneFrom(state.copy(lineBuffer =
       if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
       else
-        state.lineBuffer.insertCharacters("!", 0)
+        state.lineBuffer.insertCharacters("!", 0)))
   }
 
   private def handleInsertLastArg() = resetHistoryIfTextChanges {
@@ -137,7 +137,7 @@ trait NormalActionHandler {
       previousScreenOpt = None
 
       val cmd = state.lineBuffer.text
-      state.lineBuffer = LineBuffer.Empty
+      state.cloneFrom(state.copy(lineBuffer = LineBuffer.Empty))
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
@@ -237,7 +237,7 @@ trait NormalActionHandler {
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
     val newOffset = result.replacementLocation.offset + completion.replacement.length
-    state.lineBuffer = LineBuffer(newText, newOffset)
+    state.cloneFrom(state.copy(lineBuffer = LineBuffer(newText, newOffset)))
   }
 
 }
