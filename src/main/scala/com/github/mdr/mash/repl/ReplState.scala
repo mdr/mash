@@ -86,10 +86,9 @@ class ReplState(private var lineBuffer_ : LineBuffer = LineBuffer.Empty,
     historySearchStateOpt = None,
     insertLastArgStateOpt = None)
 
-  def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer) {
-    cloneFrom(copy(lineBuffer = transformation(this.lineBuffer)))
-  }
-
+  def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =
+    copy(lineBuffer = transformation(this.lineBuffer))
+  
   def mode: ReplMode =
     objectBrowserStateStackOpt match {
       case Some(stack) ⇒ getBrowserMode(stack)

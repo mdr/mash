@@ -27,7 +27,7 @@ trait NormalActionHandler {
   def handleNormalAction(action: InputAction) = {
     action match {
       case AcceptLine               ⇒ handleAcceptLine()
-      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.updateLineBuffer(f))
+      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.cloneFrom(state.updateLineBuffer(f)))
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
@@ -78,22 +78,22 @@ trait NormalActionHandler {
     if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
       history.goBackwards(state.lineBuffer.text) match {
         case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
-        case None      ⇒ state.updateLineBuffer(_.up)
+        case None      ⇒ state.cloneFrom(state.updateLineBuffer(_.up))
       }
     else
-      state.updateLineBuffer(_.up)
+      state.cloneFrom(state.updateLineBuffer(_.up))
 
   private def handleNextHistory() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
         case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
-        case None      ⇒ state.updateLineBuffer(_.down)
+        case None      ⇒ state.cloneFrom(state.updateLineBuffer(_.down))
       }
     else
-      state.updateLineBuffer(_.down)
+      state.cloneFrom(state.updateLineBuffer(_.down))
 
   private def handleToggleQuote() = resetHistoryIfTextChanges {
-    state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
+    state.cloneFrom(state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish)))
   }
 
   private def handleEof() {
@@ -141,7 +141,7 @@ trait NormalActionHandler {
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
-      state.updateLineBuffer(_.addCharacterAtCursor('\n'))
+      state.cloneFrom(state.updateLineBuffer(_.addCharacterAtCursor('\n')))
   }
 
   def canAcceptBuffer: Boolean = {
