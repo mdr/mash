@@ -141,6 +141,20 @@ class ReplTest extends AbstractReplTest {
       .text should equal("foobar = 42")
   }
 
+  "Inserting last argument" should "be supported" in {
+    val repl =
+      makeRepl()
+        .input("sort 'arg1'").acceptLine()
+        .input("sort 'arg2'").acceptLine()
+        .input("sort ")
+        .insertLastArgument()
+    repl.text should equal("sort 'arg2'")
+    repl.insertLastArgument()
+    repl.text should equal("sort 'arg1'")
+    repl.insertLastArgument()
+    repl.text should equal("sort 'arg1'")
+  }
+
 }
 
 case class DummyTerminal(width: Int = 80) extends Terminal {

@@ -148,6 +148,11 @@ class AbstractReplTest extends FlatSpec with Matchers {
       repl
     }
 
+    def insertLastArgument(): Repl = {
+      repl.handleAction(InsertLastArg)
+      repl
+    }
+
     def text: String = lineBuffer.text
 
     def lineBuffer: LineBuffer = repl.state.lineBuffer

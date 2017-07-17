@@ -49,6 +49,18 @@ class ReplState(var lineBuffer: LineBuffer = LineBuffer.Empty,
     this.objectBrowserStateStackOpt = that.objectBrowserStateStackOpt
   }
 
+  def copy(lineBuffer: LineBuffer = this.lineBuffer,
+           commandNumber: Int = this.commandNumber,
+           completionStateOpt: Option[CompletionState] = this.completionStateOpt,
+           assistanceStateOpt: Option[AssistanceState] = this.assistanceStateOpt,
+           continue: Boolean = this.continue,
+           historySearchStateOpt: Option[HistorySearchState] = this.historySearchStateOpt,
+           mish: Boolean = this.mish,
+           insertLastArgStateOpt: Option[InsertLastArgState] = this.insertLastArgStateOpt,
+           objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = this.objectBrowserStateStackOpt): ReplState =
+    new ReplState(lineBuffer, commandNumber, completionStateOpt, assistanceStateOpt, continue, historySearchStateOpt,
+      mish, insertLastArgStateOpt, objectBrowserStateStackOpt)
+
   def reset() {
     lineBuffer = LineBuffer.Empty
     completionStateOpt = None

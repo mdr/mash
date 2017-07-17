@@ -124,7 +124,7 @@ trait NormalActionHandler {
         val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
         state.lineBuffer = LineBuffer(newText, newRegion.posAfter)
-        state.insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))
+        state.cloneFrom(state.copy(insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))))
       case None         ⇒
     }
   }
