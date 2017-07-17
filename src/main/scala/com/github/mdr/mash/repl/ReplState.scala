@@ -4,9 +4,6 @@ import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.repl.browser.ObjectBrowserStateStack
 import com.github.mdr.mash.repl.completions.CompletionState
 import com.github.mdr.mash.repl.history.HistorySearchState
-import com.github.mdr.mash.utils.Region
-
-case class InsertLastArgState(count: Int, region: Region)
 
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      commandNumber: Int = 0,

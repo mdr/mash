@@ -15,7 +15,6 @@ import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
-import com.github.mdr.mash.utils.Region
 
 import scala.PartialFunction.cond
 
@@ -115,19 +114,7 @@ trait NormalActionHandler {
   }
 
   private def handleInsertLastArg() = resetHistoryIfTextChanges {
-    val (argIndex, oldRegion) = state.insertLastArgStateOpt match {
-      case Some(InsertLastArgState(n, region)) ⇒ (n + 1, region)
-      case None                                ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))
-    }
-    history.getLastArg(argIndex) match {
-      case Some(newArg) ⇒
-        val newText = oldRegion.replace(state.lineBuffer.text, newArg)
-        val newRegion = Region(oldRegion.offset, newArg.length)
-        state = state.copy(
-          lineBuffer = LineBuffer(newText, newRegion.posAfter),
-          insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion)))
-      case None         ⇒
-    }
+    state = InsertLastArgHandler.handleInsertLastArg(history, state)
   }
 
   private def handleAcceptLine() = {
