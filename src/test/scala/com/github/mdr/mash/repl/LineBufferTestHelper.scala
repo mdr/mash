@@ -9,7 +9,7 @@ object LineBufferTestHelper {
    */
   def parseLineBuffer(s: String): LineBuffer = {
     val pos = Utils.indexOf(s, "▶").orElse(Utils.indexOf(s, "◀").map(_ - 1)).getOrElse(
-      throw new IllegalArgumentException("No cursor position provided in test case"))
+      throw new IllegalArgumentException(s"No cursor position (▶ or ◀) provided in '$s'"))
     val text = s.filterNot(c ⇒ c == '▶' || c == '◀')
     LineBuffer(text, pos)
   }

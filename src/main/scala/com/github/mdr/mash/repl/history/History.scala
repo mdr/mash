@@ -3,9 +3,10 @@ package com.github.mdr.mash.repl.history
 import java.nio.file.Path
 
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
+import com.github.mdr.mash.repl.HistoricalArgumentSource
 import com.github.mdr.mash.runtime.MashValue
 
-trait History {
+trait History extends HistoricalArgumentSource {
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path)
 
@@ -22,7 +23,7 @@ trait History {
   def findMatches(searchString: String): Seq[String] =
     getHistory.map(_.command).filter(_.toLowerCase contains searchString.toLowerCase)
 
-  def getLastArg(lastArgIndex: Int): Option[String] =
+  def getHistoricalArguments(lastArgIndex: Int): Option[String] =
     getHistory.toStream.flatMap(getLastArg(_)).drop(lastArgIndex).headOption
 
   private def getLastArg(historyEntry: HistoryEntry): Option[String] =

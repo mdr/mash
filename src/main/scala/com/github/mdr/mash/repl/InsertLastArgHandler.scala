@@ -1,6 +1,5 @@
 package com.github.mdr.mash.repl
 
-import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.utils.Region
 
 /**
@@ -9,14 +8,20 @@ import com.github.mdr.mash.utils.Region
   */
 case class InsertLastArgState(argIndex: Int, region: Region)
 
+trait HistoricalArgumentSource {
+
+  def getHistoricalArguments(argIndex: Int): Option[String]
+
+}
+
 object InsertLastArgHandler {
 
-  def handleInsertLastArg(history: History, state: ReplState): ReplState = {
+  def handleInsertLastArg(argSource: HistoricalArgumentSource, state: ReplState): ReplState = {
     val (newArgIndex, oldRegion) = state.insertLastArgStateOpt match {
       case Some(InsertLastArgState(oldArgIndex, region)) ⇒ (oldArgIndex + 1, region)
       case None                                          ⇒ (0, Region(state.lineBuffer.cursorOffset, 0))
     }
-    history.getLastArg(newArgIndex) match {
+    argSource.getHistoricalArguments(newArgIndex) match {
       case Some(newArg) ⇒
         val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
