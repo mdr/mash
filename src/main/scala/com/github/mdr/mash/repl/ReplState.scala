@@ -27,57 +27,16 @@ object ReplState {
 
 }
 
-class ReplState(private var lineBuffer_ : LineBuffer = LineBuffer.Empty,
-                private var commandNumber_ : Int = 0,
-                private var completionStateOpt_ : Option[CompletionState] = None,
-                private var assistanceStateOpt_ : Option[AssistanceState] = None,
-                private var continue_ : Boolean = true, // Whether to loop or exit
-                private var historySearchStateOpt_ : Option[HistorySearchState] = None,
-                private var mish_ : Boolean = false,
-                private var insertLastArgStateOpt_ : Option[InsertLastArgState] = None,
-                private var objectBrowserStateStackOpt_ : Option[ObjectBrowserStateStack] = None) {
+case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
+                     commandNumber: Int = 0,
+                     completionStateOpt: Option[CompletionState] = None,
+                     assistanceStateOpt: Option[AssistanceState] = None,
+                     continue: Boolean = true, // Whether to loop or exit
+                     historySearchStateOpt: Option[HistorySearchState] = None,
+                     mish: Boolean = false,
+                     insertLastArgStateOpt: Option[InsertLastArgState] = None,
+                     objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
 
-  def continue = continue_
-
-  def commandNumber = commandNumber_
-
-  def completionStateOpt = completionStateOpt_
-
-  def assistanceStateOpt = assistanceStateOpt_
-
-  def historySearchStateOpt = historySearchStateOpt_
-
-  def mish = mish_
-
-  def insertLastArgStateOpt = insertLastArgStateOpt_
-
-  def objectBrowserStateStackOpt = objectBrowserStateStackOpt_
-
-  def lineBuffer = lineBuffer_
-
-  def cloneFrom(that: ReplState): Unit = {
-    this.lineBuffer_ = that.lineBuffer
-    this.commandNumber_ = that.commandNumber
-    this.completionStateOpt_ = that.completionStateOpt
-    this.assistanceStateOpt_ = that.assistanceStateOpt
-    this.continue_ = that.continue
-    this.historySearchStateOpt_ = that.historySearchStateOpt
-    this.mish_ = that.mish
-    this.insertLastArgStateOpt_ = that.insertLastArgStateOpt
-    this.objectBrowserStateStackOpt_ = that.objectBrowserStateStackOpt
-  }
-
-  def copy(lineBuffer: LineBuffer = this.lineBuffer,
-           commandNumber: Int = this.commandNumber,
-           completionStateOpt: Option[CompletionState] = this.completionStateOpt,
-           assistanceStateOpt: Option[AssistanceState] = this.assistanceStateOpt,
-           continue: Boolean = this.continue,
-           historySearchStateOpt: Option[HistorySearchState] = this.historySearchStateOpt,
-           mish: Boolean = this.mish,
-           insertLastArgStateOpt: Option[InsertLastArgState] = this.insertLastArgStateOpt,
-           objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = this.objectBrowserStateStackOpt): ReplState =
-    new ReplState(lineBuffer, commandNumber, completionStateOpt, assistanceStateOpt, continue, historySearchStateOpt,
-      mish, insertLastArgStateOpt, objectBrowserStateStackOpt)
 
   def reset: ReplState = copy(
     lineBuffer = LineBuffer.Empty,
@@ -88,7 +47,7 @@ class ReplState(private var lineBuffer_ : LineBuffer = LineBuffer.Empty,
 
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =
     copy(lineBuffer = transformation(this.lineBuffer))
-  
+
   def mode: ReplMode =
     objectBrowserStateStackOpt match {
       case Some(stack) ⇒ getBrowserMode(stack)

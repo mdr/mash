@@ -11,10 +11,10 @@ trait IncrementalCompletionActionHandler {
 
   protected def enterIncrementalCompletionState(result: CompletionResult) {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, state.lineBuffer)
-    state.cloneFrom(state.copy(
+    state = state.copy(
       completionStateOpt = Some(completionState),
       lineBuffer = newLineBuffer,
-      assistanceStateOpt = None))
+      assistanceStateOpt = None)
   }
 
   protected def initialIncrementalCompletionState(result: CompletionResult, lineBuffer: LineBuffer): (IncrementalCompletionState, LineBuffer) = {
@@ -34,19 +34,19 @@ trait IncrementalCompletionActionHandler {
       case SelfInsert(s)                                              ⇒
         handleInsert(s, completionState)
       case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒ // restore previous state
-        completionState.mementoOpt.foreach(_.restoreInto(state))
+        completionState.mementoOpt.foreach(memento ⇒ state = memento.restoreInto(state))
       case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
         browseCompletions(completionState)
       case _                                                          ⇒ // exit back to normal mode, and handle there
-        state.cloneFrom(state.exitCompletion)
+        state = state.exitCompletion
         handleNormalAction(action)
     }
 
   private def handleInsert(characters: String, completionState: IncrementalCompletionState) {
     val (newLineBuffer, newCompletionStateOpt) = getNewIncrementalSearchState(characters, state.lineBuffer, completionState, state.mish)
-    state.cloneFrom(state.copy(
+    state = state.copy(
       completionStateOpt = newCompletionStateOpt,
-      lineBuffer = newLineBuffer))
+      lineBuffer = newLineBuffer)
   }
 
   protected def getNewIncrementalSearchState(insertedCharacters: String,

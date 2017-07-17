@@ -40,10 +40,9 @@ case class BrowserCompletionState(completions: Seq[Completion],
 /** During incremental completion, we keep a memento of the previous repl state so we can unwind */
 case class ReplStateMemento(lineBuffer: LineBuffer, completionState: IncrementalCompletionState) {
 
-  def restoreInto(state: ReplState) {
-    state.cloneFrom(state.copy(
+  def restoreInto(state: ReplState): ReplState =
+    state.copy(
       lineBuffer = lineBuffer,
-      completionStateOpt = Some(completionState)))
-  }
+      completionStateOpt = Some(completionState))
 
 }

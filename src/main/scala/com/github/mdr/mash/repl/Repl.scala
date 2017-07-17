@@ -36,7 +36,7 @@ class Repl(protected val terminal: Terminal,
   protected val debugLogger = new DebugLogger(sessionId.toString)
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  val state = new ReplState()
+  var state = new ReplState()
 
   protected var previousScreenOpt: Option[Screen] = None
 
@@ -70,7 +70,7 @@ class Repl(protected val terminal: Terminal,
     catch {
       case e: Exception ⇒
         debugLogger.logException(e)
-        state.cloneFrom(state.reset)
+        state = state.reset
         draw()
     }
     try {
@@ -134,7 +134,7 @@ class Repl(protected val terminal: Terminal,
         case _                            ⇒
           InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, getBindings, mish = state.mish)
       }
-    state.cloneFrom(state.copy(assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty)))
+    state = state.copy(assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty))
   }
 
   /**

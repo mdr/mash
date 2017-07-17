@@ -9,7 +9,7 @@ trait TextLinesBrowserActionHandler {
 
   protected def handleTextLinesBrowserAction(action: InputAction, browserState: TextLinesBrowserState): Unit =
     action match {
-      case ExitBrowser                     ⇒ state.cloneFrom(state.copy(objectBrowserStateStackOpt = None))
+      case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
       case Back                            ⇒ navigateBack()
       case Open                            ⇒ handleOpenItem(browserState)
       case Copy                            ⇒ handleCopyItem(browserState)

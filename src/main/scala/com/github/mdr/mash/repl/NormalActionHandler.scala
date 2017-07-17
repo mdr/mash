@@ -27,7 +27,7 @@ trait NormalActionHandler {
   def handleNormalAction(action: InputAction) = {
     action match {
       case AcceptLine               ⇒ handleAcceptLine()
-      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state.cloneFrom(state.updateLineBuffer(f)))
+      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state = state.updateLineBuffer(f))
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
@@ -44,7 +44,7 @@ trait NormalActionHandler {
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != ClearScreen)
-      state.cloneFrom(state.copy(insertLastArgStateOpt = None))
+      state = state.copy(insertLastArgStateOpt = None)
   }
 
   private def handleBrowseLastResult() {
@@ -53,15 +53,15 @@ trait NormalActionHandler {
       val path = s"$ResultVarPrefix$commandNumber"
       for (value ← globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
-        state.cloneFrom(state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))))
+        state = state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState))))
       }
     }
   }
 
   private def handleIncrementalHistorySearch() {
-    state.cloneFrom(state.copy(
+    state = state.copy(
       assistanceStateOpt = None,
-      historySearchStateOpt = Some(HistorySearchState())))
+      historySearchStateOpt = Some(HistorySearchState()))
     history.resetHistoryPosition()
   }
 
@@ -77,27 +77,27 @@ trait NormalActionHandler {
   private def handlePreviousHistory() =
     if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
       history.goBackwards(state.lineBuffer.text) match {
-        case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
-        case None      ⇒ state.cloneFrom(state.updateLineBuffer(_.up))
+        case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
+        case None      ⇒ state = state.updateLineBuffer(_.up)
       }
     else
-      state.cloneFrom(state.updateLineBuffer(_.up))
+      state = state.updateLineBuffer(_.up)
 
   private def handleNextHistory() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
-        case Some(cmd) ⇒ state.cloneFrom(state.copy(lineBuffer = LineBuffer(cmd)))
-        case None      ⇒ state.cloneFrom(state.updateLineBuffer(_.down))
+        case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
+        case None      ⇒ state = state.updateLineBuffer(_.down)
       }
     else
-      state.cloneFrom(state.updateLineBuffer(_.down))
+      state = state.updateLineBuffer(_.down)
 
   private def handleToggleQuote() = resetHistoryIfTextChanges {
-    state.cloneFrom(state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish)))
+    state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
   }
 
   private def handleEof() {
-    state.cloneFrom(state.reset.copy(continue = false))
+    state = state.reset.copy(continue = false)
   }
 
   private def handleClearScreen() {
@@ -107,11 +107,11 @@ trait NormalActionHandler {
   }
 
   private def handleToggleMish() = resetHistoryIfTextChanges {
-    state.cloneFrom(state.copy(lineBuffer =
+    state = state.copy(lineBuffer =
       if (state.lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
       else
-        state.lineBuffer.insertCharacters("!", 0)))
+        state.lineBuffer.insertCharacters("!", 0))
   }
 
   private def handleInsertLastArg() = resetHistoryIfTextChanges {
@@ -123,9 +123,9 @@ trait NormalActionHandler {
       case Some(newArg) ⇒
         val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
-        state.cloneFrom(state.copy(
+        state = state.copy(
           lineBuffer = LineBuffer(newText, newRegion.posAfter),
-          insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))))
+          insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion)))
       case None         ⇒
     }
   }
@@ -137,11 +137,11 @@ trait NormalActionHandler {
       previousScreenOpt = None
 
       val cmd = state.lineBuffer.text
-      state.cloneFrom(state.copy(lineBuffer = LineBuffer.Empty))
+      state = state.copy(lineBuffer = LineBuffer.Empty)
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
-      state.cloneFrom(state.updateLineBuffer(_.addCharacterAtCursor('\n')))
+      state = state.updateLineBuffer(_.addCharacterAtCursor('\n'))
   }
 
   def canAcceptBuffer: Boolean = {
@@ -156,10 +156,10 @@ trait NormalActionHandler {
   }
 
   protected def updateScreenAfterAccept() {
-    state.cloneFrom(state.copy(
+    state = state.copy(
       completionStateOpt = None,
       assistanceStateOpt = None,
-      lineBuffer = state.lineBuffer.moveCursorToEndOfLine))
+      lineBuffer = state.lineBuffer.moveCursorToEndOfLine)
     draw()
 
     for (previousScreen ← previousScreenOpt) {
@@ -188,10 +188,10 @@ trait NormalActionHandler {
     val actualResultOpt = resultOpt.map(ViewClass.unpackView)
     val commandNumber = state.commandNumber
     if (toggleMish)
-      state.cloneFrom(state.copy(mish = !state.mish))
+      state = state.copy(mish = !state.mish)
     else {
       history.record(cmd, commandNumber, state.mish, actualResultOpt, workingDirectory)
-      state.cloneFrom(state.incrementCommandNumber)
+      state = state.incrementCommandNumber
     }
     actualResultOpt.foreach(saveResult(commandNumber))
 
@@ -199,7 +199,7 @@ trait NormalActionHandler {
       val isView = resultOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
       val path = if (isView) s"$ResultVarPrefix$commandNumber" else cmd
       val browserState = BrowserState.fromModel(displayModel, path)
-      state.cloneFrom(state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))))
+      state = state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState))))
     }
   }
 
@@ -230,14 +230,14 @@ trait NormalActionHandler {
 
   private def handleAssistInvocation() =
     if (state.assistanceStateOpt.isDefined)
-      state.cloneFrom(state.copy(assistanceStateOpt = None))
+      state = state.copy(assistanceStateOpt = None)
     else
       updateInvocationAssistance()
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
     val newOffset = result.replacementLocation.offset + completion.replacement.length
-    state.cloneFrom(state.copy(lineBuffer = LineBuffer(newText, newOffset)))
+    state = state.copy(lineBuffer = LineBuffer(newText, newOffset))
   }
 
 }
