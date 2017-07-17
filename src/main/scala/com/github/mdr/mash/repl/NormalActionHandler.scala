@@ -10,7 +10,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
-import com.github.mdr.mash.repl.ReplState.{ It, ResultVarPrefix, ResultsListName }
+import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.history.HistorySearchState
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }

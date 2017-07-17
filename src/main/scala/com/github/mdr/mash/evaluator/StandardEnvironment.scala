@@ -1,7 +1,7 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.ns.MashRoot
-import com.github.mdr.mash.repl.ReplState
+import com.github.mdr.mash.repl.ReplVariables
 import com.github.mdr.mash.runtime._
 
 import scala.collection.JavaConverters._
@@ -28,7 +28,7 @@ object StandardEnvironment {
       Seq(
         Env -> systemEnvironment,
         Config -> com.github.mdr.mash.Config.defaultConfig,
-        ReplState.It -> MashNull,
+        ReplVariables.It -> MashNull,
         Ns -> ns).map(wrapStringField)
     val allPairs = nameFunctionPairs ++ nameClassPairs ++ aliasPairs ++ rootNsPairs ++ otherPairs
     val global = MashObject.of(allPairs)

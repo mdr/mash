@@ -90,8 +90,9 @@ class Repl(protected val terminal: Terminal,
   }
 
   private def fetchAction(): InputAction = {
-    val isLineEmpty = state.mode == ReplMode.Normal && state.lineBuffer.isEmpty
-    val keyMap = state.mode match {
+    val replMode = ReplMode.getMode(state)
+    val isLineEmpty = replMode == ReplMode.Normal && state.lineBuffer.isEmpty
+    val keyMap = replMode match {
       case ReplMode.ObjectBrowser                   ⇒ ObjectBrowserKeyMap
       case ReplMode.ObjectBrowser.IncrementalSearch ⇒ ObjectBrowserKeyMap.IncrementalSearch
       case ReplMode.ObjectBrowser.ExpressionInput   ⇒ ObjectBrowserKeyMap.ExpressionInput

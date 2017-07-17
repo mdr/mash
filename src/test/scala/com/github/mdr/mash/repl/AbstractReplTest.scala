@@ -179,7 +179,7 @@ class AbstractReplTest extends FlatSpec with Matchers {
     }
 
     def lastValue: MashValue =
-      repl.globalVariables.get(ReplState.It).getOrElse(throw new AssertionError("No binding for 'it'"))
+      repl.globalVariables.get(ReplVariables.It).getOrElse(throw new AssertionError("No binding for 'it'"))
 
     def incrementalCompletionState = repl.state.completionStateOpt.collect {
       case state: IncrementalCompletionState ⇒ state
