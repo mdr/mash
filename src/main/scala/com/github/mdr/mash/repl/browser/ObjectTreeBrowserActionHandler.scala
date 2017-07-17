@@ -10,7 +10,7 @@ trait ObjectTreeBrowserActionHandler {
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit =
     action match {
       case Focus                           ⇒ focus(browserState, tree = true)
-      case ExitBrowser                     ⇒ state.objectBrowserStateStackOpt = None
+      case ExitBrowser                     ⇒ state.cloneFrom(state.copy(objectBrowserStateStackOpt = None))
       case Back                            ⇒ navigateBack()
       case NextColumn                      ⇒ updateState(browserState.right)
       case PreviousColumn                  ⇒ updateState(browserState.left)

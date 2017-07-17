@@ -9,7 +9,7 @@ trait ValueBrowserActionHandler {
 
   protected def handleValueBrowserAction(action: InputAction, browserState: ValueBrowserState): Unit =
     action match {
-      case ExitBrowser                     ⇒ state.objectBrowserStateStackOpt = None
+      case ExitBrowser                     ⇒ state.cloneFrom(state.copy(objectBrowserStateStackOpt = None))
       case Back                            ⇒ navigateBack()
       case InsertItem                      ⇒ handleInsertItem(browserState)
       case Open                            ⇒ handleOpenItem(browserState)

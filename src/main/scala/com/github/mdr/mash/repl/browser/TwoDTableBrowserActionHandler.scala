@@ -44,7 +44,7 @@ trait TwoDTableBrowserActionHandler {
       case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
       case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
       case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
-      case ExitBrowser                     ⇒ state.objectBrowserStateStackOpt = None
+      case ExitBrowser                     ⇒ state.cloneFrom(state.copy(objectBrowserStateStackOpt = None))
       case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
       case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
       case InsertItem                      ⇒ handleInsertItem(browserState)

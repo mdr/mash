@@ -11,9 +11,10 @@ trait IncrementalCompletionActionHandler {
 
   protected def enterIncrementalCompletionState(result: CompletionResult) {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, state.lineBuffer)
-    state.completionStateOpt = Some(completionState)
-    state.lineBuffer = newLineBuffer
-    state.assistanceStateOpt = None
+    state.cloneFrom(state.copy(
+      completionStateOpt = Some(completionState),
+      lineBuffer = newLineBuffer,
+      assistanceStateOpt = None))
   }
 
   protected def initialIncrementalCompletionState(result: CompletionResult, lineBuffer: LineBuffer): (IncrementalCompletionState, LineBuffer) = {
@@ -37,14 +38,15 @@ trait IncrementalCompletionActionHandler {
       case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
         browseCompletions(completionState)
       case _                                                          ⇒ // exit back to normal mode, and handle there
-        state.completionStateOpt = None
+        state.cloneFrom(state.exitCompletion)
         handleNormalAction(action)
     }
 
   private def handleInsert(characters: String, completionState: IncrementalCompletionState) {
     val (newLineBuffer, newCompletionStateOpt) = getNewIncrementalSearchState(characters, state.lineBuffer, completionState, state.mish)
-    state.completionStateOpt = newCompletionStateOpt
-    state.lineBuffer = newLineBuffer
+    state.cloneFrom(state.copy(
+      completionStateOpt = newCompletionStateOpt,
+      lineBuffer = newLineBuffer))
   }
 
   protected def getNewIncrementalSearchState(insertedCharacters: String,

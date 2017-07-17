@@ -44,7 +44,7 @@ trait NormalActionHandler {
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != ClearScreen)
-      state.insertLastArgStateOpt = None
+      state.cloneFrom(state.copy(insertLastArgStateOpt = None))
   }
 
   private def handleBrowseLastResult() {
@@ -53,14 +53,15 @@ trait NormalActionHandler {
       val path = s"$ResultVarPrefix$commandNumber"
       for (value ← globalVariables.get(path)) {
         val browserState = getNewBrowserState(value, path)
-        state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
+        state.cloneFrom(state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))))
       }
     }
   }
 
   private def handleIncrementalHistorySearch() {
-    state.assistanceStateOpt = None
-    state.historySearchStateOpt = Some(HistorySearchState())
+    state.cloneFrom(state.copy(
+      assistanceStateOpt = None,
+      historySearchStateOpt = Some(HistorySearchState())))
     history.resetHistoryPosition()
   }
 
@@ -96,8 +97,7 @@ trait NormalActionHandler {
   }
 
   private def handleEof() {
-    state.reset()
-    state.continue = false
+    state.cloneFrom(state.reset.copy(continue = false))
   }
 
   private def handleClearScreen() {
@@ -123,8 +123,9 @@ trait NormalActionHandler {
       case Some(newArg) ⇒
         val newText = oldRegion.replace(state.lineBuffer.text, newArg)
         val newRegion = Region(oldRegion.offset, newArg.length)
-        state.lineBuffer = LineBuffer(newText, newRegion.posAfter)
-        state.cloneFrom(state.copy(insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))))
+        state.cloneFrom(state.copy(
+          lineBuffer = LineBuffer(newText, newRegion.posAfter),
+          insertLastArgStateOpt = Some(InsertLastArgState(argIndex, newRegion))))
       case None         ⇒
     }
   }
@@ -155,9 +156,10 @@ trait NormalActionHandler {
   }
 
   protected def updateScreenAfterAccept() {
-    state.completionStateOpt = None
-    state.assistanceStateOpt = None
-    state.updateLineBuffer(_.moveCursorToEndOfLine) // To make sure we don't highlight any matching brackets
+    state.cloneFrom(state.copy(
+      completionStateOpt = None,
+      assistanceStateOpt = None,
+      lineBuffer = state.lineBuffer.moveCursorToEndOfLine))
     draw()
 
     for (previousScreen ← previousScreenOpt) {
@@ -186,10 +188,10 @@ trait NormalActionHandler {
     val actualResultOpt = resultOpt.map(ViewClass.unpackView)
     val commandNumber = state.commandNumber
     if (toggleMish)
-      state.mish = !state.mish
+      state.cloneFrom(state.copy(mish = !state.mish))
     else {
       history.record(cmd, commandNumber, state.mish, actualResultOpt, workingDirectory)
-      state.commandNumber += 1
+      state.cloneFrom(state.incrementCommandNumber)
     }
     actualResultOpt.foreach(saveResult(commandNumber))
 
@@ -197,7 +199,7 @@ trait NormalActionHandler {
       val isView = resultOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
       val path = if (isView) s"$ResultVarPrefix$commandNumber" else cmd
       val browserState = BrowserState.fromModel(displayModel, path)
-      state.objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))
+      state.cloneFrom(state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState)))))
     }
   }
 
@@ -228,7 +230,7 @@ trait NormalActionHandler {
 
   private def handleAssistInvocation() =
     if (state.assistanceStateOpt.isDefined)
-      state.assistanceStateOpt = None
+      state.cloneFrom(state.copy(assistanceStateOpt = None))
     else
       updateInvocationAssistance()
 

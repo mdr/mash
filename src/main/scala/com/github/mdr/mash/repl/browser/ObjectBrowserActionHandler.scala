@@ -31,7 +31,9 @@ trait ObjectBrowserActionHandler
   self: Repl ⇒
 
   private def updateObjectBrowserStateStack(f: ObjectBrowserStateStack ⇒ Option[ObjectBrowserStateStack]) =
-    state.objectBrowserStateStackOpt.foreach { stack ⇒ state.objectBrowserStateStackOpt = f(stack) }
+    state.objectBrowserStateStackOpt.foreach { stack ⇒
+      state.cloneFrom(state.copy(objectBrowserStateStackOpt = f(stack)))
+    }
 
   protected def updateState(newState: BrowserState) = updateObjectBrowserStateStack { stack ⇒
     Some(stack.replaceCurrentState(newState))
@@ -108,8 +110,9 @@ trait ObjectBrowserActionHandler
     BrowserState.fromModel(DisplayModel.getDisplayModel(value, viewConfig, terminal.size), path)
 
   private def insert(expression: String): Unit = {
-    state.lineBuffer = LineBuffer(expression)
-    state.objectBrowserStateStackOpt = None
+    state.cloneFrom(state.copy(
+      lineBuffer = LineBuffer(expression),
+      objectBrowserStateStackOpt = None))
   }
 
   protected def handleInsertWholeItem(browserState: BrowserState) = insert(browserState.path)
@@ -248,8 +251,9 @@ trait ObjectBrowserActionHandler
   }
 
   protected def handleOpenItem(browserState: BrowserState) = {
-    state.lineBuffer = LineBuffer.Empty
-    state.objectBrowserStateStackOpt = None
+    state.cloneFrom(state.copy(
+      lineBuffer = LineBuffer.Empty,
+      objectBrowserStateStackOpt = None))
     updateScreenAfterAccept()
     val command = combineSafely(browserState.getInsertExpression, " | open")
     runCommand(command)

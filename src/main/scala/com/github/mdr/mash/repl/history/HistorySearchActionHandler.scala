@@ -12,7 +12,7 @@ trait HistorySearchActionHandler {
     action match {
       case SelfInsert(c)            ⇒ updateSearch(searchString + c)
       case BackwardDeleteChar       ⇒ handleDeleteChar(searchString)
-      case AcceptLine               ⇒ state.historySearchStateOpt = None
+      case AcceptLine               ⇒ state.cloneFrom(state.copy(historySearchStateOpt = None))
       case IncrementalHistorySearch ⇒ updateSearch(searchString, resultIndex + 1)
       case _                        ⇒ exitSearchAndHandleNormally(action)
     }
@@ -20,7 +20,7 @@ trait HistorySearchActionHandler {
 
   private def handleDeleteChar(searchString: String) =
     searchString match {
-      case "" ⇒ state.historySearchStateOpt = None
+      case "" ⇒ state.cloneFrom(state.copy(historySearchStateOpt = None))
       case _  ⇒ updateSearch(searchString.init)
     }
 
@@ -28,12 +28,13 @@ trait HistorySearchActionHandler {
     val text =
       if (searchString.isEmpty) ""
       else history.findMatches(searchString).distinct.drop(resultIndex).headOption.getOrElse("")
-    state.lineBuffer = LineBuffer(text)
-    state.historySearchStateOpt = Some(HistorySearchState(searchString, resultIndex))
+    state.cloneFrom(state.copy(
+      lineBuffer = LineBuffer(text),
+      historySearchStateOpt = None))
   }
 
   private def exitSearchAndHandleNormally(action: InputAction) {
-    state.historySearchStateOpt = None
+    state.cloneFrom(state.copy(historySearchStateOpt = None))
     handleNormalAction(action)
   }
 

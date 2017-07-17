@@ -19,9 +19,9 @@ trait BrowseCompletionActionHandler {
       case NavigateDown       ⇒ browseCompletions(completionState, navigator.down)
       case NavigateUp         ⇒ browseCompletions(completionState, navigator.up)
       case AcceptCompletion   ⇒
-        state.completionStateOpt = None
+        state.cloneFrom(state.exitCompletion)
       case _                  ⇒
-        state.completionStateOpt = None
+        state.cloneFrom(state.exitCompletion)
         handleNormalAction(action)
     }
   }
@@ -31,8 +31,9 @@ trait BrowseCompletionActionHandler {
     */
   protected def browseCompletions(completionState: CompletionState, activeCompletion: Int = 0) {
     val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion, state.lineBuffer)
-    state.lineBuffer = newLineBuffer
-    state.completionStateOpt = Some(newCompletionState)
+    state.cloneFrom(state.copy(
+      lineBuffer = newLineBuffer,
+      completionStateOpt = Some(newCompletionState)))
   }
 
   protected def getBrowseCompletionState(completionState: CompletionState,

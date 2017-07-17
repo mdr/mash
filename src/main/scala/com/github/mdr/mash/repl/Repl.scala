@@ -70,7 +70,7 @@ class Repl(protected val terminal: Terminal,
     catch {
       case e: Exception ⇒
         debugLogger.logException(e)
-        state.reset()
+        state.cloneFrom(state.reset)
         draw()
     }
     try {
@@ -134,7 +134,7 @@ class Repl(protected val terminal: Terminal,
         case _                            ⇒
           InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, getBindings, mish = state.mish)
       }
-    state.assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty)
+    state.cloneFrom(state.copy(assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty)))
   }
 
   /**
