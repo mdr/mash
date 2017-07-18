@@ -83,6 +83,22 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
     state3 should equal(replState("foo▶"))
   }
 
+  it should "perform case insensitive searches" in {
+    val history = InMemoryHistoryStorage.testHistory("foo", "FOO")
+    val actionHandler = HistorySearchActionHandler(history)
+
+    val state0 = replState("existing▶")
+
+    val state1 = actionHandler.beginIncrementalSearch(state0)
+    state1 should equal(replState("existing▶").withHistorySearchState(""))
+
+    val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
+    state2 should equal(replState("FOO▶").withHistorySearchState("f", 0))
+
+    val Result(state3, true) = actionHandler.handleAction(IncrementalHistorySearch, state2)
+    state3 should equal(replState("foo▶").withHistorySearchState("f", 1))
+  }
+
   implicit class RichReplState(state: ReplState) {
 
     def withHistorySearchState(searchString: String, resultIndex: Int): ReplState =
