@@ -12,7 +12,7 @@ import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.repl.browser.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.history.HistorySearchActionHandler.Result
-import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler, HistorySearchState }
+import com.github.mdr.mash.repl.history.{ History, HistorySearchActionHandler }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.{ ReplRenderer, Screen }
 import com.github.mdr.mash.terminal.Terminal
@@ -112,7 +112,7 @@ class Repl(protected val terminal: Terminal,
           case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
           case None                                              ⇒
             state.historySearchStateOpt match {
-              case Some(searchState) ⇒ handleHistorySearchAction(action, searchState)
+              case Some(searchState) ⇒ handleHistorySearchAction(action)
               case None              ⇒ handleNormalAction(action)
             }
         }
@@ -121,8 +121,8 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
-  private def handleHistorySearchAction(action: InputAction, searchState: HistorySearchState) = {
-    val Result(newState, actionConsumed) = HistorySearchActionHandler(history).handleAction(action, state, searchState)
+  private def handleHistorySearchAction(action: InputAction) = {
+    val Result(newState, actionConsumed) = HistorySearchActionHandler(history).handleAction(action, state)
     state = newState
     if (!actionConsumed)
       handleNormalAction(action)

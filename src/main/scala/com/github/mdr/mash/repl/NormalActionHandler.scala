@@ -58,7 +58,7 @@ trait NormalActionHandler {
   }
 
   private def handleIncrementalHistorySearch() =
-    state = HistorySearchActionHandler(history).begin(state)
+    state = HistorySearchActionHandler(history).beginIncrementalSearch(state)
 
   private def resetHistoryIfTextChanges[T](f: ⇒ T): T = {
     val before = state.lineBuffer.text

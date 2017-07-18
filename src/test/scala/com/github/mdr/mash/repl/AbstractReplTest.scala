@@ -9,7 +9,7 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.Beg
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
-import com.github.mdr.mash.repl.history.HistoryImpl
+import com.github.mdr.mash.repl.history.{ HistoryImpl, InMemoryHistoryStorage }
 import com.github.mdr.mash.runtime.MashValue
 import org.scalatest._
 
