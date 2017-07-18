@@ -23,13 +23,15 @@ object KeyHint {
   val NextHit = KeyHint("^N", "next")
   val PreviousHit = KeyHint("^P", "prev")
   val DoneSearch = KeyHint("ret", "done")
+  val NextHistoryHit = KeyHint("^R", "next")
   val CaseSensitive = KeyHint("^T", "case sensitive")
   val CaseInsensitive = KeyHint("^T", "ignore case")
 
-  def renderKeyHints(hints: Seq[KeyHint]): StyledString = {
-    def renderHint(hint: KeyHint) = hint.key.style(hintStyle) + " ".style + hint.description.style
+  def renderHint(hint: KeyHint): StyledString =
+    hint.key.style(hintStyle) + " ".style + hint.description.style
+
+  def renderKeyHints(hints: Seq[KeyHint]): StyledString =
     StyledString.mkString(hints.map(renderHint), ", ".style)
-  }
 
   val hintStyle = Style(inverse = true, foregroundColour = BasicColour.Cyan)
 
