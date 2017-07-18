@@ -7,14 +7,13 @@ import com.github.mdr.mash.repl.history.HistorySearchState
 
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      commandNumber: Int = 0,
+                     continue: Boolean = true, // Whether to loop or exit
+                     mish: Boolean = false,
+                     historySearchStateOpt: Option[HistorySearchState] = None,
                      completionStateOpt: Option[CompletionState] = None,
                      assistanceStateOpt: Option[AssistanceState] = None,
-                     continue: Boolean = true, // Whether to loop or exit
-                     historySearchStateOpt: Option[HistorySearchState] = None,
-                     mish: Boolean = false,
                      insertLastArgStateOpt: Option[InsertLastArgState] = None,
                      objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
-
 
   def reset: ReplState = copy(
     lineBuffer = LineBuffer.Empty,
