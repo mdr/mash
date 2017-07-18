@@ -134,11 +134,15 @@ class ReplTest extends AbstractReplTest {
   }
 
   "Incremental history search" should "find results matching case-insensitively" in {
-    makeRepl()
-      .input("foobar = 42").acceptLine()
-      .incrementalHistorySearch()
-      .input("FOO")
-      .text should equal("foobar = 42")
+    val repl =
+      makeRepl()
+        .input("FOO = 100").acceptLine()
+        .input("foobar = 42").acceptLine()
+        .incrementalHistorySearch()
+        .input("FOO")
+    repl.text should equal("foobar = 42")
+    repl.incrementalHistorySearch()
+    repl.text should equal("FOO = 100")
   }
 
   "Inserting last argument" should "be supported" in {

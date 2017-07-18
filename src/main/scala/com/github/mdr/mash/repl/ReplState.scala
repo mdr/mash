@@ -29,4 +29,5 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
   def incrementCommandNumber: ReplState = copy(commandNumber = commandNumber + 1)
 
   def exitCompletion: ReplState = copy(completionStateOpt = None)
+
 }
