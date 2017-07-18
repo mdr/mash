@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.history
 
 import com.github.mdr.mash.repl.LineBufferTestHelper._
-import com.github.mdr.mash.repl.NormalActions.{ BackwardDeleteChar, IncrementalHistorySearch, SelfInsert }
+import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.repl.history.HistorySearchActionHandler.Result
 import org.scalatest.{ FlatSpec, Matchers }
@@ -9,8 +9,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   "Incrementally searching history" should "allow cycling through all matches in history, starting with most recent" in {
-    val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")
-    val actionHandler = HistorySearchActionHandler(history)
+    val actionHandler = makeActionHandler
 
     val state0 = replState("existing▶")
 
@@ -31,8 +30,7 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
   }
 
   it should "allow characters to be deleted from the search" in {
-    val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")
-    val actionHandler = HistorySearchActionHandler(history)
+    val actionHandler = makeActionHandler
 
     val state0 = replState("existing▶")
 
@@ -55,6 +53,36 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
     state6 should equal(replState("▶"))
   }
 
+  it should "allow the user to accept a search result and exit search" in {
+    val actionHandler = makeActionHandler
+
+    val state0 = replState("existing▶")
+
+    val state1 = actionHandler.beginIncrementalSearch(state0)
+    state1 should equal(replState("existing▶").withHistorySearchState(""))
+
+    val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
+    state2 should equal(replState("foo▶").withHistorySearchState("f", 0))
+
+    val Result(state3, true) = actionHandler.handleAction(AcceptLine, state2)
+    state3 should equal(replState("foo▶"))
+  }
+
+  it should "allow the user to implicitly accept a search result by performing another action" in {
+    val actionHandler = makeActionHandler
+
+    val state0 = replState("existing▶")
+
+    val state1 = actionHandler.beginIncrementalSearch(state0)
+    state1 should equal(replState("existing▶").withHistorySearchState(""))
+
+    val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
+    state2 should equal(replState("foo▶").withHistorySearchState("f", 0))
+
+    val Result(state3, false) = actionHandler.handleAction(BeginningOfLine, state2)
+    state3 should equal(replState("foo▶"))
+  }
+
   implicit class RichReplState(state: ReplState) {
 
     def withHistorySearchState(searchString: String, resultIndex: Int): ReplState =
@@ -67,4 +95,8 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   private def replState(s: String) = ReplState(lineBuffer = parseLineBuffer(s))
 
+  private def makeActionHandler: HistorySearchActionHandler = {
+    val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")
+    HistorySearchActionHandler(history)
+  }
 }
