@@ -17,4 +17,8 @@ class UtilsTest extends FlatSpec with Matchers {
     intercalate(Seq[Seq[Char]]("foo", "bar", "baz"), ":::") should equal("foo:::bar:::baz".toSeq)
   }
 
+  "truncate" should "work" in {
+    Utils.truncate(Seq(1, 2, 3, 4, 5), 3, 0) should equal(Seq(1, 2, 0))
+  }
+
 }

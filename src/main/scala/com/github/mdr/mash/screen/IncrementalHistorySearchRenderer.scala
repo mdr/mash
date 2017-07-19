@@ -12,14 +12,14 @@ object IncrementalHistorySearchRenderer {
   def renderHistorySearchState(searchState: IncrementalHistorySearchState, terminalSize: Dimensions): LinesAndCursorPos = {
     val prefix = "Incremental history search: ".style
     val searchString = searchState.searchString.style(SearchStringStyle)
-    val chars = (prefix + searchString).take(terminalSize.columns)
+    val chars = prefix + searchString
     val searchLine = Line(chars)
     val cursorPos = Point(0, chars.size)
 
     val hints = KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch))
     val hintLine = Line("(".style + hints + ")".style)
 
-    val lines = Seq(searchLine, hintLine).map(truncateIfNecessary(_, terminalSize))
+    val lines = Seq(searchLine, hintLine).map(line ⇒ truncateIfNecessary(line, terminalSize))
     LinesAndCursorPos(lines, cursorPos)
   }
 
