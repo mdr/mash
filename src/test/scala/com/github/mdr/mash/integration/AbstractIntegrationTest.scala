@@ -122,6 +122,11 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
+    def assistInvocation(): Repl = {
+      repl.handleAction(AssistInvocation)
+      repl
+    }
+
     def incrementalHistorySearch(): Repl = {
       repl.handleAction(IncrementalHistorySearch)
       repl

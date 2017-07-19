@@ -23,10 +23,10 @@ object InvocationAssistance {
       assistanceState ← assistInvocation(functionType)
     } yield assistanceState
 
-  def getTypeOfNearestFunction(s: String,
-                               pos: Int,
-                               bindings: Map[String, MashValue],
-                               mish: Boolean): Option[Type] = {
+  private[assist] def getTypeOfNearestFunction(s: String,
+                                               pos: Int,
+                                               bindings: Map[String, MashValue],
+                                               mish: Boolean): Option[Type] = {
     val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
     val settings = CompilationSettings(inferTypes = true)
     val expr = Compiler.compileForgiving(CompilationUnit(s, mish = mish), bindings, settings)
@@ -81,23 +81,23 @@ object InvocationAssistance {
   private def findRightmostToken(remainingTokens: Seq[Token]): Option[Token] =
     remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
 
-  private def assistInvocation(functionType: Type): Option[AssistanceState] = functionType match {
-    case Type.Seq(elementType)                  ⇒ assistInvocation(elementType)
-    case Type.BuiltinFunction(f)                ⇒ Some(assistFunction(f))
-    case f: Type.UserDefinedFunction            ⇒ Some(assistFunction(f))
-    case Type.BoundBuiltinMethod(_, method)     ⇒ Some(assistMethod(method))
-    case Type.BoundUserDefinedMethod(_, method) ⇒ Some(assistMethod(method))
-    case userClass: Type.UserClass              ⇒ Some(assistClass(userClass))
-    case _                                      ⇒ None
-    // TODO: Handle .new calls on builtin classes
-  }
+  private def assistInvocation(functionType: Type): Option[AssistanceState] =
+    functionType match {
+      case Type.Seq(elementType)                  ⇒ assistInvocation(elementType)
+      case Type.BuiltinFunction(f)                ⇒ Some(assistFunction(f))
+      case f: Type.UserDefinedFunction            ⇒ Some(assistFunction(f))
+      case Type.BoundBuiltinMethod(_, method)     ⇒ Some(assistMethod(method))
+      case Type.BoundUserDefinedMethod(_, method) ⇒ Some(assistMethod(method))
+      case userClass: Type.UserClass              ⇒ Some(assistClass(userClass))
+      case _                                      ⇒ None
+      // TODO: Handle .new calls on builtin classes
+    }
 
-  private def assistFunction(f: MashFunction): AssistanceState = {
+  private def assistFunction(f: MashFunction): AssistanceState =
     AssistanceState(
       f.name,
       f.summaryOpt.toSeq ++ Seq(
         s"${f.name} ${f.params.callingSyntax}"))
-  }
 
   private def assistFunction(f: Type.UserDefinedFunction) = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
@@ -107,12 +107,11 @@ object InvocationAssistance {
         s"${nameOpt getOrElse "f"} ${params.callingSyntax}"))
   }
 
-  private def assistMethod(method: MashMethod): AssistanceState = {
+  private def assistMethod(method: MashMethod): AssistanceState =
     AssistanceState(
       method.name,
       method.summaryOpt.toSeq ++ Seq(
         s"target.${method.name} ${method.params.callingSyntax}"))
-  }
 
   private def assistMethod(method: Type.UserDefinedFunction): AssistanceState = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
@@ -122,12 +121,11 @@ object InvocationAssistance {
         s"target.${nameOpt getOrElse "method"} ${params.callingSyntax}"))
   }
 
-  private def assistClass(userClass: UserClass): AssistanceState = {
+  private def assistClass(userClass: UserClass): AssistanceState =
     AssistanceState(
       MashClass.ConstructorMethodName,
       Seq(
         s"Construct a new ${userClass.name} object",
         s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}"))
-  }
 
 }

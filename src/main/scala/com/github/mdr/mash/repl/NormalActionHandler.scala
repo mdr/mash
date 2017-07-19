@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl
 
 import java.nio.file.Path
 
+import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.{ CommandResult, CommandRunner }
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
@@ -212,10 +213,11 @@ trait NormalActionHandler {
     }
 
   private def handleAssistInvocation() =
-    if (state.assistanceStateOpt.isDefined)
-      state = state.copy(assistanceStateOpt = None)
-    else
-      updateInvocationAssistance()
+    state =
+      if (state.assistanceStateOpt.isDefined)
+        state.copy(assistanceStateOpt = None)
+      else
+        InvocationAssistanceUpdater.updateInvocationAssistance(state, getBindings)
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)

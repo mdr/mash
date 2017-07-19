@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl
 import java.io.PrintStream
 import java.util.UUID
 
-import com.github.mdr.mash.assist.InvocationAssistance
+import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
@@ -117,7 +117,7 @@ class Repl(protected val terminal: Terminal,
             }
         }
         if (state.assistanceStateOpt.isDefined)
-          updateInvocationAssistance()
+          state = InvocationAssistanceUpdater.updateInvocationAssistance(state, getBindings)
     }
   }
 
@@ -126,23 +126,6 @@ class Repl(protected val terminal: Terminal,
     state = newState
     if (!actionConsumed)
       handleNormalAction(action)
-  }
-
-  protected def updateInvocationAssistance() {
-    val text = state.lineBuffer.text
-    val pos = state.lineBuffer.cursorOffset
-    val newAssistanceStateOpt =
-      text match {
-        case MishCommand(prefix, mishCmd) ⇒
-          val newPos = pos - prefix.length // adjust for the prefix
-          if (newPos >= 0)
-            InvocationAssistance.getCallingSyntaxOfNearestFunction(text, newPos, getBindings, mish = true)
-          else
-            None
-        case _                            ⇒
-          InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, getBindings, mish = state.mish)
-      }
-    state = state.copy(assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty))
   }
 
   /**
@@ -167,6 +150,6 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
-  private def getBindings: Map[String, MashValue] = globalVariables.stringFields
+  protected def getBindings: Map[String, MashValue] = globalVariables.stringFields
 
 }

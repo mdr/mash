@@ -23,7 +23,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimensions)
   }
 
   protected def renderLines: LinesAndCursorPos =
-    combineUpperStatusLines(renderUpperStatusLines,  renderDataLines ++ Seq(renderStatusLine))
+    combineUpperStatusLines(renderUpperStatusLines, renderDataLines ++ Seq(renderStatusLine))
 
   private def renderRegularStatusLine = {
     import KeyHint._

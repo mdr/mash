@@ -1,7 +1,5 @@
 package com.github.mdr.mash.integration
 
-import java.io.PrintStream
-
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
@@ -155,6 +153,14 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.text should equal("sort 'arg1'")
     repl.insertLastArgument()
     repl.text should equal("sort 'arg1'")
+  }
+
+  "Invocation assistance" should "work" in {
+    val repl =
+      makeRepl()
+        .input("reverse")
+        .assistInvocation()
+    repl.state.assistanceStateOpt shouldBe defined
   }
 
 }

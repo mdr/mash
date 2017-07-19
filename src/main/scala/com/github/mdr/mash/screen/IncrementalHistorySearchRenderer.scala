@@ -1,7 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
-import com.github.mdr.mash.screen.KeyHint.{ DoneSearch, NextHistoryHit }
+import com.github.mdr.mash.screen.KeyHint._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point }
@@ -17,12 +17,11 @@ object IncrementalHistorySearchRenderer {
     val searchLine = Line(chars)
     val cursorPosOpt = (chars.size < terminalSize.columns).option(Point(0, chars.size))
 
-    val hints = KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch))
-    val hintLine = Line("(".style + hints + ")".style)
-
     val lines = Seq(searchLine, hintLine).map(truncateIfNecessary(_, terminalSize))
     LinesAndCursorPos(lines, cursorPosOpt)
   }
+
+  private val hintLine = Line("(".style + KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch)) + ")".style)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
     Line(ellipsisise(line.string, terminalSize.columns))
