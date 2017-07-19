@@ -23,7 +23,7 @@ case class LineBuffer(text: String, cursorOffset: Int) {
 
   private lazy val lineInfo = new LineInfo(text)
 
-  lazy val cursorPos = lineInfo.lineAndColumn(cursorOffset)
+  lazy val cursorPos: Point = lineInfo.lineAndColumn(cursorOffset)
 
   def cursorRow = cursorPos.row
 

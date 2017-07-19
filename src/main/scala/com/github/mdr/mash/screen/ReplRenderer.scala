@@ -8,7 +8,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 
-case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point])
+case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point] = None)
 
 /**
   * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled

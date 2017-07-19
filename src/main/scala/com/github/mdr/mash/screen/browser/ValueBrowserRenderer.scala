@@ -22,7 +22,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimensions)
     } yield Line(group.style, endsInNewline)
   }
 
-  protected def renderLines: Seq[Line] =
+  protected def renderLines: LinesAndCursorPos =
     combineUpperStatusLines(renderUpperStatusLines,  renderDataLines ++ Seq(renderStatusLine))
 
   private def renderRegularStatusLine = {

@@ -13,7 +13,7 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimen
     for ((l, index) ← state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex)
       yield Line(l.style(Style(inverse = index == (state.selectedRow - state.firstRow))))
 
-  protected def renderLines: Seq[Line] =
+  protected def renderLines: LinesAndCursorPos =
     combineUpperStatusLines(renderUpperStatusLines, renderDataLines ++ Seq(renderStatusLine))
 
   private def renderRegularStatusLine = {

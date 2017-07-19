@@ -12,7 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
-  protected def renderLines: Seq[Line] = {
+  protected def renderLines: LinesAndCursorPos = {
     val printer = new Printer
     print(printer, state.model.root)
     val treeLines = printer.getLines.window(state.firstRow, windowSize)

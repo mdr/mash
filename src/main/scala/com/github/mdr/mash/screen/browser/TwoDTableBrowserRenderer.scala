@@ -8,7 +8,7 @@ import com.github.mdr.mash.utils.Dimensions
 class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
 
-  protected def renderLines: Seq[Line] =
+  protected def renderLines: LinesAndCursorPos =
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
 
   private def renderTableLines: Seq[Line] = {

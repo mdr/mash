@@ -3,7 +3,7 @@ package com.github.mdr.mash.screen.browser
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.utils.{ Dimensions, Point }
+import com.github.mdr.mash.utils.Dimensions
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimensions) {
 
@@ -11,31 +11,30 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
 
   protected val windowSize: Int
 
-  protected def renderLines: Seq[Line]
+  protected def renderLines: LinesAndCursorPos
 
   def renderObjectBrowser: Screen = {
-    val lines = renderLines.map(_.truncate(terminalSize.columns))
+    val LinesAndCursorPos(lines, cursorPosOpt) = renderLines
+    val fixedLines = lines.map(_.truncate(terminalSize.columns))
     val title = "mash " + fileSystem.pwd.toString
-    val cursorPosOpt = getCursorPointOpt
-    Screen(lines, cursorPosOpt, title = title)
+    Screen(fixedLines, cursorPosOpt, title = title)
   }
 
-  private def getCursorPointOpt: Option[Point] =
-    state.expressionStateOpt map { expressionState ⇒ Point(0, expressionState.lineBuffer.cursorOffset) }
-
-  protected def renderUpperStatusLines: Seq[Line] =
+  protected def renderUpperStatusLines: LinesAndCursorPos =
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
-        val cursorOffset = expressionState.lineBuffer.cursorOffset
-        val line = Line(new MashRenderer().renderChars(expressionState.lineBuffer.text, cursorOffsetOpt = Some(cursorOffset)))
-        val availableSpace = terminalSize.shrink(rows = 1)
+        val LinesAndCursorPos(lines, cursorPosOpt) = LineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
+          globalVariablesOpt = None, prefix = StyledString.empty, bareWords = false, mish = false, terminalSize)
+        val availableSpace = terminalSize.shrink(rows = lines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines
-        Seq(line) ++ completionLines
+        LinesAndCursorPos(lines ++ completionLines, cursorPosOpt)
       case None                  ⇒
-        Seq(Line(new MashRenderer().renderChars(state.path)))
+        LinesAndCursorPos(Seq(Line(new MashRenderer().renderChars(state.path))))
     }
 
-  protected def combineUpperStatusLines(upperLines: Seq[Line], otherLines: Seq[Line]): Seq[Line] =
-    upperLines ++ otherLines.drop(upperLines.length - 1)
+  protected def combineUpperStatusLines(upperLines: LinesAndCursorPos, otherLines: Seq[Line]): LinesAndCursorPos = {
+    val newLines = upperLines.lines ++ otherLines.drop(upperLines.lines.length - 1)
+    LinesAndCursorPos(newLines, upperLines.cursorPosOpt)
+  }
 
 }
