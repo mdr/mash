@@ -1,23 +1,10 @@
 package com.github.mdr.mash.repl.history
 
 import java.nio.file.Paths
-import java.time.{ Clock, Instant, ZoneId }
+
+import com.github.mdr.mash.utils.MonotonicallyTickingClock
 
 object InMemoryHistoryStorage {
-
-  private object MonotonicallyTickingClock extends Clock {
-    private val dummyClock = Clock.systemDefaultZone
-    private var now = dummyClock.instant()
-
-    override def getZone: ZoneId = dummyClock.getZone
-
-    override def instant(): Instant = {
-      now = now.plusSeconds(1)
-      now
-    }
-
-    override def withZone(zone: ZoneId): Clock = dummyClock.withZone(zone)
-  }
 
   def testHistory(entries: String*): HistoryImpl = {
     val history = new HistoryImpl(new InMemoryHistoryStorage(), clock = MonotonicallyTickingClock)

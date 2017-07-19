@@ -139,4 +139,21 @@ object Utils {
 
   }
 
+  /**
+    * Ensure the given sequence is at most maxLength items long (including 0), by truncating and adding a new item at the end
+    */
+  def truncate[T](xs: Seq[T], maxLength: Int, truncationItem: T): Seq[T] = {
+    require(maxLength >= 0)
+    if (maxLength == 0)
+      Seq()
+    else {
+      val excess = xs.length - maxLength
+      if (excess <= 0)
+        xs
+      else
+        xs.take(maxLength - 1) :+ truncationItem
+    }
+  }
+
+
 }

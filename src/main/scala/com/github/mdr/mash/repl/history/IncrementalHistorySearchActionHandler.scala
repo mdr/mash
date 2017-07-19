@@ -60,7 +60,9 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           lineBuffer = LineBuffer(nextHit),
           historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Some(nextResultIndex))))
       case None          ⇒
-        state.copy(lineBuffer = LineBuffer.Empty)
+        state.copy(
+          lineBuffer = LineBuffer.Empty,
+          historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, resultIndexOpt)))
     }
     Result(nextState)
   }

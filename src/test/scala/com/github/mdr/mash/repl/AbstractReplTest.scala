@@ -9,14 +9,14 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.Beg
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
-import com.github.mdr.mash.repl.history.{ HistoryImpl, InMemoryHistoryStorage }
+import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
 import com.github.mdr.mash.runtime.MashValue
 import org.scalatest._
 
 class AbstractReplTest extends FlatSpec with Matchers {
 
   def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
-    val history = new HistoryImpl(new InMemoryHistoryStorage())
+    val history = InMemoryHistoryStorage.testHistory()
     val globalVariables = StandardEnvironment.createGlobalVariables()
     new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
       sessionId = UUID.randomUUID, globalVariables = globalVariables)

@@ -99,6 +99,22 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
     state3 should equal(replState("foo▶").withHistorySearchState("f", 1))
   }
 
+  it should "allow user to keep adding to the search, even if no hits" in {
+    val history = InMemoryHistoryStorage.testHistory("apple")
+    val actionHandler = IncrementalHistorySearchActionHandler(history)
+
+    val state0 = replState("existing▶")
+
+    val state1 = actionHandler.beginIncrementalSearch(state0)
+    state1 should equal(replState("existing▶").withHistorySearchState(""))
+
+    val Result(state2, true) = actionHandler.handleAction(SelfInsert("a"), state1)
+    state2 should equal(replState("apple▶").withHistorySearchState("a", 0))
+
+    val Result(state3, true) = actionHandler.handleAction(SelfInsert("a"), state2)
+    state3 should equal(replState("▶").withHistorySearchState("aa"))
+  }
+
   implicit class RichReplState(state: ReplState) {
 
     def withHistorySearchState(searchString: String, resultIndex: Int): ReplState =
