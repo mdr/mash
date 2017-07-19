@@ -30,7 +30,7 @@ object LineBufferRenderer {
     val wrappedLines = unwrappedLines.flatMap(wrap)
     val row = unwrappedLines.take(cursorPos.row).flatMap(wrap).length + (prompt.length + cursorPos.column) / terminalSize.columns
     val column = (prompt.length + cursorPos.column) % terminalSize.columns
-    LinesAndCursorPos(wrappedLines, Point(row, column))
+    LinesAndCursorPos(wrappedLines, Some(Point(row, column)))
   }
 
   private def renderLineBufferChars(rawChars: String,

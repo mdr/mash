@@ -8,7 +8,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.browser._
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 
-case class LinesAndCursorPos(lines: Seq[Line], cursorPos: Point)
+case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point])
 
 /**
   * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
@@ -25,7 +25,7 @@ object ReplRenderer {
     }
 
   private def renderRegularRepl(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen = {
-    val LinesAndCursorPos(bufferLines, bufferCursorPos) =
+    val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
       LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
     val historySearchLinesAndCursorPosOpt = state.historySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
@@ -37,9 +37,12 @@ object ReplRenderer {
       CompletionRenderer.renderCompletions(state.completionStateOpt, remainingSpace)
     val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalSize.rows)
-    val newCursorPos = historySearchLinesAndCursorPosOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferCursorPos)
+    val newCursorPosOpt = historySearchLinesAndCursorPosOpt match {
+      case Some(LinesAndCursorPos(_, cursorPosOpt)) ⇒ cursorPosOpt.map(_.down(bufferLines.size))
+      case None                                     ⇒ bufferCursorPosOpt
+    }
     val title = fileSystem.pwd.toString
-    Screen(truncatedLines, Some(newCursorPos), title)
+    Screen(truncatedLines, newCursorPosOpt, title)
   }
 
   private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalSize: Dimensions): Screen =
