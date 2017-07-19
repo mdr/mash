@@ -3,10 +3,10 @@ package com.github.mdr.mash.repl.history
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.ReplState
-import com.github.mdr.mash.repl.history.HistorySearchActionHandler.Result
+import com.github.mdr.mash.repl.history.IncrementalHistorySearchActionHandler.Result
 import org.scalatest.{ FlatSpec, Matchers }
 
-class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
+class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   "Incrementally searching history" should "allow cycling through all matches in history, starting with most recent" in {
     val actionHandler = makeActionHandler
@@ -85,7 +85,7 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   it should "perform case insensitive searches" in {
     val history = InMemoryHistoryStorage.testHistory("foo", "FOO")
-    val actionHandler = HistorySearchActionHandler(history)
+    val actionHandler = IncrementalHistorySearchActionHandler(history)
 
     val state0 = replState("existing▶")
 
@@ -102,17 +102,17 @@ class HistorySearchActionHandlerTest extends FlatSpec with Matchers {
   implicit class RichReplState(state: ReplState) {
 
     def withHistorySearchState(searchString: String, resultIndex: Int): ReplState =
-      state.copy(historySearchStateOpt = Some(HistorySearchState(searchString, Some(resultIndex))))
+      state.copy(historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Some(resultIndex))))
 
     def withHistorySearchState(searchString: String): ReplState =
-      state.copy(historySearchStateOpt = Some(HistorySearchState(searchString)))
+      state.copy(historySearchStateOpt = Some(IncrementalHistorySearchState(searchString)))
 
   }
 
   private def replState(s: String) = ReplState(lineBuffer = parseLineBuffer(s))
 
-  private def makeActionHandler: HistorySearchActionHandler = {
+  private def makeActionHandler: IncrementalHistorySearchActionHandler = {
     val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")
-    HistorySearchActionHandler(history)
+    IncrementalHistorySearchActionHandler(history)
   }
 }

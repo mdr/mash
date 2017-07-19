@@ -27,11 +27,11 @@ object KeyHint {
   val CaseSensitive = KeyHint("^T", "case sensitive")
   val CaseInsensitive = KeyHint("^T", "ignore case")
 
-  def renderHint(hint: KeyHint): StyledString =
+  def renderKeyHint(hint: KeyHint): StyledString =
     hint.key.style(hintStyle) + " ".style + hint.description.style
 
   def renderKeyHints(hints: Seq[KeyHint]): StyledString =
-    StyledString.mkString(hints.map(renderHint), ", ".style)
+    StyledString.mkString(hints.map(renderKeyHint), ", ".style)
 
   val hintStyle = Style(inverse = true, foregroundColour = BasicColour.Cyan)
 

@@ -41,9 +41,10 @@ object StringUtils {
   /**
     * Ensure the given string is at most maxLength characters long (including 0), by truncating and adding …
     */
-  def ellipsisise(s: String, maxLength: Int): String =
-    if (s.size < 2 && s.size > maxLength)
-      "…" * maxLength
+  def ellipsisise(s: String, maxLength: Int): String = {
+    require(maxLength >= 0)
+    if (maxLength == 0)
+      ""
     else {
       val excess = s.length - maxLength
       if (excess <= 0)
@@ -51,6 +52,7 @@ object StringUtils {
       else
         s.take(maxLength - 1) + "…"
     }
+  }
 
   def centre(s: String, width: Int): String =
     if (s.length >= width)

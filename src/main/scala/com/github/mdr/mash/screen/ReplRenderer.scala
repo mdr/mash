@@ -25,9 +25,11 @@ object ReplRenderer {
     }
 
   private def renderRegularRepl(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen = {
-    val LinesAndCursorPos(bufferLines, bufferCursorPos) = LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
-    val historySearchScreenOpt = state.historySearchStateOpt.map(IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
-    val historySearchLines = historySearchScreenOpt.map(_.lines).getOrElse(Seq())
+    val LinesAndCursorPos(bufferLines, bufferCursorPos) =
+      LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
+    val historySearchLinesAndCursorPosOpt = state.historySearchStateOpt.map(
+      IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
+    val historySearchLines = historySearchLinesAndCursorPosOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalSize)
     val remainingRows = math.max(0, terminalSize.rows - bufferLines.size - assistanceLines.size - historySearchLines.size)
     val remainingSpace = terminalSize.copy(rows = remainingRows)
@@ -35,7 +37,7 @@ object ReplRenderer {
       CompletionRenderer.renderCompletions(state.completionStateOpt, remainingSpace)
     val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
     val truncatedLines = lines.take(terminalSize.rows)
-    val newCursorPos = historySearchScreenOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferCursorPos)
+    val newCursorPos = historySearchLinesAndCursorPosOpt.map(_.cursorPos.down(bufferLines.size)).getOrElse(bufferCursorPos)
     val title = fileSystem.pwd.toString
     Screen(truncatedLines, Some(newCursorPos), title)
   }

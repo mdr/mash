@@ -3,13 +3,13 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.repl.browser.ObjectBrowserStateStack
 import com.github.mdr.mash.repl.completions.CompletionState
-import com.github.mdr.mash.repl.history.HistorySearchState
+import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
 
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      commandNumber: Int = 0,
                      continue: Boolean = true, // Whether to loop or exit
                      mish: Boolean = false,
-                     historySearchStateOpt: Option[HistorySearchState] = None,
+                     historySearchStateOpt: Option[IncrementalHistorySearchState] = None,
                      completionStateOpt: Option[CompletionState] = None,
                      assistanceStateOpt: Option[AssistanceState] = None,
                      insertLastArgStateOpt: Option[InsertLastArgState] = None,
