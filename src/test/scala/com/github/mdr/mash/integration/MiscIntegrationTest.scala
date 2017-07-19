@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.integration
 
 import java.io.PrintStream
 
@@ -7,10 +7,8 @@ import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.BrowserCompletionState
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.terminal.Terminal
-import com.github.mdr.mash.utils.Dimensions
 
-class ReplTest extends AbstractReplTest {
+class MiscIntegrationTest extends AbstractIntegrationTest {
 
   "Repl" should "work" in {
     makeRepl()
@@ -160,11 +158,3 @@ class ReplTest extends AbstractReplTest {
   }
 
 }
-
-case class DummyTerminal(width: Int = 80) extends Terminal {
-
-  override def size = Dimensions(width, 40)
-
-}
-
-object NullPrintStream extends PrintStream(_ => ())

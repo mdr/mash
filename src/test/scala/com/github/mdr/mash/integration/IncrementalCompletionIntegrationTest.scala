@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.integration
 
 import com.github.mdr.mash.os.MockFileObject._
 import com.github.mdr.mash.os.MockFileSystem
@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.utils.Region
 
-class IncrementalCompletionReplTest extends AbstractReplTest {
+class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
   "Incremental completion" should "stay incremental as you type characters" in {
     val repl = makeRepl()

@@ -1,23 +1,27 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.integration
 
+import java.io.PrintStream
 import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.NormalActions.{ AcceptLine, BackwardKillLine, SelfInsert }
+import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
 import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.terminal.DummyTerminal
 import org.scalatest._
 
-class AbstractReplTest extends FlatSpec with Matchers {
+class AbstractIntegrationTest extends FlatSpec with Matchers {
 
   def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
     val history = InMemoryHistoryStorage.testHistory()
     val globalVariables = StandardEnvironment.createGlobalVariables()
+    object NullPrintStream extends PrintStream(_ => ())
     new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
       sessionId = UUID.randomUUID, globalVariables = globalVariables)
   }

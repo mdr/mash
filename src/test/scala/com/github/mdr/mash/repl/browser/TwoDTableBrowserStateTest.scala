@@ -5,8 +5,8 @@ import com.github.mdr.mash.evaluator.{ EvaluationContext, Evaluator, ScopeStack,
 import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator
-import com.github.mdr.mash.repl.DummyTerminal
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.terminal.DummyTerminal
 import org.scalatest.{ FlatSpec, Matchers }
 
 class TwoDTableBrowserStateTest extends FlatSpec with Matchers {

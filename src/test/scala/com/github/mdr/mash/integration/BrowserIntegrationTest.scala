@@ -1,6 +1,6 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.integration
 
-class BrowserReplTest extends AbstractReplTest {
+class BrowserIntegrationTest extends AbstractIntegrationTest {
 
   "2D table browser" should "allow column selection" in {
     val twoDBrowser =
