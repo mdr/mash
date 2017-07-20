@@ -1,6 +1,7 @@
 package com.github.mdr.mash.integration
 
 import com.github.mdr.mash.Config
+import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.os.MockFileSystem
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.completions.BrowserCompletionState
@@ -160,7 +161,14 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       makeRepl()
         .input("reverse")
         .assistInvocation()
-    repl.state.assistanceStateOpt shouldBe defined
+    repl.state.assistanceStateOpt shouldBe Some(
+      AssistanceState("reverse", Seq(
+        "Reverse a List, String or Object",
+        "reverse <sequence>")))
+
+    repl.assistInvocation()
+
+    repl.state.assistanceStateOpt shouldBe None
   }
 
 }
