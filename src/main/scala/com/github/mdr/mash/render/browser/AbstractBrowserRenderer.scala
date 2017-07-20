@@ -25,7 +25,8 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = LineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
-          globalVariablesOpt = None, prefix = StyledString.empty, bareWords = false, mish = false, terminalSize)
+          globalVariablesOpt = None, prefix = StyledString.empty, bareWords = false, mish = false, terminalSize,
+          matchRegionOpt = None)
         val availableSpace = terminalSize.shrink(rows = lines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines
         LinesAndCursorPos(lines ++ completionLines, cursorPosOpt)

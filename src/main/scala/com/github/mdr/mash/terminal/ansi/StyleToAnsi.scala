@@ -16,6 +16,8 @@ object StyleToAnsi {
       attribs += 7
     if (style.bold)
       attribs += 1
+    if (style.underline)
+      attribs += 4
     attribEscape(attribs)
   }
 

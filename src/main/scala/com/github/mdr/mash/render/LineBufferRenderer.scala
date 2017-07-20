@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, _ }
-import com.github.mdr.mash.utils.{ Dimensions, LineInfo, Point }
+import com.github.mdr.mash.utils.{ Dimensions, LineInfo, Point, Region }
 
 object LineBufferRenderer {
 
@@ -18,7 +18,8 @@ object LineBufferRenderer {
                        globalVariables: MashObject,
                        bareWords: Boolean): LinesAndCursorPos = {
     val prefix = getPrompt(state.commandNumber, state.mish)
-    renderLineBuffer(state.lineBuffer, Some(globalVariables), prefix, bareWords, state.mish, terminalSize)
+    val matchRegionOpt = state.historySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
+    renderLineBuffer(state.lineBuffer, Some(globalVariables), prefix, bareWords, state.mish, terminalSize, matchRegionOpt)
   }
 
   def renderLineBuffer(lineBuffer: LineBuffer,
@@ -26,9 +27,10 @@ object LineBufferRenderer {
                        prefix: StyledString,
                        bareWords: Boolean,
                        mish: Boolean,
-                       terminalSize: Dimensions): LinesAndCursorPos = {
+                       terminalSize: Dimensions,
+                       matchRegionOpt: Option[Region]): LinesAndCursorPos = {
     val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prefix, mish,
-      globalVariablesOpt, bareWords)
+      globalVariablesOpt, bareWords, matchRegionOpt)
 
     val wrappedLines = unwrappedLines.flatMap(wrap(_, terminalSize.columns))
 
@@ -54,9 +56,10 @@ object LineBufferRenderer {
                                     prefix: StyledString,
                                     mishByDefault: Boolean,
                                     globalVariablesOpt: Option[MashObject],
-                                    bareWords: Boolean): Seq[Line] = {
+                                    bareWords: Boolean,
+                                    matchRegionOpt: Option[Region]): Seq[Line] = {
     val mashRenderer = new MashRenderer(globalVariablesOpt, bareWords)
-    val renderedMash: StyledString = mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault)
+    val renderedMash: StyledString = mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault, matchRegionOpt)
     val continuationPrefix = if (prefix.isEmpty) "" else "." * (prefix.length - 1) + " "
     val lineRegions = new LineInfo(rawChars).lineRegions
     lineRegions.zipWithIndex.map {

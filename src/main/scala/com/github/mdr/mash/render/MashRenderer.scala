@@ -8,6 +8,8 @@ import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, Style, StyledCharacter, StyledString }
+import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -15,7 +17,8 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
 
   def renderChars(rawChars: String,
                   cursorOffsetOpt: Option[Int] = None,
-                  mishByDefault: Boolean = false): StyledString = {
+                  mishByDefault: Boolean = false,
+                  matchRegionOpt: Option[Region] = None): StyledString = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
@@ -45,7 +48,10 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
         styledChars ++= suffix.style(Style(bold = true)).chars
       case _                                  ⇒
     }
-    StyledString(styledChars)
+    val restyledChars =
+      for ((c, i) ← styledChars.zipWithIndex)
+        yield c.when(matchRegionOpt.exists(_ contains i), _.updateStyle(_.withUnderline))
+    StyledString(restyledChars)
   }
 
   private def getBareTokens(s: String, mish: Boolean): Option[Set[Token]] =

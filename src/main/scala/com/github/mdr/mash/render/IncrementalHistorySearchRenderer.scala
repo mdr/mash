@@ -18,11 +18,11 @@ object IncrementalHistorySearchRenderer {
     val searchLine = Line(chars)
     val cursorPosOpt = (chars.size < terminalSize.columns).option(Point(0, chars.size))
 
-    val lines = Seq(searchLine, hintLine).map(truncateIfNecessary(_, terminalSize))
+    val lines = Seq(searchLine, HintLine).map(truncateIfNecessary(_, terminalSize))
     LinesAndCursorPos(lines, cursorPosOpt)
   }
 
-  private val hintLine = Line("(".style + KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch)) + ")".style)
+  private val HintLine = Line("(".style + KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch)) + ")".style)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
     Line(ellipsisise(line.string, terminalSize.columns))

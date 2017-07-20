@@ -1,12 +1,22 @@
 package com.github.mdr.mash.repl.history
 
 import java.nio.file.Path
+import java.util.regex.Pattern
 
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.repl.HistoricalArgumentSource
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.utils.Region
+
+object History {
+
+  case class Match(command: String, region: Region)
+
+}
 
 trait History extends HistoricalArgumentSource {
+
+  import History._
 
   def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path)
 
@@ -20,8 +30,21 @@ trait History extends HistoricalArgumentSource {
 
   def getHistory: Seq[HistoryEntry]
 
-  def findMatches(searchString: String): Seq[String] =
-    getHistory.map(_.command).filter(_.toLowerCase contains searchString.toLowerCase)
+  def findMatches(searchString: String): Seq[Match] = {
+    val pattern = Pattern.compile(Pattern.quote(searchString), Pattern.CASE_INSENSITIVE)
+    def tryMatch(command: String) = {
+      val matcher = pattern.matcher(command)
+      val found = matcher.find()
+      if (found) {
+        val start = matcher.start
+        val end = matcher.end
+        val length = end - start
+        Some(Match(command, Region(start, length)))
+      } else
+        None
+    }
+    getHistory.map(_.command).flatMap(tryMatch)
+  }
 
   def getHistoricalArguments(lastArgIndex: Int): Option[String] =
     getHistory.toStream.flatMap(getLastArg(_)).drop(lastArgIndex).headOption

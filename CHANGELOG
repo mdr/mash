@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Underline matches in incremental search
 * Key hints for incremental history search
 * Support for standard editor actions / completions in browser expression
 * Browser: can navigate in parent list using P/N

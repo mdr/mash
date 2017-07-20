@@ -11,11 +11,13 @@ object Style {
     def style(foregroundColour: Colour = DefaultColour,
               backgroundColour: Colour = DefaultColour,
               bold: Boolean = false,
-              inverse: Boolean = false): StyledString =
+              inverse: Boolean = false,
+              underline: Boolean = false): StyledString =
       style(Style(foregroundColour = foregroundColour,
         backgroundColour = backgroundColour,
         bold = bold,
-        inverse = inverse))
+        inverse = inverse,
+        underline = underline))
 
   }
 
@@ -24,4 +26,9 @@ object Style {
 case class Style(foregroundColour: Colour = DefaultColour,
                  backgroundColour: Colour = DefaultColour,
                  bold: Boolean = false,
-                 inverse: Boolean = false)
+                 inverse: Boolean = false,
+                 underline: Boolean = false) {
+
+  def withUnderline: Style = copy(underline = true)
+
+}

@@ -2,13 +2,36 @@ package com.github.mdr.mash.repl.history
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl.NormalActions._
+import com.github.mdr.mash.repl.history.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
+import com.github.mdr.mash.utils.Region
 
-/**
-  * @param resultIndexOpt -- when there are multiple results that match the searchString, the user can select through them.
-  *                       This records the index of which result the user is currently viewing (if any).
-  */
-case class IncrementalHistorySearchState(searchString: String = "", resultIndexOpt: Option[Int] = None)
+object IncrementalHistorySearchState {
+
+  sealed trait HitStatus {
+
+    def matchRegionOpt: Option[Region] = None
+
+  }
+
+  case object BeforeFirstHit extends HitStatus
+
+  /**
+    * @param resultIndex index into the stream of results that match the searchString
+    * @param matchRegion region in the line buffer that matches the search
+    */
+  case class Hit(resultIndex: Int, matchRegion: Region) extends HitStatus {
+
+    override def matchRegionOpt: Option[Region] = Some(matchRegion)
+
+  }
+
+  case object AfterLastHit extends HitStatus
+
+}
+
+case class IncrementalHistorySearchState(searchString: String = "",
+                                         hitStatus: HitStatus)
 
 object IncrementalHistorySearchActionHandler {
 
@@ -24,20 +47,20 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     history.resetHistoryPosition()
     state.copy(
       assistanceStateOpt = None,
-      historySearchStateOpt = Some(IncrementalHistorySearchState()))
+      historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
   }
 
   def handleAction(action: InputAction, state: ReplState): Result =
     state.historySearchStateOpt match {
-      case Some(IncrementalHistorySearchState(searchString, resultIndexOpt)) ⇒
+      case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
         action match {
-          case SelfInsert(c)            ⇒ updateSearch(searchString + c, resultIndexOpt = None, state)
+          case SelfInsert(c)            ⇒ updateSearch(searchString + c, BeforeFirstHit, state)
           case BackwardDeleteChar       ⇒ handleDeleteChar(searchString, state)
           case AcceptLine               ⇒ Result(state.copy(historySearchStateOpt = None))
-          case IncrementalHistorySearch ⇒ updateSearch(searchString, resultIndexOpt, state)
+          case IncrementalHistorySearch ⇒ updateSearch(searchString, hitStatus, state)
           case _                        ⇒ exitSearchAndHandleNormally(action, state)
         }
-      case None                                                              ⇒
+      case None                                                         ⇒
         Result(state, actionConsumed = false)
     }
 
@@ -46,26 +69,33 @@ case class IncrementalHistorySearchActionHandler(history: History) {
       case ""                            ⇒
         Result(state.copy(historySearchStateOpt = None))
       case _ if searchString.length == 1 ⇒
-        Result(state.copy(lineBuffer = LineBuffer.Empty, historySearchStateOpt = Some(IncrementalHistorySearchState(""))))
+        Result(state.copy(lineBuffer = LineBuffer.Empty, historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit))))
       case _                             ⇒
-        updateSearch(searchString.init, resultIndexOpt = None, state)
+        updateSearch(searchString.init, BeforeFirstHit, state)
     }
 
-  private def updateSearch(searchString: String, resultIndexOpt: Option[Int], state: ReplState): Result = {
-    val nextResultIndex = resultIndexOpt.map(_ + 1).getOrElse(0)
-    val nextHitOpt = history.findMatches(searchString).distinct.drop(nextResultIndex).headOption
-    val nextState = nextHitOpt match {
-      case Some(nextHit) ⇒
-        state.copy(
-          lineBuffer = LineBuffer(nextHit),
-          historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Some(nextResultIndex))))
-      case None          ⇒
-        state.copy(
-          lineBuffer = LineBuffer.Empty,
-          historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, resultIndexOpt)))
+  private def updateSearch(searchString: String, hitStatus: HitStatus, state: ReplState): Result =
+    if (hitStatus == AfterLastHit)
+      Result(state.copy(
+        historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit))))
+    else {
+      val nextResultIndex = hitStatus match {
+        case Hit(previousResultIndex, _) ⇒ previousResultIndex + 1
+        case _                           ⇒ 0
+      }
+      val nextMatchOpt = history.findMatches(searchString).distinct.drop(nextResultIndex).headOption
+      val nextState = nextMatchOpt match {
+        case Some(nextMatch) ⇒
+          state.copy(
+            lineBuffer = LineBuffer(nextMatch.command),
+            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Hit(nextResultIndex, nextMatch.region))))
+        case None            ⇒
+          state.copy(
+            lineBuffer = LineBuffer.Empty,
+            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
+      }
+      Result(nextState)
     }
-    Result(nextState)
-  }
 
   private def exitSearchAndHandleNormally(action: InputAction, state: ReplState): Result =
     Result(state.copy(historySearchStateOpt = None), actionConsumed = false)
