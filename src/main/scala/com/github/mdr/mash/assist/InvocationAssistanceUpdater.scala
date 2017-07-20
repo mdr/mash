@@ -1,14 +1,29 @@
 package com.github.mdr.mash.assist
 
 import com.github.mdr.mash.commands.MishCommand
-import com.github.mdr.mash.repl.ReplState
+import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.runtime.MashValue
 
 object InvocationAssistanceUpdater {
 
+  def toggleInvocationAssistance(state: ReplState, bindings: Map[String, MashValue]): ReplState =
+    if (state.assistanceStateOpt.isDefined)
+      state.copy(assistanceStateOpt = None)
+    else
+      updateInvocationAssistance(state, bindings)
+
   def updateInvocationAssistance(state: ReplState, bindings: Map[String, MashValue]): ReplState = {
-    val text = state.lineBuffer.text
-    val pos = state.lineBuffer.cursorOffset
+    val currentAssistanceStateOpt = state.assistanceStateOpt
+    val newAssistanceState = updateInvocationAssistance(state.lineBuffer, bindings, state.mish, currentAssistanceStateOpt)
+    state.copy(assistanceStateOpt = newAssistanceState)
+  }
+
+  def updateInvocationAssistance(lineBuffer: LineBuffer,
+                                 bindings: Map[String, MashValue],
+                                 mish: Boolean,
+                                 currentAssistanceStateOpt: Option[AssistanceState]): Option[AssistanceState] = {
+    val text = lineBuffer.text
+    val pos = lineBuffer.cursorOffset
     val newAssistanceStateOpt =
       text match {
         case MishCommand(prefix, mishCmd) ⇒
@@ -18,9 +33,9 @@ object InvocationAssistanceUpdater {
           else
             None
         case _                            ⇒
-          InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, bindings, mish = state.mish)
+          InvocationAssistance.getCallingSyntaxOfNearestFunction(text, pos, bindings, mish = mish)
       }
-    state.copy(assistanceStateOpt = newAssistanceStateOpt orElse state.assistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty))
+    newAssistanceStateOpt orElse currentAssistanceStateOpt.filterNot(_ ⇒ text.trim.isEmpty)
   }
 
 }

@@ -213,11 +213,7 @@ trait NormalActionHandler {
     }
 
   private def handleAssistInvocation() =
-    state =
-      if (state.assistanceStateOpt.isDefined)
-        state.copy(assistanceStateOpt = None)
-      else
-        InvocationAssistanceUpdater.updateInvocationAssistance(state, getBindings)
+    state = InvocationAssistanceUpdater.toggleInvocationAssistance(state, getBindings)
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
