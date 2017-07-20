@@ -3,12 +3,11 @@ package com.github.mdr.mash.render
 import com.github.mdr.mash.render.IncrementalHistorySearchRenderer.renderHistorySearchState
 import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
 import com.github.mdr.mash.screen.Line
-import com.github.mdr.mash.utils.{ Dimensions, Point }
+import com.github.mdr.mash.terminal.DummyTerminal.SufficientlyLargeTerminalSize
+import com.github.mdr.mash.utils.Point
 import org.scalatest.{ FlatSpec, Matchers }
 
-class IncrementalHistorySearchRendererTest extends FlatSpec with Matchers {
-
-  val SufficientlyLargeTerminalSize = Dimensions(1000, 1000)
+class IncrementalHistorySearchRendererTest extends RendererTest {
 
   "Incremental history search" should "be rendered correctly if there is enough space" in {
     val state = IncrementalHistorySearchState("searchString")
@@ -28,7 +27,5 @@ class IncrementalHistorySearchRendererTest extends FlatSpec with Matchers {
     getText(line2) shouldEqual "(^R …"
     cursorPosOpt shouldEqual None
   }
-
-  private def getText(line: Line): String = line.string.chars.map(_.c).mkString
 
 }

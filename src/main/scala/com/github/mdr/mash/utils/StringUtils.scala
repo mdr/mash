@@ -42,7 +42,7 @@ object StringUtils {
     * Ensure the given string is at most maxLength characters long (including 0), by truncating and adding …
     */
   def ellipsisise(s: String, maxLength: Int): String = {
-    require(maxLength >= 0)
+    require(maxLength >= 0, s"maxLength must be non-negative, but was $maxLength")
     if (maxLength == 0)
       ""
     else {

@@ -8,24 +8,58 @@ import com.github.mdr.mash.screen.Style.StylableString
 
 object AssistanceRenderer {
 
-  def render(assistanceState: AssistanceState, terminalSize: Dimensions): Seq[Line] = {
-    val title = assistanceState.title
-    val lines = assistanceState.lines
-    val boxWidth = math.min(math.max(lines.map(_.size + 4).max, title.size + 6), terminalSize.columns)
-    val innerWidth = boxWidth - 4
+  private val InnerLineStart = "│ "
+  private val InnerLineEnd = " │"
+  private val TopLineStart = "┌─ "
+  private val TopLineEnd = "─┐"
+  private val BottomLineStart = "└─"
+  private val BottomLineEnd = "─┘"
 
-    val displayTitle = ellipsisise(title, innerWidth)
-    val styledTitle = displayTitle.style(TitleStyle)
-    val topLine = Line("┌─ ".style + styledTitle + (" " + "─" * (innerWidth - displayTitle.length - 2) + "─┐").style)
-
-    val displayLines = lines.map(ellipsisise(_, innerWidth))
-    val contentLines = displayLines.map(l ⇒ Line(("│ " + l + " " * (innerWidth - l.length) + " │").style))
-
-    val bottomLine = Line(("└─" + "─" * innerWidth + "─┘").style)
-
-    topLine +: contentLines :+ bottomLine
-  }
+  private val NumberOfTopLineCharsNotUsedForTitle = TopLineStart.length + " ".length + TopLineEnd.length
+  private val NumberOfInnerLineCharsNotUsedForContent = InnerLineStart.length + InnerLineEnd.length
+  private val NumberOfBottomLineCharsNotUsedForFiller = BottomLineStart.length + BottomLineEnd.length
 
   private val TitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
+
+  def render(assistanceState: AssistanceState, terminalSize: Dimensions): Seq[Line] = {
+    val AssistanceState(title, lines) = assistanceState
+
+    val widestDesiredWidth = getDesiredTopLineWidth(title) max lines.map(getDesiredInnerLineWidth).max
+    val boxWidth = widestDesiredWidth min terminalSize.columns max NumberOfTopLineCharsNotUsedForTitle
+
+    val topLine = renderTopLine(title, boxWidth)
+    val innerLines = renderInnerLines(lines, boxWidth)
+    val bottomLine: Line = renderBottomLine(boxWidth)
+
+    topLine +: innerLines :+ bottomLine
+  }
+
+  private def renderTopLine(title: String, boxWidth: Int): Line = {
+    val availableTitleWidth = math.max(0, boxWidth - NumberOfTopLineCharsNotUsedForTitle)
+    val truncatedTitle = ellipsisise(title, availableTitleWidth)
+    val surplusWidth = availableTitleWidth - truncatedTitle.length
+    val filler = "─" * surplusWidth
+    Line(TopLineStart.style + truncatedTitle.style(TitleStyle) + (" " + filler + TopLineEnd).style)
+  }
+
+  private def renderInnerLines(lines: Seq[String], boxWidth: Int): Seq[Line] = {
+    val availableInnerWidth = math.max(0, boxWidth - NumberOfInnerLineCharsNotUsedForContent)
+    val truncatedLines = lines.map(ellipsisise(_, availableInnerWidth))
+    truncatedLines.map { content ⇒
+      val surplusWidth = availableInnerWidth - content.length
+      val filler = " " * surplusWidth
+      Line((InnerLineStart + content + filler + InnerLineEnd).style)
+    }
+  }
+
+  private def renderBottomLine(boxWidth: Int): Line = {
+    val surplusWidth = boxWidth - NumberOfBottomLineCharsNotUsedForFiller
+    val filler = "─" * surplusWidth
+    Line((BottomLineStart + filler + BottomLineEnd).style)
+  }
+
+  private def getDesiredInnerLineWidth(line: String): Int = line.length + InnerLineStart.length + InnerLineEnd.length
+
+  private def getDesiredTopLineWidth(title: String): Int = title.length + NumberOfTopLineCharsNotUsedForTitle
 
 }
