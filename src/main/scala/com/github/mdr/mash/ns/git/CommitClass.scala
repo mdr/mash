@@ -60,7 +60,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
-    override def aliases = Seq("isMergedInto)")
+    override def aliases = Seq("isMergedInto")
 
     override def commitName(target: MashValue) = Wrapper(target).hash
 
