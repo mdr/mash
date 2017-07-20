@@ -1,8 +1,9 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ KeyHint, _ }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
 
 class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimensions)

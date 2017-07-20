@@ -1,4 +1,4 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
 object ArrowHelper {
 

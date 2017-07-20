@@ -1,9 +1,9 @@
 package com.github.mdr.mash.repl.completions
 
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.render.CompletionRenderer
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
-import com.github.mdr.mash.screen.CompletionRenderer
 import com.github.mdr.mash.utils.{ RaggedGridNavigator, Region, StringUtils }
 
 trait BrowseCompletionActionHandler {

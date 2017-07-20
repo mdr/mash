@@ -1,4 +1,4 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.commands.{ MishCommand, SuffixMishCommand }
 import com.github.mdr.mash.compiler.BareStringify
@@ -7,6 +7,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, Style, StyledCharacter, StyledString }
 
 import scala.collection.mutable.ArrayBuffer
 

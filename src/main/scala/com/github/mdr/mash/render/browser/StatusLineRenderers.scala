@@ -1,8 +1,9 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.render.KeyHint
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ KeyHint, Line, Style }
+import com.github.mdr.mash.screen.{ Line, Style }
 
 object StatusLineRenderers {
     import KeyHint._

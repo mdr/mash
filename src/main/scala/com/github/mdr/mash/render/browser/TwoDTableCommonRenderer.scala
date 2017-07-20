@@ -1,4 +1,4 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.model.TwoDTableModel
 import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
@@ -6,7 +6,7 @@ import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.screen.browser.ArrowHelper._
+import com.github.mdr.mash.render.browser.ArrowHelper._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Point, StringUtils }
 

@@ -1,8 +1,9 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.completions.{ Completion, CompletionFragment, CompletionType }
 import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, StringUtils }

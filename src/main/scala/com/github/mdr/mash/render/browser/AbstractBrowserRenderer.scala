@@ -1,6 +1,7 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.render.{ CompletionRenderer, LineBufferRenderer, LinesAndCursorPos, MashRenderer }
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions

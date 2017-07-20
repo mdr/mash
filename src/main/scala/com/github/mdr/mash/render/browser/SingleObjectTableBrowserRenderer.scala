@@ -1,7 +1,8 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
-import com.github.mdr.mash.screen.{ KeyHint, _ }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
 
 class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimensions)

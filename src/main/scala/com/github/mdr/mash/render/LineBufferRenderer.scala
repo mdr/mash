@@ -1,10 +1,11 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, _ }
 import com.github.mdr.mash.utils.{ Dimensions, LineInfo, Point }
 
 object LineBufferRenderer {

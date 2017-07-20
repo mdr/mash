@@ -1,5 +1,6 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
 import com.github.mdr.mash.repl.browser.TextLinesBrowserState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._

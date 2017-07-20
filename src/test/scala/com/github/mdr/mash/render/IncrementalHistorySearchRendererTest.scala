@@ -1,7 +1,8 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
+import com.github.mdr.mash.render.IncrementalHistorySearchRenderer.renderHistorySearchState
 import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
-import com.github.mdr.mash.screen.IncrementalHistorySearchRenderer.renderHistorySearchState
+import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 import org.scalatest.{ FlatSpec, Matchers }
 

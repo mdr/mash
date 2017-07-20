@@ -1,11 +1,12 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.render.browser._
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.browser._
+import com.github.mdr.mash.screen.{ Line, Screen }
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 
 case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point] = None)

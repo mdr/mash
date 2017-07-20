@@ -1,6 +1,7 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, Style, StyledString }
 
 object KeyHint {
 

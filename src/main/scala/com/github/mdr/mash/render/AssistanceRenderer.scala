@@ -1,9 +1,10 @@
-package com.github.mdr.mash.screen
+package com.github.mdr.mash.render
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.{ BasicColour, Line, Style }
 import com.github.mdr.mash.utils.Dimensions
-import com.github.mdr.mash.utils.StringUtils.ellipsisise
+import com.github.mdr.mash.utils.StringUtils._
+import com.github.mdr.mash.screen.Style.StylableString
 
 object AssistanceRenderer {
 

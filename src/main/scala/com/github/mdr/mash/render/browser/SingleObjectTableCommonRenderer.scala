@@ -1,11 +1,11 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
 import com.github.mdr.mash.printer.model.SingleObjectTableModel
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.screen.browser.ArrowHelper._
+import com.github.mdr.mash.render.browser.ArrowHelper._
 import com.github.mdr.mash.utils.StringUtils.{ centre, ellipsisise }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Point, Region, StringUtils }

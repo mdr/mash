@@ -5,7 +5,7 @@ import java.io.PrintStream
 import com.github.mdr.mash.printer.model.SingleObjectTableModelCreator
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Screen
-import com.github.mdr.mash.screen.browser.SingleObjectTableCommonRenderer
+import com.github.mdr.mash.render.browser.SingleObjectTableCommonRenderer
 import com.github.mdr.mash.utils.Dimensions
 
 class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {

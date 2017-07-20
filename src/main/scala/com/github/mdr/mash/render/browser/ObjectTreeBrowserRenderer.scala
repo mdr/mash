@@ -1,9 +1,10 @@
-package com.github.mdr.mash.screen.browser
+package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.model.ObjectTreeNode
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ KeyHint, Style, _ }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 
