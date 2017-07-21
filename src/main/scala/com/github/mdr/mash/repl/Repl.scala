@@ -12,6 +12,7 @@ import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.render.ReplRenderer
 import com.github.mdr.mash.repl.browser.handler.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
+import com.github.mdr.mash.repl.handler.NormalActionHandler
 import com.github.mdr.mash.repl.history.IncrementalHistorySearchActionHandler.Result
 import com.github.mdr.mash.repl.history.{ History, IncrementalHistorySearchActionHandler }
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }

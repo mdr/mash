@@ -171,4 +171,26 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.state.assistanceStateOpt shouldBe None
   }
 
+  "Invocation assistance" should "work in expression browser" in {
+    val repl =
+      makeRepl()
+        .input("view.browser [{ foo: 42 }] ")
+        .acceptLine()
+        .affirmInTwoDBrowser
+        .beginExpression()
+        .input(" | reverse")
+        .assistInvocation()
+
+    def assistanceStateOpt = repl.state.objectBrowserStateStackOpt.get.headState.expressionStateOpt.get.assistanceStateOpt
+
+    assistanceStateOpt shouldBe Some(
+      AssistanceState("reverse", Seq(
+        "Reverse a List, String or Object",
+        "reverse <sequence>")))
+
+    repl.assistInvocation()
+    
+    assistanceStateOpt shouldBe None
+  }
+
 }

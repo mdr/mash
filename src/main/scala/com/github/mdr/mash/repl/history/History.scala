@@ -4,7 +4,7 @@ import java.nio.file.Path
 import java.util.regex.Pattern
 
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
-import com.github.mdr.mash.repl.HistoricalArgumentSource
+import com.github.mdr.mash.repl.handler.HistoricalArgumentSource
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
 

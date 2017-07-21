@@ -3,6 +3,7 @@ package com.github.mdr.mash.repl
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.repl.browser.ObjectBrowserStateStack
 import com.github.mdr.mash.repl.completions.CompletionState
+import com.github.mdr.mash.repl.handler.InsertLastArgState
 import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
 
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,

@@ -1,5 +1,6 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.handler
 
+import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.utils.Region
 
 /**
