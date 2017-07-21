@@ -142,6 +142,18 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.text should equal("FOO = 100")
   }
 
+  "Incremental history search" should "support starting incremental search from a partial line" in {
+    val repl =
+      makeRepl()
+        .input("FOO = 100").acceptLine()
+        .input("foobar = 42").acceptLine()
+        .input("FOO")
+        .previousHistory()
+    repl.text should equal("foobar = 42")
+    repl.previousHistory()
+    repl.text should equal("FOO = 100")
+  }
+
   "Inserting last argument" should "be supported" in {
     val repl =
       makeRepl()

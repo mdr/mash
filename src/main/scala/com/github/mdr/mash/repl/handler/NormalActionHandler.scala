@@ -59,7 +59,7 @@ trait NormalActionHandler {
   }
 
   private def handleIncrementalHistorySearch() =
-    state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearch(state)
+    state = IncrementalHistorySearchActionHandler(history).beginFreshIncrementalSearch(state)
 
   private def resetHistoryIfTextChanges[T](f: ⇒ T): T = {
     val before = state.lineBuffer.text
@@ -70,14 +70,22 @@ trait NormalActionHandler {
     result
   }
 
-  private def handlePreviousHistory() =
-    if (state.lineBuffer.onFirstLine || !history.isCommittedToEntry)
-      history.goBackwards(state.lineBuffer.text) match {
-        case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
-        case None      ⇒ state = state.updateLineBuffer(_.up)
-      }
+  private def handlePreviousHistory() = {
+    val lineBuffer = state.lineBuffer
+    if (lineBuffer.onFirstLine || !history.isCommittedToEntry) {
+      val shouldInitiateIncrementalSearch =
+        !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
+      if (shouldInitiateIncrementalSearch)
+        state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearchFromLine(state)
+      else
+        history.goBackwards(lineBuffer.text) match {
+          case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
+          case None      ⇒ state = state.updateLineBuffer(_.up)
+        }
+    }
     else
       state = state.updateLineBuffer(_.up)
+  }
 
   private def handleNextHistory() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)

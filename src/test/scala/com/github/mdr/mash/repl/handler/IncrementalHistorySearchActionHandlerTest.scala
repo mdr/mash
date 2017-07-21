@@ -16,7 +16,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("b"), state1)
@@ -37,7 +37,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("a"), state1)
@@ -61,7 +61,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
@@ -76,7 +76,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
@@ -92,7 +92,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
@@ -108,7 +108,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state0 = replState("existing▶")
 
-    val state1 = actionHandler.beginIncrementalSearch(state0)
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     state1 should equal(replState("existing▶").withHistorySearchState(""))
 
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("a"), state1)
@@ -116,6 +116,16 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val Result(state3, true) = actionHandler.handleAction(SelfInsert("a"), state2)
     state3 should equal(replState("▶").withHistorySearchStateAfterLastHit("aa"))
+  }
+
+  it should "support starting with an initial search string" in {
+    val history = InMemoryHistoryStorage.testHistory("apple")
+    val actionHandler = IncrementalHistorySearchActionHandler(history)
+
+    val state0 = replState("app▶")
+
+    val state1 = actionHandler.beginIncrementalSearchFromLine(state0)
+    state1 should equal(replState("apple▶").withHistorySearchState("app", 0, Region(0, 3)))
   }
 
   implicit class RichReplState(state: ReplState) {
