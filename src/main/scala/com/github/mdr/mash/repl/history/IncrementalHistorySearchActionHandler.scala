@@ -83,7 +83,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
         case Hit(previousResultIndex, _) ⇒ previousResultIndex + 1
         case _                           ⇒ 0
       }
-      val nextMatchOpt = history.findMatches(searchString).distinct.drop(nextResultIndex).headOption
+      val nextMatchOpt = history.findMatch(searchString, nextResultIndex)
       val nextState = nextMatchOpt match {
         case Some(nextMatch) ⇒
           state.copy(

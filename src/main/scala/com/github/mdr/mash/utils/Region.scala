@@ -4,6 +4,7 @@ object Region {
 
   def apply(range: Range): Region = Region(range.start, range.length)
 
+  def fromStartEnd(start: Int, end: Int) = Region(start, end - start)
 }
 
 case class Region(offset: Int, length: Int) {

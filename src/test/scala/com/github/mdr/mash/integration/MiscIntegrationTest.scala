@@ -189,7 +189,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         "reverse <sequence>")))
 
     repl.assistInvocation()
-    
+
     assistanceStateOpt shouldBe None
   }
 

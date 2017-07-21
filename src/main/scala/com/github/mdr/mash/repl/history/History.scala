@@ -7,6 +7,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.repl.handler.HistoricalArgumentSource
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Region
+import com.github.mdr.mash.utils.Utils._
 
 object History {
 
@@ -30,20 +31,23 @@ trait History extends HistoricalArgumentSource {
 
   def getHistory: Seq[HistoryEntry]
 
-  def findMatches(searchString: String): Seq[Match] = {
+  /**
+    * Search backwards through history to find a match for a given search string.
+    */
+  def findMatch(searchString: String, index: Int): Option[Match] = {
     val pattern = Pattern.compile(Pattern.quote(searchString), Pattern.CASE_INSENSITIVE)
-    def tryMatch(command: String) = {
+    def tryMatch(command: String): Option[Match] = {
       val matcher = pattern.matcher(command)
-      val found = matcher.find()
-      if (found) {
-        val start = matcher.start
-        val end = matcher.end
-        val length = end - start
-        Some(Match(command, Region(start, length)))
-      } else
-        None
+      matcher.find().option {
+        Match(command, Region.fromStartEnd(matcher.start, matcher.end))
+      }
     }
-    getHistory.map(_.command).flatMap(tryMatch)
+    getHistory.toStream
+      .map(_.command)
+      .distinct
+      .flatMap(tryMatch)
+      .drop(index)
+      .headOption
   }
 
   def getHistoricalArguments(lastArgIndex: Int): Option[String] =
