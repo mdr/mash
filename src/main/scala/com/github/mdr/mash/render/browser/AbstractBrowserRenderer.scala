@@ -1,7 +1,8 @@
 package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.render.{ CompletionRenderer, LineBufferRenderer, LinesAndCursorPos, MashRenderer }
+import com.github.mdr.mash.render._
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
@@ -25,14 +26,17 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = LineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
-          globalVariablesOpt = None, prefix = StyledString.empty, bareWords = false, mish = false, terminalSize,
-          matchRegionOpt = None)
-        val availableSpace = terminalSize.shrink(rows = lines.size)
+          terminalSize = terminalSize)
+        val assistanceLines = renderAssistanceState(expressionState.assistanceStateOpt, terminalSize)
+        val availableSpace = terminalSize.shrink(rows = lines.size + assistanceLines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines
-        LinesAndCursorPos(lines ++ completionLines, cursorPosOpt)
+        LinesAndCursorPos(lines ++ completionLines ++ assistanceLines, cursorPosOpt)
       case None                  ⇒
         LinesAndCursorPos(Seq(Line(new MashRenderer().renderChars(state.path))))
     }
+
+  private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalSize: Dimensions) =
+    assistanceStateOpt.toSeq.flatMap(AssistanceRenderer.render(_, terminalSize))
 
   protected def combineUpperStatusLines(upperLines: LinesAndCursorPos, otherLines: Seq[Line]): LinesAndCursorPos = {
     val newLines = upperLines.lines ++ otherLines.drop(upperLines.lines.length - 1)

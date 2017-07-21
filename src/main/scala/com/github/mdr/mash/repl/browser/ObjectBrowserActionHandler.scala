@@ -1,10 +1,11 @@
 package com.github.mdr.mash.repl.browser
 
-import java.nio.file.{ Files, Paths }
+import java.nio.file.{Files, Paths}
 
+import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
-import com.github.mdr.mash.completions.{ Completion, CompletionResult }
+import com.github.mdr.mash.completions.{Completion, CompletionResult}
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
@@ -14,10 +15,10 @@ import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions._
-import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
-import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
-import com.github.mdr.mash.repl.{ LineBuffer, _ }
-import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{AcceptCompletion, NavigateUp, _}
+import com.github.mdr.mash.repl.completions.{BrowserCompletionState, IncrementalCompletionState, ReplStateMemento}
+import com.github.mdr.mash.repl.{LineBuffer, _}
+import com.github.mdr.mash.runtime.{MashList, MashObject, MashString, MashValue}
 import com.github.mdr.mash.utils.Utils.indexOf
 
 import scala.PartialFunction.condOpt
@@ -162,7 +163,6 @@ trait ObjectBrowserActionHandler
     }
   }
 
-
   private def handleIncrementalCompletionAction(action: InputAction,
                                                 browserState: BrowserState,
                                                 expressionState: ExpressionState,
@@ -211,9 +211,31 @@ trait ObjectBrowserActionHandler
       case AcceptLine          ⇒
         updateState(browserState.acceptExpression)
         acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
+      case AssistInvocation    ⇒
+        val newExpressionState = toggleInvocationAssistance(expressionState)
+        updateState(browserState.setExpression(newExpressionState))
       case _                   ⇒
     }
+    for {
+      browserStateStack ← state.objectBrowserStateStackOpt
+      expressionState ← browserStateStack.headState.expressionStateOpt
+      assistanceState ← expressionState.assistanceStateOpt
+    } {
+      val newAssistanceStateOpt = InvocationAssistanceUpdater.updateInvocationAssistance(expressionState.lineBuffer,
+        getBindings, mish = false, Some(assistanceState))
+      val newExpressionState = expressionState.copy(assistanceStateOpt = newAssistanceStateOpt)
+      updateState(browserState.setExpression(newExpressionState))
+    }
   }
+
+  private def toggleInvocationAssistance(expressionState: ExpressionState): ExpressionState =
+    if (expressionState.assistanceStateOpt.isDefined)
+      expressionState.copy(assistanceStateOpt = None)
+    else {
+      val newAssistanceStateOpt = InvocationAssistanceUpdater.updateInvocationAssistance(expressionState.lineBuffer,
+        getBindings, mish = false, expressionState.assistanceStateOpt)
+      expressionState.copy(assistanceStateOpt = newAssistanceStateOpt)
+    }
 
   private def enterIncrementalCompletionState(browserState: BrowserState, result: CompletionResult, lineBuffer: LineBuffer) = {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, lineBuffer)

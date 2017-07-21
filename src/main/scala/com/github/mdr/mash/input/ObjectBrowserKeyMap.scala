@@ -2,9 +2,10 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
+import com.github.mdr.mash.repl.NormalActions.AssistInvocation
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{NextParentItem, _}
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(Right) -> NextColumn,
@@ -43,7 +44,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("P") -> PreviousParentItem,
   TerminalWindowChanged -> Rerender)) {
 
-  object ExpressionInput extends KeyMap(LineBufferKeyMap.map)
+  object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
+    KeyPress(Space, shift = true) -> AssistInvocation))
 
   object IncrementalSearch extends KeyMap(Map(
     KeyPress(Enter) -> ExitSearch,

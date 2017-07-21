@@ -23,12 +23,12 @@ object LineBufferRenderer {
   }
 
   def renderLineBuffer(lineBuffer: LineBuffer,
-                       globalVariablesOpt: Option[MashObject],
-                       prefix: StyledString,
-                       bareWords: Boolean,
-                       mish: Boolean,
+                       globalVariablesOpt: Option[MashObject] = None,
+                       prefix: StyledString = StyledString.empty,
+                       bareWords: Boolean = false,
+                       mish: Boolean = false,
                        terminalSize: Dimensions,
-                       matchRegionOpt: Option[Region]): LinesAndCursorPos = {
+                       matchRegionOpt: Option[Region] = None): LinesAndCursorPos = {
     val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prefix, mish,
       globalVariablesOpt, bareWords, matchRegionOpt)
 
