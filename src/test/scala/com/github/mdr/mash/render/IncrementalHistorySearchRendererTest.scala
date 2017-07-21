@@ -1,8 +1,8 @@
 package com.github.mdr.mash.render
 
 import com.github.mdr.mash.render.IncrementalHistorySearchRenderer.renderHistorySearchState
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchState.AfterLastHit
+import com.github.mdr.mash.repl.IncrementalHistorySearchState
+import com.github.mdr.mash.repl.IncrementalHistorySearchState.AfterLastHit
 import com.github.mdr.mash.terminal.DummyTerminal.SufficientlyLargeTerminalSize
 import com.github.mdr.mash.utils.Point
 

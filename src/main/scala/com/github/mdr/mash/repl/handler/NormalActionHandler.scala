@@ -13,7 +13,6 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
 import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchActionHandler
 import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal

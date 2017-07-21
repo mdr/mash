@@ -1,8 +1,8 @@
-package com.github.mdr.mash.repl
+package com.github.mdr.mash.repl.handler
 
 import com.github.mdr.mash.repl.LineBufferTestHelper.parseLineBuffer
+import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.repl.handler.InsertLastArgHandler._
-import com.github.mdr.mash.repl.handler.{ HistoricalArgumentSource, InsertLastArgState }
 import com.github.mdr.mash.utils.Region
 import org.scalatest.{ FlatSpec, Matchers }
 

@@ -1,12 +1,13 @@
-package com.github.mdr.mash.repl.history
+package com.github.mdr.mash.repl.handler
 
+import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ AfterLastHit, BeforeFirstHit, Hit }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.NormalActions._
-import com.github.mdr.mash.repl.ReplState
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchActionHandler.Result
-import org.scalatest.{ FlatSpec, Matchers }
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchState._
+import com.github.mdr.mash.repl.handler.IncrementalHistorySearchActionHandler.Result
+import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
+import com.github.mdr.mash.repl.{ IncrementalHistorySearchState, ReplState }
 import com.github.mdr.mash.utils.Region
+import org.scalatest.{ FlatSpec, Matchers }
 
 class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 

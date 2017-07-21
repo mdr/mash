@@ -1,11 +1,11 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.repl.history.IncrementalHistorySearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ StyledCharacter, StyledString, _ }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 import com.github.mdr.mash.render.KeyHint._
+import com.github.mdr.mash.repl.IncrementalHistorySearchState
 
 object IncrementalHistorySearchRenderer {
 
