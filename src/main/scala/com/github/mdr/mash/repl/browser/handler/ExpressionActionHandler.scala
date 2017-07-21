@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl.browser
+package com.github.mdr.mash.repl.browser.handler
 
 import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.CommandRunner
@@ -7,10 +7,11 @@ import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.parser.ExpressionCombiner._
-import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
 import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, _ }
+import com.github.mdr.mash.repl.browser.{ BrowserState, ExpressionState }
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
+import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 trait ExpressionActionHandler {
@@ -22,7 +23,8 @@ trait ExpressionActionHandler {
                                               completionState: BrowserCompletionState) {
     val navigator = gridNavigator(completionState)
     def navigate(activeCompletion: Int) = {
-      val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = activeCompletion, expressionState.lineBuffer)
+      val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState,
+        activeCompletion = activeCompletion, expressionState.lineBuffer)
       val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
       updateState(browserState.setExpression(newExpressionState))
     }
@@ -82,21 +84,32 @@ trait ExpressionActionHandler {
     action match {
       case LineBufferAction(f) ⇒ updateExpressionBuffer(f)
       case ToggleQuote         ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
-      case Complete            ⇒
-        for (result ← complete(expressionState.lineBuffer, mish = false)) {
-          result.completions match {
-            case Seq(completion) ⇒ immediateInsert(browserState, expressionState.lineBuffer, completion, result)
-            case _               ⇒ enterIncrementalCompletionState(browserState, result, expressionState.lineBuffer)
-          }
-        }
-      case AcceptLine          ⇒
-        updateState(browserState.acceptExpression)
-        acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
-      case AssistInvocation    ⇒
-        val newExpressionState = toggleInvocationAssistance(expressionState)
-        updateState(browserState.setExpression(newExpressionState))
+      case Complete            ⇒ handleComplete(browserState, expressionState)
+      case AcceptLine          ⇒ handleAcceptLine(browserState, expressionState)
+      case AssistInvocation    ⇒ handleAssistInvocation(browserState, expressionState)
       case _                   ⇒
     }
+    updateInvocationAssistance(browserState)
+  }
+
+  private def handleAssistInvocation(browserState: BrowserState, expressionState: ExpressionState) {
+    val newExpressionState = toggleInvocationAssistance(expressionState)
+    updateState(browserState.setExpression(newExpressionState))
+  }
+
+  private def handleAcceptLine(browserState: BrowserState, expressionState: ExpressionState) {
+    updateState(browserState.acceptExpression)
+    acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
+  }
+
+  private def handleComplete(browserState: BrowserState, expressionState: ExpressionState) =
+    for (result ← complete(expressionState.lineBuffer, mish = false))
+      result.completions match {
+        case Seq(completion) ⇒ immediateInsert(browserState, expressionState.lineBuffer, completion, result)
+        case _               ⇒ enterIncrementalCompletionState(browserState, result, expressionState.lineBuffer)
+      }
+
+  private def updateInvocationAssistance(browserState: BrowserState): Unit = {
     for {
       browserStateStack ← state.objectBrowserStateStackOpt
       expressionState ← browserStateStack.headState.expressionStateOpt

@@ -1,10 +1,11 @@
-package com.github.mdr.mash.repl.browser
+package com.github.mdr.mash.repl.browser.handler
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
+import com.github.mdr.mash.repl.browser.{ SearchState, TwoDTableBrowserState }
 
 trait TwoDTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒

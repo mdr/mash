@@ -1,8 +1,9 @@
-package com.github.mdr.mash.repl.browser
+package com.github.mdr.mash.repl.browser.handler
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
+import com.github.mdr.mash.repl.browser.TextLinesBrowserState
 
 trait TextLinesBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒

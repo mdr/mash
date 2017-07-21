@@ -1,4 +1,4 @@
-package com.github.mdr.mash.repl.browser
+package com.github.mdr.mash.repl.browser.handler
 
 import java.nio.file.{ Files, Paths }
 
@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
+import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.Utils.indexOf
