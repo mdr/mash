@@ -55,11 +55,14 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
   "History" should "reset if an old line is edited" in {
     val repl = makeRepl()
-    repl.input("command1").acceptLine()
-    repl.input("command2").acceptLine()
-    repl.input("partial")
-    repl.previousHistory().text shouldEqual "command2"
-    repl.nextHistory().text shouldEqual "partial"
+      .input("command1").acceptLine()
+      .input("command2").acceptLine()
+      .input("{").acceptLine()
+      .input("partial")
+      .previousHistory()
+      .previousHistory()
+    repl.text shouldEqual "command2"
+    repl.nextHistory().text shouldEqual "{\npartial"
     repl.previousHistory().backspace().text shouldEqual "command"
 
     repl.nextHistory()
