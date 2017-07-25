@@ -1,13 +1,21 @@
 package com.github.mdr.mash.render
 
+import java.util.Date
+
+import com.github.mdr.mash.evaluator.TildeExpander
+import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
+import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ StyledCharacter, StyledString, _ }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point }
 import com.github.mdr.mash.render.KeyHint._
 import com.github.mdr.mash.repl.IncrementalHistorySearchState
+import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ Hit, HitStatus }
 
 object IncrementalHistorySearchRenderer {
+
+  private val envInteractions = LinuxEnvironmentInteractions
 
   private val SearchStringStyle = Style(foregroundColour = BasicColour.Cyan)
 
@@ -18,11 +26,24 @@ object IncrementalHistorySearchRenderer {
     val searchLine = Line(chars)
     val cursorPosOpt = (chars.size < terminalSize.columns).option(Point(0, chars.size))
 
-    val lines = Seq(searchLine, HintLine).map(truncateIfNecessary(_, terminalSize))
+    val hintLine = renderHitLine(searchState.hitStatus)
+    val lines = (Seq(searchLine) ++ hintLine ++ Seq(KeyHintLine)).map(truncateIfNecessary(_, terminalSize))
     LinesAndCursorPos(lines, cursorPosOpt)
   }
 
-  private val HintLine = Line("(".style + KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch)) + ")".style)
+  private val KeyHintLine = Line(KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch)))
+
+  private def renderHitLine(hitStatus: HitStatus): Option[Line] =
+    hitStatus match {
+      case Hit(resultIndex, _, timestamp, workingDirectory) ⇒
+        val time = Printer.prettyTime.format(Date.from(timestamp))
+        val directoryWithTilde = new TildeExpander(envInteractions).retilde(workingDirectory)
+        Some(Line(("Hit " + (resultIndex + 1) + ": " + time + " in " +directoryWithTilde).style(hitStyle)))
+      case _                                                ⇒
+        None
+    }
+
+  private val hitStyle = Style(foregroundColour = BasicColour.Grey)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
     Line(ellipsisise(line.string, terminalSize.columns))

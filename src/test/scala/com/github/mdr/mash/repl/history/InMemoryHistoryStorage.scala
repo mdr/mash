@@ -6,10 +6,12 @@ import com.github.mdr.mash.utils.MonotonicallyTickingClock
 
 object InMemoryHistoryStorage {
 
+  val WorkingDirectory = Paths.get("")
+
   def testHistory(entries: String*): HistoryImpl = {
     val history = new HistoryImpl(new InMemoryHistoryStorage(), clock = MonotonicallyTickingClock)
     for ((entry, i) ← entries.zipWithIndex)
-      history.record(entry, i, mish = false, resultOpt = None, workingDirectory = Paths.get(""))
+      history.record(entry, i, mish = false, resultOpt = None, workingDirectory = WorkingDirectory)
     history
   }
 

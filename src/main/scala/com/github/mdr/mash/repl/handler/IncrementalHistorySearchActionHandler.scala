@@ -4,6 +4,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.history.History
+import com.github.mdr.mash.repl.history.History.Match
 import com.github.mdr.mash.repl.{ IncrementalHistorySearchState, LineBuffer, ReplState }
 
 object IncrementalHistorySearchActionHandler {
@@ -18,9 +19,9 @@ case class IncrementalHistorySearchActionHandler(history: History) {
 
   def beginFreshIncrementalSearch(state: ReplState): ReplState = {
     history.resetHistoryPosition()
-      state.copy(
-        assistanceStateOpt = None,
-        historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+    state.copy(
+      assistanceStateOpt = None,
+      historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
   }
 
   def beginIncrementalSearchFromLine(state: ReplState): ReplState =
@@ -56,16 +57,16 @@ case class IncrementalHistorySearchActionHandler(history: History) {
         historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
     else {
       val nextResultIndex = hitStatus match {
-        case Hit(previousResultIndex, _) ⇒ previousResultIndex + 1
-        case _                           ⇒ 0
+        case hit: Hit ⇒ hit.resultIndex + 1
+        case _        ⇒ 0
       }
       val nextMatchOpt = history.findMatch(searchString, nextResultIndex)
       nextMatchOpt match {
-        case Some(nextMatch) ⇒
+        case Some(Match(command, matchRegion, timestamp, workingDirectory)) ⇒
           state.copy(
-            lineBuffer = LineBuffer(nextMatch.command),
-            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Hit(nextResultIndex, nextMatch.region))))
-        case None            ⇒
+            lineBuffer = LineBuffer(command),
+            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Hit(nextResultIndex, matchRegion, timestamp, workingDirectory.toString))))
+        case None                                                           ⇒
           state.copy(
             lineBuffer = LineBuffer.Empty,
             historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
