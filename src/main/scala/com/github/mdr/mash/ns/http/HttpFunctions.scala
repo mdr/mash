@@ -32,7 +32,15 @@ object HttpFunctions {
     val BasicAuth = Parameter(
       nameOpt = Some("basicAuth"),
       summaryOpt = Some("Basic authentication"),
-      descriptionOpt = Some("Must either be a String of the form <mash>'username:password'</mash>, or an object of the form <mash>{ username: 'username', password: 'password' }</mash>"),
+      descriptionOpt = Some(
+        """Must provide the username and password either as a colon-separated String:
+          |<mash>
+          |  --basicAuth='username:password'
+          |</mash>
+          |or an object of the form:
+          |<mash>
+          |  --basicAuth={ username: 'username', password: 'password' }
+          |</mash>""".stripMargin),
       defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true)
 
@@ -40,11 +48,11 @@ object HttpFunctions {
       nameOpt = Some("headers"),
       summaryOpt = Some("Headers to add to request"),
       descriptionOpt = Some(
-        """Headers can be provided either as an object or a list. Examples:
+        """Headers can be provided either as an object or a list of name/value pairs:
           |<mash>
           |  --headers={ header1: value }
           |  --headers=["header1:value", "header2:value"]
-          |  --headers=[{ name: "header1", value: "value"}]
+          |  --headers=[{ name: "header1", value: "value" }]
           |</mash>""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue))
@@ -53,9 +61,9 @@ object HttpFunctions {
       nameOpt = Some("cookies"),
       summaryOpt = Some("Cookies to add to the request"),
       descriptionOpt = Some(
-        """Cookies can be provided as an object. Examples:
+        """Cookies can be provided as an object:
           |<mash>
-          |  --cookies={ sessionId: 'xyz'}
+          |  --cookies={ sessionId: 'xyz' }
           |</mash>""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue))
