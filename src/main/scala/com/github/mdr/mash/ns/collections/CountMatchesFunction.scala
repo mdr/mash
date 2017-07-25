@@ -34,7 +34,9 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
   override def summaryOpt = Some("Count how many times a predicate holds within a sequence")
 
   override def descriptionOpt = Some("""Examples:
-  countMatches (_ > 3) [1, 2, 3, 4, 5] # 2""")
+<mash>
+  countMatches (_ > 3) [1, 2, 3, 4, 5] # 2
+</mash>""")
 
 }
 

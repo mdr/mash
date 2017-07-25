@@ -51,7 +51,9 @@ object SortByFunction extends MashFunction("collections.sortBy") {
 
   override def descriptionOpt = Some(
     """Examples:
+<mash>
   sortBy length ["aa", "b", "ccc"]              # ["b", "aa", "ccc"] 
-  sortBy --descending length ["aa", "b", "ccc"] # ["ccc", "aa", "b"]""")
+  sortBy --descending length ["aa", "b", "ccc"] # ["ccc", "aa", "b"]
+</mash>""")
 
 }

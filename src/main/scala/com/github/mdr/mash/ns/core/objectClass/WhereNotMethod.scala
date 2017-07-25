@@ -29,8 +29,10 @@ object WhereNotMethod extends MashMethod("whereNot") {
 
   override def descriptionOpt = Some(
     """Examples:
-      |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (.startsWith "b")                   # { "foo": 1 }
-      |  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }""".stripMargin)
+<mash>
+  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (.startsWith "b")                   # { "foo": 1 }
+  { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }
+</mash>""")
 
   override val isShy = true
 

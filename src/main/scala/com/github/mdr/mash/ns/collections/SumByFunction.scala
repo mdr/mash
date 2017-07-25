@@ -43,7 +43,9 @@ object SumByFunction extends MashFunction("collections.sumBy") {
 
   override def descriptionOpt = Some(
     """Examples:
-  sumBy length ["foo", "bar", "baz"] # 9""")
+<mash>
+  sumBy length ["foo", "bar", "baz"] # 9
+</mash""")
 
 }
 

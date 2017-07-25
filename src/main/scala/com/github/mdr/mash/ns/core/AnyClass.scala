@@ -29,8 +29,10 @@ object AnyClass extends MashClass("core.Any") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   null.isNull # true
-  0.isNull    # false""")
+  0.isNull    # false
+</mash>""")
 
     override def typeInferenceStrategy = BooleanClass
 
@@ -50,10 +52,12 @@ object AnyClass extends MashClass("core.Any") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   true.isTruthy  # true
   false.isTruthy # false
   null.isTruthy  # false
-  10.isTruthy    # true""")
+  10.isTruthy    # true
+</mash>""")
 
     override def typeInferenceStrategy = BooleanClass
 
@@ -84,10 +88,11 @@ object AnyClass extends MashClass("core.Any") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   42.isA Number  # true
   42.isA Boolean # false
   42.isA Any     # true
-      """)
+</mash>""")
 
     override val isShy = true
 
@@ -140,9 +145,10 @@ object AnyClass extends MashClass("core.Any") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   42.toString   # "42"
   null.toString # "null"
-      """)
+</mash>""")
 
     override val isShy = true
 
@@ -171,10 +177,11 @@ object AnyClass extends MashClass("core.Any") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   2.in [1, 2, 3] # true
   4.in [1, 2, 3] # false
   "i".in "team"  # false
-      """)
+</mash>""")
 
     override val isShy = true
 

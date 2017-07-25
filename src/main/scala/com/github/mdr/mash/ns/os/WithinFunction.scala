@@ -48,7 +48,9 @@ object WithinFunction extends MashFunction("os.within") {
   override def summaryOpt = Some("Temporarily change the current working directory to execute a task, then change back")
 
   override def descriptionOpt = Some("""Examples:
-   within "~/project" git.log""")
+<mash>
+   within "~/project" git.log
+</mash>""")
 
 }
 

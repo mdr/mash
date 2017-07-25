@@ -74,8 +74,10 @@ object UrlClass extends MashClass("net.Url") {
 
     override def descriptionOpt = Some(
       """Examples:
+<mash>
   net.url "http://example.com" | .withQueryParams { param: 42 } # http://example.com?param=42
-  net.url "http://example.com" | .withQueryParams --param=42    # http://example.com?param=42""")
+  net.url "http://example.com" | .withQueryParams --param=42    # http://example.com?param=42
+</mash>""")
 
   }
 

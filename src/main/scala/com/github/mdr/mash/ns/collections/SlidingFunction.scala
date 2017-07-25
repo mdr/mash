@@ -32,7 +32,9 @@ object SlidingFunction extends MashFunction("collections.sliding") {
   override def summaryOpt = Some("Slide a window across a sequence")
 
   override def descriptionOpt = Some("""Examples:
-  sliding 2 [1, 2, 3] # [[1, 2], [2, 3]]""")
+<mash>
+  sliding 2 [1, 2, 3] # [[1, 2], [2, 3]]
+</mash>""")
 
 }
 

@@ -27,5 +27,7 @@ object UniqueFunction extends MashFunction("collections.unique") {
   override def summaryOpt = Some("Find all the distinct elements in a sequence")
 
   override def descriptionOpt = Some("""Examples:
-  distinct [1, 2, 3, 2, 1] # [1, 2, 3]""")
+<mash>
+  distinct [1, 2, 3, 2, 1] # [1, 2, 3]
+</mash>""")
 }

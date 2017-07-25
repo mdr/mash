@@ -43,9 +43,12 @@ If multiple arguments are provided, the largest argument is returned."""),
 
   override def descriptionOpt = Some(
     """Examples:
+<mash>
   max [1, 2, 3]      # 3
   max 1 2 3          # 3
-  max [] --default=0 # 0""")
+  max [] --default=0 # 0
+</mash>""")
+
 
 }
 

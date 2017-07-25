@@ -61,7 +61,9 @@ object HttpFunctions {
       summaryOpt = Some("Query parameters to add to the URL"),
       descriptionOpt = Some(
         """Examples:
-          |  --queryParams={ name: "value" }""".stripMargin),
+<mash>
+  --queryParams={ name: "value" }
+</mash>"""),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashObject.empty))
 

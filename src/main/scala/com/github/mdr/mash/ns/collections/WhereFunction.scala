@@ -48,7 +48,9 @@ object WhereFunction extends MashFunction("collections.where") {
 
   override def descriptionOpt = Some(
     """Examples:
-  where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]""")
+<mash>
+  where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]
+</mash>""")
 
 }
 

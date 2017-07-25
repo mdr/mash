@@ -108,21 +108,21 @@ object TransposeFunction extends MashFunction("collections.transpose") {
 
   override def descriptionOpt = Some(
     """Examples:
-      |[["a", "b"], ["c", "d"], ["e", "f"]]
-      |╔═╤═╤═╗
-      |║#│0│1║
-      |╟─┼─┼─╢
-      |║0│a│b║
-      |║1│c│d║
-      |║2│e│f║
-      |╚═╧═╧═╝
-      |[["a", "b"], ["c", "d"], ["e", "f"]] | transpose
-      |╔═╤═╤═╤═╗
-      |║#│0│1│2║
-      |╟─┼─┼─┼─╢
-      |║0│a│c│e║
-      |║1│b│d│f║
-      |╚═╧═╧═╧═╝""".stripMargin)
+  <mash>[["a", "b"], ["c", "d"], ["e", "f"]]</mash>
+  ╔═╤═╤═╗
+  ║#│0│1║
+  ╟─┼─┼─╢
+  ║0│a│b║
+  ║1│c│d║
+  ║2│e│f║
+  ╚═╧═╧═╝
+  <mash>[["a", "b"], ["c", "d"], ["e", "f"]] | transpose</mash>
+  ╔═╤═╤═╤═╗
+  ║#│0│1│2║
+  ╟─┼─┼─┼─╢
+  ║0│a│c│e║
+  ║1│b│d│f║
+  ╚═╧═╧═╧═╝""")
 
 }
 

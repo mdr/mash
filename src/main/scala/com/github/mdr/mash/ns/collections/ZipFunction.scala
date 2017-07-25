@@ -28,7 +28,9 @@ object ZipFunction extends MashFunction("collections.zip") {
 
   override def descriptionOpt = Some(
     """Examples:
-  zip [1, 2, 3] [4, 5] # [[1, 4], [2, 5]]""")
+<mash>
+  zip [1, 2, 3] [4, 5] # [[1, 4], [2, 5]]
+</mash>""")
 
   override object typeInferenceStrategy extends TypeInferenceStrategy {
 

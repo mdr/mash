@@ -39,8 +39,10 @@ If multiple arguments are provided, the smallest argument is returned."""),
   override def summaryOpt = Some("Find the smallest element of a sequence")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   min [1, 2, 3]      # 1
   min 1 2 3          # 1
-  min [] --default=0 # 0""")
+  min [] --default=0 # 0
+</mash>""")
 
 }

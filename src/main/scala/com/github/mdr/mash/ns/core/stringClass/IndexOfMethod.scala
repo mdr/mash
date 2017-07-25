@@ -31,8 +31,10 @@ object IndexOfMethod extends MashMethod("indexOf") {
 
   override def descriptionOpt = Some(
     """Examples:
+<mash>
   indexOf 2 [1, 2, 3] # 1
-  indexOf 9 [1, 2, 3] # null""")
+  indexOf 9 [1, 2, 3] # null
+</mash>""")
 
 
 }

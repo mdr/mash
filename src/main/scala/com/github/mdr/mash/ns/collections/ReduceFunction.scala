@@ -63,9 +63,10 @@ object ReduceFunction extends MashFunction("collections.reduce") {
   override def summaryOpt = Some("Reduce all the elements of the sequence to a single value using a combining function")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   reduce (x y => x + y) [1, 2, 3] # 6
   reduce (x y => x + y) 1 [2, 3]  # 6
-""")
+</mash>""")
 
 }
 

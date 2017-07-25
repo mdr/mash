@@ -76,8 +76,9 @@ The default signal is TERM."""))
   override def summaryOpt = Some("Send a signal to a process")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   ps | where (_.name.matches "java") | kill # Kill all Java processes
   kill --signal="HUP" 1280                  # Send the HUP signal to process with PID 1280
-""")
+</mash>""")
 
 }

@@ -32,6 +32,8 @@ object WhereNotFunction extends MashFunction("collections.whereNot") {
 
   override def descriptionOpt = Some(
     """Examples:
-  whereNot (_ > 1) [1, 2, 3, 2, 1] # [1, 2, 2, 1]""")
+<mash>
+  whereNot (_ > 1) [1, 2, 3, 2, 1] # [1, 2, 2, 1]
+</mash>""")
 
 }

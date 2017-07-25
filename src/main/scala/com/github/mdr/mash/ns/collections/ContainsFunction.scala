@@ -29,7 +29,9 @@ object ContainsFunction extends MashFunction("collections.contains") {
   override def summaryOpt = Some("Check whether a sequence contains an element")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   contains 2 [1, 2, 3] # true
-  contains 9 [1, 2, 3] # false""")
+  contains 9 [1, 2, 3] # false
+</mash>""")
 
 }

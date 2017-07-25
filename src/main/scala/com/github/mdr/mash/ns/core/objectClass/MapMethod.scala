@@ -58,8 +58,9 @@ object MapMethod extends MashMethod("map") {
 
   override def descriptionOpt = Some(
     """Examples:
-      |  { apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })  # { APPLE: 1, BOB: 4, CAT: 9 }
-    """.stripMargin)
+<mash>
+  { apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })  # { APPLE: 1, BOB: 4, CAT: 9 }
+</mash>""")
 
   override val isShy = true
 

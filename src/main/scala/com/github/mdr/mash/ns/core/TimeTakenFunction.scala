@@ -43,8 +43,9 @@ object TimeTakenFunction extends MashFunction("core.timeTaken") {
   override def summaryOpt = Some("Measure how long it takes to execute a piece of code")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
    timeTaken (ls --recursive) | .duration # 854
-""")
+</mash>""")
 
 }
 

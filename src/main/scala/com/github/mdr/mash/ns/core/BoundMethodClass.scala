@@ -86,7 +86,9 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     override def descriptionOpt = Some(
       """Examples:
-[1, 2, 3].sortBy.target # [1, 2, 3]""")
+<mash>
+[1, 2, 3].sortBy.target # [1, 2, 3]
+</mash>""")
 
   }
 

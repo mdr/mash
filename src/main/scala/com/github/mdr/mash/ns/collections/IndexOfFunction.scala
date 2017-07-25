@@ -32,7 +32,10 @@ object IndexOfFunction extends MashFunction("collections.indexOf") {
   override def summaryOpt = Some("Return the index of the first occurrence of the given element, if any, else null")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   indexOf 2 [1, 2, 3] # 1
-  indexOf 9 [1, 2, 3] # null""")
+  indexOf 9 [1, 2, 3] # null
+</mash>""")
+
 
 }

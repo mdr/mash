@@ -97,6 +97,9 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   override def descriptionOpt = Some(
     """Examples:
-  grep "b" ["apple", "book", "car"] # ["book"]""")
+<mash>
+  grep "b" ["apple", "book", "car"] # ["book"]
+</mash>""")
+
 
 }

@@ -34,6 +34,8 @@ object TakeWhileFunction extends MashFunction("collections.takeWhile") {
   override def summaryOpt = Some("Take elements from the start of a sequence while a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
-  takeWhile (_ < 3) [1, 2, 3, 2, 1] # [1, 2]""")
+<mash>
+  takeWhile (_ < 3) [1, 2, 3, 2, 1] # [1, 2]
+</mash>""")
 
 }

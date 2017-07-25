@@ -26,6 +26,8 @@ object SkipUntilFunction extends MashFunction("collections.skipUntil") {
   override def summaryOpt = Some("Skip elements from the start of a sequence until a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
-  skipUntil (_ < 3) [1, 2, 3, 2, 1] # [2, 1]""")
+<mash>
+  skipUntil (_ < 3) [1, 2, 3, 2, 1] # [2, 1]
+</mash>""")
 
 }

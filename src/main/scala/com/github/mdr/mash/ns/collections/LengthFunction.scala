@@ -25,7 +25,9 @@ object LengthFunction extends MashFunction("collections.length") {
   override def summaryOpt = Some("Find the length of a sequence")
 
   override def descriptionOpt = Some("""Examples:
+<mash>
   length [1, 2, 3] # 3
-  length []        # 0""")
+  length []        # 0
+</mash>""")
 
 }

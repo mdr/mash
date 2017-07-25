@@ -64,7 +64,9 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   override def descriptionOpt = Some(
     """Examples:
+<mash>
    cd "/tmp"
-   cd # cd to home directory""")
+   cd # cd to home directory
+</mash>""")
 
 }

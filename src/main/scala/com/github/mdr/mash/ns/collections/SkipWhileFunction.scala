@@ -34,6 +34,8 @@ object SkipWhileFunction extends MashFunction("collections.skipWhile") {
   override def summaryOpt = Some("Skip elements from the start of a sequence while a predicate holds")
 
   override def descriptionOpt = Some("""Examples:
-  skipWhile (_ < 3) [1, 2, 3, 2, 1] # [3, 2, 1]""")
+<mash>
+  skipWhile (_ < 3) [1, 2, 3, 2, 1] # [3, 2, 1]
+</mash>""")
 
 }

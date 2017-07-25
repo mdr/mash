@@ -101,6 +101,7 @@ object HoistMethod extends MashMethod("hoist") {
 
   override def descriptionOpt = Some(
     """Examples:
+<mash>
   {
     foo: 42,
     bar: {
@@ -108,13 +109,15 @@ object HoistMethod extends MashMethod("hoist") {
       baz2: 200
     }
   }.hoist 'bar'
-  # becomes:
+</mash>
+Becomes:
+<mash>
   {
     foo: 42,
     baz1: 100,
     baz2: 200
   }
-    """)
+</mash>""")
 
   override val isShy = true
 

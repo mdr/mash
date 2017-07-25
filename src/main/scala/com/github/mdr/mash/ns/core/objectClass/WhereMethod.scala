@@ -44,8 +44,10 @@ object WhereMethod extends MashMethod("where") {
 
   override def descriptionOpt = Some(
     """Examples:
-      |  { "foo": 1, "bar": 2, "baz": 3 }.where (.startsWith "b")                   # { "bar": 2, "baz": 3 }
-      |  { "foo": 1, "bar": 2, "baz": 3 }.where (f v => f.startsWith "f" or v == 3) # { "foo": 1, "baz": 3 }""".stripMargin)
+<mash>
+  { "foo": 1, "bar": 2, "baz": 3 }.where (.startsWith "b")                   # { "bar": 2, "baz": 3 }
+  { "foo": 1, "bar": 2, "baz": 3 }.where (f v => f.startsWith "f" or v == 3) # { "foo": 1, "baz": 3 }
+</mash>""")
 
   override val isShy = true
 
