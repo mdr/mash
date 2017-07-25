@@ -32,7 +32,7 @@ object HttpFunctions {
     val BasicAuth = Parameter(
       nameOpt = Some("basicAuth"),
       summaryOpt = Some("Basic authentication"),
-      descriptionOpt = Some("Must either be a String of the form 'username:password', or an object of the form { username: 'username', password: 'password' }"),
+      descriptionOpt = Some("Must either be a String of the form <mash>'username:password'</mash>, or an object of the form <mash>{ username: 'username', password: 'password' }</mash>"),
       defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true)
 
@@ -41,9 +41,11 @@ object HttpFunctions {
       summaryOpt = Some("Headers to add to request"),
       descriptionOpt = Some(
         """Headers can be provided either as an object or a list. Examples:
+          |<mash>
           |  --headers={ header1: value }
           |  --headers=["header1:value", "header2:value"]
-          |  --headers=[{ name: "header1", value: "value"}]""".stripMargin),
+          |  --headers=[{ name: "header1", value: "value"}]
+          |</mash>""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue))
 
@@ -52,7 +54,9 @@ object HttpFunctions {
       summaryOpt = Some("Cookies to add to the request"),
       descriptionOpt = Some(
         """Cookies can be provided as an object. Examples:
-          |  --cookies={ sessionId: 'xyz'}""".stripMargin),
+          |<mash>
+          |  --cookies={ sessionId: 'xyz'}
+          |</mash>""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue))
 
@@ -61,9 +65,9 @@ object HttpFunctions {
       summaryOpt = Some("Query parameters to add to the URL"),
       descriptionOpt = Some(
         """Examples:
-<mash>
-  --queryParams={ name: "value" }
-</mash>"""),
+          |<mash>
+          |  --queryParams={ name: "value" }
+          |</mash>""".stripMargin),
       isFlag = true,
       defaultValueGeneratorOpt = Some(() ⇒ MashObject.empty))
 

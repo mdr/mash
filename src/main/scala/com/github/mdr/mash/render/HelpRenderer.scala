@@ -4,11 +4,10 @@ import java.util.regex.Pattern
 
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
-import com.github.mdr.mash.runtime.{ MashObject, MashString }
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
 import com.github.mdr.mash.utils.{ LineInfo, Region }
-import com.github.mdr.mash.utils.StringUtils._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -82,7 +81,7 @@ object HelpRenderer {
     val shortFlagDescription = paramNameStyle(paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse(""))
     lines += Line(indentSpace.style + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
     for (description ← paramHelp.descriptionOpt)
-      lines += Line(indent(description, indentAmount * 2).style)
+      lines ++= renderDescription(description, indentLevel = 2)
     lines += Line.Empty
     lines
   }
@@ -98,7 +97,7 @@ object HelpRenderer {
     lines += Line.Empty
     for (description ← fieldHelp.descriptionOpt) {
       lines += Line(bold("DESCRIPTION"))
-      lines += Line(indent(description, indentAmount).style)
+      lines ++= renderDescription(description)
       lines += Line.Empty
     }
     lines
@@ -114,10 +113,10 @@ object HelpRenderer {
     lines += Line(bold("CLASS"))
     val summaryOpt = classHelp.summaryOpt
     lines += Line(indentSpace.style + bold(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
-    for (description ← classHelp.descriptionOpt.map(_.asInstanceOf[MashString])) {
+    for (description ← classHelp.descriptionOpt) {
       lines += Line.Empty
       lines += Line(bold("DESCRIPTION"))
-      lines += Line(indent(description.s, indentAmount).style)
+      lines ++= renderDescription(description)
     }
     for (parent ← classHelp.parentOpt) {
       lines += Line.Empty
@@ -149,7 +148,7 @@ object HelpRenderer {
 
   private val MashMarkupPattern = Pattern.compile("<mash>(.+?)</mash>", Pattern.DOTALL)
 
-  private def renderDescription(s: String): Seq[Line] = {
+  private def renderDescription(s: String, indentLevel: Int = 1): Seq[Line] = {
     val matcher = MashMarkupPattern.matcher(s)
     val chunks = ArrayBuffer[StyledString]()
     var previous = 0
@@ -165,7 +164,7 @@ object HelpRenderer {
     val renderedDescription = StyledString.empty.join(chunks)
     new LineInfo(renderedDescription.forgetStyling)
       .lineRegions
-      .map(region ⇒ Line(indentSpace.style + region.of(renderedDescription.chars)))
+      .map(region ⇒ Line((indentSpace * indentLevel).style + region.of(renderedDescription.chars)))
   }
 
   private def trimInitialAndFinalNewlines(contents: String): String = {
