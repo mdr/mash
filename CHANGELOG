@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Syntax colouring for code snippets in help pages
 * Support beginning incremental search by pressing up from a partial line
 * Underline matches in incremental search
 * Key hints for incremental history search

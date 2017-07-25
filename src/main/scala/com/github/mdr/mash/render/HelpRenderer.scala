@@ -1,10 +1,13 @@
 package com.github.mdr.mash.render
 
+import java.util.regex.Pattern
+
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style._
-import com.github.mdr.mash.screen.{ BasicColour, Line, Style }
+import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
+import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.StringUtils._
 
 import scala.collection.mutable.ArrayBuffer
@@ -51,7 +54,7 @@ object HelpRenderer {
     }
     for (description ← help.descriptionOpt) {
       lines.append(Line(bold("DESCRIPTION")))
-      lines.append(Line(indent(description, indentAmount).style))
+      lines.append(Line(renderDescription(indent(description, indentAmount))))
       lines.append(Line.Empty)
     }
     lines
@@ -102,7 +105,7 @@ object HelpRenderer {
   }
 
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
-    Line(indentSpace.style + fieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style )
+    Line(indentSpace.style + fieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
 
   def renderClassHelp(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
@@ -142,6 +145,22 @@ object HelpRenderer {
     }
 
     lines
+  }
+
+  private val MashMarkupPattern = Pattern.compile("<mash>(.+?)</mash>", Pattern.DOTALL)
+
+  private def renderDescription(s: String): StyledString = {
+    val matcher = MashMarkupPattern.matcher(s)
+    val chunks = ArrayBuffer[StyledString]()
+    var previous = 0
+    while (matcher.find()) {
+      val region = Region(previous, matcher.start)
+      chunks += region.of(s).style
+      previous = matcher.end
+      chunks += new MashRenderer().renderChars(matcher.group(1))
+    }
+    chunks += s.substring(previous).style
+    StyledString.empty.join(chunks)
   }
 
 }
