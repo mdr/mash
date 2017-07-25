@@ -5,6 +5,6 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 trait RendererTest extends FlatSpec with Matchers {
 
-  protected def getText(line: Line): String = line.string.chars.map(_.c).mkString
+  protected def getText(line: Line): String = line.string.forgetStyling
 
 }

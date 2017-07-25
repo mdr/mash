@@ -39,5 +39,8 @@ case class StyledString(chars: Seq[StyledCharacter]) {
 
   def isEmpty = chars.isEmpty
 
-  def join(strings: Seq[StyledString]): StyledString = StyledString(Utils.intercalate(strings.map(_.chars), this.chars))
+  def join(strings: Seq[StyledString]): StyledString =
+    StyledString(Utils.intercalate(strings.map(_.chars), this.chars))
+
+  def forgetStyling: String = chars.map(_.c).mkString
 }

@@ -29,8 +29,10 @@ object ReverseFunction extends MashFunction("collections.reverse") {
 
   override def descriptionOpt = Some(
     """Examples:
-<mash>reverse [1, 2, 3] # [3, 2, 1]
+<mash>
+  reverse [1, 2, 3] # [3, 2, 1]
   reverse []        # []
-  reverse "part"    # "trap"</mash>""")
+  reverse "part"    # "trap"
+</mash>""")
 
 }
