@@ -4,6 +4,12 @@ import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.ansi.{ Ansi, StyleToAnsi }
 import com.github.mdr.mash.utils.{ Point, Utils }
 
+object Line {
+
+  val Empty = Line(StyledString.empty)
+
+}
+
 case class Line(string: StyledString, endsInNewline: Boolean = true) {
 
   def truncate(n: Int) =
