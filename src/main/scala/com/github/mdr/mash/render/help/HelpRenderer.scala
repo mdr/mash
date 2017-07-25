@@ -1,9 +1,10 @@
-package com.github.mdr.mash.render
+package com.github.mdr.mash.render.help
 
 import java.util.regex.Pattern
 
 import com.github.mdr.mash.functions.Parameter
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, FunctionHelpClass, ParameterHelpClass }
+import com.github.mdr.mash.render.MashRenderer
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
@@ -16,11 +17,13 @@ import scala.collection.mutable.ArrayBuffer
   */
 object HelpRenderer {
 
-  private def paramNameStyle(s: String) = s.style(Style(foregroundColour = BasicColour.Blue, bold = true))
+  private def ParamNameStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
 
-  private def fieldMethodStyle(s: String) = s.style(Style(foregroundColour = BasicColour.Blue, bold = true))
+  private def FieldMethodStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
 
-  private def bold(s: String) = s.style(Style(bold = true))
+  private def SectionTitleStyle = Style(bold = true)
+
+  private def NameStyle = Style(bold = true)
 
   private val indentAmount = 4
 
@@ -30,29 +33,29 @@ object HelpRenderer {
     import FunctionHelpClass.Fields._
     val help = FunctionHelpClass.Wrapper(obj)
     val lines = ArrayBuffer[Line]()
-    lines += Line(bold(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
+    lines += Line(SectionTitleStyle(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
     val name = help.fullyQualifiedName
-    val names = ", ".style.join((name +: help.aliases).map(bold(_)))
+    val names = ", ".style.join((name +: help.aliases).map(NameStyle(_)))
     lines += Line(indentSpace.style + names + help.summaryOpt.fold("")(" - " + _).style)
     lines += Line.Empty
     for (klass ← help.classOpt) {
-      lines += Line(bold("CLASS"))
+      lines += Line(SectionTitleStyle("CLASS"))
       lines += Line((indentSpace + klass).style)
       lines += Line.Empty
     }
-    lines += Line(bold("CALLING SYNTAX"))
+    lines += Line(SectionTitleStyle("CALLING SYNTAX"))
     val maybeTarget = if (help.classOpt.isDefined) "target." else ""
     lines += Line((indentSpace + maybeTarget + obj(CallingSyntax)).style)
     lines += Line.Empty
     val parameters = help.parameters
     if (parameters.nonEmpty) {
-      lines += Line(bold("PARAMETERS"))
+      lines += Line(SectionTitleStyle("PARAMETERS"))
 
       for (param ← parameters)
         lines ++= renderParameterHelp(param.asInstanceOf[MashObject])
     }
     for (description ← help.descriptionOpt) {
-      lines += Line(bold("DESCRIPTION"))
+      lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= renderDescription(description)
       lines += Line.Empty
     }
@@ -77,8 +80,8 @@ object HelpRenderer {
       case _     ⇒ qualifiers.mkString(" [", ", ", "]")
     }
     val name = paramHelp.nameOpt getOrElse Parameter.AnonymousParamName
-    val paramName = paramNameStyle(if (isFlag) "--" + name else name)
-    val shortFlagDescription = paramNameStyle(paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse(""))
+    val paramName = ParamNameStyle(if (isFlag) "--" + name else name)
+    val shortFlagDescription = paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse("").style(ParamNameStyle)
     lines += Line(indentSpace.style + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
     for (description ← paramHelp.descriptionOpt)
       lines ++= renderDescription(description, indentLevel = 2)
@@ -89,14 +92,14 @@ object HelpRenderer {
   def renderFieldHelp(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
     val fieldHelp = FieldHelpClass.Wrapper(obj)
-    lines += Line(bold("FIELD"))
-    lines += Line(indentSpace.style + bold(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _).style)
+    lines += Line(SectionTitleStyle("FIELD"))
+    lines += Line(indentSpace.style + NameStyle(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _).style)
     lines += Line.Empty
-    lines += Line(bold("CLASS"))
+    lines += Line(SectionTitleStyle("CLASS"))
     lines += Line((indentSpace + fieldHelp.klass).style)
     lines += Line.Empty
     for (description ← fieldHelp.descriptionOpt) {
-      lines += Line(bold("DESCRIPTION"))
+      lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= renderDescription(description)
       lines += Line.Empty
     }
@@ -104,42 +107,42 @@ object HelpRenderer {
   }
 
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
-    Line(indentSpace.style + fieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
+    Line(indentSpace.style + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
 
   def renderClassHelp(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
 
     val classHelp = ClassHelpClass.Wrapper(obj)
-    lines += Line(bold("CLASS"))
+    lines += Line(SectionTitleStyle("CLASS"))
     val summaryOpt = classHelp.summaryOpt
-    lines += Line(indentSpace.style + bold(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
+    lines += Line(indentSpace.style + NameStyle(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
     for (description ← classHelp.descriptionOpt) {
       lines += Line.Empty
-      lines += Line(bold("DESCRIPTION"))
+      lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= renderDescription(description)
     }
     for (parent ← classHelp.parentOpt) {
       lines += Line.Empty
-      lines += Line(bold("PARENT"))
+      lines += Line(SectionTitleStyle("PARENT"))
       lines += Line((indentSpace + parent).style)
     }
     val fields = classHelp.fields
     if (fields.nonEmpty) {
       lines += Line.Empty
-      lines += Line(bold("FIELDS"))
+      lines += Line(SectionTitleStyle("FIELDS"))
       for (field ← fields)
-        lines += Line(indentSpace.style + fieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
+        lines += Line(indentSpace.style + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
     }
     val staticMethods = classHelp.staticMethods
     if (staticMethods.nonEmpty) {
       lines += Line.Empty
-      lines += Line(bold("STATIC METHODS"))
+      lines += Line(SectionTitleStyle("STATIC METHODS"))
       lines ++= staticMethods.map(renderMethodSummary)
     }
     val methods = classHelp.methods
     if (methods.nonEmpty) {
       lines += Line.Empty
-      lines += Line(bold("METHODS"))
+      lines += Line(SectionTitleStyle("METHODS"))
       lines ++= methods.map(renderMethodSummary)
     }
 

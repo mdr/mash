@@ -6,7 +6,7 @@ object Style {
 
     def style: StyledString = StyledString(s.map(StyledCharacter(_)))
 
-    def style(st: Style): StyledString = StyledString(s.map(StyledCharacter(_, st)))
+    def style(aStyle: Style): StyledString = aStyle(s)
 
     def style(foregroundColour: Colour = DefaultColour,
               backgroundColour: Colour = DefaultColour,
@@ -30,5 +30,7 @@ case class Style(foregroundColour: Colour = DefaultColour,
                  underline: Boolean = false) {
 
   def withUnderline: Style = copy(underline = true)
+
+  def apply(s: String): StyledString = StyledString(s.map(StyledCharacter(_, this)))
 
 }

@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
-import com.github.mdr.mash.render.HelpRenderer
+import com.github.mdr.mash.render.help.HelpRenderer
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.{ Line, Screen }
 
