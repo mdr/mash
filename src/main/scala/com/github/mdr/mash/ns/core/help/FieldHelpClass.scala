@@ -2,7 +2,9 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
+
+import scala.collection.immutable.ListMap
 
 object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
@@ -14,6 +16,18 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
   }
 
   import Fields._
+
+  def create(name: String,
+             klass: String,
+             summaryOpt: Option[String],
+             descriptionOpt: Option[String]): MashObject =
+    MashObject.of(
+      ListMap(
+        Name -> MashString(name),
+        Class -> MashString(klass),
+        Summary -> summaryOpt.map(MashString(_)).getOrElse(MashNull),
+        Description -> descriptionOpt.map(MashString(_)).getOrElse(MashNull)),
+      FieldHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 

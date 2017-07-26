@@ -49,16 +49,8 @@ object HelpCreator {
       FunctionHelpClass)
   }
 
-  def getFieldHelp(field: Field, klass: MashClass): MashObject = {
-    import FieldHelpClass.Fields._
-    MashObject.of(
-      ListMap(
-        Name -> MashString(field.name),
-        Class -> MashString(klass.fullyQualifiedName.toString),
-        Summary -> field.summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        Description -> field.descriptionOpt.map(MashString(_)).getOrElse(MashNull)),
-      FieldHelpClass)
-  }
+  def getFieldHelp(field: Field, klass: MashClass): MashObject =
+    FieldHelpClass.create(field.name, klass.fullyQualifiedName.toString, field.summaryOpt, field.descriptionOpt)
 
   private def getParamHelp(param: Parameter): MashObject = {
     import ParameterHelpClass.Fields._

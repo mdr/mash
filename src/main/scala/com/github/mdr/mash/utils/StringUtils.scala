@@ -83,6 +83,11 @@ object StringUtils {
     */
   def ltrim(s: String) = s.replaceAll("^\\s+", "")
 
+  /**
+    * Split the given string into lines, by looking for \n or \r\n as line terminators.
+    *
+    * If the string ends with a line terminator, an extra final empty string is not returned.
+    */
   def splitIntoLines(s: String): Seq[String] =
     if (s.isEmpty)
       Seq()
