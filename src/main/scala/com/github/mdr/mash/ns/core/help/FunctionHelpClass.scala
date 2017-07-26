@@ -31,10 +31,10 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   def create(name: String,
              fullyQualifiedName: String,
-             aliases: Seq[String],
+             aliases: Seq[String] = Seq(),
              summaryOpt: Option[String],
              callingSyntax: String,
-             descriptionOpt: Option[String],
+             descriptionOpt: Option[String] = None,
              parameters: Seq[MashObject],
              classOpt: Option[String],
              sourceOpt: Option[String] = None): MashObject =
