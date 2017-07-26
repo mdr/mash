@@ -2,7 +2,9 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ BooleanClass, StringClass }
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime._
+
+import scala.collection.immutable.ListMap
 
 object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
 
@@ -14,7 +16,7 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
     val IsFlagParameter = Field("isFlagParameter", Some("If true, this parameter can only be given as a flag"), BooleanClass)
     val IsOptional = Field("isOptional", Some("If true, this parameter is optional"), BooleanClass)
     val IsLazy = Field("isLazy", Some("If true, this parameter is evaluated lazily"), BooleanClass)
-    val IsNamedArgs = Field("isNamedArg", Some("If true, this parameter is is a @namedArg parameter"), BooleanClass)
+    val IsNamedArgs = Field("isNamedArg", Some("If true, this parameter is a @namedArg parameter"), BooleanClass)
     val IsVariadic = Field("isVariadic", Some("If true, this parameter can take an arbitrary number of positional arguments"), BooleanClass)
   }
 
@@ -23,6 +25,28 @@ object ParameterHelpClass extends MashClass("core.help.ParameterHelp") {
   override val fields = Seq(Name, Summary, Description, ShortFlag, IsFlagParameter, IsOptional, IsLazy, IsNamedArgs, IsVariadic)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  def create(nameOpt: Option[String] = None,
+             summaryOpt: Option[String] = None,
+             descriptionOpt: Option[String] = None,
+             shortFlagOpt: Option[Char] = None,
+             isFlag: Boolean = false,
+             isOptional: Boolean = false,
+             isLazy: Boolean = false,
+             isNamedArgs: Boolean = false,
+             isVariadic: Boolean = false): MashObject =
+    MashObject.of(
+      ListMap(
+        Name -> MashString.maybe(nameOpt),
+        Summary -> MashString.maybe(summaryOpt),
+        Description -> MashString.maybe(descriptionOpt),
+        ShortFlag -> MashString.maybe(shortFlagOpt.map(_.toString)),
+        IsFlagParameter -> MashBoolean(isFlag),
+        IsOptional -> MashBoolean(isOptional),
+        IsLazy -> MashBoolean(isLazy),
+        IsNamedArgs -> MashBoolean(isNamedArgs),
+        IsVariadic -> MashBoolean(isVariadic)),
+      ParameterHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 

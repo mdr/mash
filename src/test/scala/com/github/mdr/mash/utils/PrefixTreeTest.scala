@@ -1,10 +1,7 @@
 package com.github.mdr.mash.utils
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{ FlatSpec, Matchers }
 
-@RunWith(classOf[JUnitRunner])
 class PrefixTreeTest extends FlatSpec with Matchers {
 
   "Prefix tree" should "work with a single item" in {

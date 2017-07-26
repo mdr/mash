@@ -25,8 +25,8 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
       ListMap(
         Name -> MashString(name),
         Class -> MashString(klass),
-        Summary -> summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        Description -> descriptionOpt.map(MashString(_)).getOrElse(MashNull)),
+        Summary -> MashString.maybe(summaryOpt),
+        Description -> MashString.maybe(descriptionOpt)),
       FieldHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {

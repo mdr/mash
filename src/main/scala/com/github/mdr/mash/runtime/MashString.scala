@@ -10,11 +10,13 @@ object MashString {
 
   def apply(s: String, tagClass: MashClass): MashString = MashString(s, Some(tagClass))
 
+  def maybe(sOpt: Option[String]): MashValue = sOpt.map(MashString(_)).getOrElse(MashNull)
+
 }
 
 case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends TaggableMashValue with Comparable[MashString] {
   assert(s != null, "string cannot be null")
-  
+
   def lookup(i: Int) = {
     val index = if (i < 0) i + s.size else i
     MashString(s(index).toString, CharacterClass)
@@ -23,7 +25,7 @@ case class MashString(s: String, tagClassOpt: Option[MashClass] = None) extends 
   def +(that: MashValue): MashString = copy(s = this.s + ToStringifier.stringify(that))
 
   def *(n: Int): MashString = modify(_ * n)
-  
+
   def rplus(that: MashValue): MashString = copy(s = ToStringifier.stringify(that) + this.s)
 
   def reverse = copy(s = s.reverse)

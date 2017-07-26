@@ -2,8 +2,11 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.StringClass
-import com.github.mdr.mash.runtime.{ MashString, MashValue }
+import com.github.mdr.mash.runtime._
+
+import scala.collection.immutable.ListMap
 
 object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
@@ -26,6 +29,26 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   override def summaryOpt = Some("Help documentation for a function")
 
+  def create(name: String,
+             fullyQualifiedName: String,
+             aliases: Seq[String],
+             summaryOpt: Option[String],
+             callingSyntax: String,
+             descriptionOpt: Option[String],
+             parameters: Seq[MashObject],
+             classOpt: Option[String]): MashObject =
+    MashObject.of(
+      ListMap(
+        Name -> MashString(name),
+        FullyQualifiedName -> MashString(fullyQualifiedName),
+        Aliases -> MashList(aliases.map(MashString(_))),
+        Summary -> MashString.maybe(summaryOpt),
+        CallingSyntax -> MashString(callingSyntax),
+        Description -> MashString.maybe(descriptionOpt),
+        Parameters -> MashList(parameters),
+        Class -> MashString.maybe(classOpt)),
+      FunctionHelpClass)
+
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     def name: String = getStringField(Name)
@@ -46,7 +69,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     }
 
     def parameters: Seq[MashValue] = getListField(Parameters)
-
 
   }
 

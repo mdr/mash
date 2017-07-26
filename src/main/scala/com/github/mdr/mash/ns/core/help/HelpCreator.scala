@@ -16,71 +16,53 @@ object HelpCreator {
     case value            ⇒ getClassHelp(value.primaryClass)
   }
 
-  private def getFunctionHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject = {
-    import FunctionHelpClass.Fields._
-    MashObject.of(
-      ListMap(
-        Name -> MashString(f.name),
-        FullyQualifiedName -> MashString(f.fullyQualifiedName.toString),
-        Aliases -> MashList.empty,
-        Summary -> f.summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        CallingSyntax -> MashString(f.name + " " + f.params.callingSyntax),
-        Description -> f.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        Parameters -> MashList(f.params.params.map(getParamHelp)),
-        Class -> classOpt.map(klass ⇒ MashString(klass.fullyQualifiedName.toString)).getOrElse(MashNull)),
-      FunctionHelpClass)
-  }
+  private def getFunctionHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject =
+    FunctionHelpClass.create(
+      name = f.name,
+      fullyQualifiedName = f.fullyQualifiedName.toString,
+      aliases = Seq(),
+      summaryOpt = f.summaryOpt,
+      callingSyntax = f.name + " " + f.params.callingSyntax,
+      descriptionOpt = f.descriptionOpt,
+      parameters = f.params.params.map(getParamHelp),
+      classOpt = classOpt.map(_.fullyQualifiedName.toString))
 
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
     getMethodHelp(boundMethod.method, boundMethod.klass)
 
-  private def getMethodHelp(m: MashMethod, klass: MashClass): MashObject = {
-    import FunctionHelpClass.Fields._
-    MashObject.of(
-      ListMap(
-        Name -> MashString(m.name),
-        FullyQualifiedName -> MashString(m.name),
-        Aliases -> MashList(m.aliases.map(MashString(_))),
-        Summary -> m.summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        CallingSyntax -> MashString(m.name + " " + m.params.callingSyntax),
-        Description -> m.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        Parameters -> MashList(m.params.params.map(getParamHelp)),
-        Class -> MashString(klass.fullyQualifiedName.toString)),
-      FunctionHelpClass)
-  }
+  private def getMethodHelp(m: MashMethod, klass: MashClass): MashObject =
+    FunctionHelpClass.create(
+      name = m.name,
+      fullyQualifiedName = m.name,
+      aliases = m.aliases,
+      summaryOpt = m.summaryOpt,
+      callingSyntax = m.name + " " + m.params.callingSyntax,
+      descriptionOpt = m.descriptionOpt,
+      parameters = m.params.params.map(getParamHelp),
+      classOpt = Some(klass.fullyQualifiedName.toString))
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
     FieldHelpClass.create(field.name, klass.fullyQualifiedName.toString, field.summaryOpt, field.descriptionOpt)
 
-  private def getParamHelp(param: Parameter): MashObject = {
-    import ParameterHelpClass.Fields._
-    MashObject.of(
-      ListMap(
-        Name -> getName(param),
-        Summary -> param.summaryOpt.map(MashString(_)).getOrElse(MashNull),
-        Description -> param.descriptionOpt.map(MashString(_)).getOrElse(MashNull),
-        ShortFlag -> param.shortFlagOpt.map(c ⇒ MashString(c + "")).getOrElse(MashNull),
-        IsFlagParameter -> MashBoolean(param.isFlag),
-        IsOptional -> MashBoolean(param.hasDefault),
-        IsLazy -> MashBoolean(param.isLazy),
-        IsNamedArgs -> MashBoolean(param.isNamedArgsParam),
-        IsVariadic -> MashBoolean(param.isVariadic)),
-      ParameterHelpClass)
-  }
-
-  private def getName(param: Parameter): MashValue =
-    param.nameOpt
-      .filterNot(_ startsWith DesugarHoles.VariableNamePrefix)
-      .map(MashString(_))
-      .getOrElse(MashNull)
+  private def getParamHelp(param: Parameter): MashObject =
+    ParameterHelpClass.create(
+      nameOpt = param.nameOpt.filterNot(_ startsWith DesugarHoles.VariableNamePrefix),
+      summaryOpt = param.summaryOpt,
+      descriptionOpt = param.descriptionOpt,
+      shortFlagOpt = param.shortFlagOpt,
+      isFlag = param.isFlag,
+      isOptional = param.hasDefault,
+      isLazy = param.isLazy,
+      isNamedArgs = param.isNamedArgsParam,
+      isVariadic = param.isVariadic)
 
   private def getClassHelp(klass: MashClass): MashObject = {
     val fields = klass.fields.map(getFieldHelp(_, klass))
     val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass))
     val staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass)))
     val parent = klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull)
-    val description = klass.descriptionOpt.map(MashString(_)).getOrElse(MashNull)
-    val summary = klass.summaryOpt.map(MashString(_)).getOrElse(MashNull)
+    val description = MashString.maybe(klass.descriptionOpt)
+    val summary = MashString.maybe(klass.summaryOpt)
     val fullyQualifiedName = MashString(klass.fullyQualifiedName.toString)
     import ClassHelpClass.Fields._
     MashObject.of(

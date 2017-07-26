@@ -90,7 +90,7 @@ object PushFunction extends MashFunction("git.push") {
     MashObject.of(ListMap(
       "remote" -> MashString(remoteUpdate.getRemoteName),
       "status" -> MashString(remoteUpdate.getStatus.toString),
-      "message" -> Option(remoteUpdate.getMessage).map(MashString(_)).getOrElse(MashNull),
+      "message" -> MashString.maybe(Option(remoteUpdate.getMessage)),
       "isFastForward" -> MashBoolean(remoteUpdate.isFastForward),
       "isForceUpdate" -> MashBoolean(remoteUpdate.isForceUpdate)))
 

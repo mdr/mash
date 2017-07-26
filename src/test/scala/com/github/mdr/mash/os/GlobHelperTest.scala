@@ -3,11 +3,8 @@ package com.github.mdr.mash.os
 import java.nio.file.Paths
 
 import com.github.mdr.mash.os.linux.GlobHelper
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{ FlatSpec, Matchers }
 
-@RunWith(classOf[JUnitRunner])
 class GlobHelperTest extends FlatSpec with Matchers {
 
   "Finding the start directory for a glob" should "work" in {
