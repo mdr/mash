@@ -12,7 +12,7 @@ object ClassHelpRenderer {
   import HelpRenderer._
 
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
-    Line(IndentSpace.style + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
+    Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
 
   def renderClassHelp(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
@@ -20,7 +20,7 @@ object ClassHelpRenderer {
     val classHelp = ClassHelpClass.Wrapper(obj)
     lines += Line(SectionTitleStyle("CLASS"))
     val summaryOpt = classHelp.summaryOpt
-    lines += Line(IndentSpace.style + NameStyle(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
+    lines += Line(IndentSpace + NameStyle(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
     for (description ← classHelp.descriptionOpt) {
       lines += Line.Empty
       lines += Line(SectionTitleStyle("DESCRIPTION"))
@@ -29,14 +29,14 @@ object ClassHelpRenderer {
     for (parent ← classHelp.parentOpt) {
       lines += Line.Empty
       lines += Line(SectionTitleStyle("PARENT"))
-      lines += Line((IndentSpace + parent).style)
+      lines += Line(IndentSpace + parent.style)
     }
     val fields = classHelp.fields
     if (fields.nonEmpty) {
       lines += Line.Empty
       lines += Line(SectionTitleStyle("FIELDS"))
       for (field ← fields)
-        lines += Line(IndentSpace.style + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
+        lines += Line(IndentSpace + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
     }
     val staticMethods = classHelp.staticMethods
     if (staticMethods.nonEmpty) {

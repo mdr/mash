@@ -21,16 +21,16 @@ object FunctionHelpRenderer {
     lines += Line(SectionTitleStyle(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
     val name = help.fullyQualifiedName
     val names = ", ".style.join((name +: help.aliases).map(NameStyle(_)))
-    lines += Line(IndentSpace.style + names + help.summaryOpt.fold("")(" - " + _).style)
+    lines += Line(IndentSpace + names + help.summaryOpt.fold("")(" - " + _).style)
     lines += Line.Empty
     for (klass ← help.classOpt) {
       lines += Line(SectionTitleStyle("CLASS"))
-      lines += Line((IndentSpace + klass).style)
+      lines += Line(IndentSpace + klass.style)
       lines += Line.Empty
     }
     lines += Line(SectionTitleStyle("CALLING SYNTAX"))
     val maybeTarget = if (help.classOpt.isDefined) "target." else ""
-    lines += Line((IndentSpace + maybeTarget + obj(CallingSyntax)).style)
+    lines += Line(IndentSpace + maybeTarget.style + obj(CallingSyntax).toString.style)
     lines += Line.Empty
     val parameters = help.parameters
     if (parameters.nonEmpty) {
@@ -72,7 +72,7 @@ object FunctionHelpRenderer {
     val name = paramHelp.nameOpt getOrElse Parameter.AnonymousParamName
     val paramName = ParamNameStyle(if (isFlag) "--" + name else name)
     val shortFlagDescription = paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse("").style(ParamNameStyle)
-    lines += Line(IndentSpace.style + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
+    lines += Line(IndentSpace + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
     for (description ← paramHelp.descriptionOpt)
       lines ++= DescriptionRenderer.renderDescription(description, indentLevel = 2)
     lines += Line.Empty
@@ -83,6 +83,6 @@ object FunctionHelpRenderer {
     val renderedSource = new MashRenderer().renderChars(s)
     new LineInfo(renderedSource.forgetStyling)
       .lineRegions
-      .map(region ⇒ Line(IndentSpace.style + region.of(renderedSource.chars)))
+      .map(region ⇒ Line(IndentSpace + region.of(renderedSource.chars)))
   }
 }

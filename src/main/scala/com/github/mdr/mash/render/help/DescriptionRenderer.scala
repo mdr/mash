@@ -21,7 +21,7 @@ object DescriptionRenderer {
     val renderedDescription: StyledString = renderIntoASingleString(s, indentLevel)
     new LineInfo(renderedDescription.forgetStyling)
       .lineRegions
-      .map(region ⇒ Line((HelpRenderer.IndentSpace * indentLevel).style + region.of(renderedDescription.chars)))
+      .map(region ⇒ Line(HelpRenderer.IndentSpace * indentLevel + region.of(renderedDescription.chars)))
   }
 
   private def renderIntoASingleString(s: String, indentLevel: Int): StyledString = {

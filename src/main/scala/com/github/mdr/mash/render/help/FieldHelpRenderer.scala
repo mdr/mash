@@ -15,10 +15,10 @@ object FieldHelpRenderer {
     val lines = ArrayBuffer[Line]()
     val fieldHelp = FieldHelpClass.Wrapper(obj)
     lines += Line(SectionTitleStyle("FIELD"))
-    lines += Line(IndentSpace.style + NameStyle(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _).style)
+    lines += Line(IndentSpace + NameStyle(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _).style)
     lines += Line.Empty
     lines += Line(SectionTitleStyle("CLASS"))
-    lines += Line((IndentSpace + fieldHelp.klass).style)
+    lines += Line(IndentSpace + fieldHelp.klass.style)
     lines += Line.Empty
     for (description ← fieldHelp.descriptionOpt) {
       lines += Line(SectionTitleStyle("DESCRIPTION"))

@@ -33,6 +33,8 @@ case class StyledString(chars: Seq[StyledCharacter]) {
 
   def +(that: Seq[StyledCharacter]): StyledString = StyledString(this.chars ++ that)
 
+  def *(n: Int): StyledString = StyledString(Seq.fill(n)(chars).flatten)
+
   def updated(i: Int, c: StyledCharacter) = copy(chars.updated(i, c))
 
   def grouped(n: Int) = chars.grouped(n).map(StyledString(_))
