@@ -1,5 +1,6 @@
 package com.github.mdr.mash.render.help
 
+import com.github.mdr.mash.ns.core.help.ClassHelpClass.Wrapper
 import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FunctionHelpClass }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
@@ -11,47 +12,65 @@ object ClassHelpRenderer {
 
   import HelpRenderer._
 
+  def render(obj: MashObject): Seq[Line] = {
+    val help = ClassHelpClass.Wrapper(obj)
+    Seq(renderSummarySection(help),
+      renderDescriptionSection(help),
+      renderParentSection(help),
+      renderFieldSection(help),
+      renderStaticMethodSection(help),
+      renderMethodSection(help)).flatten
+  }
+
+  private def renderSummarySection(help: Wrapper): Seq[Line] = {
+    val summaryOpt = help.summaryOpt
+    val summaryLine = Line(IndentSpace + NameStyle(help.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
+    Seq(
+      Line(SectionTitleStyle("CLASS")),
+      summaryLine)
+  }
+
+  private def renderDescriptionSection(help: Wrapper): Seq[Line] =
+    help.descriptionOpt.toSeq.flatMap(description ⇒
+      Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ DescriptionRenderer.render(description))
+
+  private def renderParentSection(help: Wrapper): Seq[Line] =
+    help.parentOpt.toSeq.flatMap(parent ⇒
+      Seq(
+        Line.Empty,
+        Line(SectionTitleStyle("PARENT")),
+        Line(IndentSpace + parent.style)))
+
+  private def renderFieldSection(help: Wrapper): Seq[Line] = {
+    val fields = help.fields
+    if (fields.nonEmpty) {
+      val fieldLines =
+        for (field ← fields)
+          yield Line(IndentSpace + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
+      Seq(Line.Empty, Line(SectionTitleStyle("FIELDS"))) ++ fieldLines
+    } else
+      Seq()
+  }
+
+  private def renderStaticMethodSection(help: Wrapper): Seq[Line] = {
+    val methods = help.staticMethods
+    if (methods.nonEmpty) {
+      Seq(Line.Empty, Line(SectionTitleStyle("STATIC METHODS"))) ++
+        methods.map(renderMethodSummary)
+    } else
+      Seq()
+  }
+
+  private def renderMethodSection(help: Wrapper): Seq[Line] = {
+    val methods = help.methods
+    if (methods.nonEmpty) {
+      Seq(Line.Empty, Line(SectionTitleStyle("METHODS"))) ++
+        methods.map(renderMethodSummary)
+    } else
+      Seq()
+  }
+
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
     Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
-
-  def render(obj: MashObject): Seq[Line] = {
-    val lines = ArrayBuffer[Line]()
-
-    val classHelp = ClassHelpClass.Wrapper(obj)
-    lines += Line(SectionTitleStyle("CLASS"))
-    val summaryOpt = classHelp.summaryOpt
-    lines += Line(IndentSpace + NameStyle(classHelp.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
-    for (description ← classHelp.descriptionOpt) {
-      lines += Line.Empty
-      lines += Line(SectionTitleStyle("DESCRIPTION"))
-      lines ++= DescriptionRenderer.render(description)
-    }
-    for (parent ← classHelp.parentOpt) {
-      lines += Line.Empty
-      lines += Line(SectionTitleStyle("PARENT"))
-      lines += Line(IndentSpace + parent.style)
-    }
-    val fields = classHelp.fields
-    if (fields.nonEmpty) {
-      lines += Line.Empty
-      lines += Line(SectionTitleStyle("FIELDS"))
-      for (field ← fields)
-        lines += Line(IndentSpace + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
-    }
-    val staticMethods = classHelp.staticMethods
-    if (staticMethods.nonEmpty) {
-      lines += Line.Empty
-      lines += Line(SectionTitleStyle("STATIC METHODS"))
-      lines ++= staticMethods.map(renderMethodSummary)
-    }
-    val methods = classHelp.methods
-    if (methods.nonEmpty) {
-      lines += Line.Empty
-      lines += Line(SectionTitleStyle("METHODS"))
-      lines ++= methods.map(renderMethodSummary)
-    }
-
-    lines
-  }
 
 }

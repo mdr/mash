@@ -11,28 +11,28 @@ object FieldHelpRenderer {
   import HelpRenderer._
 
   def render(obj: MashObject): Seq[Line] = {
-    val fieldHelp = FieldHelpClass.Wrapper(obj)
+    val help = FieldHelpClass.Wrapper(obj)
     Seq(
-      renderNameSection(fieldHelp),
-      renderClassSection(fieldHelp),
-      renderDescriptionSection(fieldHelp)).flatten
+      renderNameSection(help),
+      renderClassSection(help),
+      renderDescriptionSection(help)).flatten
   }
 
-  private def renderNameSection(fieldHelp: Wrapper): Seq[Line] = {
-    val nameLine = Line(IndentSpace + NameStyle(fieldHelp.name) + fieldHelp.summaryOpt.fold("")(" - " + _).style)
+  private def renderNameSection(help: Wrapper): Seq[Line] = {
+    val nameLine = Line(IndentSpace + NameStyle(help.name) + help.summaryOpt.fold("")(" - " + _).style)
     Seq(
       Line(SectionTitleStyle("FIELD")),
       nameLine)
   }
 
-  private def renderClassSection(fieldHelp: Wrapper): Seq[Line] =
+  private def renderClassSection(help: Wrapper): Seq[Line] =
     Seq(
       Line.Empty,
       Line(SectionTitleStyle("CLASS")),
-      Line(IndentSpace + fieldHelp.klass.style))
+      Line(IndentSpace + help.klass.style))
 
-  private def renderDescriptionSection(fieldHelp: Wrapper): Seq[Line] =
-    fieldHelp.descriptionOpt.toSeq.flatMap(description ⇒
+  private def renderDescriptionSection(help: Wrapper): Seq[Line] =
+    help.descriptionOpt.toSeq.flatMap(description ⇒
       Seq(Line.Empty,
         Line(SectionTitleStyle("DESCRIPTION"))
       ) ++ DescriptionRenderer.render(description))

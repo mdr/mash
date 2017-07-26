@@ -59,4 +59,5 @@ object FunctionHelpRenderer {
       .lineRegions
       .map(region ⇒ Line(IndentSpace + region.of(renderedSource.chars)))
   }
+
 }
