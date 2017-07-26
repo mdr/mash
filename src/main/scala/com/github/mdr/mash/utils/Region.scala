@@ -49,6 +49,8 @@ case class PointedRegion(point: Int, region: Region) {
 
   def this(point: Int, offset: Int, length: Int) = this(point, Region(offset, length))
 
+  def of(s: String): String = region.of(s)
+
   def contains(pos: Int) = region contains pos
 
   def posAfter = region.posAfter

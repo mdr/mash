@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.compiler.DesugarHoles
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, UserDefinedFunction }
 import com.github.mdr.mash.runtime._
 
 object HelpCreator {
@@ -23,7 +23,13 @@ object HelpCreator {
       callingSyntax = f.name + " " + f.params.callingSyntax,
       descriptionOpt = f.descriptionOpt,
       parameters = f.params.params.map(getParamHelp),
-      classOpt = classOpt.map(_.fullyQualifiedName.toString))
+      classOpt = classOpt.map(_.fullyQualifiedName.toString),
+      sourceOpt = getSourceOpt(f))
+
+  private def getSourceOpt(f: MashFunction): Option[String] = f match {
+    case udf: UserDefinedFunction ⇒ udf.sourceLocationOpt.map(_.source)
+    case _                        ⇒ None
+  }
 
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
     getMethodHelp(boundMethod.method, boundMethod.klass)

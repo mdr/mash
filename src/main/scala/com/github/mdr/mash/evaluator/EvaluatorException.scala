@@ -4,7 +4,11 @@ import com.github.mdr.mash.functions.MashCallable
 import com.github.mdr.mash.parser.Provenance
 import com.github.mdr.mash.utils.PointedRegion
 
-case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion)
+case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion) {
+
+  def source = pointedRegion.of(provenance.source)
+
+}
 
 case class StackTraceItem(locationOpt: Option[SourceLocation], functionOpt: Option[MashCallable] = None)
 

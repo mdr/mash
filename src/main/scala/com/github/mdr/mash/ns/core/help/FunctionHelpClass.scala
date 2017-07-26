@@ -2,7 +2,6 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime._
 
@@ -19,6 +18,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     val Description = Field("description", Some("Description of the function (possibly null)"), StringClass)
     val Parameters = Field("parameters", Some("Parameters of the function"), Seq(ParameterHelpClass))
     val Class = Field("class", Some("If a method, the class it belongs to (else null)"), StringClass)
+    val Source = Field("source", Some("The source of the function (if user-defined)"), StringClass)
   }
 
   import Fields._
@@ -36,7 +36,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
              callingSyntax: String,
              descriptionOpt: Option[String],
              parameters: Seq[MashObject],
-             classOpt: Option[String]): MashObject =
+             classOpt: Option[String],
+             sourceOpt: Option[String] = None): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
@@ -46,7 +47,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
         CallingSyntax -> MashString(callingSyntax),
         Description -> MashString.maybe(descriptionOpt),
         Parameters -> MashList(parameters),
-        Class -> MashString.maybe(classOpt)),
+        Class -> MashString.maybe(classOpt),
+        Source → MashString.maybe(sourceOpt)),
       FunctionHelpClass)
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
@@ -69,6 +71,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     }
 
     def parameters: Seq[MashValue] = getListField(Parameters)
+
+    def sourceOpt: Option[String] = getOptionalStringField(Source)
 
   }
 

@@ -9,5 +9,7 @@ case class SourceInfo(provenance: Provenance, node: ConcreteSyntax.AstNode) {
 }
 
 case class Provenance(name: String, source: String) {
+
   override def toString = s"Provenance($name)"
+  
 }

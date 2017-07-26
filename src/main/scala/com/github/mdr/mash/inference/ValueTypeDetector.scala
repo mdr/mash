@@ -86,7 +86,7 @@ class ValueTypeDetector {
   }
 
   private def getUserFunctionType(function: UserDefinedFunction): Type.UserDefinedFunction = {
-    val UserDefinedFunction(docCommentOpt, name, parameterModel, body, context) = function
+    val UserDefinedFunction(docCommentOpt, name, parameterModel, body, context, _) = function
     val functionBindings = buildBindings(context.scopeStack.bindings)
     Type.UserDefinedFunction(docCommentOpt, isPrivate = false, Some(name), parameterModel, body, functionBindings)
   }

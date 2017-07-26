@@ -181,6 +181,12 @@ object Evaluator extends EvaluatorHelper {
     function
   }
 
+  private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
+    val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl
+    evaluateAttributes(attributes)
+    val params = parameterModel(paramList, Some(context), docCommentOpt)
+    UserDefinedFunction(docCommentOpt, functionName, params, body, context, decl)
+  }
 
   private def evaluateClassDecl(decl: ClassDeclaration)(implicit context: EvaluationContext): UserDefinedClass = {
     val ClassDeclaration(docCommentOpt, _, className, paramList, bodyOpt, _) = decl
@@ -212,13 +218,6 @@ object Evaluator extends EvaluatorHelper {
   }
 
   protected case class EvaluatedAttribute(name: String, argumentsOpt: Option[Seq[EvaluatedArgument[SuspendedMashValue]]])
-
-  private def userDefinedFunction(decl: FunctionDeclaration)(implicit context: EvaluationContext): UserDefinedFunction = {
-    val FunctionDeclaration(docCommentOpt, attributes, functionName, paramList, body, _) = decl
-    evaluateAttributes(attributes)
-    val params = parameterModel(paramList, Some(context), docCommentOpt)
-    UserDefinedFunction(docCommentOpt, functionName, params, body, context)
-  }
 
   protected def evaluateAttributes(attributes: Seq[Attribute])(implicit context: EvaluationContext): Seq[EvaluatedAttribute] =
     attributes.map {

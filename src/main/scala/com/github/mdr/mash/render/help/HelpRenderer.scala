@@ -21,7 +21,7 @@ object HelpRenderer {
 
   private def FieldMethodStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
 
-  private def SectionTitleStyle = Style(bold = true)
+  private def SectionTitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
   private def NameStyle = Style(bold = true)
 
@@ -57,6 +57,11 @@ object HelpRenderer {
     for (description ← help.descriptionOpt) {
       lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= renderDescription(description)
+      lines += Line.Empty
+    }
+    for (source ← help.sourceOpt) {
+      lines += Line(SectionTitleStyle("SOURCE"))
+      lines ++= renderSource(source)
       lines += Line.Empty
     }
     lines
@@ -147,6 +152,13 @@ object HelpRenderer {
     }
 
     lines
+  }
+
+  private def renderSource(s: String): Seq[Line] = {
+    val renderedSource = new MashRenderer().renderChars(s)
+    new LineInfo(renderedSource.forgetStyling)
+      .lineRegions
+      .map(region ⇒ Line((indentSpace).style + region.of(renderedSource.chars)))
   }
 
   private val MashMarkupPattern = Pattern.compile("<mash>(.+?)</mash>", Pattern.DOTALL)
