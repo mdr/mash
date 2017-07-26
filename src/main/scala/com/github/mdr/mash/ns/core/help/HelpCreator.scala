@@ -5,8 +5,6 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter }
 import com.github.mdr.mash.runtime._
 
-import scala.collection.immutable.ListMap
-
 object HelpCreator {
 
   def getHelp(item: MashValue): MashObject = item match {
@@ -42,7 +40,11 @@ object HelpCreator {
       classOpt = Some(klass.fullyQualifiedName.toString))
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
-    FieldHelpClass.create(field.name, klass.fullyQualifiedName.toString, field.summaryOpt, field.descriptionOpt)
+    FieldHelpClass.create(
+      name = field.name,
+      klass = klass.fullyQualifiedName.toString,
+      summaryOpt = field.summaryOpt,
+      descriptionOpt = field.descriptionOpt)
 
   private def getParamHelp(param: Parameter): MashObject =
     ParameterHelpClass.create(
@@ -56,26 +58,15 @@ object HelpCreator {
       isNamedArgs = param.isNamedArgsParam,
       isVariadic = param.isVariadic)
 
-  private def getClassHelp(klass: MashClass): MashObject = {
-    val fields = klass.fields.map(getFieldHelp(_, klass))
-    val methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass))
-    val staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass)))
-    val parent = klass.parentOpt.map(p ⇒ MashString(p.fullyQualifiedName.toString)).getOrElse(MashNull)
-    val description = MashString.maybe(klass.descriptionOpt)
-    val summary = MashString.maybe(klass.summaryOpt)
-    val fullyQualifiedName = MashString(klass.fullyQualifiedName.toString)
-    import ClassHelpClass.Fields._
-    MashObject.of(
-      ListMap(
-        Name -> MashString(klass.name),
-        FullyQualifiedName -> fullyQualifiedName,
-        Summary -> summary,
-        Description -> description,
-        Parent -> parent,
-        Fields -> MashList(fields),
-        Methods -> MashList(methods),
-        StaticMethods -> MashList(staticMethods)),
-      ClassHelpClass)
-  }
+  private def getClassHelp(klass: MashClass): MashObject =
+    ClassHelpClass.create(
+      name = klass.name,
+      fullyQualifiedName = klass.fullyQualifiedName.toString,
+      summaryOpt = klass.summaryOpt,
+      descriptionOpt = klass.descriptionOpt,
+      parentOpt = klass.parentOpt.map(_.fullyQualifiedName.toString),
+      fields = klass.fields.map(getFieldHelp(_, klass)),
+      methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass)),
+      staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass))))
 
 }

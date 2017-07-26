@@ -2,7 +2,9 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.ns.core.{ ClassClass, StringClass }
-import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
+
+import scala.collection.immutable.ListMap
 
 object ClassHelpClass extends MashClass("core.help.ClassHelp") {
 
@@ -22,6 +24,26 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
   override val fields = Seq(Name, FullyQualifiedName, Summary, Description, Parent, Fields.Fields, Methods, StaticMethods)
 
   override val staticMethods = Seq(NewStaticMethod(this))
+
+  def create(name: String,
+             fullyQualifiedName: String,
+             summaryOpt: Option[String],
+             descriptionOpt: Option[String],
+             parentOpt: Option[String],
+             fields: Seq[MashObject],
+             methods: Seq[MashObject],
+             staticMethods: Seq[MashObject]): MashObject =
+    MashObject.of(
+      ListMap(
+        Name -> MashString(name),
+        FullyQualifiedName -> MashString(fullyQualifiedName),
+        Summary -> MashString.maybe(summaryOpt),
+        Description -> MashString.maybe(descriptionOpt),
+        Parent -> MashString.maybe(parentOpt),
+        Fields.Fields -> MashList(fields),
+        Methods -> MashList(methods),
+        StaticMethods -> MashList(staticMethods)),
+      ClassHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 
