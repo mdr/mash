@@ -22,6 +22,7 @@ import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 
 import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 class Repl(protected val terminal: Terminal,
            protected val output: PrintStream,
@@ -70,7 +71,7 @@ class Repl(protected val terminal: Terminal,
     try
       draw()
     catch {
-      case e: Exception ⇒
+      case NonFatal(e) ⇒
         debugLogger.logException(e)
         state = state.reset
         draw()
@@ -79,7 +80,7 @@ class Repl(protected val terminal: Terminal,
       val action = fetchAction()
       handleAction(action)
     } catch {
-      case e: Throwable ⇒
+      case NonFatal(e) ⇒
         e.printStackTrace(output)
         debugLogger.logException(e)
     }

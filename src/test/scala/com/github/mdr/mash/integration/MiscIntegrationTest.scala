@@ -189,7 +189,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Invocation assistance" should "work in expression browser" in {
     val repl =
       makeRepl()
-        .input("view.browser [{ foo: 42 }] ")
+        .input("view.browser [{ foo: 42 }]")
         .acceptLine()
         .affirmInTwoDBrowser
         .beginExpression()
@@ -206,6 +206,13 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.assistInvocation()
 
     assistanceStateOpt shouldBe None
+  }
+
+  "Inlining expression" should "work" in {
+    makeRepl()
+      .input("1 + 2 * 3")
+      .inline()
+      .text should equal("7")
   }
 
 }

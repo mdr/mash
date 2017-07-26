@@ -4,9 +4,11 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.{ CommandResult, CommandRunner }
+import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
@@ -18,6 +20,7 @@ import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 
 import scala.PartialFunction.cond
+import scala.util.control.NonFatal
 
 trait NormalActionHandler {
   self: Repl ⇒
@@ -39,12 +42,34 @@ trait NormalActionHandler {
       case ToggleMish               ⇒ handleToggleMish()
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult         ⇒ handleBrowseLastResult()
+      case Inline                   ⇒ handleInline()
       case _                        ⇒
     }
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != ClearScreen)
       state = state.copy(insertLastArgStateOpt = None)
+  }
+
+  private def handleInline() {
+    val cmd = state.lineBuffer.text
+    if (cmd.trim.nonEmpty) {
+      val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
+      val unitName = s"command-inline"
+      val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
+      val resultOpt =
+        try
+          commandRunner.runCompilationUnit(unit, bareWords)
+        catch {
+          case NonFatal(e) ⇒
+            debugLogger.logException(e)
+            return
+        }
+      for {
+        result ← resultOpt
+        expression ← ValueToExpression.getExpression(result)
+      } state = state.copy(lineBuffer = LineBuffer(expression))
+    }
   }
 
   private def handleBrowseLastResult() {
@@ -167,7 +192,7 @@ trait NormalActionHandler {
       try
         commandRunner.run(cmd, unitName, state.mish, bareWords, viewConfig)
       catch {
-        case e: Exception ⇒
+        case NonFatal(e) ⇒
           e.printStackTrace()
           debugLogger.logException(e)
           return
@@ -176,8 +201,8 @@ trait NormalActionHandler {
   }
 
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
-    val CommandResult(resultOpt, toggleMish, displayModelOpt) = commandResult
-    val actualResultOpt = resultOpt.map(ViewClass.unpackView)
+    val CommandResult(valueOpt, toggleMish, displayModelOpt) = commandResult
+    val actualResultOpt = valueOpt.map(ViewClass.unpackView)
     val commandNumber = state.commandNumber
     if (toggleMish)
       state = state.copy(mish = !state.mish)
@@ -188,7 +213,7 @@ trait NormalActionHandler {
     actualResultOpt.foreach(saveResult(commandNumber))
 
     for (displayModel ← displayModelOpt) {
-      val isView = resultOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
+      val isView = valueOpt.exists(cond(_) { case MashObject(_, Some(ViewClass)) ⇒ true })
       val path = if (isView) s"$ResultVarPrefix$commandNumber" else cmd
       val browserState = BrowserState.fromModel(displayModel, path)
       state = state.copy(objectBrowserStateStackOpt = Some(ObjectBrowserStateStack(List(browserState))))

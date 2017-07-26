@@ -6,7 +6,7 @@ object LineBuffer {
 
   val Empty = LineBuffer("")
 
-  def apply(s: String): LineBuffer = LineBuffer(s, s.size)
+  def apply(s: String): LineBuffer = LineBuffer(s, cursorOffset = s.size)
 
 }
 

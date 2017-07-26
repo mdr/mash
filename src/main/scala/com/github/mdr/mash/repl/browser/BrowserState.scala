@@ -1,8 +1,8 @@
 package com.github.mdr.mash.repl.browser
 
+import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.parser.ValueToExpression
 import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
@@ -17,7 +17,7 @@ object BrowserState {
         else
           combineSafely(path, s"['$property']")
       case _ ⇒
-        ValueToExpression(property).map(combineSafely(path, _)).getOrElse(path)
+        ValueToExpression.getExpression(property).map(combineSafely(path, _)).getOrElse(path)
     }
 
   def fromModel(displayModel: DisplayModel, path: String): BrowserState =

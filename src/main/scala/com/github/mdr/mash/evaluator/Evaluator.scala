@@ -10,6 +10,7 @@ import com.github.mdr.mash.parser.{ DocComment, QuotationType }
 import com.github.mdr.mash.runtime._
 
 import scala.PartialFunction.condOpt
+import scala.util.control.NonFatal
 
 object EvaluationContext {
 
@@ -38,7 +39,7 @@ object Evaluator extends EvaluatorHelper {
         throw e
       case e: EvaluationInterruptedException ⇒
         throw e
-      case t: Exception                      ⇒
+      case NonFatal(t)                       ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
           stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(Some(loc))),
           cause = t)
@@ -123,7 +124,7 @@ object Evaluator extends EvaluatorHelper {
       fieldNameExpr match {
         case Identifier(name, _) if !name.startsWith(DesugarHoles.VariableNamePrefix) ⇒
           MashString(name)
-        case _                   ⇒
+        case _                                                                        ⇒
           evaluate(fieldNameExpr)
       }
     val fields = objectExpr.fields.map {

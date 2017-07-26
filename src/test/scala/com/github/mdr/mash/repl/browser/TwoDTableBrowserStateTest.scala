@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
-import com.github.mdr.mash.evaluator.{ EvaluationContext, Evaluator, ScopeStack, StandardEnvironment }
+import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.parser.ParseError
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator
@@ -54,21 +54,9 @@ class TwoDTableBrowserStateTest extends FlatSpec with Matchers {
   }
 
   def initBrowser(s: String): TwoDTableBrowserState = {
-    val tableValue = evaluate(s)
+    val tableValue = TestEvaluator.evaluate(s)
     val creator = new TwoDTableModelCreator(DummyTerminal().size, viewConfig = ViewConfig())
     val model = creator.create(tableValue)
     new TwoDTableBrowserState(model, path = "result")
-  }
-
-  private def evaluate(s: String): MashValue = {
-    val env = StandardEnvironment.create
-    val bindings = env.bindings
-    val settings = CompilationSettings()
-    val expr = Compiler.compile(CompilationUnit(s), bindings = bindings, settings) match {
-      case Left(ParseError(message, _)) ⇒ throw new AssertionError("Compilation failed: " + message)
-      case Right(program)               ⇒ program.body
-    }
-    val ctx = EvaluationContext(ScopeStack(env.globalVariables))
-    Evaluator.evaluate(expr)(ctx)
   }
 }

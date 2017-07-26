@@ -6,6 +6,7 @@ import com.github.mdr.mash.repl.NormalActions
 import com.github.mdr.mash.repl.NormalActions._
 
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
+  KeyPress(BasicKey('t'), control = true) -> Inline,
   KeyPress(BasicKey('l'), control = true) -> ClearScreen,
   KeyPress(BasicKey('p'), control = true) -> PreviousHistory,
   KeyPress(Up) -> PreviousHistory,

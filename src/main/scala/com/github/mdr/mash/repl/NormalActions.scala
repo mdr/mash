@@ -33,5 +33,6 @@ object NormalActions {
   case object ToggleQuote extends InputAction
   case object ToggleMish extends InputAction
   case object BrowseLastResult extends InputAction
+  case object Inline extends InputAction
 
 }

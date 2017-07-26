@@ -162,6 +162,11 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
+    def inline(): Repl = {
+      repl.handleAction(Inline)
+      repl
+    }
+
     def insertLastArgument(): Repl = {
       repl.handleAction(InsertLastArg)
       repl
