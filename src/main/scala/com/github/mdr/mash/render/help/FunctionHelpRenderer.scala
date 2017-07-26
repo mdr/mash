@@ -22,32 +22,34 @@ object FunctionHelpRenderer {
     val name = help.fullyQualifiedName
     val names = ", ".style.join((name +: help.aliases).map(NameStyle(_)))
     lines += Line(IndentSpace + names + help.summaryOpt.fold("")(" - " + _).style)
-    lines += Line.Empty
     for (klass ← help.classOpt) {
+      lines += Line.Empty
       lines += Line(SectionTitleStyle("CLASS"))
       lines += Line(IndentSpace + klass.style)
-      lines += Line.Empty
     }
+    lines += Line.Empty
     lines += Line(SectionTitleStyle("CALLING SYNTAX"))
     val maybeTarget = if (help.classOpt.isDefined) "target." else ""
     lines += Line(IndentSpace + maybeTarget.style + obj(CallingSyntax).toString.style)
-    lines += Line.Empty
     val parameters = help.parameters
     if (parameters.nonEmpty) {
+      lines += Line.Empty
       lines += Line(SectionTitleStyle("PARAMETERS"))
-
-      for (param ← parameters)
+      for ((param, i) ← parameters.zipWithIndex) {
+        if (i > 0)
+          lines += Line.Empty
         lines ++= renderParameterHelp(param.asInstanceOf[MashObject])
+      }
     }
     for (description ← help.descriptionOpt) {
+      lines += Line.Empty
       lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= DescriptionRenderer.render(description)
-      lines += Line.Empty
     }
     for (source ← help.sourceOpt) {
+      lines += Line.Empty
       lines += Line(SectionTitleStyle("SOURCE"))
       lines ++= renderSource(source)
-      lines += Line.Empty
     }
     lines
   }
@@ -75,7 +77,6 @@ object FunctionHelpRenderer {
     lines += Line(IndentSpace + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
     for (description ← paramHelp.descriptionOpt)
       lines ++= DescriptionRenderer.render(description, indentLevel = 2)
-    lines += Line.Empty
     lines
   }
 

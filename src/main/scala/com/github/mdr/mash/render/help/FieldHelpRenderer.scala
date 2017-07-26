@@ -19,11 +19,10 @@ object FieldHelpRenderer {
     lines += Line.Empty
     lines += Line(SectionTitleStyle("CLASS"))
     lines += Line(IndentSpace + fieldHelp.klass.style)
-    lines += Line.Empty
     for (description ← fieldHelp.descriptionOpt) {
+      lines += Line.Empty
       lines += Line(SectionTitleStyle("DESCRIPTION"))
       lines ++= DescriptionRenderer.render(description)
-      lines += Line.Empty
     }
     lines
   }

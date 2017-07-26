@@ -25,8 +25,7 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
         |
         |DESCRIPTION
         |    The horizontal coordinate. Examples:
-        |      point.x
-        |""".stripMargin)
+        |      point.x""".stripMargin)
 
   }
 
@@ -40,8 +39,7 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
         |    x
         |
         |CLASS
-        |    Point
-        |""".stripMargin)
+        |    Point""".stripMargin)
   }
 
   private def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")

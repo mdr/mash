@@ -20,7 +20,11 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
           ParameterHelpClass.create(
             nameOpt = Some("n"),
             summaryOpt = Some("Number to take square root of"),
-            descriptionOpt = Some("Must not be negative"))),
+            descriptionOpt = Some("Must not be negative")),
+          ParameterHelpClass.create(
+            nameOpt = Some("goFaster"),
+            summaryOpt = Some("Compute it faster"),
+            isFlag = true)),
         classOpt = None,
         sourceOpt = Some("def squareRoot n = findSquareRoot n"))
 
@@ -37,12 +41,13 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
         |    n - Number to take square root of
         |        Must not be negative
         |
+        |    --goFaster - Compute it faster
+        |
         |DESCRIPTION
         |    The number must not be negative
         |
         |SOURCE
-        |    def squareRoot n = findSquareRoot n
-        |""".stripMargin)
+        |    def squareRoot n = findSquareRoot n""".stripMargin)
   }
 
   private def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
