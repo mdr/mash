@@ -14,7 +14,7 @@ object FunctionHelpRenderer {
 
   import HelpRenderer._
 
-  def renderFunctionHelp(obj: MashObject): Seq[Line] = {
+  def render(obj: MashObject): Seq[Line] = {
     import FunctionHelpClass.Fields._
     val help = FunctionHelpClass.Wrapper(obj)
     val lines = ArrayBuffer[Line]()
@@ -41,7 +41,7 @@ object FunctionHelpRenderer {
     }
     for (description ← help.descriptionOpt) {
       lines += Line(SectionTitleStyle("DESCRIPTION"))
-      lines ++= DescriptionRenderer.renderDescription(description)
+      lines ++= DescriptionRenderer.render(description)
       lines += Line.Empty
     }
     for (source ← help.sourceOpt) {
@@ -74,7 +74,7 @@ object FunctionHelpRenderer {
     val shortFlagDescription = paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse("").style(ParamNameStyle)
     lines += Line(IndentSpace + paramName + shortFlagDescription + qualifierString.style + paramHelp.summaryOpt.fold("")(" - " + _).style)
     for (description ← paramHelp.descriptionOpt)
-      lines ++= DescriptionRenderer.renderDescription(description, indentLevel = 2)
+      lines ++= DescriptionRenderer.render(description, indentLevel = 2)
     lines += Line.Empty
     lines
   }

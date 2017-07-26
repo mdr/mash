@@ -8,7 +8,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
 
   "Rendering function help" should "work when all information is provided" in {
 
-    val functionHelp =
+    val help =
       FunctionHelpClass.create(
         name = "squareRoot",
         fullyQualifiedName = "maths.squareRoot",
@@ -21,9 +21,10 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
             nameOpt = Some("n"),
             summaryOpt = Some("Number to take square root of"),
             descriptionOpt = Some("Must not be negative"))),
-        classOpt = None)
+        classOpt = None,
+        sourceOpt = Some("def squareRoot n = findSquareRoot n"))
 
-    val actualLines = join(FunctionHelpRenderer.renderFunctionHelp(functionHelp))
+    val actualLines = join(FunctionHelpRenderer.render(help))
 
     actualLines should equal(
       """FUNCTION
@@ -38,6 +39,9 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
         |
         |DESCRIPTION
         |    The number must not be negative
+        |
+        |SOURCE
+        |    def squareRoot n = findSquareRoot n
         |""".stripMargin)
   }
 

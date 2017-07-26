@@ -14,7 +14,7 @@ object ClassHelpRenderer {
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
     Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
 
-  def renderClassHelp(obj: MashObject): Seq[Line] = {
+  def render(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
 
     val classHelp = ClassHelpClass.Wrapper(obj)
@@ -24,7 +24,7 @@ object ClassHelpRenderer {
     for (description ← classHelp.descriptionOpt) {
       lines += Line.Empty
       lines += Line(SectionTitleStyle("DESCRIPTION"))
-      lines ++= DescriptionRenderer.renderDescription(description)
+      lines ++= DescriptionRenderer.render(description)
     }
     for (parent ← classHelp.parentOpt) {
       lines += Line.Empty

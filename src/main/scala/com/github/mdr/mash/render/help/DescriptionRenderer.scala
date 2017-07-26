@@ -16,7 +16,7 @@ object DescriptionRenderer {
 
   private val MashMarkupPattern = Pattern.compile("<mash>(.+?)</mash>", Pattern.DOTALL)
 
-  def renderDescription(s: String, indentLevel: Int = 1): Seq[Line] = {
+  def render(s: String, indentLevel: Int = 1): Seq[Line] = {
 
     val renderedDescription: StyledString = renderIntoASingleString(s, indentLevel)
     new LineInfo(renderedDescription.forgetStyling)

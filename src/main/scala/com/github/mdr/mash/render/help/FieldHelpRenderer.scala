@@ -11,7 +11,7 @@ object FieldHelpRenderer {
 
   import HelpRenderer._
 
-  def renderFieldHelp(obj: MashObject): Seq[Line] = {
+  def render(obj: MashObject): Seq[Line] = {
     val lines = ArrayBuffer[Line]()
     val fieldHelp = FieldHelpClass.Wrapper(obj)
     lines += Line(SectionTitleStyle("FIELD"))
@@ -22,7 +22,7 @@ object FieldHelpRenderer {
     lines += Line.Empty
     for (description ← fieldHelp.descriptionOpt) {
       lines += Line(SectionTitleStyle("DESCRIPTION"))
-      lines ++= DescriptionRenderer.renderDescription(description)
+      lines ++= DescriptionRenderer.render(description)
       lines += Line.Empty
     }
     lines

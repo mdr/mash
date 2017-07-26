@@ -7,14 +7,14 @@ import org.scalatest.{ FlatSpec, Matchers }
 class FieldHelpRendererTest extends FlatSpec with Matchers {
 
   "Rendering field help" should "work when all information is provided" in {
-    val fieldHelp = FieldHelpClass.create(name = "x", klass = "Point", summaryOpt = Some("Horizontal coordinate"),
+    val help = FieldHelpClass.create(name = "x", klass = "Point", summaryOpt = Some("Horizontal coordinate"),
       descriptionOpt = Some(
         """The horizontal coordinate. Examples:
           |<mash>
           |  point.x
           |</mash>""".stripMargin))
 
-    val actualLines = join(FieldHelpRenderer.renderFieldHelp(fieldHelp))
+    val actualLines = join(FieldHelpRenderer.render(help))
 
     actualLines should equal(
       """FIELD
@@ -31,9 +31,9 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
   }
 
   it should "work when information is omitted" in {
-    val fieldHelp = FieldHelpClass.create(name = "x", klass = "Point", summaryOpt = None, descriptionOpt = None)
+    val help = FieldHelpClass.create(name = "x", klass = "Point", summaryOpt = None, descriptionOpt = None)
 
-    val actualLines = join(FieldHelpRenderer.renderFieldHelp(fieldHelp))
+    val actualLines = join(FieldHelpRenderer.render(help))
 
     actualLines should equal(
       """FIELD
