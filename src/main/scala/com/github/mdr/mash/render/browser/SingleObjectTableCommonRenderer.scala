@@ -101,7 +101,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
         val markChar = if (isMarked) "◈" else " "
         (markChar + singleVertical).style(getStyle(highlight = isCursorRow))
       } else
-        StyledString.empty
+        StyledString.Empty
     val internalVertical = singleVertical.style(getStyle(highlight = isCursorRow))
     val fieldChars = renderFieldCell(renderedField, isCursorRow, fieldSearchHitRegions)
     val valueChars = renderValueCell(renderedValue, isCursorRow, valueSearchHitRegions)

@@ -24,7 +24,7 @@ object LineBufferRenderer {
 
   def renderLineBuffer(lineBuffer: LineBuffer,
                        globalVariablesOpt: Option[MashObject] = None,
-                       prefix: StyledString = StyledString.empty,
+                       prefix: StyledString = StyledString.Empty,
                        bareWords: Boolean = false,
                        mish: Boolean = false,
                        terminalSize: Dimensions,

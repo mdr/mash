@@ -24,11 +24,11 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
 
     private val lines: ArrayBuffer[Line] = ArrayBuffer()
 
-    private var line: StyledString = StyledString.empty
+    private var line: StyledString = StyledString.Empty
 
     def println(): Unit = {
       lines += Line(line)
-      line = StyledString.empty
+      line = StyledString.Empty
     }
 
     def println(s: String): Unit = {

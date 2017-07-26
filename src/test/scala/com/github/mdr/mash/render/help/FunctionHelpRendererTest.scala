@@ -23,7 +23,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
             descriptionOpt = Some("Must not be negative"))),
         classOpt = None)
 
-    val actualLines = join(HelpRenderer.renderFunctionHelp(functionHelp))
+    val actualLines = join(FunctionHelpRenderer.renderFunctionHelp(functionHelp))
 
     actualLines should equal(
       """FUNCTION

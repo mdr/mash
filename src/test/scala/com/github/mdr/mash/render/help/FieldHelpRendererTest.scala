@@ -14,7 +14,7 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
           |  point.x
           |</mash>""".stripMargin))
 
-    val actualLines = join(HelpRenderer.renderFieldHelp(fieldHelp))
+    val actualLines = join(FieldHelpRenderer.renderFieldHelp(fieldHelp))
 
     actualLines should equal(
       """FIELD
@@ -33,7 +33,7 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
   it should "work when information is omitted" in {
     val fieldHelp = FieldHelpClass.create(name = "x", klass = "Point", summaryOpt = None, descriptionOpt = None)
 
-    val actualLines = join(HelpRenderer.renderFieldHelp(fieldHelp))
+    val actualLines = join(FieldHelpRenderer.renderFieldHelp(fieldHelp))
 
     actualLines should equal(
       """FIELD

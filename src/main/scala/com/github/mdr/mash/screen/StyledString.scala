@@ -12,7 +12,7 @@ case class StyledCharacter(c: Char, style: Style = Style()) {
 
 object StyledString {
 
-  val empty = StyledString(Seq())
+  val Empty = StyledString(Seq())
 
   def mkString(strings: Seq[StyledString], separator: StyledString) = separator.join(strings)
 }

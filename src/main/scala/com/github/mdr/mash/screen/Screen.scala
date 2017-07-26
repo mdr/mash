@@ -6,7 +6,7 @@ import com.github.mdr.mash.utils.{ Point, Utils }
 
 object Line {
 
-  val Empty = Line(StyledString.empty)
+  val Empty = Line(StyledString.Empty)
 
 }
 
@@ -17,7 +17,7 @@ case class Line(string: StyledString, endsInNewline: Boolean = true) {
       if (n > 0)
         copy(string.take(n - 1) + "…".style(string(n - 1).style))
       else
-        copy(StyledString.empty)
+        copy(StyledString.Empty)
     else
       this
 

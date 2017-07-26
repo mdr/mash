@@ -63,7 +63,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
         val markChar = if (isMarked) "◈" else " "
         (markChar + singleVertical).style(getStyle(highlight = shouldHighlightRow))
       } else
-        StyledString.empty
+        StyledString.Empty
 
     val renderedCells = model.columnIds.zipWithIndex.map { case (columnId, columnIndex) ⇒
       val cellContents = row.renderedValue(columnId)

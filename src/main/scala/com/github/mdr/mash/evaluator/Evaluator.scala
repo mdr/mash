@@ -198,7 +198,7 @@ object Evaluator extends EvaluatorHelper {
       val aliases = getAliases(evaluatedAttributes).distinct
       val isPrivate = evaluatedAttributes.exists(_.name == Attributes.Private)
       val methodParams = parameterModel(paramList, Some(context), docCommentOpt)
-      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate, aliases)
+      UserDefinedMethod(docCommentOpt, functionName, methodParams, paramList, body, context, isPrivate, aliases, decl)
     }
 
     val methods = bodyOpt.map(_.methods).getOrElse(Seq()).map(makeMethod)

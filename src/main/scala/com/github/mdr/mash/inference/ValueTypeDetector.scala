@@ -97,7 +97,7 @@ class ValueTypeDetector {
   }
 
   private def getBoundMethodType(target: MashValue, method: UserDefinedMethod) = {
-    val UserDefinedMethod(docCommentOpt, name, params, _, body, context, isPrivate, _) = method
+    val UserDefinedMethod(docCommentOpt, name, params, _, body, context, isPrivate, _, _) = method
     val bindings = buildBindings(context.scopeStack.bindings)
     val methodType = Type.UserDefinedFunction(docCommentOpt, isPrivate, Some(name), params, body, bindings)
     Type.BoundUserDefinedMethod(getType(target), methodType)

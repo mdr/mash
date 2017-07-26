@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
+import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass, UserDefinedMethod }
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, UserDefinedFunction }
 import com.github.mdr.mash.runtime._
@@ -24,11 +24,16 @@ object HelpCreator {
       descriptionOpt = f.descriptionOpt,
       parameters = f.params.params.map(getParamHelp),
       classOpt = classOpt.map(_.fullyQualifiedName.toString),
-      sourceOpt = getSourceOpt(f))
+      sourceOpt = getSource(f))
 
-  private def getSourceOpt(f: MashFunction): Option[String] = f match {
+  private def getSource(f: MashFunction): Option[String] = f match {
     case udf: UserDefinedFunction ⇒ udf.sourceLocationOpt.map(_.source)
     case _                        ⇒ None
+  }
+
+  private def getSource(m: MashMethod): Option[String] = m match {
+    case udf: UserDefinedMethod ⇒ udf.sourceLocationOpt.map(_.source)
+    case _                      ⇒ None
   }
 
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
@@ -43,7 +48,8 @@ object HelpCreator {
       callingSyntax = m.name + " " + m.params.callingSyntax,
       descriptionOpt = m.descriptionOpt,
       parameters = m.params.params.map(getParamHelp),
-      classOpt = Some(klass.fullyQualifiedName.toString))
+      classOpt = Some(klass.fullyQualifiedName.toString),
+      sourceOpt = getSource(m))
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
     FieldHelpClass.create(
