@@ -3,13 +3,12 @@ package com.github.mdr.mash.ns.os.pathClass
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
 
-import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.NoArgFunction
+import com.github.mdr.mash.ns.core.NoArgFunction.NoArgValue
 import com.github.mdr.mash.ns.os.PermissionsClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.JavaConverters._
 
@@ -56,15 +55,6 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
 
   val params = ParameterModel(Owner, Group, Others, All, Value)
 
-  private case class Parties(owner: Boolean, group: Boolean, others: Boolean) {
-
-    def permissionSet = Set(
-      owner.option(PosixFilePermission.OWNER_EXECUTE),
-      group.option(PosixFilePermission.GROUP_EXECUTE),
-      others.option(PosixFilePermission.OTHERS_EXECUTE)).flatten
-
-  }
-
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val path = FunctionHelpers.interpretAsPath(target)
     val value = boundParams(Value).isTruthy
@@ -78,7 +68,7 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
     PermissionsClass.asMashObject(summary.permissions)
   }
 
-  private def getParties(boundParams: BoundParams): Parties = {
+  def getParties(boundParams: BoundParams): Parties = {
     val allOpt = NoArgFunction.option(boundParams(All)).map(_.isTruthy)
     val ownerOpt = NoArgFunction.option(boundParams(Owner)).map(_.isTruthy)
     val groupOpt = NoArgFunction.option(boundParams(Group)).map(_.isTruthy)
@@ -95,9 +85,9 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
                                         parties: Parties,
                                         existingPermissionSet: Set[PosixFilePermission]): Set[PosixFilePermission] =
     if (value)
-      existingPermissionSet ++ parties.permissionSet
+      existingPermissionSet ++ parties.executePermissionSet
     else
-      existingPermissionSet diff parties.permissionSet
+      existingPermissionSet diff parties.executePermissionSet
 
   override def typeInferenceStrategy = PermissionsClass
 
@@ -111,7 +101,7 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
         |Examples:
         |<mash>
         |  path.setExecutable                  # Set permission for the owner to true
-        |  path.setExecutable false            # Set permission for the owner to true
+        |  path.setExecutable false            # Set permission for the owner to false
         |  path.setExecutable --group --others # Set permission for group and others to true
         |  path.setExecutable -og              # Set permission for group and others to true
         |  path.setExecutable --all false      # Set permission for everyone to false

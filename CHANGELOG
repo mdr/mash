@@ -1,7 +1,7 @@
 v0.0.9 (..)
 -----------
 
-* Path.setExecutable
+* Path.setReadable, setWritable, setExecutable
 * Inline evaluation (Ctrl-t) of simple values
 * Include source in function help
 * Syntax colouring for code snippets in help pages
