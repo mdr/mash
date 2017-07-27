@@ -6,7 +6,9 @@ import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 
-object CdMethod extends MashMethod("cd") {
+object ChangeDirectoryMethod extends MashMethod("changeDirectory") {
+
+  override def aliases = Seq("cd")
 
   val params = ParameterModel()
 

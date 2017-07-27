@@ -50,6 +50,21 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
         |    def squareRoot n = findSquareRoot n""".stripMargin)
   }
 
+  it should "omit calling syntax if it is the same as the function name" in {
+    val help =
+      FunctionHelpClass.create(
+        name = "currentDirectory",
+        fullyQualifiedName = "os.currentDirectory",
+        callingSyntax = "currentDirectory")
+
+    val actualLines = join(FunctionHelpRenderer.render(help))
+
+    actualLines should equal(
+      """FUNCTION
+        |    os.currentDirectory""".stripMargin)
+
+  }
+
   private def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
 
 }

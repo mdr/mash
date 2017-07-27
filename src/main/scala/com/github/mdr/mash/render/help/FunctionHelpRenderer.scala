@@ -37,13 +37,16 @@ object FunctionHelpRenderer {
         Line(SectionTitleStyle("CLASS")),
         Line(IndentSpace + klass.style)))
 
-  private def renderCallingSyntaxSection(help: FunctionHelpClass.Wrapper): Seq[Line] = {
-    val maybeTarget = if (help.classOpt.isDefined) "target." else ""
-    Seq(
-      Line.Empty,
-      Line(SectionTitleStyle("CALLING SYNTAX")),
-      Line(IndentSpace + maybeTarget.style + help.callingSyntax.style))
-  }
+  private def renderCallingSyntaxSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
+    if (help.callingSyntax == help.name)
+      Seq()
+    else {
+      val maybeTarget = if (help.classOpt.isDefined) "target." else ""
+      Seq(
+        Line.Empty,
+        Line(SectionTitleStyle("CALLING SYNTAX")),
+        Line(IndentSpace + maybeTarget.style + help.callingSyntax.style))
+    }
 
   private def renderDescriptionSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.descriptionOpt.toSeq.flatMap(description ⇒

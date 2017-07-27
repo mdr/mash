@@ -32,11 +32,11 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
   def create(name: String,
              fullyQualifiedName: String,
              aliases: Seq[String] = Seq(),
-             summaryOpt: Option[String],
+             summaryOpt: Option[String] = None,
              callingSyntax: String,
              descriptionOpt: Option[String] = None,
-             parameters: Seq[MashObject],
-             classOpt: Option[String],
+             parameters: Seq[MashObject] = Seq(),
+             classOpt: Option[String] = None,
              sourceOpt: Option[String] = None): MashObject =
     MashObject.of(
       ListMap(

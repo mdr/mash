@@ -10,7 +10,7 @@ object PathClass extends MashClass("os.Path") {
   override val methods = Seq(
     AbsoluteMethod,
     BaseNameMethod,
-    CdMethod,
+    ChangeDirectoryMethod,
     ChildrenMethod,
     CopyIntoMethod,
     CopyMethod,

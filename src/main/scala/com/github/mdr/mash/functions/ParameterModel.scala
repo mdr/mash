@@ -96,5 +96,6 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   def bindTypes(arguments: TypedArguments): BoundTypeParams =
     new TypeParamBindingContext(this, arguments).bind()
 
+  def isEmpty: Boolean = params.isEmpty
 }
 
