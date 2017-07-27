@@ -22,7 +22,7 @@ import com.github.mdr.mash.terminal.Terminal
 import scala.PartialFunction.cond
 import scala.util.control.NonFatal
 
-trait NormalActionHandler {
+trait NormalActionHandler extends InlineHandler {
   self: Repl ⇒
 
   private val fileSystem = LinuxFileSystem
@@ -42,34 +42,13 @@ trait NormalActionHandler {
       case ToggleMish               ⇒ handleToggleMish()
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult         ⇒ handleBrowseLastResult()
-      case Inline                   ⇒ handleInline()
+      case Inline                   ⇒ state = handleInline(state)
       case _                        ⇒
     }
     if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != ClearScreen)
       state = state.copy(insertLastArgStateOpt = None)
-  }
-
-  private def handleInline() {
-    val cmd = state.lineBuffer.text
-    if (cmd.trim.nonEmpty) {
-      val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
-      val unitName = s"command-inline"
-      val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
-      val resultOpt =
-        try
-          commandRunner.runCompilationUnit(unit, bareWords)
-        catch {
-          case NonFatal(e) ⇒
-            debugLogger.logException(e)
-            return
-        }
-      for {
-        result ← resultOpt
-        expression ← ValueToExpression.getExpression(result)
-      } state = state.copy(lineBuffer = LineBuffer(expression))
-    }
   }
 
   private def handleBrowseLastResult() {

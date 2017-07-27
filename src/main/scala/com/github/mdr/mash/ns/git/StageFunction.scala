@@ -1,5 +1,7 @@
 package com.github.mdr.mash.ns.git
 
+import java.nio.file.Path
+
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions._
@@ -26,6 +28,7 @@ object StageFunction extends MashFunction("git.stage") {
       defaultValueGeneratorOpt = Some(MashBoolean.False),
       isBooleanFlag = true)
   }
+
   import Params._
 
   val params = ParameterModel(Paths, All)
@@ -38,6 +41,11 @@ object StageFunction extends MashFunction("git.stage") {
     if (paths.nonEmpty && all)
       boundParams.throwInvalidArgument(All, s"Cannot provide both '$Paths' and '$All'")
 
+    doStage(paths, all)
+    MashUnit
+  }
+
+  def doStage(paths: Seq[Path] = Seq(), all: Boolean = false) =
     GitHelper.withGit { git ⇒
       val status = git.status.call()
       val missing = status.getMissing.asScala
@@ -58,8 +66,6 @@ object StageFunction extends MashFunction("git.stage") {
         rmCommand.call()
       }
     }
-    MashUnit
-  }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
@@ -67,7 +73,7 @@ object StageFunction extends MashFunction("git.stage") {
     }
 
   private def getUnstagedFiles: Seq[String] = {
-    val status = GitHelper.withGit { _.status.call() }
+    val status = GitHelper.withGit {_.status.call()}
     (status.getUntracked.asScala ++
       status.getModified.asScala ++
       status.getMissing.asScala ++

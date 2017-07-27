@@ -27,17 +27,7 @@ object AmendFunction extends MashFunction("git.amend") {
   def call(boundParams: BoundParams): MashObject = {
     val all = boundParams(All).isTruthy
     val messageOpt = boundParams.validateStringOpt(Message).map(_.s)
-    GitHelper.withGit { git ⇒
-      val message = messageOpt getOrElse getLastCommitMessage(git)
-      val newCommit = git.commit.setMessage(message).setAll(all).setAmend(true).call()
-      asCommitObject(newCommit)
-    }
-  }
-
-  private def getLastCommitMessage(git: Git): String = {
-    val commitHistory = git.log.call().asScala.toSeq
-    commitHistory.headOption.map(_.getFullMessage).getOrElse(
-      throw new EvaluatorException("No previous commit to amend"))
+    CommitFunction.doCommit(all = all, amend = true, messageOpt)
   }
 
   override def typeInferenceStrategy = CommitClass
