@@ -29,6 +29,11 @@ abstract class MashMethod(val name: String) {
 
   def descriptionOpt: Option[String] = None
 
+  /**
+    * An example target name for use in generating calling syntax
+    */
+  def exampleTargetName: String = "target"
+
   def isPrivate: Boolean = false
 
   def isPublic: Boolean = !isPrivate

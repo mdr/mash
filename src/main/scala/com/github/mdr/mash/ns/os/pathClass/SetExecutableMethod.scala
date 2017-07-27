@@ -18,35 +18,35 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
   private val fileSystem = LinuxFileSystem
 
   object Params {
-    val All = Parameter(
+    val All: Parameter = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Set the bit for all (owner, group and others) (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue),
       isBooleanFlag = true)
-    val Owner = Parameter(
+    val Owner: Parameter = Parameter(
       nameOpt = Some("owner"),
       summaryOpt = Some("Set the bit for the owner (default false)"),
       shortFlagOpt = Some('u'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue),
       isBooleanFlag = true)
-    val Group = Parameter(
+    val Group: Parameter = Parameter(
       nameOpt = Some("group"),
       summaryOpt = Some("Set the bit for the group (default false)"),
       shortFlagOpt = Some('g'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue),
       isBooleanFlag = true)
-    val Others = Parameter(
+    val Others: Parameter = Parameter(
       nameOpt = Some("others"),
       summaryOpt = Some("Set the bit for others (default false)"),
       shortFlagOpt = Some('o'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(NoArgValue),
       isBooleanFlag = true)
-    val Value = Parameter(
+    val Value: Parameter = Parameter(
       nameOpt = Some("value"),
       summaryOpt = Some("The value for the bit (default true)"),
       defaultValueGeneratorOpt = Some(true))
@@ -114,6 +114,9 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
         |  path.setExecutable false            # Set permission for the owner to true
         |  path.setExecutable --group --others # Set permission for group and others to true
         |  path.setExecutable -og              # Set permission for group and others to true
-        |</mash>
-    """.stripMargin)
+        |  path.setExecutable --all false      # Set permission for everyone to false
+        |</mash>""".stripMargin)
+
+  override def exampleTargetName = "path"
+
 }

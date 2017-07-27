@@ -111,7 +111,7 @@ object InvocationAssistance {
     AssistanceState(
       method.name,
       method.summaryOpt.toSeq ++ Seq(
-        s"target.${method.name} ${method.params.callingSyntax}"))
+        s"${method.exampleTargetName}.${method.name} ${method.params.callingSyntax}"))
 
   private def assistMethod(method: Type.UserDefinedFunction): AssistanceState = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
