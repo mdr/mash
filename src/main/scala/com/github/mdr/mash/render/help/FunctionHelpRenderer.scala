@@ -1,5 +1,6 @@
 package com.github.mdr.mash.render.help
 
+import com.github.mdr.mash.classes.BoundMethod
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
 import com.github.mdr.mash.render.MashRenderer
 import com.github.mdr.mash.runtime.MashObject
@@ -41,12 +42,17 @@ object FunctionHelpRenderer {
     if (help.callingSyntax == help.name)
       Seq()
     else {
-      val maybeTarget = if (help.classOpt.isDefined) "target." else ""
+      val maybeTarget = if (help.classOpt.isDefined) getExampleTargetName(help) + "." else ""
       Seq(
         Line.Empty,
         Line(SectionTitleStyle("CALLING SYNTAX")),
         Line(IndentSpace + maybeTarget.style + help.callingSyntax.style))
     }
+
+  private def getExampleTargetName(help: FunctionHelpClass.Wrapper): String =
+    help.functionOpt.collect {
+      case bm: BoundMethod ⇒ bm.method.exampleTargetName
+    }.getOrElse("target")
 
   private def renderDescriptionSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.descriptionOpt.toSeq.flatMap(description ⇒

@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
 import com.github.mdr.mash.evaluator.EvaluatorException
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
 import com.github.mdr.mash.runtime._
 
 import scala.collection.immutable.ListMap
@@ -19,11 +19,12 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     val Parameters = Field("parameters", Some("Parameters of the function"), Seq(ParameterHelpClass))
     val Class = Field("class", Some("If a method, the class it belongs to (else null)"), StringClass)
     val Source = Field("source", Some("The source of the function (if user-defined)"), StringClass)
+    val Function = Field("function", Some("The function or method itself"), AnyClass)
   }
 
   import Fields._
 
-  override val fields = Seq(Name, FullyQualifiedName, Aliases, Summary, CallingSyntax, Description, Parameters, Class)
+  override val fields = Seq(Name, FullyQualifiedName, Aliases, Summary, CallingSyntax, Description, Parameters, Class, Function)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -37,7 +38,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
              descriptionOpt: Option[String] = None,
              parameters: Seq[MashObject] = Seq(),
              classOpt: Option[String] = None,
-             sourceOpt: Option[String] = None): MashObject =
+             sourceOpt: Option[String] = None,
+             functionOpt: Option[MashValue] = None): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
@@ -48,7 +50,8 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
         Description -> MashString.maybe(descriptionOpt),
         Parameters -> MashList(parameters),
         Class -> MashString.maybe(classOpt),
-        Source → MashString.maybe(sourceOpt)),
+        Source → MashString.maybe(sourceOpt),
+        Function → functionOpt.getOrElse(MashNull)),
       FunctionHelpClass)
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
@@ -74,6 +77,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
     def sourceOpt: Option[String] = getOptionalStringField(Source)
 
+    def functionOpt: Option[MashValue] = getOptionalField(Function)
   }
 
 }
