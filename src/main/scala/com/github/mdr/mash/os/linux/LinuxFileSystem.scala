@@ -62,7 +62,7 @@ object LinuxFileSystem extends FileSystem {
     val group = attrs.group().getName
     val lastModified = attrs.lastModifiedTime.toInstant
     val lastAccessed = attrs.lastAccessTime.toInstant
-    val perms = attrs.permissions()
+    val perms = Files.getPosixFilePermissions(path)//attrs.permissions()
     val fileType =
       if (attrs.isSymbolicLink) FileTypeClass.Values.Link
       else if (attrs.isRegularFile) FileTypeClass.Values.File
@@ -84,17 +84,17 @@ object LinuxFileSystem extends FileSystem {
   private def permissionsObject(perms: Set[PosixFilePermission]): Permissions = {
     import PosixFilePermission._
     val ownerPerms = PermissionsSection(
-      canRead = perms.contains(OWNER_READ),
-      canWrite = perms.contains(OWNER_WRITE),
-      canExecute = perms.contains(OWNER_EXECUTE))
+      canRead = perms contains OWNER_READ,
+      canWrite = perms contains OWNER_WRITE,
+      canExecute = perms contains OWNER_EXECUTE)
     val groupPerms = PermissionsSection(
-      canRead = perms.contains(GROUP_READ),
-      canWrite = perms.contains(GROUP_WRITE),
-      canExecute = perms.contains(GROUP_EXECUTE))
+      canRead = perms contains GROUP_READ,
+      canWrite = perms contains GROUP_WRITE,
+      canExecute = perms contains GROUP_EXECUTE)
     val othersPerms = PermissionsSection(
-      canRead = perms.contains(OTHERS_READ),
-      canWrite = perms.contains(OTHERS_WRITE),
-      canExecute = perms.contains(OTHERS_EXECUTE))
+      canRead = perms contains OTHERS_READ,
+      canWrite = perms contains OTHERS_WRITE,
+      canExecute = perms contains OTHERS_EXECUTE)
     Permissions(
       owner = ownerPerms,
       group = groupPerms,

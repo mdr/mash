@@ -36,6 +36,7 @@ object PathClass extends MashClass("os.Path") {
     RenameToMethod,
     RunMethod,
     SegmentsMethod,
+    SetExecutableMethod,
     SizeMethod,
     TypeMethod,
     WriteMethod) ++

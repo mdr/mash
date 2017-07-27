@@ -13,6 +13,7 @@ trait ValueGenerator {
 
 object ValueGenerator {
 
+  implicit def fromBoolean(b: Boolean): ValueGenerator = context ⇒ MashBoolean(b)
   implicit def fromValue(v: MashValue): ValueGenerator = context ⇒ v
   implicit def fromThunk(gen: () ⇒ MashValue): ValueGenerator = context ⇒ gen()
   implicit def fromFun(gen: EvaluationContext ⇒ MashValue): ValueGenerator = context ⇒ gen(context)
