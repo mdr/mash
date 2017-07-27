@@ -63,8 +63,6 @@ object BranchClass extends MashClass("git.branch.Branch") {
 
   object IsAncestorOfMethod extends AbstractIsAncestorOfMethod {
 
-    override def aliases = Seq("isMergedInto")
-
     override def commitName(target: MashValue) = Wrapper(target).name
 
   }

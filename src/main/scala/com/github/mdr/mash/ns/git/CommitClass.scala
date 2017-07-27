@@ -139,12 +139,14 @@ object CommitClass extends MashClass("git.Commit") {
 
 abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
 
+  override def aliases = Seq("isMergedInto")
+
   def commitName(target: MashValue): String
 
   object Params {
     val Commit = Parameter(
       nameOpt = Some("commit"),
-      summaryOpt = Some("Name of a commit to test if it is descendant"))
+      summaryOpt = Some("Name of a commit to test if it is a descendant"))
   }
 
   import Params._
