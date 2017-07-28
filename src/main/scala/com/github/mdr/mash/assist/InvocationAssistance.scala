@@ -83,16 +83,27 @@ object InvocationAssistance {
     remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] =
+    getAssistable(functionType).map(getAssistanceState)
+
+  private def getAssistable(functionType: Type): Option[Assistable] =
     functionType match {
-      case Type.Seq(elementType)                  ⇒ assistInvocation(elementType)
-      case Type.BuiltinFunction(f)                ⇒ Some(assistFunction(f))
-      case f: Type.UserDefinedFunction            ⇒ Some(assistFunction(f))
-      case Type.BoundBuiltinMethod(_, method)     ⇒ Some(assistMethod(method))
-      case Type.BoundUserDefinedMethod(_, method) ⇒ Some(assistMethod(method))
-      case userClass: Type.UserClass              ⇒ Some(assistClass(userClass))
+      case Type.Seq(elementType)                  ⇒ getAssistable(elementType)
+      case Type.BuiltinFunction(f)                ⇒ Some(Assistable.Function(f))
+      case f: Type.UserDefinedFunction            ⇒ Some(Assistable.FunctionType(f))
+      case Type.BoundBuiltinMethod(_, method)     ⇒ Some(Assistable.Method(method))
+      case Type.BoundUserDefinedMethod(_, method) ⇒ Some(Assistable.MethodType(method))
+      case userClass: Type.UserClass              ⇒ Some(Assistable.ConstructorType(userClass))
       case _                                      ⇒ None
       // TODO: Handle .new calls on builtin classes
     }
+
+  private def getAssistanceState(assistable: Assistable): AssistanceState = assistable match {
+    case Assistable.Function(f)                ⇒ assistFunction(f)
+    case Assistable.FunctionType(f)            ⇒ assistFunction(f)
+    case Assistable.Method(m)                  ⇒ assistMethod(m)
+    case Assistable.MethodType(m)              ⇒ assistMethod(m)
+    case Assistable.ConstructorType(userClass) ⇒ assistClassConstructor(userClass)
+  }
 
   private def assistFunction(f: MashFunction): AssistanceState =
     AssistanceState(
@@ -121,7 +132,7 @@ object InvocationAssistance {
         s"target.${nameOpt getOrElse "method"} ${CallingSyntaxRenderer.render(params).forgetStyling}"))
   }
 
-  private def assistClass(userClass: UserClass): AssistanceState =
+  private def assistClassConstructor(userClass: UserClass): AssistanceState =
     AssistanceState(
       MashClass.ConstructorMethodName,
       Seq(
