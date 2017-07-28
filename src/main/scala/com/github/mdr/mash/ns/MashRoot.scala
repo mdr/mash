@@ -74,6 +74,7 @@ object MashRoot {
         random.NumberFunction,
         random.UuidFunction) ++
       Seq(
+        mash.ExpressionForFunction,
         mash.EvalFunction,
         mash.SourceFunction,
         mash.VersionFunction)

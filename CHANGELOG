@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add mash.expressionFor
 * Add safe function to avoid triggering nullary evaluation
 * Path.setReadable, setWritable, setExecutable
 * Inline evaluation (Ctrl-t) of simple values
