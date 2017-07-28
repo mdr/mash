@@ -26,24 +26,29 @@ object CallingSyntaxRenderer {
   }
 
   private def renderFlagParam(param: Parameter): StyledString = {
+    val longForm = renderLongFlagForm(param)
+    param.shortFlagOpt match {
+      case Some(shortFlag) ⇒
+        val shortForm = s"-$shortFlag".style(getTokenStyle(SHORT_FLAG))
+        "(".style + longForm + " | ".style + shortForm + ")".style
+      case None            ⇒
+        longForm
+    }
+  }
+
+  private def renderLongFlagForm(param: Parameter): StyledString = {
     val name = param.nameOpt getOrElse Parameter.AnonymousParamName
-    val flagValueName = param.flagValueNameOpt.getOrElse("value")
     val flagValueSuffix =
       if (param.isBooleanFlag)
         "".style
-      else if (param.isFlagValueMandatory)
-        "=<".style + flagValueName.style(getTokenStyle(IDENTIFIER)) + ">".style
-      else
-        "[=<".style + flagValueName.style(getTokenStyle(IDENTIFIER)) + ">]".style
-    val longForm = s"--$name".style(getTokenStyle(LONG_FLAG)) + flagValueSuffix
-    val main = param.shortFlagOpt match {
-      case Some(shortFlag) ⇒ longForm + " | ".style + s"-$shortFlag".style(getTokenStyle(SHORT_FLAG))
-      case None            ⇒ longForm
-    }
-    if (param.shortFlagOpt.isDefined)
-      "(".style + main + ")".style
-    else
-      main
+      else {
+        val flagValueName = param.flagValueNameOpt.getOrElse("value").style(getTokenStyle(IDENTIFIER))
+        if (param.isFlagValueMandatory)
+          "=<".style + flagValueName + ">".style
+        else
+          "[=<".style + flagValueName + ">]".style
+      }
+    s"--$name".style(getTokenStyle(LONG_FLAG)) + flagValueSuffix
   }
 
   private def renderPositionalParam(param: Parameter): StyledString = {
