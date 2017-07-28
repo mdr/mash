@@ -22,7 +22,8 @@ object AssistanceRenderer {
   private val TitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
 
   def render(assistanceState: AssistanceState, terminalSize: Dimensions): Seq[Line] = {
-    val AssistanceState(title, lines) = assistanceState
+    val AssistanceState(assistable) = assistanceState
+    val AssistanceLines(title, lines) = AssistanceThing.getAssistanceState(assistable)
 
     val widestDesiredWidth = getDesiredTopLineWidth(title) max lines.map(getDesiredInnerLineWidth).max
     val boxWidth = widestDesiredWidth min terminalSize.columns max NumberOfTopLineCharsNotUsedForTitle

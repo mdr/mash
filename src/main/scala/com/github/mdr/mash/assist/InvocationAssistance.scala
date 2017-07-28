@@ -79,7 +79,7 @@ object InvocationAssistance {
     remainingTokens.takeWhile(token ⇒ token.isWhitespace || token.isComment || token.isEof).lastOption
 
   private def assistInvocation(functionType: Type): Option[AssistanceState] =
-    getAssistable(functionType).map(AssistanceThing.getAssistanceState)
+    getAssistable(functionType).map(AssistanceState(_))
 
   private def getAssistable(functionType: Type): Option[Assistable] =
     functionType match {

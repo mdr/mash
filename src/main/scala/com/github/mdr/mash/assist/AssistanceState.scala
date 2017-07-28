@@ -20,4 +20,4 @@ object Assistable {
 
 }
 
-case class AssistanceState(title: String, lines: Seq[String])
+case class AssistanceState(assistable: Assistable)

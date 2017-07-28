@@ -1,15 +1,12 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.assist.AssistanceState
+import com.github.mdr.mash.assist.{ Assistable, AssistanceState }
+import com.github.mdr.mash.ns.collections.ReverseFunction
 import com.github.mdr.mash.terminal.DummyTerminal.SufficientlyLargeTerminalSize
 
 class AssistanceRendererTest extends RendererTest {
 
-  val assistanceState = AssistanceState(
-    "reverse",
-    Seq(
-      "Reverse a List, String or Object",
-      "reverse <sequence>"))
+  val assistanceState = AssistanceState(Assistable.Function(ReverseFunction))
 
   "Assistance" should "be rendered as large as needed, given sufficient space" in {
     val lines = AssistanceRenderer.render(assistanceState, SufficientlyLargeTerminalSize).map(getText)
