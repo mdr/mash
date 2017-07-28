@@ -22,6 +22,7 @@ case class Parameter(nameOpt: Option[String],
                      isLazy: Boolean = false, // if true, don't evaluate argument
                      isNamedArgsParam: Boolean = false, // If true, receive a list of the named arguments
                      isAllArgsParam: Boolean = false, // If true, receive a list of all arguments
+                     isSafe: Boolean = false, // If true, don't immediately invoke nullary callables that are passed into this parameter
                      patternOpt: Option[ParamPattern] = None // object pattern names to bind
                     ) {
 

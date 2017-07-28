@@ -247,4 +247,9 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "try (error 'bang')" ==> "()"
   "try (error 'bang') --catch='recovered'" ==> "'recovered'"
   "a = 0; try 'no probs' --catch=(a += 1); a" ==> 0
+
+  // safe
+  "(safe pwd).getClass" ==> "core.Function"
+  "(safe 3.negate).getClass" ==> "core.BoundMethod"
+
 }

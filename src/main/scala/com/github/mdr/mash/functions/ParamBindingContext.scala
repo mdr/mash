@@ -118,7 +118,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
 
     val argsObject = MashObject.of(evalArgs.flatMap {
       case arg@EvaluatedArgument.LongFlag(flag, valueOpt, _) ⇒
-        val value = valueOpt.map(_.resolve()) getOrElse MashBoolean.True
+        val value = valueOpt.map(_.resolve(safe = param.isSafe)) getOrElse MashBoolean.True
         checkFlag(flag, arg)
         Seq(flag -> value)
       case arg@EvaluatedArgument.ShortFlag(flags, _)         ⇒
@@ -133,7 +133,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
   }
 
   private def bindAllArgsParam(param: Parameter, evalArgs: Seq[EvaluatedArgument[SuspendedMashValue]]) {
-    allResolvedArgs = evalArgs.map(_.map(_.resolve()))
+    allResolvedArgs = evalArgs.map(_.map(_.resolve(safe = param.isSafe)))
   }
 
   private def bindPattern(pattern: ParamPattern, value: MashValue, locationOpt: Option[SourceLocation] = None): Unit =
@@ -172,7 +172,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
     if (param.isLazy)
       SuspendedValueFunction(suspendedValue)
     else
-      suspendedValue.resolve()
+      suspendedValue.resolve(safe = param.isSafe)
 
   private def getLocation(arg: EvaluatedArgument[_]): Option[SourceLocation] =
     arg.argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location)

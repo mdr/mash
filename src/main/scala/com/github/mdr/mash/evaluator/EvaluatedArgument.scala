@@ -32,6 +32,6 @@ object EvaluatedArgument {
 
 }
 
-case class SuspendedMashValue(thunk: () ⇒ MashValue) {
-  def resolve(): MashValue = thunk()
+case class SuspendedMashValue(fullEval: () ⇒ MashValue, safeEval: Option[() ⇒ MashValue] = None) {
+  def resolve(safe: Boolean = false): MashValue = if (safe) safeEval.getOrElse(fullEval)() else fullEval()
 }

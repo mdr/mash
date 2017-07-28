@@ -7,13 +7,13 @@ import com.github.mdr.mash.ns.core.{ BooleanClass, ClassClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ Argument, Expr, InvocationExpr }
 import com.github.mdr.mash.runtime.MashString
 
-trait InvocationTypeInferencer { self: TypeInferencer ⇒
-
+trait InvocationTypeInferencer {
+  self: TypeInferencer ⇒
 
   protected def inferTypeInvocation(functionType: Type,
-                                  typedArgs: TypedArguments,
-                                  function: Expr,
-                                  bindings: Map[String, Type]): Option[Type] = functionType match {
+                                    typedArgs: TypedArguments,
+                                    function: Expr,
+                                    bindings: Map[String, Type]): Option[Type] = functionType match {
     case Type.Patterns.AnyString(_)                                              ⇒
       for {
         arg ← typedArgs.positionArgs.headOption

@@ -95,6 +95,7 @@ object MashRoot {
     ParseNumberFunction,
     PrintFunction,
     RunFunction,
+    SafeFunction,
     SleepFunction,
     SplitFunction,
     TapFunction,
