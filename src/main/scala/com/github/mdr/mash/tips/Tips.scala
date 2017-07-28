@@ -4,7 +4,7 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.os.{ GlobFunction, OldDirsFunction, UpFunction }
-import com.github.mdr.mash.render.help.DescriptionRenderer
+import com.github.mdr.mash.render.help.MashMarkupRenderer
 import com.github.mdr.mash.render.{ BoxContent, BoxRenderer }
 import com.github.mdr.mash.screen.{ Screen, StyledString }
 import com.github.mdr.mash.utils.Dimensions
@@ -35,7 +35,7 @@ object Tips {
   private def randomTip = Tips(Random.nextInt(Tips.length))
 
   def showTip(output: PrintStream, terminalSize: Dimensions) {
-    val tipLine: StyledString = DescriptionRenderer.renderIntoASingleString(randomTip)
+    val tipLine: StyledString = MashMarkupRenderer.render(randomTip)
     val boxContent: BoxContent = BoxContent(title = "Tip", lines = Seq(tipLine))
     val lines = BoxRenderer.render(boxContent, terminalSize)
     for (line ← lines)
