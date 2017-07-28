@@ -1,7 +1,7 @@
 package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.utils.Utils
-import org.apache.commons.lang3.StringUtils._
+import org.apache.commons.text.similarity.LevenshteinDistance
 
 object Suggestor {
 
@@ -10,6 +10,6 @@ object Suggestor {
 
   private def getSuggestion(possibleNames: Seq[String], requested: String): Option[String] =
     Utils.minBy(possibleNames, (possibleName: String) ⇒
-      getLevenshteinDistance(requested.toLowerCase, possibleName.toLowerCase))
+      LevenshteinDistance.getDefaultInstance.apply(requested.toLowerCase, possibleName.toLowerCase))
 
 }
