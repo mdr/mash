@@ -10,14 +10,18 @@ import com.github.mdr.mash.screen.StyledString
 
 object CallingSyntaxRenderer {
 
+  private val identifierStyle = getTokenStyle(IDENTIFIER)
+
   def render(f: MashFunction): StyledString =
-    f.name.style(getTokenStyle(IDENTIFIER)) + " ".style + render(f.params)
+    f.name.style(identifierStyle) + " ".style + render(f.params)
 
   def render(bm: BoundMethod): StyledString = render(bm.method)
 
-  def render(method: MashMethod): StyledString =
-    method.exampleTargetName.style(getTokenStyle(IDENTIFIER)) + ".".style + method.name.style(getTokenStyle(IDENTIFIER)) +
-      " ".style + render(method.params)
+  def render(method: MashMethod): StyledString = {
+    val targetName = method.exampleTargetName.style(identifierStyle)
+    val methodName = method.name.style(identifierStyle)
+    style"$targetName.$methodName ${render(method.params)}"
+  }
 
   def render(params: ParameterModel): StyledString = {
     val positionalParams = params.params.filterNot(_.isFlag).map(renderPositionalParam)
@@ -42,7 +46,7 @@ object CallingSyntaxRenderer {
       if (param.isBooleanFlag)
         "".style
       else {
-        val flagValueName = param.flagValueNameOpt.getOrElse("value").style(getTokenStyle(IDENTIFIER))
+        val flagValueName = param.flagValueNameOpt.getOrElse("value").style(identifierStyle)
         if (param.isFlagValueMandatory)
           style"=<$flagValueName>"
         else
@@ -55,7 +59,7 @@ object CallingSyntaxRenderer {
     val paramName = param.nameOpt
       .filterNot(_ startsWith DesugarHoles.VariableNamePrefix)
       .getOrElse(Parameter.AnonymousParamName)
-      .style(getTokenStyle(IDENTIFIER))
+      .style(identifierStyle)
     val renderedParam = style"<$paramName>"
     if (param.isVariadic)
       if (param.variadicAtLeastOne)

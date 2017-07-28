@@ -5,8 +5,10 @@ import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.inference.Type.UserClass
+import com.github.mdr.mash.lexer.TokenType.IDENTIFIER
 import com.github.mdr.mash.screen.StyledString
 import com.github.mdr.mash.screen.Style._
+import com.github.mdr.mash.render.MashRenderer.getTokenStyle
 
 case class AssistanceLines(title: String, lines: Seq[StyledString])
 
@@ -28,9 +30,11 @@ object AssistanceContentGenerator {
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
   }
 
+  private val identifierStyle = getTokenStyle(IDENTIFIER)
+
   private def assistFunction(f: Type.UserDefinedFunction) = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
-    val callingSyntaxLine = (nameOpt getOrElse "f").style + " ".style + CallingSyntaxRenderer.render(params)
+    val callingSyntaxLine = (nameOpt getOrElse "f").style(identifierStyle) + " ".style + CallingSyntaxRenderer.render(params)
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
     AssistanceLines(
       title = nameOpt.getOrElse("Anonymous function"),
@@ -48,7 +52,9 @@ object AssistanceContentGenerator {
   private def assistMethod(method: Type.UserDefinedFunction): AssistanceLines = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
-    val callingSyntaxLine = "target.".style + (nameOpt getOrElse "method").style + " ".style + CallingSyntaxRenderer.render(params)
+    val target = "target".style(identifierStyle)
+    val methodName = (nameOpt getOrElse "method").style(identifierStyle)
+    val callingSyntaxLine = style"$target.$methodName ${CallingSyntaxRenderer.render(params)}"
     AssistanceLines(
       title = nameOpt.getOrElse("Anonymous method"),
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
@@ -56,7 +62,9 @@ object AssistanceContentGenerator {
 
   private def assistClassConstructor(userClass: UserClass): AssistanceLines = {
     val summaryLine = s"Construct a new ${userClass.name} object".style
-    val callingSyntaxLine = s"${userClass.name}.${MashClass.ConstructorMethodName} ".style + CallingSyntaxRenderer.render(userClass.params)
+    val className = userClass.name.style(identifierStyle)
+    val constructorMethodName = MashClass.ConstructorMethodName.style(identifierStyle)
+    val callingSyntaxLine = style"$className.$constructorMethodName ${CallingSyntaxRenderer.render(userClass.params)}"
     AssistanceLines(
       title = MashClass.ConstructorMethodName,
       lines = Seq(summaryLine, callingSyntaxLine))
