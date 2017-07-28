@@ -8,6 +8,7 @@ import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.lexer.{ MashLexer, Token }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.ConcreteSyntax
+import com.github.mdr.mash.render.CallingSyntaxRenderer
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Region, Utils }
@@ -97,28 +98,27 @@ object InvocationAssistance {
     AssistanceState(
       f.name,
       f.summaryOpt.toSeq ++ Seq(
-        s"${f.name} ${f.params.callingSyntax}"))
+        CallingSyntaxRenderer.render(f).forgetStyling))
 
   private def assistFunction(f: Type.UserDefinedFunction) = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
     AssistanceState(
       nameOpt.getOrElse("Anonymous function"),
       docCommentOpt.map(_.summary).toSeq ++ Seq(
-        s"${nameOpt getOrElse "f"} ${params.callingSyntax}"))
+        s"${nameOpt getOrElse "f"} ${CallingSyntaxRenderer.render(params).forgetStyling}"))
   }
 
   private def assistMethod(method: MashMethod): AssistanceState =
     AssistanceState(
       method.name,
-      method.summaryOpt.toSeq ++ Seq(
-        s"${method.exampleTargetName}.${method.name} ${method.params.callingSyntax}"))
+      method.summaryOpt.toSeq ++ Seq(CallingSyntaxRenderer.render(method).forgetStyling))
 
   private def assistMethod(method: Type.UserDefinedFunction): AssistanceState = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
     AssistanceState(
       nameOpt.getOrElse("Anonymous method"),
       docCommentOpt.map(_.summary).toSeq ++ Seq(
-        s"target.${nameOpt getOrElse "method"} ${params.callingSyntax}"))
+        s"target.${nameOpt getOrElse "method"} ${CallingSyntaxRenderer.render(params).forgetStyling}"))
   }
 
   private def assistClass(userClass: UserClass): AssistanceState =
@@ -126,6 +126,6 @@ object InvocationAssistance {
       MashClass.ConstructorMethodName,
       Seq(
         s"Construct a new ${userClass.name} object",
-        s"${userClass.name}.${MashClass.ConstructorMethodName} ${userClass.params.callingSyntax}"))
+        s"${userClass.name}.${MashClass.ConstructorMethodName} ${CallingSyntaxRenderer.render(userClass.params).forgetStyling}"))
 
 }

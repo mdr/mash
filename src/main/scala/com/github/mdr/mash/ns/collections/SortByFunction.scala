@@ -11,7 +11,10 @@ object SortByFunction extends MashFunction("collections.sortBy") {
   object Params {
     val Attributes = Parameter(
       nameOpt = Some("attributes"),
-      summaryOpt = Some("Function(s) to extract a value to compare elements"),
+      summaryOpt = Some("One or more functions to apply to elements to extract a value to compare"),
+      descriptionOpt = Some(
+        """If multiple attribute functions are supplied, elements are compared by the first attribute.
+          |  If they are equal, then the second attribute is used to order them, and so on.""".stripMargin),
       isVariadic = true,
       variadicAtLeastOne = true)
   }
@@ -47,13 +50,14 @@ object SortByFunction extends MashFunction("collections.sortBy") {
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     MapFunction.getCompletionSpecs(argPos, arguments)
 
-  override def summaryOpt = Some("Sort the elements of a sequence by an attribute")
+  override def summaryOpt = Some("Sort the elements of a sequence by one or more attributes")
 
   override def descriptionOpt = Some(
     """Examples:
-<mash>
-  sortBy length ["aa", "b", "ccc"]              # ["b", "aa", "ccc"] 
-  sortBy --descending length ["aa", "b", "ccc"] # ["ccc", "aa", "b"]
-</mash>""")
+      |<mash>
+      |  ["aa", "b", "ccc"] sortBy length                # ["b", "aa", "ccc"]
+      |  ["aa", "b", "ccc"] | sortBy length --descending # ["ccc", "aa", "b"]
+      |  ["az", "b", "aa"] | sortBy first last           # ["aa", "az", "b"]
+      |</mash>""".stripMargin)
 
 }

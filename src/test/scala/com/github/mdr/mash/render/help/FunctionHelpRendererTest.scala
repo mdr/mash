@@ -1,6 +1,8 @@
 package com.github.mdr.mash.render.help
 
+import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, ParameterHelpClass }
+import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -8,14 +10,37 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
 
   "Rendering function help" should "work when all information is provided" in {
 
+    object TestFunction extends MashFunction("maths.squareRoot") {
+
+      object Params {
+        val N = Parameter(
+          nameOpt = Some("n"),
+          summaryOpt = Some("Number to take square root of"))
+        val GoFaster = Parameter(
+          nameOpt = Some("goFaster"),
+          summaryOpt = Some("Compute it faster"),
+          isFlag = true,
+          isBooleanFlag = true)
+      }
+
+      import Params._
+
+      def params: ParameterModel = ParameterModel(N, GoFaster)
+
+      def call(boundParams: BoundParams): MashValue = ???
+
+      def summaryOpt: Option[String] = Some("Take the square root of a number")
+
+      override def descriptionOpt = Some("The number must not be negative")
+    }
+
     val help =
       FunctionHelpClass.create(
-        name = "squareRoot",
-        fullyQualifiedName = "maths.squareRoot",
+        name = TestFunction.name,
+        fullyQualifiedName = TestFunction.fullyQualifiedName.toString,
         aliases = Seq("sqrt"),
-        summaryOpt = Some("Take the square root of a number"),
-        callingSyntax = "sqrt <n>",
-        descriptionOpt = Some("The number must not be negative"),
+        summaryOpt = TestFunction.summaryOpt,
+        descriptionOpt = TestFunction.descriptionOpt,
         parameters = Seq(
           ParameterHelpClass.create(
             nameOpt = Some("n"),
@@ -26,7 +51,8 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
             summaryOpt = Some("Compute it faster"),
             isFlag = true)),
         classOpt = None,
-        sourceOpt = Some("def squareRoot n = findSquareRoot n"))
+        sourceOpt = Some("def squareRoot n = findSquareRoot n"),
+        functionOpt = Some(TestFunction))
 
     val actualLines = join(FunctionHelpRenderer.render(help))
 
@@ -35,7 +61,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
         |    maths.squareRoot, sqrt - Take the square root of a number
         |
         |CALLING SYNTAX
-        |    sqrt <n>
+        |    squareRoot --goFaster <n>
         |
         |PARAMETERS
         |    n - Number to take square root of
@@ -54,8 +80,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
     val help =
       FunctionHelpClass.create(
         name = "currentDirectory",
-        fullyQualifiedName = "os.currentDirectory",
-        callingSyntax = "currentDirectory")
+        fullyQualifiedName = "os.currentDirectory")
 
     val actualLines = join(FunctionHelpRenderer.render(help))
 

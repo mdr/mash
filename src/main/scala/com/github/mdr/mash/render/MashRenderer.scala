@@ -13,6 +13,23 @@ import com.github.mdr.mash.utils.Utils._
 
 import scala.collection.mutable.ArrayBuffer
 
+object MashRenderer {
+
+  def getTokenStyle(tokenType: TokenType): Style = {
+    import TokenType._
+    tokenType match {
+      case COMMENT                                                    ⇒ Style(foregroundColour = BasicColour.Cyan)
+      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
+      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = BasicColour.Yellow.bright)
+      case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
+      case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue.bright)
+      case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
+      case _                                                          ⇒ Style()
+    }
+  }
+}
+
 class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boolean = false) {
 
   def renderChars(rawChars: String,
@@ -71,7 +88,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
                           bareWords: Boolean): StyledString = {
     val style =
       if (bareTokensOpt exists (_ contains token))
-        if (bareWords) getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
+        if (bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
       else
         getTokenStyle(token)
 
@@ -87,20 +104,6 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
     }
   }
 
-  private def getTokenStyle(token: Token): Style = getTokenStyle(token.tokenType)
-
-  private def getTokenStyle(tokenType: TokenType): Style = {
-    import TokenType._
-    tokenType match {
-      case COMMENT                                                    ⇒ Style(foregroundColour = BasicColour.Cyan)
-      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
-      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = BasicColour.Yellow.bright)
-      case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
-      case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue.bright)
-      case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
-      case _                                                          ⇒ Style()
-    }
-  }
+  def getTokenStyle(token: Token): Style = MashRenderer.getTokenStyle(token.tokenType)
 
 }

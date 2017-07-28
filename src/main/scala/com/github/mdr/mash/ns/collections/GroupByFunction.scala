@@ -45,8 +45,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       isBooleanFlag = true,
       descriptionOpt = Some(
         """If true, output a list of Group objects, one for each group. If false (the default), output a single
-          | object with a field for each group.
-        """.stripMargin))
+          | object with a field for each group.""".stripMargin))
     val Discriminator = Parameter(
       nameOpt = Some("discriminator"),
       summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
@@ -142,6 +141,6 @@ Example:
   ╟─┼───┼───╢
   ║f│foo│   ║
   ║b│bar│baz║
-  ╚═╧═══╧═══╝╝""")
+  ╚═╧═══╧═══╝""")
 
 }

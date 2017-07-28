@@ -23,14 +23,12 @@ class ClassHelpRendererTest extends FlatSpec with Matchers {
           name = "norm",
           fullyQualifiedName = "norm",
           summaryOpt = Some("Calculate the norm of the point"),
-          callingSyntax = "norm",
           parameters = Seq(),
           classOpt = Some("Point"))),
         staticMethods = Seq(FunctionHelpClass.create(
           name = "random",
           fullyQualifiedName = "random",
           summaryOpt = Some("Generate a random point"),
-          callingSyntax = "random",
           parameters = Seq(),
           classOpt = Some("Point"))))
 

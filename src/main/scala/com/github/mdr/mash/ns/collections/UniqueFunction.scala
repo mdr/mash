@@ -28,6 +28,6 @@ object UniqueFunction extends MashFunction("collections.unique") {
 
   override def descriptionOpt = Some("""Examples:
 <mash>
-  distinct [1, 2, 3, 2, 1] # [1, 2, 3]
+  unique [1, 2, 3, 2, 1] # [1, 2, 3]
 </mash>""")
 }

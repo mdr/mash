@@ -1,8 +1,9 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.help.FunctionHelpClass
-import com.github.mdr.mash.render.MashRenderer
+import com.github.mdr.mash.render.{ CallingSyntaxRenderer, MashRenderer }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
@@ -39,20 +40,17 @@ object FunctionHelpRenderer {
         Line(IndentSpace + klass.style)))
 
   private def renderCallingSyntaxSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    if (help.callingSyntax == help.name)
-      Seq()
-    else {
-      val maybeTarget = if (help.classOpt.isDefined) getExampleTargetName(help) + "." else ""
-      Seq(
-        Line.Empty,
-        Line(SectionTitleStyle("CALLING SYNTAX")),
-        Line(IndentSpace + maybeTarget.style + help.callingSyntax.style))
-    }
-
-  private def getExampleTargetName(help: FunctionHelpClass.Wrapper): String =
-    help.functionOpt.collect {
-      case bm: BoundMethod ⇒ bm.method.exampleTargetName
-    }.getOrElse("target")
+    help.functionOpt
+      .collect {
+        case f: MashFunction if f.params.nonEmpty  ⇒ CallingSyntaxRenderer.render(f)
+        case bm: BoundMethod if bm.params.nonEmpty ⇒ CallingSyntaxRenderer.render(bm)
+      }
+      .map(callingSyntax ⇒
+        Seq(
+          Line.Empty,
+          Line(SectionTitleStyle("CALLING SYNTAX")),
+          Line(IndentSpace + callingSyntax)))
+      .getOrElse(Seq())
 
   private def renderDescriptionSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.descriptionOpt.toSeq.flatMap(description ⇒

@@ -45,7 +45,7 @@ object SumByFunction extends MashFunction("collections.sumBy") {
     """Examples:
 <mash>
   sumBy length ["foo", "bar", "baz"] # 9
-</mash""")
+</mash>""")
 
 }
 

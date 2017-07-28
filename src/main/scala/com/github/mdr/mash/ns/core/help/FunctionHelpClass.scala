@@ -14,7 +14,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     val FullyQualifiedName = Field("fullyQualifiedName", Some("Fully-qualified name of the function"), StringClass)
     val Aliases = Field("aliases", Some("Aliases of the method"), Seq(StringClass))
     val Summary = Field("summary", Some("Summary of what the function does (possibly null)"), StringClass)
-    val CallingSyntax = Field("callingSyntax", Some("Calling syntax"), StringClass)
     val Description = Field("description", Some("Description of the function (possibly null)"), StringClass)
     val Parameters = Field("parameters", Some("Parameters of the function"), Seq(ParameterHelpClass))
     val Class = Field("class", Some("If a method, the class it belongs to (else null)"), StringClass)
@@ -24,7 +23,7 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
 
   import Fields._
 
-  override val fields = Seq(Name, FullyQualifiedName, Aliases, Summary, CallingSyntax, Description, Parameters, Class, Function)
+  override val fields = Seq(Name, FullyQualifiedName, Aliases, Summary, Description, Parameters, Class, Function)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -34,7 +33,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
              fullyQualifiedName: String,
              aliases: Seq[String] = Seq(),
              summaryOpt: Option[String] = None,
-             callingSyntax: String,
              descriptionOpt: Option[String] = None,
              parameters: Seq[MashObject] = Seq(),
              classOpt: Option[String] = None,
@@ -46,7 +44,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
         FullyQualifiedName -> MashString(fullyQualifiedName),
         Aliases -> MashList(aliases.map(MashString(_))),
         Summary -> MashString.maybe(summaryOpt),
-        CallingSyntax -> MashString(callingSyntax),
         Description -> MashString.maybe(descriptionOpt),
         Parameters -> MashList(parameters),
         Class -> MashString.maybe(classOpt),
@@ -65,8 +62,6 @@ object FunctionHelpClass extends MashClass("core.help.FunctionHelp") {
     def summaryOpt: Option[String] = getOptionalStringField(Summary)
 
     def descriptionOpt: Option[String] = getOptionalStringField(Description)
-
-    def callingSyntax: String = getStringField(CallingSyntax)
 
     def aliases: Seq[String] = getListField(Aliases).map {
       case s: MashString ⇒ s.s
