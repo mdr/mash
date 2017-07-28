@@ -5,7 +5,7 @@ import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.lexer.TokenType.{ IDENTIFIER, LONG_FLAG, SHORT_FLAG }
 import com.github.mdr.mash.render.MashRenderer.getTokenStyle
-import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.StyledString
 
 object CallingSyntaxRenderer {
@@ -30,7 +30,7 @@ object CallingSyntaxRenderer {
     param.shortFlagOpt match {
       case Some(shortFlag) ⇒
         val shortForm = s"-$shortFlag".style(getTokenStyle(SHORT_FLAG))
-        "(".style + longForm + " | ".style + shortForm + ")".style
+        style"($longForm | $shortForm)"
       case None            ⇒
         longForm
     }
@@ -44,9 +44,9 @@ object CallingSyntaxRenderer {
       else {
         val flagValueName = param.flagValueNameOpt.getOrElse("value").style(getTokenStyle(IDENTIFIER))
         if (param.isFlagValueMandatory)
-          "=<".style + flagValueName + ">".style
+          style"=<$flagValueName>"
         else
-          "[=<".style + flagValueName + ">]".style
+          style"[=<$flagValueName>]"
       }
     s"--$name".style(getTokenStyle(LONG_FLAG)) + flagValueSuffix
   }
@@ -55,14 +55,15 @@ object CallingSyntaxRenderer {
     val paramName = param.nameOpt
       .filterNot(_ startsWith DesugarHoles.VariableNamePrefix)
       .getOrElse(Parameter.AnonymousParamName)
-    val renderedParam = "<".style + paramName.style(getTokenStyle(IDENTIFIER)) + ">".style
+      .style(getTokenStyle(IDENTIFIER))
+    val renderedParam = style"<$paramName>"
     if (param.isVariadic)
       if (param.variadicAtLeastOne)
-        renderedParam + "+...".style
+        style"$renderedParam+..."
       else
-        renderedParam + "...".style
+        style"$renderedParam..."
     else if (param.hasDefault)
-      "[".style + renderedParam + "]".style
+      style"[$renderedParam]"
     else
       renderedParam
   }

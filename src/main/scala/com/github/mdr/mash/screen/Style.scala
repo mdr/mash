@@ -1,6 +1,27 @@
 package com.github.mdr.mash.screen
 
+import scala.collection.mutable.ArrayBuffer
+
 object Style {
+
+  implicit class StyledStringInterpolation(val sc: StringContext) extends AnyVal {
+
+    def style(args: Any*): StyledString = {
+      def styleIfRequired(x: Any): StyledString = x match {
+        case s: StyledString ⇒ s
+        case _               ⇒ x.toString.style
+      }
+      val chunks = new ArrayBuffer[StyledString]
+      val strings = sc.parts.iterator
+      val expressions = args.iterator
+      chunks += styleIfRequired(strings.next)
+      while (strings.hasNext) {
+        chunks += styleIfRequired(expressions.next)
+        chunks += styleIfRequired(strings.next)
+      }
+      "".style.join(chunks)
+    }
+  }
 
   implicit class StylableString(s: String) {
 
