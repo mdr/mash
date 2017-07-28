@@ -7,7 +7,7 @@ import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSys
 import com.github.mdr.mash.repl.history.{ FileBackedHistoryStorage, HistoryImpl }
 import com.github.mdr.mash.repl.{ Repl, ScriptExecutor }
 import com.github.mdr.mash.terminal.{ JLineTerminalWrapper, TerminalControlImpl, TerminalHelper }
-import sun.misc.{ Signal, SignalHandler }
+import sun.misc.Signal
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -52,13 +52,9 @@ object Main extends App {
     process.waitFor()
   }
 
-  implicit def signalHandler(f: Signal ⇒ Unit): SignalHandler = new SignalHandler() {
-    override def handle(sig: Signal) = f(sig)
-  }
-
   private def handleSignals() {
-    Signal.handle(new Signal("INT"), handleInterrupt _)
-    Signal.handle(new Signal("WINCH"), handleWindowChange _)
+    Signal.handle(new Signal("INT"), handleInterrupt)
+    Signal.handle(new Signal("WINCH"), handleWindowChange)
   }
 
   private def handleInterrupt(sig: Signal) {
