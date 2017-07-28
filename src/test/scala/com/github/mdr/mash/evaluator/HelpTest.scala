@@ -18,4 +18,7 @@ class HelpTest extends AbstractEvaluatorTest {
   "git.log? .name" ==> "'log'"
   "help (42.getClass) | _.name" ==> "'Number'"
 
+  "help pwd" ==> "pwd?"
+  "help [].reverse" ==> "[].reverse?"
+
 }
