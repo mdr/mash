@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Make help's argument safe to improve usage
 * Add mash.expressionFor
 * Add safe function to avoid triggering nullary evaluation
 * Path.setReadable, setWritable, setExecutable

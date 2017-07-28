@@ -10,7 +10,8 @@ object HelpFunction extends MashFunction("core.help.help") {
   object Params {
     val Item = Parameter(
       nameOpt = Some("item"),
-      summaryOpt = Some("The item to find help for"))
+      summaryOpt = Some("The item to find help for"),
+      isSafe = true)
   }
 
   import Params._
