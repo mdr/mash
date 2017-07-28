@@ -1,9 +1,8 @@
 package com.github.mdr.mash.render
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.screen.{ BasicColour, Line, Style }
-import com.github.mdr.mash.utils.Dimensions
-import com.github.mdr.mash.utils.StringUtils._
+import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
+import com.github.mdr.mash.utils.{ Dimensions, StringUtils, StyledStringUtils }
 import com.github.mdr.mash.screen.Style.StylableString
 
 object AssistanceRenderer {
@@ -23,7 +22,7 @@ object AssistanceRenderer {
 
   def render(assistanceState: AssistanceState, terminalSize: Dimensions): Seq[Line] = {
     val AssistanceState(assistable) = assistanceState
-    val AssistanceLines(title, lines) = AssistanceThing.getAssistanceState(assistable)
+    val AssistanceLines(title, lines) = AssistanceContentGenerator.getAssistanceState(assistable)
 
     val widestDesiredWidth = getDesiredTopLineWidth(title) max lines.map(getDesiredInnerLineWidth).max
     val boxWidth = widestDesiredWidth min terminalSize.columns max NumberOfTopLineCharsNotUsedForTitle
@@ -37,19 +36,19 @@ object AssistanceRenderer {
 
   private def renderTopLine(title: String, boxWidth: Int): Line = {
     val availableTitleWidth = math.max(0, boxWidth - NumberOfTopLineCharsNotUsedForTitle)
-    val truncatedTitle = ellipsisise(title, availableTitleWidth)
+    val truncatedTitle = StringUtils.ellipsisise(title, availableTitleWidth)
     val surplusWidth = availableTitleWidth - truncatedTitle.length
     val filler = "─" * surplusWidth
     Line(TopLineStart.style + truncatedTitle.style(TitleStyle) + (" " + filler + TopLineEnd).style)
   }
 
-  private def renderInnerLines(lines: Seq[String], boxWidth: Int): Seq[Line] = {
+  private def renderInnerLines(lines: Seq[StyledString], boxWidth: Int): Seq[Line] = {
     val availableInnerWidth = math.max(0, boxWidth - NumberOfInnerLineCharsNotUsedForContent)
-    val truncatedLines = lines.map(ellipsisise(_, availableInnerWidth))
+    val truncatedLines = lines.map(StyledStringUtils.ellipsisise(_, availableInnerWidth))
     truncatedLines.map { content ⇒
       val surplusWidth = availableInnerWidth - content.length
       val filler = " " * surplusWidth
-      Line((InnerLineStart + content + filler + InnerLineEnd).style)
+      Line(InnerLineStart.style + content + filler.style + InnerLineEnd.style)
     }
   }
 
@@ -59,7 +58,7 @@ object AssistanceRenderer {
     Line((BottomLineStart + filler + BottomLineEnd).style)
   }
 
-  private def getDesiredInnerLineWidth(line: String): Int = line.length + InnerLineStart.length + InnerLineEnd.length
+  private def getDesiredInnerLineWidth(line: StyledString): Int = line.length + InnerLineStart.length + InnerLineEnd.length
 
   private def getDesiredTopLineWidth(title: String): Int = title.length + NumberOfTopLineCharsNotUsedForTitle
 

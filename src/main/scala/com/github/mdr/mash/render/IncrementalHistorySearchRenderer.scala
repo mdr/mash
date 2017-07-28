@@ -5,13 +5,13 @@ import java.util.Date
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.printer.Printer
-import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ StyledCharacter, StyledString, _ }
-import com.github.mdr.mash.utils.Utils._
-import com.github.mdr.mash.utils.{ Dimensions, Point }
 import com.github.mdr.mash.render.KeyHint._
 import com.github.mdr.mash.repl.IncrementalHistorySearchState
 import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ Hit, HitStatus }
+import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen._
+import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.utils.{ Dimensions, Point, StyledStringUtils }
 
 object IncrementalHistorySearchRenderer {
 
@@ -46,9 +46,6 @@ object IncrementalHistorySearchRenderer {
   private val hitStyle = Style(foregroundColour = BasicColour.Grey)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
-    Line(ellipsisise(line.string, terminalSize.columns))
-
-  private def ellipsisise(s: StyledString, maxLength: Int): StyledString =
-    StyledString(truncate(s.chars, maxLength, StyledCharacter('…')))
+    Line(StyledStringUtils.ellipsisise(line.string, terminalSize.columns))
 
 }
