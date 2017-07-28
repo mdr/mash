@@ -16,6 +16,6 @@ class HelpTest extends AbstractEvaluatorTest {
   "[pwd].info.permissions? .name" ==> "'permissions'"
 
   "git.log? .name" ==> "'log'"
-  "help 42.getClass | _.name" ==> "'Number'"
+  "help (42.getClass) | _.name" ==> "'Number'"
 
 }
