@@ -10,11 +10,11 @@ import com.github.mdr.mash.screen.StyledString
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.render.MashRenderer.getTokenStyle
 
-case class AssistanceLines(title: String, lines: Seq[StyledString])
+case class BoxContent(title: String, lines: Seq[StyledString])
 
 object AssistanceContentGenerator {
 
-  def getAssistanceState(assistable: Assistable): AssistanceLines = assistable match {
+  def getAssistanceState(assistable: Assistable): BoxContent = assistable match {
     case Assistable.Function(f)                ⇒ assistFunction(f)
     case Assistable.FunctionType(f)            ⇒ assistFunction(f)
     case Assistable.Method(m)                  ⇒ assistMethod(m)
@@ -22,10 +22,10 @@ object AssistanceContentGenerator {
     case Assistable.ConstructorType(userClass) ⇒ assistClassConstructor(userClass)
   }
 
-  private def assistFunction(f: MashFunction): AssistanceLines = {
+  private def assistFunction(f: MashFunction): BoxContent = {
     val summaryLineOpt = f.summaryOpt.map(_.style)
     val callingSyntaxLine = CallingSyntaxRenderer.render(f)
-    AssistanceLines(
+    BoxContent(
       title = f.name,
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
   }
@@ -36,36 +36,36 @@ object AssistanceContentGenerator {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
     val callingSyntaxLine = (nameOpt getOrElse "f").style(identifierStyle) + " ".style + CallingSyntaxRenderer.render(params)
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
-    AssistanceLines(
+    BoxContent(
       title = nameOpt.getOrElse("Anonymous function"),
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
   }
 
-  private def assistMethod(method: MashMethod): AssistanceLines = {
+  private def assistMethod(method: MashMethod): BoxContent = {
     val summaryLineOpt = method.summaryOpt.map(_.style)
     val callingSyntaxLine = CallingSyntaxRenderer.render(method)
-    AssistanceLines(
+    BoxContent(
       title = method.name,
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
   }
 
-  private def assistMethod(method: Type.UserDefinedFunction): AssistanceLines = {
+  private def assistMethod(method: Type.UserDefinedFunction): BoxContent = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
     val target = "target".style(identifierStyle)
     val methodName = (nameOpt getOrElse "method").style(identifierStyle)
     val callingSyntaxLine = style"$target.$methodName ${CallingSyntaxRenderer.render(params)}"
-    AssistanceLines(
+    BoxContent(
       title = nameOpt.getOrElse("Anonymous method"),
       lines = summaryLineOpt.toSeq :+ callingSyntaxLine)
   }
 
-  private def assistClassConstructor(userClass: UserClass): AssistanceLines = {
+  private def assistClassConstructor(userClass: UserClass): BoxContent = {
     val summaryLine = s"Construct a new ${userClass.name} object".style
     val className = userClass.name.style(identifierStyle)
     val constructorMethodName = MashClass.ConstructorMethodName.style(identifierStyle)
     val callingSyntaxLine = style"$className.$constructorMethodName ${CallingSyntaxRenderer.render(userClass.params)}"
-    AssistanceLines(
+    BoxContent(
       title = MashClass.ConstructorMethodName,
       lines = Seq(summaryLine, callingSyntaxLine))
   }

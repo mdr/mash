@@ -7,6 +7,7 @@ v0.0.9 (..)
 * Include source in function help
 * Syntax colouring for code snippets in help pages
 * Syntax colouring for calling syntax
+* Syntax colouring for tips
 * Support beginning incremental search by pressing up from a partial line
 * Underline matches in incremental search
 * Key hints for incremental history search

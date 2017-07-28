@@ -33,7 +33,7 @@ object KeyHint {
     hint.key.style(hintStyle) + " ".style + hint.description.style
 
   def renderKeyHints(hints: Seq[KeyHint]): StyledString =
-    StyledString.mkString(hints.map(renderKeyHint), ", ".style)
+    StyledString.join(hints.map(renderKeyHint), ", ".style)
 
   val hintStyle = Style(inverse = true, foregroundColour = BasicColour.Cyan)
 

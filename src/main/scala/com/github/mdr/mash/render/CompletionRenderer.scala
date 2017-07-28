@@ -84,7 +84,7 @@ object CompletionRenderer {
       for {
         completionRow ← completions.zipWithIndex.grouped(numberOfCompletionColumns).toSeq
         styledChars = completionRow.map { case (completion, index) ⇒ renderCompletion(completion, index) }
-        charsWithGaps = StyledString.mkString(styledChars, columnGap.style)
+        charsWithGaps = StyledString.join(styledChars, columnGap.style)
       } yield Line(charsWithGaps, endsInNewline = true)
 
     val activeIndex = condOpt(completionState) { case bcs: BrowserCompletionState ⇒ bcs.activeCompletion }.getOrElse(0)

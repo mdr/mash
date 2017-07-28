@@ -37,7 +37,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     buffer ++= doubleVertical.style.chars
     if (showMarkedRows)
       buffer ++= (" " + singleVertical).style.chars
-    buffer ++= StyledString.mkString(model.columnIds.map(renderColumn), singleVertical.style).chars
+    buffer ++= StyledString.join(model.columnIds.map(renderColumn), singleVertical.style).chars
     buffer ++= doubleVertical.style.chars
     Line(StyledString(buffer))
   }
@@ -70,7 +70,7 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       renderCell(cellContents, Point(rowIndex, columnIndex), columnId)
     }
     val internalVertical = singleVertical.style(getStyle(highlight = shouldHighlightRow))
-    val innerChars = StyledString.mkString(renderedCells, internalVertical)
+    val innerChars = StyledString.join(renderedCells, internalVertical)
     val tableSide = doubleVertical.style
     Line(tableSide + markCell + innerChars + tableSide)
   }

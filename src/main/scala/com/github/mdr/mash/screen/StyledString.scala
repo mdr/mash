@@ -14,7 +14,7 @@ object StyledString {
 
   val Empty = StyledString(Seq())
 
-  def mkString(strings: Seq[StyledString], separator: StyledString) = separator.join(strings)
+  def join(strings: Seq[StyledString], separator: StyledString = Empty) = separator.join(strings)
 }
 
 case class StyledString(chars: Seq[StyledCharacter]) {
