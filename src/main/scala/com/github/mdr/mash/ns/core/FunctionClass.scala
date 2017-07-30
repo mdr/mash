@@ -1,28 +1,46 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
+import com.github.mdr.mash.ns.core.help.HelpCreator
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object FunctionClass extends MashClass("core.Function") {
 
   override val methods = Seq(
-    HelpMethod,
-    InvokeMethod)
+    DescriptionMethod,
+    InvokeMethod,
+    SummaryMethod)
 
-  object HelpMethod extends MashMethod("help") {
+  object SummaryMethod extends MashMethod("summary") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
-    def call(target: MashValue, boundParams: BoundParams): MashObject = {
-      HelpCreator.getHelp(target)
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val f = target.asInstanceOf[MashFunction]
+      MashString.maybe(f.summaryOpt)
     }
 
-    override def typeInferenceStrategy = FunctionHelpClass
+    override def summaryOpt: Option[String] = Some("Get the summary of this method, if any, else null")
 
-    override def summaryOpt = Some("Help documentation for this function")
+    override def typeInferenceStrategy = StringClass
+
+  }
+
+  object DescriptionMethod extends MashMethod("description") {
+
+    val params = ParameterModel.Empty
+
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val f = target.asInstanceOf[MashFunction]
+      MashString.maybe(f.descriptionOpt)
+    }
+
+    override def summaryOpt: Option[String] = Some("Get the description of this method, if any, else null")
+
+    override def typeInferenceStrategy = StringClass
+
   }
 
   object InvokeMethod extends MashMethod("invoke") {

@@ -7,28 +7,11 @@ import com.github.mdr.mash.runtime._
 
 object HelpCreator {
 
-  def getHelp(item: MashValue): MashObject = item match {
-    case f: MashFunction  ⇒ getFunctionHelp(f)
+  def getHelp(item: MashValue): MashValue = item match {
+    case f: MashFunction  ⇒ f
     case bm: BoundMethod  ⇒ getMethodHelp(bm)
     case klass: MashClass ⇒ getClassHelp(klass)
     case value            ⇒ getClassHelp(value.primaryClass)
-  }
-
-  private def getFunctionHelp(f: MashFunction, classOpt: Option[MashClass] = None): MashObject =
-    FunctionHelpClass.create(
-      name = f.name,
-      fullyQualifiedName = f.fullyQualifiedName.toString,
-      aliases = Seq(),
-      summaryOpt = f.summaryOpt,
-      descriptionOpt = f.descriptionOpt,
-      parameters = f.params.params.map(getParamHelp),
-      classOpt = classOpt.map(_.fullyQualifiedName.toString),
-      sourceOpt = getSource(f),
-      functionOpt = Some(f))
-
-  private def getSource(f: MashFunction): Option[String] = f match {
-    case udf: UserDefinedFunction ⇒ udf.sourceLocationOpt.map(_.source)
-    case _                        ⇒ None
   }
 
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
@@ -65,6 +48,6 @@ object HelpCreator {
       parentOpt = klass.parentOpt.map(_.fullyQualifiedName.toString),
       fields = klass.fields.map(getFieldHelp(_, klass)),
       methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass)),
-      staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass))))
+      staticMethods = klass.staticMethods)
 
 }

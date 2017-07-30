@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, ParameterHelpClass }
+import com.github.mdr.mash.ns.core.help.ParameterHelpClass
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
@@ -10,11 +10,6 @@ import com.github.mdr.mash.utils.Utils._
 object ParameterHelpRenderer {
 
   import HelpRenderer._
-
-  def renderSection(help: FunctionHelpClass.Wrapper): Seq[Line] = {
-    val parameters = help.parameters
-    renderSection(parameters)
-  }
 
   def renderSection(parameters: Seq[MashValue]): Seq[Line] =
     if (parameters.nonEmpty) {

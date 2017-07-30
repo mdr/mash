@@ -222,7 +222,6 @@ object MashRoot {
     FunctionClass,
     ClassHelpClass,
     FieldHelpClass,
-    FunctionHelpClass,
     ParameterHelpClass,
     HistoryEntryClass,
     MethodHelpClass,

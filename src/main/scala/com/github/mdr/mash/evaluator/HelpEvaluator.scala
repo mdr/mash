@@ -9,7 +9,7 @@ import scala.PartialFunction.condOpt
 
 object HelpEvaluator {
 
-  def evaluateHelpExpr(helpExpr: HelpExpr)(implicit context: EvaluationContext): MashObject =
+  def evaluateHelpExpr(helpExpr: HelpExpr)(implicit context: EvaluationContext): MashValue =
     helpExpr.expr match {
       case memberExpr @ MemberExpr(targetExpr, name, _, _) ⇒
         val target = Evaluator.evaluate(targetExpr)
@@ -32,7 +32,7 @@ object HelpEvaluator {
       case MashObject(_, Some(klass)) ⇒ klass.fields.find(_.name == name).map(field ⇒ (field, klass))
     }.flatten
 
-  private def getHelpForMember(target: MashValue, name: String): Option[MashObject] = {
+  private def getHelpForMember(target: MashValue, name: String): Option[MashValue] = {
     val fieldHelpOpt = lookupField(target, name).map { case (field, klass) ⇒ HelpCreator.getFieldHelp(field, klass) }
     lazy val memberHelpOpt = MemberEvaluator.maybeLookupByString(target, name).collect {
       case method: BoundMethod ⇒ HelpCreator.getHelp(method)

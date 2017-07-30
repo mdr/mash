@@ -98,7 +98,7 @@ object ClassClass extends MashClass("core.Class") {
 
     val params = ParameterModel()
 
-    def call(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       HelpCreator.getHelp(target)
     }
 

@@ -4,7 +4,7 @@ class DocCommentsTest extends AbstractEvaluatorTest {
 
   """# Square a number
     |def square n = n * n
-    |square.help.summary
+    |square.summary
   """.stripMargin ==> "'Square a number'"
 
   """# Summary
@@ -12,12 +12,12 @@ class DocCommentsTest extends AbstractEvaluatorTest {
     |# Description 2
     |# Description 3
     |def fun x = x
-    |fun.help.description
+    |fun.description
   """.stripMargin ==> "'Description 1`nDescription 2`nDescription 3'"
 
   """# Square a number
     |@private def square n = n * n
-    |square.help.summary
+    |square.summary
   """.stripMargin ==> "'Square a number'"
 
   """class A {

@@ -1,7 +1,8 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.ns.core.{ ClassClass, StringClass }
+import com.github.mdr.mash.functions.MashFunction
+import com.github.mdr.mash.ns.core.{ ClassClass, FunctionClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 import scala.collection.immutable.ListMap
@@ -15,8 +16,8 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
     val Description = Field("description", Some("Description of the class"), StringClass)
     val Parent = Field("parent", Some("The parent class, if any, else null"), ClassClass)
     val Fields = Field("fields", Some("The fields of the class"), Seq(FieldHelpClass))
-    val Methods = Field("methods", Some("The methods of the class"), Seq(FunctionHelpClass))
-    val StaticMethods = Field("staticMethods", Some("The static methods of the class"), Seq(FunctionHelpClass))
+    val Methods = Field("methods", Some("The methods of the class"), Seq(MethodHelpClass))
+    val StaticMethods = Field("staticMethods", Some("The static methods of the class"), Seq(FunctionClass))
   }
 
   import Fields._
@@ -32,7 +33,7 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
              parentOpt: Option[String],
              fields: Seq[MashObject],
              methods: Seq[MashObject],
-             staticMethods: Seq[MashObject]): MashObject =
+             staticMethods: Seq[MashFunction]): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
@@ -57,7 +58,7 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
 
     def fields: Seq[FieldHelpClass.Wrapper] = getListField(Fields.Fields).map(FieldHelpClass.Wrapper)
 
-    def staticMethods: Seq[FunctionHelpClass.Wrapper] = getListField(StaticMethods).map(FunctionHelpClass.Wrapper)
+    def staticMethods: Seq[MashFunction] = getListField(StaticMethods).map(_.asInstanceOf[MashFunction])
 
     def methods: Seq[MethodHelpClass.Wrapper] = getListField(Methods).map(MethodHelpClass.Wrapper)
 

@@ -1,7 +1,8 @@
 package com.github.mdr.mash.render.help
 
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.help.ClassHelpClass.Wrapper
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FunctionHelpClass, MethodHelpClass }
+import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, MethodHelpClass }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
@@ -71,7 +72,7 @@ object ClassHelpRenderer {
   private def renderMethodSummary(methodHelp: MethodHelpClass.Wrapper): Line =
     Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.method.summaryOpt.fold("")(" - " + _).style)
 
-  private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
-    Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
+  private def renderMethodSummary(f: MashFunction): Line =
+    Line(IndentSpace + FieldMethodStyle(f.name) + f.summaryOpt.fold("")(" - " + _).style)
 
 }

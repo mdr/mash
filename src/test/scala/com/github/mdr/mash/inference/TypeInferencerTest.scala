@@ -5,7 +5,7 @@ import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.ns.collections
 import com.github.mdr.mash.ns.collections.ListClass
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, _ }
+import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.core.objectClass.MergeStaticMethod
 import com.github.mdr.mash.ns.git._
 import com.github.mdr.mash.ns.os._
@@ -250,15 +250,14 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "{}.toString" ==> StringClass
 
   // help
-  "ls?" ==> FunctionHelpClass
-  "help readLines" ==> FunctionHelpClass
-  "help [].maxBy" ==> FunctionHelpClass
+  "ls?" ==> FunctionClass
+  "help readLines" ==> FunctionClass
+  "help [].maxBy" ==> MethodHelpClass
   "help 42.getClass" ==> ClassHelpClass
-  "ls? .parameters" ==> Seq(ParameterHelpClass)
-  "'foo'.regex?" ==> FunctionHelpClass
-  "def foo = 42; foo?" ==> FunctionHelpClass
-  "class A { def a = 42 }; A.new.a?" ==> FunctionHelpClass
-  "class A { def a b = 42 }; help A.new.a" ==> FunctionHelpClass
+  "'foo'.regex?" ==> MethodHelpClass
+  "def foo = 42; foo?" ==> FunctionClass
+  "class A { def a = 42 }; A.new.a?" ==> MethodHelpClass
+  "class A { def a b = 42 }; help A.new.a" ==> MethodHelpClass
   "class A; help A" ==> ClassHelpClass
 
   // target
@@ -382,7 +381,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // Vectorised static member
   // "[Object].merge {}" ==> Seq(Object(Map()))
 
-  "class A { def square n = n * n }; A.new.square.help" ==> FunctionHelpClass
+  "class A { def square n = n * n }; A.new.square.help" ==> MethodHelpClass
 
   "def foo (n = ls) = 42; foo" ==> NumberClass
 

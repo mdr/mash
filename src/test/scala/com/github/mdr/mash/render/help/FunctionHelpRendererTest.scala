@@ -1,7 +1,6 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import org.scalatest.{ FlatSpec, Matchers }
@@ -17,7 +16,8 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
       object Params {
         val N = Parameter(
           nameOpt = Some("n"),
-          summaryOpt = Some("Number to take square root of"))
+          summaryOpt = Some("Number to take square root of"),
+          descriptionOpt = Some("Must not be negative"))
         val GoFaster = Parameter(
           nameOpt = Some("goFaster"),
           summaryOpt = Some("Compute it faster"),
@@ -34,29 +34,11 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
       def summaryOpt: Option[String] = Some("Take the square root of a number")
 
       override def descriptionOpt = Some("The number must not be negative")
+
+      override def sourceOpt = Some("def squareRoot n = findSquareRoot n")
     }
 
-    val help =
-      FunctionHelpClass.create(
-        name = TestFunction.name,
-        fullyQualifiedName = TestFunction.fullyQualifiedName.toString,
-        aliases = TestFunction.aliases.map(_.toString),
-        summaryOpt = TestFunction.summaryOpt,
-        descriptionOpt = TestFunction.descriptionOpt,
-        parameters = Seq(
-          ParameterHelpClass.create(
-            nameOpt = Some("n"),
-            summaryOpt = Some("Number to take square root of"),
-            descriptionOpt = Some("Must not be negative")),
-          ParameterHelpClass.create(
-            nameOpt = Some("goFaster"),
-            summaryOpt = Some("Compute it faster"),
-            isFlag = true)),
-        classOpt = None,
-        sourceOpt = Some("def squareRoot n = findSquareRoot n"),
-        functionOpt = Some(TestFunction))
-
-    val actualLines = join(FunctionHelpRenderer.render(help))
+    val actualLines = join(FunctionHelpRenderer.render(TestFunction))
 
     actualLines should equal(
       """FUNCTION
@@ -79,6 +61,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
   }
 
   it should "omit calling syntax if it is the same as the function name" in {
+
     object TestFunction extends MashFunction("os.currentDirectory") {
       override def call(boundParams: BoundParams): MashValue = ???
 
@@ -87,13 +70,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
       override def params: ParameterModel = ParameterModel.Empty
     }
 
-    val help =
-      FunctionHelpClass.create(
-        name = TestFunction.name,
-        fullyQualifiedName = TestFunction.fullyQualifiedName.toString,
-        functionOpt = Some(TestFunction))
-
-    val actualLines = join(FunctionHelpRenderer.render(help))
+    val actualLines = join(FunctionHelpRenderer.render(TestFunction))
 
     actualLines should equal(
       """FUNCTION

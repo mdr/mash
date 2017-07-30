@@ -88,9 +88,6 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
           printTextLines(xs)
         case obj: MashObject if obj.classOpt contains ViewClass                                             ⇒
           printView(obj)
-        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
-          helpPrinter.printFunctionHelp(obj)
-          done
         case obj: MashObject if obj.classOpt == Some(MethodHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printMethodHelp(obj)
           done
@@ -109,7 +106,8 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                      ⇒
           done // Don't print out sequence of unit
         case f: MashFunction if !printConfig.disableCustomViews                                             ⇒
-          print(HelpCreator.getHelp(f), printConfig)
+          helpPrinter.printFunctionHelp(f)
+          done
         case method: BoundMethod if !printConfig.disableCustomViews                                         ⇒
           print(HelpCreator.getHelp(method), printConfig)
         case klass: MashClass if !printConfig.disableCustomViews                                            ⇒

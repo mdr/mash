@@ -39,4 +39,5 @@ abstract class MashFunction(
 
   override def toString = fullyQualifiedName.toString
 
+  def sourceOpt: Option[String] = None
 }

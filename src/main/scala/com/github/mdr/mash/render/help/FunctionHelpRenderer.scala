@@ -1,8 +1,8 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass, UserDefinedMethod }
+import com.github.mdr.mash.classes.{ MashClass, UserDefinedMethod }
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator, MethodHelpClass }
+import com.github.mdr.mash.ns.core.help.{ HelpCreator, MethodHelpClass }
 import com.github.mdr.mash.render.{ CallingSyntaxRenderer, MashRenderer }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style._
@@ -42,14 +42,14 @@ object FunctionHelpRenderer {
     renderNameSection("METHOD", names, method.summaryOpt)
   }
 
-  def render(obj: MashObject): Seq[Line] = {
-    val help = FunctionHelpClass.Wrapper(obj)
+  def render(f: MashFunction): Seq[Line] = {
+    val paramHelp = f.params.params.map(HelpCreator.getParamHelp)
     Seq(
-      renderNameSection(help),
-      renderCallingSyntaxSection(help),
-      ParameterHelpRenderer.renderSection(help),
-      renderDescriptionSection(help.descriptionOpt),
-      renderSourceSection(help.sourceOpt)).flatten
+      renderNameSection(f),
+      renderCallingSyntaxSection(f),
+      ParameterHelpRenderer.renderSection(paramHelp),
+      renderDescriptionSection(f.descriptionOpt),
+      renderSourceSection(f.sourceOpt)).flatten
   }
 
   private def renderNameSection(f: MashFunction): Seq[Line] = {
@@ -64,20 +64,11 @@ object FunctionHelpRenderer {
     Seq(titleLine, namesLine)
   }
 
-  private def renderNameSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    help.functionOpt.collect {
-      case f: MashFunction ⇒ renderNameSection(f)
-    }.get
-
-  private def renderCallingSyntaxSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    help.functionOpt
-      .collect {
-        case f: MashFunction if f.params.nonEmpty  ⇒ CallingSyntaxRenderer.render(f)
-        case bm: BoundMethod if bm.params.nonEmpty ⇒ CallingSyntaxRenderer.render(bm)
-      }
-      .map(callingSyntax ⇒
-        renderCallingSyntaxSection(callingSyntax))
-      .getOrElse(Seq())
+  private def renderCallingSyntaxSection(f: MashFunction): Seq[Line] =
+    if (f.params.isEmpty)
+      Seq()
+    else
+      renderCallingSyntaxSection(CallingSyntaxRenderer.render(f))
 
   private def renderCallingSyntaxSection(callingSyntax: StyledString): Seq[Line] =
     Seq(

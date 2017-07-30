@@ -26,4 +26,5 @@ case class UserDefinedFunction(docCommentOpt: Option[DocComment],
 
   def sourceLocationOpt: Option[SourceLocation] = decl.sourceInfoOpt.map(_.location)
 
+  override def sourceOpt: Option[String] = sourceLocationOpt.map(_.source)
 }

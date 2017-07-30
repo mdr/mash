@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
-import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator }
+import com.github.mdr.mash.ns.core.help.{ HelpCreator, MethodHelpClass }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object BoundMethodClass extends MashClass("core.BoundMethod") {
@@ -92,11 +92,11 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel()
 
-    def call(target: MashValue, boundParams: BoundParams): MashObject = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
       HelpCreator.getHelp(target)
     }
 
-    override def typeInferenceStrategy = FunctionHelpClass
+    override def typeInferenceStrategy = MethodHelpClass
 
     override def summaryOpt = Some("Help documentation for this method")
 

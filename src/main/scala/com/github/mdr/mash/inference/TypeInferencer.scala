@@ -8,7 +8,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.Type.UserClassInstance
 import com.github.mdr.mash.ns.collections.{ GroupClass, ListClass }
 import com.github.mdr.mash.ns.core._
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
+import com.github.mdr.mash.ns.core.help.MethodHelpClass
 import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ FunctionDeclaration, _ }
 import com.github.mdr.mash.parser.QuotationType
@@ -147,10 +147,10 @@ class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInf
 
   private def inferType(helpExpr: HelpExpr, bindings: Map[String, Type]): Option[Type] =
     inferType(helpExpr.expr, bindings, immediateExec = false) collect {
-      case Type.BuiltinFunction(_)        ⇒ FunctionHelpClass
-      case Type.BoundBuiltinMethod(_, _)  ⇒ FunctionHelpClass
-      case _: Type.UserDefinedFunction    ⇒ FunctionHelpClass
-      case _: Type.BoundUserDefinedMethod ⇒ FunctionHelpClass
+      case Type.BuiltinFunction(_)        ⇒ FunctionClass
+      case Type.BoundBuiltinMethod(_, _)  ⇒ MethodHelpClass
+      case _: Type.UserDefinedFunction    ⇒ FunctionClass
+      case _: Type.BoundUserDefinedMethod ⇒ MethodHelpClass
     }
 
   private def inferType(statementSeq: StatementSeq, bindings: Map[String, Type]): Option[Type] = {
