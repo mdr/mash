@@ -5,7 +5,7 @@ import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
-import com.github.mdr.mash.repl.NormalActions.{ AcceptLine, AssistInvocation, BackwardKillLine, SelfInsert }
+import com.github.mdr.mash.repl.NormalActions.{ Enter, AssistInvocation, BackwardKillLine, SelfInsert }
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
@@ -100,7 +100,7 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
     }
 
     def acceptLine() = {
-      repl.handleAction(AcceptLine)
+      repl.handleAction(Enter)
       repl
     }
 
@@ -153,7 +153,7 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
     }
 
     def acceptLine(): Repl = {
-      repl.handleAction(AcceptLine)
+      repl.handleAction(Enter)
       repl
     }
 

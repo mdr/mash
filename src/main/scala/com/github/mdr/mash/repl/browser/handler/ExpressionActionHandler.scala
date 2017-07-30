@@ -85,7 +85,7 @@ trait ExpressionActionHandler {
       case LineBufferAction(f) ⇒ updateExpressionBuffer(f)
       case ToggleQuote         ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
       case Complete            ⇒ handleComplete(browserState, expressionState)
-      case AcceptLine          ⇒ handleAcceptLine(browserState, expressionState)
+      case Enter               ⇒ handleEnter(browserState, expressionState)
       case AssistInvocation    ⇒ handleAssistInvocation(browserState, expressionState)
       case _                   ⇒
     }
@@ -97,7 +97,7 @@ trait ExpressionActionHandler {
     updateState(browserState.setExpression(newExpressionState))
   }
 
-  private def handleAcceptLine(browserState: BrowserState, expressionState: ExpressionState) {
+  private def handleEnter(browserState: BrowserState, expressionState: ExpressionState) {
     updateState(browserState.acceptExpression)
     acceptExpression(browserState.path, browserState.rawValue, expressionState.lineBuffer.text)
   }

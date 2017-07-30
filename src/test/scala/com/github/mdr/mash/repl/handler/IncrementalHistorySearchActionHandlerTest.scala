@@ -67,7 +67,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
     val Result(state2, true) = actionHandler.handleAction(SelfInsert("f"), state1)
     state2.fixTime should equal(replState("foo▶").withHistorySearchState("f", 0, Region(0, 1)))
 
-    val Result(state3, true) = actionHandler.handleAction(AcceptLine, state2)
+    val Result(state3, true) = actionHandler.handleAction(Enter, state2)
     state3 should equal(replState("foo▶"))
   }
 

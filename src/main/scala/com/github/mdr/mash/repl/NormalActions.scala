@@ -6,7 +6,7 @@ object NormalActions {
 
   case class SelfInsert(s: String) extends InputAction
   case object ClearScreen extends InputAction
-  case object AcceptLine extends InputAction
+  case object Enter extends InputAction
   case object BeginningOfLine extends InputAction
   case object EndOfLine extends InputAction
   case object ForwardChar extends InputAction

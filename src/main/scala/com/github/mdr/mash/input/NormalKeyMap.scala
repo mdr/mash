@@ -23,7 +23,7 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
 
 object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(Tab) -> Complete,
-  KeyPress(Enter) -> AcceptLine,
+  KeyPress(Key.Enter) -> NormalActions.Enter,
   KeyPress(BasicKey('a'), control = true) -> BeginningOfLine,
   KeyPress(Home) -> BeginningOfLine,
   KeyPress(BasicKey('e'), control = true) -> EndOfLine,

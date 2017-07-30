@@ -27,7 +27,7 @@ trait NormalActionHandler extends InlineHandler {
 
   def handleNormalAction(action: InputAction) = {
     action match {
-      case AcceptLine               ⇒ handleAcceptLine()
+      case Enter                    ⇒ handleEnter()
       case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state = state.updateLineBuffer(f))
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
@@ -124,7 +124,7 @@ trait NormalActionHandler extends InlineHandler {
     state = InsertLastArgHandler.handleInsertLastArg(history, state)
   }
 
-  private def handleAcceptLine() = {
+  private def handleEnter() = {
     history.resetHistoryPosition()
     if (canAcceptBuffer) {
       updateScreenAfterAccept()

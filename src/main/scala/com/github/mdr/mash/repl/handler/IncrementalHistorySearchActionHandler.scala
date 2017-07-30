@@ -33,7 +33,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
         action match {
           case SelfInsert(c)                 ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
           case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
-          case AcceptLine                    ⇒ Result(state.copy(historySearchStateOpt = None))
+          case Enter                         ⇒ Result(state.copy(historySearchStateOpt = None))
           case IncrementalHistorySearch | Up ⇒ Result(updateSearch(searchString, hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
