@@ -37,7 +37,11 @@ object ParameterHelpRenderer extends AbstractHelpRenderer {
     Seq(
       param.isLazy.option("lazy"),
       param.isNamedArgsParam.option("namedArgs"),
+      param.isAllArgsParam.option("allArgs"),
+      param.isSafe.option("safe"),
       param.hasDefault.option("optional"),
-      param.isVariadic.option("variadic")).flatten
+      param.isVariadic.option("variadic"),
+      param.variadicAtLeastOne.option("at least one"),
+      param.variadicFlatten.option("flatten")).flatten
 
 }

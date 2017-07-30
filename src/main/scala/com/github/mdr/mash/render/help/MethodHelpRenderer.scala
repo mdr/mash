@@ -14,17 +14,17 @@ object MethodHelpRenderer extends AbstractHelpRenderer {
     Seq(
       renderNameSection(method),
       renderClassSection(help.klass),
-      renderCallingSyntaxSection(method),
+      renderCallingSyntaxSection(help),
       ParameterHelpRenderer.renderSection(method.params.params),
       renderDescriptionSection(method.descriptionOpt),
       FunctionHelpRenderer.renderSourceSection(method.sourceOpt)).flatten
   }
 
-  private def renderCallingSyntaxSection(method: MashMethod): Seq[Line] =
-    if (method.params.isEmpty)
+  private def renderCallingSyntaxSection(help: MethodHelpClass.Wrapper): Seq[Line] =
+    if (help.method.params.isEmpty)
       Seq()
     else
-      FunctionHelpRenderer.renderCallingSyntaxSection(CallingSyntaxRenderer.render(method))
+      FunctionHelpRenderer.renderCallingSyntaxSection(CallingSyntaxRenderer.render(help.method, Some(help.klass)))
 
   private def renderNameSection(method: MashMethod): Seq[Line] =
     renderNameSection("METHOD", method.name +: method.aliases, method.summaryOpt)

@@ -45,7 +45,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       isBooleanFlag = true,
       descriptionOpt = Some(
         """If true, output a list of Group objects, one for each group. If false (the default), output a single
-          | object with a field for each group.""".stripMargin))
+          |  object with a field for each group.""".stripMargin))
     val Discriminator = Parameter(
       nameOpt = Some("discriminator"),
       summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
@@ -135,7 +135,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
 If the --${Groups.name} flag is true, an list of Groups is returned instead, with a field for every group key.
 
 Example:
-  groupBy first ["foo", "bar", "baz"]
+  <mash>groupBy first ["foo", "bar", "baz"]</mash>
   ╔═╤═══╤═══╗
   ║#│0  │1  ║
   ╟─┼───┼───╢
