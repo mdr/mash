@@ -4,15 +4,13 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.{ CommandResult, CommandRunner }
-import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
 import com.github.mdr.mash.editor.QuoteToggler
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.os.linux.LinuxFileSystem
-import com.github.mdr.mash.repl.NormalActions.{ NextHistory, _ }
+import com.github.mdr.mash.repl.NormalActions.{ Down, _ }
 import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
@@ -34,8 +32,8 @@ trait NormalActionHandler extends InlineHandler {
       case Complete                 ⇒ handleComplete()
       case ClearScreen              ⇒ handleClearScreen()
       case EndOfFile                ⇒ handleEof()
-      case PreviousHistory          ⇒ handlePreviousHistory()
-      case NextHistory              ⇒ handleNextHistory()
+      case Up                       ⇒ handleUp()
+      case Down                     ⇒ handleDown()
       case AssistInvocation         ⇒ handleAssistInvocation()
       case InsertLastArg            ⇒ handleInsertLastArg()
       case ToggleQuote              ⇒ handleToggleQuote()
@@ -45,7 +43,7 @@ trait NormalActionHandler extends InlineHandler {
       case Inline                   ⇒ state = handleInline(state)
       case _                        ⇒
     }
-    if (action != NextHistory && action != PreviousHistory && action != ClearScreen)
+    if (action != Down && action != Up && action != ClearScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != ClearScreen)
       state = state.copy(insertLastArgStateOpt = None)
@@ -74,9 +72,11 @@ trait NormalActionHandler extends InlineHandler {
     result
   }
 
-  private def handlePreviousHistory() = {
+  private def handleUp() = {
     val lineBuffer = state.lineBuffer
-    if (lineBuffer.onFirstLine || !history.isCommittedToEntry) {
+    if (!lineBuffer.onFirstLine && history.isCommittedToEntry)
+      state = state.updateLineBuffer(_.up)
+    else {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
       if (shouldInitiateIncrementalSearch)
@@ -87,11 +87,9 @@ trait NormalActionHandler extends InlineHandler {
           case None      ⇒ state = state.updateLineBuffer(_.up)
         }
     }
-    else
-      state = state.updateLineBuffer(_.up)
   }
 
-  private def handleNextHistory() =
+  private def handleDown() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
         case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))

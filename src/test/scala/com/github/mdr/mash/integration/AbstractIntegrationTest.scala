@@ -142,13 +142,13 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
-    def previousHistory(): Repl = {
-      repl.handleAction(PreviousHistory)
+    def up(): Repl = {
+      repl.handleAction(Up)
       repl
     }
 
-    def nextHistory(): Repl = {
-      repl.handleAction(NextHistory)
+    def down(): Repl = {
+      repl.handleAction(Down)
       repl
     }
 

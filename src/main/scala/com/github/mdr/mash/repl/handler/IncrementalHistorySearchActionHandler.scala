@@ -31,11 +31,11 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     state.historySearchStateOpt match {
       case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
         action match {
-          case SelfInsert(c)                              ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
-          case BackwardDeleteChar                         ⇒ Result(handleDeleteChar(searchString, state))
-          case AcceptLine                                 ⇒ Result(state.copy(historySearchStateOpt = None))
-          case IncrementalHistorySearch | PreviousHistory ⇒ Result(updateSearch(searchString, hitStatus, state))
-          case _                                          ⇒ exitSearchAndHandleNormally(action, state)
+          case SelfInsert(c)                 ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
+          case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
+          case AcceptLine                    ⇒ Result(state.copy(historySearchStateOpt = None))
+          case IncrementalHistorySearch | Up ⇒ Result(updateSearch(searchString, hitStatus, state))
+          case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
       case None                                                         ⇒
         Result(state, actionConsumed = false)
@@ -46,7 +46,9 @@ case class IncrementalHistorySearchActionHandler(history: History) {
       case ""                            ⇒
         state.copy(historySearchStateOpt = None)
       case _ if searchString.length == 1 ⇒
-        state.copy(lineBuffer = LineBuffer.Empty, historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+        state.copy(
+          lineBuffer = LineBuffer.Empty,
+          historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
       case _                             ⇒
         updateSearch(searchString.init, BeforeFirstHit, state)
     }
@@ -63,9 +65,10 @@ case class IncrementalHistorySearchActionHandler(history: History) {
       val nextMatchOpt = history.findMatch(searchString, nextResultIndex)
       nextMatchOpt match {
         case Some(Match(command, matchRegion, timestamp, workingDirectory)) ⇒
+          val hit = Hit(nextResultIndex, matchRegion, timestamp, workingDirectory.toString)
           state.copy(
             lineBuffer = LineBuffer(command),
-            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, Hit(nextResultIndex, matchRegion, timestamp, workingDirectory.toString))))
+            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
         case None                                                           ⇒
           state.copy(
             lineBuffer = LineBuffer.Empty,

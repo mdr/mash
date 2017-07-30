@@ -47,11 +47,11 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.input("1").acceptLine()
     repl.input("2").acceptLine()
     repl.text should equal("")
-    repl.previousHistory().text should equal("2")
-    repl.nextHistory().text should equal("")
-    repl.nextHistory().text should equal("")
-    repl.previousHistory().text should equal("2")
-    repl.previousHistory().text should equal("1")
+    repl.up().text should equal("2")
+    repl.down().text should equal("")
+    repl.down().text should equal("")
+    repl.up().text should equal("2")
+    repl.up().text should equal("1")
   }
 
   "History" should "reset if an old line is edited" in {
@@ -60,13 +60,13 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .input("command2").acceptLine()
       .input("{").acceptLine()
       .input("partial")
-      .previousHistory()
-      .previousHistory()
+      .up()
+      .up()
     repl.text shouldEqual "command2"
-    repl.nextHistory().text shouldEqual "{\npartial"
-    repl.previousHistory().backspace().text shouldEqual "command"
+    repl.down().text shouldEqual "{\npartial"
+    repl.up().backspace().text shouldEqual "command"
 
-    repl.nextHistory()
+    repl.down()
 
     repl.text should equal("command")
   }
@@ -152,9 +152,9 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         .input("FOO = 100").acceptLine()
         .input("foobar = 42").acceptLine()
         .input("FOO")
-        .previousHistory()
+        .up()
     repl.text should equal("foobar = 42")
-    repl.previousHistory()
+    repl.up()
     repl.text should equal("FOO = 100")
   }
 

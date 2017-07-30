@@ -13,8 +13,8 @@ object NormalActions {
   case object BackwardChar extends InputAction
   case object ForwardWord extends InputAction
   case object BackwardWord extends InputAction
-  case object PreviousHistory extends InputAction
-  case object NextHistory extends InputAction
+  case object Up extends InputAction
+  case object Down extends InputAction
   case object DeleteChar extends InputAction
   case object EndOfFile extends InputAction
   case object BackwardDeleteChar extends InputAction
