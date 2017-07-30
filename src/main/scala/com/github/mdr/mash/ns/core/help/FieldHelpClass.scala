@@ -1,7 +1,8 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass, NewStaticMethod }
-import com.github.mdr.mash.ns.core.StringClass
+import com.github.mdr.mash.evaluator.EvaluatorException
+import com.github.mdr.mash.ns.core.{ ClassClass, StringClass }
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
 
 import scala.collection.immutable.ListMap
@@ -10,38 +11,31 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
   object Fields {
     val Name = Field("name", Some("Field name"), StringClass)
-    val Class = Field("class", Some("Class this field belongs to"), StringClass)
-    val Summary = Field("summary", Some("Summary of what the function does"), StringClass)
-    val Description = Field("description", Some("Description of the function"), StringClass)
+    val Class = Field("class", Some("Class this field belongs to"), ClassClass)
   }
 
   import Fields._
 
   def create(name: String,
-             klass: String,
-             summaryOpt: Option[String],
-             descriptionOpt: Option[String]): MashObject =
+             klass: MashClass): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
-        Class -> MashString(klass),
-        Summary -> MashString.maybe(summaryOpt),
-        Description -> MashString.maybe(descriptionOpt)),
+        Class -> klass),
       FieldHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 
     def name = getStringField(Name)
 
-    def klass = getStringField(Class)
+    def klass = getClassField(Class)
 
-    def summaryOpt = getOptionalStringField(Summary)
-
-    def descriptionOpt = getOptionalStringField(Description)
+    def field = klass.getField(name).getOrElse(
+      throw new EvaluatorException(s"No field '$name' found in '${klass.fullyQualifiedName}'"))
 
   }
 
-  override val fields = Seq(Name, Class, Summary, Description)
+  override val fields = Seq(Name, Class)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 

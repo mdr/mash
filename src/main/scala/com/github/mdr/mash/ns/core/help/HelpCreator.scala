@@ -21,11 +21,7 @@ object HelpCreator {
     MethodHelpClass.create(m.name, klass)
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
-    FieldHelpClass.create(
-      name = field.name,
-      klass = klass.fullyQualifiedName.toString,
-      summaryOpt = field.summaryOpt,
-      descriptionOpt = field.descriptionOpt)
+    FieldHelpClass.create(name = field.name, klass = klass)
 
   def getParamHelp(param: Parameter): MashObject =
     ParameterHelpClass.create(

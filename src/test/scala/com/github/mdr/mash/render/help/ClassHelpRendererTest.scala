@@ -7,39 +7,45 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import org.scalatest.{ FlatSpec, Matchers }
 
+object TestPointClass extends MashClass("geometry.Point") {
+  val Name = Field("x", Some("The x coordinate"), descriptionOpt = Some(
+    """The horizontal coordinate. Examples:
+      |<mash>
+      |  point.x
+      |</mash>""".stripMargin), fieldType = StringClass)
+
+  override def fields = Seq(Name)
+
+  override def summaryOpt: Option[String] = Some("A point in 2D space")
+
+  override def descriptionOpt = Some("Has an x and y coordinate")
+
+  object TestStaticMethod extends MashFunction("random") {
+    override def call(boundParams: BoundParams): MashValue = ???
+
+    override def summaryOpt: Option[String] = Some("Generate a random point")
+
+    override def params: ParameterModel = ParameterModel.Empty
+  }
+
+  object TestMethod extends MashMethod("norm") {
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = ???
+
+    override def summaryOpt: Option[String] = Some("Calculate the norm of the point")
+
+    override def params: ParameterModel = ParameterModel.Empty
+  }
+
+  override def methods = Seq(TestMethod)
+
+  override def staticMethods = Seq(TestStaticMethod)
+}
+
 class ClassHelpRendererTest extends FlatSpec with Matchers {
 
   "Rendering class help" should "work when all information is provided" in {
-    object TestClass extends MashClass("geometry.Point") {
-      val Name = Field("x", Some("The x coordinate"), StringClass)
 
-      override def fields = Seq(Name)
-
-      override def summaryOpt: Option[String] = Some("A point in 2D space")
-
-      override def descriptionOpt = Some("Has an x and y coordinate")
-      object TestStaticMethod extends MashFunction("random") {
-        override def call(boundParams: BoundParams): MashValue = ???
-
-        override def summaryOpt: Option[String] = Some("Generate a random point")
-
-        override def params: ParameterModel = ParameterModel.Empty
-      }
-
-      object TestMethod extends MashMethod("norm") {
-        override def call(target: MashValue, boundParams: BoundParams): MashValue = ???
-
-        override def summaryOpt: Option[String] = Some("Calculate the norm of the point")
-
-        override def params: ParameterModel = ParameterModel.Empty
-      }
-
-      override def methods = Seq(TestMethod)
-
-      override def staticMethods = Seq(TestStaticMethod)
-    }
-
-    val actualLines = join(ClassHelpRenderer.render(TestClass))
+    val actualLines = join(ClassHelpRenderer.render(TestPointClass))
 
     actualLines should equal(
       """CLASS

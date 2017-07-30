@@ -97,19 +97,19 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
         case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
           done
+        case f: MashFunction if !printConfig.disableCustomViews                                             ⇒
+          helpPrinter.printFunctionHelp(f)
+          done
+        case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
+          helpPrinter.printClassHelp(klass)
+          done
         case obj: MashObject if obj.nonEmpty                                                                ⇒
           new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
           done
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                      ⇒
           done // Don't print out sequence of unit
-        case f: MashFunction if !printConfig.disableCustomViews                                             ⇒
-          helpPrinter.printFunctionHelp(f)
-          done
         case method: BoundMethod if !printConfig.disableCustomViews                                         ⇒
           print(HelpCreator.getHelp(method), printConfig)
-        case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
-          helpPrinter.printClassHelp(klass)
-          done
         case MashUnit                                                                                       ⇒
           // Don't print out Unit
           done

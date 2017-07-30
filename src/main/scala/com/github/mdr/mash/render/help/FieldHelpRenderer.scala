@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.help
 
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.ns.core.help.FieldHelpClass.Wrapper
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
@@ -12,27 +12,28 @@ object FieldHelpRenderer {
 
   def render(obj: MashObject): Seq[Line] = {
     val help = FieldHelpClass.Wrapper(obj)
+    val field = help.field
     Seq(
-      renderNameSection(help),
-      renderClassSection(help),
-      renderDescriptionSection(help)).flatten
+      renderNameSection(field),
+      renderClassSection(help.klass),
+      renderDescriptionSection(field)).flatten
   }
 
-  private def renderNameSection(help: Wrapper): Seq[Line] = {
-    val nameLine = Line(IndentSpace + NameStyle(help.name) + help.summaryOpt.fold("")(" - " + _).style)
+  private def renderNameSection(field: Field): Seq[Line] = {
+    val nameLine = Line(IndentSpace + NameStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
     Seq(
       Line(SectionTitleStyle("FIELD")),
       nameLine)
   }
 
-  private def renderClassSection(help: Wrapper): Seq[Line] =
+  private def renderClassSection(klass: MashClass): Seq[Line] =
     Seq(
       Line.Empty,
       Line(SectionTitleStyle("CLASS")),
-      Line(IndentSpace + help.klass.style))
+      Line(IndentSpace + klass.fullyQualifiedName.toString.style))
 
-  private def renderDescriptionSection(help: Wrapper): Seq[Line] =
-    help.descriptionOpt.toSeq.flatMap(description ⇒
+  private def renderDescriptionSection(field: Field): Seq[Line] =
+    field.descriptionOpt.toSeq.flatMap(description ⇒
       Seq(Line.Empty,
         Line(SectionTitleStyle("DESCRIPTION"))
       ) ++ DescriptionRenderer.render(description))
