@@ -14,7 +14,7 @@ import scala.collection.immutable.ListMap
 
 object StatusFunction extends MashFunction("git.status") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashObject = {
     GitHelper.withRepository { repo ⇒

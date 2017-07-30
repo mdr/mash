@@ -8,7 +8,7 @@ import com.github.mdr.mash.runtime.{ MashNull, MashValue }
 
 object ParentMethod extends MashMethod("parent") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val parent = interpretAsPath(target).getParent

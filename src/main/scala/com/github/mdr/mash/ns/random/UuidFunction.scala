@@ -8,7 +8,7 @@ import com.github.mdr.mash.runtime.MashString
 
 object UuidFunction extends MashFunction("random.uuid") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashString =
     MashString(UUID.randomUUID.toString)

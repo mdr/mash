@@ -10,7 +10,7 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
 
   private val filesystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashUnit = {
     GitHelper.withGit { git ⇒

@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime._
 
 object OpenMethod extends MashMethod("open") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit =
     OpenFunction.openWithSystemOpener(target)

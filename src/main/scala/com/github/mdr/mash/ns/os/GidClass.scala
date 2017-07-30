@@ -18,7 +18,7 @@ object GidClass extends MashClass("os.Gid") {
 
   object UsersMethod extends MashMethod("users") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val gid = target.asInstanceOf[MashNumber].asInt.get
@@ -35,7 +35,7 @@ object GidClass extends MashClass("os.Gid") {
 
   object NameMethod extends MashMethod("name") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       val gid = target.asInstanceOf[MashNumber].asInt.get

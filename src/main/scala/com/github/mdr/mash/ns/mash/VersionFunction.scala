@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime._
 
 object VersionFunction extends MashFunction("mash.version") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashValue = {
     MashString(BuildInfo.version)

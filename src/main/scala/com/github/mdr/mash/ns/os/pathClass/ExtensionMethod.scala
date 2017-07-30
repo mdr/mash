@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashNull, MashString, MashValue }
 
 object ExtensionMethod extends MashMethod("extension") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString

@@ -6,7 +6,7 @@ import com.github.mdr.mash.utils.StringUtils
 
 object LinesMethod extends MashMethod("lines") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val targetString = target.asInstanceOf[MashString]

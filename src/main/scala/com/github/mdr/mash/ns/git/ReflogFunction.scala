@@ -9,7 +9,7 @@ import scala.collection.immutable.ListMap
 
 object ReflogFunction extends MashFunction("git.reflog") {
 
-  override def params: ParameterModel = ParameterModel()
+  def params: ParameterModel = ParameterModel.Empty
 
   override def call(boundParams: BoundParams): MashList =
     GitHelper.withGit { git ⇒

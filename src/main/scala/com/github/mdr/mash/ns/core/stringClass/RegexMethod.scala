@@ -8,7 +8,7 @@ object RegexMethod extends MashMethod("regex") {
 
   override def aliases = Seq("r")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     target.asInstanceOf[MashString].withTag(RegexClass)

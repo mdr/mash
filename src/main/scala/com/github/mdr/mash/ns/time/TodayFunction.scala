@@ -10,7 +10,7 @@ object TodayFunction extends MashFunction("time.today") {
 
   private val clock: Clock = Clock.systemDefaultZone
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashWrapped =
     MashWrapped(TimeUtils.localDate(clock.instant))

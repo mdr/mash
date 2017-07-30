@@ -12,7 +12,7 @@ object IsEmptyDirMethod extends MashMethod("isEmptyDir") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val path = interpretAsPath(target)

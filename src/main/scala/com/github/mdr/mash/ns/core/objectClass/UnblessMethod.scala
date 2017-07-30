@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
 object UnblessMethod extends MashMethod("unbless") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   override def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val obj = target.asInstanceOf[MashObject]

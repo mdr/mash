@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashNumber, MashString, MashValue }
 
 object LengthMethod extends MashMethod("length") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashNumber =
     MashNumber(target.asInstanceOf[MashString].length)

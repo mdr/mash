@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 
 object ValuesMethod extends MashMethod("values") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val obj = target.asInstanceOf[MashObject]

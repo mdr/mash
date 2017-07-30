@@ -49,7 +49,7 @@ object PidClass extends MashClass("os.Pid") {
 
   private def liftProcessField(field: Field) = new MashMethod(field.name) {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val pid = Wrapper(target).pid
@@ -68,7 +68,7 @@ object PidClass extends MashClass("os.Pid") {
 
   object InfoMethod extends MashMethod("info") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val pid = Wrapper(target).pid

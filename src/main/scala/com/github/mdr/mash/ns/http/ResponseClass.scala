@@ -38,7 +38,7 @@ object ResponseClass extends MashClass("http.Response") {
 
   object JsonMethod extends MashMethod("json") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       parseJson(Wrapper(target).body)
@@ -52,7 +52,7 @@ object ResponseClass extends MashClass("http.Response") {
 
   object SucceededMethod extends MashMethod("succeeded") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val code = Wrapper(target).code
@@ -67,7 +67,7 @@ object ResponseClass extends MashClass("http.Response") {
 
   object HeadersObjectMethod extends MashMethod("headersObject") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val pairs =

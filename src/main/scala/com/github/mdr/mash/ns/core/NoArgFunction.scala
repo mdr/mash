@@ -12,7 +12,7 @@ object NoArgFunction extends MashFunction("core.noArg") {
     case _          ⇒ Some(x)
   }
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashValue = NoArgValue
 

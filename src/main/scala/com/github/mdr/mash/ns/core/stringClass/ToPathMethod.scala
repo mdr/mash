@@ -7,7 +7,7 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object ToPathMethod extends MashMethod("toPath") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     target.asInstanceOf[MashString].withTag(PathClass)

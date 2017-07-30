@@ -9,7 +9,7 @@ object GroupsFunction extends MashFunction("os.groups") {
 
   private val userInteractions = UserInteractions.default
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     val passwdEntries = userInteractions.passwdEntries

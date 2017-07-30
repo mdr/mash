@@ -90,7 +90,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   object HelpMethod extends MashMethod("help") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       HelpCreator.getHelp(target)
@@ -104,7 +104,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   object TargetMethod extends MashMethod("target") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[BoundMethod].target

@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime.{ MashList, MashValue }
 
 object ReadLinesMethod extends MashMethod("readLines") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val path = interpretAsPath(target)

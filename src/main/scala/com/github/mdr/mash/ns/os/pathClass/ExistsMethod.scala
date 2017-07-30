@@ -9,7 +9,7 @@ object ExistsMethod extends MashMethod("exists") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     val path = FunctionHelpers.interpretAsPath(target)

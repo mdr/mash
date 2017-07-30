@@ -7,7 +7,7 @@ import scala.collection.JavaConverters._
 
 object PullFunction extends MashFunction("git.pull") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒

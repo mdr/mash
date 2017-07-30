@@ -11,7 +11,7 @@ object BooleanClass extends MashClass("core.Boolean") {
 
   object NotMethod extends MashMethod("not") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       target.asInstanceOf[MashBoolean].negate

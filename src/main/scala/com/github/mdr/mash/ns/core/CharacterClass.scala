@@ -11,7 +11,7 @@ object CharacterClass extends MashClass("core.Character") {
 
   object IsDigitMethod extends MashMethod("isDigit") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       val regex = target.asInstanceOf[MashString].s

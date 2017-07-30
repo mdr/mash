@@ -17,7 +17,7 @@ object GroupClass extends MashClass("os.Group") {
 
   object GidMethod extends MashMethod(GroupInfoClass.Fields.Gid.name) {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val group = target.asInstanceOf[MashString].s
@@ -33,7 +33,7 @@ object GroupClass extends MashClass("os.Group") {
 
   object UsersMethod extends MashMethod(GroupInfoClass.Fields.Users.name) {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val group = target.asInstanceOf[MashString].s

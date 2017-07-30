@@ -19,7 +19,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
   object SleepMethod extends MashMethod("sleep") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val nowInstant = clock.instant
@@ -39,7 +39,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
   object AgoMethod extends MashMethod("ago") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)
@@ -55,7 +55,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
 
   object FromNowMethod extends MashMethod("fromNow") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashWrapped = {
       val now = LocalDateTime.ofInstant(clock.instant, clock.getZone)

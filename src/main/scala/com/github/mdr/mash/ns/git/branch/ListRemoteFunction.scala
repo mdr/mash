@@ -13,7 +13,7 @@ import scala.collection.immutable.ListMap
 
 object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     GitHelper.withRepository { repo ⇒

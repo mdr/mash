@@ -30,7 +30,7 @@ object TagClass extends MashClass("git.tag.Tag") {
 
   object DeleteMethod extends MashMethod("delete") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val tagName = Wrapper(target).name

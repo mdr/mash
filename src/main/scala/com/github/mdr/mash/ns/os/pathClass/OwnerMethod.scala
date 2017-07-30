@@ -11,7 +11,7 @@ object OwnerMethod extends MashMethod("owner") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))

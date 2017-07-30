@@ -15,7 +15,7 @@ object DiskSpaceFunction extends MashFunction("os.diskSpace") {
 
   val RegexOsX = """^([^\s]+\s?[^\s]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)%\s+[^/]*(.*?)\s*$""".r
 
-  override def params = ParameterModel()
+  override def params = ParameterModel.Empty
 
   override def call(boundParams: BoundParams): MashList = {
     val process = new ProcessBuilder("df", "-k").redirectOutput(ProcessBuilder.Redirect.PIPE).start()

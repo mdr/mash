@@ -64,7 +64,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object SucceededMethod extends MashMethod("succeeded") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(Wrapper(target).exitStatus == 0)
@@ -78,7 +78,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object FailedMethod extends MashMethod("failed") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(Wrapper(target).exitStatus != 0)
@@ -94,7 +94,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
     override val aliases: Seq[String] = Seq("toList")
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val stdout = Wrapper(target).stdout
@@ -109,7 +109,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object LineMethod extends MashMethod("line") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString =
       MashString(Wrapper(target).line)
@@ -122,7 +122,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object ToNumberMethod extends MashMethod("toNumber") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       MashNumber(Wrapper(target).line.toDouble)
@@ -136,7 +136,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object ToPathMethod extends MashMethod("toPath") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(Wrapper(target).line, PathClass)
@@ -150,7 +150,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
 
   object DurationMethod extends MashMethod("duration") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       val wrapper = Wrapper(target)

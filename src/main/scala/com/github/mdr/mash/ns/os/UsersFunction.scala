@@ -9,7 +9,7 @@ object UsersFunction extends MashFunction("os.users") {
 
   val userInteractions = UserInteractions.default
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList =
     MashList(userInteractions.passwdEntries.map(UserSummaryClass.fromPasswdEntry))

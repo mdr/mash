@@ -21,7 +21,7 @@ object AnyClass extends MashClass("core.Any") {
 
   object IsNullMethod extends MashMethod("isNull") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = MashBoolean(target.isNull)
 
@@ -42,7 +42,7 @@ object AnyClass extends MashClass("core.Any") {
 
   object IsTruthy extends MashMethod("isTruthy") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
       MashBoolean(target.isTruthy)
@@ -100,7 +100,7 @@ object AnyClass extends MashClass("core.Any") {
 
   object GetClassMethod extends MashMethod("getClass") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashClass = target.primaryClass
 
@@ -114,7 +114,7 @@ object AnyClass extends MashClass("core.Any") {
 
   object ToStringMethod extends MashMethod("toString") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = target match {
       case s: MashString ⇒ s

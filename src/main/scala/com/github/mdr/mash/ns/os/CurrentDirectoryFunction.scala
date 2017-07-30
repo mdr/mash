@@ -10,7 +10,7 @@ object CurrentDirectoryFunction extends MashFunction("os.currentDirectory") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashString = {
     asPathString(fileSystem.pwd)

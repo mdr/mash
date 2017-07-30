@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object UntaggedMethod extends MashMethod("untagged") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     target.asInstanceOf[MashString].copy(tagClassOpt = None)

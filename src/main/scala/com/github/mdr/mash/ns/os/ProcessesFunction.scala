@@ -9,7 +9,7 @@ object ProcessesFunction extends MashFunction("os.processes") {
 
   private val processInteractions = LinuxProcessInteractions
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList =
     MashList(processInteractions.getProcesses.map(ProcessClass.makeProcess))

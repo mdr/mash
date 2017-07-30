@@ -35,7 +35,7 @@ object HistoryEntryClass extends MashClass("core.HistoryEntry") {
 
   object ReexecuteMethod extends MashMethod("reexecute") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val entryObject = target.asInstanceOf[MashObject]

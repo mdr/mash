@@ -9,7 +9,7 @@ object NowFunction extends MashFunction("time.now") {
 
   private val clock: Clock = Clock.systemDefaultZone
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashWrapped =
     MashWrapped(clock.instant)

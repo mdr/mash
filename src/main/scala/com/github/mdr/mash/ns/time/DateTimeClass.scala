@@ -38,7 +38,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   object MillisSinceEpochMethod extends MashMethod("millisSinceEpoch") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber =
       MashNumber(Wrapper(target).instant.toEpochMilli)
@@ -56,7 +56,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
         .withLocale(Locale.getDefault).
         withZone(ZoneId.systemDefault())
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString =
       MashString(formatter.format(Wrapper(target).instant))
@@ -70,7 +70,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
   object FuzzyMethod extends MashMethod("fuzzy") {
     private val prettyTime = new PrettyTime
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(prettyTime.format(Date.from(Wrapper(target).instant)))
@@ -84,7 +84,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   object DateMethod extends MashMethod("date") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashWrapped =
       MashWrapped(Wrapper(target).localDate)
@@ -97,7 +97,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   object HourMethod extends MashMethod("hour") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber =
       MashNumber(Wrapper(target).localDateTime.getHour)
@@ -110,7 +110,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   object MinuteMethod extends MashMethod("minute") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber =
       MashNumber(Wrapper(target).localDateTime.getMinute)
@@ -123,7 +123,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
   object SecondMethod extends MashMethod("second") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber =
       MashNumber(Wrapper(target).localDateTime.getSecond)

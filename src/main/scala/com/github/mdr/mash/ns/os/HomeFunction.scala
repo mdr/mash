@@ -10,7 +10,7 @@ object HomeFunction extends MashFunction("os.home") {
 
   private val environmentInteractions = LinuxEnvironmentInteractions
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashString = {
     asPathString(environmentInteractions.home)

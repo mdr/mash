@@ -13,7 +13,7 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
 
   override def aliases = Seq(FullyQualifiedName("git.branches"))
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     GitHelper.withRepository { repo ⇒

@@ -41,7 +41,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
   object FullNameMethod extends MashMethod("fullName") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val username = Wrapper(target).username
@@ -61,7 +61,7 @@ object UserSummaryClass extends MashClass("os.UserSummary") {
 
   object GroupsMethod extends MashMethod("groups") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val user = Wrapper(target)

@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashNumber, MashString, MashValue }
 
 object ToNumberMethod extends MashMethod("toNumber") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashNumber = {
     MashNumber(target.asInstanceOf[MashString].s.toDouble)

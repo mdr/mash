@@ -84,7 +84,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object DeleteMethod extends MashMethod("delete") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit = {
       val wrapper = Wrapper(target)
@@ -109,7 +109,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object LogMethod extends MashMethod("log") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val branchName = Wrapper(target).fullName.s
@@ -129,7 +129,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
 
   object FullNameMethod extends MashMethod("fullName") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       Wrapper(target).fullName

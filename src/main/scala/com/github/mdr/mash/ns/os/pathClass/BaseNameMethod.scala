@@ -7,7 +7,7 @@ import org.apache.commons.io.FilenameUtils
 
 object BaseNameMethod extends MashMethod("baseName") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val name = FunctionHelpers.interpretAsPath(target).getFileName.toString

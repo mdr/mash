@@ -5,7 +5,7 @@ import com.github.mdr.mash.runtime.MashValue
 
 case class SuspendedValueFunction(suspendedValue: SuspendedMashValue) extends MashFunction(nameOpt = None) {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashValue = suspendedValue.resolve()
 

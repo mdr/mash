@@ -22,7 +22,7 @@ object UrlClass extends MashClass("net.Url") {
 
   object HostMethod extends MashMethod("host") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uri = targetUri(target)
@@ -83,7 +83,7 @@ object UrlClass extends MashClass("net.Url") {
 
   object OpenMethod extends MashMethod("open") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashUnit =
       OpenFunction.openWithSystemOpener(target)

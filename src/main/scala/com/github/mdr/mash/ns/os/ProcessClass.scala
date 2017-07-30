@@ -85,7 +85,7 @@ object ProcessClass extends MashClass("os.Process") {
 
   object ParentMethod extends MashMethod("parent") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val parentPidOpt = Wrapper(target).parentPidOpt
@@ -105,7 +105,7 @@ object ProcessClass extends MashClass("os.Process") {
 
   object ChildrenMethod extends MashMethod("children") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val pid = Wrapper(target).pid

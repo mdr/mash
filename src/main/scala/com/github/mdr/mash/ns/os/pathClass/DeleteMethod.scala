@@ -12,7 +12,7 @@ object DeleteMethod extends MashMethod("delete") {
 
   override def aliases = Seq("rm")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val path = interpretAsPath(target)

@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 object SegmentsMethod extends MashMethod("segments") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val segments: Seq[Path] = interpretAsPath(target).asScala.toSeq

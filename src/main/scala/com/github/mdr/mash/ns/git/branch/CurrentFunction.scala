@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 
 object CurrentFunction extends MashFunction("git.branch.current") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashObject =
     GitHelper.withRepository { repo ⇒

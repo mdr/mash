@@ -10,7 +10,7 @@ object SizeMethod extends MashMethod("size") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashNumber = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))

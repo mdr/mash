@@ -10,7 +10,7 @@ object ChangeDirectoryMethod extends MashMethod("changeDirectory") {
 
   override def aliases = Seq("cd")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashUnit = {
     val path = FunctionHelpers.interpretAsPath(target)

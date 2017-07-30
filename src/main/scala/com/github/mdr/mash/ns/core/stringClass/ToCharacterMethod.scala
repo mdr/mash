@@ -9,7 +9,7 @@ object ToCharacterMethod extends MashMethod("toCharacter") {
 
   override def aliases = Seq("c")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val s = target.asInstanceOf[MashString]

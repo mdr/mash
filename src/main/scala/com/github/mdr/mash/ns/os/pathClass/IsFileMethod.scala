@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime.{ MashBoolean, MashValue }
 
 object IsFileMethod extends MashMethod("isFile") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     MashBoolean(Files.isRegularFile(interpretAsPath(target)))

@@ -9,7 +9,7 @@ object InfoMethod extends MashMethod("info") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val path = FunctionHelpers.interpretAsPath(target)

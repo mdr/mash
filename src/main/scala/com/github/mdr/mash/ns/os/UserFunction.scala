@@ -9,7 +9,7 @@ object UserFunction extends MashFunction("os.user") {
 
   private val userInteractions = UserInteractions.default
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashObject = {
     val username = userInteractions.currentUsername

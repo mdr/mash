@@ -12,7 +12,7 @@ object ListFunction extends MashFunction("git.remote.list") {
 
   override def aliases = Seq(FullyQualifiedName("git.remotes"))
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒

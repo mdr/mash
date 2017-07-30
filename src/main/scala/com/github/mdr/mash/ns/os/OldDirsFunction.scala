@@ -10,7 +10,7 @@ object OldDirsFunction extends MashFunction("os.oldDirs") {
 
   private val workingDirectoryStack = Singletons.workingDirectoryStack
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashList = {
     MashList(workingDirectoryStack.oldDirs.map(FunctionHelpers.asPathString))

@@ -28,7 +28,7 @@ object GroupClass extends MashClass("collections.Group") {
 
   object CountMethod extends MashMethod("count") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       MashNumber(Wrapper(target).values.length)

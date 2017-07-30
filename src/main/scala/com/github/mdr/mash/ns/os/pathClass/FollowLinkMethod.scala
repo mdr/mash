@@ -10,7 +10,7 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
 
 object FollowLinkMethod extends MashMethod("followLink") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashString = {
     val path = FunctionHelpers.interpretAsPath(target)

@@ -11,7 +11,7 @@ import scala.collection.immutable.ListMap
 
 object FetchFunction extends MashFunction("git.fetch") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   override def call(boundParams: BoundParams): MashList = {
     GitHelper.withGit { git ⇒

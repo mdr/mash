@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.{ MashNull, MashString, MashValue, MashWrappe
 
 object ToDateMethod extends MashMethod("toDate") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashValue =
     ToDateTimeMethod.parseInstant(target.asInstanceOf[MashString].s)

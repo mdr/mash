@@ -68,7 +68,7 @@ object CommitClass extends MashClass("git.Commit") {
 
   object ParentMethod extends MashMethod("parent") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       Wrapper(target).parentOpt.map(MashString(_, CommitHashClass)) getOrElse MashNull
@@ -81,7 +81,7 @@ object CommitClass extends MashClass("git.Commit") {
   }
 
   object DiffMethod extends MashMethod("diff") {
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams) = {
       val wrapper = Wrapper(target)

@@ -6,7 +6,7 @@ import com.github.mdr.mash.runtime.MashNumber
 
 object NumberFunction extends MashFunction("random.number") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashNumber =
     MashNumber(math.random())

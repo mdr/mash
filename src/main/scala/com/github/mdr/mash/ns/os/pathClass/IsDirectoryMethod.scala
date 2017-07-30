@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime.{ MashBoolean, MashValue }
 
 object IsDirectoryMethod extends MashMethod("isDirectory") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
     MashBoolean(Files.isDirectory(interpretAsPath(target)))

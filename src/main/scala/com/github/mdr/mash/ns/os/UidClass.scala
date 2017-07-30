@@ -20,7 +20,7 @@ object UidClass extends MashClass("os.Uid") {
 
   private def liftUserSummaryField(field: Field) = new MashMethod(field.name) {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val uid = target.asInstanceOf[MashNumber].asInt.get
@@ -61,7 +61,7 @@ object UidClass extends MashClass("os.Uid") {
 
   object InfoMethod extends MashMethod("info") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val uid = target.asInstanceOf[MashNumber].asInt.get

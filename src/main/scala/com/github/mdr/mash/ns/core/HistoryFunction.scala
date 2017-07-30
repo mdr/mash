@@ -11,7 +11,7 @@ object HistoryFunction extends MashFunction("os.history") {
 
   private def history: History = Singletons.history
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   override def call(boundParams: BoundParams): MashList =
     MashList(history.getHistory.reverse.map(asObject))

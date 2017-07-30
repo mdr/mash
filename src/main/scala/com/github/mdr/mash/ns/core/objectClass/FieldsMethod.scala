@@ -9,7 +9,7 @@ import scala.collection.immutable.ListMap
 
 object FieldsMethod extends MashMethod("fields") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val obj = target.asInstanceOf[MashObject]

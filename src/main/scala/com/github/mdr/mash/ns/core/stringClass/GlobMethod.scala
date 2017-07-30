@@ -11,7 +11,7 @@ object GlobMethod extends MashMethod("glob") {
 
   override def aliases = Seq("g")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList = {
     val pattern = target.asInstanceOf[MashString].s

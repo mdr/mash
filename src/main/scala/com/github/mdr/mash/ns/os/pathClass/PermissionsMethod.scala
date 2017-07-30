@@ -10,7 +10,7 @@ object PermissionsMethod extends MashMethod("permissions") {
 
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashObject = {
     val summary = fileSystem.getPathSummary(interpretAsPath(target))

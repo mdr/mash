@@ -53,7 +53,7 @@ object ClassClass extends MashClass("core.Class") {
 
   object FullNameMethod extends MashMethod("fullName") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
@@ -67,7 +67,7 @@ object ClassClass extends MashClass("core.Class") {
 
   object NameMethod extends MashMethod("name") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
       MashString(target.asInstanceOf[MashClass].name)
@@ -81,7 +81,7 @@ object ClassClass extends MashClass("core.Class") {
 
   object ParentMethod extends MashMethod("parent") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[MashClass].parentOpt.getOrElse(MashNull)

@@ -125,7 +125,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object ToIntMethod extends MashMethod("toInt") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       target.asInstanceOf[MashNumber].modify(n ⇒ if (n < 0) math.ceil(n) else math.floor(n))
@@ -142,7 +142,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object TagMethod extends MashMethod("tag") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       target.asInstanceOf[MashNumber].tagClassOpt.getOrElse(MashNull)
@@ -156,7 +156,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object UntaggedMethod extends MashMethod("untagged") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       target.asInstanceOf[MashNumber].copy(tagClassOpt = None)
@@ -169,7 +169,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object BytesMethod extends MashMethod("bytes") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       target.asInstanceOf[MashNumber].withTag(BytesClass)
@@ -182,7 +182,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object KbMethod extends MashMethod("kb") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       val n = target.asInstanceOf[MashNumber]
@@ -196,7 +196,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object MbMethod extends MashMethod("mb") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       val n = target.asInstanceOf[MashNumber]
@@ -210,7 +210,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object GbMethod extends MashMethod("gb") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       val n = target.asInstanceOf[MashNumber]
@@ -227,7 +227,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def aliases = Seq(name.init)
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       target.asInstanceOf[MashNumber].withTag(klass)
@@ -249,7 +249,7 @@ object NumberClass extends MashClass("core.Number") {
 
   object NegateMethod extends MashMethod("negate") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashNumber = {
       val n = target.asInstanceOf[MashNumber]

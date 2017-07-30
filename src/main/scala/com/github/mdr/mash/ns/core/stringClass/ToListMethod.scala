@@ -8,7 +8,7 @@ object ToListMethod extends MashMethod("toList") {
 
   override def aliases = Seq("characters")
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(target: MashValue, boundParams: BoundParams): MashList =
     MashList(target.asInstanceOf[MashString].characterSequence)

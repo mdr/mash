@@ -29,7 +29,7 @@ object LocalBranchNameClass extends MashClass("git.branch.LocalBranchName") {
 
   object InfoMethod extends MashMethod("info") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashObject = {
       val branchName = target.asInstanceOf[MashString]

@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 object ToDateTimeMethod extends MashMethod("toDateTime") {
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   private val parser = new Parser
 

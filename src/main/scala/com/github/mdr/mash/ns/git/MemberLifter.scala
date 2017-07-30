@@ -9,7 +9,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
 
   def liftField(field: Field) = new MashMethod(field.name) {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]

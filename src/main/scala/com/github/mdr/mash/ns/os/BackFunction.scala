@@ -12,7 +12,7 @@ object BackFunction extends MashFunction("os.back") {
   private val workingDirectoryStack = Singletons.workingDirectoryStack
   private val fileSystem = LinuxFileSystem
 
-  val params = ParameterModel()
+  val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashValue = {
     workingDirectoryStack.back() match {

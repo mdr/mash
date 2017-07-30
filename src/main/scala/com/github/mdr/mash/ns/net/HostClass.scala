@@ -16,7 +16,7 @@ object HostClass extends MashClass("net.Host") {
 
   object IpAddressesMethod extends MashMethod("ipAddresses") {
 
-    val params = ParameterModel()
+    val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val host = target.asInstanceOf[MashString].s
