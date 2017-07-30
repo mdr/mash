@@ -78,10 +78,11 @@ object SortFunction extends MashFunction("collections.sort") {
 
   override def descriptionOpt = Some(
     """If called on an object, the object fields are sorted.
-
 Examples:
+<mash>
   sort [3, 1, 2]                                      # [1, 2, 3]
   sort --descending [3, 1, 2]                         # [3, 2, 1]
-  sort --naturalOrder ["a2.txt", "a10.txt", "a1.txt"] # ["a1.txt", "a2.txt", "a10.txt"] """)
+  sort --naturalOrder ["a2.txt", "a10.txt", "a1.txt"] # ["a1.txt", "a2.txt", "a10.txt"]
+</mash>""")
 
 }
