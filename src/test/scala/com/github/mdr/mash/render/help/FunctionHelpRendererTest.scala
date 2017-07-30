@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
+import com.github.mdr.mash.functions._
 import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, ParameterHelpClass }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
@@ -11,6 +11,8 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
   "Rendering function help" should "work when all information is provided" in {
 
     object TestFunction extends MashFunction("maths.squareRoot") {
+
+      override def aliases = Seq(FullyQualifiedName("sqrt"))
 
       object Params {
         val N = Parameter(
@@ -38,7 +40,7 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
       FunctionHelpClass.create(
         name = TestFunction.name,
         fullyQualifiedName = TestFunction.fullyQualifiedName.toString,
-        aliases = Seq("sqrt"),
+        aliases = TestFunction.aliases.map(_.toString),
         summaryOpt = TestFunction.summaryOpt,
         descriptionOpt = TestFunction.descriptionOpt,
         parameters = Seq(
@@ -77,10 +79,19 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
   }
 
   it should "omit calling syntax if it is the same as the function name" in {
+    object TestFunction extends MashFunction("os.currentDirectory") {
+      override def call(boundParams: BoundParams): MashValue = ???
+
+      override def summaryOpt: Option[String] = None
+
+      override def params: ParameterModel = ParameterModel.Empty
+    }
+
     val help =
       FunctionHelpClass.create(
-        name = "currentDirectory",
-        fullyQualifiedName = "os.currentDirectory")
+        name = TestFunction.name,
+        fullyQualifiedName = TestFunction.fullyQualifiedName.toString,
+        functionOpt = Some(TestFunction))
 
     val actualLines = join(FunctionHelpRenderer.render(help))
 

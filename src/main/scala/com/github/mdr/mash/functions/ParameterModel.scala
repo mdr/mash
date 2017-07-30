@@ -5,6 +5,8 @@ import com.github.mdr.mash.inference.TypedArguments
 
 object ParameterModel {
 
+  val Empty = ParameterModel()
+
   def apply(param1: Parameter, params: Parameter*): ParameterModel = ParameterModel(param1 +: params)
 
 }

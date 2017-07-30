@@ -24,13 +24,25 @@ object FunctionHelpRenderer {
       renderSourceSection(help)).flatten
   }
 
-  private def renderNameSection(help: FunctionHelpClass.Wrapper): Seq[Line] = {
-    val titleLine = Line(SectionTitleStyle(if (help.classOpt.isDefined) "METHOD" else "FUNCTION"))
-    val names = help.fullyQualifiedName +: help.aliases
+  private def renderNameSection(f: MashFunction): Seq[Line] = {
+    val names = (f.fullyQualifiedName +: f.aliases).map(_.toString)
+    renderNameSection("FUNCTION", names, f.summaryOpt)
+  }
+
+  private def renderNameSection(title: String, names: Seq[String], summaryOpt: Option[String]): Seq[Line] = {
+    val titleLine = Line(SectionTitleStyle(title))
     val styledNames = ", ".style.join(names.map(NameStyle(_)))
-    val namesLine = Line(IndentSpace + styledNames + help.summaryOpt.fold("")(" - " + _).style)
+    val namesLine = Line(IndentSpace + styledNames + summaryOpt.fold("")(" - " + _).style)
     Seq(titleLine, namesLine)
   }
+
+  private def renderNameSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
+    help.functionOpt.collect {
+      case f: MashFunction ⇒ renderNameSection(f)
+    }.getOrElse {
+      val names = help.fullyQualifiedName +: help.aliases
+      renderNameSection("METHOD", names, help.summaryOpt)
+    }
 
   private def renderClassSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.classOpt.toSeq.flatMap(klass ⇒
