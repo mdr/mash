@@ -46,4 +46,7 @@ abstract class MashMethod(val name: String) {
     * If the method is shy, then it is not made available in subclasses without qualification through "this"
     */
   val isShy: Boolean = false
+
+  def sourceOpt: Option[String] = None
+
 }

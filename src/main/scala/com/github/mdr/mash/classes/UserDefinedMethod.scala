@@ -28,4 +28,6 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
   def sourceLocationOpt: Option[SourceLocation] = decl.sourceInfoOpt.map(_.location)
+
+  override def sourceOpt: Option[String] = sourceLocationOpt.map(_.source)
 }
