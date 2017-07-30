@@ -5,13 +5,11 @@ import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 
-object ClassHelpRenderer {
-
-  import HelpRenderer._
+object ClassHelpRenderer extends AbstractHelpRenderer {
 
   def render(klass: MashClass): Seq[Line] = {
     Seq(renderSummarySection(klass),
-      renderDescriptionSection(klass),
+      renderDescriptionSection(klass.descriptionOpt),
       renderParentSection(klass),
       renderFieldSection(klass),
       renderStaticMethodSection(klass),
@@ -25,10 +23,6 @@ object ClassHelpRenderer {
       Line(SectionTitleStyle("CLASS")),
       summaryLine)
   }
-
-  private def renderDescriptionSection(help: MashClass): Seq[Line] =
-    help.descriptionOpt.toSeq.flatMap(description ⇒
-      Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ DescriptionRenderer.render(description))
 
   private def renderParentSection(klass: MashClass): Seq[Line] =
     klass.parentOpt.toSeq.flatMap(parent ⇒

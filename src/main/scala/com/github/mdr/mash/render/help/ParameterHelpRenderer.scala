@@ -7,9 +7,7 @@ import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Utils._
 
-object ParameterHelpRenderer {
-
-  import HelpRenderer._
+object ParameterHelpRenderer extends AbstractHelpRenderer {
 
   def renderSection(parameters: Seq[MashValue]): Seq[Line] =
     if (parameters.nonEmpty) {
@@ -34,7 +32,7 @@ object ParameterHelpRenderer {
     val summaryDescription = paramHelp.summaryOpt.fold("")(" - " + _).style
     val summaryLine = Line(IndentSpace + paramName + shortFlagDescription + qualifierString.style + summaryDescription)
     val descriptionLines = paramHelp.descriptionOpt.toSeq.flatMap(description ⇒
-      DescriptionRenderer.render(description, indentLevel = 2))
+      renderDescription(description, indentLevel = 2))
     summaryLine +: descriptionLines
   }
 
