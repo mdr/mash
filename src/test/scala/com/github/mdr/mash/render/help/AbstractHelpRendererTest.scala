@@ -5,6 +5,6 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 class AbstractHelpRendererTest extends FlatSpec with Matchers {
 
-  protected def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
+  protected def getText(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
 
 }

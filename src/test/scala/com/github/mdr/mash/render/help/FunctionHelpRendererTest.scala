@@ -36,7 +36,7 @@ class FunctionHelpRendererTest extends AbstractHelpRendererTest {
       override def sourceOpt = Some("def squareRoot n = findSquareRoot n")
     }
 
-    val actualLines = join(FunctionHelpRenderer.render(TestFunction))
+    val actualLines = getText(FunctionHelpRenderer.render(TestFunction))
 
     actualLines should equal(
       """FUNCTION
@@ -68,7 +68,7 @@ class FunctionHelpRendererTest extends AbstractHelpRendererTest {
       override def params: ParameterModel = ParameterModel.Empty
     }
 
-    val actualLines = join(FunctionHelpRenderer.render(TestFunction))
+    val actualLines = getText(FunctionHelpRenderer.render(TestFunction))
 
     actualLines should equal(
       """FUNCTION

@@ -1,8 +1,7 @@
 package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
-import com.github.mdr.mash.compiler.DesugarHoles
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter }
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.runtime._
 
 object HelpCreator {
@@ -14,11 +13,8 @@ object HelpCreator {
     case value            ⇒ value.primaryClass
   }
 
-  private def getMethodHelp(boundMethod: BoundMethod): MashObject =
-    getMethodHelp(boundMethod.method, boundMethod.klass)
-
-  private def getMethodHelp(m: MashMethod, klass: MashClass): MashObject =
-    MethodHelpClass.create(m.name, klass)
+  private def getMethodHelp(method: BoundMethod): MashObject =
+    MethodHelpClass.create(method.name, method.klass)
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
     FieldHelpClass.create(name = field.name, klass = klass)
