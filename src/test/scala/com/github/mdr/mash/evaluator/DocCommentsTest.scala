@@ -25,7 +25,7 @@ class DocCommentsTest extends AbstractEvaluatorTest {
     |  @attribute
     |  def method = 42
     |}
-    |A.new.method? | .summary
+    |(safe A.new.method).summary
   """.stripMargin ==> "'Do something'"
 
   """class A {
@@ -33,7 +33,7 @@ class DocCommentsTest extends AbstractEvaluatorTest {
     |  @(attribute "with argument")
     |  def method = 42
     |}
-    |A.new.method? | .summary
+    |(safe A.new.method).summary
   """.stripMargin ==> "'Do something'"
 
 }

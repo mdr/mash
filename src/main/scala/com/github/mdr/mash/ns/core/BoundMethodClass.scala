@@ -10,9 +10,42 @@ import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue
 object BoundMethodClass extends MashClass("core.BoundMethod") {
 
   override val methods = Seq(
+    DescriptionMethod,
     HelpMethod,
-    TargetMethod,
-    InvokeMethod)
+    InvokeMethod,
+    SummaryMethod,
+    TargetMethod)
+
+  object SummaryMethod extends MashMethod("summary") {
+
+    val params = ParameterModel.Empty
+
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val boundMethod = target.asInstanceOf[BoundMethod]
+      MashString.maybe(boundMethod.method.summaryOpt)
+    }
+
+    override def summaryOpt: Option[String] = Some("Get the summary of this method, if any, else null")
+
+    override def typeInferenceStrategy = StringClass
+
+  }
+
+  object DescriptionMethod extends MashMethod("description") {
+
+    val params = ParameterModel.Empty
+
+    override def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val boundMethod = target.asInstanceOf[BoundMethod]
+      MashString.maybe(boundMethod.method.descriptionOpt)
+    }
+
+    override def summaryOpt: Option[String] = Some("Get the description of this method, if any, else null")
+
+    override def typeInferenceStrategy = StringClass
+
+  }
+
 
   object InvokeMethod extends MashMethod("invoke") {
 
@@ -38,7 +71,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val namedArguments = namedArgs.immutableFields.toSeq.map { case (field, value) ⇒
         val argumentName = field match {
           case s: MashString ⇒ s.s
-          case _ ⇒ throw new EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
+          case _             ⇒ throw new EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
         }
         EvaluatedArgument.LongFlag(argumentName, Some(SuspendedMashValue(() ⇒ value)))
       }

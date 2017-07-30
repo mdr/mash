@@ -59,7 +59,7 @@ object ClassHelpClass extends MashClass("core.help.ClassHelp") {
 
     def staticMethods: Seq[FunctionHelpClass.Wrapper] = getListField(StaticMethods).map(FunctionHelpClass.Wrapper)
 
-    def methods: Seq[FunctionHelpClass.Wrapper] = getListField(Methods).map(FunctionHelpClass.Wrapper)
+    def methods: Seq[MethodHelpClass.Wrapper] = getListField(Methods).map(MethodHelpClass.Wrapper)
 
   }
 

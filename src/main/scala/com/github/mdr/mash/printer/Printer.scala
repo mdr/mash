@@ -88,16 +88,19 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
           printTextLines(xs)
         case obj: MashObject if obj.classOpt contains ViewClass                                             ⇒
           printView(obj)
-        case obj: MashObject if obj.classOpt.contains(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
+        case obj: MashObject if obj.classOpt == Some(FunctionHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printFunctionHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
+        case obj: MashObject if obj.classOpt == Some(MethodHelpClass) && !printConfig.disableCustomViews ⇒
+          helpPrinter.printMethodHelp(obj)
+          done
+        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printFieldHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
+        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printClassHelp(obj)
           done
-        case obj: MashObject if obj.classOpt.contains(StatusClass) && !printConfig.disableCustomViews       ⇒
+        case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
           done
         case obj: MashObject if obj.nonEmpty                                                                ⇒

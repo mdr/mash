@@ -1,6 +1,6 @@
 package com.github.mdr.mash.ns.core.help
 
-import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass, UserDefinedMethod }
+import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, UserDefinedFunction }
 import com.github.mdr.mash.runtime._
@@ -31,25 +31,11 @@ object HelpCreator {
     case _                        ⇒ None
   }
 
-  private def getSource(m: MashMethod): Option[String] = m match {
-    case udf: UserDefinedMethod ⇒ udf.sourceLocationOpt.map(_.source)
-    case _                      ⇒ None
-  }
-
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
-    getMethodHelp(boundMethod.method, boundMethod.klass, Some(boundMethod))
+    getMethodHelp(boundMethod.method, boundMethod.klass)
 
-  private def getMethodHelp(m: MashMethod, klass: MashClass, boundMethodOpt: Option[BoundMethod]): MashObject =
-    FunctionHelpClass.create(
-      name = m.name,
-      fullyQualifiedName = m.name,
-      aliases = m.aliases,
-      summaryOpt = m.summaryOpt,
-      descriptionOpt = m.descriptionOpt,
-      parameters = m.params.params.map(getParamHelp),
-      classOpt = Some(klass.fullyQualifiedName.toString),
-      sourceOpt = getSource(m),
-      functionOpt = boundMethodOpt)
+  private def getMethodHelp(m: MashMethod, klass: MashClass): MashObject =
+    MethodHelpClass.create(m.name, klass)
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
     FieldHelpClass.create(
@@ -58,7 +44,7 @@ object HelpCreator {
       summaryOpt = field.summaryOpt,
       descriptionOpt = field.descriptionOpt)
 
-  private def getParamHelp(param: Parameter): MashObject =
+  def getParamHelp(param: Parameter): MashObject =
     ParameterHelpClass.create(
       nameOpt = param.nameOpt.filterNot(_ startsWith DesugarHoles.VariableNamePrefix),
       summaryOpt = param.summaryOpt,
@@ -78,7 +64,7 @@ object HelpCreator {
       descriptionOpt = klass.descriptionOpt,
       parentOpt = klass.parentOpt.map(_.fullyQualifiedName.toString),
       fields = klass.fields.map(getFieldHelp(_, klass)),
-      methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass, None)),
+      methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass)),
       staticMethods = klass.staticMethods.map(getFunctionHelp(_, Some(klass))))
 
 }

@@ -225,6 +225,7 @@ object MashRoot {
     FunctionHelpClass,
     ParameterHelpClass,
     HistoryEntryClass,
+    MethodHelpClass,
     NoArgClass,
     NullClass,
     NumberClass,

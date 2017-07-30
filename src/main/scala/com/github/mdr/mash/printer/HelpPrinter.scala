@@ -8,6 +8,8 @@ import com.github.mdr.mash.screen.{ Line, Screen }
 
 class HelpPrinter(output: PrintStream) {
 
+  def printMethodHelp(obj: MashObject) = printAll(FunctionHelpRenderer.renderMethod(obj))
+
   def printFunctionHelp(obj: MashObject) = printAll(FunctionHelpRenderer.render(obj))
 
   def printFieldHelp(obj: MashObject) = printAll(FieldHelpRenderer.render(obj))

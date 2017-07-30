@@ -1,27 +1,55 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.classes.BoundMethod
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.ns.core.help.FunctionHelpClass
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass, UserDefinedMethod }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
+import com.github.mdr.mash.ns.core.help.{ FunctionHelpClass, HelpCreator, MethodHelpClass }
 import com.github.mdr.mash.render.{ CallingSyntaxRenderer, MashRenderer }
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
+import com.github.mdr.mash.screen.{ Line, StyledString }
 import com.github.mdr.mash.utils.LineInfo
 
 object FunctionHelpRenderer {
 
   import HelpRenderer._
 
+  def renderMethod(obj: MashObject): Seq[Line] = {
+    val help = MethodHelpClass.Wrapper(obj)
+    val method = help.method
+    val paramHelp = method.params.params.map(HelpCreator.getParamHelp)
+    Seq(
+      renderNameSection(method),
+      renderClassSection(help.klass),
+      renderCallingSyntaxSection(CallingSyntaxRenderer.render(method)),
+      ParameterHelpRenderer.renderSection(paramHelp),
+      renderDescriptionSection(method.descriptionOpt),
+      renderSourceSection(getSource(method))).flatten
+  }
+
+  private def getSource(method: MashMethod): Option[String] = method match {
+    case udm: UserDefinedMethod ⇒ udm.sourceLocationOpt.map(_.source)
+    case _                      ⇒ None
+  }
+
+  private def renderClassSection(klass: MashClass): Seq[Line] =
+    Seq(
+      Line.Empty,
+      Line(SectionTitleStyle("CLASS")),
+      Line(IndentSpace + klass.fullyQualifiedName.toString.style))
+
+  private def renderNameSection(method: MashMethod): Seq[Line] = {
+    val names = method.name +: method.aliases
+    renderNameSection("METHOD", names, method.summaryOpt)
+  }
+
   def render(obj: MashObject): Seq[Line] = {
     val help = FunctionHelpClass.Wrapper(obj)
     Seq(
       renderNameSection(help),
-      renderClassSection(help),
       renderCallingSyntaxSection(help),
       ParameterHelpRenderer.renderSection(help),
-      renderDescriptionSection(help),
-      renderSourceSection(help)).flatten
+      renderDescriptionSection(help.descriptionOpt),
+      renderSourceSection(help.sourceOpt)).flatten
   }
 
   private def renderNameSection(f: MashFunction): Seq[Line] = {
@@ -39,17 +67,7 @@ object FunctionHelpRenderer {
   private def renderNameSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.functionOpt.collect {
       case f: MashFunction ⇒ renderNameSection(f)
-    }.getOrElse {
-      val names = help.fullyQualifiedName +: help.aliases
-      renderNameSection("METHOD", names, help.summaryOpt)
-    }
-
-  private def renderClassSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    help.classOpt.toSeq.flatMap(klass ⇒
-      Seq(
-        Line.Empty,
-        Line(SectionTitleStyle("CLASS")),
-        Line(IndentSpace + klass.style)))
+    }.get
 
   private def renderCallingSyntaxSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
     help.functionOpt
@@ -58,18 +76,21 @@ object FunctionHelpRenderer {
         case bm: BoundMethod if bm.params.nonEmpty ⇒ CallingSyntaxRenderer.render(bm)
       }
       .map(callingSyntax ⇒
-        Seq(
-          Line.Empty,
-          Line(SectionTitleStyle("CALLING SYNTAX")),
-          Line(IndentSpace + callingSyntax)))
+        renderCallingSyntaxSection(callingSyntax))
       .getOrElse(Seq())
 
-  private def renderDescriptionSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    help.descriptionOpt.toSeq.flatMap(description ⇒
+  private def renderCallingSyntaxSection(callingSyntax: StyledString): Seq[Line] =
+    Seq(
+      Line.Empty,
+      Line(SectionTitleStyle("CALLING SYNTAX")),
+      Line(IndentSpace + callingSyntax))
+
+  private def renderDescriptionSection(descriptionOpt: Option[String]): Seq[Line] =
+    descriptionOpt.toSeq.flatMap(description ⇒
       Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ DescriptionRenderer.render(description))
 
-  private def renderSourceSection(help: FunctionHelpClass.Wrapper): Seq[Line] =
-    help.sourceOpt.toSeq.flatMap(source ⇒
+  private def renderSourceSection(sourceOpt: Option[String]): Seq[Line] =
+    sourceOpt.toSeq.flatMap(source ⇒
       Seq(Line.Empty, Line(SectionTitleStyle("SOURCE"))) ++ renderSource(source))
 
   private def renderSource(s: String): Seq[Line] = {

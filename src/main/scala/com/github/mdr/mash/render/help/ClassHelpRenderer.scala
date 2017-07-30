@@ -1,12 +1,10 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.ns.core.help.ClassHelpClass.Wrapper
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FunctionHelpClass }
+import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FunctionHelpClass, MethodHelpClass }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
-
-import scala.collection.mutable.ArrayBuffer
 
 object ClassHelpRenderer {
 
@@ -69,6 +67,9 @@ object ClassHelpRenderer {
     } else
       Seq()
   }
+
+  private def renderMethodSummary(methodHelp: MethodHelpClass.Wrapper): Line =
+    Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.method.summaryOpt.fold("")(" - " + _).style)
 
   private def renderMethodSummary(methodHelp: FunctionHelpClass.Wrapper): Line =
     Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.summaryOpt.fold("")(" - " + _).style)
