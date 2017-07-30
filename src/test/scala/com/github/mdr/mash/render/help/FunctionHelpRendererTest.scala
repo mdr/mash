@@ -2,10 +2,8 @@ package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.screen.Line
-import org.scalatest.{ FlatSpec, Matchers }
 
-class FunctionHelpRendererTest extends FlatSpec with Matchers {
+class FunctionHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering function help" should "work when all information is provided" in {
 
@@ -77,7 +75,5 @@ class FunctionHelpRendererTest extends FlatSpec with Matchers {
         |    os.currentDirectory""".stripMargin)
 
   }
-
-  private def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
 
 }

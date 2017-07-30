@@ -20,7 +20,10 @@ object CallingSyntaxRenderer {
   def render(method: MashMethod): StyledString = {
     val targetName = method.exampleTargetName.style(identifierStyle)
     val methodName = method.name.style(identifierStyle)
-    style"$targetName.$methodName ${render(method.params)}"
+    if (method.params.isEmpty)
+      style"$targetName.$methodName"
+    else
+      style"$targetName.$methodName ${render(method.params)}"
   }
 
   def render(params: ParameterModel): StyledString = {

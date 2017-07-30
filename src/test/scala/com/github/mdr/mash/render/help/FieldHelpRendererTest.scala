@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.core.help.FieldHelpClass
 import com.github.mdr.mash.screen.Line
 import org.scalatest.{ FlatSpec, Matchers }
 
-class FieldHelpRendererTest extends FlatSpec with Matchers {
+class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering field help" should "work when all information is provided" in {
     val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
@@ -49,7 +49,5 @@ class FieldHelpRendererTest extends FlatSpec with Matchers {
         |CLASS
         |    geometry.Point""".stripMargin)
   }
-
-  private def join(lines: Seq[Line]): String = lines.map(_.string.forgetStyling).mkString("\n")
 
 }
