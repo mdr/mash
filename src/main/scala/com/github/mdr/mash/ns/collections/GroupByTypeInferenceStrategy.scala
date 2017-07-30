@@ -13,9 +13,10 @@ object GroupByTypeInferenceStrategy extends TypeInferenceStrategy {
     val sequenceTypeOpt = argBindings.getType(Sequence)
     val discriminatorExprOpt = argBindings.getArgument(Discriminator)
     val outputListOfGroups = argBindings.getArgument(Groups).flatMap(_.valueOpt).exists(_.isTruthy)
+    val keyTypeOpt = MapTypeInferenceStrategy.inferMappedType(inferencer, discriminatorExprOpt, sequenceTypeOpt)
     if (outputListOfGroups)
       for {
-        keyType ← MapTypeInferenceStrategy.inferMappedType(inferencer, discriminatorExprOpt, sequenceTypeOpt)
+        keyType ← keyTypeOpt
         sequenceType ← sequenceTypeOpt
         valuesType ← condOpt(sequenceType) {
           case Type.Seq(elementType)      ⇒ elementType

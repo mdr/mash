@@ -15,7 +15,7 @@ class MethodHelpRendererTest extends AbstractHelpRendererTest {
         |    geometry.Point
         |
         |CALLING SYNTAX
-        |    target.norm""".stripMargin)
+        |    point.norm""".stripMargin)
   }
 
 }

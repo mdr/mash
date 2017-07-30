@@ -375,6 +375,8 @@ class CompletionsTest extends FlatSpec with Matchers {
   "'1234'.all (.isD▶" shouldContainCompletion "isDigit"
   "'1234'[0].isD▶" shouldContainCompletion "isDigit"
 
+  "ls | groupBy (.perm▶" shouldContainCompletion "permissions"
+
   private def compile(s: String, bindings: Map[String, MashValue]): Expr =
     Compiler.compileForgiving(CompilationUnit(s), bindings = bindings).body
 
