@@ -107,6 +107,4 @@ object SetExecutableMethod extends MashMethod("setExecutable") {
         |  path.setExecutable --all false      # Set permission for everyone to false
         |</mash>""".stripMargin)
 
-  override def exampleTargetName = "path"
-
 }

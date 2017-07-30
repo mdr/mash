@@ -19,7 +19,7 @@ object MethodHelpRenderer {
     Seq(
       renderNameSection(method),
       renderClassSection(help.klass),
-      FunctionHelpRenderer.renderCallingSyntaxSection(CallingSyntaxRenderer.render(method)),
+      FunctionHelpRenderer.renderCallingSyntaxSection(CallingSyntaxRenderer.render(method, Some(help.klass))),
       ParameterHelpRenderer.renderSection(paramHelp),
       FunctionHelpRenderer.renderDescriptionSection(method.descriptionOpt),
       FunctionHelpRenderer.renderSourceSection(method.sourceOpt)).flatten

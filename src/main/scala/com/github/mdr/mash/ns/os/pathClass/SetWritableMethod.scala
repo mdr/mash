@@ -45,6 +45,4 @@ object SetWritableMethod extends MashMethod("setWritable") {
 
   override def descriptionOpt = SetExecutableMethod.descriptionOpt.map(_.replaceAll("setExecutable", "setWritable"))
 
-  override def exampleTargetName = "path"
-
 }

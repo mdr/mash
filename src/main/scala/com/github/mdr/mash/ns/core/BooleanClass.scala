@@ -32,4 +32,5 @@ object BooleanClass extends MashClass("core.Boolean") {
   override def parentOpt = Some(AnyClass)
   
   override def summaryOpt = Some("Boolean values true and false")
+
 }

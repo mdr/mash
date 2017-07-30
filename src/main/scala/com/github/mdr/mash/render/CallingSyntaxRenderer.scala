@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.lexer.TokenType.{ IDENTIFIER, LONG_FLAG, SHORT_FLAG }
@@ -15,10 +15,10 @@ object CallingSyntaxRenderer {
   def render(f: MashFunction): StyledString =
     f.name.style(identifierStyle) + " ".style + render(f.params)
 
-  def render(bm: BoundMethod): StyledString = render(bm.method)
+  def render(bm: BoundMethod): StyledString = render(bm.method, Some(bm.klass))
 
-  def render(method: MashMethod): StyledString = {
-    val targetName = method.exampleTargetName.style(identifierStyle)
+  def render(method: MashMethod, classOpt: Option[MashClass] = None): StyledString = {
+    val targetName = classOpt.map(_.exampleTargetName).getOrElse("target").style(identifierStyle)
     val methodName = method.name.style(identifierStyle)
     if (method.params.isEmpty)
       style"$targetName.$methodName"

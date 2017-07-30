@@ -57,5 +57,9 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def compareTo(that: MashClass) = MashClassOrdering.compare(this, that)
 
+  /**
+    * An example target name for use in generating calling syntax
+    */
+  def exampleTargetName: String = name.take(1).toLowerCase + name.drop(1)
 
 }
