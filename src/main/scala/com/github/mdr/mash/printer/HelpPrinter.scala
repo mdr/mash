@@ -2,6 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.render.help.{ ClassHelpRenderer, FieldHelpRenderer, FunctionHelpRenderer, MethodHelpRenderer }
 import com.github.mdr.mash.runtime._
@@ -15,7 +16,7 @@ class HelpPrinter(output: PrintStream) {
 
   def printFieldHelp(obj: MashObject) = printAll(FieldHelpRenderer.render(obj))
 
-  def printClassHelp(obj: MashObject) = printAll(ClassHelpRenderer.render(obj))
+  def printClassHelp(klass: MashClass) = printAll(ClassHelpRenderer.render(klass))
 
   private def printAll(lines: Seq[Line]): Unit =
     for (line ← lines)

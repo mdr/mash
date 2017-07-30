@@ -220,7 +220,6 @@ object MashRoot {
     BytesClass,
     ClassClass,
     FunctionClass,
-    ClassHelpClass,
     FieldHelpClass,
     ParameterHelpClass,
     HistoryEntryClass,

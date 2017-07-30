@@ -1,9 +1,7 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.ns.core.help.ClassHelpClass.Wrapper
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, MethodHelpClass }
-import com.github.mdr.mash.runtime.MashObject
+import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 
@@ -11,36 +9,35 @@ object ClassHelpRenderer {
 
   import HelpRenderer._
 
-  def render(obj: MashObject): Seq[Line] = {
-    val help = ClassHelpClass.Wrapper(obj)
-    Seq(renderSummarySection(help),
-      renderDescriptionSection(help),
-      renderParentSection(help),
-      renderFieldSection(help),
-      renderStaticMethodSection(help),
-      renderMethodSection(help)).flatten
+  def render(klass: MashClass): Seq[Line] = {
+    Seq(renderSummarySection(klass),
+      renderDescriptionSection(klass),
+      renderParentSection(klass),
+      renderFieldSection(klass),
+      renderStaticMethodSection(klass),
+      renderMethodSection(klass)).flatten
   }
 
-  private def renderSummarySection(help: Wrapper): Seq[Line] = {
-    val summaryOpt = help.summaryOpt
-    val summaryLine = Line(IndentSpace + NameStyle(help.fullyQualifiedName) + summaryOpt.fold("")(" - " + _).style)
+  private def renderSummarySection(klass: MashClass): Seq[Line] = {
+    val summaryOpt = klass.summaryOpt
+    val summaryLine = Line(IndentSpace + NameStyle(klass.fullyQualifiedName.toString) + summaryOpt.fold("")(" - " + _).style)
     Seq(
       Line(SectionTitleStyle("CLASS")),
       summaryLine)
   }
 
-  private def renderDescriptionSection(help: Wrapper): Seq[Line] =
+  private def renderDescriptionSection(help: MashClass): Seq[Line] =
     help.descriptionOpt.toSeq.flatMap(description ⇒
       Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ DescriptionRenderer.render(description))
 
-  private def renderParentSection(help: Wrapper): Seq[Line] =
-    help.parentOpt.toSeq.flatMap(parent ⇒
+  private def renderParentSection(klass: MashClass): Seq[Line] =
+    klass.parentOpt.toSeq.flatMap(parent ⇒
       Seq(
         Line.Empty,
         Line(SectionTitleStyle("PARENT")),
-        Line(IndentSpace + parent.style)))
+        Line(IndentSpace + parent.fullyQualifiedName.toString.style)))
 
-  private def renderFieldSection(help: Wrapper): Seq[Line] = {
+  private def renderFieldSection(help: MashClass): Seq[Line] = {
     val fields = help.fields
     if (fields.nonEmpty) {
       val fieldLines =
@@ -51,7 +48,7 @@ object ClassHelpRenderer {
       Seq()
   }
 
-  private def renderStaticMethodSection(help: Wrapper): Seq[Line] = {
+  private def renderStaticMethodSection(help: MashClass): Seq[Line] = {
     val methods = help.staticMethods
     if (methods.nonEmpty) {
       Seq(Line.Empty, Line(SectionTitleStyle("STATIC METHODS"))) ++
@@ -60,7 +57,7 @@ object ClassHelpRenderer {
       Seq()
   }
 
-  private def renderMethodSection(help: Wrapper): Seq[Line] = {
+  private def renderMethodSection(help: MashClass): Seq[Line] = {
     val methods = help.methods
     if (methods.nonEmpty) {
       Seq(Line.Empty, Line(SectionTitleStyle("METHODS"))) ++
@@ -69,8 +66,8 @@ object ClassHelpRenderer {
       Seq()
   }
 
-  private def renderMethodSummary(methodHelp: MethodHelpClass.Wrapper): Line =
-    Line(IndentSpace + FieldMethodStyle(methodHelp.name) + methodHelp.method.summaryOpt.fold("")(" - " + _).style)
+  private def renderMethodSummary(method: MashMethod): Line =
+    Line(IndentSpace + FieldMethodStyle(method.name) + method.summaryOpt.fold("")(" - " + _).style)
 
   private def renderMethodSummary(f: MashFunction): Line =
     Line(IndentSpace + FieldMethodStyle(f.name) + f.summaryOpt.fold("")(" - " + _).style)

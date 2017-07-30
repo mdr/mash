@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.core.help
 
 import com.github.mdr.mash.classes.{ BoundMethod, Field, MashClass }
 import com.github.mdr.mash.compiler.DesugarHoles
-import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, UserDefinedFunction }
+import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter }
 import com.github.mdr.mash.runtime._
 
 object HelpCreator {
@@ -10,8 +10,8 @@ object HelpCreator {
   def getHelp(item: MashValue): MashValue = item match {
     case f: MashFunction  ⇒ f
     case bm: BoundMethod  ⇒ getMethodHelp(bm)
-    case klass: MashClass ⇒ getClassHelp(klass)
-    case value            ⇒ getClassHelp(value.primaryClass)
+    case klass: MashClass ⇒ klass
+    case value            ⇒ value.primaryClass
   }
 
   private def getMethodHelp(boundMethod: BoundMethod): MashObject =
@@ -38,16 +38,5 @@ object HelpCreator {
       isLazy = param.isLazy,
       isNamedArgs = param.isNamedArgsParam,
       isVariadic = param.isVariadic)
-
-  private def getClassHelp(klass: MashClass): MashObject =
-    ClassHelpClass.create(
-      name = klass.name,
-      fullyQualifiedName = klass.fullyQualifiedName.toString,
-      summaryOpt = klass.summaryOpt,
-      descriptionOpt = klass.descriptionOpt,
-      parentOpt = klass.parentOpt.map(_.fullyQualifiedName.toString),
-      fields = klass.fields.map(getFieldHelp(_, klass)),
-      methods = klass.methods.filter(_.isPublic).sortBy(_.name).map(getMethodHelp(_, klass)),
-      staticMethods = klass.staticMethods)
 
 }

@@ -1,8 +1,8 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, MashMethod, ParameterModel }
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, FieldHelpClass, MethodHelpClass }
+import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import org.scalatest.{ FlatSpec, Matchers }
@@ -11,9 +11,20 @@ class ClassHelpRendererTest extends FlatSpec with Matchers {
 
   "Rendering class help" should "work when all information is provided" in {
     object TestClass extends MashClass("geometry.Point") {
+      val Name = Field("x", Some("The x coordinate"), StringClass)
+
+      override def fields = Seq(Name)
+
       override def summaryOpt: Option[String] = Some("A point in 2D space")
 
       override def descriptionOpt = Some("Has an x and y coordinate")
+      object TestStaticMethod extends MashFunction("random") {
+        override def call(boundParams: BoundParams): MashValue = ???
+
+        override def summaryOpt: Option[String] = Some("Generate a random point")
+
+        override def params: ParameterModel = ParameterModel.Empty
+      }
 
       object TestMethod extends MashMethod("norm") {
         override def call(target: MashValue, boundParams: BoundParams): MashValue = ???
@@ -24,34 +35,11 @@ class ClassHelpRendererTest extends FlatSpec with Matchers {
       }
 
       override def methods = Seq(TestMethod)
+
+      override def staticMethods = Seq(TestStaticMethod)
     }
 
-    object TestStaticMethod extends MashFunction("random") {
-      override def call(boundParams: BoundParams): MashValue = ???
-
-      override def summaryOpt: Option[String] = Some("Generate a random point")
-
-      override def params: ParameterModel = ParameterModel.Empty
-    }
-
-    val help =
-      ClassHelpClass.create(
-        name = "Point",
-        fullyQualifiedName = "geometry.Point",
-        summaryOpt = TestClass.summaryOpt,
-        descriptionOpt = TestClass.descriptionOpt,
-        parentOpt = None,
-        fields = Seq(FieldHelpClass.create(
-          name = "x",
-          klass = "geometry.Point",
-          summaryOpt = Some("The x coordinate"),
-          descriptionOpt = None)),
-        methods = Seq(MethodHelpClass.create(
-          name = "norm",
-          klass = TestClass)),
-        staticMethods = Seq(TestStaticMethod))
-
-    val actualLines = join(ClassHelpRenderer.render(help))
+    val actualLines = join(ClassHelpRenderer.render(TestClass))
 
     actualLines should equal(
       """CLASS
@@ -59,6 +47,9 @@ class ClassHelpRendererTest extends FlatSpec with Matchers {
         |
         |DESCRIPTION
         |    Has an x and y coordinate
+        |
+        |PARENT
+        |    core.Object
         |
         |FIELDS
         |    x - The x coordinate

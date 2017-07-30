@@ -253,12 +253,12 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "ls?" ==> FunctionClass
   "help readLines" ==> FunctionClass
   "help [].maxBy" ==> MethodHelpClass
-  "help 42.getClass" ==> ClassHelpClass
+  "help 42.getClass" ==> ClassClass
   "'foo'.regex?" ==> MethodHelpClass
   "def foo = 42; foo?" ==> FunctionClass
   "class A { def a = 42 }; A.new.a?" ==> MethodHelpClass
   "class A { def a b = 42 }; help A.new.a" ==> MethodHelpClass
-  "class A; help A" ==> ClassHelpClass
+  "class A; help A" ==> ClassClass
 
   // target
   "[1].sumBy.target" ==> Seq(NumberClass)

@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
-import com.github.mdr.mash.ns.core.help.{ ClassHelpClass, HelpCreator }
+import com.github.mdr.mash.ns.core.help.{ HelpCreator }
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
 
 object ClassClass extends MashClass("core.Class") {
@@ -12,7 +12,6 @@ object ClassClass extends MashClass("core.Class") {
   override val methods = Seq(
     BlessMethod,
     FullNameMethod,
-    HelpMethod,
     NameMethod,
     ParentMethod)
 
@@ -92,19 +91,6 @@ object ClassClass extends MashClass("core.Class") {
 
     override def summaryOpt = Some("The parent of this class, if any, else null")
 
-  }
-
-  object HelpMethod extends MashMethod("help") {
-
-    val params = ParameterModel()
-
-    def call(target: MashValue, boundParams: BoundParams): MashValue = {
-      HelpCreator.getHelp(target)
-    }
-
-    override def typeInferenceStrategy = ClassHelpClass
-
-    override def summaryOpt = Some("Help documentation for this class")
   }
 
   override def summaryOpt = Some("A class")

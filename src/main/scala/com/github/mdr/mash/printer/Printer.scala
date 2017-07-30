@@ -94,9 +94,6 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
         case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
           helpPrinter.printFieldHelp(obj)
           done
-        case obj: MashObject if obj.classOpt == Some(ClassHelpClass) && !printConfig.disableCustomViews    ⇒
-          helpPrinter.printClassHelp(obj)
-          done
         case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
           new GitStatusPrinter(output).print(obj)
           done
@@ -111,7 +108,8 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
         case method: BoundMethod if !printConfig.disableCustomViews                                         ⇒
           print(HelpCreator.getHelp(method), printConfig)
         case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
-          print(HelpCreator.getHelp(klass), printConfig)
+          helpPrinter.printClassHelp(klass)
+          done
         case MashUnit                                                                                       ⇒
           // Don't print out Unit
           done
