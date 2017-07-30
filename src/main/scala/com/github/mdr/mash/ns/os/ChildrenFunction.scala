@@ -23,14 +23,14 @@ object ChildrenFunction extends MashFunction("os.children") {
       summaryOpt = Some("Ignore files starting with a dot (.) (default false)"),
       shortFlagOpt = Some('i'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Recursive = Parameter(
       nameOpt = Some("recursive"),
       summaryOpt = Some("Recursively retrieve results from subdirectories (default false)"),
       shortFlagOpt = Some('r'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
   import Params._

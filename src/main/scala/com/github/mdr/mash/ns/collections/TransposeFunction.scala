@@ -15,7 +15,7 @@ object TransposeFunction extends MashFunction("collections.transpose") {
       nameOpt = Some("skipGaps"),
       summaryOpt = Some("If true, skip gaps in lists where an entry isn't available; if false, use null (default false)"),
       shortFlagOpt = Some('s'),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
   }

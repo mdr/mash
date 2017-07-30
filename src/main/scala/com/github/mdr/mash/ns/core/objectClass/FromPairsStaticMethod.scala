@@ -11,11 +11,11 @@ object FromPairsStaticMethod extends MashFunction("fromPairs") {
     val FieldSelector = Parameter(
       nameOpt = Some("fieldSelector"),
       summaryOpt = Some("How to select the fields from the given items"),
-      defaultValueGeneratorOpt = Some(() ⇒ NoArgValue))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val ValueSelector = Parameter(
       nameOpt = Some("valueSelector"),
       summaryOpt = Some("How to select the values from the given items"),
-      defaultValueGeneratorOpt = Some(() ⇒ NoArgValue))
+      defaultValueGeneratorOpt = Some(NoArgValue))
     val Pairs = Parameter(
       nameOpt = Some("pairs"),
       summaryOpt = Some("Pairs to merge into an object"))

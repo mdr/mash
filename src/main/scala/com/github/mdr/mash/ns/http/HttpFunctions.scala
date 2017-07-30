@@ -26,7 +26,7 @@ object HttpFunctions {
           |If false, the body will be used directly.""".stripMargin),
       shortFlagOpt = Some('f'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
 
     val BasicAuth = Parameter(
@@ -77,21 +77,21 @@ object HttpFunctions {
           |  --queryParams={ name: "value" }
           |</mash>""".stripMargin),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashObject.empty))
+      defaultValueGeneratorOpt = Some(MashObject.empty))
 
     val Json = Parameter(
       nameOpt = Some("json"),
       summaryOpt = Some("Whether to send the body as JSON (default false)"),
       shortFlagOpt = Some('j'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
 
     val Form = Parameter(
       nameOpt = Some("form"),
       summaryOpt = Some("Whether to send the body as a URL-encoded form (default false)"),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
 

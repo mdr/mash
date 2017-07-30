@@ -17,7 +17,7 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
       nameOpt = Some("all"),
       summaryOpt = Some("Include a group containing all the results (default false)"),
       shortFlagOpt = Some('t'),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some(
@@ -29,7 +29,7 @@ Otherwise, a default key of "$DefaultAllKeyName" is used. """))
       nameOpt = Some("includeNull"),
       summaryOpt = Some("Include groups that have null keys (default false)"),
       shortFlagOpt = Some('n'),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       flagValueNameOpt = Some("key"),
       descriptionOpt = Some(
@@ -40,7 +40,7 @@ If a non-boolean argument is given, that will be used as the key for the null gr
       nameOpt = Some("groups"),
       summaryOpt = Some("Output a List of Group objects (default false)"),
       shortFlagOpt = Some('g'),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true,
       descriptionOpt = Some(

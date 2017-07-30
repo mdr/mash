@@ -19,7 +19,7 @@ object MergeFunction extends MashFunction("git.merge") {
       summaryOpt = Some("Squash commits (default false)"),
       shortFlagOpt = Some('s'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
   import Params._

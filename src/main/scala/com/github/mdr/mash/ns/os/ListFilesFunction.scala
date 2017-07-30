@@ -20,7 +20,7 @@ object ListFilesFunction extends MashFunction("os.listFiles") {
       summaryOpt = Some("Paths to list files"),
       isVariadic = true,
       variadicFlatten = true,
-      defaultValueGeneratorOpt = Some(() ⇒ MashList.of(asPathString(""))),
+      defaultValueGeneratorOpt = Some(MashList.of(asPathString(""))),
       descriptionOpt = Some(s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects. 
 If a given path is a file, it will be included in the output. 
 If a given path is a directory, its children will be included, unless the
@@ -31,21 +31,21 @@ If no paths are provided, the default is the current working directory."""))
       summaryOpt = Some("Include files starting with a dot (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Recursive = Parameter(
       nameOpt = Some("recursive"),
       summaryOpt = Some("Recursively retrieve results from directories (default false)"),
       shortFlagOpt = Some('r'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Directory = Parameter(
       nameOpt = Some("directory"),
       summaryOpt = Some("List directories themselves, not their contents (default false)"),
       shortFlagOpt = Some('d'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
 

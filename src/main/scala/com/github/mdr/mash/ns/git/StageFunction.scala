@@ -25,7 +25,7 @@ object StageFunction extends MashFunction("git.stage") {
       summaryOpt = Some("Stage all unstaged files (default false)"),
       shortFlagOpt = Some('a'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
 

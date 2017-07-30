@@ -24,14 +24,14 @@ object PushFunction extends MashFunction("git.push") {
       summaryOpt = Some("Add upstream tracking branch (default false)"),
       shortFlagOpt = Some('u'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Force = Parameter(
       nameOpt = Some("force"),
       summaryOpt = Some("Force push (default false)"),
       shortFlagOpt = Some('f'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Remote = Parameter(
       nameOpt = Some("remote"),

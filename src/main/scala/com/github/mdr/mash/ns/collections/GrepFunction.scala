@@ -24,20 +24,20 @@ object GrepFunction extends MashFunction("collections.grep") {
       summaryOpt = Some("Perform a case-insensitive match"),
       shortFlagOpt = Some('i'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Negate = Parameter(
       nameOpt = Some("negate"),
       summaryOpt = Some("Find all items that don't match the given query"),
       shortFlagOpt = Some('n'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
     val Regex = Parameter(
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
       summaryOpt = Some("Interpret query as a regular expression; otherwise, interpret query as the literal string (default false)"),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
 

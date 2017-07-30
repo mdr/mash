@@ -12,7 +12,7 @@ object AmendFunction extends MashFunction("git.amend") {
     val Message = Parameter(
       nameOpt = Some("message"),
       summaryOpt = Some("Message (defaults to last commit message)"),
-      defaultValueGeneratorOpt = Some(() ⇒ NoArgValue))
+      defaultValueGeneratorOpt = Some(NoArgValue))
   }
 
   import Params._

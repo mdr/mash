@@ -15,7 +15,7 @@ object SplitMethod extends MashMethod("split") {
       nameOpt = Some("regex"),
       shortFlagOpt = Some('r'),
       summaryOpt = Some("Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)"),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
     val Separator = Parameter(

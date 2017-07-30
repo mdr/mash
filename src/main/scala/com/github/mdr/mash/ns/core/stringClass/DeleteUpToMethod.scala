@@ -16,7 +16,7 @@ object DeleteUpToMethod extends MashMethod("deleteUpTo") {
       summaryOpt = Some("If true, remove the substring as well (default false)"),
       shortFlagOpt = Some('i'),
       isFlag = true,
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
   }
 

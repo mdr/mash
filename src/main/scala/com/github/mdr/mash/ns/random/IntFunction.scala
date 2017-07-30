@@ -18,7 +18,7 @@ object IntFunction extends MashFunction("random.int") {
       nameOpt = Some("inclusive"),
       shortFlagOpt = Some('i'),
       summaryOpt = Some("If true, generate integers including the 'to' value"),
-      defaultValueGeneratorOpt = Some(MashBoolean.False),
+      defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
   }
