@@ -40,7 +40,7 @@ libraryDependencies ++= Seq(
   "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
   "org.apache.commons" % "commons-math3" % "3.6.1",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.2",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.2", // 4.5.3 has bug HTTPCLIENT-1863
   "com.joestelmach" % "natty" % "0.13",
   "net.grey-panther" % "natural-comparator" % "1.1",
   "org.json" % "json" % "20170516")
