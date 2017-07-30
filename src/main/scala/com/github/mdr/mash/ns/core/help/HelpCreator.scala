@@ -23,16 +23,4 @@ object HelpCreator {
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
     FieldHelpClass.create(name = field.name, klass = klass)
 
-  def getParamHelp(param: Parameter): MashObject =
-    ParameterHelpClass.create(
-      nameOpt = param.nameOpt.filterNot(_ startsWith DesugarHoles.VariableNamePrefix),
-      summaryOpt = param.summaryOpt,
-      descriptionOpt = param.descriptionOpt,
-      shortFlagOpt = param.shortFlagOpt,
-      isFlag = param.isFlag,
-      isOptional = param.hasDefault,
-      isLazy = param.isLazy,
-      isNamedArgs = param.isNamedArgsParam,
-      isVariadic = param.isVariadic)
-
 }

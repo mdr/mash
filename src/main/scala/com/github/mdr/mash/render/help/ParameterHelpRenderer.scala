@@ -1,46 +1,43 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.functions.Parameter
-import com.github.mdr.mash.ns.core.help.ParameterHelpClass
-import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Utils._
 
 object ParameterHelpRenderer extends AbstractHelpRenderer {
 
-  def renderSection(parameters: Seq[MashValue]): Seq[Line] =
+  def renderSection(parameters: Seq[Parameter]): Seq[Line] =
     if (parameters.nonEmpty) {
       val headingLines = Seq(Line.Empty, Line(SectionTitleStyle("PARAMETERS")))
       val paramLines = parameters.zipWithIndex.flatMap { case (param, i) ⇒
-        val paramHelp = ParameterHelpClass.Wrapper(param)
         val paddingLines = if (i > 0) Seq(Line.Empty) else Seq()
-        paddingLines ++ renderParameterHelp(paramHelp)
+        paddingLines ++ renderParameterHelp(param)
       }
       headingLines ++ paramLines
     } else
       Seq()
 
-  private def renderParameterHelp(paramHelp: ParameterHelpClass.Wrapper): Seq[Line] = {
-    val qualifierString = getParamQualifiers(paramHelp) match {
+  private def renderParameterHelp(param: Parameter): Seq[Line] = {
+    val qualifierString = getParamQualifiers(param) match {
       case Seq()      ⇒ ""
       case qualifiers ⇒ qualifiers.mkString(" [", ", ", "]")
     }
-    val name = paramHelp.nameOpt getOrElse Parameter.AnonymousParamName
-    val paramName = ParamNameStyle(if (paramHelp.isFlag) "--" + name else name)
-    val shortFlagDescription = paramHelp.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse("").style(ParamNameStyle)
-    val summaryDescription = paramHelp.summaryOpt.fold("")(" - " + _).style
+    val name = param.nameOpt getOrElse Parameter.AnonymousParamName
+    val paramName = ParamNameStyle(if (param.isFlag) "--" + name else name)
+    val shortFlagDescription = param.shortFlagOpt.map(f ⇒ s" | -$f").getOrElse("").style(ParamNameStyle)
+    val summaryDescription = param.summaryOpt.fold("")(" - " + _).style
     val summaryLine = Line(IndentSpace + paramName + shortFlagDescription + qualifierString.style + summaryDescription)
-    val descriptionLines = paramHelp.descriptionOpt.toSeq.flatMap(description ⇒
+    val descriptionLines = param.descriptionOpt.toSeq.flatMap(description ⇒
       renderDescription(description, indentLevel = 2))
     summaryLine +: descriptionLines
   }
 
-  private def getParamQualifiers(paramHelp: ParameterHelpClass.Wrapper): Seq[String] =
+  private def getParamQualifiers(param: Parameter): Seq[String] =
     Seq(
-      paramHelp.isLazy.option("lazy"),
-      paramHelp.isNamedArgs.option("namedArgs"),
-      paramHelp.isOptional.option("optional"),
-      paramHelp.isVariadic.option("variadic")).flatten
+      param.isLazy.option("lazy"),
+      param.isNamedArgsParam.option("namedArgs"),
+      param.hasDefault.option("optional"),
+      param.isVariadic.option("variadic")).flatten
 
 }

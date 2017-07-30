@@ -1,7 +1,6 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.ns.core.help.HelpCreator
 import com.github.mdr.mash.render.{ CallingSyntaxRenderer, MashRenderer }
 import com.github.mdr.mash.screen.{ Line, StyledString }
 import com.github.mdr.mash.utils.LineInfo
@@ -9,11 +8,10 @@ import com.github.mdr.mash.utils.LineInfo
 object FunctionHelpRenderer extends AbstractHelpRenderer {
 
   def render(f: MashFunction): Seq[Line] = {
-    val paramHelp = f.params.params.map(HelpCreator.getParamHelp)
     Seq(
       renderNameSection(f),
       renderCallingSyntaxSection(f),
-      ParameterHelpRenderer.renderSection(paramHelp),
+      ParameterHelpRenderer.renderSection(f.params.params),
       renderDescriptionSection(f.descriptionOpt),
       renderSourceSection(f.sourceOpt)).flatten
   }
