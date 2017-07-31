@@ -22,7 +22,14 @@ object SleepFunction extends MashFunction("time.sleep") {
   val params = ParameterModel(Duration)
 
   def call(boundParams: BoundParams): MashUnit = {
-    val millis = boundParams(Duration) match {
+    val duration = getDurationInMillis(boundParams)
+    if (duration > 0)
+      Thread.sleep(duration)
+    MashUnit
+  }
+
+  private def getDurationInMillis(boundParams: BoundParams): Long = {
+    boundParams(Duration) match {
       case MashNumber(n, Some(klass: ChronoUnitClass)) ⇒
         val nowInstant = clock.instant
         val now = LocalDateTime.ofInstant(nowInstant, clock.getZone)
@@ -34,8 +41,6 @@ object SleepFunction extends MashFunction("time.sleep") {
       case x                                           ⇒
         boundParams.throwInvalidArgument(Duration, "Invalid duration of type " + x.typeName)
     }
-    Thread.sleep(millis)
-    MashUnit
   }
 
   override def typeInferenceStrategy = UnitClass

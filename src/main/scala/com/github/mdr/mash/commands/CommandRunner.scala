@@ -56,15 +56,15 @@ class CommandRunner(output: PrintStream,
     CommandResult(Some(result), displayModelOpt = displayModelOpt)
   }
 
-  private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashValue] =
+  private def runProgram(program: AbstractSyntax.Program, unit: CompilationUnit): Option[MashValue] = {
+    val context = new ExecutionContext(Thread.currentThread)
+    Singletons.environment = globals.get(StandardEnvironment.Env) match {
+      case Some(obj: MashObject) ⇒ obj
+      case _                     ⇒ MashObject.empty
+    }
+    Singletons.setExecutionContext(context)
+    ExecutionContext.set(context)
     try {
-      val context = new ExecutionContext(Thread.currentThread)
-      Singletons.environment = globals.get(StandardEnvironment.Env) match {
-        case Some(obj: MashObject) ⇒ obj
-        case _                     ⇒ MashObject.empty
-      }
-      Singletons.setExecutionContext(context)
-      ExecutionContext.set(context)
       val result = Evaluator.evaluate(program.body)(EvaluationContext(ScopeStack(globals)))
       Some(result)
     } catch {
@@ -73,12 +73,13 @@ class CommandRunner(output: PrintStream,
           errorPrinter.printError("Error", msg, unit, stack.reverse)
         debugLogger.logException(e)
         None
-      case _: EvaluationInterruptedException       ⇒
+      case EvaluationInterruptedException       ⇒
         val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
           " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
         output.println(Screen.drawStyledChars(chars))
         None
     }
+  }
 
   private def safeCompile(unit: CompilationUnit, bareWords: Boolean, printErrors: Boolean = true): Option[AbstractSyntax.Program] = {
     val settings = CompilationSettings(bareWords = bareWords)

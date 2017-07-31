@@ -31,8 +31,8 @@ object TryFunction extends MashFunction("core.try") {
     try
       body.callNullary()
     catch {
-      case e: EvaluationInterruptedException ⇒ throw e
-      case NonFatal(_)                       ⇒
+      case EvaluationInterruptedException ⇒ throw EvaluationInterruptedException
+      case NonFatal(_)                    ⇒
         NoArgFunction.option(boundParams(Catch)) match {
           case Some(catchBlock) ⇒ catchBlock.asInstanceOf[MashFunction].callNullary()
           case None             ⇒ MashUnit

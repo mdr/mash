@@ -37,8 +37,10 @@ object Evaluator extends EvaluatorHelper {
     } catch {
       case e: EvaluatorException             ⇒
         throw e
-      case e: EvaluationInterruptedException ⇒
-        throw e
+      case EvaluationInterruptedException ⇒
+        throw EvaluationInterruptedException
+      case e: InterruptedException ⇒
+        throw EvaluationInterruptedException
       case NonFatal(t)                       ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
           stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(Some(loc))),

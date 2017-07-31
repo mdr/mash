@@ -10,7 +10,7 @@ object ExecutionContext {
 
   def checkInterrupted() = {
     if (isInterrupted)
-      throw new EvaluationInterruptedException
+      throw EvaluationInterruptedException
   }
 
 }
@@ -21,7 +21,7 @@ class ExecutionContext(thread: Thread) {
 
   def interrupt() = synchronized {
     _interrupted = true
-    //    thread.interrupt()
+    thread.interrupt()
   }
 
   def interrupted = synchronized {
@@ -30,4 +30,4 @@ class ExecutionContext(thread: Thread) {
 
 }
 
-class EvaluationInterruptedException extends RuntimeException
+object EvaluationInterruptedException extends RuntimeException

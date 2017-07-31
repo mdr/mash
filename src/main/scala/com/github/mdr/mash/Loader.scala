@@ -95,7 +95,7 @@ class Loader(terminal: Terminal,
           errorPrinter.printError("Error", msg, unit, stack.reverse)
         debugLogger.logException(e)
         None
-      case _: EvaluationInterruptedException       ⇒
+      case EvaluationInterruptedException       ⇒
         val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
           " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
         output.println(Screen.drawStyledChars(chars))
