@@ -12,8 +12,9 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
 
   private def renderTableLines: Seq[Line] = {
+    val currentRowIndexOpt = Some(state.currentRow).filterNot(_ ⇒ state.expressionStateOpt.isDefined)
     val commonRenderer = new SingleObjectTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),
-      Some(state.currentRow), state.searchStateOpt)
+      currentRowIndexOpt, state.searchStateOpt)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 

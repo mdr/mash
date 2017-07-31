@@ -106,7 +106,7 @@ trait NormalActionHandler extends InlineHandler {
     state = state.reset.copy(continue = false)
   }
 
-  private def handleClearScreen() {
+  protected def handleClearScreen() {
     output.write(Terminal.ClearScreenEscapeSequence.getBytes)
     output.flush()
     previousScreenOpt = None

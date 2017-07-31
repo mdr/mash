@@ -25,9 +25,11 @@ object NotFunction extends MashFunction("core.not") {
   override def descriptionOpt = Some("""The given argument is interpreted as truthy or falsey, then negated.
 
 Examples:
+<mash>
   not true  # false
   not false # true
   not 0     # true
-  not 1     # false""")
+  not 1     # false
+</mash>""")
 
 }

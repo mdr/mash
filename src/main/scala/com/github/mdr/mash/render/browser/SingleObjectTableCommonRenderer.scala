@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
                                       markedRowsOpt: Option[Set[Int]] = None,
-                                      selectedIndexOpt: Option[Int] = None,
+                                      currentRowIndexOpt: Option[Int] = None,
                                       searchStateOpt: Option[SearchState] = None) {
 
   import UnicodeBoxCharacterSupplier._
@@ -77,7 +77,7 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
     }
     for {
       ((renderedField, renderedValue), rowIndex) ← model.fields.toSeq.zipWithIndex.window(rowOffset, rowCount)
-      isCursorRow = selectedIndexOpt contains rowIndex
+      isCursorRow = currentRowIndexOpt contains rowIndex
       isMarked = markedRowsOpt exists (_ contains rowIndex)
       fieldSearchHitRegions = getMatchRegions(rowIndex, 0)
       valueSearchHitRegions = getMatchRegions(rowIndex, 1)

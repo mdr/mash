@@ -13,8 +13,10 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimen
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)
 
   private def renderTableLines: Seq[Line] = {
+    val currentRowIndexOpt = Some(state.currentRow).filterNot(_ ⇒ state.expressionStateOpt.isDefined)
+    val currentColumnIndexOpt = state.currentColumnOpt.filterNot(_ ⇒ state.expressionStateOpt.isDefined)
     val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),
-      Some(state.currentRow), state.currentColumnOpt, state.searchStateOpt)
+      currentRowIndexOpt, currentColumnIndexOpt, state.searchStateOpt)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 

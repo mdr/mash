@@ -10,9 +10,6 @@ import net.greypanther.natsort.SimpleNaturalComparator
 object SortFunction extends MashFunction("collections.sort") {
 
   object Params {
-    val Sequence = Parameter(
-      nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence to sort"))
     val Descending = Parameter(
       nameOpt = Some("descending"),
       shortFlagOpt = Some('d'),
@@ -27,11 +24,14 @@ object SortFunction extends MashFunction("collections.sort") {
       defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
+    val Sequence = Parameter(
+      nameOpt = Some("sequence"),
+      summaryOpt = Some("Sequence to sort"))
   }
 
   import Params._
 
-  val params = ParameterModel(Sequence, Descending, NaturalOrder)
+  val params = ParameterModel(Descending, NaturalOrder, Sequence)
 
   object NaturalMashValueOrdering extends Ordering[MashValue] {
 

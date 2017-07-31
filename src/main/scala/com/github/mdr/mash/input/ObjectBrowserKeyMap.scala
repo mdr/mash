@@ -2,12 +2,13 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.NormalActions.AssistInvocation
+import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, ClearScreen }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{NextParentItem, _}
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
+  KeyPress(BasicKey('l'), control = true) -> ClearScreen,
   KeyPress(Right) -> NextColumn,
   KeyPress(Left) -> PreviousColumn,
   KeyPress(BasicKey('f'), control = true) -> NextColumn,

@@ -9,6 +9,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
+import com.github.mdr.mash.repl.NormalActions.ClearScreen
 import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
@@ -115,19 +116,22 @@ trait ObjectBrowserActionHandler
   protected def handleInsertItem(browserState: BrowserState) = insert(browserState.getInsertExpression)
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
-    browserStateStack.headState.expressionStateOpt match {
-      case Some(expressionState) ⇒
-        handleBrowserExpressionInputAction(action, browserStateStack.headState, expressionState)
-      case None                  ⇒
-        browserStateStack.headState match {
-          case twoDTableBrowserState: TwoDTableBrowserState            ⇒ handleTwoDTableBrowserAction(action, twoDTableBrowserState)
-          case singleObjectBrowserState: SingleObjectTableBrowserState ⇒ handleSingleObjectTableBrowserAction(action, singleObjectBrowserState)
-          case objectTreeBrowserState: ObjectTreeBrowserState          ⇒ handleObjectTreeBrowserAction(action, objectTreeBrowserState)
-          case valueBrowserState: ValueBrowserState                    ⇒ handleValueBrowserAction(action, valueBrowserState)
-          case textLinesBrowserState: TextLinesBrowserState            ⇒ handleTextLinesBrowserAction(action, textLinesBrowserState)
-          case _                                                       ⇒
-        }
-    }
+    if (action == ClearScreen)
+      handleClearScreen()
+    else
+      browserStateStack.headState.expressionStateOpt match {
+        case Some(expressionState) ⇒
+          handleBrowserExpressionInputAction(action, browserStateStack.headState, expressionState)
+        case None                  ⇒
+          browserStateStack.headState match {
+            case browserState: TwoDTableBrowserState         ⇒ handleTwoDTableBrowserAction(action, browserState)
+            case browserState: SingleObjectTableBrowserState ⇒ handleSingleObjectTableBrowserAction(action, browserState)
+            case browserState: ObjectTreeBrowserState        ⇒ handleObjectTreeBrowserAction(action, browserState)
+            case browserState: ValueBrowserState             ⇒ handleValueBrowserAction(action, browserState)
+            case browserState: TextLinesBrowserState         ⇒ handleTextLinesBrowserAction(action, browserState)
+            case browserState                                ⇒ throw new AssertionError("Unexpected browser state: " + browserState)
+          }
+      }
 
   protected def handleOpenItem(browserState: BrowserState) = {
     state = state.copy(
