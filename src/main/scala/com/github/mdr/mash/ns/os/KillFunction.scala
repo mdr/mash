@@ -30,13 +30,15 @@ object KillFunction extends MashFunction("os.kill") {
       isFlag = true,
       isFlagValueMandatory = true,
       flagValueNameOpt = Some("signal"),
-      descriptionOpt = Some("""The signal can either be given as a number, or by name (e.g. "KILL", "TERM", "HUP" etc).
+      descriptionOpt = Some(
+        """The signal can either be given as a number, or by name (e.g. "KILL", "TERM", "HUP" etc).
 The default signal is TERM."""))
     val Processes = Parameter(
       nameOpt = Some("processes"),
       summaryOpt = Some("Processes to kill"),
       isVariadic = true,
-      descriptionOpt = Some("""Processes can be provided either as numbers (PIDs), or Process objects, or a sequence of numbers or Process objects."""))
+      variadicAtLeastOne = true,
+      descriptionOpt = Some("""Processes can be provided either as numeric PIDs or Process objects."""))
   }
 
   val params = ParameterModel(Params.Signal, Params.Processes)
@@ -44,9 +46,7 @@ The default signal is TERM."""))
   def call(boundParams: BoundParams): MashUnit = {
     val signal = getSignal(boundParams, Params.Signal)
     val processes = boundParams.validateSequence(Params.Processes)
-    if (processes.isEmpty)
-      boundParams.throwInvalidArgument(Params.Processes, "must provide at least one process to kill")
-    val pids = processes.flatMap(getPids)
+    val pids = processes.map(getPid)
     for (pid ← pids)
       processInteractions.kill(pid, signal)
     MashUnit
@@ -54,17 +54,17 @@ The default signal is TERM."""))
 
   def getSignal(boundParams: BoundParams, param: Parameter): Int =
     boundParams(param) match {
-      case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(param, "invalid signal: " + n))
-      case s: MashString ⇒ Signals.getOrElse(s.s, boundParams.throwInvalidArgument(param, "invalid signal: " + s))
-      case x             ⇒ boundParams.throwInvalidArgument(param, s"invalid signal '$x'")
+      case n: MashNumber ⇒ n.asInt.getOrElse(boundParams.throwInvalidArgument(param, "Invalid signal: " + n))
+      case s: MashString ⇒ Signals.getOrElse(s.s, boundParams.throwInvalidArgument(param, "Invalid signal: " + s))
+      case x             ⇒ boundParams.throwInvalidArgument(param, s"Invalid signal '$x'")
     }
 
-  private def getPids(x: MashValue): Seq[Int] = x match {
-    case n: MashNumber                           ⇒ Seq(n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n)))
-    case obj @ MashObject(_, Some(ProcessClass)) ⇒ Seq(ProcessClass.Wrapper(obj).pid)
-    case xs: MashList                            ⇒ xs.elements.flatMap(getPids)
-    case x                                       ⇒ throw new EvaluatorException("Invalid process ID: " + x)
-  }
+  private def getPid(x: MashValue): Int =
+    x match {
+      case n: MashNumber                         ⇒ n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n))
+      case obj@MashObject(_, Some(ProcessClass)) ⇒ ProcessClass.Wrapper(obj).pid
+      case _                                     ⇒ throw new EvaluatorException("Invalid process ID: " + x)
+    }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     params.bindTypes(arguments).paramAt(argPos).toSeq.collect {
@@ -75,10 +75,11 @@ The default signal is TERM."""))
 
   override def summaryOpt = Some("Send a signal to a process")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
 <mash>
-  ps | where (_.name.matches "java") | kill # Kill all Java processes
-  kill --signal="HUP" 1280                  # Send the HUP signal to process with PID 1280
+  ps | grep "java" | kill   # Kill all Java processes
+  kill --signal="HUP" 1280  # Send the HUP signal to process with PID 1280
 </mash>""")
 
 }

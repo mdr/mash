@@ -15,17 +15,6 @@ object ListFilesFunction extends MashFunction("os.listFiles") {
   private val fileSystem: FileSystem = LinuxFileSystem
 
   object Params {
-    val Paths = Parameter(
-      nameOpt = Some("paths"),
-      summaryOpt = Some("Paths to list files"),
-      isVariadic = true,
-      variadicFlatten = true,
-      defaultValueGeneratorOpt = Some(MashList.of(asPathString(""))),
-      descriptionOpt = Some(s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects. 
-If a given path is a file, it will be included in the output. 
-If a given path is a directory, its children will be included, unless the
-   directory parameter is true, then it will be included directly. 
-If no paths are provided, the default is the current working directory."""))
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Include files starting with a dot (default false)"),
@@ -47,11 +36,23 @@ If no paths are provided, the default is the current working directory."""))
       isFlag = true,
       defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
+    val Paths = Parameter(
+      nameOpt = Some("paths"),
+      summaryOpt = Some("Paths to list files"),
+      isVariadic = true,
+      variadicFlatten = true,
+      defaultValueGeneratorOpt = Some(MashList.of(asPathString(""))),
+      descriptionOpt = Some(
+        s"""Paths can either be strings or ${PathSummaryClass.fullyQualifiedName} objects.
+If a given path is a file, it will be included in the output.
+If a given path is a directory, its children will be included, unless the
+  directory parameter is true, then it will be included directly.
+If no paths are provided, the default is the current working directory."""))
   }
 
   import Params._
 
-  val params = ParameterModel(Paths, All, Recursive, Directory)
+  val params = ParameterModel(All, Recursive, Directory, Paths)
 
   def call(boundParams: BoundParams): MashList = {
     val ignoreDotFiles = boundParams(All).isFalsey
@@ -81,7 +82,8 @@ If no paths are provided, the default is the current working directory."""))
 
   override def summaryOpt = Some("List files")
 
-  override def descriptionOpt = Some(s"""List files and directories, returning a sequence of ${PathSummaryClass.fullyQualifiedName} objects. 
+  override def descriptionOpt = Some(
+    s"""List files and directories, returning a sequence of ${PathSummaryClass.fullyQualifiedName} objects.
 If no paths are supplied, the current directory is used as the default.""")
 
 }
