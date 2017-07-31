@@ -9,7 +9,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
-import com.github.mdr.mash.repl.NormalActions.ClearScreen
+import com.github.mdr.mash.repl.NormalActions.RedrawScreen
 import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
@@ -116,8 +116,8 @@ trait ObjectBrowserActionHandler
   protected def handleInsertItem(browserState: BrowserState) = insert(browserState.getInsertExpression)
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
-    if (action == ClearScreen)
-      handleClearScreen()
+    if (action == RedrawScreen)
+      handleRedrawScreen()
     else
       browserStateStack.headState.expressionStateOpt match {
         case Some(expressionState) ⇒

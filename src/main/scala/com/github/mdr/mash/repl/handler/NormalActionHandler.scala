@@ -30,7 +30,7 @@ trait NormalActionHandler extends InlineHandler {
       case Enter                    ⇒ handleEnter()
       case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state = state.updateLineBuffer(f))
       case Complete                 ⇒ handleComplete()
-      case ClearScreen              ⇒ handleClearScreen()
+      case RedrawScreen             ⇒ handleRedrawScreen()
       case EndOfFile                ⇒ handleEof()
       case Up                       ⇒ handleUp()
       case Down                     ⇒ handleDown()
@@ -43,9 +43,9 @@ trait NormalActionHandler extends InlineHandler {
       case Inline                   ⇒ state = handleInline(state)
       case _                        ⇒
     }
-    if (action != Down && action != Up && action != ClearScreen)
+    if (action != Down && action != Up && action != RedrawScreen)
       history.commitToEntry()
-    if (action != InsertLastArg && action != ClearScreen)
+    if (action != InsertLastArg && action != RedrawScreen)
       state = state.copy(insertLastArgStateOpt = None)
   }
 
@@ -106,7 +106,7 @@ trait NormalActionHandler extends InlineHandler {
     state = state.reset.copy(continue = false)
   }
 
-  protected def handleClearScreen() {
+  protected def handleRedrawScreen() {
     output.write(Terminal.ClearScreenEscapeSequence.getBytes)
     output.flush()
     previousScreenOpt = None
