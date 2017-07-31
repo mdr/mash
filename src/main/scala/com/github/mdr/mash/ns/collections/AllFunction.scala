@@ -35,10 +35,12 @@ object AllFunction extends MashFunction("collections.all") {
 
   override def descriptionOpt = Some("""Returns true if the given predicate returns a truthy result for every element in the given sequence; false otherwise.
     
-Examples
+Examples:
+<mash>
   all (_ > 0) [1, 2, 3]  # true
   all (_ > 0) [1, -2, 3] # false
-  all (_ > 0) []         # true""")
+  all (_ > 0) []         # true
+</mash>""")
 
 }
 

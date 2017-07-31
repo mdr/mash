@@ -11,7 +11,7 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
   "Rendering field help" should "work when all information is provided" in {
     val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
 
-    val actualLines = getText(FieldHelpRenderer.render(help))
+    val actualLines = getText(FieldHelpRenderer.render(help).lines)
 
     actualLines should equal(
       """FIELD
@@ -40,7 +40,7 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
     val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
 
-    val actualLines = getText(FieldHelpRenderer.render(help))
+    val actualLines = getText(FieldHelpRenderer.render(help).lines)
 
     actualLines should equal(
       """FIELD

@@ -61,6 +61,9 @@ object ReplRenderer {
   private def renderTextLinesBrowserState(state: TextLinesBrowserState, terminalSize: Dimensions): Screen =
     new TextLinesBrowserRenderer(state, terminalSize).renderObjectBrowser
 
+  private def renderHelpBrowserState(state: HelpBrowserState, terminalSize: Dimensions): Screen =
+    new HelpBrowserRenderer(state, terminalSize).renderObjectBrowser
+
   private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalSize: Dimensions): Screen =
     state.headState match {
       case browserState: TwoDTableBrowserState         ⇒ renderObjectTableBrowser(browserState, terminalSize)
@@ -68,6 +71,7 @@ object ReplRenderer {
       case browserState: ObjectTreeBrowserState        ⇒ renderObjectTreeBrowser(browserState, terminalSize)
       case browserState: ValueBrowserState             ⇒ renderValueBrowser(browserState, terminalSize)
       case browserState: TextLinesBrowserState         ⇒ renderTextLinesBrowserState(browserState, terminalSize)
+      case browserState: HelpBrowserState              ⇒ renderHelpBrowserState(browserState, terminalSize)
       case browserState                                ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
     }
 

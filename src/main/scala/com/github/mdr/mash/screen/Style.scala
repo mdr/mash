@@ -52,6 +52,8 @@ case class Style(foregroundColour: Colour = DefaultColour,
 
   def withUnderline: Style = copy(underline = true)
 
+  def withInverse: Style = copy(inverse = true)
+
   def apply(s: String): StyledString = StyledString(s.map(StyledCharacter(_, this)))
 
 }

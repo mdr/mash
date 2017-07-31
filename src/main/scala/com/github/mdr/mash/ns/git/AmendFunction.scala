@@ -17,7 +17,7 @@ object AmendFunction extends MashFunction("git.amend") {
 
   import Params._
 
-  val params = ParameterModel(Message, All)
+  val params = ParameterModel(All, Message)
 
   def call(boundParams: BoundParams): MashObject = {
     val all = boundParams(All).isTruthy

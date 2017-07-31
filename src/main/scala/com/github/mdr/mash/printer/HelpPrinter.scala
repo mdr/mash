@@ -14,9 +14,9 @@ class HelpPrinter(output: PrintStream) {
 
   def printFunctionHelp(f: MashFunction) = printAll(FunctionHelpRenderer.render(f))
 
-  def printFieldHelp(obj: MashObject) = printAll(FieldHelpRenderer.render(obj))
+  def printFieldHelp(obj: MashObject) = printAll(FieldHelpRenderer.render(obj).lines)
 
-  def printClassHelp(klass: MashClass) = printAll(ClassHelpRenderer.render(klass))
+  def printClassHelp(klass: MashClass) = printAll(ClassHelpRenderer.render(klass).lines)
 
   private def printAll(lines: Seq[Line]): Unit =
     for (line ← lines)

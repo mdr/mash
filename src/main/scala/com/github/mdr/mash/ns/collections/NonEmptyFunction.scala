@@ -19,9 +19,11 @@ object NonEmptyFunction extends MashFunction("collections.nonEmpty") {
 
   override def summaryOpt = Some("Check whether a given sequence is non-empty")
 
-  override def descriptionOpt = Some("""Examples
+  override def descriptionOpt = Some("""Examples:
+<mash>
   isEmpty []        # false
-  isEmpty [1, 2, 3] # true""")
+  isEmpty [1, 2, 3] # true
+</mash>""")
 
 }
 

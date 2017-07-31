@@ -11,12 +11,12 @@ object BrowserState {
 
   def safeProperty(path: String, property: MashValue): String =
     property match {
-      case MashString(s, _)                          ⇒
+      case MashString(s, _) ⇒
         if (isLegalIdentifier(s))
           combineSafely(path, s".$property")
         else
           combineSafely(path, s"['$property']")
-      case _ ⇒
+      case _                ⇒
         ValueToExpression.getExpression(property).map(combineSafely(path, _)).getOrElse(path)
     }
 
@@ -25,8 +25,9 @@ object BrowserState {
       case model: TwoDTableModel         ⇒ TwoDTableBrowserState(model, path = path)
       case model: SingleObjectTableModel ⇒ SingleObjectTableBrowserState(model, path = path)
       case model: ObjectTreeModel        ⇒ ObjectTreeBrowserState.initial(model, path = path)
-      case model: ValueModel             ⇒ new ValueBrowserState(model, path = path)
-      case model: TextLinesModel         ⇒ new TextLinesBrowserState(model, path = path)
+      case model: ValueModel             ⇒ ValueBrowserState(model, path = path)
+      case model: TextLinesModel         ⇒ TextLinesBrowserState(model, path = path)
+      case model: HelpModel              ⇒ HelpBrowserState(model, path = path)
       case _                             ⇒ throw new RuntimeException("Unknown type of print model: " + displayModel)
     }
 

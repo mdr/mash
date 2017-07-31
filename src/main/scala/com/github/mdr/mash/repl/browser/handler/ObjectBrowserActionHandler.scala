@@ -23,6 +23,7 @@ trait ObjectBrowserActionHandler
     with ObjectTreeBrowserActionHandler
     with SingleObjectTableBrowserActionHandler
     with TwoDTableBrowserActionHandler
+    with HelpBrowserActionHandler
     with ExpressionActionHandler {
   self: Repl ⇒
 
@@ -129,6 +130,7 @@ trait ObjectBrowserActionHandler
             case browserState: ObjectTreeBrowserState        ⇒ handleObjectTreeBrowserAction(action, browserState)
             case browserState: ValueBrowserState             ⇒ handleValueBrowserAction(action, browserState)
             case browserState: TextLinesBrowserState         ⇒ handleTextLinesBrowserAction(action, browserState)
+            case browserState: HelpBrowserState              ⇒ handleHelpBrowserAction(action, browserState)
             case browserState                                ⇒ throw new AssertionError("Unexpected browser state: " + browserState)
           }
       }

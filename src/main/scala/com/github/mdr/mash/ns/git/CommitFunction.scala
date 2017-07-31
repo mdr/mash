@@ -11,9 +11,6 @@ import scala.collection.JavaConverters._
 object CommitFunction extends MashFunction("git.commit") {
 
   object Params {
-    val Message = Parameter(
-      nameOpt = Some("message"),
-      summaryOpt = Some("Message"))
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Automatically stage any modified, untracked or missing files (default false)"),
@@ -27,11 +24,14 @@ object CommitFunction extends MashFunction("git.commit") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
+    val Message = Parameter(
+      nameOpt = Some("message"),
+      summaryOpt = Some("Message"))
   }
 
   import Params._
 
-  val params = ParameterModel(Message, All, Amend)
+  val params = ParameterModel(All, Amend, Message)
 
   def call(boundParams: BoundParams): MashObject = {
     val all = boundParams(All).isTruthy

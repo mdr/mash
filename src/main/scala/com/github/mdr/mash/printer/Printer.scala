@@ -17,6 +17,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
+import com.github.mdr.mash.screen.Screen
 import com.github.mdr.mash.utils.{ Dimensions, NumberUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -101,8 +102,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
           helpPrinter.printFunctionHelp(f)
           done
         case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
-          helpPrinter.printClassHelp(klass)
-          done
+          printHelp(klass)
         case obj: MashObject if obj.nonEmpty                                                                ⇒
           new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
           done
@@ -136,6 +136,19 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       xs.elements.foreach(output.println)
       done
     }
+
+  private def printHelp(klass: MashClass): PrintResult =  {
+    val model = new HelpModelCreator(terminalSize, viewConfig).createForClass(klass)
+    val tooBig = model.lines.size > terminalSize.rows
+    if (tooBig && viewConfig.browseLargeOutput)
+      browse(model)
+    else {
+      for (line ← model.lines)
+        output.println(Screen.drawStyledChars(line))
+      done
+    }
+  }
+
 
   private def printTwoD(value: MashValue): PrintResult = {
     val size = value match {

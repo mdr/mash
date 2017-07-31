@@ -7,13 +7,13 @@ import com.github.mdr.mash.screen.Line
 
 object FieldHelpRenderer extends AbstractHelpRenderer {
 
-  def render(obj: MashObject): Seq[Line] = {
+  def render(obj: MashObject): LinesAndLinks = {
     val help = FieldHelpClass.Wrapper(obj)
     val field = help.field
-    Seq(
-      renderNameSection(field),
-      renderClassSection(help.klass),
-      renderDescriptionSection(field.descriptionOpt)).flatten
+    LinesAndLinks.combine(Seq(
+      LinesAndLinks(renderNameSection(field)),
+      renderClassSection2(help.klass),
+      LinesAndLinks(renderDescriptionSection(field.descriptionOpt))))
   }
 
   private def renderNameSection(field: Field): Seq[Line] =

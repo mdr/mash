@@ -25,9 +25,11 @@ object IsEmptyFunction extends MashFunction("collections.isEmpty") {
 
   override def summaryOpt = Some("Check whether a given sequence is empty")
 
-  override def descriptionOpt = Some("""Examples
+  override def descriptionOpt = Some("""Examples:
+<mash>
   isEmpty []        # true
-  isEmpty [1, 2, 3] # false""")
+  isEmpty [1, 2, 3] # false
+</mash>""")
 
 }
 

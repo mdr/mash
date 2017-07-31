@@ -1,13 +1,10 @@
 package com.github.mdr.mash.render.help
 
-import com.github.mdr.mash.screen.Line
-import org.scalatest.{ FlatSpec, Matchers }
-
 class ClassHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering class help" should "work when all information is provided" in {
 
-    val actualLines = getText(ClassHelpRenderer.render(TestPointClass))
+    val actualLines = getText(ClassHelpRenderer.render(TestPointClass).lines)
 
     actualLines should equal(
       """CLASS

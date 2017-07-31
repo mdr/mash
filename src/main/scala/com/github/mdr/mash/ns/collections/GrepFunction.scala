@@ -13,12 +13,6 @@ import com.github.mdr.mash.utils.StringUtils
 object GrepFunction extends MashFunction("collections.grep") {
 
   object Params {
-    val Query = Parameter(
-      nameOpt = Some("query"),
-      summaryOpt = Some("Query to find in the given input"))
-    val Input = Parameter(
-      nameOpt = Some("input"),
-      summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."))
     val IgnoreCase = Parameter(
       nameOpt = Some("ignoreCase"),
       summaryOpt = Some("Perform a case-insensitive match"),
@@ -40,12 +34,17 @@ object GrepFunction extends MashFunction("collections.grep") {
       defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
-
+    val Query = Parameter(
+      nameOpt = Some("query"),
+      summaryOpt = Some("Query to find in the given input"))
+    val Input = Parameter(
+      nameOpt = Some("input"),
+      summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."))
   }
 
   import Params._
 
-  val params = ParameterModel(Query, Input, IgnoreCase, Regex, Negate)
+  val params = ParameterModel(IgnoreCase, Regex, Negate, Query, Input)
 
   def call(boundParams: BoundParams): MashValue = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy

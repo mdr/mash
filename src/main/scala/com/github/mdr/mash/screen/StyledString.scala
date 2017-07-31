@@ -4,9 +4,9 @@ import com.github.mdr.mash.utils.Utils
 
 case class StyledCharacter(c: Char, style: Style = Style()) {
 
-  def withStyle(style: Style) = copy(style = style)
+  def withStyle(style: Style): StyledCharacter = copy(style = style)
 
-  def updateStyle(f: Style ⇒ Style) = withStyle(f(style))
+  def updateStyle(f: Style ⇒ Style): StyledCharacter = withStyle(f(style))
 
 }
 

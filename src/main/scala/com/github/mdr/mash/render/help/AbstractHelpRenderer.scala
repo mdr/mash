@@ -1,9 +1,30 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.printer.model.Link
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
-import com.github.mdr.mash.utils.LineInfo
+import com.github.mdr.mash.utils.{ LineInfo, Region }
+
+object LinesAndLinks {
+  val Empty = LinesAndLinks()
+
+  def apply(line: Line, link: Link): LinesAndLinks = LinesAndLinks(Seq(line), Seq(link))
+
+  def combine(linesAndLinks: Seq[LinesAndLinks]): LinesAndLinks =
+    linesAndLinks.fold(LinesAndLinks.Empty)(_ combine _)
+}
+
+case class LinesAndLinks(lines: Seq[Line] = Seq(), links: Seq[Link] = Seq()) {
+
+  def combine(that: LinesAndLinks): LinesAndLinks = {
+    def updateLink(link: Link) = link.copy(line = link.line + this.lines.size)
+    val combinedLines = this.lines ++ that.lines
+    val combinedLinks = this.links ++ that.links.map(updateLink)
+    LinesAndLinks(combinedLines, combinedLinks)
+  }
+
+}
 
 abstract class AbstractHelpRenderer {
 
@@ -41,5 +62,15 @@ abstract class AbstractHelpRenderer {
       Line(SectionTitleStyle("CLASS")),
       Line(IndentSpace + klass.fullyQualifiedName.toString.style))
 
+  protected def renderClassSection2(klass: MashClass): LinesAndLinks = {
+    val renderedParent = klass.fullyQualifiedName.toString.style
+    val lines =
+      Seq(
+        Line.Empty,
+        Line(SectionTitleStyle("CLASS")),
+        Line(IndentSpace + renderedParent))
+    val parentLink = Link(2, Region(IndentSpace.length, renderedParent.length), klass)
+    LinesAndLinks(lines, Seq(parentLink))
+  }
 
 }
