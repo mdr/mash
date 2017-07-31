@@ -64,6 +64,8 @@ object MaxByFunction extends MashFunction("collections.maxBy") {
 If there are multiple elements with the maximum value, the first is returned.
 
 Examples:
-  maxBy length ["a", "bbb", "cc"] # "bbb"""")
+<mash>
+  maxBy length ["a", "bbb", "cc"] # "bbb"
+</mash>""")
 
 }

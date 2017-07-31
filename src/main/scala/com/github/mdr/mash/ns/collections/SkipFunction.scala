@@ -39,8 +39,10 @@ object SkipFunction extends MashFunction("collections.skip") {
   skip, the empty sequence is returned.
 
 Examples:
+<mash>
   skip 2 [1, 2, 3, 4] # [3, 4]
   skip 3 [1, 2]       # []
-  skip 3 "abcdef"     # "def"""")
+  skip 3 "abcdef"     # "def"
+</mash>""")
 
 }

@@ -65,8 +65,10 @@ object MapFunction extends MashFunction("collections.map") {
   to produce a sequence of transformed output elements.
 
 Examples:
+<mash>
   map (_ * 2) [1, 2, 3]             # [2, 4, 6]
   map (_ * 2) []                    # []
-  map (v i ⇒ [v i]) ["a", "b", "c"] # [["a", 0], ["b", 1], ["c", 2]]""")
+  map (v i ⇒ [v i]) ["a", "b", "c"] # [["a", 0], ["b", 1], ["c", 2]]
+</mash>""")
 
 }

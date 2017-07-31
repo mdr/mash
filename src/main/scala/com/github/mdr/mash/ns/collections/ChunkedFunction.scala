@@ -33,6 +33,8 @@ object ChunkedFunction extends MashFunction("collections.chunked") {
   override def descriptionOpt = Some("""Returns a list of chunks (sequences of elements of the given size).
 Any elements left over will be placed into a final chunk.
 Examples:
-  chunked 2 [1, 2, 3, 4, 5] # [[1, 2], [3, 4], [5]]""")
+<mash>
+  chunked 2 [1, 2, 3, 4, 5] # [[1, 2], [3, 4], [5]]
+</mash>""")
 
 }

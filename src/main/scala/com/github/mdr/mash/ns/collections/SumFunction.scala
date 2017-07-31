@@ -37,12 +37,13 @@ object SumFunction extends MashFunction("collections.sum") {
     """Add all the elements in the sequence together, as if they were combined with the '+' operator.
 
 Examples:
+<mash>
   sum [1, 2, 3]      # 6
   sum ["foo", "bar"] # "foobar"
   sum [[1, 2], [3]]  # [1, 2, 3]
   sum []             # 0
-  sum "" []          # ""  
-    """)
+  sum "" []          # ""
+</mash>""")
 
 }
 

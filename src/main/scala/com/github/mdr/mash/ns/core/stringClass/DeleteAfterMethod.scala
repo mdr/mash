@@ -42,6 +42,8 @@ object DeleteAfterMethod extends MashMethod("deleteAfter") {
     """If no match is found, the string is returned unchanged.
       |
       |Examples:
+      |<mash>
       |  '{ "value": 10 } # comment'.deleteAfter '}'     # '{ "value": 10 }'
-      |  '10 # comment'.deleteAfter --andIncluding ' #'  # '10'""".stripMargin)
+      |  '10 # comment'.deleteAfter --andIncluding ' #'  # '10'
+      |</mash>""".stripMargin)
 }

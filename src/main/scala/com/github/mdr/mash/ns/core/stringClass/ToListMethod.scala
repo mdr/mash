@@ -21,7 +21,9 @@ object ToListMethod extends MashMethod("toList") {
     """Returns a list of Character-tagged Strings.
 
 Example:
-  'string'.characters  # ['s', 't', 'r', 'i', 'n', 'g']""")
+<mash>
+  'string'.characters  # ['s', 't', 'r', 'i', 'n', 'g']
+</mash>""")
 
 
 }

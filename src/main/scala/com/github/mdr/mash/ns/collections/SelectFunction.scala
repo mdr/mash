@@ -126,11 +126,13 @@ The arguments are interpreted as follows:
 The order of fields in the argument list is retained in the new output objects.
 
 Examples:
+<mash>
   select "foo" { foo: 42, bar: 24 }              # { foo: 42 }
   select --foo { foo: 42, bar: 24 }              # { foo: 42 }
   select --foo { foo: 42, bar: 24 }              # { foo: 42 }
   select --baz=(_.foo * 2) { foo: 42, bar: 24 }  # { baz: 84 }
   select "bar" "foo" { foo: 42, bar: 24 }        # { bar: 24, foo: 42 }
   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
-  select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]""")
+  select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]
+</mash>""")
 }

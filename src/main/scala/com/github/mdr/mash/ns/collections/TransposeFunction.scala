@@ -8,9 +8,6 @@ import com.github.mdr.mash.runtime._
 object TransposeFunction extends MashFunction("collections.transpose") {
 
   object Params {
-    val Sequence = Parameter(
-      nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence or Object to transpose"))
     val SkipGaps = Parameter(
       nameOpt = Some("skipGaps"),
       summaryOpt = Some("If true, skip gaps in lists where an entry isn't available; if false, use null (default false)"),
@@ -18,11 +15,14 @@ object TransposeFunction extends MashFunction("collections.transpose") {
       defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
+    val Sequence = Parameter(
+      nameOpt = Some("sequence"),
+      summaryOpt = Some("Sequence or Object to transpose"))
   }
 
   import Params._
 
-  val params = ParameterModel(Sequence, SkipGaps)
+  val params = ParameterModel(SkipGaps, Sequence)
 
   def call(boundParams: BoundParams): MashValue = {
     val outer = boundParams(Sequence)

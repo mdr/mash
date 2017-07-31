@@ -13,6 +13,16 @@ object GroupByFunction extends MashFunction("collections.groupBy") {
   private val DefaultAllKeyName = "All"
 
   object Params {
+    val Groups = Parameter(
+      nameOpt = Some("groups"),
+      summaryOpt = Some("Output a List of Group objects (default false)"),
+      shortFlagOpt = Some('g'),
+      defaultValueGeneratorOpt = Some(false),
+      isFlag = true,
+      isBooleanFlag = true,
+      descriptionOpt = Some(
+        """If true, output a list of Group objects, one for each group. If false, output a single
+          |  object with a field for each group.""".stripMargin))
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Include a group containing all the results (default false)"),
@@ -36,33 +46,23 @@ Otherwise, a default key of "$DefaultAllKeyName" is used. """))
         """If true, include a group with null keys, if any elements exist for such a group.
 If false, exclude a group with a null key.
 If a non-boolean argument is given, that will be used as the key for the null group instead of null."""))
-    val Groups = Parameter(
-      nameOpt = Some("groups"),
-      summaryOpt = Some("Output a List of Group objects (default false)"),
-      shortFlagOpt = Some('g'),
-      defaultValueGeneratorOpt = Some(false),
-      isFlag = true,
-      isBooleanFlag = true,
-      descriptionOpt = Some(
-        """If true, output a list of Group objects, one for each group. If false (the default), output a single
-          |  object with a field for each group.""".stripMargin))
     val Discriminator = Parameter(
       nameOpt = Some("discriminator"),
       summaryOpt = Some("Function to apply to elements of the sequence to determine a key"))
+    val Sequence = Parameter(
+      nameOpt = Some("sequence"),
+      summaryOpt = Some("Sequence from which to form groups"))
     val Select = Parameter(
       nameOpt = Some("select"),
       defaultValueGeneratorOpt = Some(NoArgValue),
       isFlag = true,
       isFlagValueMandatory = true,
       summaryOpt = Some("Function to apply to elements of the sequence to determine the final values of the output groups"))
-    val Sequence = Parameter(
-      nameOpt = Some("sequence"),
-      summaryOpt = Some("Sequence from which to form groups"))
   }
 
   import Params._
 
-  val params = ParameterModel(All, IncludeNull, Groups, Discriminator, Select, Sequence)
+  val params = ParameterModel(Groups, All, IncludeNull, Discriminator, Sequence, Select)
 
   private def groupBy[T, U](xs: Seq[T], f: T ⇒ U): Seq[(U, Seq[T])] = {
     val map = LinkedHashMap[U, Seq[T]]()

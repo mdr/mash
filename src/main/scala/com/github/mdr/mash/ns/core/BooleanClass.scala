@@ -23,8 +23,8 @@ object BooleanClass extends MashClass("core.Boolean") {
 
     override def descriptionOpt = Some("""Examples:
 <mash>
-    true.negate  # false
-    false.negate # true
+  true.negate  # false
+  false.negate # true
 </mash>""")
 
   }

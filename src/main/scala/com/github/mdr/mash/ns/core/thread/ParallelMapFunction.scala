@@ -54,5 +54,7 @@ object ParallelMapFunction extends MashFunction("core.thread.parallelMap") {
   to produce a sequence of transformed output elements.
 
 Examples:
-  parallelMap (_ * 2) [1, 2, 3] # [2, 4, 6]""")
+<mash>
+  parallelMap (_ * 2) [1, 2, 3] # [2, 4, 6]
+</mash>""")
 }

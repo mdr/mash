@@ -64,5 +64,7 @@ object MinByFunction extends MashFunction("collections.minBy") {
 If there are multiple elements with the minimum value, the first is returned.
 
 Examples:
-  minBy length ["a", "bbb", "cc"] # "a"""")
+<mash>
+  minBy length ["a", "bbb", "cc"] # "a"
+</mash>""")
 }

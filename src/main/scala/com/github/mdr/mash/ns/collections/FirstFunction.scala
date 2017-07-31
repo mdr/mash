@@ -53,11 +53,13 @@ If there are fewer than ${N.name} in the sequence, the entire sequence is return
 If a count ${N.name} is omitted, then the first item of the sequence is returned, if nonempty, else null.
 
 Examples:
+<mash>
   first 3 [1, 2, 3, 4 5]  # [1, 2, 3]
   first 5 [1, 2, 3]       # [1, 2, 3]
   first [1, 2, 3]         # 1
   first []                # null
-  first 3 "abcdef"        # "abc""")
+  first 3 "abcdef"        # "abc
+</mash>""")
 
 }
 

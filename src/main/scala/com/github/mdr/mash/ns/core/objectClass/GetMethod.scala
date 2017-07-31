@@ -70,10 +70,11 @@ object GetMethod extends MashMethod("get") {
     """Only fields are returned, not methods.
       |
       |Examples:
+      |<mash>
       |  { name: 'Alice', age: 30 }.get 'age' # 30
       |  {}.get 'age'                         # null
       |  {}.get 'age' --default=18            # 18
-    """.stripMargin)
+      |</mash>""".stripMargin)
 
   override val isShy = true
 

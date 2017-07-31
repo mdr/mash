@@ -39,8 +39,10 @@ object FindFunction extends MashFunction("collections.find") {
 null is returned if no matching element is found.
 
 Examples:
+<mash>
   find (_ > 10) [1, 20, 3]  # 20
-  find (_ > 100) [1, 2, 3]  # null""")
+  find (_ > 100) [1, 2, 3]  # null
+</mash>""")
 
 }
 

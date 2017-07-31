@@ -49,9 +49,11 @@ If there are fewer than ${N.name} in the sequence, the entire sequence is return
 If a count ${N.name} is omitted, then the last item of the sequence is returned, if nonempty, else null.
 
 Examples:
+<mash>
   last 3 [1, 2, 3, 4, 5] # [3, 4, 5]
   last 5 [1, 2, 3]       # [1, 2, 3]
   last [1, 2, 3]         # 3
   last []                # null
-  last 3 "abcdef"        # "def""")
+  last 3 "abcdef"        # "def"
+</mash>""")
 }

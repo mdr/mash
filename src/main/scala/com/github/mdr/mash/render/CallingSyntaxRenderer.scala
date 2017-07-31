@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.lexer.TokenType.{ IDENTIFIER, LONG_FLAG, SHORT_FLAG }
@@ -24,11 +24,11 @@ object CallingSyntaxRenderer {
       style"$targetName.$methodName ${render(method.params)}"
   }
 
-  def render(params: ParameterModel): StyledString = {
-    val positionalParams = params.params.filterNot(_.isFlag).map(renderPositionalParam)
-    val flagParams = params.params.filter(_.isFlag).map(renderFlagParam)
-    " ".style.join(flagParams ++ positionalParams)
-  }
+  def render(params: ParameterModel): StyledString =
+    " ".style.join(params.params.map(renderParam))
+
+  private def renderParam(param: Parameter): StyledString =
+    if (param.isFlag) renderFlagParam(param) else renderPositionalParam(param)
 
   private def renderFlagParam(param: Parameter): StyledString = {
     val longForm = renderLongFlagForm(param)

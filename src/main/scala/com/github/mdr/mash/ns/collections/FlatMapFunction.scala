@@ -66,8 +66,10 @@ object FlatMapFunction extends MashFunction("collections.flatMap") {
   output elements.
 
 Examples:
+<mash>
   flatMap (x => [x * 10, x * 100]) [1, 2, 3] # [20, 200, 40, 400, 60, 600]
-  flatMap (n i => [n, i]) [1, 2, 3]          # [1, 0, 2, 1, 3, 2]""")
+  flatMap (n i => [n, i]) [1, 2, 3]          # [1, 0, 2, 1, 3, 2]
+</mash>""")
 
 }
 

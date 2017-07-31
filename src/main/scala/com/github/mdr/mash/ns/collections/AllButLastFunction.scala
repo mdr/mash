@@ -40,7 +40,9 @@ If there are fewer than ${N.name} in the sequence, the empty sequence is returne
 If a count ${N.name} is omitted, the last item of the sequence is omitted.
 
 Examples:
-   allButLast [1, 2, 3, 4, 5]   # [1, 2, 3, 4]
-   allButLast 3 [1, 2, 3, 4, 5] # [1, 2]
-   allButLast 5 [1, 2, 3]       # []""")
+<mash>
+  allButLast [1, 2, 3, 4, 5]   # [1, 2, 3, 4]
+  allButLast 3 [1, 2, 3, 4, 5] # [1, 2]
+  allButLast 5 [1, 2, 3]       # []
+</mash>""")
 }

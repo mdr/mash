@@ -34,7 +34,9 @@ object JoinFunction extends MashFunction("collections.join") {
   override def descriptionOpt = Some("""Each element of the sequence will be converted into a string and joined with the given separator.
 
 Examples:
+<mash>
    join ":" [1, 2, 3] # "1:2:3"
    join ":" []        # ""
-   join [1, 2, 3]     # "123"""")
+   join [1, 2, 3]     # "123"
+</mash>""")
 }
