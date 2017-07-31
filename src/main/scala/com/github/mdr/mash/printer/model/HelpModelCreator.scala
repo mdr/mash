@@ -21,8 +21,8 @@ class HelpModelCreator(terminalSize: Dimensions,
   }
 
   def createForFunction(f: MashFunction): HelpModel = {
-    val lines = FunctionHelpRenderer.render(f)
-    HelpModel(f, lines.map(_.string), Seq())
+    val LinesAndLinks(lines, links) = FunctionHelpRenderer.render(f)
+    HelpModel(f, lines.map(_.string), links)
   }
 
   def createForClass(klass: MashClass): HelpModel = {

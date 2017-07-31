@@ -40,16 +40,19 @@ abstract class AbstractHelpRenderer {
 
   protected val IndentSpace = (" " * 4).style
 
-  protected def renderNameSection(title: String, names: Seq[String], summaryOpt: Option[String]): Seq[Line] = {
+  protected def renderNameSection(title: String,
+                                  names: Seq[String],
+                                  summaryOpt: Option[String]): LinesAndLinks = {
     val titleLine = Line(SectionTitleStyle(title))
     val styledNames = ", ".style.join(names.map(NameStyle(_)))
     val namesLine = Line(IndentSpace + styledNames + summaryOpt.fold("")(" - " + _).style)
-    Seq(titleLine, namesLine)
+    LinesAndLinks(Seq(titleLine, namesLine))
   }
 
-  protected def renderDescriptionSection(descriptionOpt: Option[String]): Seq[Line] =
-    descriptionOpt.toSeq.flatMap(description ⇒
-      Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ renderDescription(description))
+  protected def renderDescriptionSection(descriptionOpt: Option[String]): LinesAndLinks =
+    LinesAndLinks(
+      descriptionOpt.toSeq.flatMap(description ⇒
+        Seq(Line.Empty, Line(SectionTitleStyle("DESCRIPTION"))) ++ renderDescription(description)))
 
   protected def renderDescription(description: String, indentLevel: Int = 1): Seq[Line] = {
     val renderedDescription: StyledString = MashMarkupRenderer.render(description)

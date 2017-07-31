@@ -3,15 +3,13 @@ package com.github.mdr.mash.render.help
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.ns.core.StringClass
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.screen.Line
-import org.scalatest.{ FlatSpec, Matchers }
 
 class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering field help" should "work when all information is provided" in {
     val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
 
-    val actualLines = getText(FieldHelpRenderer.render(help).lines)
+    val actualLines = getText(FieldHelpRenderer.render(help))
 
     actualLines should equal(
       """FIELD
@@ -40,7 +38,7 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
     val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
 
-    val actualLines = getText(FieldHelpRenderer.render(help).lines)
+    val actualLines = getText(FieldHelpRenderer.render(help))
 
     actualLines should equal(
       """FIELD

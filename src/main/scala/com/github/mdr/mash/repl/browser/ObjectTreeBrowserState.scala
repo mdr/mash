@@ -63,19 +63,18 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
   def getSelectedValue: MashValue = getNode(selectionPath).rawValue
 
   def getNewPath: String = {
-    val sb = new StringBuilder(path)
     @tailrec
-    def rec(choices: Seq[ObjectTreeChoice]): Unit =
+    def rec(pathSoFar: String, choices: Seq[ObjectTreeChoice]): String =
       if (choices.nonEmpty) {
-        choices.head match {
-          case ObjectTreeChoice.IndexChoice(i)     ⇒ sb.append(combineSafely(path, s"[$i]"))
-          case ObjectTreeChoice.FieldChoice(field) ⇒ sb.append(combineSafely(path, s".$field"))
-          case _                                   ⇒
+        val newPath = choices.head match {
+          case ObjectTreeChoice.IndexChoice(i)     ⇒ combineSafely(pathSoFar, s"[$i]")
+          case ObjectTreeChoice.FieldChoice(field) ⇒ combineSafely(pathSoFar, s".$field")
+          case _                                   ⇒ pathSoFar
         }
-        rec(choices.tail)
-      }
-    rec(selectionPath.choices)
-    sb.toString
+        rec(newPath, choices.tail)
+      } else
+        pathSoFar
+    rec(path, selectionPath.choices)
   }
 
   def adjustFirstRow(delta: Int): ObjectTreeBrowserState = copy(firstRow = firstRow + delta)

@@ -50,7 +50,7 @@ object CloneFunction extends MashFunction("git.clone") {
     
 Examples:
 <mash>
-  git.clone "https://github.com/github/testrepo.git"     # clones into "testRepo"
-  git.clone "https://github.com/github/testrepo.git" dir # clones into "dir"
+  git.clone "https://github.com/github/testrepo.git"       # clones into "testRepo"
+  git.clone "https://github.com/github/testrepo.git" "dir" # clones into "dir"
 </mash>""")
 }

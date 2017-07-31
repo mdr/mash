@@ -4,7 +4,7 @@ class ClassHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering class help" should "work when all information is provided" in {
 
-    val actualLines = getText(ClassHelpRenderer.render(TestPointClass).lines)
+    val actualLines = getText(ClassHelpRenderer.render(TestPointClass))
 
     actualLines should equal(
       """CLASS

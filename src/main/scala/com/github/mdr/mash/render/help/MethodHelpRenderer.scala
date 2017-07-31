@@ -12,11 +12,11 @@ object MethodHelpRenderer extends AbstractHelpRenderer {
     val help = MethodHelpClass.Wrapper(obj)
     val method = help.method
     LinesAndLinks.combine(Seq(
-      LinesAndLinks(renderNameSection(method)),
+      renderNameSection(method),
       renderClassSection(help.klass),
       LinesAndLinks(renderCallingSyntaxSection(help)),
       LinesAndLinks(ParameterHelpRenderer.renderSection(method.params.params)),
-      LinesAndLinks(renderDescriptionSection(method.descriptionOpt)),
+      renderDescriptionSection(method.descriptionOpt),
       LinesAndLinks(FunctionHelpRenderer.renderSourceSection(method.sourceOpt))))
   }
 
@@ -26,7 +26,7 @@ object MethodHelpRenderer extends AbstractHelpRenderer {
     else
       FunctionHelpRenderer.renderCallingSyntaxSection(CallingSyntaxRenderer.render(help.method, Some(help.klass)))
 
-  private def renderNameSection(method: MashMethod): Seq[Line] =
+  private def renderNameSection(method: MashMethod): LinesAndLinks =
     renderNameSection("METHOD", method.name +: method.aliases, method.summaryOpt)
 
 }

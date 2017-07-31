@@ -12,7 +12,7 @@ class HelpPrinter(output: PrintStream) {
 
   def printMethodHelp(obj: MashObject) = printAll(MethodHelpRenderer.render(obj).lines)
 
-  def printFunctionHelp(f: MashFunction) = printAll(FunctionHelpRenderer.render(f))
+  def printFunctionHelp(f: MashFunction) = printAll(FunctionHelpRenderer.render(f).lines)
 
   def printFieldHelp(obj: MashObject) = printAll(FieldHelpRenderer.render(obj).lines)
 

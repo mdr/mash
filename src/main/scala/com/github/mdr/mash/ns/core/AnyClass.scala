@@ -124,7 +124,7 @@ object AnyClass extends MashClass("core.Any") {
     private def stringify(value: MashValue): String = value match {
       case obj: MashObject ⇒ obj.renderAsString
       case xs: MashList    ⇒ xs.renderAsString
-      case value           ⇒ quickStringify(value) getOrElse "???"
+      case _               ⇒ quickStringify(value) getOrElse "???"
     }
 
     def quickStringify(value: MashValue): Option[String] = condOpt(value) {

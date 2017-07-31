@@ -13,7 +13,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   def render(klass: MashClass): LinesAndLinks =
     LinesAndLinks.combine(Seq(
       LinesAndLinks(renderSummarySection(klass)),
-      LinesAndLinks(renderDescriptionSection(klass.descriptionOpt)),
+      renderDescriptionSection(klass.descriptionOpt),
       renderParentSection(klass),
       renderFieldSection(klass),
       renderStaticMethodSection(klass),

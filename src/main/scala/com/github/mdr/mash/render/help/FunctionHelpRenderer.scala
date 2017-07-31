@@ -7,16 +7,15 @@ import com.github.mdr.mash.utils.LineInfo
 
 object FunctionHelpRenderer extends AbstractHelpRenderer {
 
-  def render(f: MashFunction): Seq[Line] = {
-    Seq(
+  def render(f: MashFunction): LinesAndLinks =
+    LinesAndLinks.combine(Seq(
       renderNameSection(f),
-      renderCallingSyntaxSection(f),
-      ParameterHelpRenderer.renderSection(f.params.params),
+      LinesAndLinks(renderCallingSyntaxSection(f)),
+      LinesAndLinks(ParameterHelpRenderer.renderSection(f.params.params)),
       renderDescriptionSection(f.descriptionOpt),
-      renderSourceSection(f.sourceOpt)).flatten
-  }
+      LinesAndLinks(renderSourceSection(f.sourceOpt))))
 
-  private def renderNameSection(f: MashFunction): Seq[Line] = {
+  private def renderNameSection(f: MashFunction): LinesAndLinks = {
     val names = (f.fullyQualifiedName +: f.aliases).map(_.toString)
     renderNameSection("FUNCTION", names, f.summaryOpt)
   }
