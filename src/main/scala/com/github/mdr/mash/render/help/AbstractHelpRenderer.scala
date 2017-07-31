@@ -7,12 +7,14 @@ import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
 import com.github.mdr.mash.utils.{ LineInfo, Region }
 
 object LinesAndLinks {
+
   val Empty = LinesAndLinks()
 
   def apply(line: Line, link: Link): LinesAndLinks = LinesAndLinks(Seq(line), Seq(link))
 
   def combine(linesAndLinks: Seq[LinesAndLinks]): LinesAndLinks =
     linesAndLinks.fold(LinesAndLinks.Empty)(_ combine _)
+
 }
 
 case class LinesAndLinks(lines: Seq[Line] = Seq(), links: Seq[Link] = Seq()) {

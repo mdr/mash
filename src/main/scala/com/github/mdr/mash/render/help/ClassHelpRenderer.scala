@@ -59,7 +59,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   }
 
   private def renderStaticMethodSection(klass: MashClass): LinesAndLinks = {
-    val methods = klass.staticMethods
+    val methods = klass.staticMethods.sortBy(_.name)
     if (methods.nonEmpty) {
       LinesAndLinks.combine(
         LinesAndLinks(Seq(Line.Empty, Line(SectionTitleStyle("STATIC METHODS")))) +:
@@ -69,7 +69,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   }
 
   private def renderMethodSection(klass: MashClass): LinesAndLinks = {
-    val methods = klass.methods
+    val methods = klass.methods.sortBy(_.name)
     if (methods.nonEmpty) {
       LinesAndLinks.combine(
         LinesAndLinks(Seq(Line.Empty, Line(SectionTitleStyle("METHODS")))) +:

@@ -191,4 +191,5 @@ object AnyClass extends MashClass("core.Any") {
 
   override def summaryOpt = Some("The root class of all Mash values")
 
+  override def exampleTargetName = "value"
 }
