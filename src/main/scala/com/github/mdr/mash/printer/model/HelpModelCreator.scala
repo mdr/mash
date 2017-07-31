@@ -11,8 +11,8 @@ class HelpModelCreator(terminalSize: Dimensions,
                        viewConfig: ViewConfig) {
 
   def createForMethod(obj: MashObject): HelpModel = {
-    val lines = MethodHelpRenderer.render(obj)
-    HelpModel(obj, lines.map(_.string), Seq())
+    val LinesAndLinks(lines, links) = MethodHelpRenderer.render(obj)
+    HelpModel(obj, lines.map(_.string), links)
   }
 
   def createForField(obj: MashObject): HelpModel = {

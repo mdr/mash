@@ -10,7 +10,7 @@ import com.github.mdr.mash.screen.{ Line, Screen }
 
 class HelpPrinter(output: PrintStream) {
 
-  def printMethodHelp(obj: MashObject) = printAll(MethodHelpRenderer.render(obj))
+  def printMethodHelp(obj: MashObject) = printAll(MethodHelpRenderer.render(obj).lines)
 
   def printFunctionHelp(f: MashFunction) = printAll(FunctionHelpRenderer.render(f))
 

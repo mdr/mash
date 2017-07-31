@@ -23,7 +23,6 @@ object Style {
     }
   }
 
-
   implicit class StylableChar(c: Char) {
 
     def style(aStyle: Style): StyledCharacter = aStyle(c)
@@ -43,7 +42,8 @@ object Style {
               bold: Boolean = false,
               inverse: Boolean = false,
               underline: Boolean = false): StyledString =
-      style(Style(foregroundColour = foregroundColour,
+      style(Style(
+        foregroundColour = foregroundColour,
         backgroundColour = backgroundColour,
         bold = bold,
         inverse = inverse,

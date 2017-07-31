@@ -36,7 +36,7 @@ case class HelpBrowserState(model: HelpModel,
 
   def currentLinkOpt: Option[Link] = currentLinkIndexOpt.map(model.links)
 
-  def windowSize(terminalRows: Int) = terminalRows - 4
+  def windowSize(terminalRows: Int) = terminalRows - 4 // 2 status rows and two border rows
 
   def adjustWindowToFit(terminalRows: Int): HelpBrowserState = currentLinkOpt.map(_.line) match {
     case Some(currentRow) ⇒

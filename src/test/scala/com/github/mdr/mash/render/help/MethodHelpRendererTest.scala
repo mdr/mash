@@ -5,7 +5,7 @@ import com.github.mdr.mash.ns.core.help.MethodHelpClass
 class MethodHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering method help" should "work" in {
-    val actualLines = getText(MethodHelpRenderer.render(MethodHelpClass.create("norm", TestPointClass)))
+    val actualLines = getText(MethodHelpRenderer.render(MethodHelpClass.create("norm", TestPointClass)).lines)
 
     actualLines should equal(
       """METHOD

@@ -12,7 +12,7 @@ object FieldHelpRenderer extends AbstractHelpRenderer {
     val field = help.field
     LinesAndLinks.combine(Seq(
       LinesAndLinks(renderNameSection(field)),
-      renderClassSection2(help.klass),
+      renderClassSection(help.klass),
       LinesAndLinks(renderDescriptionSection(field.descriptionOpt))))
   }
 

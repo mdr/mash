@@ -8,16 +8,16 @@ import com.github.mdr.mash.screen.Line
 
 object MethodHelpRenderer extends AbstractHelpRenderer {
 
-  def render(obj: MashObject): Seq[Line] = {
+  def render(obj: MashObject): LinesAndLinks = {
     val help = MethodHelpClass.Wrapper(obj)
     val method = help.method
-    Seq(
-      renderNameSection(method),
+    LinesAndLinks.combine(Seq(
+      LinesAndLinks(renderNameSection(method)),
       renderClassSection(help.klass),
-      renderCallingSyntaxSection(help),
-      ParameterHelpRenderer.renderSection(method.params.params),
-      renderDescriptionSection(method.descriptionOpt),
-      FunctionHelpRenderer.renderSourceSection(method.sourceOpt)).flatten
+      LinesAndLinks(renderCallingSyntaxSection(help)),
+      LinesAndLinks(ParameterHelpRenderer.renderSection(method.params.params)),
+      LinesAndLinks(renderDescriptionSection(method.descriptionOpt)),
+      LinesAndLinks(FunctionHelpRenderer.renderSourceSection(method.sourceOpt))))
   }
 
   private def renderCallingSyntaxSection(help: MethodHelpClass.Wrapper): Seq[Line] =

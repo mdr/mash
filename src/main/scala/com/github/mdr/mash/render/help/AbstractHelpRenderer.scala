@@ -56,13 +56,7 @@ abstract class AbstractHelpRenderer {
       .map(region ⇒ Line(IndentSpace * indentLevel + region.of(renderedDescription.chars)))
   }
 
-  protected def renderClassSection(klass: MashClass): Seq[Line] =
-    Seq(
-      Line.Empty,
-      Line(SectionTitleStyle("CLASS")),
-      Line(IndentSpace + klass.fullyQualifiedName.toString.style))
-
-  protected def renderClassSection2(klass: MashClass): LinesAndLinks = {
+  protected def renderClassSection(klass: MashClass): LinesAndLinks = {
     val renderedParent = klass.fullyQualifiedName.toString.style
     val lines =
       Seq(
