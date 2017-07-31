@@ -13,7 +13,7 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   val Y = "(h => (x => x x) (g => h (args => (g g) args)))" // fixed point combinator
   s"($Y (f => n => if n == 1 then 1 else n * f (n - 1))) 5" ==> 120
 
-  "[1, 2, 3, 4, 5] | filter (_ >= 3)" ==> "[3, 4, 5]"
+  "[1, 2, 3, 4, 5] | where (_ >= 3)" ==> "[3, 4, 5]"
 
   "{ foo: 42, bar: 24 } | [_.foo, _.bar]" ==> "[42, 24]"
 
@@ -245,8 +245,14 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // try
   "try (error 'bang')" ==> "()"
+
   "try (error 'bang') --catch='recovered'" ==> "'recovered'"
   "a = 0; try 'no probs' --catch=(a += 1); a" ==> 0
+
+  "a = 0; try (error 'bang') --catch=(a += 1) --finally=(a += 1); a" ==> 2
+  "a = 0; try (error 'bang') --finally=(a += 1); a" ==> 1
+  "a = 0; try 'no probs' --finally=(a += 1); a" ==> 1
+  "try 'no probs' --finally=100" ==> "'no probs'"
 
   // safe
   "(safe pwd).getClass" ==> "core.Function"

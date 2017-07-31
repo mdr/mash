@@ -20,11 +20,16 @@ object TryFunction extends MashFunction("core.try") {
       summaryOpt = Some("Code to execute if an exception is thrown in the body"),
       defaultValueGeneratorOpt = Some(NoArgValue),
       isLazy = true)
+    val Finally = Parameter(
+      nameOpt = Some("finally"),
+      summaryOpt = Some("Code to execute after execution of the body, regardless of whether an exception is thrown or not"),
+      defaultValueGeneratorOpt = Some(NoArgValue),
+      isLazy = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Body, Catch)
+  val params = ParameterModel(Body, Catch, Finally)
 
   def call(boundParams: BoundParams): MashValue = {
     val body = boundParams(Body).asInstanceOf[MashFunction]
@@ -38,7 +43,9 @@ object TryFunction extends MashFunction("core.try") {
           case None             ⇒ MashUnit
         }
 
-    }
+    } finally
+      for (finallyBlock ← NoArgFunction.option(boundParams(Finally)))
+        finallyBlock.asInstanceOf[MashFunction].callNullary()
   }
 
   override def typeInferenceStrategy = new TypeInferenceStrategy {

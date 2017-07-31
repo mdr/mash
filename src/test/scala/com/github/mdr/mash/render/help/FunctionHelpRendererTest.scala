@@ -12,20 +12,20 @@ class FunctionHelpRendererTest extends AbstractHelpRendererTest {
       override def aliases = Seq(FullyQualifiedName("sqrt"))
 
       object Params {
-        val N = Parameter(
-          nameOpt = Some("n"),
-          summaryOpt = Some("Number to take square root of"),
-          descriptionOpt = Some("Must not be negative"))
         val GoFaster = Parameter(
           nameOpt = Some("goFaster"),
           summaryOpt = Some("Compute it faster"),
           isFlag = true,
           isBooleanFlag = true)
+        val N = Parameter(
+          nameOpt = Some("n"),
+          summaryOpt = Some("Number to take square root of"),
+          descriptionOpt = Some("Must not be negative"))
       }
 
       import Params._
 
-      def params: ParameterModel = ParameterModel(N, GoFaster)
+      def params: ParameterModel = ParameterModel(GoFaster, N)
 
       def call(boundParams: BoundParams): MashValue = ???
 
@@ -46,10 +46,10 @@ class FunctionHelpRendererTest extends AbstractHelpRendererTest {
         |    squareRoot --goFaster <n>
         |
         |PARAMETERS
+        |    --goFaster - Compute it faster
+        |
         |    n - Number to take square root of
         |        Must not be negative
-        |
-        |    --goFaster - Compute it faster
         |
         |DESCRIPTION
         |    The number must not be negative
