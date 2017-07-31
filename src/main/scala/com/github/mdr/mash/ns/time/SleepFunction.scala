@@ -13,7 +13,8 @@ object SleepFunction extends MashFunction("time.sleep") {
   object Params {
     val Duration = Parameter(
       nameOpt = Some("duration"),
-      summaryOpt = Some("Duration to sleep (default millisecond)"))
+      summaryOpt = Some("Duration to sleep"),
+      descriptionOpt = Some("Accepts tagged durations. If given an untagged Number, sleeps that number of milliseconds"))
   }
 
   import Params._
@@ -39,6 +40,13 @@ object SleepFunction extends MashFunction("time.sleep") {
 
   override def typeInferenceStrategy = UnitClass
 
-  override def summaryOpt = Some("Sleep for the given duration")
+  override def summaryOpt = Some("Sleep for a given duration")
 
+  override def descriptionOpt = Some(
+    """Examples:
+      |<mash>
+      |  sleep 1000      # Sleep 1 second
+      |  sleep 3.seconds
+      |</mash>
+    """.stripMargin)
 }

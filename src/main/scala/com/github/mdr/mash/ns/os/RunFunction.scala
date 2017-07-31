@@ -12,21 +12,21 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 object RunFunction extends MashFunction("os.run") {
 
   object Params {
+    val StandardIn = Parameter(
+      nameOpt = Some("standardIn"),
+      summaryOpt = Some("What to send to the standard input of the process (default nothing)"),
+      defaultValueGeneratorOpt = Some(NoArgValue),
+      isFlag = true,
+      isFlagValueMandatory = true)
     val Command = Parameter(
       nameOpt = Some("command"),
       summaryOpt = Some("Command to execute"),
       isVariadic = true,
       variadicAtLeastOne = true)
-    val StandardIn = Parameter(
-      nameOpt = Some("standardIn"),
-      summaryOpt = Some("What to send to standard input"),
-      defaultValueGeneratorOpt = Some(NoArgValue),
-      isFlag = true,
-      isFlagValueMandatory = true)
   }
   import Params._
 
-  val params = ParameterModel(Command, StandardIn)
+  val params = ParameterModel(StandardIn, Command)
 
   def call(boundParams: BoundParams): MashObject = {
     val args: Seq[MashValue] =
