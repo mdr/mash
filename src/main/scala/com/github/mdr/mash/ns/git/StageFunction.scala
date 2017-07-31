@@ -15,11 +15,6 @@ import scala.util.Try
 object StageFunction extends MashFunction("git.stage") {
 
   object Params {
-    val Paths = Parameter(
-      nameOpt = Some("paths"),
-      summaryOpt = Some("Stage the given paths"),
-      isVariadic = true,
-      variadicFlatten = true)
     val All = Parameter(
       nameOpt = Some("all"),
       summaryOpt = Some("Stage all unstaged files (default false)"),
@@ -27,11 +22,16 @@ object StageFunction extends MashFunction("git.stage") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
+    val Paths = Parameter(
+      nameOpt = Some("paths"),
+      summaryOpt = Some("Stage the given paths"),
+      isVariadic = true,
+      variadicFlatten = true)
   }
 
   import Params._
 
-  val params = ParameterModel(Paths, All)
+  val params = ParameterModel(All, Paths)
 
   def call(boundParams: BoundParams): MashUnit = {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))

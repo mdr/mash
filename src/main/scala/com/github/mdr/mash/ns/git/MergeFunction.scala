@@ -11,9 +11,6 @@ import org.eclipse.jgit.lib.ObjectId
 object MergeFunction extends MashFunction("git.merge") {
 
   object Params {
-    val Commit = Parameter(
-      nameOpt = Some("commit"),
-      summaryOpt = Some("Name of a commit to merge"))
     val Squash = Parameter(
       nameOpt = Some("squash"),
       summaryOpt = Some("Squash commits (default false)"),
@@ -21,10 +18,13 @@ object MergeFunction extends MashFunction("git.merge") {
       isFlag = true,
       defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
+    val Commit = Parameter(
+      nameOpt = Some("commit"),
+      summaryOpt = Some("Name of a commit to merge"))
   }
   import Params._
 
-  val params = ParameterModel(Commit, Squash)
+  val params = ParameterModel(Squash, Commit)
 
   def validateCommit(boundParams: BoundParams, param: Parameter): ObjectId = {
     val commit = boundParams(param) match {

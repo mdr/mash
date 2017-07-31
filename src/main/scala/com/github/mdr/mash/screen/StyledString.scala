@@ -15,6 +15,7 @@ object StyledString {
   val Empty = StyledString(Seq())
 
   def join(strings: Seq[StyledString], separator: StyledString = Empty) = separator.join(strings)
+
 }
 
 case class StyledString(chars: Seq[StyledCharacter]) {
@@ -34,6 +35,9 @@ case class StyledString(chars: Seq[StyledCharacter]) {
   def +(that: Seq[StyledCharacter]): StyledString = StyledString(this.chars ++ that)
 
   def *(n: Int): StyledString = StyledString(Seq.fill(n)(chars).flatten)
+
+  def padTo(length: Int, c: StyledCharacter): StyledString =
+    StyledString(chars.padTo(length, c))
 
   def updated(i: Int, c: StyledCharacter) = copy(chars.updated(i, c))
 

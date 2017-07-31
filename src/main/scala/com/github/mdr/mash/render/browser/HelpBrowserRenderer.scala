@@ -23,8 +23,16 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
         case Some(selectedLinkRegion) ⇒ invert(line, selectedLinkRegion)
         case None                     ⇒ line
       })
-    }
-    lines.window(state.firstRow, windowSize)
+    }.map(addBorder)
+
+    val headerLine = Line(style"┌${"─" * (terminalSize.columns - 2)}┐")
+    val footerLine = Line(style"└${"─" * (terminalSize.columns - 2)}┘")
+    headerLine +: lines.window(state.firstRow, windowSize) :+ footerLine
+  }
+
+  private def addBorder(line: Line): Line = {
+    val inner = line.string.padTo(terminalSize.columns - 2, ' '.style)
+    line.copy(string = style"│$inner│")
   }
 
   private def invert(s: StyledString, region: Region): StyledString = {

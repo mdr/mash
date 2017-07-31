@@ -23,6 +23,15 @@ object Style {
     }
   }
 
+
+  implicit class StylableChar(c: Char) {
+
+    def style(aStyle: Style): StyledCharacter = aStyle(c)
+
+    def style: StyledCharacter = StyledCharacter(c)
+
+  }
+
   implicit class StylableString(s: String) {
 
     def style: StyledString = StyledString(s.map(StyledCharacter(_)))
@@ -55,5 +64,7 @@ case class Style(foregroundColour: Colour = DefaultColour,
   def withInverse: Style = copy(inverse = true)
 
   def apply(s: String): StyledString = StyledString(s.map(StyledCharacter(_, this)))
+
+  def apply(c: Character): StyledCharacter = StyledCharacter(c, this)
 
 }

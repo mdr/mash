@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.git
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.ns.git.LogFunction.asCommitObject
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject }
+import com.github.mdr.mash.runtime.MashObject
 import org.eclipse.jgit.api.Git
 
 import scala.collection.JavaConverters._
