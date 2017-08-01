@@ -254,6 +254,7 @@ object Evaluator extends EvaluatorHelper {
     val variadicAtLeastOne = attributes.exists(_.name == Attributes.AtLeastOne)
     val variadicFlatten = attributes.exists(_.name == Attributes.Flatten)
     val isNamedArgsParam = attributes.exists(_.name == Attributes.NamedArgs)
+    val isSafe = attributes.exists(_.name == Attributes.Safe)
 
     val defaultValueGeneratorOpt: Option[ValueGenerator] =
       defaultExprOpt.map(defaultExpr ⇒ (context: EvaluationContext) ⇒ evaluate(defaultExpr)(context))
@@ -266,7 +267,7 @@ object Evaluator extends EvaluatorHelper {
 
     Parameter(nameOpt, docSummaryOpt, defaultValueGeneratorOpt = defaultValueGeneratorOpt, shortFlagOpt = shortFlagOpt,
       isVariadic = isVariadic, isFlag = isFlag, isLazy = isLazy, isNamedArgsParam = isNamedArgsParam,
-      variadicAtLeastOne = variadicAtLeastOne, variadicFlatten = variadicFlatten,
+      variadicAtLeastOne = variadicAtLeastOne, variadicFlatten = variadicFlatten, isSafe = isSafe,
       patternOpt = patternOpt.map(makeParamPattern))
   }
 

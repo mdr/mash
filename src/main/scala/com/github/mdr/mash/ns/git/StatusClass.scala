@@ -1,7 +1,8 @@
 package com.github.mdr.mash.ns.git
 
 import com.github.mdr.mash.classes.{ AbstractObjectWrapper, Field, MashClass }
-import com.github.mdr.mash.ns.core.{ NumberClass, StringClass }
+import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
+import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.ns.git.branch.LocalBranchNameClass
 import com.github.mdr.mash.ns.os.PathClass
 import com.github.mdr.mash.runtime._
@@ -27,9 +28,28 @@ object StatusClass extends MashClass("git.Status") {
   override lazy val fields =
     Seq(Branch, UpstreamBranch, AheadCount, BehindCount, Added, Changed, Missing, Modified, Removed, Untracked, Conflicting)
 
+  override lazy val methods = Seq(
+    IsCleanMethod)
+
+  object IsCleanMethod extends MashMethod("isClean") {
+    val params = ParameterModel.Empty
+
+    def call(target: MashValue, boundParams: BoundParams): MashBoolean = {
+      val wrapper = Wrapper(target)
+      val dirty = wrapper.hasChangesToBeCommitted || wrapper.hasUnstagedChanges || wrapper.untracked.nonEmpty ||
+        wrapper.conflicting.nonEmpty
+      MashBoolean(!dirty)
+    }
+
+    override def typeInferenceStrategy = BooleanClass
+
+    override def summaryOpt = Some("Return true if and only if the repository is in a clean state (no modified or untracked files)")
+
+  }
+
   override def summaryOpt = Some("The status of a git repository")
 
-  case class Wrapper(obj: MashObject) extends AbstractObjectWrapper(obj) {
+  case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     private def unmashify(field: Field): Seq[String] =
       getListField(field).map(_.asInstanceOf[MashString].s)

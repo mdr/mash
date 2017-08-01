@@ -11,5 +11,6 @@ object Attributes {
   val ShortFlag = "shortFlag"
   val AtLeastOne = "atLeastOne"
   val Flatten = "flatten"
+  val Safe = "safe"
 
 }

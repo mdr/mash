@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add git.Status.isClean
 * Incremental history search: option to change directory for old command
 * Help browser
 * Add --finally param to try
