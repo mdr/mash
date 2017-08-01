@@ -14,7 +14,9 @@ object TwoDTableModel {
 
   }
 
-  case class Column(name: String, width: Int, fetchOpt: Option[ValueFetch] = None)
+  case class Column(name: String, width: Int, fetchOpt: Option[ValueFetch] = None) {
+    require(width >= 0, s"width must be non-negative, but was $width")
+  }
 
   case class Cell(renderedValue: String, rawValueOpt: Option[MashValue] = None)
 

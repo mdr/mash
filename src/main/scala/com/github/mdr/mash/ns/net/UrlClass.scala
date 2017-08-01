@@ -43,12 +43,12 @@ object UrlClass extends MashClass("net.Url") {
 
       val QueryParams = Parameter(
         nameOpt = Some("queryParams"),
-        summaryOpt = Some("Query parameters to set on URL"),
+        summaryOpt = Some("An Object containing query parameters to add to URL"),
         defaultValueGeneratorOpt = Some(NoArgValue))
 
       val NamedQueryParams = Parameter(
         nameOpt = Some("namedQueryParams"),
-        summaryOpt = Some("Query parameters to set on URL"),
+        summaryOpt = Some("Query parameters to add to URL"),
         isNamedArgsParam = true)
 
     }
@@ -75,8 +75,9 @@ object UrlClass extends MashClass("net.Url") {
     override def descriptionOpt = Some(
       """Examples:
 <mash>
-  net.url "http://example.com" | .withQueryParams { param: 42 } # http://example.com?param=42
-  net.url "http://example.com" | .withQueryParams --param=42    # http://example.com?param=42
+  url = net.url "http://example.com?existing=1"
+  url.withQueryParams { param: 42 } # http://example.com?existing=1&param=42
+  url.withQueryParams --param=42    # http://example.com?existing=1&param=42
 </mash>""")
 
   }

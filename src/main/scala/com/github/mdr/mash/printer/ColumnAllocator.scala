@@ -71,6 +71,7 @@ object ColumnAllocator {
                       columnSpecs: Map[ColumnId, ColumnSpec],
                       requestedWidths: Map[ColumnId, Int],
                       availableWidth: Int): Map[ColumnId, Int] = {
+    require(availableWidth >= 0, s"availableWidth must be non-negative, but was $availableWidth")
     val satisfiedAllocations: Map[ColumnId, Int] =
       for {
         (columnId, allocated) ← allocateByWeight(columnIds, columnSpecs, availableWidth)

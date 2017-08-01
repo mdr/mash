@@ -72,8 +72,10 @@ object StringUtils {
   /**
     * Pad or truncate the given string to ensure it is exactly the given width in length.
     */
-  def fitToWidth(s: String, width: Int): String =
+  def fitToWidth(s: String, width: Int): String = {
+    require(width >= 0, s"width must be non-negative, but was $width")
     StringUtils.ellipsisise(s.padTo(width, " ").mkString, width)
+  }
 
   def commonPrefix(s1: String, s2: String): String =
     s1.zip(s2).takeWhile { case (x, y) ⇒ x == y }.map(_._1).mkString

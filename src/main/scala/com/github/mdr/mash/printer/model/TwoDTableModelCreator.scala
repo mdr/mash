@@ -68,7 +68,7 @@ class TwoDTableModelCreator(terminalSize: Dimensions,
     val allColumnIds = RowLabelColumnId +: dataColumnIds
     val rowLabelWidth = Utils.max(rowInfos.map(_.label.length), default = 0)
     val markingStateWidth = if (supportMarking) 2 else 0
-    val totalAvailableWidth = terminalSize.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - markingStateWidth // accounting for the table and column borders
+    val totalAvailableWidth = 0 max terminalSize.columns - rowLabelWidth - 1 - (columnSpecs.size + 1) - markingStateWidth // accounting for the table and column borders
     val allocatedColumnWidths = ColumnAllocator.allocateColumns(dataColumnIds, columnSpecs, requestedColumnWidths, totalAvailableWidth)
 
     val dataColumnNames = for ((columnId, colSpec) ← columnSpecs) yield columnId -> colSpec.name
