@@ -110,12 +110,12 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
 
   def withPath(newPath: String): SingleObjectTableBrowserState = copy(path = newPath)
 
-  override def selectionInfo: SelectionInfo =
-    markedRows.toSeq.sorted match {
+  override def selectionInfoOpt: Option[SelectionInfo] =
+    Some(markedRows.toSeq.sorted match {
       case Seq()         ⇒ selectionInfo(currentRow)
       case Seq(rowIndex) ⇒ selectionInfo(rowIndex)
       case rowIndices    ⇒ selectionInfo(rowIndices)
-    }
+    })
 
   private def selectionInfo(rowIndex: Int): SelectionInfo = {
     val field = model.rawValues.toSeq(rowIndex)._1

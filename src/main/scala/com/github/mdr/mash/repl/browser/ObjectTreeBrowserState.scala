@@ -210,7 +210,7 @@ case class ObjectTreeBrowserState(model: ObjectTreeModel,
 
   def previousItem(terminalRows: Int): ObjectTreeBrowserState = upDown(-1, terminalRows)
 
-  override def selectionInfo: SelectionInfo = SelectionInfo(getNewPath, getSelectedValue)
+  override def selectionInfoOpt: Option[SelectionInfo] = Some(SelectionInfo(getNewPath, getSelectedValue))
 
   private def windowSize(terminalRows: Int) = terminalRows - 2 // 2 status rows
 

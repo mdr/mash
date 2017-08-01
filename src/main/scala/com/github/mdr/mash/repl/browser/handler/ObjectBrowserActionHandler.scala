@@ -43,20 +43,19 @@ trait ObjectBrowserActionHandler
 
   protected def navigateBack() = updateObjectBrowserStateStack(_.pop)
 
-  protected def focus(browserState: BrowserState, tree: Boolean = false): Unit = {
-    val selectionInfo = browserState.selectionInfo
-    focus(selectionInfo.rawObject, selectionInfo.path, tree)
-  }
+  protected def focus(browserState: BrowserState, tree: Boolean = false): Unit =
+    for (selectionInfo ← browserState.selectionInfoOpt)
+      focus(selectionInfo.rawObject, selectionInfo.path, tree)
 
-  protected def focusDirectory(browserState: BrowserState): Unit = {
-    val selectionInfo = browserState.selectionInfo
-    val isDirectory = condOpt(selectionInfo.rawObject) {
-      case s: MashString                                             ⇒ Paths.get(s.s)
-      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
-    }.exists(Files.isDirectory(_))
-    if (isDirectory)
-      acceptFollowOnExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
-  }
+  protected def focusDirectory(browserState: BrowserState): Unit =
+    for (selectionInfo ← browserState.selectionInfoOpt) {
+      val isDirectory = condOpt(selectionInfo.rawObject) {
+        case s: MashString                                             ⇒ Paths.get(s.s)
+        case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
+      }.exists(Files.isDirectory(_))
+      if (isDirectory)
+        acceptFollowOnExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
+    }
 
   protected def focus(value: MashValue, path: String, tree: Boolean): Unit = {
     val newBrowserState =
@@ -114,7 +113,9 @@ trait ObjectBrowserActionHandler
 
   protected def handleInsertWholeItem(browserState: BrowserState) = insert(browserState.path)
 
-  protected def handleInsertItem(browserState: BrowserState) = insert(browserState.getInsertExpression)
+  protected def handleInsertItem(browserState: BrowserState) =
+    for (expression ← browserState.getInsertExpressionOpt)
+      insert(expression)
 
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
     if (action == RedrawScreen)
@@ -135,19 +136,21 @@ trait ObjectBrowserActionHandler
           }
       }
 
-  protected def handleOpenItem(browserState: BrowserState) = {
-    state = state.copy(
-      lineBuffer = LineBuffer.Empty,
-      objectBrowserStateStackOpt = None)
-    updateScreenAfterAccept()
-    val command = combineSafely(browserState.getInsertExpression, " | open")
-    runCommand(command)
-  }
+  protected def handleOpenItem(browserState: BrowserState) =
+    for (expression ← browserState.getInsertExpressionOpt) {
+      state = state.copy(
+        lineBuffer = LineBuffer.Empty,
+        objectBrowserStateStackOpt = None)
+      updateScreenAfterAccept()
+      val command = combineSafely(expression, " | open")
+      runCommand(command)
+    }
 
-  protected def handleCopyItem(browserState: BrowserState) = {
-    val command = combineSafely(browserState.getInsertExpression, " | clipboard")
-    runCommand(command)
-  }
+  protected def handleCopyItem(browserState: BrowserState) =
+    for (expression ← browserState.getInsertExpressionOpt) {
+      val command = combineSafely(expression, " | clipboard")
+      runCommand(command)
+    }
 
   private case class ItemAndPath(item: MashValue, path: String)
 

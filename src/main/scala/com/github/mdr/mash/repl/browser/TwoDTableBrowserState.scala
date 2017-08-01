@@ -138,12 +138,12 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
 
   def withPath(newPath: String): TwoDTableBrowserState = copy(path = newPath)
 
-  def selectionInfo: SelectionInfo =
-    markedRows.toSeq.sorted match {
+  def selectionInfoOpt: Option[SelectionInfo] =
+    Some(markedRows.toSeq.sorted match {
       case Seq()         ⇒ selectionInfo(currentRow, includeCellSelection = true)
       case Seq(rowIndex) ⇒ selectionInfo(rowIndex, includeCellSelection = false)
       case rowIndices    ⇒ selectionInfoForMultiple(rowIndices)
-    }
+    })
 
   private def selectionInfoForMultiple(rowIndices: Seq[Int]): SelectionInfo =
     model.rawValue match {

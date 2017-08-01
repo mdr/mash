@@ -43,9 +43,9 @@ trait BrowserState {
 
   def withPath(newPath: String): BrowserState
 
-  def getInsertExpression: String = selectionInfo.path
+  def getInsertExpressionOpt: Option[String] = selectionInfoOpt.map(_.path)
 
-  def selectionInfo: SelectionInfo
+  def selectionInfoOpt: Option[SelectionInfo]
 
   def expressionStateOpt: Option[ExpressionState]
 

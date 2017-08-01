@@ -14,9 +14,9 @@ case class TextLinesBrowserState(model: TextLinesModel,
 
   override def withPath(newPath: String): TextLinesBrowserState = copy(path = newPath)
 
-  override def selectionInfo: SelectionInfo = {
+  override def selectionInfoOpt: Option[SelectionInfo] = {
     val selectionPath = ExpressionCombiner.combineSafely(path, s"[$selectedRow]")
-    SelectionInfo(selectionPath, model.rawValue.elements(selectedRow))
+    Some(SelectionInfo(selectionPath, model.rawValue.elements(selectedRow)))
   }
 
   def size = model.renderedLines.size

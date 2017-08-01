@@ -26,9 +26,8 @@ case class HelpBrowserState(model: HelpModel,
   override def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState =
     copy(expressionStateOpt = expressionStateOpt)
 
-  override def selectionInfo: SelectionInfo = currentLinkOpt match {
-    case Some(link) ⇒ SelectionInfo(path, link.target) // Path TODO
-    case None       ⇒ SelectionInfo(path, rawValue)
+  override def selectionInfoOpt: Option[SelectionInfo] = currentLinkOpt map { link ⇒
+    SelectionInfo(path, link.target) // Path TODO
   }
 
   def currentLinkOpt: Option[Link] = model.links.find(_.line == currentRow)
