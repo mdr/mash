@@ -38,7 +38,7 @@ object ValueFetch {
       MemberEvaluator.maybeLookup(value, member).map(
         _.when(isNullaryMethod, rawValue ⇒ Evaluator.invokeNullaryFunctions(rawValue, locationOpt = None)))
 
-    def fetchPath(parentPath: String): String = safeProperty(parentPath, member)
+    def fetchPath(parentPath: String): String = safeProperty(parentPath, member, isNullaryMethod)
 
     def value = member
   }

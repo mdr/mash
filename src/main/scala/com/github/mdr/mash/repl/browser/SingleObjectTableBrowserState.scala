@@ -118,8 +118,8 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
     })
 
   private def selectionInfo(rowIndex: Int): SelectionInfo = {
-    val field = model.rawValues.toSeq(rowIndex)._1
-    val selectionPath = BrowserState.safeProperty(path, field)
+    val (field, value) = model.rawValues.toSeq(rowIndex)
+    val selectionPath = BrowserState.safeProperty(path, field, BrowserState.allowsNullary(value))
     SelectionInfo(selectionPath, selectedRawValue)
   }
 

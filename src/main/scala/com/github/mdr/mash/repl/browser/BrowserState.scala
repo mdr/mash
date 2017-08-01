@@ -1,5 +1,7 @@
 package com.github.mdr.mash.repl.browser
 
+import com.github.mdr.mash.classes.BoundMethod
+import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
@@ -7,18 +9,25 @@ import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
 
+import scala.PartialFunction.cond
+
 object BrowserState {
 
-  def safeProperty(path: String, property: MashValue): String =
+  def safeProperty(path: String, property: MashValue, allowsNullary: Boolean): String =
     property match {
       case MashString(s, _) ⇒
-        if (isLegalIdentifier(s))
+        if (isLegalIdentifier(s) && !allowsNullary)
           combineSafely(path, s".$property")
         else
           combineSafely(path, s"['$property']")
       case _                ⇒
         ValueToExpression.getExpression(property).map(combineSafely(path, _)).getOrElse(path)
     }
+
+  def allowsNullary(value: MashValue) = cond(value) {
+    case f: MashFunction ⇒ f.params.allowsNullary
+    case bm: BoundMethod ⇒ bm.params.allowsNullary
+  }
 
   def fromModel(displayModel: DisplayModel, path: String): BrowserState =
     displayModel match {
