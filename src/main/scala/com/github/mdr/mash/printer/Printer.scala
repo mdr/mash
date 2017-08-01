@@ -107,8 +107,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
           new GitStatusPrinter(output).print(obj)
           done
         case obj: MashObject if obj.nonEmpty                                                             ⇒
-          new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
-          done
+          printOneD(obj)
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                   ⇒
           done // Don't print out sequence of unit
         case method: BoundMethod if !printConfig.disableCustomViews                                      ⇒
@@ -167,6 +166,18 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
     else {
       for (line ← model.lines)
         output.println(Screen.drawStyledChars(line))
+      done
+    }
+  }
+
+  private def printOneD(obj: MashObject): PrintResult = {
+    val size = obj.size
+    val nonDataRows = 2 // 1 header rows + 1 footer
+    if (size > terminalSize.rows - nonDataRows - 1 && viewConfig.browseLargeOutput) {
+      val model = new SingleObjectTableModelCreator(terminalSize, supportMarking = true, viewConfig).create(obj)
+      browse(model)
+    } else {
+      new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
       done
     }
   }

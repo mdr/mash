@@ -24,11 +24,11 @@ object MethodHelpClass extends MashClass("core.help.MethodHelp") {
   override def summaryOpt = Some("Help documentation for a method")
 
   def create(name: String,
-             klass: MashClass): MashObject =
+             owningClass: MashClass): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
-        OwningClass -> klass),
+        OwningClass -> owningClass),
       MethodHelpClass)
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {

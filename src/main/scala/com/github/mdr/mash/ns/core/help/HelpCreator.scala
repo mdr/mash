@@ -17,6 +17,6 @@ object HelpCreator {
     MethodHelpClass.create(method.name, method.klass)
 
   def getFieldHelp(field: Field, klass: MashClass): MashObject =
-    FieldHelpClass.create(name = field.name, klass = klass)
+    FieldHelpClass.create(name = field.name, owningClass = klass)
 
 }

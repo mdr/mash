@@ -11,31 +11,31 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
 
   object Fields {
     val Name = Field("name", Some("Field name"), StringClass)
-    val Class = Field("class", Some("Class this field belongs to"), ClassClass)
+    val OwningClass = Field("owningClass", Some("Class this field belongs to"), ClassClass)
   }
 
   import Fields._
 
   def create(name: String,
-             klass: MashClass): MashObject =
+             owningClass: MashClass): MashObject =
     MashObject.of(
       ListMap(
         Name -> MashString(name),
-        Class -> klass),
+        OwningClass -> owningClass),
       FieldHelpClass)
 
   case class Wrapper(any: MashValue) extends AbstractObjectWrapper(any) {
 
     def name = getStringField(Name)
 
-    def klass = getClassField(Class)
+    def klass = getClassField(OwningClass)
 
     def field = klass.getField(name).getOrElse(
       throw new EvaluatorException(s"No field '$name' found in '${klass.fullyQualifiedName}'"))
 
   }
 
-  override val fields = Seq(Name, Class)
+  override val fields = Seq(Name, OwningClass)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 

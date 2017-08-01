@@ -7,7 +7,7 @@ import com.github.mdr.mash.ns.core.help.FieldHelpClass
 class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
   "Rendering field help" should "work when all information is provided" in {
-    val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
+    val help = FieldHelpClass.create(name = "x", owningClass = TestPointClass)
 
     val actualLines = getText(FieldHelpRenderer.render(help))
 
@@ -36,7 +36,7 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
 
     }
 
-    val help = FieldHelpClass.create(name = "x", klass = TestPointClass)
+    val help = FieldHelpClass.create(name = "x", owningClass = TestPointClass)
 
     val actualLines = getText(FieldHelpRenderer.render(help))
 
