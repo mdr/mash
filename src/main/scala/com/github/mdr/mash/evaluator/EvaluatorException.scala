@@ -2,11 +2,35 @@ package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.functions.MashCallable
 import com.github.mdr.mash.parser.Provenance
-import com.github.mdr.mash.utils.PointedRegion
+import com.github.mdr.mash.utils.{ LineInfo, Point, PointedRegion }
 
 case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion) {
 
   def source = pointedRegion.of(provenance.source)
+
+  def reindentedSource: String = {
+    val lineInfo = new LineInfo(provenance.source)
+    val Point(lineIndex, column) = lineInfo.lineAndColumn(pointedRegion.region.offset)
+    val indented = lineInfo.line(lineIndex).take(column).forall(_ == ' ')
+    if (indented)
+      reindent(source, column)
+    else
+      source
+  }
+
+  private def reindent(source: String, indent: Int): String = {
+    val lineInfo = new LineInfo(source)
+    val sourceLines = lineInfo.lines
+    val firstLine = sourceLines.take(1)
+    val laterLines = sourceLines.drop(1).map { line ⇒
+      if (line.take(indent).forall(_ == ' '))
+        line.drop(indent)
+      else
+        line
+    }
+    (firstLine ++ laterLines).mkString("\n")
+  }
+
 
 }
 

@@ -15,8 +15,10 @@ case class HelpBrowserState(model: HelpModel,
 
   def nextItem(terminalRows: Int): HelpBrowserState = adjustSelectedRow(1, terminalRows)
 
-  def adjustSelectedRow(delta: Int, terminalRows: Int): HelpBrowserState =
-    this.when(numberOfRows > 0, _.copy(currentRow = (currentRow + delta + numberOfRows) % numberOfRows).adjustWindowToFit(terminalRows))
+  def adjustSelectedRow(delta: Int, terminalRows: Int): HelpBrowserState = {
+    val newRow = 0 max currentRow + delta min numberOfRows - 1
+    this.when(numberOfRows > 0, _.copy(currentRow = newRow).adjustWindowToFit(terminalRows))
+  }
 
   def numberOfRows = model.numberOfRows
 
