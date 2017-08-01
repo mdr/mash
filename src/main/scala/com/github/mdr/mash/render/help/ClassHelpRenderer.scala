@@ -3,7 +3,7 @@ package com.github.mdr.mash.render.help
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.ns.core.help.{ FieldHelpClass, MethodHelpClass }
-import com.github.mdr.mash.printer.model.Link
+import com.github.mdr.mash.printer.model.{ Link, LinkPath }
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Region
@@ -36,7 +36,8 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
             Line.Empty,
             Line(SectionTitleStyle("PARENT")),
             Line(IndentSpace + renderedParent))
-        val parentLink = Link(2, Region(IndentSpace.length, renderedParent.length), parent, ".parent")
+        val linkPath = LinkPath.Absolute(parent.fullyQualifiedName.toString)
+        val parentLink = Link(line = 2, Region(IndentSpace.length, renderedParent.length), parent, linkPath)
         LinesAndLinks(lines, Seq(parentLink))
       case None         ⇒
         LinesAndLinks.Empty
@@ -54,7 +55,8 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
 
   private def renderField(field: Field, klass: MashClass): LinesAndLinks = {
     val line = Line(IndentSpace + FieldAndMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
-    val fieldLink = Link(0, Region(IndentSpace.length, field.name.length), FieldHelpClass.create(field.name, klass), s""".helpForField "${field.name}"""")
+    val linkPath = LinkPath.Relative(s""".helpForField "${field.name}"""")
+    val fieldLink = Link(line = 0, Region(IndentSpace.length, field.name.length), FieldHelpClass.create(field.name, klass), linkPath)
     LinesAndLinks(line, fieldLink)
   }
 
@@ -69,18 +71,21 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   }
 
   private def renderMethodSection(klass: MashClass): LinesAndLinks = {
-    val methods = klass.methods.sortBy(_.name)
+    val methods = klass.methods.filterNot(_.isPrivate).sortBy(_.name)
     if (methods.nonEmpty) {
-      LinesAndLinks.combine(
-        LinesAndLinks(Seq(Line.Empty, Line(SectionTitleStyle("METHODS")))) +:
-          methods.map(renderMethodSummary(_, klass)))
+      val titleLines = LinesAndLinks(Seq(
+        Line.Empty,
+        Line(SectionTitleStyle("METHODS"))))
+      LinesAndLinks.combine(titleLines +: methods.map(renderMethodSummary(_, klass)))
     } else
       LinesAndLinks.Empty
   }
 
   private def renderMethodSummary(method: MashMethod, klass: MashClass): LinesAndLinks = {
     val line = Line(IndentSpace + FieldAndMethodStyle(method.name) + method.summaryOpt.fold("")(" - " + _).style)
-    val methodLink = Link(0, Region(IndentSpace.length, method.name.length), MethodHelpClass.create(method.name, klass), s""".helpForMethod "${method.name}"""")
+    val linkPath = LinkPath.Relative(s""".helpForMethod "${method.name}"""")
+    val methodHelp = MethodHelpClass.create(method.name, klass)
+    val methodLink = Link(line = 0, Region(IndentSpace.length, method.name.length), methodHelp, linkPath)
     LinesAndLinks(line, methodLink)
   }
 
@@ -88,7 +93,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
     val name = f.name
     val line = Line(IndentSpace + FieldAndMethodStyle(name) + f.summaryOpt.fold("")(" - " + _).style)
     val pathFragment = if (f.allowsNullary) s"""["$name"]""" else s".$name"
-    val methodLink = Link(0, Region(IndentSpace.length, name.length), f, pathFragment)
+    val methodLink = Link(line = 0, Region(IndentSpace.length, name.length), f, LinkPath.Relative(pathFragment))
     LinesAndLinks(line, methodLink)
   }
 

@@ -4,7 +4,20 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.StyledString
 import com.github.mdr.mash.utils.Region
 
-case class Link(line: Int, region: Region, target: MashValue, pathFragment: String)
+sealed trait LinkPath
+
+object LinkPath {
+
+  case class Relative(fragment: String) extends LinkPath
+
+  case class Absolute(path: String) extends LinkPath
+
+}
+
+case class Link(line: Int,
+                region: Region,
+                target: MashValue,
+                linkPath: LinkPath)
 
 case class HelpModel(rawValue: MashValue,
                      lines: Seq[StyledString],

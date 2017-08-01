@@ -41,7 +41,7 @@ object ClassClass extends MashClass("core.Class") {
     override def summaryOpt = Some("Help documentation for a method")
 
   }
-  
+
   object HelpForFieldMethod extends MashMethod("helpForField") {
 
     object Params {
@@ -108,7 +108,8 @@ object ClassClass extends MashClass("core.Class") {
     val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
-      MashString(target.asInstanceOf[MashClass].fullyQualifiedName.toString)
+      val klass = target.asInstanceOf[MashClass]
+      MashString(klass.fullyQualifiedName.toString)
     }
 
     override def typeInferenceStrategy = StringClass
@@ -122,7 +123,8 @@ object ClassClass extends MashClass("core.Class") {
     val params = ParameterModel.Empty
 
     def call(target: MashValue, boundParams: BoundParams): MashString = {
-      MashString(target.asInstanceOf[MashClass].name)
+      val klass = target.asInstanceOf[MashClass]
+      MashString(klass.name)
     }
 
     override def typeInferenceStrategy = StringClass
