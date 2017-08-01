@@ -80,40 +80,43 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       PrintResult(Some(model))
     } else {
       value match {
-        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                                ⇒
+        case _: MashList | _: MashObject if printConfig.alwaysUseTreeBrowser                             ⇒
           val model = new ObjectTreeModelCreator(viewConfig).create(value)
           browse(model)
-        case _ if isSuitableForTwoDTable(value)                                                             ⇒
+        case _ if isSuitableForTwoDTable(value)                                                          ⇒
           printTwoD(value)
-        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                          ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                       ⇒
           printTextLines(xs)
-        case obj: MashObject if obj.classOpt contains ViewClass                                             ⇒
+        case f: MashFunction if !printConfig.disableCustomViews                                          ⇒
+          printHelp(f)
+        case klass: MashClass if !printConfig.disableCustomViews                                         ⇒
+          printHelp(klass)
+        case obj: MashObject if obj.classOpt == Some(MethodHelpClass)                                    ⇒
+          printHelp(obj)
+        case obj: MashObject if obj.classOpt == Some(FieldHelpClass)                                     ⇒
+          printHelp(obj)
+        case obj: MashObject if obj.classOpt == Some(ViewClass)                                          ⇒
           printView(obj)
         case obj: MashObject if obj.classOpt == Some(MethodHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printMethodHelp(obj)
           done
-        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews    ⇒
+        case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !printConfig.disableCustomViews  ⇒
           helpPrinter.printFieldHelp(obj)
           done
-        case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews       ⇒
+        case obj: MashObject if obj.classOpt == Some(StatusClass) && !printConfig.disableCustomViews     ⇒
           new GitStatusPrinter(output).print(obj)
           done
-        case f: MashFunction if !printConfig.disableCustomViews                                             ⇒
-          helpPrinter.printFunctionHelp(f)
-          done
-        case klass: MashClass if !printConfig.disableCustomViews                                            ⇒
-          printHelp(klass)
-        case obj: MashObject if obj.nonEmpty                                                                ⇒
+        case obj: MashObject if obj.nonEmpty                                                             ⇒
           new SingleObjectTablePrinter(output, terminalSize, viewConfig).printObject(obj)
           done
-        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                      ⇒
+        case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                   ⇒
           done // Don't print out sequence of unit
-        case method: BoundMethod if !printConfig.disableCustomViews                                         ⇒
+        case method: BoundMethod if !printConfig.disableCustomViews                                      ⇒
           print(HelpCreator.getHelp(method), printConfig)
-        case MashUnit                                                                                       ⇒
+        case MashUnit                                                                                    ⇒
           // Don't print out Unit
           done
-        case _                                                                                              ⇒
+        case _                                                                                           ⇒
           output.println(fieldRenderer.renderField(value, inCell = false))
           done
       }
@@ -137,8 +140,27 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       done
     }
 
-  private def printHelp(klass: MashClass): PrintResult =  {
+  private def printHelp(obj: MashObject): PrintResult = {
+    val model =
+      obj.classOpt match {
+        case Some(MethodHelpClass) ⇒ new HelpModelCreator(terminalSize, viewConfig).createForMethod(obj)
+        case Some(FieldHelpClass)  ⇒ new HelpModelCreator(terminalSize, viewConfig).createForField(obj)
+        case _                     ⇒ throw new IllegalArgumentException(s"Unknown help object: $obj")
+      }
+    printHelp(model)
+  }
+
+  private def printHelp(klass: MashClass): PrintResult = {
     val model = new HelpModelCreator(terminalSize, viewConfig).createForClass(klass)
+    printHelp(model)
+  }
+
+  private def printHelp(f: MashFunction): PrintResult = {
+    val model = new HelpModelCreator(terminalSize, viewConfig).createForFunction(f)
+    printHelp(model)
+  }
+
+  private def printHelp(model: HelpModel): PrintResult = {
     val tooBig = model.lines.size > terminalSize.rows
     if (tooBig && viewConfig.browseLargeOutput)
       browse(model)
@@ -148,7 +170,6 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       done
     }
   }
-
 
   private def printTwoD(value: MashValue): PrintResult = {
     val size = value match {
