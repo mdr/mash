@@ -17,6 +17,7 @@ object RenameByMethod extends MashMethod("renameBy") {
       nameOpt = Some("f"),
       summaryOpt = Some("Function to transform the old name into a new name"))
   }
+
   import Params._
 
   val params = ParameterModel(F)
@@ -31,16 +32,18 @@ object RenameByMethod extends MashMethod("renameBy") {
     asPathString(newLocation)
   }
 
-  override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
+  private object RenameByMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
     def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
       val argBindings = params.bindTypes(arguments)
       for {
         functionType ← argBindings.getType(F)
         targetType ← targetTypeOpt
-      } inferencer.applyFunction(functionType, targetType, None)
+      } inferencer.applyFunction(functionType, targetType)
       Some(StringClass taggedWith PathClass)
     }
   }
+
+  override def typeInferenceStrategy = RenameByMethodTypeInferenceStrategy
 
   override def summaryOpt = Some("Rename this path using a function to transform the name")
 

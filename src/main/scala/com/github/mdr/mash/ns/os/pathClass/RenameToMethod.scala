@@ -16,7 +16,7 @@ object RenameToMethod extends MashMethod("renameTo") {
     val NewName = Parameter(
       nameOpt = Some("newName"),
       summaryOpt = Some("New name for the file or directory"),
-      descriptionOpt = Some("""New name must be a simple name (not a path with directory separators)"""))
+      descriptionOpt = Some("""New name must not be "." or "..", contain directory separators, or be empty."""))
   }
   import Params._
 
@@ -47,6 +47,14 @@ object RenameToMethod extends MashMethod("renameTo") {
 
   override def typeInferenceStrategy = StringClass taggedWith PathClass
 
-  override def summaryOpt = Some("Rename the file or directory at this path")
+  override def summaryOpt = Some("Rename the file or directory")
 
+  override def descriptionOpt = Some(
+    """The file or directory is not moved out of its parent directory.
+      |
+      |Examples:
+      |<mash>
+      |  "/etc/hosts.conf".renameTo "hosts.conf.bak" # Moves file to /etc/hosts.conf.bak
+      |</mash>
+    """.stripMargin)
 }

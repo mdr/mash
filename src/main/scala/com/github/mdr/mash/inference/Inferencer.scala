@@ -9,7 +9,7 @@ class Inferencer(typeInferencer: TypeInferencer, bindings: Map[String, Type]) {
 
   def applyFunction(functionType: Type,
                     elementType: Type,
-                    functionExprValueOpt: Option[MashValue]): Option[Type] = functionType match {
+                    functionExprValueOpt: Option[MashValue] = None): Option[Type] = functionType match {
     case Type.BuiltinFunction(f)                                                 ⇒
       val strategy = f.typeInferenceStrategy
       val args = Seq(positionArg(elementType))
