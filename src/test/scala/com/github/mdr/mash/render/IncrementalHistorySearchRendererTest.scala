@@ -19,7 +19,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
     val expectedLine1 = "Incremental history search: "
     getText(line1) shouldEqual expectedLine1
     cursorPos shouldEqual Point(0, expectedLine1.length)
-    getText(line2) shouldEqual "^R next, ret done"
+    getText(line2) shouldEqual "^R next, ret done, ^D chdir"
   }
 
   it should "render correctly if a hit is found" in {
@@ -32,7 +32,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
     getText(line1) shouldEqual expectedLine1
     cursorPos shouldEqual Point(0, expectedLine1.length)
     getText(line2) shouldEqual "Hit 1: 1 day ago in /etc"
-    getText(line3) shouldEqual "^R next, ret done"
+    getText(line3) shouldEqual "^R next, ret done, ^D chdir"
   }
 
   it should "truncate with ellipses if there is insufficient width, and not display a cursor" in {
