@@ -36,3 +36,8 @@ object NormalActions {
   case object Inline extends InputAction
 
 }
+
+object IncrementalHistorySearchActions {
+  case object ChangeDirectory extends InputAction
+
+}

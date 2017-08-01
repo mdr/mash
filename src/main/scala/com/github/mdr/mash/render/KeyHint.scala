@@ -28,6 +28,7 @@ object KeyHint {
   val DoneSearch = KeyHint("ret", "done")
 
   val NextHistoryHit = KeyHint("^R", "next")
+  val ChangeDirectory = KeyHint("^D", "chdir")
 
   def renderKeyHint(hint: KeyHint): StyledString =
     hint.key.style(hintStyle) + " ".style + hint.description.style

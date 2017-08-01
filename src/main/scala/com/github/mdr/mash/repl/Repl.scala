@@ -6,7 +6,7 @@ import java.util.UUID
 import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
-import com.github.mdr.mash.input.{ BrowseCompletionsKeyMap, InputAction, NormalKeyMap, ObjectBrowserKeyMap }
+import com.github.mdr.mash.input._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.render.ReplRenderer
@@ -100,6 +100,7 @@ class Repl(protected val terminal: Terminal,
       case ReplMode.ObjectBrowser.IncrementalSearch ⇒ ObjectBrowserKeyMap.IncrementalSearch
       case ReplMode.ObjectBrowser.ExpressionInput   ⇒ ObjectBrowserKeyMap.ExpressionInput
       case ReplMode.BrowseCompletions               ⇒ BrowseCompletionsKeyMap
+      case ReplMode.IncrementalSearch               ⇒ IncrementalHistorySearchKeyMap
       case _                                        ⇒ NormalKeyMap
     }
     InputAction.fetchAction(isLineEmpty, keyMap)

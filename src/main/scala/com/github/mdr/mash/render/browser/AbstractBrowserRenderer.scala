@@ -30,7 +30,8 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
         val assistanceLines = renderAssistanceState(expressionState.assistanceStateOpt, terminalSize)
         val availableSpace = terminalSize.shrink(rows = lines.size + assistanceLines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines
-        LinesAndCursorPos(lines ++ completionLines ++ assistanceLines, cursorPosOpt)
+        val expressionLines = if (lines.isEmpty) Seq(Line.Empty) else lines
+        LinesAndCursorPos(expressionLines ++ completionLines ++ assistanceLines, cursorPosOpt)
       case None                  ⇒
         LinesAndCursorPos(Seq(Line(new MashRenderer().renderChars(state.path))))
     }

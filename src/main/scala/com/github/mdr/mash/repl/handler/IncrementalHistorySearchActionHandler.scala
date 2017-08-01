@@ -1,11 +1,18 @@
 package com.github.mdr.mash.repl.handler
 
+import java.nio.file.Paths
+
 import com.github.mdr.mash.input.InputAction
+import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
+import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.repl.IncrementalHistorySearchActions.ChangeDirectory
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.repl.history.History.Match
 import com.github.mdr.mash.repl.{ IncrementalHistorySearchState, LineBuffer, ReplState }
+
+import scala.util.control.NonFatal
 
 object IncrementalHistorySearchActionHandler {
 
@@ -14,6 +21,8 @@ object IncrementalHistorySearchActionHandler {
 }
 
 case class IncrementalHistorySearchActionHandler(history: History) {
+
+  private val fileSystem = LinuxFileSystem
 
   import IncrementalHistorySearchActionHandler._
 
@@ -27,6 +36,17 @@ case class IncrementalHistorySearchActionHandler(history: History) {
   def beginIncrementalSearchFromLine(state: ReplState): ReplState =
     updateSearch(state.lineBuffer.text, BeforeFirstHit, beginFreshIncrementalSearch(state))
 
+  def handleChangeDirectory(hitStatus: HitStatus) = hitStatus match {
+    case hit: Hit ⇒
+      val newDir = Paths.get(hit.workingDirectory)
+      try
+        ChangeDirectoryFunction.changeDirectory(newDir)
+      catch {
+        case NonFatal(_) ⇒ // ignore
+      }
+    case _        ⇒
+  }
+
   def handleAction(action: InputAction, state: ReplState): Result =
     state.historySearchStateOpt match {
       case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
@@ -34,6 +54,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           case SelfInsert(c)                 ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
           case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
           case Enter                         ⇒ Result(state.copy(historySearchStateOpt = None))
+          case ChangeDirectory               ⇒ handleChangeDirectory(hitStatus); Result(state)
           case IncrementalHistorySearch | Up ⇒ Result(updateSearch(searchString, hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
