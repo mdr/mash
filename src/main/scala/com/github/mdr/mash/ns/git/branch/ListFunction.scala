@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.functions._
+import com.github.mdr.mash.ns.git.StatusFunction.TrackingStatus
 import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper, StatusFunction }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
 import org.eclipse.jgit.api._
@@ -25,8 +26,8 @@ object ListFunction extends MashFunction("git.branch.localBranches") {
 
   def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
-    val (upstreamBranch, aheadCount, behindCount) =
-      StatusFunction.mashify(Option(BranchTrackingStatus.of(repo, ref.getName)))
+    val TrackingStatus(upstreamBranch, aheadCount, behindCount) =
+      StatusFunction.mashifyTrackingStatus(Option(BranchTrackingStatus.of(repo, ref.getName)))
     val name = ref.getName.replaceAll("^refs/heads/", "")
     import BranchClass.Fields._
     MashObject.of(
