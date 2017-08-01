@@ -18,6 +18,9 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
         |CLASS
         |    geometry.Point
         |
+        |TYPE
+        |    core.String
+        |
         |DESCRIPTION
         |    The horizontal coordinate. Examples:
         |      point.x""".stripMargin)
@@ -45,7 +48,10 @@ class FieldHelpRendererTest extends AbstractHelpRendererTest {
         |    x
         |
         |CLASS
-        |    geometry.Point""".stripMargin)
+        |    geometry.Point
+        |
+        |TYPE
+        |    core.String""".stripMargin)
   }
 
 }
