@@ -10,6 +10,8 @@ case class HelpModel(rawValue: MashValue,
                      lines: Seq[StyledString],
                      links: Seq[Link]) extends DisplayModel {
 
+  def numberOfRows = lines.size
+
   def numberOfLinks = links.size
 
 }

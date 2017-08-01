@@ -5,22 +5,19 @@ import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
 
 case class HelpBrowserState(model: HelpModel,
-                            currentLinkIndexOpt: Option[Int] = None,
+                            currentRow: Int = 0,
                             firstRow: Int = 0,
                             path: String,
                             expressionStateOpt: Option[ExpressionState] = None) extends BrowserState {
 
-  def nextLink(terminalRows: Int): HelpBrowserState = adjustCurrentLink(delta = 1, terminalRows)
+  def previousItem(terminalRows: Int): HelpBrowserState = adjustSelectedRow(-1, terminalRows)
 
-  def previousLink(terminalRows: Int): HelpBrowserState = adjustCurrentLink(delta = -1, terminalRows)
+  def nextItem(terminalRows: Int): HelpBrowserState = adjustSelectedRow(1, terminalRows)
 
-  private def adjustCurrentLink(delta: Int, terminalRows: Int): HelpBrowserState = {
-    val newLinkIndexOpt =
-      currentLinkIndexOpt
-        .map(currentLinkIndex ⇒ (currentLinkIndex + model.numberOfLinks + delta) % model.numberOfLinks)
-        .orElse((model.numberOfLinks > 0).option(0))
-    copy(currentLinkIndexOpt = newLinkIndexOpt).adjustWindowToFit(terminalRows)
-  }
+  def adjustSelectedRow(delta: Int, terminalRows: Int): HelpBrowserState =
+    this.when(numberOfRows > 0, _.copy(currentRow = (currentRow + delta + numberOfRows) % numberOfRows).adjustWindowToFit(terminalRows))
+
+  def numberOfRows = model.numberOfRows
 
   override def rawValue: MashValue = model.rawValue
 
@@ -34,24 +31,40 @@ case class HelpBrowserState(model: HelpModel,
     case None       ⇒ SelectionInfo(path, rawValue)
   }
 
-  def currentLinkOpt: Option[Link] = currentLinkIndexOpt.map(model.links)
+  def currentLinkOpt: Option[Link] = model.links.find(_.line == currentRow)
 
   def windowSize(terminalRows: Int) = terminalRows - 4 // 2 status rows and two border rows
 
-  def adjustWindowToFit(terminalRows: Int): HelpBrowserState = currentLinkOpt.map(_.line) match {
-    case Some(currentRow) ⇒
-      var newState = this
-      val delta = currentRow - (firstRow + windowSize(terminalRows) - 1)
-      if (delta >= 0)
-        newState = newState.adjustFirstRow(delta)
+  def adjustWindowToFit(terminalRows: Int): HelpBrowserState = {
+    var newState = this
 
-      val delta2 = firstRow - currentRow
-      if (delta2 >= 0)
-        newState = newState.adjustFirstRow(-delta2)
+    val delta = currentRow - (firstRow + windowSize(terminalRows) - 1)
+    if (delta >= 0)
+      newState = newState.adjustFirstRow(delta)
 
-      newState
-    case None             ⇒ this
+    val delta2 = firstRow - currentRow
+    if (delta2 >= 0)
+      newState = newState.adjustFirstRow(-delta2)
+
+    newState
   }
 
   def adjustFirstRow(delta: Int): HelpBrowserState = copy(firstRow = firstRow + delta)
+
+  def firstItem(terminalRows: Int): HelpBrowserState =
+    copy(currentRow = 0).adjustWindowToFit(terminalRows)
+
+  def lastItem(terminalRows: Int): HelpBrowserState =
+    copy(currentRow = numberOfRows - 1).adjustWindowToFit(terminalRows)
+
+  def nextPage(terminalRows: Int): HelpBrowserState = {
+    val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
+    copy(currentRow = newRow).adjustWindowToFit(terminalRows)
+  }
+
+  def previousPage(terminalRows: Int): HelpBrowserState = {
+    val newRow = math.max(0, currentRow - windowSize(terminalRows) - 1)
+    copy(currentRow = newRow).adjustWindowToFit(terminalRows)
+  }
+
 }

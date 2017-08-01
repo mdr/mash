@@ -19,10 +19,18 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
   protected def renderDataLines: Seq[Line] = {
     val currentLinkOpt = state.currentLinkOpt
     val lines = state.model.lines.zipWithIndex.map { case (line, i) ⇒
-      Line(currentLinkOpt.collect { case Link(`i`, region, _) ⇒ region } match {
-        case Some(selectedLinkRegion) ⇒ invert(line, selectedLinkRegion)
-        case None                     ⇒ line
-      })
+      Line(
+        if (i == state.currentRow && state.expressionStateOpt.isEmpty)
+          currentLinkOpt.collect { case Link(`i`, region, _) ⇒ region } match {
+            case Some(selectedLinkRegion) ⇒ invert(line, selectedLinkRegion)
+            case None                     ⇒
+              if (line.isEmpty)
+                " ".style(inverse = true)
+              else
+                invert(line, Region(0, 1))
+          }
+        else
+          line)
     }.map(addBorder)
 
     val headerLine = Line(style"┌${"─" * (terminalSize.columns - 2)}┐")
