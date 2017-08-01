@@ -16,6 +16,7 @@ class ExpressionCombinerTest extends FlatSpec with Matchers {
   "ExpressionCombiner" should "not add parens if not required" in {
     combineSafely("1", " + 2") shouldEqual "1 + 2"
     combineSafely("items", ".reverse") shouldEqual "items.reverse"
+    combineSafely("items", ".sortBy (.lastModified)") shouldEqual "items.sortBy (.lastModified)"
     combineSafely("items", "[0]") shouldEqual "items[0]"
     combineSafely("a | f", " | g") shouldEqual "a | f | g"
     combineSafely("a | b => f b", " | g") shouldEqual "a | b => f b | g"

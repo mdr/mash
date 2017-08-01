@@ -18,6 +18,7 @@ object ExpressionCombiner {
     val suffixExpr = MashParser.parseForgiving("it" + suffix).body
     val needsParens = (prefixExpr, suffixExpr) match {
       case (prefixOp: BinOpExpr, suffixOp: BinOpExpr)                    ⇒ needsParensBinOp(prefixOp, suffixOp)
+      case (_, InvocationExpr(_: MemberExpr, _))                         ⇒ false
       case (_, _: InvocationExpr)                                        ⇒ true
       case (_: ParenExpr | _: MemberExpr | _: ParenInvocationExpr | _: LookupExpr | _: BlockExpr |
             _: ListExpr | _: ObjectExpr | _: Identifier | _: Literal, _) ⇒ false
