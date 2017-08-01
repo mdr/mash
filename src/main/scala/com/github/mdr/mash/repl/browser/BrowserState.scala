@@ -25,8 +25,8 @@ object BrowserState {
     }
 
   def allowsNullary(value: MashValue) = cond(value) {
-    case f: MashFunction ⇒ f.params.allowsNullary
-    case bm: BoundMethod ⇒ bm.params.allowsNullary
+    case f: MashFunction ⇒ f.allowsNullary
+    case bm: BoundMethod ⇒ bm.allowsNullary
   }
 
   def fromModel(displayModel: DisplayModel, path: String): BrowserState =

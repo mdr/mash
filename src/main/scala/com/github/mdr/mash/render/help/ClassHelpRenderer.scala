@@ -53,7 +53,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   }
 
   private def renderField(field: Field, klass: MashClass): LinesAndLinks = {
-    val line = Line(IndentSpace + FieldMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
+    val line = Line(IndentSpace + FieldAndMethodStyle(field.name) + field.summaryOpt.fold("")(" - " + _).style)
     val fieldLink = Link(0, Region(IndentSpace.length, field.name.length), FieldHelpClass.create(field.name, klass), s""".helpForField "${field.name}"""")
     LinesAndLinks(line, fieldLink)
   }
@@ -63,7 +63,7 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
     if (methods.nonEmpty) {
       LinesAndLinks.combine(
         LinesAndLinks(Seq(Line.Empty, Line(SectionTitleStyle("STATIC METHODS")))) +:
-          methods.map(renderMethodSummary(_)))
+          methods.map(renderStaticMethodSummary(_)))
     } else
       LinesAndLinks.Empty
   }
@@ -79,14 +79,16 @@ object ClassHelpRenderer extends AbstractHelpRenderer {
   }
 
   private def renderMethodSummary(method: MashMethod, klass: MashClass): LinesAndLinks = {
-    val line = Line(IndentSpace + FieldMethodStyle(method.name) + method.summaryOpt.fold("")(" - " + _).style)
+    val line = Line(IndentSpace + FieldAndMethodStyle(method.name) + method.summaryOpt.fold("")(" - " + _).style)
     val methodLink = Link(0, Region(IndentSpace.length, method.name.length), MethodHelpClass.create(method.name, klass), s""".helpForMethod "${method.name}"""")
     LinesAndLinks(line, methodLink)
   }
 
-  private def renderMethodSummary(f: MashFunction): LinesAndLinks = {
-    val line = Line(IndentSpace + FieldMethodStyle(f.name) + f.summaryOpt.fold("")(" - " + _).style)
-    val methodLink = Link(0, Region(IndentSpace.length, f.name.length), f, ".todo")
+  private def renderStaticMethodSummary(f: MashFunction): LinesAndLinks = {
+    val name = f.name
+    val line = Line(IndentSpace + FieldAndMethodStyle(name) + f.summaryOpt.fold("")(" - " + _).style)
+    val pathFragment = if (f.allowsNullary) s"""["$name"]""" else s".$name"
+    val methodLink = Link(0, Region(IndentSpace.length, name.length), f, pathFragment)
     LinesAndLinks(line, methodLink)
   }
 

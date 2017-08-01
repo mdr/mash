@@ -399,8 +399,8 @@ class TypeInferencer extends InvocationTypeInferencer with BinaryOperatorTypeInf
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, functionBindings ++ argBindings)
-      case Some(Type.BoundUserDefinedMethod(targetType, function)) if function.params.allowsNullary        ⇒
-        val Type.UserDefinedFunction(_, _, _, params, body, methodBindings) = function
+      case Some(Type.BoundUserDefinedMethod(targetType, method)) if method.params.allowsNullary        ⇒
+        val Type.UserDefinedFunction(_, _, _, params, body, methodBindings) = method
         exprOpt.foreach(_.preInvocationTypeOpt = intermediateTypeOpt)
         val argBindings = params.bindTypes(TypedArguments()).boundNames
         inferType(body, methodBindings ++ argBindings ++ Seq(ThisName -> targetType))

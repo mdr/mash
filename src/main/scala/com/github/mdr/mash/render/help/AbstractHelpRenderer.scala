@@ -33,7 +33,7 @@ abstract class AbstractHelpRenderer {
 
   protected val ParamNameStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
 
-  protected val FieldMethodStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
+  protected val FieldAndMethodStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
 
   protected val SectionTitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
 

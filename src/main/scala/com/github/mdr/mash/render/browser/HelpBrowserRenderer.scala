@@ -6,7 +6,7 @@ import com.github.mdr.mash.repl.browser.HelpBrowserState
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.{ Line, StyledString }
 import com.github.mdr.mash.utils.Utils._
-import com.github.mdr.mash.utils.{ Dimensions, Region }
+import com.github.mdr.mash.utils.{ Dimensions, Region, StyledStringUtils }
 
 class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
   extends AbstractBrowserRenderer(state, terminalSize) {
@@ -22,7 +22,8 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
       Line(
         if (i == state.currentRow && state.expressionStateOpt.isEmpty)
           currentLinkOpt.collect { case Link(`i`, region, _, _) ⇒ region } match {
-            case Some(selectedLinkRegion) ⇒ invert(line, selectedLinkRegion)
+            case Some(selectedLinkRegion) ⇒
+              invert(line, selectedLinkRegion)
             case None                     ⇒
               if (line.isEmpty)
                 " ".style(inverse = true)
@@ -39,7 +40,8 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
   }
 
   private def addBorder(line: Line): Line = {
-    val inner = line.string.padTo(terminalSize.columns - 2, ' '.style)
+    val innerWidth = 0 max terminalSize.columns - 2
+    val inner = StyledStringUtils.ellipsisise(line.string.padTo(innerWidth, ' '.style), innerWidth)
     line.copy(string = style"│$inner│")
   }
 

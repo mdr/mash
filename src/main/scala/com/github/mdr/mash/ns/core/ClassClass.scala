@@ -41,7 +41,7 @@ object ClassClass extends MashClass("core.Class") {
     override def summaryOpt = Some("Help documentation for a method")
 
   }
-
+  
   object HelpForFieldMethod extends MashMethod("helpForField") {
 
     object Params {
