@@ -62,7 +62,7 @@ object LinuxFileSystem extends FileSystem {
     val group = attrs.group().getName
     val lastModified = attrs.lastModifiedTime.toInstant
     val lastAccessed = attrs.lastAccessTime.toInstant
-    val perms = Files.getPosixFilePermissions(path)//attrs.permissions()
+    val perms = attrs.permissions
     val fileType =
       if (attrs.isSymbolicLink) FileTypeClass.Values.Link
       else if (attrs.isRegularFile) FileTypeClass.Values.File

@@ -32,7 +32,7 @@ object RenameByMethod extends MashMethod("renameBy") {
     asPathString(newLocation)
   }
 
-  private object RenameByMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
+  object RenameByMethodTypeInferenceStrategy extends MethodTypeInferenceStrategy {
     def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
       val argBindings = params.bindTypes(arguments)
       for {
