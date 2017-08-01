@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
-import com.github.mdr.mash.ns.core.help.{ HelpCreator }
+import com.github.mdr.mash.ns.core.help.{ FieldHelpClass, MethodHelpClass }
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashString, MashValue }
 
 object ClassClass extends MashClass("core.Class") {
@@ -12,8 +12,60 @@ object ClassClass extends MashClass("core.Class") {
   override val methods = Seq(
     BlessMethod,
     FullNameMethod,
+    HelpForFieldMethod,
+    HelpForMethodMethod,
     NameMethod,
     ParentMethod)
+
+  object HelpForMethodMethod extends MashMethod("helpForMethod") {
+
+    object Params {
+      val Name = Parameter(
+        nameOpt = Some("name"),
+        summaryOpt = Some("Name of a method of this class"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Name)
+
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val klass = target.asInstanceOf[MashClass]
+      val methodName = boundParams.validateString(Name).s
+      klass.getMethod(methodName).getOrElse(boundParams.throwInvalidArgument(Name, s"No method called '$methodName'"))
+      MethodHelpClass.create(methodName, klass)
+    }
+
+    override def typeInferenceStrategy = MethodHelpClass
+
+    override def summaryOpt = Some("Help documentation for a method")
+
+  }
+
+  object HelpForFieldMethod extends MashMethod("helpForField") {
+
+    object Params {
+      val Name = Parameter(
+        nameOpt = Some("name"),
+        summaryOpt = Some("Name of a field of this class"))
+    }
+
+    import Params._
+
+    val params = ParameterModel(Name)
+
+    def call(target: MashValue, boundParams: BoundParams): MashValue = {
+      val klass = target.asInstanceOf[MashClass]
+      val fieldName = boundParams.validateString(Name).s
+      klass.getField(fieldName).getOrElse(boundParams.throwInvalidArgument(Name, s"No field called '$fieldName'"))
+      FieldHelpClass.create(fieldName, klass)
+    }
+
+    override def typeInferenceStrategy = FieldHelpClass
+
+    override def summaryOpt = Some("Help documentation for a field")
+
+  }
 
   object BlessMethod extends MashMethod("bless") {
 

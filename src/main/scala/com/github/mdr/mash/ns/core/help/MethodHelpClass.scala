@@ -12,12 +12,12 @@ object MethodHelpClass extends MashClass("core.help.MethodHelp") {
 
   object Fields {
     val Name = Field("name", Some("Method name"), StringClass)
-    val Class = Field("class", Some("The class the method belongs to"), ClassClass)
+    val OwningClass = Field("owningClass", Some("The class the method belongs to"), ClassClass)
   }
 
   import Fields._
 
-  override val fields = Seq(Name, Class)
+  override val fields = Seq(Name, OwningClass)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
@@ -28,14 +28,14 @@ object MethodHelpClass extends MashClass("core.help.MethodHelp") {
     MashObject.of(
       ListMap(
         Name -> MashString(name),
-        Class -> klass),
+        OwningClass -> klass),
       MethodHelpClass)
 
   case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
     def name: String = getStringField(Name)
 
-    def klass: MashClass = getClassField(Class)
+    def klass: MashClass = getClassField(OwningClass)
 
     def method: MashMethod = klass.getMethod(name).getOrElse(
       throw new EvaluatorException(s"No method '$name' found in '${klass.fullyQualifiedName}'"))

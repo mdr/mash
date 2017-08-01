@@ -31,7 +31,11 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def getField(fieldName: String): Option[Field] = fields.find(_.name == fieldName)
 
-  def getMethod(name: String) = methods.find(method ⇒ method.name == name || method.aliases.contains(name))
+  /**
+    * Get method from this class (no parent resolution is performed)
+    */
+  def getMethod(name: String): Option[MashMethod] =
+    methods.find(method ⇒ method.name == name || method.aliases.contains(name))
 
   def getStaticMethod(name: String): Option[MashFunction] = staticMethods.find(_.name == name)
 

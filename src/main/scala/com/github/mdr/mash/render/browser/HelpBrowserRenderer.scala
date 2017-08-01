@@ -21,7 +21,7 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
     val lines = state.model.lines.zipWithIndex.map { case (line, i) ⇒
       Line(
         if (i == state.currentRow && state.expressionStateOpt.isEmpty)
-          currentLinkOpt.collect { case Link(`i`, region, _) ⇒ region } match {
+          currentLinkOpt.collect { case Link(`i`, region, _, _) ⇒ region } match {
             case Some(selectedLinkRegion) ⇒ invert(line, selectedLinkRegion)
             case None                     ⇒
               if (line.isEmpty)

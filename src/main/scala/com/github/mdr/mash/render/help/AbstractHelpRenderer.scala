@@ -1,6 +1,7 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.ns.core.help.MethodHelpClass
 import com.github.mdr.mash.printer.model.Link
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
@@ -62,14 +63,14 @@ abstract class AbstractHelpRenderer {
   }
 
   protected def renderClassSection(klass: MashClass): LinesAndLinks = {
-    val renderedParent = klass.fullyQualifiedName.toString.style
+    val renderedClass = klass.fullyQualifiedName.toString.style
     val lines =
       Seq(
         Line.Empty,
         Line(SectionTitleStyle("CLASS")),
-        Line(IndentSpace + renderedParent))
-    val parentLink = Link(2, Region(IndentSpace.length, renderedParent.length), klass)
-    LinesAndLinks(lines, Seq(parentLink))
+        Line(IndentSpace + renderedClass))
+    val classLink = Link(2, Region(IndentSpace.length, renderedClass.length), klass, "." + MethodHelpClass.Fields.OwningClass.name)
+    LinesAndLinks(lines, Seq(classLink))
   }
 
 }

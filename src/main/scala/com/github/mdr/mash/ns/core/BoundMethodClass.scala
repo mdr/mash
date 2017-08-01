@@ -92,9 +92,8 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
 
     val params = ParameterModel.Empty
 
-    def call(target: MashValue, boundParams: BoundParams): MashValue = {
+    def call(target: MashValue, boundParams: BoundParams): MashValue =
       HelpCreator.getHelp(target)
-    }
 
     override def typeInferenceStrategy = MethodHelpClass
 

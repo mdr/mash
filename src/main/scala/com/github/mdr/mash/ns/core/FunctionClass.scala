@@ -1,9 +1,8 @@
 package com.github.mdr.mash.ns.core
 
-import com.github.mdr.mash.classes.{ BoundMethod, MashClass }
+import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.core.help.HelpCreator
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 
 object FunctionClass extends MashClass("core.Function") {

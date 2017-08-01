@@ -1,5 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
+import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.printer.model.{ HelpModel, Link }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
@@ -27,7 +28,7 @@ case class HelpBrowserState(model: HelpModel,
     copy(expressionStateOpt = expressionStateOpt)
 
   override def selectionInfoOpt: Option[SelectionInfo] = currentLinkOpt map { link ⇒
-    SelectionInfo(path, link.target) // Path TODO
+    SelectionInfo(combineSafely(path, link.pathFragment), link.target)
   }
 
   def currentLinkOpt: Option[Link] = model.links.find(_.line == currentRow)

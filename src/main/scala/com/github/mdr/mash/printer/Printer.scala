@@ -132,7 +132,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
   }
 
   private def printTextLines(xs: MashList): PrintResult =
-    if (xs.length > terminalSize.rows && viewConfig.browseLargeOutput) {
+    if (xs.length > terminalSize.rows - 1 && viewConfig.browseLargeOutput) {
       val model = new TextLinesModelCreator(viewConfig).create(xs)
       browse(model)
     } else {
@@ -161,7 +161,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
   }
 
   private def printHelp(model: HelpModel): PrintResult = {
-    val tooBig = model.lines.size > terminalSize.rows
+    val tooBig = model.lines.size > terminalSize.rows - 1
     if (tooBig && viewConfig.browseLargeOutput)
       browse(model)
     else {
@@ -177,7 +177,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       case obj: MashObject ⇒ obj.size
     }
     val nonDataRows = 4 // 3 header rows + 1 footer
-    if (size > terminalSize.rows - nonDataRows && viewConfig.browseLargeOutput) {
+    if (size > terminalSize.rows - nonDataRows - 1 && viewConfig.browseLargeOutput) {
       val model = new TwoDTableModelCreator(terminalSize, supportMarking = true, viewConfig).create(value)
       browse(model)
     } else {
