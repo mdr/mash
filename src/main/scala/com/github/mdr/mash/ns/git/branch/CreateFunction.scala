@@ -6,8 +6,8 @@ import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, Par
 import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.NoArgFunction
 import com.github.mdr.mash.ns.core.NoArgFunction._
-import com.github.mdr.mash.ns.git.GitHelper
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString }
+import com.github.mdr.mash.ns.git.{ GitCommon, GitHelper }
+import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
 
@@ -81,7 +81,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     try
       GitHelper.withGit { git ⇒
         val branches = git.branchList.setListMode(ListMode.REMOTE).call().asScala
-        branches.map(_.getName.replaceAll("^refs/remotes/", "")).filterNot(_.endsWith("/HEAD"))
+        branches.map(branch ⇒ GitCommon.trimRemoteBranchPrefix(branch.getName)).filterNot(_.endsWith("/HEAD"))
       }
     catch {
       case _: Exception ⇒ Seq()

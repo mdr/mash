@@ -2,7 +2,7 @@ package com.github.mdr.mash.ns.git.branch
 
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
 import com.github.mdr.mash.ns.git.remote.RemoteNameClass
-import com.github.mdr.mash.ns.git.{ CommitHashClass, GitHelper }
+import com.github.mdr.mash.ns.git.{ CommitHashClass, GitCommon, GitHelper }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString }
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
@@ -25,7 +25,7 @@ object ListRemoteFunction extends MashFunction("git.branch.remoteBranches") {
 
   def asMashObject(repo: Repository)(ref: Ref): MashObject = {
     val id = ref.getObjectId.getName
-    val name = ref.getName.replaceAll("^refs/remotes/", "")
+    val name = GitCommon.trimRemoteBranchPrefix(ref.getName)
     val Seq(remote, branchName) = name.split("/", 2).toSeq
     import RemoteBranchClass.Fields._
     MashObject.of(

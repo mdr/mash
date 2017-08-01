@@ -13,16 +13,15 @@ object FetchFunction extends MashFunction("git.fetch") {
 
   val params = ParameterModel.Empty
 
-  override def call(boundParams: BoundParams): MashList = {
+  override def call(boundParams: BoundParams): MashList =
     GitHelper.withGit { git ⇒
       val fetchResult = git.fetch.call()
       val updates = fetchResult.getTrackingRefUpdates.asScala.toSeq
       MashList(updates.map(asMashObject))
     }
-  }
 
   def asMashObject(update: TrackingRefUpdate): MashObject = {
-    val branchName = update.getLocalName.replaceAll("^refs/remotes/", "")
+    val branchName = GitCommon.trimRemoteBranchPrefix(update.getLocalName)
     import FetchBranchUpdateClass.Fields._
     MashObject.of(
       ListMap(

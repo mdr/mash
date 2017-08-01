@@ -16,7 +16,7 @@ object StatusFunction extends MashFunction("git.status") {
 
   val params = ParameterModel.Empty
 
-  def call(boundParams: BoundParams): MashObject = {
+  def call(boundParams: BoundParams): MashObject =
     GitHelper.withRepository { repo ⇒
       val branch = repo.getBranch
       val git = new Git(repo)
@@ -24,12 +24,8 @@ object StatusFunction extends MashFunction("git.status") {
       val branchTrackingStatusOpt = Option(BranchTrackingStatus.of(repo, branch))
       asMashObject(branch, status, branchTrackingStatusOpt)
     }
-  }
 
   private def mashify(paths: ju.Set[String]): MashList = MashList(paths.asScala.toSeq.map(asPathString))
-
-  private def trimUnwantedPrefix(remoteBranch: String): String =
-    remoteBranch.replaceAll("^refs/remotes/", "")
 
   private def asMashObject(branch: String, status: Status, branchTrackingStatusOpt: Option[BranchTrackingStatus]): MashObject = {
     val modified = mashify(status.getModified)
@@ -59,10 +55,10 @@ object StatusFunction extends MashFunction("git.status") {
   def mashify(statusOpt: Option[BranchTrackingStatus]) = statusOpt match {
     case Some(status) ⇒
       (
-        MashString(status.getRemoteTrackingBranch.replaceAll("^refs/remotes/", ""), RemoteBranchNameClass),
+        MashString(GitCommon.trimRemoteBranchPrefix(status.getRemoteTrackingBranch), RemoteBranchNameClass),
         MashNumber(status.getAheadCount),
         MashNumber(status.getBehindCount))
-    case None ⇒
+    case None         ⇒
       (MashNull, MashNumber(0), MashNumber(0))
   }
 
