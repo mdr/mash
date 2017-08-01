@@ -59,7 +59,7 @@ object LinuxFileSystem extends FileSystem {
     ExecutionContext.checkInterrupted()
     val owner = Files.getOwner(path, LinkOption.NOFOLLOW_LINKS).getName
     val attrs = Files.getFileAttributeView(path, classOf[PosixFileAttributeView], LinkOption.NOFOLLOW_LINKS).readAttributes()
-    val group = attrs.group().getName
+    val group = attrs.group.getName
     val lastModified = attrs.lastModifiedTime.toInstant
     val lastAccessed = attrs.lastAccessTime.toInstant
     val perms = attrs.permissions
@@ -68,12 +68,12 @@ object LinuxFileSystem extends FileSystem {
       else if (attrs.isRegularFile) FileTypeClass.Values.File
       else if (attrs.isDirectory) FileTypeClass.Values.Dir
       else if (attrs.isOther) FileTypeClass.Values.Other
-      else null
+      else throw new AssertionError(s"Unexpected attributes: $attrs")
 
     PathSummary(
       path = path,
       fileType = fileType,
-      size = attrs.size(),
+      size = attrs.size,
       owner = owner,
       group = group,
       permissions = permissionsObject(perms.asScala.toSet),
