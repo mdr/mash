@@ -1,12 +1,13 @@
 package com.github.mdr.mash.repl.browser.handler
 
-import java.nio.file.{ Files, Paths }
+import java.nio.file.{ Files, Path, Paths }
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.MashLexer.isLegalIdentifier
 import com.github.mdr.mash.ns.os.PathSummaryClass
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
+import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.RedrawScreen
@@ -48,13 +49,27 @@ trait ObjectBrowserActionHandler
       focus(selectionInfo.rawObject, selectionInfo.path, tree)
 
   protected def focusDirectory(browserState: BrowserState): Unit =
-    for (selectionInfo ← browserState.selectionInfoOpt) {
-      val isDirectory = condOpt(selectionInfo.rawObject) {
-        case s: MashString                                             ⇒ Paths.get(s.s)
-        case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
-      }.exists(Files.isDirectory(_))
-      if (isDirectory)
-        acceptFollowOnExpression(selectionInfo.path, selectionInfo.rawObject, ".children")
+    for {
+      selectionInfo ← browserState.selectionInfoOpt
+      value = selectionInfo.rawObject
+      path ← getPath(value)
+      if Files.isDirectory(path)
+      escapedPath = StringEscapes.escapeChars(path.toString)
+    } acceptReplacementExpression(s""""$escapedPath".children""")
+
+  protected def readFile(browserState: BrowserState) =
+    for {
+      selectionInfo ← browserState.selectionInfoOpt
+      value = selectionInfo.rawObject
+      path ← getPath(value)
+      if Files.isRegularFile(path)
+      escapedPath = StringEscapes.escapeChars(path.toString)
+    } acceptReplacementExpression(s""""$escapedPath".readLines""")
+
+  private def getPath(value: MashValue): Option[Path] =
+    condOpt(value) {
+      case s: MashString                                             ⇒ Paths.get(s.s)
+      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
     }
 
   protected def focus(value: MashValue, path: String, tree: Boolean): Unit = {

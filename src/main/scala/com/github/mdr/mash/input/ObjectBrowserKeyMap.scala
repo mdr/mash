@@ -20,6 +20,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   OtherSequence("f") -> Focus,
   KeyPress(Enter) -> Focus,
   OtherSequence("d") -> FocusDirectory,
+  OtherSequence("r") -> ReadFile,
   OtherSequence("b") -> Back,
   KeyPress(BasicKey('n'), control = true) -> NextItem,
   KeyPress(Up) -> PreviousItem,

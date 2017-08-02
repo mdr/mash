@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Shortcut to read lines in object browser
 * Add git.Status.isClean
 * Incremental history search: option to change directory for old command
 * Help browser

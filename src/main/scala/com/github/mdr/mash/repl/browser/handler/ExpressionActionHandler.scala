@@ -148,7 +148,7 @@ trait ExpressionActionHandler {
     else
       acceptReplacementExpression(expression)
 
-  private def acceptReplacementExpression(expression: String): Unit =
+  protected def acceptReplacementExpression(expression: String): Unit =
     for (result ← run(expression))
       focus(result, expression, tree = false)
 

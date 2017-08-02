@@ -55,6 +55,7 @@ trait TwoDTableBrowserActionHandler {
       case Back                            ⇒ navigateBack()
       case Focus                           ⇒ focus(browserState)
       case FocusDirectory                  ⇒ focusDirectory(browserState)
+      case ReadFile                        ⇒ readFile(browserState)
       case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
       case Rerender                        ⇒ rerender(browserState)
       case ViewAsTree                      ⇒ viewAsTree(browserState)
