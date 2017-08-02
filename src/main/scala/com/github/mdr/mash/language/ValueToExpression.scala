@@ -33,7 +33,7 @@ private[language] class ValueToExpressionContext {
 
   private def actualGetExpression(value: MashValue): Option[String] = value match {
     case MashNull | _: MashBoolean | _: MashNumber ⇒ Some(stringify(value))
-    case s: MashString                             ⇒ Some(s"'${escapeChars(s.s)}'")
+    case s: MashString                             ⇒ Some(s""""${escapeChars(s.s)}"""")
     case xs: MashList                              ⇒ getExpression(xs)
     case obj: MashObject                           ⇒ getExpression(obj)
     case MashWrapped(instant: Instant)             ⇒ Some(s"time.fromMillisSinceEpoch ${instant.toEpochMilli}")

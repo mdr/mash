@@ -9,10 +9,10 @@ class ValueToExpressionTest extends FlatSpec with Matchers {
     getExpression("null") shouldEqual Some("null")
     getExpression("true") shouldEqual Some("true")
     getExpression("1.23") shouldEqual Some("1.23")
-    getExpression("'foo'") shouldEqual Some("'foo'")
+    getExpression("'foo'") shouldEqual Some(""""foo"""")
     getExpression("[1, 2, 3]") shouldEqual Some("[1, 2, 3]")
     getExpression("{ foo: 42, bar: [1, 2, 3] }") shouldEqual Some("{ foo: 42, bar: [1, 2, 3] }")
-    getExpression("""{ 10: 1, 'foo-bar': 2, ([1, 2, 3]): 3 }""") shouldEqual Some("""{ 10: 1, 'foo-bar': 2, ([1, 2, 3]): 3 }""")
+    getExpression("""{ 10: 1, 'foo-bar': 2, ([1, 2, 3]): 3 }""") shouldEqual Some("""{ 10: 1, "foo-bar": 2, ([1, 2, 3]): 3 }""")
   }
 
   def getExpression(s: String) = ValueToExpression.getExpression(TestEvaluator.evaluate(s))
