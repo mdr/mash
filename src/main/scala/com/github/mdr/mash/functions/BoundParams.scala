@@ -33,7 +33,8 @@ object Function1Or2Or3 {
 
 case class BoundParams(boundNames: Map[String, MashValue],
                        parameterToArguments: Map[Parameter, Seq[Argument]],
-                       allResolvedArgs: Seq[EvaluatedArgument[MashValue]]) {
+                       allResolvedArgs: Seq[EvaluatedArgument[MashValue]],
+                       safeNames: Set[String]) {
 
   def apply(param: String): MashValue = boundNames(param)
 

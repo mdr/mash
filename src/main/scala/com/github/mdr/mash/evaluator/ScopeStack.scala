@@ -2,20 +2,25 @@ package com.github.mdr.mash.evaluator
 
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 
-sealed abstract class Scope(val variables: MashObject) {
+case class Binding(value: MashValue, isSafe: Boolean = false)
 
-  def get(name: String): Option[MashValue] = variables.get(name) orElse thisGet(name)
+sealed abstract class Scope {
 
-  private def thisGet(name: String): Option[MashValue] =
-    for {
-      thisValue ← thisOpt
-      memberValue ← MemberEvaluator.maybeLookupByString(thisValue, name, includePrivate = true, includeShyMembers = false)
-    } yield memberValue
+  val variables: MashObject
 
-  def set(name: String, value: MashValue) = variables.set(name, value)
+  val safeNames: Set[String]
 
   val thisOpt: Option[MashValue]
 
+  def get(name: String): Option[Binding] = variables.get(name).map(Binding(_, isSafe = safeNames contains name)) orElse thisGet(name)
+
+  private def thisGet(name: String): Option[Binding] =
+    for {
+      thisValue ← thisOpt
+      memberValue ← MemberEvaluator.maybeLookupByString(thisValue, name, includePrivate = true, includeShyMembers = false)
+    } yield Binding(memberValue)
+
+  def set(name: String, value: MashValue) = variables.set(name, value)
 }
 
 /**
@@ -23,7 +28,8 @@ sealed abstract class Scope(val variables: MashObject) {
   *
   * e.g. the body of lambdas, or inside a { block... }
   */
-case class LeakyScope(override val variables: MashObject) extends Scope(variables) {
+case class LeakyScope(variables: MashObject,
+                      safeNames: Set[String] = Set()) extends Scope {
   override val thisOpt: Option[MashValue] = None
 }
 
@@ -32,8 +38,9 @@ case class LeakyScope(override val variables: MashObject) extends Scope(variable
   *
   * e.g. the body of def-defined functions, or a compilation unit
   */
-case class FullScope(override val variables: MashObject,
-                     thisOpt: Option[MashValue] = None) extends Scope(variables)
+case class FullScope(variables: MashObject,
+                     safeNames: Set[String] = Set(),
+                     thisOpt: Option[MashValue] = None) extends Scope
 
 object ScopeStack {
 
@@ -44,7 +51,7 @@ object ScopeStack {
 
 case class ScopeStack(scopes: List[Scope]) {
 
-  def lookup(name: String): Option[MashValue] = lookup(name, scopes)
+  def lookup(name: String): Option[Binding] = lookup(name, scopes)
 
   def thisOpt: Option[MashValue] = thisOpt(scopes)
 
@@ -54,7 +61,7 @@ case class ScopeStack(scopes: List[Scope]) {
       case scope :: rest ⇒ scope.thisOpt orElse thisOpt(rest)
     }
 
-  private def lookup(name: String, scopes: List[Scope]): Option[MashValue] =
+  private def lookup(name: String, scopes: List[Scope]): Option[Binding] =
     scopes match {
       case Nil           ⇒ None
       case scope :: rest ⇒ scope.get(name) orElse lookup(name, rest)
@@ -82,14 +89,18 @@ case class ScopeStack(scopes: List[Scope]) {
         throw new AssertionError("Missing scope")
     }
 
-  def withLeakyScope(nameValues: Seq[(String, MashValue)]) = withScope(LeakyScope(MashObject.of(nameValues)))
+  def withLeakyScope(nameValues: Seq[(String, MashValue)] = Seq(),
+                     safeNames: Set[String] = Set()): ScopeStack =
+    withScope(LeakyScope(MashObject.of(nameValues), safeNames))
 
   def withFullScope(scopeObject: MashObject) = withScope(FullScope(scopeObject))
 
-  def withFullScope(bindings: Map[String, MashValue]) = withScope(FullScope(MashObject.of(bindings)))
+  def withFullScope(bindings: Map[String, MashValue],
+                    safeNames: Set[String]): ScopeStack =
+    withScope(FullScope(MashObject.of(bindings), safeNames))
 
-  def withFullScope(bindings: Map[String, MashValue], thisValue: MashValue) =
-    withScope(FullScope(MashObject.of(bindings), thisOpt = Some(thisValue)))
+  def withFullScope(bindings: Map[String, MashValue], safeNames: Set[String], thisValue: MashValue) =
+    withScope(FullScope(MashObject.of(bindings), safeNames, thisOpt = Some(thisValue)))
 
   private def withScope(scope: Scope) = ScopeStack(scope :: scopes)
 

@@ -14,7 +14,7 @@ case class UserDefinedFunction(docCommentOpt: Option[DocComment],
   extends MashFunction(nameOpt = Some(functionName), namespaceOpt = context.namespaceOpt) {
 
   def call(boundParams: BoundParams): MashValue = {
-    val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames)
+    val newScopeStack = context.scopeStack.withFullScope(boundParams.boundNames, boundParams.safeNames)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 

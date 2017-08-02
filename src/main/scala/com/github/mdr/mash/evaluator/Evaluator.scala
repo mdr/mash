@@ -30,18 +30,23 @@ object Evaluator extends EvaluatorHelper {
       val simpleResult = simpleEvaluate(expr)
       ExecutionContext.checkInterrupted()
       val finalResult = expr match {
-        case _: Identifier | _: MemberExpr ⇒ invokeNullaryFunctions(simpleResult, sourceLocation(expr))
-        case _                             ⇒ simpleResult
+        case ident: Identifier ⇒
+          if (context.scopeStack.lookup(ident.name).exists(_.isSafe))
+            simpleResult
+          else
+            invokeNullaryFunctions(simpleResult, sourceLocation(expr))
+        case _: MemberExpr     ⇒ invokeNullaryFunctions(simpleResult, sourceLocation(expr))
+        case _                 ⇒ simpleResult
       }
       finalResult
     } catch {
-      case e: EvaluatorException             ⇒
+      case e: EvaluatorException          ⇒
         throw e
       case EvaluationInterruptedException ⇒
         throw EvaluationInterruptedException
-      case e: InterruptedException ⇒
+      case e: InterruptedException        ⇒
         throw EvaluationInterruptedException
-      case NonFatal(t)                       ⇒
+      case NonFatal(t)                    ⇒
         throw EvaluatorException("Unexpected error in evaluation: " + t.toString,
           stack = sourceLocation(expr).toList.map(loc ⇒ StackTraceItem(Some(loc))),
           cause = t)
@@ -140,7 +145,7 @@ object Evaluator extends EvaluatorHelper {
   }
 
   def evaluateBlockExpr(blockExpr: BlockExpr)(implicit context: EvaluationContext): MashValue = {
-    val newContext = context.copy(scopeStack = context.scopeStack.withLeakyScope(Seq()))
+    val newContext = context.copy(scopeStack = context.scopeStack.withLeakyScope())
     Evaluator.evaluate(blockExpr.expr)(newContext)
   }
 
@@ -157,7 +162,7 @@ object Evaluator extends EvaluatorHelper {
     context.scopeStack.lookup(name).getOrElse {
       val names = context.scopeStack.bindings.keys.toSeq
       throw new EvaluatorException(s"No binding for '$name'${Suggestor.suggestionSuffix(names, name)}", locationOpt)
-    }
+    }.value
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate

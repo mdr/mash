@@ -8,7 +8,7 @@ case class AnonymousFunction(params: ParameterModel, body: Expr, context: Evalua
   extends MashFunction(nameOpt = None) {
 
   def call(boundParams: BoundParams): MashValue = {
-    val newScopeStack = context.scopeStack.withLeakyScope(boundParams.boundNames.toSeq)
+    val newScopeStack = context.scopeStack.withLeakyScope(boundParams.boundNames.toSeq, boundParams.safeNames)
     Evaluator.evaluate(body)(context.copy(scopeStack = newScopeStack))
   }
 

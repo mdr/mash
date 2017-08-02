@@ -23,7 +23,7 @@ object SimpleEvaluator {
     case literal: Literal                                       ⇒ Some(literal.value)
     case stringLiteral: StringLiteral                           ⇒ Some(Evaluator.evaluateStringLiteral(stringLiteral))
     case listExpr: ListExpr                                     ⇒ Utils.sequence(listExpr.elements.map(evaluate(_))).map(MashList(_))
-    case identifier: Identifier                                 ⇒ context.scopeStack.lookup(identifier.name)
+    case identifier: Identifier                                 ⇒ context.scopeStack.lookup(identifier.name).map(_.value)
     case objectExpr: ObjectExpr                                 ⇒ simplyEvaluate(objectExpr)
     case StatementSeq(statements, _)                            ⇒ statements.map(evaluate).lastOption getOrElse Some(MashUnit)
     case ParenExpr(body, _)                                     ⇒ evaluate(body)
@@ -119,7 +119,7 @@ object SimpleEvaluator {
     val fieldPairsOpt =
       objectExpr.fields.map {
         case FullObjectEntry(field, value, _) ⇒ getFieldName(field) -> evaluate(value)
-        case ShorthandObjectEntry(field, _)   ⇒ Some(field) -> context.scopeStack.lookup(field)
+        case ShorthandObjectEntry(field, _)   ⇒ Some(field) -> context.scopeStack.lookup(field).map(_.value)
       }.map(pairOfOptionToOptionPair)
     Utils.sequence(fieldPairsOpt).map(MashObject.of(_))
   }

@@ -21,7 +21,8 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
       for ((param, evalArgs) ← parameterToArgs)
         yield param -> evalArgs.flatMap(_.argumentNodeOpt)
 
-    BoundParams(boundNames, parameterToArguments, allResolvedArgs)
+    val safeNames = params.params.filter(_.isSafe).flatMap(_.nameOpt).toSet
+    BoundParams(boundNames, parameterToArguments, allResolvedArgs, safeNames)
   }
 
   private def runGeneralArgBinder: Map[Parameter, Seq[EvaluatedArgument[SuspendedMashValue]]] = {

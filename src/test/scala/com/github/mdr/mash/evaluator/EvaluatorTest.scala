@@ -258,6 +258,10 @@ class EvaluatorTest extends AbstractEvaluatorTest {
   "(safe pwd).getClass" ==> "core.Function"
   "(safe 3.negate).getClass" ==> "core.BoundMethod"
 
+  // @safe
+  "def f (@safe x) = x; f pwd" ==> "safe pwd"
+  "class A { def f (@safe x) = x}; A.new.f pwd" ==> "safe pwd"
+
   // mash.expressionFor
   "mash.expressionFor 42" ==> "'42'"
   "mash.expressionFor [1, 2, 3]" ==> "'[1, 2, 3]'"
