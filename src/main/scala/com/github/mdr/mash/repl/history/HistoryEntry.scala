@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.history
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.Path
 import java.time.Instant
 import java.util.UUID
 
@@ -12,12 +12,4 @@ case class HistoryEntry(sessionId: UUID,
                         command: String,
                         mish: Boolean,
                         result: MashValue,
-                        workingDirectory: String) {
-
-  def sessionIdOpt: Option[UUID] = Option(sessionId)
-
-  def resultOpt: Option[MashValue] = Option(result)
-
-  def workingDirectoryOpt: Option[Path] = Option(workingDirectory).map(s ⇒ Paths.get(s))
-
-}
+                        workingDirectory: Path)

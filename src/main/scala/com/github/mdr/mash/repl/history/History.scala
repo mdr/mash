@@ -40,7 +40,8 @@ trait History extends HistoricalArgumentSource {
     def tryMatch(entry: HistoryEntry): Option[Match] = {
       val matcher = pattern.matcher(entry.command)
       matcher.find().option {
-        Match(entry.command, Region.fromStartEnd(matcher.start, matcher.end), entry.timestamp, entry.workingDirectoryOpt.getOrElse(Paths.get("")))
+        val region = Region.fromStartEnd(matcher.start, matcher.end)
+        Match(entry.command, region, entry.timestamp, entry.workingDirectory)
       }
     }
     getHistory.toStream

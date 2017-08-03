@@ -20,13 +20,13 @@ object HistoryFunction extends MashFunction("os.history") {
     import HistoryEntryClass.Fields._
     MashObject.of(
       ListMap(
-        Session -> entry.sessionIdOpt.map(id ⇒ MashString(id.toString)).getOrElse(MashNull),
+        Session -> MashString(entry.sessionId.toString),
         CommandNumber -> MashNumber(entry.commandNumber),
         Timestamp -> MashWrapped(entry.timestamp),
         Command -> MashString(entry.command),
         Mish -> MashBoolean(entry.mish),
-        Result -> entry.resultOpt.getOrElse(MashNull),
-        WorkingDirectory -> entry.workingDirectoryOpt.map(FunctionHelpers.asPathString).getOrElse(MashNull)),
+        Result -> entry.result,
+        WorkingDirectory -> FunctionHelpers.asPathString(entry.workingDirectory)),
       HistoryEntryClass)
   }
 
