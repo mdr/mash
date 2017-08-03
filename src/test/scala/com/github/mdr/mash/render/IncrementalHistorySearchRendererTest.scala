@@ -12,10 +12,10 @@ import com.github.mdr.mash.utils.{ Point, Region }
 
 class IncrementalHistorySearchRendererTest extends RendererTest {
 
-  val expectedHintLine = "^R next, ret done, ^D cd"
+  val expectedHintLine = "^R next, ret done, ^Q quit, ^D cd"
 
   "Incremental history search" should "render correctly before first hit" in {
-    val state = IncrementalHistorySearchState("", BeforeFirstHit)
+    val state = IncrementalHistorySearchState("", "", BeforeFirstHit)
 
     val LinesAndCursorPos(Seq(line1, line2), Some(cursorPos)) = renderHistorySearchState(state, SufficientlyLargeTerminalSize)
 
@@ -27,7 +27,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
 
   it should "render correctly if a hit is found" in {
     val oneDayAgo = Clock.systemDefaultZone.instant.minus(24L, ChronoUnit.HOURS)
-    val state = IncrementalHistorySearchState("searchString", Hit(0, Region(0, 1), oneDayAgo, Paths.get("/etc")))
+    val state = IncrementalHistorySearchState("searchString", "", Hit(0, Region(0, 1), oneDayAgo, Paths.get("/etc")))
 
     val LinesAndCursorPos(Seq(line1, line2, line3), Some(cursorPos)) = renderHistorySearchState(state, SufficientlyLargeTerminalSize)
 
@@ -39,7 +39,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
   }
 
   it should "truncate with ellipses if there is insufficient width, and not display a cursor" in {
-    val state = IncrementalHistorySearchState("searchString", BeforeFirstHit)
+    val state = IncrementalHistorySearchState("searchString", "", BeforeFirstHit)
     val LinesAndCursorPos(Seq(line1, line2), cursorPosOpt) = renderHistorySearchState(state, SufficientlyLargeTerminalSize.withColumns(5))
     getText(line1) shouldEqual "Incr…"
     getText(line2) shouldEqual "^R n…"

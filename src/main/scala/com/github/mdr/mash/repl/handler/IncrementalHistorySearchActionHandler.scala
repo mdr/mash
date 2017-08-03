@@ -23,73 +23,90 @@ case class IncrementalHistorySearchActionHandler(history: History) {
 
   def beginFreshIncrementalSearch(state: ReplState): ReplState = {
     history.resetHistoryPosition()
+    val originalLineBuffer = state.lineBuffer.text
+    val searchState = IncrementalHistorySearchState(searchString = "", originalLineBuffer, BeforeFirstHit)
     state.copy(
       assistanceStateOpt = None,
-      incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+      incrementalHistorySearchStateOpt = Some(searchState))
   }
 
-  def beginIncrementalSearchFromLine(state: ReplState): ReplState =
-    freshSearch(state.lineBuffer.text, beginFreshIncrementalSearch(state))
+  def beginIncrementalSearchFromLine(state: ReplState): ReplState = {
+    val initialState = beginFreshIncrementalSearch(state)
+    val searchState = initialState.incrementalHistorySearchStateOpt.get // safe, just initialised
+    freshSearch(state.lineBuffer.text, searchState, initialState)
+  }
 
   def handleAction(action: InputAction, state: ReplState): Result =
     state.incrementalHistorySearchStateOpt match {
-      case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
+      case Some(searchState@IncrementalHistorySearchState(searchString, _, hitStatus)) ⇒
         action match {
-          case SelfInsert(c)                 ⇒ Result(freshSearch(searchString + c, state))
-          case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
-          case IncrementalHistorySearch | Up ⇒ Result(nextHit(searchString, hitStatus, state))
-          case Down                          ⇒ Result(previousHit(searchString, hitStatus, state))
+          case SelfInsert(c)                 ⇒ Result(freshSearch(searchString + c, searchState, state))
+          case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchState, state))
+          case IncrementalHistorySearch | Up ⇒ Result(nextHit(searchState, state))
+          case Down                          ⇒ Result(previousHit(searchState, state))
           case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
+          case AbandonHistorySearch          ⇒ Result(handleAbandonSearch(searchState, state))
           case ChangeDirectory               ⇒ Result(handleChangeDirectory(hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
-      case None                                                         ⇒
+      case None                                                                        ⇒
         Result(state, actionConsumed = false)
     }
 
-  private def handleDeleteChar(searchString: String, state: ReplState): ReplState =
+  private def handleAbandonSearch(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    state.copy(
+      lineBuffer = LineBuffer(searchState.originalLineBuffer),
+      incrementalHistorySearchStateOpt = None)
+
+  private def handleDeleteChar(searchState: IncrementalHistorySearchState, state: ReplState): ReplState = {
+    val searchString = searchState.searchString
     searchString match {
       case ""                            ⇒
         state.copy(incrementalHistorySearchStateOpt = None)
       case _ if searchString.length == 1 ⇒
         state.copy(
           lineBuffer = LineBuffer.Empty,
-          incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+          incrementalHistorySearchStateOpt = Some(searchState.copy(searchString = "", hitStatus = BeforeFirstHit)))
       case _                             ⇒
-        freshSearch(searchString.init, state)
+        freshSearch(searchString.init, searchState, state)
     }
+  }
 
-  private def freshSearch(searchString: String, state: ReplState): ReplState =
-    history.findMatch(searchString, index = 0) match {
+  private def freshSearch(newSearchString: String, searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    history.findMatch(newSearchString, index = 0) match {
       case Some(historyMatch) ⇒
-        newMatchFound(searchString, state, resultIndex = 0, historyMatch)
+        newMatchFound(newSearchString, searchState, state, resultIndex = 0, historyMatch)
       case None               ⇒
         state.copy(
           lineBuffer = LineBuffer.Empty,
-          incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, NoHits)))
+          incrementalHistorySearchStateOpt = Some(searchState.copy(searchString = newSearchString, hitStatus = NoHits)))
     }
 
-  private def previousHit(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
-    getHitAtIndex(searchString, hitStatus, state, previousResultIndex(hitStatus))
+  private def previousHit(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    getHitAtIndex(searchState, state, previousResultIndex(searchState.hitStatus))
 
-  private def nextHit(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
-    getHitAtIndex(searchString, hitStatus, state, nextResultIndex(hitStatus))
+  private def nextHit(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    getHitAtIndex(searchState, state, nextResultIndex(searchState.hitStatus))
 
-  private def getHitAtIndex(searchString: String, hitStatus: HitStatus, state: ReplState, resultIndex: Int): ReplState =
-    if (hitStatus == NoHits)
+  private def getHitAtIndex(searchState: IncrementalHistorySearchState, state: ReplState, resultIndex: Int): ReplState =
+    if (searchState.hitStatus == NoHits)
       state
     else
-      history.findMatch(searchString, resultIndex) match {
-        case Some(historyMatch) ⇒ newMatchFound(searchString, state, resultIndex, historyMatch)
+      history.findMatch(searchState.searchString, resultIndex) match {
+        case Some(historyMatch) ⇒ newMatchFound(searchState.searchString, searchState, state, resultIndex, historyMatch)
         case None               ⇒ state
       }
 
-  private def newMatchFound(searchString: String, state: ReplState, resultIndex: Int, historyMatch: Match): ReplState = {
+  private def newMatchFound(searchString: String,
+                            searchState: IncrementalHistorySearchState,
+                            state: ReplState,
+                            resultIndex: Int,
+                            historyMatch: Match): ReplState = {
     val Match(command, matchRegion, timestamp, workingDirectory) = historyMatch
     val hit = Hit(resultIndex, matchRegion, timestamp, workingDirectory)
     state.copy(
       lineBuffer = LineBuffer(command),
-      incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
+      incrementalHistorySearchStateOpt = Some(searchState.copy(searchString = searchString, hitStatus = hit)))
   }
 
   private def nextResultIndex(hitStatus: HitStatus): Int =
