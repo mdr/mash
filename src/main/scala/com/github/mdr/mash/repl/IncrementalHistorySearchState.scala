@@ -29,7 +29,7 @@ object IncrementalHistorySearchState {
 
   }
 
-  case object AfterLastHit extends HitStatus
+  case object NoHits extends HitStatus
 
 }
 

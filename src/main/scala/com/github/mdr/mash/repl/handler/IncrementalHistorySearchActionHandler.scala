@@ -29,27 +29,18 @@ case class IncrementalHistorySearchActionHandler(history: History) {
   }
 
   def beginIncrementalSearchFromLine(state: ReplState): ReplState =
-    updateSearch(state.lineBuffer.text, BeforeFirstHit, beginFreshIncrementalSearch(state))
-
-  def handleChangeDirectory(hitStatus: HitStatus) = hitStatus match {
-    case hit: Hit ⇒
-      try
-        ChangeDirectoryFunction.changeDirectory(hit.workingDirectory)
-      catch {
-        case NonFatal(_) ⇒ // ignore
-      }
-    case _        ⇒
-  }
+    freshSearch(state.lineBuffer.text, beginFreshIncrementalSearch(state))
 
   def handleAction(action: InputAction, state: ReplState): Result =
     state.incrementalHistorySearchStateOpt match {
       case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
         action match {
-          case SelfInsert(c)                 ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
+          case SelfInsert(c)                 ⇒ Result(freshSearch(searchString + c, state))
           case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
+          case IncrementalHistorySearch | Up ⇒ Result(nextHit(searchString, hitStatus, state))
+          case Down                          ⇒ Result(previousHit(searchString, hitStatus, state))
           case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
-          case ChangeDirectory               ⇒ handleChangeDirectory(hitStatus); Result(state)
-          case IncrementalHistorySearch | Up ⇒ Result(updateSearch(searchString, hitStatus, state))
+          case ChangeDirectory               ⇒ Result(handleChangeDirectory(hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
       case None                                                         ⇒
@@ -65,33 +56,68 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           lineBuffer = LineBuffer.Empty,
           incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
       case _                             ⇒
-        updateSearch(searchString.init, BeforeFirstHit, state)
+        freshSearch(searchString.init, state)
     }
 
-  private def updateSearch(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
-    if (hitStatus == AfterLastHit)
-      state.copy(
-        incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
-    else {
-      val nextResultIndex = hitStatus match {
-        case hit: Hit ⇒ hit.resultIndex + 1
-        case _        ⇒ 0
+  private def freshSearch(searchString: String, state: ReplState): ReplState =
+    history.findMatch(searchString, index = 0) match {
+      case Some(historyMatch) ⇒
+        newMatchFound(searchString, state, resultIndex = 0, historyMatch)
+      case None               ⇒
+        state.copy(
+          lineBuffer = LineBuffer.Empty,
+          incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, NoHits)))
+    }
+
+  private def previousHit(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
+    getHitAtIndex(searchString, hitStatus, state, previousResultIndex(hitStatus))
+
+  private def nextHit(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
+    getHitAtIndex(searchString, hitStatus, state, nextResultIndex(hitStatus))
+
+  private def getHitAtIndex(searchString: String, hitStatus: HitStatus, state: ReplState, resultIndex: Int): ReplState =
+    if (hitStatus == NoHits)
+      state
+    else
+      history.findMatch(searchString, resultIndex) match {
+        case Some(historyMatch) ⇒ newMatchFound(searchString, state, resultIndex, historyMatch)
+        case None               ⇒ state
       }
-      val nextMatchOpt = history.findMatch(searchString, nextResultIndex)
-      nextMatchOpt match {
-        case Some(Match(command, matchRegion, timestamp, workingDirectory)) ⇒
-          val hit = Hit(nextResultIndex, matchRegion, timestamp, workingDirectory)
-          state.copy(
-            lineBuffer = LineBuffer(command),
-            incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
-        case None                                                           ⇒
-          state.copy(
-            lineBuffer = LineBuffer.Empty,
-            incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
-      }
+
+  private def newMatchFound(searchString: String, state: ReplState, resultIndex: Int, historyMatch: Match): ReplState = {
+    val Match(command, matchRegion, timestamp, workingDirectory) = historyMatch
+    val hit = Hit(resultIndex, matchRegion, timestamp, workingDirectory)
+    state.copy(
+      lineBuffer = LineBuffer(command),
+      incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
+  }
+
+  private def nextResultIndex(hitStatus: HitStatus): Int =
+    hitStatus match {
+      case hit: Hit ⇒ hit.resultIndex + 1
+      case _        ⇒ 0
+    }
+
+  private def previousResultIndex(hitStatus: HitStatus): Int =
+    hitStatus match {
+      case hit: Hit ⇒ 0 max hit.resultIndex - 1
+      case _        ⇒ 0
     }
 
   private def exitSearchAndHandleNormally(action: InputAction, state: ReplState): Result =
     Result(state.copy(incrementalHistorySearchStateOpt = None), actionConsumed = false)
+
+  private def handleChangeDirectory(hitStatus: HitStatus, state: ReplState) = {
+    hitStatus match {
+      case hit: Hit ⇒
+        try
+          ChangeDirectoryFunction.changeDirectory(hit.workingDirectory)
+        catch {
+          case NonFatal(_) ⇒ // ignore
+        }
+      case _        ⇒
+    }
+    state
+  }
 
 }

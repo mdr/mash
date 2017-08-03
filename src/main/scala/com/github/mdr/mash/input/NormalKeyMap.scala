@@ -24,6 +24,8 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
 object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('p'), control = true) → NormalActions.Up,
   KeyPress(Key.Up) → NormalActions.Up,
+  KeyPress(BasicKey('n'), control = true) → NormalActions.Down,
+  KeyPress(Key.Down) → NormalActions.Down,
   KeyPress(BasicKey('r'), control = true) → IncrementalHistorySearch,
   KeyPress(Backspace) → BackwardDeleteChar,
   KeyPress(Key.Enter) → NormalActions.Enter,
