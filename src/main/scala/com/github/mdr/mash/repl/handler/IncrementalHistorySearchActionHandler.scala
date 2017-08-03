@@ -4,7 +4,6 @@ import java.nio.file.Paths
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.IncrementalHistorySearchActions.ChangeDirectory
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
@@ -22,15 +21,13 @@ object IncrementalHistorySearchActionHandler {
 
 case class IncrementalHistorySearchActionHandler(history: History) {
 
-  private val fileSystem = LinuxFileSystem
-
   import IncrementalHistorySearchActionHandler._
 
   def beginFreshIncrementalSearch(state: ReplState): ReplState = {
     history.resetHistoryPosition()
     state.copy(
       assistanceStateOpt = None,
-      historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+      incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
   }
 
   def beginIncrementalSearchFromLine(state: ReplState): ReplState =
@@ -48,12 +45,12 @@ case class IncrementalHistorySearchActionHandler(history: History) {
   }
 
   def handleAction(action: InputAction, state: ReplState): Result =
-    state.historySearchStateOpt match {
+    state.incrementalHistorySearchStateOpt match {
       case Some(IncrementalHistorySearchState(searchString, hitStatus)) ⇒
         action match {
           case SelfInsert(c)                 ⇒ Result(updateSearch(searchString + c, BeforeFirstHit, state))
           case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchString, state))
-          case Enter                         ⇒ Result(state.copy(historySearchStateOpt = None))
+          case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
           case ChangeDirectory               ⇒ handleChangeDirectory(hitStatus); Result(state)
           case IncrementalHistorySearch | Up ⇒ Result(updateSearch(searchString, hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
@@ -65,11 +62,11 @@ case class IncrementalHistorySearchActionHandler(history: History) {
   private def handleDeleteChar(searchString: String, state: ReplState): ReplState =
     searchString match {
       case ""                            ⇒
-        state.copy(historySearchStateOpt = None)
+        state.copy(incrementalHistorySearchStateOpt = None)
       case _ if searchString.length == 1 ⇒
         state.copy(
           lineBuffer = LineBuffer.Empty,
-          historySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
+          incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString = "", BeforeFirstHit)))
       case _                             ⇒
         updateSearch(searchString.init, BeforeFirstHit, state)
     }
@@ -77,7 +74,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
   private def updateSearch(searchString: String, hitStatus: HitStatus, state: ReplState): ReplState =
     if (hitStatus == AfterLastHit)
       state.copy(
-        historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
+        incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
     else {
       val nextResultIndex = hitStatus match {
         case hit: Hit ⇒ hit.resultIndex + 1
@@ -89,15 +86,15 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           val hit = Hit(nextResultIndex, matchRegion, timestamp, workingDirectory.toString)
           state.copy(
             lineBuffer = LineBuffer(command),
-            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
+            incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
         case None                                                           ⇒
           state.copy(
             lineBuffer = LineBuffer.Empty,
-            historySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
+            incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
       }
     }
 
   private def exitSearchAndHandleNormally(action: InputAction, state: ReplState): Result =
-    Result(state.copy(historySearchStateOpt = None), actionConsumed = false)
+    Result(state.copy(incrementalHistorySearchStateOpt = None), actionConsumed = false)
 
 }

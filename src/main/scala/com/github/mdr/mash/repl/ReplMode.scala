@@ -28,10 +28,10 @@ object ReplMode {
       case Some(stack) ⇒ getBrowserMode(stack)
       case None        ⇒
         state.completionStateOpt match {
-          case Some(_: IncrementalCompletionState)           ⇒ ReplMode.IncrementalCompletions
-          case Some(_: BrowserCompletionState)               ⇒ ReplMode.BrowseCompletions
-          case None if state.historySearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
-          case None                                          ⇒ ReplMode.Normal
+          case Some(_: IncrementalCompletionState)                      ⇒ ReplMode.IncrementalCompletions
+          case Some(_: BrowserCompletionState)                          ⇒ ReplMode.BrowseCompletions
+          case None if state.incrementalHistorySearchStateOpt.isDefined ⇒ ReplMode.IncrementalSearch
+          case None                                                     ⇒ ReplMode.Normal
         }
     }
 

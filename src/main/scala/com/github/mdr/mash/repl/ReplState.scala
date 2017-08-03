@@ -9,7 +9,7 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      commandNumber: Int = 0,
                      continue: Boolean = true, // Whether to loop or exit
                      mish: Boolean = false,
-                     historySearchStateOpt: Option[IncrementalHistorySearchState] = None,
+                     incrementalHistorySearchStateOpt: Option[IncrementalHistorySearchState] = None,
                      completionStateOpt: Option[CompletionState] = None,
                      assistanceStateOpt: Option[AssistanceState] = None,
                      insertLastArgStateOpt: Option[InsertLastArgState] = None,
@@ -19,7 +19,7 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
     lineBuffer = LineBuffer.Empty,
     completionStateOpt = None,
     assistanceStateOpt = None,
-    historySearchStateOpt = None,
+    incrementalHistorySearchStateOpt = None,
     insertLastArgStateOpt = None)
 
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =

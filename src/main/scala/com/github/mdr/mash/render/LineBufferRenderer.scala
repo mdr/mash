@@ -18,7 +18,7 @@ object LineBufferRenderer {
                        globalVariables: MashObject,
                        bareWords: Boolean): LinesAndCursorPos = {
     val prefix = getPrompt(state.commandNumber, state.mish)
-    val matchRegionOpt = state.historySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
+    val matchRegionOpt = state.incrementalHistorySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
     renderLineBuffer(state.lineBuffer, Some(globalVariables), prefix, bareWords, state.mish, terminalSize, matchRegionOpt)
   }
 

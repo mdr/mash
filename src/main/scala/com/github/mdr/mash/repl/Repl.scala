@@ -115,7 +115,7 @@ class Repl(protected val terminal: Terminal,
           case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, completionState)
           case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, completionState)
           case None                                              ⇒
-            state.historySearchStateOpt match {
+            state.incrementalHistorySearchStateOpt match {
               case Some(searchState) ⇒ handleHistorySearchAction(action)
               case None              ⇒ handleNormalAction(action)
             }

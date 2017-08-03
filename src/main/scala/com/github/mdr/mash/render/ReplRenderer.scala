@@ -28,7 +28,7 @@ object ReplRenderer {
   private def renderRegularRepl(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen = {
     val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
       LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
-    val historySearchLinesAndCursorPosOpt = state.historySearchStateOpt.map(
+    val historySearchLinesAndCursorPosOpt = state.incrementalHistorySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchLinesAndCursorPosOpt.map(_.lines).getOrElse(Seq())
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalSize)
