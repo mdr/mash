@@ -223,6 +223,17 @@ class EvaluatorTest extends AbstractEvaluatorTest {
 
   // json.prettyPrint
   "123456789 | json.prettyPrint" ==> "'123456789'"
+  "{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint" ==>
+    """'{
+      |  "foo": 1,
+      |  "bar": [
+      |    2,
+      |    3,
+      |    4
+      |  ]
+      |}'""".stripMargin
+
+  "{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint --compact" ==> """'{"foo":1,"bar":[2,3,4]}'"""
 
   // List.new
   "List 1 2 3" ==> "[1, 2, 3]"

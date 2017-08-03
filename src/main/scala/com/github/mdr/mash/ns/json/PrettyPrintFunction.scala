@@ -14,6 +14,14 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
   object Params {
 
+    val Compact = Parameter(
+      nameOpt = Some("compact"),
+      shortFlagOpt = Some('c'),
+      summaryOpt = Some("Pretty print to a single line (default false)"),
+      defaultValueGeneratorOpt = Some(false),
+      isFlag = true,
+      isBooleanFlag = true)
+
     val Value = Parameter(
       nameOpt = Some("value"),
       summaryOpt = Some("Value to convert to a JSON string"))
@@ -22,19 +30,20 @@ object PrettyPrintFunction extends MashFunction("json.prettyPrint") {
 
   import Params._
 
-  val params = ParameterModel(Value)
+  val params = ParameterModel(Compact, Value)
 
   def call(boundParams: BoundParams): MashString = {
     val value = boundParams(Value)
-    MashString(asJsonString(value))
+    val compact = boundParams(Compact).isTruthy
+    MashString(asJsonString(value, compact))
   }
 
-  def asJsonString(value: MashValue): String = {
+  def asJsonString(value: MashValue, compact: Boolean = false): String = {
     val json = asJson(value)
     val stringWriter = new StringWriter
     val jsonWriter = new JsonWriter(stringWriter)
     jsonWriter.setLenient(true)
-    jsonWriter.setIndent("  ")
+    jsonWriter.setIndent(if (compact) "" else "  ")
     Streams.write(json, jsonWriter)
     stringWriter.toString
   }

@@ -66,7 +66,7 @@ abstract class AbstractEvaluatorTest extends FlatSpec with Matchers {
         val ctx2 = EvaluationContext(ScopeStack(env.globalVariables))
         val expected = Evaluator.evaluate(expr2)(ctx2)
 
-        actual should equal(expected)
+        actual shouldEqual expected
       }
 
   }
