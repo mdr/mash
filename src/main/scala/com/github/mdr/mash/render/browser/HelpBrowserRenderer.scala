@@ -3,8 +3,8 @@ package com.github.mdr.mash.render.browser
 import com.github.mdr.mash.printer.model.Link
 import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
 import com.github.mdr.mash.repl.browser.HelpBrowserState
+import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
-import com.github.mdr.mash.screen.{ Line, StyledString }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Region, StyledStringUtils }
 
@@ -23,12 +23,12 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
         if (i == state.currentRow && state.expressionStateOpt.isEmpty)
           currentLinkOpt.collect { case Link(`i`, region, _, _) ⇒ region } match {
             case Some(selectedLinkRegion) ⇒
-              invert(line, selectedLinkRegion)
+              line.invert(selectedLinkRegion)
             case None                     ⇒
               if (line.isEmpty)
                 " ".style(inverse = true)
               else
-                invert(line, Region(0, 1))
+                line.invert(Region(0, 1))
           }
         else
           line)
@@ -43,13 +43,6 @@ class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
     val innerWidth = 0 max terminalSize.columns - 2
     val inner = StyledStringUtils.ellipsisise(line.string.padTo(innerWidth, ' '.style), innerWidth)
     line.copy(string = style"│$inner│")
-  }
-
-  private def invert(s: StyledString, region: Region): StyledString = {
-    val newChars =
-      for ((c, i) ← s.chars.zipWithIndex)
-        yield c.when(region contains i, _.updateStyle(_.withInverse))
-    StyledString(newChars)
   }
 
   private def renderStatusLine: Line =

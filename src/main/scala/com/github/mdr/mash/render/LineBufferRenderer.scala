@@ -29,8 +29,7 @@ object LineBufferRenderer {
                        mish: Boolean = false,
                        terminalSize: Dimensions,
                        matchRegionOpt: Option[Region] = None): LinesAndCursorPos = {
-    val unwrappedLines = renderLineBufferChars(lineBuffer.text, lineBuffer.cursorOffset, prefix, mish,
-      globalVariablesOpt, bareWords, matchRegionOpt)
+    val unwrappedLines = renderLineBufferChars(lineBuffer, prefix, mish, globalVariablesOpt, bareWords, matchRegionOpt)
 
     val wrappedLines = unwrappedLines.flatMap(wrap(_, terminalSize.columns))
 
@@ -51,15 +50,19 @@ object LineBufferRenderer {
     } yield Line(group, endsInNewline)
   }
 
-  private def renderLineBufferChars(rawChars: String,
-                                    cursorOffset: Int,
+  private def renderLineBufferChars(lineBuffer: LineBuffer,
                                     prefix: StyledString,
                                     mishByDefault: Boolean,
                                     globalVariablesOpt: Option[MashObject],
                                     bareWords: Boolean,
                                     matchRegionOpt: Option[Region]): Seq[Line] = {
+    val rawChars = lineBuffer.text
+    val cursorOffset = lineBuffer.cursorOffset
     val mashRenderer = new MashRenderer(globalVariablesOpt, bareWords)
-    val renderedMash: StyledString = mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault, matchRegionOpt)
+    val renderedMash: StyledString =
+      mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault, matchRegionOpt)
+        .invert(lineBuffer.selectedRegion)
+
     val continuationPrefix = if (prefix.isEmpty) "" else "." * (prefix.length - 1) + " "
     val lineRegions = new LineInfo(rawChars).lineRegions
     lineRegions.zipWithIndex.map {

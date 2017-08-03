@@ -1,6 +1,7 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.utils.Utils
+import com.github.mdr.mash.utils.{ Region, Utils }
+import com.github.mdr.mash.utils.Utils._
 
 case class StyledCharacter(c: Char, style: Style = Style()) {
 
@@ -49,4 +50,10 @@ case class StyledString(chars: Seq[StyledCharacter]) {
     StyledString(Utils.intercalate(strings.map(_.chars), this.chars))
 
   def forgetStyling: String = chars.map(_.c).mkString
+
+  def invert(region: Region): StyledString =
+    StyledString(
+      for ((c, i) ← chars.zipWithIndex)
+        yield c.when(region contains i, _.updateStyle(_.withInverse)))
+
 }

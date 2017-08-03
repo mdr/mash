@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Allow shift selection
 * json.prettyPrint --compact
 * @safe parameters (avoid nullary evaluation)
 * Shortcut to read lines in object browser

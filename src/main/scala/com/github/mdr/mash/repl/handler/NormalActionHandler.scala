@@ -75,7 +75,7 @@ trait NormalActionHandler extends InlineHandler {
   private def handleUp() = {
     val lineBuffer = state.lineBuffer
     if (!lineBuffer.onFirstLine && history.isCommittedToEntry)
-      state = state.updateLineBuffer(_.up)
+      state = state.updateLineBuffer(_.cursorUp)
     else {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
@@ -84,7 +84,7 @@ trait NormalActionHandler extends InlineHandler {
       else
         history.goBackwards(lineBuffer.text) match {
           case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
-          case None      ⇒ state = state.updateLineBuffer(_.up)
+          case None      ⇒ state = state.updateLineBuffer(_.cursorUp)
         }
     }
   }
@@ -93,10 +93,10 @@ trait NormalActionHandler extends InlineHandler {
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
         case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
-        case None      ⇒ state = state.updateLineBuffer(_.down)
+        case None      ⇒ state = state.updateLineBuffer(_.cursorDown)
       }
     else
-      state = state.updateLineBuffer(_.down)
+      state = state.updateLineBuffer(_.cursorDown)
 
   private def handleToggleQuote() = resetHistoryIfTextChanges {
     state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
@@ -153,7 +153,7 @@ trait NormalActionHandler extends InlineHandler {
     state = state.copy(
       completionStateOpt = None,
       assistanceStateOpt = None,
-      lineBuffer = state.lineBuffer.moveCursorToEndOfLine)
+      lineBuffer = state.lineBuffer.moveCursorToEnd)
     draw()
 
     for (previousScreen ← previousScreenOpt) {
