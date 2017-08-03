@@ -1,5 +1,6 @@
 package com.github.mdr.mash.repl
 
+import java.nio.file.Path
 import java.time.Instant
 
 import com.github.mdr.mash.repl.IncrementalHistorySearchState.HitStatus
@@ -19,7 +20,10 @@ object IncrementalHistorySearchState {
     * @param resultIndex index into the stream of results that match the searchString
     * @param matchRegion region in the line buffer that matches the search
     */
-  case class Hit(resultIndex: Int, matchRegion: Region, timestamp: Instant, workingDirectory: String) extends HitStatus {
+  case class Hit(resultIndex: Int,
+                 matchRegion: Region,
+                 timestamp: Instant,
+                 workingDirectory: Path) extends HitStatus {
 
     override def matchRegionOpt: Option[Region] = Some(matchRegion)
 

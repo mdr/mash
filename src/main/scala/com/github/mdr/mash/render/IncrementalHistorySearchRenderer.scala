@@ -17,8 +17,6 @@ object IncrementalHistorySearchRenderer {
 
   private val envInteractions = LinuxEnvironmentInteractions
 
-  private val SearchStringStyle = Style(foregroundColour = BasicColour.Cyan)
-
   def renderHistorySearchState(searchState: IncrementalHistorySearchState, terminalSize: Dimensions): LinesAndCursorPos = {
     val prefix = "Incremental history search: ".style
     val searchString = searchState.searchString.style(SearchStringStyle)
@@ -37,13 +35,15 @@ object IncrementalHistorySearchRenderer {
     hitStatus match {
       case Hit(resultIndex, _, timestamp, workingDirectory) ⇒
         val time = Printer.prettyTime.format(Date.from(timestamp))
-        val directoryWithTilde = new TildeExpander(envInteractions).retilde(workingDirectory)
-        Some(Line(("Hit " + (resultIndex + 1) + ": " + time + " in " +directoryWithTilde).style(hitStyle)))
+        val directoryWithTilde = new TildeExpander(envInteractions).retilde(workingDirectory.toString)
+        Some(Line(("Hit " + (resultIndex + 1) + ": " + time + " in " + directoryWithTilde).style(HitStyle)))
       case _                                                ⇒
         None
     }
 
-  private val hitStyle = Style(foregroundColour = BasicColour.Grey)
+  private val HitStyle = Style(foregroundColour = BasicColour.Grey)
+
+  private val SearchStringStyle = Style(foregroundColour = BasicColour.Cyan)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
     Line(StyledStringUtils.ellipsisise(line.string, terminalSize.columns))

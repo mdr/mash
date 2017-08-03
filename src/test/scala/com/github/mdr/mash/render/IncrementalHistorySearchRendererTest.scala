@@ -1,5 +1,6 @@
 package com.github.mdr.mash.render
 
+import java.nio.file.Paths
 import java.time.Clock
 import java.time.temporal.ChronoUnit
 
@@ -26,7 +27,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
 
   it should "render correctly if a hit is found" in {
     val oneDayAgo = Clock.systemDefaultZone.instant.minus(24L, ChronoUnit.HOURS)
-    val state = IncrementalHistorySearchState("searchString", Hit(0, Region(0, 1), oneDayAgo, "/etc"))
+    val state = IncrementalHistorySearchState("searchString", Hit(0, Region(0, 1), oneDayAgo, Paths.get("/etc")))
 
     val LinesAndCursorPos(Seq(line1, line2, line3), Some(cursorPos)) = renderHistorySearchState(state, SufficientlyLargeTerminalSize)
 

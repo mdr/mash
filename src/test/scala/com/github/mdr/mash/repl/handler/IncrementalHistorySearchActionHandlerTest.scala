@@ -131,7 +131,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
   implicit class RichReplState(state: ReplState) {
 
     def withHistorySearchState(searchString: String, resultIndex: Int, matchRegion: Region): ReplState = {
-      val workingDir = InMemoryHistoryStorage.WorkingDirectory.toString
+      val workingDir = InMemoryHistoryStorage.WorkingDirectory
       val hit = Hit(resultIndex, matchRegion, testTime, workingDir)
       state.copy(incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
     }
@@ -143,10 +143,11 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
       state.copy(incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, AfterLastHit)))
 
     def fixTime: ReplState =
-      state.copy(incrementalHistorySearchStateOpt = state.incrementalHistorySearchStateOpt.map(s ⇒ s.copy(hitStatus = s.hitStatus match {
-        case hit: Hit ⇒ hit.copy(timestamp = testTime)
-        case other    ⇒ other
-      })))
+      state.copy(incrementalHistorySearchStateOpt = state.incrementalHistorySearchStateOpt.map(s ⇒
+        s.copy(hitStatus = s.hitStatus match {
+          case hit: Hit ⇒ hit.copy(timestamp = testTime)
+          case other    ⇒ other
+        })))
   }
 
   private val testTime = MonotonicallyTickingClock.instant()

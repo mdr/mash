@@ -1,7 +1,5 @@
 package com.github.mdr.mash.repl.handler
 
-import java.nio.file.Paths
-
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
 import com.github.mdr.mash.repl.IncrementalHistorySearchActions.ChangeDirectory
@@ -35,9 +33,8 @@ case class IncrementalHistorySearchActionHandler(history: History) {
 
   def handleChangeDirectory(hitStatus: HitStatus) = hitStatus match {
     case hit: Hit ⇒
-      val newDir = Paths.get(hit.workingDirectory)
       try
-        ChangeDirectoryFunction.changeDirectory(newDir)
+        ChangeDirectoryFunction.changeDirectory(hit.workingDirectory)
       catch {
         case NonFatal(_) ⇒ // ignore
       }
@@ -83,7 +80,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
       val nextMatchOpt = history.findMatch(searchString, nextResultIndex)
       nextMatchOpt match {
         case Some(Match(command, matchRegion, timestamp, workingDirectory)) ⇒
-          val hit = Hit(nextResultIndex, matchRegion, timestamp, workingDirectory.toString)
+          val hit = Hit(nextResultIndex, matchRegion, timestamp, workingDirectory)
           state.copy(
             lineBuffer = LineBuffer(command),
             incrementalHistorySearchStateOpt = Some(IncrementalHistorySearchState(searchString, hit)))
