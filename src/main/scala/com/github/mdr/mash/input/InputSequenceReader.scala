@@ -8,7 +8,7 @@ object InputSequenceReader {
   import InputSequence._
 
   private def makeEscapeTree(xs: (String, KeyPress)*): PrefixTree[KeyPress] =
-    PrefixTree(xs.map { case (s, k) ⇒ s.drop(2) -> k }: _*)
+    PrefixTree(xs.map { case (s, k) ⇒ s.drop(2) → k }: _*)
 
   private def alt(key: Key): KeyPress = KeyPress(key, alt = true)
   private def alt(c: Char): KeyPress = alt(Key.BasicKey(c))
@@ -21,26 +21,28 @@ object InputSequenceReader {
   private val Del = '\u007f'
 
   private val EscapeSequenceTree = makeEscapeTree(
-    "^[." -> alt('.'),
-    "^[," -> alt(','),
-    "^[[1;5C" -> alt(Key.Right),
-    "^[[1;5D" -> alt(Key.Left),
-    "^[[3~" -> KeyPress(Key.Delete),
-    "^[[5~" -> KeyPress(Key.PageUp),
-    "^[[6~" -> KeyPress(Key.PageDown),
-    "^[[A" -> KeyPress(Key.Up),
-    "^[[B" -> KeyPress(Key.Down),
-    "^[[C" -> KeyPress(Key.Right),
-    "^[[D" -> KeyPress(Key.Left),
-    "^[[Z" -> shift(Key.Tab),
-    "^[[H" -> KeyPress(Key.Home),
-    "^[[F" -> KeyPress(Key.End),
-    "^[" + Del -> alt(Key.Backspace),
-    "^[d" -> alt('d'),
-    "^[f" -> alt('f'),
-    "^[b" -> alt('b'),
-    "^[OH" -> KeyPress(Key.Home),
-    "^[OF" -> KeyPress(Key.End))
+    "^[." → alt('.'),
+    "^[," → alt(','),
+    "^[[1;2D" → shift(Key.Left),
+    "^[[1;2C" → shift(Key.Right),
+    "^[[1;5C" → alt(Key.Right),
+    "^[[1;5D" → alt(Key.Left),
+    "^[[3~" → KeyPress(Key.Delete),
+    "^[[5~" → KeyPress(Key.PageUp),
+    "^[[6~" → KeyPress(Key.PageDown),
+    "^[[A" → KeyPress(Key.Up),
+    "^[[B" → KeyPress(Key.Down),
+    "^[[C" → KeyPress(Key.Right),
+    "^[[D" → KeyPress(Key.Left),
+    "^[[Z" → shift(Key.Tab),
+    "^[[H" → KeyPress(Key.Home),
+    "^[[F" → KeyPress(Key.End),
+    ("^[" + Del) → alt(Key.Backspace),
+    "^[d" → alt('d'),
+    "^[f" → alt('f'),
+    "^[b" → alt('b'),
+    "^[OH" → KeyPress(Key.Home),
+    "^[OF" → KeyPress(Key.End))
 
   private def readChar(): Char = System.in.read().asInstanceOf[Char]
 

@@ -27,6 +27,7 @@ object NormalActions {
   case object Noop extends InputAction
   case object AssistInvocation extends InputAction
   case object IncrementalHistorySearch extends InputAction
+  case object AbandonHistorySearch extends InputAction
   case object PageUp extends InputAction
   case object PageDown extends InputAction
   case object InsertLastArg extends InputAction
