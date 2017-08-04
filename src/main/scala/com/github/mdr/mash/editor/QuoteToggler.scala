@@ -10,27 +10,38 @@ object QuoteToggler {
 
   private val DoubleQuote = "\""
 
-  def toggleQuotes(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
+  def toggleQuotes(lineBuffer: LineBuffer, mish: Boolean): LineBuffer =
+    getTargetRegion(lineBuffer, mish)
+      .map(toggleQuotes(lineBuffer, _))
+      .getOrElse(lineBuffer)
+
+  private def toggleQuotes(lineBuffer: LineBuffer, targetRegion: Region): LineBuffer = {
     val text = lineBuffer.text
     val cursorOffset = lineBuffer.cursorOffset
-
-    val cursorToken = findCursorToken(text, mish, cursorOffset).getOrElse(return lineBuffer)
-    val cursorRegion = cursorToken.region
-    val targetRegion = ContiguousRegionFinder.getContiguousRegion(text, cursorRegion, mish = mish, liberal = true)
     val targetText = targetRegion.of(text)
-    val isAlreadyQuoted = isQuoted(targetText, DoubleQuote) || isQuoted(targetText, "'")
+    val isAlreadyQuoted = isQuoted(targetText)
     if (isAlreadyQuoted)
       unquote(targetText, cursorOffset, text, targetRegion)
     else
       quote(targetText, cursorOffset, text, targetRegion)
   }
 
+  private def getTargetRegion(lineBuffer: LineBuffer, mish: Boolean): Option[Region] = {
+    val text = lineBuffer.text
+    val cursorOffset = lineBuffer.cursorOffset
+    lineBuffer.selectedRegionOpt orElse
+      findCursorToken(text, mish, cursorOffset).map(cursorToken ⇒
+        ContiguousRegionFinder.getContiguousRegion(text, cursorToken.region, mish = mish, liberal = true))
+  }
+
+  private def isQuoted(s: String): Boolean = isQuoted(s, DoubleQuote) || isQuoted(s, "'")
+
   private def isQuoted(s: String, delimiter: String): Boolean =
     s.startsWith(delimiter) && s.endsWith(delimiter) && s.size > 1
 
   /**
-   * Find a non-whitespace token that is either under the cursor or immediately to the left of it.
-   */
+    * Find a non-whitespace token that is either under the cursor or immediately to the left of it.
+    */
   private def findCursorToken(text: String, mish: Boolean, cursorOffset: Int): Option[Token] = {
     val tokens = MashLexer.tokenise(text, forgiving = true, mish = mish).rawTokens
     tokens.find(_.region contains cursorOffset).filterNot(t ⇒ t.isWhitespace || t.isEof)
