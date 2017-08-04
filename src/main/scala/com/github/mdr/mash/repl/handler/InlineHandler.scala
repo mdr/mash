@@ -4,6 +4,7 @@ import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.repl.{ LineBuffer, Repl, ReplState }
+import com.github.mdr.mash.runtime.MashValue
 
 import scala.util.control.NonFatal
 
@@ -11,27 +12,30 @@ trait InlineHandler {
   self: Repl ⇒
 
   protected def handleInline(state: ReplState): ReplState = {
-    val cmd = state.lineBuffer.text
+    val lineBuffer = state.lineBuffer
+    val cmd = lineBuffer.selectedTextOpt getOrElse lineBuffer.text
     if (cmd.trim.nonEmpty) {
-      val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
-      val unitName = s"command-inline"
-      val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
-      val resultOpt =
-        try
-          commandRunner.runCompilationUnit(unit, bareWords)
-        catch {
-          case NonFatal(e) ⇒
-            debugLogger.logException(e)
-            None
-        }
       val updatedStateOpt =
         for {
-          result ← resultOpt
+          result ← runCommand(cmd, state)
           expression ← ValueToExpression.getExpression(result)
-        } yield state.copy(lineBuffer = LineBuffer(expression))
+          newText = if (lineBuffer.hasSelection) lineBuffer.selectedRegion.replace(lineBuffer.text, expression) else expression
+        } yield state.copy(lineBuffer = LineBuffer(newText))
       updatedStateOpt.getOrElse(state)
     } else
       state
   }
 
+  private def runCommand(cmd: String, state: ReplState): Option[MashValue] = {
+    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
+    val unitName = s"command-inline"
+    val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
+    try
+      commandRunner.runCompilationUnit(unit, bareWords)
+    catch {
+      case NonFatal(e) ⇒
+        debugLogger.logException(e)
+        None
+    }
+  }
 }

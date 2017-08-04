@@ -40,6 +40,8 @@ case class LineBuffer(text: String,
     Region.fromStartEnd(cursorOffset min selectionOffset, cursorOffset max selectionOffset)
   }
 
+  def selectedTextOpt: Option[String] = hasSelection.option(selectedRegion of text)
+
   def isEmpty = text.isEmpty
 
   def onFirstLine = cursorRow == 0
@@ -105,7 +107,7 @@ case class LineBuffer(text: String,
     else
       LineBuffer(text.substring(0, cursorOffset - 1) + text.substring(cursorOffset), cursorOffset - 1)
 
-  private def hasSelection: Boolean = selectionOffsetOpt.isDefined
+  def hasSelection: Boolean = selectionOffsetOpt.isDefined
 
   def delete: LineBuffer =
     if (hasSelection)
@@ -137,16 +139,19 @@ case class LineBuffer(text: String,
   def deleteToEndOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
     val newLine = line.substring(0, cursorPos.column)
-    LineBuffer(text = lineInfo.replaceLine(cursorPos.row, newLine), cursorOffset = cursorOffset)
+    val newText = lineInfo.replaceLine(cursorPos.row, newLine)
+    LineBuffer(newText, cursorOffset)
   }
 
   def deleteToBeginningOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
     val newLine = line.substring(cursorPos.column)
-    LineBuffer(text = lineInfo.replaceLine(cursorPos.row, newLine), cursorOffset = cursorOffset - cursorPos.column)
+    val newText = lineInfo.replaceLine(cursorPos.row, newLine)
+    val newCursorOffset = cursorOffset - cursorPos.column
+    LineBuffer(newText, newCursorOffset)
   }
 
-  def deleteRegion(region: Region): LineBuffer = {
+  private def deleteRegion(region: Region): LineBuffer = {
     val newText = text.substring(0, region.offset) + text.substring(region.posAfter)
     val newCursorOffset =
       if (cursorOffset <= region.offset)
