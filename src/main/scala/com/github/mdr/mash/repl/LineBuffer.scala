@@ -154,10 +154,10 @@ case class LineBuffer(text: String,
   def replaceRegion(region: Region, replacement: String): LineBuffer = {
     val newText = text.substring(0, region.offset) + replacement + text.substring(region.posAfter)
     val newCursorOffset =
-      if (cursorOffset <= region.offset)
+      if (cursorOffset < region.offset)
         cursorOffset
       else if (cursorOffset >= region.posAfter)
-        cursorOffset - region.length
+        cursorOffset - region.length + replacement.length
       else
         region.offset + replacement.length
     LineBuffer(newText, newCursorOffset)
@@ -167,20 +167,9 @@ case class LineBuffer(text: String,
 
   def addCharacterAtCursor(c: Char): LineBuffer = addCharactersAtCursor(c.toString)
 
-  def addCharactersAtCursor(chars: String): LineBuffer = {
-    val lineBuffer2 = deleteRegion(selectedRegion)
-    lineBuffer2.insertCharacters(chars, lineBuffer2.cursorOffset)
-  }
+  def addCharactersAtCursor(chars: String): LineBuffer = replaceRegion(selectedRegion, chars)
 
-  def insertCharacters(chars: String, insertPos: Int): LineBuffer = {
-    val newText = text.substring(0, insertPos) + chars + text.substring(insertPos)
-    val newCursorOffset =
-      if (cursorOffset < insertPos)
-        cursorOffset
-      else
-        cursorOffset + chars.length
-    LineBuffer(newText, newCursorOffset)
-  }
+  def insertCharacters(chars: String, insertPos: Int): LineBuffer = replaceRegion(Region(insertPos, length = 0), chars)
 
   def delete(deletePos: Int): LineBuffer = deleteRegion(Region(deletePos, 1))
 

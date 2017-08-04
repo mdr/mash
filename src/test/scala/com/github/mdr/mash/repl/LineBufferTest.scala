@@ -1,5 +1,6 @@
 package com.github.mdr.mash.repl
 
+import com.github.mdr.mash.utils.Region
 import org.scalatest.{ FlatSpec, Matchers }
 
 class LineBufferTest extends FlatSpec with Matchers {
@@ -317,6 +318,25 @@ class LineBufferTest extends FlatSpec with Matchers {
         |def▶""".stripMargin)
 
     lineBuffer("foo▶bar»").deleteToEndOfLine shouldEqual lineBuffer("foo▶")
+  }
+
+  it should "let you replace a region" in {
+    lineBuffer("abc▶").replaceRegion(Region(offset = 1, length = 1), "X") shouldEqual lineBuffer("aXc▶")
+    lineBuffer("ab▶c").replaceRegion(Region(offset = 1, length = 1), "X") shouldEqual lineBuffer("aX▶c")
+    lineBuffer("a▶bc").replaceRegion(Region(offset = 1, length = 1), "X") shouldEqual lineBuffer("aX▶c")
+    lineBuffer("abb▶bbc").replaceRegion(Region(offset = 1, length = 4), "X") shouldEqual lineBuffer("aX▶c")
+
+    lineBuffer("abc▶").replaceRegion(Region(offset = 1, length = 0), "X") shouldEqual lineBuffer("aXbc▶")
+    lineBuffer("ab▶c").replaceRegion(Region(offset = 1, length = 0), "X") shouldEqual lineBuffer("aXb▶c")
+    lineBuffer("a▶bc").replaceRegion(Region(offset = 1, length = 0), "X") shouldEqual lineBuffer("aX▶bc")
+    lineBuffer("▶abc").replaceRegion(Region(offset = 1, length = 0), "X") shouldEqual lineBuffer("▶aXbc")
+
+    lineBuffer("abc▶").replaceRegion(Region(offset = 3, length = 0), "X") shouldEqual lineBuffer("abcX▶")
+
+    lineBuffer("abc▶").replaceRegion(Region(offset = 1, length = 1), "") shouldEqual lineBuffer("ac▶")
+    lineBuffer("ab▶c").replaceRegion(Region(offset = 1, length = 1), "") shouldEqual lineBuffer("a▶c")
+    lineBuffer("a▶bc").replaceRegion(Region(offset = 1, length = 1), "") shouldEqual lineBuffer("a▶c")
+    lineBuffer("▶abc").replaceRegion(Region(offset = 1, length = 1), "") shouldEqual lineBuffer("▶ac")
   }
 
   private def lineBuffer(s: String) = LineBufferTestHelper.parseLineBuffer(s.stripMargin)
