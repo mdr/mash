@@ -37,14 +37,13 @@ trait FunctionParse {
 
   protected def isParamStart = IDENTIFIER || LPAREN || LBRACE || LSQUARE || HOLE
 
-  protected def paramList(): ParamList = {
-    val params =
-      if (isParamStart)
-        parameter() +: noSemis(safeWhile(isParamStart)(parameter()))
-      else
-        Seq()
-    ParamList(params)
-  }
+  protected def paramList(): Option[ParamList] =
+    if (isParamStart) {
+      val firstParam = parameter()
+      val otherParams = noSemis(safeWhile(isParamStart)(parameter()))
+      Some(ParamList(firstParam +: otherParams))
+    } else
+      None
 
   private def parenParam(): ParenParam = {
     val lparen = consumeRequiredToken("parameter", LPAREN)
@@ -135,12 +134,12 @@ trait FunctionParse {
     }
   }
 
-  protected case class LambdaStart(paramList: ParamList, arrow: Token)
+  protected case class LambdaStart(paramListOpt: Option[ParamList], arrow: Token)
 
   protected def lambdaStart(): LambdaStart = {
-    val params = paramList()
+    val paramsOpt = paramList()
     val arrow = consumeRequiredToken("lambda", RIGHT_ARROW)
-    LambdaStart(params, arrow)
+    LambdaStart(paramsOpt, arrow)
   }
 
   protected def completeLambdaExpr(lambdaStart: LambdaStart,
@@ -150,7 +149,7 @@ trait FunctionParse {
       if (mayContainStatementSeq) statementSeq()
       else if (mayContainPipe) pipeExpr()
       else lambdaExpr(mayContainStatementSeq = false, mayContainPipe = false)
-    LambdaExpr(lambdaStart.paramList, lambdaStart.arrow, body)
+    LambdaExpr(lambdaStart.paramListOpt, lambdaStart.arrow, body)
   }
 
   protected def isLambdaStart = isParamStart || RIGHT_ARROW

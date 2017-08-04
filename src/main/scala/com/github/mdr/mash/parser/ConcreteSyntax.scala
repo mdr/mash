@@ -179,10 +179,10 @@ object ConcreteSyntax {
     def children = function +: argsOpt.toSeq
   }
 
-  case class LambdaExpr(params: ParamList, arrow: Token, body: Expr) extends Expr {
-    lazy val tokens = (params.tokens :+ arrow) ++ body.tokens
+  case class LambdaExpr(paramsOpt: Option[ParamList], arrow: Token, body: Expr) extends Expr {
+    lazy val tokens = paramsOpt.toSeq.flatMap(_.tokens) ++ Seq(arrow) ++ body.tokens
 
-    def children = Seq(params, body)
+    def children = paramsOpt.toSeq ++ Seq(body)
   }
 
   case class PipeExpr(left: Expr, pipe: Token, right: Expr) extends Expr {
@@ -422,12 +422,12 @@ object ConcreteSyntax {
                               attributesOpt: Option[Attributes],
                               classToken: Token,
                               name: Token,
-                              params: ParamList,
+                              paramsOpt: Option[ParamList],
                               bodyOpt: Option[ClassBody]) extends Expr {
-    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(classToken, name) ++ params.tokens ++
+    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(classToken, name) ++ paramsOpt.toSeq.flatMap(_.tokens) ++
       bodyOpt.toSeq.flatMap(_.tokens)
 
-    def children = attributesOpt.toSeq ++ Seq(params) ++ bodyOpt.toSeq
+    def children = attributesOpt.toSeq ++ paramsOpt.toSeq ++ bodyOpt.toSeq
   }
 
   case class ClassBody(lbrace: Token, methods: Seq[Method], rbrace: Token) extends AstNode {
@@ -466,14 +466,14 @@ object ConcreteSyntax {
                                  attributesOpt: Option[Attributes],
                                  defToken: Token,
                                  name: Token,
-                                 params: ParamList,
+                                 paramsOpt: Option[ParamList],
                                  equals: Token,
                                  body: Expr) extends Expr {
 
-    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(defToken, name) ++ params.tokens ++ Seq(equals) ++
-      body.tokens
+    lazy val tokens = attributesOpt.toSeq.flatMap(_.tokens) ++ Seq(defToken, name) ++ paramsOpt.toSeq.flatMap(_.tokens) ++
+      Seq(equals) ++ body.tokens
 
-    def children = attributesOpt.toSeq ++ Seq(params, body)
+    def children = attributesOpt.toSeq ++ paramsOpt.toSeq ++ Seq(body)
 
   }
 

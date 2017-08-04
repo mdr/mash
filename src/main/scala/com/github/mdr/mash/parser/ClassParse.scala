@@ -17,10 +17,13 @@ trait ClassParse {
     }
   }
 
-  protected def classParamList(): ParamList = {
+  protected def classParamList(): Option[ParamList] = {
     def isParamStart = IDENTIFIER || LPAREN || LSQUARE || HOLE
     val params = safeWhile(isParamStart)(parameter())
-    ParamList(params)
+    if (params.isEmpty)
+      None
+    else
+      Some(ParamList(params))
   }
 
   private def classBody(): ClassBody = {
@@ -34,6 +37,5 @@ trait ClassParse {
     val rbrace = consumeRequiredToken("class", RBRACE)
     ClassBody(lbrace, methods, rbrace)
   }
-
 
 }
