@@ -34,6 +34,7 @@ object NormalActions {
   case object PageDown extends InputAction
   case object InsertLastArg extends InputAction
   case object ToggleQuote extends InputAction
+  case object ExpandSelection extends InputAction
   case object ToggleMish extends InputAction
   case object BrowseLastResult extends InputAction
   case object Inline extends InputAction

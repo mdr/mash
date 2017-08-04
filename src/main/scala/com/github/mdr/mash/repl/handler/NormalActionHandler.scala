@@ -5,7 +5,7 @@ import java.nio.file.Path
 import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.{ CommandResult, CommandRunner }
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
-import com.github.mdr.mash.editor.QuoteToggler
+import com.github.mdr.mash.editor.{ QuoteToggler, SyntaxSelection }
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.lexer.{ MashLexer, TokenType }
 import com.github.mdr.mash.ns.view.ViewClass
@@ -41,6 +41,7 @@ trait NormalActionHandler extends InlineHandler {
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult         ⇒ handleBrowseLastResult()
       case Inline                   ⇒ state = handleInline(state)
+      case ExpandSelection          ⇒ handleExpandSelection()
       case _                        ⇒
     }
     if (action != Down && action != Up && action != RedrawScreen)
@@ -48,6 +49,9 @@ trait NormalActionHandler extends InlineHandler {
     if (action != InsertLastArg && action != RedrawScreen)
       state = state.copy(insertLastArgStateOpt = None)
   }
+
+  private def handleExpandSelection() =
+    state = state.updateLineBuffer(SyntaxSelection.expandSelection)
 
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {

@@ -14,7 +14,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     makeRepl()
       .input("1")
       .acceptLine()
-      .lastValue should equal(MashNumber(1))
+      .lastValue shouldEqual MashNumber(1)
   }
 
   "Single tab" should "complete a unique completion" in {
@@ -22,8 +22,8 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl
       .input("whereNo")
       .complete()
-    repl.text should equal("whereNot")
-    repl.lineBuffer should equal(parseLineBuffer("whereNot▶"))
+    repl.text shouldEqual "whereNot"
+    repl.lineBuffer shouldEqual parseLineBuffer("whereNot▶")
   }
 
   "Two tabs" should "enter completions browsing mode" in {
@@ -35,23 +35,23 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Completion bug after a hyphen" should "not happen" in {
     val repl = makeRepl()
     repl.input("ls -42 # foo").left(8)
-    repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
+    repl.lineBuffer shouldEqual parseLineBuffer("ls -▶42 # foo")
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer("ls -▶42 # foo"))
+    repl.lineBuffer shouldEqual parseLineBuffer("ls -▶42 # foo")
   }
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
     val repl = makeRepl()
     repl.input("1").acceptLine()
     repl.input("2").acceptLine()
-    repl.text should equal("")
-    repl.up().text should equal("2")
-    repl.down().text should equal("")
-    repl.down().text should equal("")
-    repl.up().text should equal("2")
-    repl.up().text should equal("1")
+    repl.text shouldEqual ""
+    repl.up().text shouldEqual "2"
+    repl.down().text shouldEqual ""
+    repl.down().text shouldEqual ""
+    repl.up().text shouldEqual "2"
+    repl.up().text shouldEqual "1"
   }
 
   "History" should "reset if an old line is edited" in {
@@ -68,7 +68,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
     repl.down()
 
-    repl.text should equal("command")
+    repl.text shouldEqual "command"
   }
 
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {
@@ -83,18 +83,18 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
     repl.input("123").left(3).delete()
 
-    repl.lineBuffer should equal(parseLineBuffer("▶23"))
+    repl.lineBuffer shouldEqual parseLineBuffer("▶23")
   }
 
   "Repl" should "respect bare words setting" in {
     val repl = makeRepl()
     repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
     repl.input("foo").acceptLine()
-    repl.lastValue should equal(MashString("foo"))
+    repl.lastValue shouldEqual MashString("foo")
 
     repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
     repl.input("foo").acceptLine()
-    repl.lastValue should equal(MashBoolean.False /* Repl should have emitted an error */)
+    repl.lastValue shouldEqual MashBoolean.False /* Repl should have emitted an error */
   }
 
   "Type inference loop bug" should "not happen" in {
@@ -109,13 +109,13 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .input("def setA n = { a = n }").acceptLine()
       .input("setA 42").acceptLine()
       .input("a").acceptLine()
-      .lastValue should equal(MashNumber(0))
+      .lastValue shouldEqual MashNumber(0)
   }
 
   "Completing dotfiles" should "not have a bug where the original input is truncated" in {
     val repl = makeRepl(MockFileSystem.of("/.dotfiles/.bashrc"))
     repl.input(""""/.dotfiles/".""").complete()
-    repl.text should equal(""""/.dotfiles/."""") // bug was it was "."
+    repl.text shouldEqual """"/.dotfiles/."""" // bug was it was "."
   }
 
   "Multiline editing" should "be supported" in {
@@ -124,14 +124,14 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .input("{").acceptLine()
       .input("  42").acceptLine()
       .input("}").acceptLine()
-    repl.lastValue should equal(MashNumber(42))
+    repl.lastValue shouldEqual MashNumber(42)
   }
 
   "Type inferencer" should "handle previously-defined user-defined nullary functions" in {
     makeRepl()
       .input("foo = { bar: => { baz: 100 } }").acceptLine()
       .input("foo.bar.ba").complete()
-      .text should equal("foo.bar.baz")
+      .text shouldEqual "foo.bar.baz"
   }
 
   "Incremental history search" should "find results matching case-insensitively" in {
@@ -141,9 +141,9 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         .input("foobar = 42").acceptLine()
         .incrementalHistorySearch()
         .input("FOO")
-    repl.text should equal("foobar = 42")
+    repl.text shouldEqual "foobar = 42"
     repl.incrementalHistorySearch()
-    repl.text should equal("FOO = 100")
+    repl.text shouldEqual "FOO = 100"
   }
 
   "Incremental history search" should "support starting incremental search from a partial line" in {
@@ -153,9 +153,9 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         .input("foobar = 42").acceptLine()
         .input("FOO")
         .up()
-    repl.text should equal("foobar = 42")
+    repl.text shouldEqual "foobar = 42"
     repl.up()
-    repl.text should equal("FOO = 100")
+    repl.text shouldEqual "FOO = 100"
   }
 
   "Inserting last argument" should "be supported" in {
@@ -165,11 +165,11 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         .input("sort 'arg2'").acceptLine()
         .input("sort ")
         .insertLastArgument()
-    repl.text should equal("sort 'arg2'")
+    repl.text shouldEqual "sort 'arg2'"
     repl.insertLastArgument()
-    repl.text should equal("sort 'arg1'")
+    repl.text shouldEqual "sort 'arg1'"
     repl.insertLastArgument()
-    repl.text should equal("sort 'arg1'")
+    repl.text shouldEqual "sort 'arg1'"
   }
 
   "Invocation assistance" should "work" in {
@@ -209,7 +209,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     makeRepl()
       .input("1 + 2 * 3")
       .inline()
-      .text should equal("7")
+      .text shouldEqual "7"
   }
 
 }

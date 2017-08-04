@@ -55,4 +55,5 @@ object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(BasicKey('u'), control = true) → BackwardKillLine,
   KeyPress(BasicKey('d'), alt = true) → KillWord,
   KeyPress(Backspace, alt = true) → BackwardKillWord,
-  KeyPress(BasicKey('q'), control = true) → ToggleQuote))
+  KeyPress(BasicKey('q'), control = true) → ToggleQuote,
+  KeyPress(BasicKey('y'), control = true) → ExpandSelection))
