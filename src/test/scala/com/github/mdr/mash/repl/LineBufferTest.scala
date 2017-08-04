@@ -25,19 +25,19 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you move the cursor right, extending selection" in {
-    lineBuffer("▶abc").cursorRight(extendSelection = true) shouldEqual lineBuffer("»a▶bc")
-    lineBuffer("»a▶bc").cursorRight(extendSelection = true) shouldEqual lineBuffer("»ab▶c")
-    lineBuffer("»ab▶c").cursorRight(extendSelection = true) shouldEqual lineBuffer("»abc▶")
-    lineBuffer("»abc▶").cursorRight(extendSelection = true) shouldEqual lineBuffer("»abc▶")
+    lineBuffer("▶abc").cursorRight(extendSelection = true) shouldEqual lineBuffer("▷a▶bc")
+    lineBuffer("▷a▶bc").cursorRight(extendSelection = true) shouldEqual lineBuffer("▷ab▶c")
+    lineBuffer("▷ab▶c").cursorRight(extendSelection = true) shouldEqual lineBuffer("▷abc▶")
+    lineBuffer("▷abc▶").cursorRight(extendSelection = true) shouldEqual lineBuffer("▷abc▶")
 
     lineBuffer("▶").cursorRight(extendSelection = true) shouldEqual lineBuffer("▶")
     lineBuffer("a▶").cursorRight(extendSelection = true) shouldEqual lineBuffer("a▶")
-    lineBuffer("▶a").cursorRight(extendSelection = true) shouldEqual lineBuffer("»a▶")
+    lineBuffer("▶a").cursorRight(extendSelection = true) shouldEqual lineBuffer("▷a▶")
 
     lineBuffer(
       """abc▶
         |def""").cursorRight(extendSelection = true) shouldEqual lineBuffer(
-      """abc»
+      """abc▷
         |▶def""")
   }
 
@@ -55,20 +55,20 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you move the cursor left, extending selection" in {
-    lineBuffer("abc▶").cursorLeft(extendSelection = true) shouldEqual lineBuffer("ab▶c»")
-    lineBuffer("ab▶c»").cursorLeft(extendSelection = true) shouldEqual lineBuffer("a▶bc»")
-    lineBuffer("a▶bc»").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶abc»")
-    lineBuffer("▶abc»").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶abc»")
+    lineBuffer("abc▶").cursorLeft(extendSelection = true) shouldEqual lineBuffer("ab▶c▷")
+    lineBuffer("ab▶c▷").cursorLeft(extendSelection = true) shouldEqual lineBuffer("a▶bc▷")
+    lineBuffer("a▶bc▷").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶abc▷")
+    lineBuffer("▶abc▷").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶abc▷")
 
     lineBuffer("▶").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶")
     lineBuffer("▶a").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶a")
-    lineBuffer("a▶").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶a»")
+    lineBuffer("a▶").cursorLeft(extendSelection = true) shouldEqual lineBuffer("▶a▷")
 
     lineBuffer(
       """abc
         |▶def""").cursorLeft(extendSelection = true) shouldEqual lineBuffer(
       """abc▶
-        |»def""")
+        |▷def""")
   }
 
   it should "let you move the cursor up" in {
@@ -130,12 +130,12 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "abandon selection if you move the cursor without extending selection" in {
-    lineBuffer("»a▶bc").cursorRight() shouldEqual lineBuffer("ab▶c")
-    lineBuffer("»abc▶").cursorRight() shouldEqual lineBuffer("abc▶")
-    lineBuffer("a▶bc»").cursorLeft() shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶abc»").cursorLeft() shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶abc»").cursorUp shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶abc»").cursorDown shouldEqual lineBuffer("▶abc")
+    lineBuffer("▷a▶bc").cursorRight() shouldEqual lineBuffer("ab▶c")
+    lineBuffer("▷abc▶").cursorRight() shouldEqual lineBuffer("abc▶")
+    lineBuffer("a▶bc▷").cursorLeft() shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶abc▷").cursorLeft() shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶abc▷").cursorUp shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶abc▷").cursorDown shouldEqual lineBuffer("▶abc")
   }
 
   it should "let you add a character at the cursor" in {
@@ -151,11 +151,11 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "replace any selection when adding character at the cursor" in {
-    lineBuffer("a»bcd▶e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
-    lineBuffer("a»bcd▶e").addCharactersAtCursor("XYZ") shouldEqual lineBuffer("aXYZ▶e")
-    lineBuffer("a▶bcd»e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
-    lineBuffer("»a▶").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
-    lineBuffer("▶a»").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
+    lineBuffer("a▷bcd▶e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
+    lineBuffer("a▷bcd▶e").addCharactersAtCursor("XYZ") shouldEqual lineBuffer("aXYZ▶e")
+    lineBuffer("a▶bcd▷e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
+    lineBuffer("▷a▶").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
+    lineBuffer("▶a▷").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
   }
 
   it should "let you add a newline at the cursor" in {
@@ -170,9 +170,9 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("123▶").delete shouldEqual lineBuffer("123▶")
     lineBuffer("1▶23").delete shouldEqual lineBuffer("1▶3")
 
-    lineBuffer("1»234▶5").delete shouldEqual lineBuffer("1▶5")
-    lineBuffer("1▶234»5").delete shouldEqual lineBuffer("1▶5")
-    lineBuffer("1»2345▶").delete shouldEqual lineBuffer("1▶")
+    lineBuffer("1▷234▶5").delete shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▶234▷5").delete shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷2345▶").delete shouldEqual lineBuffer("1▶")
   }
 
   it should "let you delete a character before the cursor position (backspace)" in {
@@ -188,9 +188,9 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |▶def""").backspace shouldEqual lineBuffer("abc▶def")
 
-    lineBuffer("1»234▶5").backspace shouldEqual lineBuffer("1▶5")
-    lineBuffer("1▶234»5").backspace shouldEqual lineBuffer("1▶5")
-    lineBuffer("1»2345▶").backspace shouldEqual lineBuffer("1▶")
+    lineBuffer("1▷234▶5").backspace shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▶234▷5").backspace shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷2345▶").backspace shouldEqual lineBuffer("1▶")
 
   }
 
@@ -201,7 +201,7 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("foo ▶bar baz").deleteForwardWord shouldEqual lineBuffer("foo ▶ baz")
     lineBuffer("▶").deleteForwardWord shouldEqual lineBuffer("▶")
 
-    lineBuffer("1»234▶5").deleteForwardWord shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷234▶5").deleteForwardWord shouldEqual lineBuffer("1▶5")
   }
 
   it should "let you delete backwards a word" in {
@@ -211,7 +211,7 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("foo bar▶ baz").deleteBackwardWord shouldEqual lineBuffer("foo ▶ baz")
     lineBuffer("▶").deleteBackwardWord shouldEqual lineBuffer("▶")
 
-    lineBuffer("1»234▶5").deleteBackwardWord shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷234▶5").deleteBackwardWord shouldEqual lineBuffer("1▶5")
   }
 
   it should "let you move backwards a word" in {
@@ -219,7 +219,7 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("foo bar ▶baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
     lineBuffer("▶foo bar baz").backwardWord shouldEqual lineBuffer("▶foo bar baz")
 
-    lineBuffer("foo »bar▶ baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
+    lineBuffer("foo ▷bar▶ baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
   }
 
   it should "let you move forwards a word" in {
@@ -237,7 +237,7 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |abcd ▶""")
 
-    lineBuffer("foo »bar ▶baz").forwardWord shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo ▷bar ▶baz").forwardWord shouldEqual lineBuffer("foo bar baz▶")
   }
 
   it should "let you move to the beginning of the line" in {
@@ -252,7 +252,7 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |▶def""".stripMargin)
 
-    lineBuffer("ab»c▶").moveCursorToStart shouldEqual lineBuffer("▶abc")
+    lineBuffer("ab▷c▶").moveCursorToStart shouldEqual lineBuffer("▶abc")
   }
 
   it should "let you move to the end of the line" in {
@@ -267,7 +267,7 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |def▶""".stripMargin)
 
-    lineBuffer("▶ab»c").moveCursorToEnd shouldEqual lineBuffer("abc▶")
+    lineBuffer("▶ab▷c").moveCursorToEnd shouldEqual lineBuffer("abc▶")
   }
 
   it should "let you move to the beginning of the buffer if at the beginning of a line, else the start of the line" in {
@@ -303,7 +303,7 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |▶ghi""".stripMargin)
 
-    lineBuffer("foo▶bar»").deleteToBeginningOfLine shouldEqual lineBuffer("▶bar")
+    lineBuffer("foo▶bar▷").deleteToBeginningOfLine shouldEqual lineBuffer("▶bar")
   }
 
   it should "let you delete from the cursor to the end of the line" in {
@@ -317,7 +317,7 @@ class LineBufferTest extends FlatSpec with Matchers {
       """abc
         |def▶""".stripMargin)
 
-    lineBuffer("foo▶bar»").deleteToEndOfLine shouldEqual lineBuffer("foo▶")
+    lineBuffer("foo▶bar▷").deleteToEndOfLine shouldEqual lineBuffer("foo▶")
   }
 
   it should "let you replace a region" in {
@@ -339,6 +339,6 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("▶abc").replaceRegion(Region(offset = 1, length = 1), "") shouldEqual lineBuffer("▶ac")
   }
 
-  private def lineBuffer(s: String) = LineBufferTestHelper.parseLineBuffer(s.stripMargin)
+  private def lineBuffer(s: String) = LineBufferTestHelper.lineBuffer(s.stripMargin)
 
 }

@@ -421,7 +421,7 @@ class CompletionsTest extends FlatSpec with Matchers {
     def completions: Seq[String] = fullCompletions.map(_.insertText)
 
     def fullCompletions: Seq[Completion] = {
-      val lineBuffer = LineBufferTestHelper.parseLineBuffer(s)
+      val lineBuffer = LineBufferTestHelper.lineBuffer(s)
       val completer = new Completer(fileSystem, envInteractions)
       val completionResultOpt = completer.complete(lineBuffer.text, lineBuffer.cursorOffset, environment.bindings, mish = false)
       completionResultOpt.map(_.completions).getOrElse(Seq())

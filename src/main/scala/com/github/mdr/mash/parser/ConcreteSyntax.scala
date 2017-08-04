@@ -28,8 +28,10 @@ object ConcreteSyntax {
       children.flatMap(_.find(f)).headOption orElse f.lift(this)
 
     def findAll[T](f: PartialFunction[AstNode, T]): Seq[T] =
-      children.flatMap(_.find(f)) ++ f.lift(this)
+      children.flatMap(_.findAll(f)) ++ f.lift(this)
 
+    def findAllMatching(f: AstNode ⇒ Boolean): Seq[AstNode] =
+      findAll { case node if f(node) ⇒ node }
   }
 
   sealed trait Expr extends AstNode
@@ -405,7 +407,7 @@ object ConcreteSyntax {
                         rparen: Token) extends Param {
 
     lazy val tokens = lparen +: (attributesOpt.toSeq.flatMap(_.tokens) ++ param.tokens ++
-      equalsDefaultOpt.toSeq.flatMap { case (equals, default) ⇒ equals +: default.tokens}) :+ rparen
+      equalsDefaultOpt.toSeq.flatMap { case (equals, default) ⇒ equals +: default.tokens }) :+ rparen
 
     def children = Seq(param) ++ attributesOpt ++ equalsDefaultOpt.map(_._2)
   }
@@ -450,6 +452,7 @@ object ConcreteSyntax {
 
   case class ArgumentAttribute(at: Token, lparen: Token, name: Token, arguments: Seq[AstNode], rparen: Token) extends Attribute {
     lazy val tokens = Seq(at, lparen, name) ++ arguments.flatMap(_.tokens) ++ Seq(rparen)
+
     def children = arguments
   }
 

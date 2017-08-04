@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.handler
 
-import com.github.mdr.mash.repl.LineBufferTestHelper.parseLineBuffer
+import com.github.mdr.mash.repl.LineBufferTestHelper.lineBuffer
 import com.github.mdr.mash.repl.ReplState
 import com.github.mdr.mash.repl.handler.InsertLastArgHandler._
 import com.github.mdr.mash.utils.Region
@@ -39,6 +39,6 @@ class InsertLastArgHandlerTest extends FlatSpec with Matchers {
 
   }
 
-  private def replState(s: String) = ReplState(lineBuffer = parseLineBuffer(s))
+  private def replState(s: String) = ReplState(lineBuffer = lineBuffer(s))
 
 }

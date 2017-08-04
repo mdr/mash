@@ -149,7 +149,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   private val testTime = MonotonicallyTickingClock.instant()
 
-  private def replState(s: String) = ReplState(lineBuffer = parseLineBuffer(s))
+  private def replState(s: String) = ReplState(lineBuffer = lineBuffer(s))
 
   private def makeActionHandler: IncrementalHistorySearchActionHandler = {
     val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")

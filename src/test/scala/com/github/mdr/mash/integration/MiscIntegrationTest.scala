@@ -23,7 +23,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .input("whereNo")
       .complete()
     repl.text shouldEqual "whereNot"
-    repl.lineBuffer shouldEqual parseLineBuffer("whereNot▶")
+    repl.lineBuffer shouldEqual lineBuffer("whereNot▶")
   }
 
   "Two tabs" should "enter completions browsing mode" in {
@@ -35,11 +35,11 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Completion bug after a hyphen" should "not happen" in {
     val repl = makeRepl()
     repl.input("ls -42 # foo").left(8)
-    repl.lineBuffer shouldEqual parseLineBuffer("ls -▶42 # foo")
+    repl.lineBuffer shouldEqual lineBuffer("ls -▶42 # foo")
 
     repl.complete()
 
-    repl.lineBuffer shouldEqual parseLineBuffer("ls -▶42 # foo")
+    repl.lineBuffer shouldEqual lineBuffer("ls -▶42 # foo")
   }
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
@@ -83,7 +83,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
     repl.input("123").left(3).delete()
 
-    repl.lineBuffer shouldEqual parseLineBuffer("▶23")
+    repl.lineBuffer shouldEqual lineBuffer("▶23")
   }
 
   "Repl" should "respect bare words setting" in {

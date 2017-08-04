@@ -1,6 +1,6 @@
 package com.github.mdr.mash.editor
 
-import com.github.mdr.mash.repl.LineBufferTestHelper.parseLineBuffer
+import com.github.mdr.mash.repl.LineBufferTestHelper.lineBuffer
 import org.scalatest.{ FlatSpec, Matchers }
 
 class BracketMatcherTest extends FlatSpec with Matchers {
@@ -51,9 +51,9 @@ class BracketMatcherTest extends FlatSpec with Matchers {
 
     def shouldMatch(expected: String): Unit = {
       "Bracket matcher" should s"find a matching bracket within '$input': '$expected'" in {
-        val inputBuffer = parseLineBuffer(input)
+        val inputBuffer = lineBuffer(input)
         val Some(actualOffset) = BracketMatcher.findMatchingBracket(inputBuffer.text, inputBuffer.cursorOffset, mish = false)
-        actualOffset should equal(parseLineBuffer(expected).cursorOffset)
+        actualOffset should equal(lineBuffer(expected).cursorOffset)
       }
     }
   }

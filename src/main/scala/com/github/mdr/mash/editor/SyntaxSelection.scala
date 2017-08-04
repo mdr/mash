@@ -10,19 +10,19 @@ object SyntaxSelection {
   def expandSelection(lineBuffer: LineBuffer): LineBuffer = {
     val expr = MashParser.parseForgiving(lineBuffer.text).body
     val initialRegion = lineBuffer.selectedOrCursorRegion
-    val biggerRegionOpt: Option[Region] =
+    val nextBiggestRegionOpt: Option[Region] =
       expr
-        .findAll { case node if node.region contains initialRegion ⇒ node }
+        .findAllMatching(_.region contains initialRegion)
         .map(_.region)
         .filter(_.length > initialRegion.length)
         .sortBy(_.length)
         .headOption
-    lineBuffer.whenOpt(biggerRegionOpt, expandSelection)
+    lineBuffer.whenOpt(nextBiggestRegionOpt, expandSelection)
   }
 
   private def expandSelection(lineBuffer: LineBuffer, newSelectionRegion: Region): LineBuffer = {
-    val newCursorOffset = newSelectionRegion.offset
-    val newSelectionOffsetOpt = Some(newSelectionRegion.posAfter)
+    val newCursorOffset = newSelectionRegion.posAfter
+    val newSelectionOffsetOpt = Some(newSelectionRegion.offset)
     LineBuffer(lineBuffer.text, newCursorOffset, newSelectionOffsetOpt)
   }
 

@@ -68,7 +68,7 @@ class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""foo`$ba"◀"""))
+    repl.lineBuffer should equal(lineBuffer(""""foo`$ba"◀"""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("foo$bar", "foo$baz"))
@@ -83,7 +83,7 @@ class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""ooba"◀"""))
+    repl.lineBuffer should equal(lineBuffer(""""ooba"◀"""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("---foobar---", "--goobab--"))
@@ -98,7 +98,7 @@ class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
     repl.complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""oob`$a"◀"""))
+    repl.lineBuffer should equal(lineBuffer(""""oob`$a"◀"""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     val completions = completionState.completions.map(_.displayText)
     completions should equal(Seq("---foob$ar---", "--goob$ab--"))
@@ -113,7 +113,7 @@ class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
     repl.input("/etc/").complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""/etc/▶""""))
+    repl.lineBuffer should equal(lineBuffer(""""/etc/▶""""))
   }
 
   it should "substring complete with path prefixes" in {
@@ -124,7 +124,7 @@ class IncrementalCompletionIntegrationTest extends AbstractIntegrationTest {
 
     repl.input("/etc/ob").complete()
 
-    repl.lineBuffer should equal(parseLineBuffer(""""/etc/ooba▶""""))
+    repl.lineBuffer should equal(lineBuffer(""""/etc/ooba▶""""))
     val Some(completionState: IncrementalCompletionState) = repl.state.completionStateOpt
     completionState.getCommonDisplayFragment.prefix should equal("/etc/")
     completionState.getCommonDisplayFragment.text should equal("ooba")

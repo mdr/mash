@@ -190,4 +190,12 @@ case class LineBuffer(text: String,
     withCursorPos(Point(newRow, newColumn))
   }
 
+  override def toString = {
+    val decoratedChars =
+      text.zipWithIndex.map { case (c, i) ⇒ c → i.toDouble } ++
+        Seq('▶' → (cursorOffset - 0.5)) ++
+        selectionOffsetOpt.toSeq.map(i ⇒ '▷' → (i - 0.5))
+    decoratedChars.sortBy(_._2).map(_._1).mkString
+  }
+
 }

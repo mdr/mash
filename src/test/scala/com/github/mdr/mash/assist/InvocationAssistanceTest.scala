@@ -35,7 +35,7 @@ class InvocationAssistanceTest extends FlatSpec with Matchers {
 
     def ==>(expectedType: Type) {
       s"Asking for invocation assistance for '$s'" should s"result in help for type $expectedType" in {
-        val buffer = LineBufferTestHelper.parseLineBuffer(s)
+        val buffer = LineBufferTestHelper.lineBuffer(s)
         val bindings = StandardEnvironment.create.bindings
         val actualTypeOpt = getTypeOfNearestFunction(buffer.text, buffer.cursorOffset, bindings, mish = false)
         Some(expectedType) should equal(actualTypeOpt)
