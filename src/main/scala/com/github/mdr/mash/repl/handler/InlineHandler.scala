@@ -19,15 +19,15 @@ trait InlineHandler {
         for {
           result ← runCommand(cmd, state)
           expression ← ValueToExpression.getExpression(result)
-          newText = if (lineBuffer.hasSelection) lineBuffer.selectedRegion.replace(lineBuffer.text, expression) else expression
-        } yield state.copy(lineBuffer = LineBuffer(newText))
+          newLineBuffer = if (lineBuffer.hasSelection) lineBuffer.replaceRegion(lineBuffer.selectedRegion, expression) else LineBuffer(expression)
+        } yield state.copy(lineBuffer = newLineBuffer)
       updatedStateOpt.getOrElse(state)
     } else
       state
   }
 
   private def runCommand(cmd: String, state: ReplState): Option[MashValue] = {
-    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
+    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId, printErrors = false)
     val unitName = s"command-inline"
     val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
     try

@@ -151,17 +151,19 @@ case class LineBuffer(text: String,
     LineBuffer(newText, newCursorOffset)
   }
 
-  private def deleteRegion(region: Region): LineBuffer = {
-    val newText = text.substring(0, region.offset) + text.substring(region.posAfter)
+  def replaceRegion(region: Region, replacement: String): LineBuffer = {
+    val newText = text.substring(0, region.offset) + replacement + text.substring(region.posAfter)
     val newCursorOffset =
       if (cursorOffset <= region.offset)
         cursorOffset
       else if (cursorOffset >= region.posAfter)
         cursorOffset - region.length
       else
-        region.offset
+        region.offset + replacement.length
     LineBuffer(newText, newCursorOffset)
   }
+
+  private def deleteRegion(region: Region): LineBuffer = replaceRegion(region, replacement = "")
 
   def addCharacterAtCursor(c: Char): LineBuffer = addCharactersAtCursor(c.toString)
 
