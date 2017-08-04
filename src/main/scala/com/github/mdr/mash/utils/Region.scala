@@ -2,6 +2,8 @@ package com.github.mdr.mash.utils
 
 object Region {
 
+  def zeroWidth(offset: Int): Region = Region(offset, length = 0)
+
   def apply(range: Range): Region = Region(range.start, range.length)
 
   def fromStartEnd(start: Int, end: Int) = Region(start, end - start)

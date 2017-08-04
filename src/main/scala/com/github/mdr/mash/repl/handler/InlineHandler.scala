@@ -19,7 +19,10 @@ trait InlineHandler {
         for {
           result ← runCommand(cmd, state)
           expression ← ValueToExpression.getExpression(result)
-          newLineBuffer = if (lineBuffer.hasSelection) lineBuffer.replaceRegion(lineBuffer.selectedRegion, expression) else LineBuffer(expression)
+          newLineBuffer = lineBuffer.selectedRegionOpt match {
+            case Some(selectedRegion) ⇒ lineBuffer.replaceRegion(selectedRegion, expression)
+            case None                 ⇒ LineBuffer(expression)
+          }
         } yield state.copy(lineBuffer = newLineBuffer)
       updatedStateOpt.getOrElse(state)
     } else

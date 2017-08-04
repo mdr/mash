@@ -35,12 +35,13 @@ case class LineBuffer(text: String,
 
   def cursorRow = cursorPos.row
 
-  def selectedRegion: Region = {
-    val selectionOffset = selectionOffsetOpt getOrElse cursorOffset
-    Region.fromStartEnd(cursorOffset min selectionOffset, cursorOffset max selectionOffset)
-  }
+  def selectedRegionOpt: Option[Region] = selectionOffsetOpt.map(selectionOffset ⇒
+    Region.fromStartEnd(cursorOffset min selectionOffset, cursorOffset max selectionOffset))
 
-  def selectedTextOpt: Option[String] = hasSelection.option(selectedRegion of text)
+
+  def selectedOrCursorRegion: Region = selectedRegionOpt getOrElse Region.zeroWidth(cursorOffset)
+
+  def selectedTextOpt: Option[String] = selectedRegionOpt.map(_ of text)
 
   def isEmpty = text.isEmpty
 
@@ -52,17 +53,15 @@ case class LineBuffer(text: String,
 
   def isMultiline = lineInfo.lineCount > 1
 
-  def deleteForwardWord: LineBuffer =
-    if (hasSelection)
-      deleteRegion(selectedRegion)
-    else
-      copy(text = text.substring(0, cursorOffset) + text.substring(forwardWord.cursorOffset))
+  def deleteForwardWord: LineBuffer = selectedRegionOpt match {
+    case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
+    case None                 ⇒ copy(text = text.substring(0, cursorOffset) + text.substring(forwardWord.cursorOffset))
+  }
 
-  def deleteBackwardWord: LineBuffer =
-    if (hasSelection)
-      deleteRegion(selectedRegion)
-    else
-      LineBuffer(text.substring(0, backwardWord.cursorOffset) + text.substring(cursorOffset), backwardWord.cursorOffset)
+  def deleteBackwardWord: LineBuffer = selectedRegionOpt match {
+    case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
+    case None                 ⇒ LineBuffer(text.substring(0, backwardWord.cursorOffset) + text.substring(cursorOffset), backwardWord.cursorOffset)
+  }
 
   def forwardWord: LineBuffer = {
     var offset = cursorOffset
@@ -100,22 +99,25 @@ case class LineBuffer(text: String,
   }
 
   def backspace: LineBuffer =
-    if (hasSelection)
-      deleteRegion(selectedRegion)
-    else if (cursorOffset == 0)
-      this
-    else
-      LineBuffer(text.substring(0, cursorOffset - 1) + text.substring(cursorOffset), cursorOffset - 1)
+    selectedRegionOpt match {
+      case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
+      case None                 ⇒
+        if (cursorOffset == 0)
+          this
+        else
+          LineBuffer(text.substring(0, cursorOffset - 1) + text.substring(cursorOffset), cursorOffset - 1)
+    }
 
   def hasSelection: Boolean = selectionOffsetOpt.isDefined
 
-  def delete: LineBuffer =
-    if (hasSelection)
-      deleteRegion(selectedRegion)
-    else if (cursorOffset >= text.length)
-      this
-    else
-      delete(cursorOffset)
+  def delete: LineBuffer = selectedRegionOpt match {
+    case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
+    case None                 ⇒
+      if (cursorOffset >= text.length)
+        this
+      else
+        delete(cursorOffset)
+  }
 
   private def moveCursorToStartOfBuffer: LineBuffer = withCursorOffset(0)
 
@@ -167,7 +169,7 @@ case class LineBuffer(text: String,
 
   def addCharacterAtCursor(c: Char): LineBuffer = addCharactersAtCursor(c.toString)
 
-  def addCharactersAtCursor(chars: String): LineBuffer = replaceRegion(selectedRegion, chars)
+  def addCharactersAtCursor(chars: String): LineBuffer = replaceRegion(selectedOrCursorRegion, chars)
 
   def insertCharacters(chars: String, insertPos: Int): LineBuffer = replaceRegion(Region(insertPos, length = 0), chars)
 
