@@ -55,48 +55,51 @@ case class LineBuffer(text: String,
 
   def deleteForwardWord: LineBuffer = selectedRegionOpt match {
     case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
-    case None                 ⇒ deleteRegion(Region.fromStartEnd(cursorOffset, forwardWord.cursorOffset))
+    case None                 ⇒ deleteRegion(Region.fromStartEnd(cursorOffset, forwardWordOffset))
   }
 
   def deleteBackwardWord: LineBuffer = selectedRegionOpt match {
     case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
-    case None                 ⇒ deleteRegion(Region.fromStartEnd(backwardWord.cursorOffset, cursorOffset))
+    case None                 ⇒ deleteRegion(Region.fromStartEnd(backwardWordOffset, cursorOffset))
   }
 
-  def forwardWord: LineBuffer = {
+  private def forwardWordOffset: Int = {
     var offset = cursorOffset
     if (offset >= text.length)
-      return this
+      return offset
     while (offset < text.length && !text(offset).isLetterOrDigit)
       offset += 1
     if (offset >= text.length)
-      return withCursorOffset(text.length)
+      return offset
     while (offset < text.length && text(offset).isLetterOrDigit)
       offset += 1
-    withCursorOffset(offset)
+    offset
   }
+
+  def forwardWord(extendSelection: Boolean = false): LineBuffer = moveCursor(forwardWordOffset, extendSelection)
+
+  private def backwardWordOffset: Int = {
+    var offset = cursorOffset
+    if (offset <= 0)
+      return offset
+    offset -= 1
+    while (offset > 0 && (offset == text.length || !text(offset).isLetterOrDigit))
+      offset -= 1
+    if (offset <= 0)
+      return offset
+    while (offset >= 0 && text(offset).isLetterOrDigit)
+      offset -= 1
+    offset += 1
+    offset min text.length
+  }
+
+  def backwardWord(extendSelection: Boolean = false): LineBuffer = moveCursor(backwardWordOffset, extendSelection)
 
   private def withCursorOffset(offset: Int) = copy(cursorOffset = offset, selectionOffsetOpt = None)
 
   private def withCursorPos(pos: Point) = withCursorOffset(lineInfo.offset(pos.row, pos.column))
 
   private def withCursorColumn(column: Int) = withCursorOffset(lineInfo.offset(cursorPos.row, column))
-
-  def backwardWord: LineBuffer = {
-    var offset = cursorOffset
-    if (offset <= 0)
-      return this
-    offset -= 1
-    while (offset > 0 && (offset == text.length || !text(offset).isLetterOrDigit))
-      offset -= 1
-    if (offset <= 0)
-      return withCursorColumn(0)
-    while (offset >= 0 && text(offset).isLetterOrDigit)
-      offset -= 1
-    offset += 1
-    offset = offset min text.length
-    withCursorOffset(offset)
-  }
 
   def backspace: LineBuffer = selectedRegionOpt match {
     case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
@@ -176,8 +179,12 @@ case class LineBuffer(text: String,
 
   private def moveCursorLeftRightBy(delta: Int, extendSelection: Boolean = false): LineBuffer = {
     val newCursorOffset = 0 max (cursorOffset + delta) min text.length
+    moveCursor(newCursorOffset, extendSelection)
+  }
+
+  private def moveCursor(newCursorOffset: Int, extendSelection: Boolean): LineBuffer = {
     val newSelectionOffsetOpt = extendSelection.option(selectionOffsetOpt getOrElse cursorOffset).filterNot(_ == newCursorOffset)
-    LineBuffer(text, newCursorOffset, newSelectionOffsetOpt)
+    copy(cursorOffset = newCursorOffset, selectionOffsetOpt = newSelectionOffsetOpt)
   }
 
   def cursorUp: LineBuffer = moveCursorUpDownBy(-1)

@@ -48,6 +48,8 @@ object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(Left, shift = true) → BackwardCharExtendingSelection,
   KeyPress(BasicKey('f'), alt = true) → ForwardWord,
   KeyPress(BasicKey('b'), alt = true) → BackwardWord,
+  KeyPress(BasicKey('f'), alt = true, shift = true) → ForwardWordExtendingSelection,
+  KeyPress(BasicKey('b'), alt = true, shift = true) → BackwardWordExtendingSelection,
   KeyPress(BasicKey('d'), control = true) → DeleteChar,
   KeyPress(Delete) → DeleteChar,
   KeyPress(Backspace) → BackwardDeleteChar,

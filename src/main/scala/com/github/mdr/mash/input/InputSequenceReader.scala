@@ -14,6 +14,7 @@ object InputSequenceReader {
   private def alt(c: Char): KeyPress = alt(Key.BasicKey(c))
   private def shift(key: Key): KeyPress = KeyPress(key, shift = true)
   private def shift(c: Char): KeyPress = shift(Key.BasicKey(c))
+  private def altShift(c: Char): KeyPress = KeyPress(Key.BasicKey(c), shift = true, alt = true)
   private def control(key: Key): KeyPress = KeyPress(key, control = true)
   private def control(c: Char): KeyPress = control(Key.BasicKey(c))
 
@@ -41,6 +42,8 @@ object InputSequenceReader {
     "^[d" → alt('d'),
     "^[f" → alt('f'),
     "^[b" → alt('b'),
+    "^[F" → altShift('f'),
+    "^[B" → altShift('b'),
     "^[OH" → KeyPress(Key.Home),
     "^[OF" → KeyPress(Key.End))
 

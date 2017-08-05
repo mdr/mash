@@ -15,8 +15,10 @@ object LineBufferAction {
     case BackwardChar                   ⇒ _.cursorLeft()
     case ForwardCharExtendingSelection  ⇒ _.cursorRight(extendSelection = true)
     case BackwardCharExtendingSelection ⇒ _.cursorLeft(extendSelection = true)
-    case ForwardWord                    ⇒ _.forwardWord
-    case BackwardWord                   ⇒ _.backwardWord
+    case ForwardWordExtendingSelection  ⇒ _.forwardWord(extendSelection = true)
+    case BackwardWordExtendingSelection ⇒ _.backwardWord(extendSelection = true)
+    case ForwardWord                    ⇒ _.forwardWord()
+    case BackwardWord                   ⇒ _.backwardWord()
     case DeleteChar                     ⇒ _.delete
     case BackwardDeleteChar             ⇒ _.backspace
     case KillLine                       ⇒ _.deleteToEndOfLine

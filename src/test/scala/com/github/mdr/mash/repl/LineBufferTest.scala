@@ -215,29 +215,31 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you move backwards a word" in {
-    lineBuffer("foo bar▶ baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
-    lineBuffer("foo bar ▶baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
-    lineBuffer("▶foo bar baz").backwardWord shouldEqual lineBuffer("▶foo bar baz")
+    lineBuffer("foo bar▶ baz").backwardWord() shouldEqual lineBuffer("foo ▶bar baz")
+    lineBuffer("foo bar ▶baz").backwardWord() shouldEqual lineBuffer("foo ▶bar baz")
+    lineBuffer("▶foo bar baz").backwardWord() shouldEqual lineBuffer("▶foo bar baz")
 
-    lineBuffer("foo ▷bar▶ baz").backwardWord shouldEqual lineBuffer("foo ▶bar baz")
+    lineBuffer("foo ▶bar▷ baz").backwardWord() shouldEqual lineBuffer("▶foo bar baz")
+    lineBuffer("foo ▶bar▷ baz").backwardWord(extendSelection = true) shouldEqual lineBuffer("▶foo bar▷ baz")
   }
 
   it should "let you move forwards a word" in {
-    lineBuffer("foo bar ▶baz").forwardWord shouldEqual lineBuffer("foo bar baz▶")
-    lineBuffer("foo bar▶ baz").forwardWord shouldEqual lineBuffer("foo bar baz▶")
-    lineBuffer("foo bar baz▶").forwardWord shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo bar ▶baz").forwardWord() shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo bar▶ baz").forwardWord() shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo bar baz▶").forwardWord() shouldEqual lineBuffer("foo bar baz▶")
     lineBuffer(
       """abc
-        |abcd▶""").forwardWord shouldEqual lineBuffer(
+        |abcd▶""").forwardWord() shouldEqual lineBuffer(
       """abc
         |abcd▶""")
     lineBuffer(
       """abc
-        |abcd▶ """).forwardWord shouldEqual lineBuffer(
+        |abcd▶ """).forwardWord() shouldEqual lineBuffer(
       """abc
         |abcd ▶""")
 
-    lineBuffer("foo ▷bar ▶baz").forwardWord shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo ▷bar ▶baz").forwardWord() shouldEqual lineBuffer("foo bar baz▶")
+    lineBuffer("foo ▷bar ▶baz").forwardWord(extendSelection = true) shouldEqual lineBuffer("foo ▷bar baz▶")
   }
 
   it should "let you move to the beginning of the line" in {
