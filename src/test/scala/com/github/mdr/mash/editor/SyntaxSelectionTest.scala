@@ -32,7 +32,7 @@ class SyntaxSelectionTest extends FlatSpec with Matchers {
       "Expanding selection using AST" should s"expand $s into $expectedStr" in {
         val expected = lineBuffer(expectedStr)
         val input = lineBuffer(s)
-        val actual = expandSelection(input)
+        val actual = expandSelection(input, mish = false)
         actual should equal(expected)
       }
     }

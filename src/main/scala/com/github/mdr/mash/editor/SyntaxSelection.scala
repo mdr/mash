@@ -7,12 +7,12 @@ import com.github.mdr.mash.utils.Region
 
 object SyntaxSelection {
 
-  def expandSelection(lineBuffer: LineBuffer): LineBuffer = {
+  def expandSelection(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
     val initialRegion = lineBuffer.selectedOrCursorRegion
-    val tokenRegions = MashLexer.tokenise(lineBuffer.text, forgiving = true)
+    val tokenRegions = MashLexer.tokenise(lineBuffer.text, forgiving = true, mish = mish)
       .rawTokens
       .collect { case token if isSelectable(token.tokenType) ⇒ token.region }
-    val expr = MashParser.parseForgiving(lineBuffer.text).body
+    val expr = MashParser.parseForgiving(lineBuffer.text, mish = mish)
     val astRegions = expr.findAllMatching(_ ⇒ true).map(_.region)
     val nextBiggestRegion: Region =
       (tokenRegions ++ astRegions)

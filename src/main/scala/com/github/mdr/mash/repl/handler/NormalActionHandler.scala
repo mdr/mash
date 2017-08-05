@@ -51,7 +51,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleExpandSelection() =
-    state = state.updateLineBuffer(SyntaxSelection.expandSelection)
+    state = state.updateLineBuffer(lineBuffer ⇒ SyntaxSelection.expandSelection(lineBuffer, state.mish))
 
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {
