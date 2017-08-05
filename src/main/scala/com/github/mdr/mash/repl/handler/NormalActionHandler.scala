@@ -51,7 +51,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleExpandSelection() =
-    state = state.updateLineBuffer(lineBuffer ⇒ SyntaxSelection.expandSelection(lineBuffer, state.mish))
+    state = state.updateLineBuffer(SyntaxSelection.expandSelection(_, state.mish))
 
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {
@@ -87,7 +87,7 @@ trait NormalActionHandler extends InlineHandler {
         state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearchFromLine(state)
       else
         history.goBackwards(lineBuffer.text) match {
-          case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
+          case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
           case None      ⇒ state = state.updateLineBuffer(_.cursorUp)
         }
     }
@@ -96,7 +96,7 @@ trait NormalActionHandler extends InlineHandler {
   private def handleDown() =
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
-        case Some(cmd) ⇒ state = state.copy(lineBuffer = LineBuffer(cmd))
+        case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
         case None      ⇒ state = state.updateLineBuffer(_.cursorDown)
       }
     else
@@ -117,11 +117,13 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleToggleMish() = resetHistoryIfTextChanges {
-    state = state.copy(lineBuffer =
-      if (state.lineBuffer.text startsWith "!")
+    val lineBuffer = state.lineBuffer
+    val newLineBuffer =
+      if (lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
       else
-        state.lineBuffer.insertCharacters("!", 0))
+        state.lineBuffer.insertCharacters("!", 0)
+    state = state.withLineBuffer(newLineBuffer)
   }
 
   private def handleInsertLastArg() = resetHistoryIfTextChanges {
@@ -135,7 +137,7 @@ trait NormalActionHandler extends InlineHandler {
       previousScreenOpt = None
 
       val cmd = state.lineBuffer.text
-      state = state.copy(lineBuffer = LineBuffer.Empty)
+      state = state.withLineBuffer(LineBuffer.Empty)
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
@@ -232,7 +234,7 @@ trait NormalActionHandler extends InlineHandler {
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)
     val newOffset = result.replacementLocation.offset + completion.replacement.length
-    state = state.copy(lineBuffer = LineBuffer(newText, newOffset))
+    state = state.withLineBuffer(LineBuffer(newText, newOffset))
   }
 
 }

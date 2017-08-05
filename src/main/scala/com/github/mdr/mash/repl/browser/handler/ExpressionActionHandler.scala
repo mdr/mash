@@ -4,7 +4,7 @@ import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.CommandRunner
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.completions.{ Completion, CompletionResult }
-import com.github.mdr.mash.editor.QuoteToggler
+import com.github.mdr.mash.editor.{ QuoteToggler, SyntaxSelection }
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, _ }
@@ -73,17 +73,21 @@ trait ExpressionActionHandler {
 
   protected def handleBrowserExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) =
     expressionState.completionStateOpt match {
-      case Some(completionState: IncrementalCompletionState) ⇒ handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
-      case Some(completionState: BrowserCompletionState)     ⇒ handleBrowserCompletionAction(action, browserState, expressionState, completionState)
-      case _                                                 ⇒ handleNormalExpressionInputAction(action, browserState, expressionState)
+      case Some(completionState: IncrementalCompletionState) ⇒
+        handleIncrementalCompletionAction(action, browserState, expressionState, completionState)
+      case Some(completionState: BrowserCompletionState)     ⇒
+        handleBrowserCompletionAction(action, browserState, expressionState, completionState)
+      case _                                                 ⇒
+        handleNormalExpressionInputAction(action, browserState, expressionState)
     }
 
   private def handleNormalExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
-      updateState(browserState.setExpression(expressionState.copy(lineBuffer = f(expressionState.lineBuffer))))
+      updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
     action match {
       case LineBufferAction(f) ⇒ updateExpressionBuffer(f)
       case ToggleQuote         ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
+      case ExpandSelection     ⇒ updateExpressionBuffer(SyntaxSelection.expandSelection(_, state.mish))
       case Complete            ⇒ handleComplete(browserState, expressionState)
       case Enter               ⇒ handleEnter(browserState, expressionState)
       case AssistInvocation    ⇒ handleAssistInvocation(browserState, expressionState)

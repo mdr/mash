@@ -14,19 +14,16 @@ trait InlineHandler {
   protected def handleInline(state: ReplState): ReplState = {
     val lineBuffer = state.lineBuffer
     val cmd = lineBuffer.selectedTextOpt getOrElse lineBuffer.text
-    if (cmd.trim.nonEmpty) {
-      val updatedStateOpt =
-        for {
-          result ← runCommand(cmd, state)
-          expression ← ValueToExpression.getExpression(result)
-          newLineBuffer = lineBuffer.selectedRegionOpt match {
-            case Some(selectedRegion) ⇒ lineBuffer.replaceRegion(selectedRegion, expression)
-            case None                 ⇒ LineBuffer(expression)
-          }
-        } yield state.copy(lineBuffer = newLineBuffer)
-      updatedStateOpt.getOrElse(state)
-    } else
-      state
+    val newLineBufferOpt =
+      for {
+        result ← runCommand(cmd, state)
+        expression ← ValueToExpression.getExpression(result)
+        newLineBuffer = lineBuffer.selectedRegionOpt match {
+          case Some(selectedRegion) ⇒ lineBuffer.replaceRegion(selectedRegion, expression)
+          case None                 ⇒ LineBuffer(expression)
+        }
+      } yield newLineBuffer
+    state.withLineBuffer(newLineBufferOpt getOrElse lineBuffer)
   }
 
   private def runCommand(cmd: String, state: ReplState): Option[MashValue] = {

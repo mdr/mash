@@ -23,7 +23,9 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
     insertLastArgStateOpt = None)
 
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =
-    copy(lineBuffer = transformation(this.lineBuffer))
+    withLineBuffer(transformation(this.lineBuffer))
+
+  def withLineBuffer(lineBuffer: LineBuffer): ReplState = copy(lineBuffer = lineBuffer)
 
   def incrementCommandNumber: ReplState = copy(commandNumber = commandNumber + 1)
 
