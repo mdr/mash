@@ -17,7 +17,7 @@ package com.github.mdr.mash.utils
 case class RaggedGridNavigator(total: Int, columns: Int, pos: Int) {
   private val row = pos / columns
   private val column = pos % columns
-  private val rowLength = math.min(total - (row * columns), columns)
+  private val rowLength = total - (row * columns) min columns
 
   def next: Int = (pos + 1) % total
 

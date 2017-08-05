@@ -64,12 +64,12 @@ case class HelpBrowserState(model: HelpModel,
     copy(currentRow = numberOfRows - 1).adjustWindowToFit(terminalRows)
 
   def nextPage(terminalRows: Int): HelpBrowserState = {
-    val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
+    val newRow = currentRow + windowSize(terminalRows) - 1 min model.numberOfRows - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def previousPage(terminalRows: Int): HelpBrowserState = {
-    val newRow = math.max(0, currentRow - windowSize(terminalRows) - 1)
+    val newRow = 0 max currentRow - windowSize(terminalRows) - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 

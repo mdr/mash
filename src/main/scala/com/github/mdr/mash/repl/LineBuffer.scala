@@ -94,7 +94,7 @@ case class LineBuffer(text: String,
     while (offset >= 0 && text(offset).isLetterOrDigit)
       offset -= 1
     offset += 1
-    offset = math.min(offset, text.length)
+    offset = offset min text.length
     withCursorOffset(offset)
   }
 

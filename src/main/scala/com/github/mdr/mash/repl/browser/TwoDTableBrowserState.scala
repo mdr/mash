@@ -197,12 +197,12 @@ case class TwoDTableBrowserState(model: TwoDTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 6 // upper status line, three header rows, a footer row, lower status line
 
   def nextPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
+    val newRow = currentRow + windowSize(terminalRows) - 1 min model.numberOfRows - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def previousPage(terminalRows: Int): TwoDTableBrowserState = {
-    val newRow = math.max(0, currentRow - windowSize(terminalRows) - 1)
+    val newRow = 0 max currentRow - windowSize(terminalRows) - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 

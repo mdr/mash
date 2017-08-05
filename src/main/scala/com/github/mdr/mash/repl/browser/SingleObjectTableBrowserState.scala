@@ -150,12 +150,12 @@ case class SingleObjectTableBrowserState(model: SingleObjectTableModel,
   def windowSize(terminalRows: Int) = terminalRows - 3 - (if (model.classNameOpt.isDefined) 3 else 1)
 
   def nextPage(terminalRows: Int): SingleObjectTableBrowserState = {
-    val newRow = math.min(model.numberOfRows - 1, currentRow + windowSize(terminalRows) - 1)
+    val newRow = currentRow + windowSize(terminalRows) - 1 min model.numberOfRows - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def previousPage(terminalRows: Int): SingleObjectTableBrowserState = {
-    val newRow = math.max(0, currentRow - windowSize(terminalRows) - 1)
+    val newRow = 0 max currentRow - windowSize(terminalRows) - 1
     copy(currentRow = newRow).adjustWindowToFit(terminalRows)
   }
 

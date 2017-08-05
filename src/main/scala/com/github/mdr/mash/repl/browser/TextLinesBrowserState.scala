@@ -32,12 +32,12 @@ case class TextLinesBrowserState(model: TextLinesModel,
     copy(selectedRow = size - 1).adjustWindowToFit(terminalRows)
 
   def nextPage(terminalRows: Int): TextLinesBrowserState = {
-    val newRow = math.min(size - 1, selectedRow + windowSize(terminalRows) - 1)
+    val newRow = selectedRow + windowSize(terminalRows) - 1 min size - 1
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 
   def previousPage(terminalRows: Int): TextLinesBrowserState = {
-    val newRow = math.max(0, selectedRow - windowSize(terminalRows) - 1)
+    val newRow = 0 max selectedRow - windowSize(terminalRows) - 1
     copy(selectedRow = newRow).adjustWindowToFit(terminalRows)
   }
 

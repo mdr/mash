@@ -40,7 +40,7 @@ object CompletionRenderer {
     val terminalWidth = math.max(0, terminalSize.columns)
     val longestCompletionLength = completions.map(_.displayText.length).max
     val columnGap = " " * 2
-    math.min(completions.size, math.max(1, (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length)))
+    1 max (terminalWidth + columnGap.length) / (longestCompletionLength + columnGap.length) min completions.size
   }
 
   private def renderCompletionOptions(completionState: CompletionState, availableSpace: Dimensions): Seq[Line] = {
@@ -49,11 +49,11 @@ object CompletionRenderer {
       case bcs: BrowserCompletionState     ⇒ CompletionFragment("", "", "")
       case ics: IncrementalCompletionState ⇒ ics.getCommonDisplayFragment
     }
-    val terminalWidth = math.max(0, availableSpace.columns)
+    val terminalWidth = 0 max availableSpace.columns
     val longestCompletionLength = completions.map(_.displayText.length).max
     val columnGap = " " * 2
     val numberOfCompletionColumns = getNumberOfCompletionColumns(completionState, availableSpace)
-    val columnWidth = math.min(terminalWidth, longestCompletionLength)
+    val columnWidth = longestCompletionLength min terminalWidth
 
     def renderCompletion(completion: Completion, index: Int): StyledString = {
       val Completion(displayText, _, _, completionTypeOpt, _, location) = completion
@@ -103,7 +103,7 @@ object CompletionRenderer {
             case Some(completionType) ⇒ s" ${completionType.name} "
             case None                 ⇒ ""
           }
-        val boxWidth = math.min(math.max(description.size + 4, title.size + 4), terminalSize.columns)
+        val boxWidth = math.max(description.size + 4, title.size + 4) min terminalSize.columns
         val innerWidth = boxWidth - 4
         val displayTitle = StringUtils.ellipsisise(title, innerWidth)
         val displayDescription = StringUtils.ellipsisise(Printer.replaceProblematicChars(description), innerWidth)
