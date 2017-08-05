@@ -20,6 +20,7 @@ object LineBuffer {
 case class LineBuffer(text: String,
                       cursorOffset: Int,
                       selectionOffsetOpt: Option[Int] = None) {
+
   require(cursorOffset >= 0 && cursorOffset <= text.length,
     s"Cursor offset out of range: offset = $cursorOffset, text length = ${text.length}")
 
