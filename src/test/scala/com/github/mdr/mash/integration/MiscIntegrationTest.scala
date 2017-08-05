@@ -212,4 +212,12 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .text shouldEqual "7"
   }
 
+  "Expanding selection" should "work" in {
+    makeRepl()
+      .input("1 + 2 * 3")
+      .left(2)
+      .expandSelection()
+      .lineBuffer shouldEqual lineBuffer("1 + ▷2 * 3▶")
+  }
+
 }

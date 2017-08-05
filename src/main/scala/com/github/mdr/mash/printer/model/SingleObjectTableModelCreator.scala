@@ -54,7 +54,7 @@ class SingleObjectTableModelCreator(terminalSize: Dimensions,
     val classNameWidth = classNameOpt.getOrElse("").size
     val extraNeededForClassName = classNameWidth - (fieldColumnWidth + valueColumnWidth + 1)
     val remainingSpare = terminalSize.columns - (fieldColumnWidth + valueColumnWidth + 3)
-    math.max(0, math.min(extraNeededForClassName, remainingSpare))
+    0 max extraNeededForClassName min remainingSpare
   }
 
   private def maxValueWidth(obj: MashObject): Int =

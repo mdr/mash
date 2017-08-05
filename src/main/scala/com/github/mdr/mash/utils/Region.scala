@@ -37,8 +37,8 @@ case class Region(offset: Int, length: Int) {
     else !(this.lastPos < that.offset || that.lastPos < this.offset)
 
   def merge(that: Region): Region = {
-    val offset = math.min(this.offset, that.offset)
-    val posAfter = math.max(this.posAfter, that.posAfter)
+    val offset = this.offset min that.offset
+    val posAfter = this.posAfter max that.posAfter
     Region(offset, posAfter - offset)
   }
 

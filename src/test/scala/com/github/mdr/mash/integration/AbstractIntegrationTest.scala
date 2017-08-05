@@ -167,6 +167,11 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
+    def expandSelection(): Repl = {
+      repl.handleAction(ExpandSelection)
+      repl
+    }
+
     def insertLastArgument(): Repl = {
       repl.handleAction(InsertLastArg)
       repl

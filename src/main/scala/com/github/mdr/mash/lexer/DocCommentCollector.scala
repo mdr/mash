@@ -1,8 +1,15 @@
 package com.github.mdr.mash.lexer
 
-import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.utils.Region
 
-case class DocComment(text: String)
+import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.utils.Utils._
+
+case class DocComment(commentTokens: Seq[Token], text: String) {
+
+  def region: Region = commentTokens.map(_.region).reduce(_ merge _)
+
+}
 
 object DocCommentCollector {
 
@@ -31,10 +38,10 @@ object DocCommentCollector {
       } else
         continue = false
     }
-    if (commentTokens.isEmpty)
-      None
-    else
-      Some(DocComment(commentTokens.reverse.map(_.text.tail).mkString))
+    commentTokens.nonEmpty.option {
+      val commentContent = commentTokens.reverse.map(_.text.tail).mkString
+      DocComment(commentTokens, commentContent)
+    }
   }
 
 }
