@@ -40,7 +40,7 @@ trait NormalActionHandler extends InlineHandler {
       case ToggleMish               ⇒ handleToggleMish()
       case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult         ⇒ handleBrowseLastResult()
-      case Inline                   ⇒ state = handleInline(state)
+      case Inline                   ⇒ resetHistoryIfTextChanges(state = handleInline(state))
       case ExpandSelection          ⇒ handleExpandSelection()
       case _                        ⇒
     }
