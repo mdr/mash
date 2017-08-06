@@ -8,7 +8,7 @@ import scala.PartialFunction.condOpt
 object LineBufferAction {
 
   def unapply(action: InputAction): Option[LineBuffer ⇒ LineBuffer] = condOpt(action) {
-    case SelfInsert(c)                  ⇒ _.addCharactersAtCursor(c)
+    case SelfInsert(c)                  ⇒ _.insertAtCursor(c)
     case BeginningOfLine                ⇒ _.moveCursorToStart
     case EndOfLine                      ⇒ _.moveCursorToEnd
     case ForwardChar                    ⇒ _.cursorRight()

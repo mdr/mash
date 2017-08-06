@@ -122,7 +122,7 @@ trait NormalActionHandler extends InlineHandler {
       if (lineBuffer.text startsWith "!")
         state.lineBuffer.delete(0)
       else
-        state.lineBuffer.insertCharacters("!", 0)
+        state.lineBuffer.insert("!", 0)
     state = state.withLineBuffer(newLineBuffer)
   }
 
@@ -141,7 +141,7 @@ trait NormalActionHandler extends InlineHandler {
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else
-      state = state.updateLineBuffer(_.addCharacterAtCursor('\n'))
+      state = state.updateLineBuffer(_.insertAtCursor('\n'))
   }
 
   def canAcceptBuffer: Boolean = {

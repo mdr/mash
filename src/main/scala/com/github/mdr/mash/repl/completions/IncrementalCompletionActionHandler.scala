@@ -54,7 +54,7 @@ trait IncrementalCompletionActionHandler {
                                              completionState: IncrementalCompletionState,
                                              mish: Boolean): (LineBuffer, Option[IncrementalCompletionState]) = {
     val memento = ReplStateMemento(lineBuffer, completionState.copy(immediatelyAfterCompletion = false))
-    val newLineBuffer = lineBuffer.addCharactersAtCursor(insertedCharacters)
+    val newLineBuffer = lineBuffer.insertAtCursor(insertedCharacters)
     var newCompletionStateOpt: Option[IncrementalCompletionState] = None
     for (CompletionResult(completions, location) ← complete(newLineBuffer, mish)) {
       val previousLocation = completionState.replacementLocation

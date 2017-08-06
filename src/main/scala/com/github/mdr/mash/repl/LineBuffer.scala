@@ -14,8 +14,9 @@ object LineBuffer {
 /**
   * The text entered by a user while editing a command
   *
-  * @param text         -- the contents of the buffer
-  * @param cursorOffset -- position of the cursor, either within the text, or one position past the end.
+  * @param text               -- the contents of the buffer
+  * @param cursorOffset       -- position of the cursor, either within the text, ore one position past the end
+  * @param selectionOffsetOpt -- if Some, the position of the start of the selected region
   */
 case class LineBuffer(text: String,
                       cursorOffset: Int,
@@ -106,8 +107,6 @@ case class LineBuffer(text: String,
     case None                 ⇒ deleteRegion(Region.fromStartEnd(0 max cursorOffset - 1, cursorOffset))
   }
 
-  def hasSelection: Boolean = selectionOffsetOpt.isDefined
-
   def delete: LineBuffer = selectedRegionOpt match {
     case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
     case None                 ⇒
@@ -165,11 +164,11 @@ case class LineBuffer(text: String,
 
   private def deleteRegion(region: Region): LineBuffer = replaceRegion(region, replacement = "")
 
-  def addCharacterAtCursor(c: Char): LineBuffer = addCharactersAtCursor(c.toString)
+  def insertAtCursor(c: Char): LineBuffer = insertAtCursor(c.toString)
 
-  def addCharactersAtCursor(chars: String): LineBuffer = replaceRegion(selectedOrCursorRegion, chars)
+  def insertAtCursor(chars: String): LineBuffer = replaceRegion(selectedOrCursorRegion, chars)
 
-  def insertCharacters(chars: String, insertPos: Int): LineBuffer = replaceRegion(Region.zeroWidth(insertPos), chars)
+  def insert(chars: String, offset: Int): LineBuffer = replaceRegion(Region.zeroWidth(offset), chars)
 
   def delete(deletePos: Int): LineBuffer = deleteRegion(Region(deletePos, 1))
 

@@ -139,27 +139,27 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you add a character at the cursor" in {
-    lineBuffer("▶").addCharacterAtCursor('a') shouldEqual lineBuffer("a▶")
-    lineBuffer("ab▶").addCharacterAtCursor('c') shouldEqual lineBuffer("abc▶")
-    lineBuffer("a▶c").addCharacterAtCursor('b') shouldEqual lineBuffer("ab▶c")
+    lineBuffer("▶").insertAtCursor('a') shouldEqual lineBuffer("a▶")
+    lineBuffer("ab▶").insertAtCursor('c') shouldEqual lineBuffer("abc▶")
+    lineBuffer("a▶c").insertAtCursor('b') shouldEqual lineBuffer("ab▶c")
 
     lineBuffer(
       """abc
-        |▶""").addCharacterAtCursor('d') shouldEqual lineBuffer(
+        |▶""").insertAtCursor('d') shouldEqual lineBuffer(
       """abc
         |d▶""")
   }
 
   it should "replace any selection when adding character at the cursor" in {
-    lineBuffer("a▷bcd▶e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
-    lineBuffer("a▷bcd▶e").addCharactersAtCursor("XYZ") shouldEqual lineBuffer("aXYZ▶e")
-    lineBuffer("a▶bcd▷e").addCharacterAtCursor('X') shouldEqual lineBuffer("aX▶e")
-    lineBuffer("▷a▶").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
-    lineBuffer("▶a▷").addCharacterAtCursor('X') shouldEqual lineBuffer("X▶")
+    lineBuffer("a▷bcd▶e").insertAtCursor('X') shouldEqual lineBuffer("aX▶e")
+    lineBuffer("a▷bcd▶e").insertAtCursor("XYZ") shouldEqual lineBuffer("aXYZ▶e")
+    lineBuffer("a▶bcd▷e").insertAtCursor('X') shouldEqual lineBuffer("aX▶e")
+    lineBuffer("▷a▶").insertAtCursor('X') shouldEqual lineBuffer("X▶")
+    lineBuffer("▶a▷").insertAtCursor('X') shouldEqual lineBuffer("X▶")
   }
 
   it should "let you add a newline at the cursor" in {
-    lineBuffer("▶").addCharacterAtCursor('\n') shouldEqual lineBuffer(
+    lineBuffer("▶").insertAtCursor('\n') shouldEqual lineBuffer(
       """
         |▶""")
   }
