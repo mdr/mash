@@ -6,9 +6,9 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpander }
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.render.MashRenderer
+import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.screen.Screen.drawStyledChars
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.BasicColour
 import com.github.mdr.mash.utils._
 
 /**
@@ -41,7 +41,7 @@ class ErrorPrinter(output: PrintStream) {
         val (firstLineIndex, lastLineIndex) = lineInfo.linesOfRegion(region)
         for (lineIndex ← firstLineIndex to lastLineIndex) {
           val line = lineInfo.lines(lineIndex)
-          val renderedLine = new MashRenderer().renderChars(line, cursorOffsetOpt = None, mishByDefault = false)
+          val renderedLine = new MashRenderer().renderChars(line)
           val drawnLine = drawStyledChars(renderedLine)
           val errorUnderlineLine = getUnderlineLine(prefix, lineInfo, lineIndex, point, region)
           val actualPrefix = if (lineIndex == firstLineIndex) prefix else " " * prefix.length

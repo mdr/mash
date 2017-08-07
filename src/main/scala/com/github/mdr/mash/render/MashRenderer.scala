@@ -30,11 +30,14 @@ object MashRenderer {
   }
 }
 
-class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boolean = false) {
+case class MashRenderingContext(globalVariablesOpt: Option[MashObject] = None,
+                                bareWords: Boolean = false,
+                                mishByDefault: Boolean = false)
+
+class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
 
   def renderChars(rawChars: String,
                   cursorOffsetOpt: Option[Int] = None,
-                  mishByDefault: Boolean = false,
                   matchRegionOpt: Option[Region] = None): StyledString = {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
@@ -54,11 +57,11 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
           styledChars ++= prefix.map(StyledCharacter(_, Style(bold = true)))
           getTokenInformation(mishCmd, mish = true)
         case _                                  ⇒
-          getTokenInformation(rawChars, mish = mishByDefault)
+          getTokenInformation(rawChars, mish = context.mishByDefault)
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokensOpt, matchingBracketOffsetOpt, bareWords).chars
+      styledChars ++= renderToken(token, bareTokensOpt, matchingBracketOffsetOpt, context.bareWords).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
@@ -72,7 +75,7 @@ class MashRenderer(globalVariablesOpt: Option[MashObject] = None, bareWords: Boo
   }
 
   private def getBareTokens(s: String, mish: Boolean): Option[Set[Token]] =
-    globalVariablesOpt.map { globalVariables ⇒
+    context.globalVariablesOpt.map { globalVariables ⇒
       val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
       val concreteProgram = MashParser.parseForgiving(s, mish = mish)
       val provenance = Provenance("not required", s)

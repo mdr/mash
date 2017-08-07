@@ -1,12 +1,13 @@
 package com.github.mdr.mash.render.browser
 
-import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.SingleObjectTableBrowserState
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
 
-class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimensions)
-  extends AbstractBrowserRenderer(state, terminalSize) {
+class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+  extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderLines: LinesAndCursorPos =
     combineUpperStatusLines(renderUpperStatusLines, renderTableLines :+ renderStatusLine)

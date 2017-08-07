@@ -1,15 +1,16 @@
 package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.model.Link
-import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.HelpBrowserState
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Region, StyledStringUtils }
 
-class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions)
-  extends AbstractBrowserRenderer(state, terminalSize) {
+class HelpBrowserRenderer(state: HelpBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+  extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   override protected val windowSize = state.windowSize(terminalSize.rows)
 

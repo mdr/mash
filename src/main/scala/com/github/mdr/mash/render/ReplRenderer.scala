@@ -15,19 +15,20 @@ case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point] = Non
   * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
   * characters.
   */
-object ReplRenderer {
+class ReplRenderer(terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean) {
 
   private val fileSystem = LinuxFileSystem
 
-  def render(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen =
+  def render(state: ReplState): Screen =
     state.objectBrowserStateStackOpt match {
-      case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, terminalSize)
-      case None                     ⇒ renderRegularRepl(state, terminalSize, globalVariables, bareWords)
+      case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, getMashRenderingContext(state))
+      case None                     ⇒ renderRegularRepl(state)
     }
 
-  private def renderRegularRepl(state: ReplState, terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean): Screen = {
+  private def renderRegularRepl(state: ReplState): Screen = {
+    val mashRenderingContext = getMashRenderingContext(state)
     val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
-      LineBufferRenderer.renderLineBuffer(state, terminalSize, globalVariables, bareWords)
+      LineBufferRenderer.renderLineBuffer(state, terminalSize, mashRenderingContext)
     val historySearchLinesAndCursorPosOpt = state.incrementalHistorySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchLinesAndCursorPosOpt.map(_.lines).getOrElse(Seq())
@@ -46,32 +47,35 @@ object ReplRenderer {
     Screen(truncatedLines, newCursorPosOpt, title)
   }
 
-  private def renderObjectTableBrowser(state: TwoDTableBrowserState, terminalSize: Dimensions): Screen =
-    new TwoDTableBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def getMashRenderingContext(state: ReplState): MashRenderingContext =
+    MashRenderingContext(Some(globalVariables), bareWords, state.mish)
 
-  private def renderSingleObjectBrowser(state: SingleObjectTableBrowserState, terminalSize: Dimensions): Screen =
-    new SingleObjectTableBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def renderObjectTableBrowser(state: TwoDTableBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new TwoDTableBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
 
-  private def renderObjectTreeBrowser(state: ObjectTreeBrowserState, terminalSize: Dimensions): Screen =
-    new ObjectTreeBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def renderSingleObjectBrowser(state: SingleObjectTableBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new SingleObjectTableBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
 
-  private def renderValueBrowser(state: ValueBrowserState, terminalSize: Dimensions): Screen =
-    new ValueBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def renderObjectTreeBrowser(state: ObjectTreeBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new ObjectTreeBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
 
-  private def renderTextLinesBrowserState(state: TextLinesBrowserState, terminalSize: Dimensions): Screen =
-    new TextLinesBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def renderValueBrowser(state: ValueBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new ValueBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
 
-  private def renderHelpBrowserState(state: HelpBrowserState, terminalSize: Dimensions): Screen =
-    new HelpBrowserRenderer(state, terminalSize).renderObjectBrowser
+  private def renderTextLinesBrowserState(state: TextLinesBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new TextLinesBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
 
-  private def renderObjectBrowser(state: ObjectBrowserStateStack, terminalSize: Dimensions): Screen =
+  private def renderHelpBrowserState(state: HelpBrowserState, mashRenderingContext: MashRenderingContext): Screen =
+    new HelpBrowserRenderer(state, terminalSize, mashRenderingContext).renderObjectBrowser
+
+  private def renderObjectBrowser(state: ObjectBrowserStateStack, mashRenderingContext: MashRenderingContext): Screen =
     state.headState match {
-      case browserState: TwoDTableBrowserState         ⇒ renderObjectTableBrowser(browserState, terminalSize)
-      case browserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(browserState, terminalSize)
-      case browserState: ObjectTreeBrowserState        ⇒ renderObjectTreeBrowser(browserState, terminalSize)
-      case browserState: ValueBrowserState             ⇒ renderValueBrowser(browserState, terminalSize)
-      case browserState: TextLinesBrowserState         ⇒ renderTextLinesBrowserState(browserState, terminalSize)
-      case browserState: HelpBrowserState              ⇒ renderHelpBrowserState(browserState, terminalSize)
+      case browserState: TwoDTableBrowserState         ⇒ renderObjectTableBrowser(browserState, mashRenderingContext)
+      case browserState: SingleObjectTableBrowserState ⇒ renderSingleObjectBrowser(browserState, mashRenderingContext)
+      case browserState: ObjectTreeBrowserState        ⇒ renderObjectTreeBrowser(browserState, mashRenderingContext)
+      case browserState: ValueBrowserState             ⇒ renderValueBrowser(browserState, mashRenderingContext)
+      case browserState: TextLinesBrowserState         ⇒ renderTextLinesBrowserState(browserState, mashRenderingContext)
+      case browserState: HelpBrowserState              ⇒ renderHelpBrowserState(browserState, mashRenderingContext)
       case browserState                                ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
     }
 

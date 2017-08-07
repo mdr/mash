@@ -1,8 +1,9 @@
 package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.model.ObjectTreeNode
-import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos }
+import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.{ ObjectTreeBrowserState, ObjectTreePath }
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
@@ -10,8 +11,8 @@ import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 
-case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize: Dimensions)
-  extends AbstractBrowserRenderer(state, terminalSize) {
+case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+  extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderLines: LinesAndCursorPos = {
     val printer = new Printer

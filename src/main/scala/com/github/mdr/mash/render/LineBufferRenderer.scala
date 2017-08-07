@@ -3,7 +3,6 @@ package com.github.mdr.mash.render
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
-import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, _ }
 import com.github.mdr.mash.utils.{ Dimensions, LineInfo, Point, Region }
@@ -15,21 +14,18 @@ object LineBufferRenderer {
 
   def renderLineBuffer(state: ReplState,
                        terminalSize: Dimensions,
-                       globalVariables: MashObject,
-                       bareWords: Boolean): LinesAndCursorPos = {
-    val prefix = getPrompt(state.commandNumber, state.mish)
+                       context: MashRenderingContext): LinesAndCursorPos = {
+    val prefix = renderPrompt(state.commandNumber, state.mish)
     val matchRegionOpt = state.incrementalHistorySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
-    renderLineBuffer(state.lineBuffer, Some(globalVariables), prefix, bareWords, state.mish, terminalSize, matchRegionOpt)
+    renderLineBuffer(state.lineBuffer, context, prefix, terminalSize, matchRegionOpt)
   }
 
   def renderLineBuffer(lineBuffer: LineBuffer,
-                       globalVariablesOpt: Option[MashObject] = None,
+                       context: MashRenderingContext,
                        prefix: StyledString = StyledString.Empty,
-                       bareWords: Boolean = false,
-                       mish: Boolean = false,
                        terminalSize: Dimensions,
                        matchRegionOpt: Option[Region] = None): LinesAndCursorPos = {
-    val unwrappedLines = renderLineBufferChars(lineBuffer, prefix, mish, globalVariablesOpt, bareWords, matchRegionOpt)
+    val unwrappedLines = renderWithoutWrapping(lineBuffer, prefix, context, matchRegionOpt)
 
     val wrappedLines = unwrappedLines.flatMap(wrap(_, terminalSize.columns))
 
@@ -50,28 +46,25 @@ object LineBufferRenderer {
     } yield Line(group, endsInNewline)
   }
 
-  private def renderLineBufferChars(lineBuffer: LineBuffer,
+  private def renderWithoutWrapping(lineBuffer: LineBuffer,
                                     prefix: StyledString,
-                                    mishByDefault: Boolean,
-                                    globalVariablesOpt: Option[MashObject],
-                                    bareWords: Boolean,
+                                    context: MashRenderingContext,
                                     matchRegionOpt: Option[Region]): Seq[Line] = {
     val rawChars = lineBuffer.text
     val cursorOffset = lineBuffer.cursorOffset
-    val mashRenderer = new MashRenderer(globalVariablesOpt, bareWords)
+    val mashRenderer = new MashRenderer(context)
     val renderedMash: StyledString =
-      mashRenderer.renderChars(rawChars, Some(cursorOffset), mishByDefault, matchRegionOpt)
+      mashRenderer.renderChars(rawChars, Some(cursorOffset), matchRegionOpt)
         .invert(lineBuffer.selectedOrCursorRegion)
 
     val continuationPrefix = if (prefix.isEmpty) "" else "." * (prefix.length - 1) + " "
-    val lineRegions = new LineInfo(rawChars).lineRegions
-    lineRegions.zipWithIndex.map {
+    new LineInfo(rawChars).lineRegions.zipWithIndex.map {
       case (region, 0) ⇒ Line(prefix + region.of(renderedMash.chars))
       case (region, _) ⇒ Line(continuationPrefix.style + region.of(renderedMash.chars))
     }
   }
 
-  private def getPrompt(commandNumber: Int, mishByDefault: Boolean): StyledString = {
+  private def renderPrompt(commandNumber: Int, mishByDefault: Boolean): StyledString = {
     val num = s"[$commandNumber] "
     val numStyle = Style(foregroundColour = BasicColour.Yellow)
     val numStyled = num.style(numStyle)
