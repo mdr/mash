@@ -8,7 +8,7 @@ class WorkingDirectoryStack(initial: Path) {
   private var pos: Int = 0
 
   def push(path: Path) {
-    dirs = dirs :+ path
+    dirs = dirs.take(pos + 1) :+ path
     pos = dirs.length - 1
   }
 
