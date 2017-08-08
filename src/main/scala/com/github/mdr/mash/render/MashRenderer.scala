@@ -15,8 +15,9 @@ import scala.collection.mutable.ArrayBuffer
 
 object MashRenderer {
 
-  def getTokenStyle(tokenType: TokenType): Style = {
-    import TokenType._
+  import TokenType._
+
+  def getTokenStyle(tokenType: TokenType): Style =
     tokenType match {
       case COMMENT                                                    ⇒ Style(foregroundColour = BasicColour.Cyan)
       case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
@@ -27,7 +28,7 @@ object MashRenderer {
       case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
       case _                                                          ⇒ Style()
     }
-  }
+
 }
 
 case class MashRenderingContext(globalVariablesOpt: Option[MashObject] = None,

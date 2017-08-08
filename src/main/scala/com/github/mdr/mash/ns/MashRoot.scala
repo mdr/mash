@@ -124,6 +124,7 @@ object MashRoot {
     ForwardFunction,
     GlobFunction,
     HomeFunction,
+    JumpFunction,
     KillFunction,
     ListFilesFunction,
     MoveFunction,

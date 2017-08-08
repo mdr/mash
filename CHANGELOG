@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* os.jump to quickly access recent dirs
 * Allow shift selection
 * json.prettyPrint --compact
 * @safe parameters (avoid nullary evaluation)
