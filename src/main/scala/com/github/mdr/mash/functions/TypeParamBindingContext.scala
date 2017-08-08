@@ -1,6 +1,8 @@
 package com.github.mdr.mash.functions
 
 import com.github.mdr.mash.inference._
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
+import com.github.mdr.mash.utils.Utils
 
 object TypeParamBindingContext {
 
@@ -78,7 +80,9 @@ class TypeParamBindingContext(params: ParameterModel, arguments: TypedArguments)
       case Type.Seq(elementType) if param.variadicFlatten ⇒ elementType.seq
       case t                                              ⇒ t.seq
     }
-    boundArguments += param -> ValueInfo(None, Some(varargType))
+    val valueOpt: Option[MashValue] =
+      Utils.sequence(evalArgs.map(_.argValueOpt.flatMap(_.valueOpt))).map(MashList(_))
+    boundArguments += param -> ValueInfo(valueOpt, Some(varargType))
     param.nameOpt.foreach(boundNames += _ -> varargType)
   }
 

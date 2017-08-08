@@ -1,6 +1,7 @@
 package com.github.mdr.mash.ns.core.objectClass
 
 import com.github.mdr.mash.completions.CompletionSpec
+import com.github.mdr.mash.completions.CompletionSpec.Items
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, Parameter, ParameterModel }
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.runtime.{ MashNull, MashObject, MashValue }
@@ -48,15 +49,12 @@ object GetMethod extends MashMethod("get") {
 
   override def typeInferenceStrategy = GetMethodTypeInferenceStrategy
 
-  override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) = {
-    val completionSpecOpt =
-      for {
-        param ← params.bindTypes(arguments).paramAt(argPos)
-        if param == Name
-        targetType ← targetTypeOpt
-      } yield CompletionSpec.Items(getFields(targetType))
-    completionSpecOpt.toSeq
-  }
+  override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments): Seq[Items] =
+    for {
+      param ← params.bindTypes(arguments).paramAt(argPos).toSeq
+      if param == Name
+      targetType ← targetTypeOpt
+    } yield CompletionSpec.Items(getFields(targetType))
 
   def getFields(type_ : Type): Seq[String] = type_ match {
     case Type.Object(fields)  ⇒ fields.keys.toSeq
