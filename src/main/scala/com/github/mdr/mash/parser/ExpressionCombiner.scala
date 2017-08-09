@@ -5,7 +5,18 @@ import com.github.mdr.mash.lexer.TokenType.{ DIVIDE, MINUS, PLUS, TIMES }
 import com.github.mdr.mash.parser.ConcreteSyntax._
 import com.github.mdr.mash.utils.Utils._
 
+import scala.PartialFunction.condOpt
+
 object ExpressionCombiner {
+
+  private object SelfContainedExpr {
+
+    def unapply(expr: Expr): Option[Expr] = condOpt(expr) {
+      case _: ParenExpr | _: MemberExpr | _: ParenInvocationExpr | _: LookupExpr | _: BlockExpr |
+           _: ListExpr | _: ObjectExpr | _: Identifier | _: Literal ⇒ expr
+    }
+
+  }
 
   /**
     * Add parentheses around the given prefix expression if required to allow it to be safely followed by
@@ -17,14 +28,13 @@ object ExpressionCombiner {
     val prefixExpr = MashParser.parseForgiving(prefix).body
     val suffixExpr = MashParser.parseForgiving("it" + suffix).body
     val needsParens = (prefixExpr, suffixExpr) match {
-      case (prefixOp: BinOpExpr, suffixOp: BinOpExpr)                    ⇒ needsParensBinOp(prefixOp, suffixOp)
-      case (_, InvocationExpr(_: MemberExpr, _))                         ⇒ false
-      case (_, _: InvocationExpr)                                        ⇒ true
-      case (_: ParenExpr | _: MemberExpr | _: ParenInvocationExpr | _: LookupExpr | _: BlockExpr |
-            _: ListExpr | _: ObjectExpr | _: Identifier | _: Literal, _) ⇒ false
-      case (_: LambdaExpr, _: PipeExpr)                                  ⇒ true
-      case (_, _: PipeExpr)                                              ⇒ false
-      case _                                                             ⇒ true
+      case (prefixOp: BinOpExpr, suffixOp: BinOpExpr)               ⇒ needsParensBinOp(prefixOp, suffixOp)
+      case (SelfContainedExpr(_), InvocationExpr(_: MemberExpr, _)) ⇒ false
+      case (_, _: InvocationExpr)                                   ⇒ true
+      case (SelfContainedExpr(_), _)                                ⇒ false
+      case (_: LambdaExpr, _: PipeExpr)                             ⇒ true
+      case (_, _: PipeExpr)                                         ⇒ false
+      case _                                                        ⇒ true
     }
     prefix.when(needsParens, parenthesise) + suffix
   }

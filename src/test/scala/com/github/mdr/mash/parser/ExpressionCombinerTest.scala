@@ -11,6 +11,7 @@ class ExpressionCombinerTest extends FlatSpec with Matchers {
     combineSafely("1 + 2", ".negate") shouldEqual "(1 + 2).negate"
     combineSafely("a => b", " | f") shouldEqual "(a => b) | f"
     combineSafely("1 + 2", " * 3") shouldEqual "(1 + 2) * 3"
+    combineSafely("help List", ".helpForMethod 'any'") shouldEqual "(help List).helpForMethod 'any'"
   }
 
   "ExpressionCombiner" should "not add parens if not required" in {
