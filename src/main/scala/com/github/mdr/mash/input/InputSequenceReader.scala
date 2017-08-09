@@ -61,6 +61,7 @@ object InputSequenceReader {
         case '\u0004'   ⇒ control('d')
         case '\u0005'   ⇒ control('e')
         case '\u0006'   ⇒ control('f')
+        case '\u0007'   ⇒ control('g')
         case '\u000B'   ⇒ control('k')
         case '\u000C'   ⇒ control('l')
         case '\u000E'   ⇒ control('n')

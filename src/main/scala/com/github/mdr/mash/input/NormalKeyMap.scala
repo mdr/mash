@@ -31,7 +31,7 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   KeyPress(Backspace) → BackwardDeleteChar,
   KeyPress(Key.Enter) → NormalActions.Enter,
   control('d') → ChangeDirectory,
-  control('q') → AbandonHistorySearch))
+  control('g') → AbandonHistorySearch))
 
 object LineBufferKeyMap extends KeyMap(Map(
   control('l') → RedrawScreen,
