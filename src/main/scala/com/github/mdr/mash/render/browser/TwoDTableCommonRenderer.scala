@@ -28,6 +28,38 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     headerLines ++ dataLines ++ Seq(footerLine)
   }
 
+  private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
+    Seq(
+      renderTopRow(model),
+      renderHeaderRow(model),
+      renderBelowHeaderRow(model, moreDataItemsAboveWindow))
+
+  def renderTopRow(model: TwoDTableModel): Line =
+    renderBorderRow(model, doubleTopLeft, doubleHorizontal, doubleHorizontalSingleDown, doubleTopRight)
+
+  def renderBelowHeaderRow(model: TwoDTableModel, addArrow: Boolean): Line =
+    renderBorderRow(model, doubleVerticalSingleRight, singleHorizontal, singleIntersect, doubleVerticalSingleLeft, upArrow = addArrow)
+
+  def renderFooterLine(model: TwoDTableModel, addArrow: Boolean): Line =
+    renderBorderRow(model, doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight, downArrow = addArrow)
+
+  private def renderBorderRow(model: TwoDTableModel,
+                              first: String,
+                              internal: String,
+                              internalColumn: String,
+                              last: String,
+                              downArrow: Boolean = false,
+                              upArrow: Boolean = false): Line = {
+    val sb = new StringBuilder
+    sb.append(first)
+    if (showMarkedRows)
+      sb.append(internal + internalColumn)
+    sb.append(model.columnIds.map(columnId ⇒ internal * model.columnWidth(columnId)).mkString(internalColumn))
+    sb.append(last)
+    val chars = sb.toString.when(downArrow, addDownArrow).when(upArrow, addUpArrow)
+    Line(chars.style)
+  }
+
   private def renderHeaderRow(model: TwoDTableModel): Line = {
     def renderColumn(columnId: ColumnId): StyledString = {
       val fit = StringUtils.fitToWidth(model.columnName(columnId), model.columnWidth(columnId))
@@ -41,12 +73,6 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
     buffer ++= doubleVertical.style.chars
     Line(StyledString(buffer))
   }
-
-  private def renderHeaderLines(moreDataItemsAboveWindow: Boolean): Seq[Line] =
-    Seq(
-      renderTopRow(model),
-      renderHeaderRow(model),
-      renderBelowHeaderRow(model, moreDataItemsAboveWindow))
 
   private def renderDataLines(rowOffset: Int, rowCount: Int): Seq[Line] =
     for ((row, rowIndex) ← model.rows.zipWithIndex.window(rowOffset, rowCount))
@@ -97,32 +123,6 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
       else if (isLabel) BasicColour.Yellow
       else DefaultColour
     Style(inverse = highlight, bold = isSearchMatch, foregroundColour = foregroundColour)
-  }
-
-  def renderTopRow(model: TwoDTableModel): Line =
-    renderBorderRow(model, doubleTopLeft, doubleHorizontal, doubleHorizontalSingleDown, doubleTopRight)
-
-  def renderBelowHeaderRow(model: TwoDTableModel, addArrow: Boolean): Line =
-    renderBorderRow(model, doubleVerticalSingleRight, singleHorizontal, singleIntersect, doubleVerticalSingleLeft, upArrow = addArrow)
-
-  def renderFooterLine(model: TwoDTableModel, addArrow: Boolean): Line =
-    renderBorderRow(model, doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight, downArrow = addArrow)
-
-  private def renderBorderRow(model: TwoDTableModel,
-                              first: String,
-                              internal: String,
-                              internalColumn: String,
-                              last: String,
-                              downArrow: Boolean = false,
-                              upArrow: Boolean = false): Line = {
-    val sb = new StringBuilder
-    sb.append(first)
-    if (showMarkedRows)
-      sb.append(internal + internalColumn)
-    sb.append(model.columnIds.map(columnId ⇒ internal * model.columnWidth(columnId)).mkString(internalColumn))
-    sb.append(last)
-    val chars = sb.toString.when(downArrow, addDownArrow).when(upArrow, addUpArrow)
-    Line(chars.style)
   }
 
   private def showMarkedRows = markedRowsOpt.isDefined
