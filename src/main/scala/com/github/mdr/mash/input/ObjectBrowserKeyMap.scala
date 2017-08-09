@@ -16,7 +16,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(Down) -> NextItem,
   KeyPress(BasicKey('e'), control = true) -> FirstColumn,
   KeyPress(BasicKey('a'), control = true) -> LastColumn,
-  OtherSequence("r") -> UnfocusColumn,
+  OtherSequence("R") -> UnfocusColumn,
   OtherSequence("f") -> Focus,
   KeyPress(Enter) -> Focus,
   OtherSequence("d") -> FocusDirectory,
