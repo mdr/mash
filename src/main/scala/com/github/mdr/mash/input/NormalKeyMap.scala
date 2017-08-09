@@ -60,4 +60,4 @@ object LineBufferKeyMap extends KeyMap(Map(
   alt(Backspace) → BackwardKillWord,
   control('w') → BackwardKillWord,
   control('q') → ToggleQuote,
-  control('y') → ExpandSelection))
+  alt('e') → ExpandSelection))
