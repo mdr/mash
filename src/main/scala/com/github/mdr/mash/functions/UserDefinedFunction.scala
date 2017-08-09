@@ -5,6 +5,8 @@ import com.github.mdr.mash.parser.AbstractSyntax.{ Expr, FunctionDeclaration }
 import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashValue
 
+import scala.PartialFunction.cond
+
 case class UserDefinedFunction(docCommentOpt: Option[DocComment],
                                functionName: String,
                                params: ParameterModel,
@@ -27,5 +29,9 @@ case class UserDefinedFunction(docCommentOpt: Option[DocComment],
   private def sourceLocationOpt: Option[SourceLocation] = decl.sourceInfoOpt.map(_.location)
 
   override def sourceOpt: Option[String] = sourceLocationOpt.map(_.reindentedSource)
+
+  override def equals(that: Any): Boolean = cond(that) { case anyRef: AnyRef ⇒ anyRef eq this }
+
+  override def hashCode = System.identityHashCode(this)
 
 }

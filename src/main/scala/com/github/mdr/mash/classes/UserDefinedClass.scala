@@ -5,6 +5,8 @@ import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.parser.DocComment
 import com.github.mdr.mash.runtime.MashObject
 
+import scala.PartialFunction.cond
+
 case class UserDefinedClass(docCommentOpt: Option[DocComment],
                             override val name: String,
                             override val namespaceOpt: Option[Namespace],
@@ -41,8 +43,7 @@ case class UserDefinedClass(docCommentOpt: Option[DocComment],
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
-  // Don't want to accidentally compare equal to another class
-  override def equals(that: Any) = PartialFunction.cond(that) { case that: AnyRef ⇒ this eq that }
+  override def equals(that: Any) = cond(that) { case that: AnyRef ⇒ this eq that }
 
   override def hashCode = System.identityHashCode(this)
 

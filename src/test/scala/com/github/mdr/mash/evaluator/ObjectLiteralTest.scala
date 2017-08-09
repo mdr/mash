@@ -10,4 +10,9 @@ class ObjectLiteralTest extends AbstractEvaluatorTest {
 
   "def pi = 3.14; { pi }" ==> "{ pi: 3.14 }"
 
+  "{ (def foo = 42): 42 }.values" ==> "[42]"
+  "def foo n = 42; { (foo): 42 }[foo]" ==> "42"
+  "{ (.foo): 42 }.values" ==> "[42]"
+  "{ (class A): 42 }.values" ==> "[42]"
+  
 }
