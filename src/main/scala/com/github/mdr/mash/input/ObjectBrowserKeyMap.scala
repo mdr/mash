@@ -6,25 +6,26 @@ import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, RedrawScreen }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
+import com.github.mdr.mash.input.KeyDsl._
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
-  KeyPress(BasicKey('l'), control = true) -> RedrawScreen,
+  control('l') -> RedrawScreen,
   KeyPress(Right) -> NextColumn,
   KeyPress(Left) -> PreviousColumn,
-  KeyPress(BasicKey('f'), control = true) -> NextColumn,
-  KeyPress(BasicKey('b'), control = true) -> PreviousColumn,
+  control('f') -> NextColumn,
+  control('b') -> PreviousColumn,
   KeyPress(Down) -> NextItem,
-  KeyPress(BasicKey('e'), control = true) -> FirstColumn,
-  KeyPress(BasicKey('a'), control = true) -> LastColumn,
+  control('e') -> FirstColumn,
+  control('a') -> LastColumn,
   OtherSequence("R") -> UnfocusColumn,
   OtherSequence("f") -> Focus,
   KeyPress(Enter) -> Focus,
   OtherSequence("d") -> FocusDirectory,
   OtherSequence("r") -> ReadFile,
   OtherSequence("b") -> Back,
-  KeyPress(BasicKey('n'), control = true) -> NextItem,
+  control('n') -> NextItem,
   KeyPress(Up) -> PreviousItem,
-  KeyPress(BasicKey('p'), control = true) -> PreviousItem,
+  control('p') -> PreviousItem,
   KeyPress(PageUp) -> PreviousPage,
   KeyPress(PageDown) -> NextPage,
   OtherSequence(" ") -> NextPage,
@@ -47,15 +48,15 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   TerminalWindowChanged -> Rerender)) {
 
   object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
-    KeyPress(Space, shift = true) -> AssistInvocation))
+    shift(Space) -> AssistInvocation))
 
   object IncrementalSearch extends KeyMap(Map(
     KeyPress(Enter) -> ExitSearch,
     KeyPress(Backspace) -> Unsearch,
-    KeyPress(BasicKey('t'), control = true) -> ToggleCase,
+    control('t') -> ToggleCase,
     KeyPress(Down) -> NextHit,
-    KeyPress(BasicKey('n'), control = true) -> NextHit,
+    control('n') -> NextHit,
     KeyPress(Up) -> PreviousHit,
-    KeyPress(BasicKey('p'), control = true) -> PreviousHit))
+    control('p') -> PreviousHit))
 
 }
