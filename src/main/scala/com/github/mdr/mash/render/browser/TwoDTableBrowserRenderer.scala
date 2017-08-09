@@ -1,13 +1,15 @@
 package com.github.mdr.mash.render.browser
 
+import com.github.mdr.mash.render.browser.TwoDTableCommonRenderer.ExtraRenderingInfo
 import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.TwoDTableBrowserState
-import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
 
-class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+class TwoDTableBrowserRenderer(state: TwoDTableBrowserState,
+                               terminalSize: Dimensions,
+                               mashRenderingContext: MashRenderingContext)
   extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderLines: LinesAndCursorPos =
@@ -16,8 +18,8 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState, terminalSize: Dimen
   private def renderTableLines: Seq[Line] = {
     val currentRowIndexOpt = Some(state.currentRow).filterNot(_ ⇒ state.expressionStateOpt.isDefined)
     val currentColumnIndexOpt = state.currentColumnOpt.filterNot(_ ⇒ state.expressionStateOpt.isDefined)
-    val commonRenderer = new TwoDTableCommonRenderer(state.model, markedRowsOpt = Some(state.markedRows),
-      currentRowIndexOpt, currentColumnIndexOpt, state.searchStateOpt)
+    val extraRenderingInfo = ExtraRenderingInfo(Some(state.markedRows), currentRowIndexOpt, currentColumnIndexOpt, state.searchStateOpt)
+    val commonRenderer = new TwoDTableCommonRenderer(state.model, terminalSize, extraRenderingInfo)
     commonRenderer.renderTableLines(state.firstRow, windowSize)
   }
 

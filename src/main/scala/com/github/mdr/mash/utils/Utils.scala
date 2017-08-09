@@ -99,10 +99,15 @@ object Utils {
 
   def initOpt[T](xs: Seq[T]): Option[Seq[T]] = if (xs.isEmpty) None else Some(xs.init)
 
-  def intercalate[T](xss: Seq[Seq[T]], xs: Seq[T]): Seq[T] = xss match {
-    case Seq()    ⇒ Seq()
-    case Seq(xs_) ⇒ xs_
-    case _        ⇒ xss.head ++ xs ++ intercalate(xss.tail, xs)
+  def intercalate[T](chunks: Seq[Seq[T]], separator: Seq[T]): Seq[T] = {
+    val lastIndex = chunks.size - 1
+    val result = ArrayBuffer[T]()
+    for ((chunk, i) ← chunks.zipWithIndex) {
+      result ++= chunk
+      if (i < lastIndex)
+        result ++= separator
+    }
+    result
   }
 
   def distinctBy[T, U](items: Seq[T], f: T ⇒ U): Seq[T] = {

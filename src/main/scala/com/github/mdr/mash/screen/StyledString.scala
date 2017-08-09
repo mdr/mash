@@ -5,6 +5,8 @@ import com.github.mdr.mash.utils.Utils._
 
 case class StyledCharacter(c: Char, style: Style = Style()) {
 
+  def asString = StyledString(Seq(this))
+
   def withStyle(style: Style): StyledCharacter = copy(style = style)
 
   def updateStyle(f: Style ⇒ Style): StyledCharacter = withStyle(f(style))
@@ -20,6 +22,10 @@ object StyledString {
 }
 
 case class StyledString(chars: Seq[StyledCharacter]) {
+
+  def head: StyledCharacter = chars.head
+
+  def last: StyledCharacter = chars.last
 
   def size: Int = chars.size
 
