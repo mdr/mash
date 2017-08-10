@@ -195,23 +195,23 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you delete forward a word" in {
-    lineBuffer("▶foo").deleteForwardWord shouldEqual lineBuffer("▶")
-    lineBuffer("fo▶o").deleteForwardWord shouldEqual lineBuffer("fo▶")
-    lineBuffer("foo▶").deleteForwardWord shouldEqual lineBuffer("foo▶")
-    lineBuffer("foo ▶bar baz").deleteForwardWord shouldEqual lineBuffer("foo ▶ baz")
-    lineBuffer("▶").deleteForwardWord shouldEqual lineBuffer("▶")
+    lineBuffer("▶foo").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = Some("foo"))
+    lineBuffer("fo▶o").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("fo▶"), copiedOpt = Some("o"))
+    lineBuffer("foo▶").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("foo▶"), copiedOpt = None)
+    lineBuffer("foo ▶bar baz").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("foo ▶ baz"), copiedOpt = Some("bar"))
+    lineBuffer("▶").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = None)
 
-    lineBuffer("1▷234▶5").deleteForwardWord shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷234▶5").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("1▶5"), copiedOpt = Some("234"))
   }
 
   it should "let you delete backwards a word" in {
-    lineBuffer("▶foo").deleteBackwardWord shouldEqual lineBuffer("▶foo")
-    lineBuffer("fo▶o").deleteBackwardWord shouldEqual lineBuffer("▶o")
-    lineBuffer("foo▶").deleteBackwardWord shouldEqual lineBuffer("▶")
-    lineBuffer("foo bar▶ baz").deleteBackwardWord shouldEqual lineBuffer("foo ▶ baz")
-    lineBuffer("▶").deleteBackwardWord shouldEqual lineBuffer("▶")
+    lineBuffer("▶foo").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶foo"), copiedOpt = None)
+    lineBuffer("fo▶o").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶o"), copiedOpt = Some("fo"))
+    lineBuffer("foo▶").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = Some("foo"))
+    lineBuffer("foo bar▶ baz").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("foo ▶ baz"), copiedOpt = Some("bar"))
+    lineBuffer("▶").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = None)
 
-    lineBuffer("1▷234▶5").deleteBackwardWord shouldEqual lineBuffer("1▶5")
+    lineBuffer("1▷234▶5").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("1▶5"), copiedOpt = Some("234"))
   }
 
   it should "let you move backwards a word" in {

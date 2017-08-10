@@ -54,14 +54,18 @@ case class LineBuffer(text: String,
 
   def isMultiline = lineInfo.lineCount > 1
 
-  def deleteForwardWord: LineBuffer = selectedRegionOpt match {
-    case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
-    case None                 ⇒ deleteRegion(Region.fromStartEnd(cursorOffset, forwardWordOffset))
+  def deleteForwardWord: LineBufferResult = {
+    val regionToDelete = selectedRegionOpt getOrElse Region.fromStartEnd(cursorOffset, forwardWordOffset)
+    val copyOpt = Some(regionToDelete.of(text)).filter(_.nonEmpty)
+    val newLineBuffer = deleteRegion(regionToDelete)
+    LineBufferResult(newLineBuffer, copyOpt)
   }
 
-  def deleteBackwardWord: LineBuffer = selectedRegionOpt match {
-    case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
-    case None                 ⇒ deleteRegion(Region.fromStartEnd(backwardWordOffset, cursorOffset))
+  def deleteBackwardWord: LineBufferResult = {
+    val regionToDelete = selectedRegionOpt getOrElse Region.fromStartEnd(backwardWordOffset, cursorOffset)
+    val copyOpt = Some(regionToDelete.of(text)).filter(_.nonEmpty)
+    val newLineBuffer = deleteRegion(regionToDelete)
+    LineBufferResult(newLineBuffer, copyOpt)
   }
 
   private def forwardWordOffset: Int = {
@@ -206,3 +210,5 @@ case class LineBuffer(text: String,
   }
 
 }
+
+case class LineBufferResult(lineBuffer: LineBuffer, copiedOpt: Option[String] = None)

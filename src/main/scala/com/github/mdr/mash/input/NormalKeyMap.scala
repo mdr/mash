@@ -8,6 +8,7 @@ import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.input.KeyDsl._
 
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
+  control('y') → Paste,
   alt('e') → Inline,
   control('p') → NormalActions.Up,
   KeyPress(Key.Up) → NormalActions.Up,

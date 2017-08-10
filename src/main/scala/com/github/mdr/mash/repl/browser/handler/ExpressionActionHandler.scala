@@ -11,7 +11,7 @@ import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, _ }
 import com.github.mdr.mash.repl.browser.{ BrowserState, ExpressionState }
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
-import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
+import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 trait ExpressionActionHandler {
@@ -85,13 +85,13 @@ trait ExpressionActionHandler {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
     action match {
-      case LineBufferAction(f) ⇒ updateExpressionBuffer(f)
-      case ToggleQuote         ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
-      case ExpandSelection     ⇒ updateExpressionBuffer(SyntaxSelection.expandSelection(_, state.mish))
-      case Complete            ⇒ handleComplete(browserState, expressionState)
-      case Enter               ⇒ handleEnter(browserState, expressionState)
-      case AssistInvocation    ⇒ handleAssistInvocation(browserState, expressionState)
-      case _                   ⇒
+      case LineBufferActionHandler(f) ⇒ updateState(browserState.setExpression(expressionState.updateLineBufferResult(f)))
+      case ToggleQuote                ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
+      case ExpandSelection            ⇒ updateExpressionBuffer(SyntaxSelection.expandSelection(_, state.mish))
+      case Complete                   ⇒ handleComplete(browserState, expressionState)
+      case Enter                      ⇒ handleEnter(browserState, expressionState)
+      case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
+      case _                          ⇒
     }
     updateInvocationAssistance(browserState)
   }
@@ -137,7 +137,7 @@ trait ExpressionActionHandler {
 
   private def enterIncrementalCompletionState(browserState: BrowserState, result: CompletionResult, lineBuffer: LineBuffer) = {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, lineBuffer)
-    updateState(browserState.setExpression(ExpressionState(newLineBuffer, Some(completionState))))
+    updateState(browserState.setExpression(ExpressionState(newLineBuffer, completionStateOpt = Some(completionState))))
   }
 
   private def immediateInsert(browserState: BrowserState, lineBuffer: LineBuffer, completion: Completion, result: CompletionResult) {

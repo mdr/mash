@@ -13,7 +13,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.NormalActions.{ Down, _ }
 import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
-import com.github.mdr.mash.repl.{ LineBuffer, LineBufferAction, Repl }
+import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 
@@ -27,27 +27,34 @@ trait NormalActionHandler extends InlineHandler {
 
   def handleNormalAction(action: InputAction) = {
     action match {
-      case Enter                    ⇒ handleEnter()
-      case LineBufferAction(f)      ⇒ resetHistoryIfTextChanges(state = state.updateLineBuffer(f))
-      case Complete                 ⇒ handleComplete()
-      case RedrawScreen             ⇒ handleRedrawScreen()
-      case EndOfFile                ⇒ handleEof()
-      case Up                       ⇒ handleUp()
-      case Down                     ⇒ handleDown()
-      case AssistInvocation         ⇒ handleAssistInvocation()
-      case InsertLastArg            ⇒ handleInsertLastArg()
-      case ToggleQuote              ⇒ handleToggleQuote()
-      case ToggleMish               ⇒ handleToggleMish()
-      case IncrementalHistorySearch ⇒ handleIncrementalHistorySearch()
-      case BrowseLastResult         ⇒ handleBrowseLastResult()
-      case Inline                   ⇒ resetHistoryIfTextChanges(state = handleInline(state))
-      case ExpandSelection          ⇒ handleExpandSelection()
-      case _                        ⇒
+      case Enter                      ⇒ handleEnter()
+      case LineBufferActionHandler(f) ⇒
+        resetHistoryIfTextChanges(state = state.updateLineBufferResult(f))
+      case Complete                   ⇒ handleComplete()
+      case RedrawScreen               ⇒ handleRedrawScreen()
+      case EndOfFile                  ⇒ handleEof()
+      case Up                         ⇒ handleUp()
+      case Down                       ⇒ handleDown()
+      case AssistInvocation           ⇒ handleAssistInvocation()
+      case InsertLastArg              ⇒ handleInsertLastArg()
+      case ToggleQuote                ⇒ handleToggleQuote()
+      case ToggleMish                 ⇒ handleToggleMish()
+      case IncrementalHistorySearch   ⇒ handleIncrementalHistorySearch()
+      case BrowseLastResult           ⇒ handleBrowseLastResult()
+      case Inline                     ⇒ resetHistoryIfTextChanges(state = handleInline(state))
+      case ExpandSelection            ⇒ handleExpandSelection()
+      case Paste                      ⇒ handlePaste()
+      case _                          ⇒
     }
     if (action != Down && action != Up && action != RedrawScreen)
       history.commitToEntry()
     if (action != InsertLastArg && action != RedrawScreen)
       state = state.copy(insertLastArgStateOpt = None)
+  }
+
+  private def handlePaste() = resetHistoryIfTextChanges {
+    for (copy ← state.copiedOpt)
+      state = state.updateLineBuffer(_.insertAtCursor(copy))
   }
 
   private def handleExpandSelection() =
