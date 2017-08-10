@@ -29,7 +29,7 @@ trait NormalActionHandler extends InlineHandler {
     action match {
       case Enter                      ⇒ handleEnter()
       case LineBufferActionHandler(f) ⇒
-        resetHistoryIfTextChanges(state = state.updateLineBufferResult(f))
+        handleTextChange(state = state.updateLineBufferResult(f))
       case Complete                   ⇒ handleComplete()
       case RedrawScreen               ⇒ handleRedrawScreen()
       case EndOfFile                  ⇒ handleEof()
@@ -41,9 +41,10 @@ trait NormalActionHandler extends InlineHandler {
       case ToggleMish                 ⇒ handleToggleMish()
       case IncrementalHistorySearch   ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult           ⇒ handleBrowseLastResult()
-      case Inline                     ⇒ resetHistoryIfTextChanges(state = handleInline(state))
+      case Inline                     ⇒ handleTextChange(state = handleInline(state))
       case ExpandSelection            ⇒ handleExpandSelection()
       case Paste                      ⇒ handlePaste()
+      case Undo                       ⇒ handleUndo()
       case _                          ⇒
     }
     if (action != Down && action != Up && action != RedrawScreen)
@@ -52,9 +53,16 @@ trait NormalActionHandler extends InlineHandler {
       state = state.copy(insertLastArgStateOpt = None)
   }
 
-  private def handlePaste() = resetHistoryIfTextChanges {
+  private def handlePaste() = handleTextChange {
     for (copy ← state.copiedOpt)
       state = state.updateLineBuffer(_.insertAtCursor(copy))
+  }
+
+  private def handleUndo() = {
+    for ((lineBuffer, newUndoRedoState) <- state.undoRedoState.pop) {
+      state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState)
+      history.resetHistoryPosition()
+    }
   }
 
   private def handleExpandSelection() =
@@ -74,12 +82,14 @@ trait NormalActionHandler extends InlineHandler {
   private def handleIncrementalHistorySearch() =
     state = IncrementalHistorySearchActionHandler(history).beginFreshIncrementalSearch(state)
 
-  private def resetHistoryIfTextChanges[T](f: ⇒ T): T = {
-    val before = state.lineBuffer.text
+  private def handleTextChange[T](f: ⇒ T): T = {
+    val oldLineBuffer = state.lineBuffer
     val result = f
-    val after = state.lineBuffer.text
-    if (before != after)
+    val newLineBuffer = state.lineBuffer
+    if (oldLineBuffer.text != newLineBuffer.text) {
       history.resetHistoryPosition()
+        state = state.copy(undoRedoState = state.undoRedoState.push(oldLineBuffer.withoutSelection))
+    }
     result
   }
 
@@ -109,7 +119,7 @@ trait NormalActionHandler extends InlineHandler {
     else
       state = state.updateLineBuffer(_.cursorDown)
 
-  private def handleToggleQuote() = resetHistoryIfTextChanges {
+  private def handleToggleQuote() = handleTextChange {
     state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
   }
 
@@ -123,7 +133,7 @@ trait NormalActionHandler extends InlineHandler {
     previousScreenOpt = None
   }
 
-  private def handleToggleMish() = resetHistoryIfTextChanges {
+  private def handleToggleMish() = handleTextChange {
     val lineBuffer = state.lineBuffer
     val newLineBuffer =
       if (lineBuffer.text startsWith "!")
@@ -133,7 +143,7 @@ trait NormalActionHandler extends InlineHandler {
     state = state.withLineBuffer(newLineBuffer)
   }
 
-  private def handleInsertLastArg() = resetHistoryIfTextChanges {
+  private def handleInsertLastArg() = handleTextChange {
     state = InsertLastArgHandler.handleInsertLastArg(history, state)
   }
 

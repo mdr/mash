@@ -27,6 +27,7 @@ object NormalActions {
   case object KillWord extends InputAction
   case object BackwardKillWord extends InputAction
   case object Paste extends InputAction
+  case object Undo extends InputAction
   case object Complete extends InputAction
   case object BackwardComplete extends InputAction
   case object Noop extends InputAction

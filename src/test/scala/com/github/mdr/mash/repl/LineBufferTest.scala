@@ -205,9 +205,9 @@ class LineBufferTest extends FlatSpec with Matchers {
 
   it should "let you delete backwards a word" in {
     lineBuffer("▶foo").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶foo"), copiedOpt = None)
-    lineBuffer("fo▶o").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶o"), copiedOpt = Some("fo"))
-    lineBuffer("foo▶").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = Some("foo"))
-    lineBuffer("foo bar▶ baz").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("foo ▶ baz"), copiedOpt = Some("bar"))
+    lineBuffer("fo▶o").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶o"), copiedOpt = None)
+    lineBuffer("foo▶").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = None)
+    lineBuffer("foo bar▶ baz").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("foo ▶ baz"), copiedOpt = None)
     lineBuffer("▶").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = None)
 
     lineBuffer("1▷234▶5").deleteBackwardWord shouldEqual LineBufferResult(lineBuffer("1▶5"), copiedOpt = Some("234"))

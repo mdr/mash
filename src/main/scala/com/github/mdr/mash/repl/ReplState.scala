@@ -5,8 +5,20 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserStateStack
 import com.github.mdr.mash.repl.completions.CompletionState
 import com.github.mdr.mash.repl.handler.InsertLastArgState
 
+case class UndoRedoState(previousLineBuffers: List[LineBuffer] = List()) {
+
+  def push(lineBuffer: LineBuffer): UndoRedoState = copy(previousLineBuffers = lineBuffer :: previousLineBuffers)
+
+  def pop: Option[(LineBuffer, UndoRedoState)] = previousLineBuffers match {
+    case Nil          ⇒ None
+    case head :: tail ⇒ Some(head, copy(previousLineBuffers = tail))
+  }
+
+}
+
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      copiedOpt: Option[String] = None,
+                     undoRedoState: UndoRedoState = UndoRedoState(),
                      commandNumber: Int = 0,
                      continue: Boolean = true, // Whether to loop or exit
                      mish: Boolean = false,

@@ -21,7 +21,6 @@ object LineBuffer {
 case class LineBuffer(text: String,
                       cursorOffset: Int,
                       selectionOffsetOpt: Option[Int] = None) {
-
   require(cursorOffset >= 0 && cursorOffset <= text.length,
     s"Cursor offset out of range: offset = $cursorOffset, text length = ${text.length}")
 
@@ -61,7 +60,7 @@ case class LineBuffer(text: String,
 
   def deleteBackwardWord: LineBufferResult = {
     val regionToDelete = selectedRegionOpt getOrElse Region.fromStartEnd(backwardWordOffset, cursorOffset)
-    val copyOpt = Some(regionToDelete.of(text)).filter(_.nonEmpty)
+    val copyOpt = Some(regionToDelete.of(text)).filter(_.nonEmpty && selectedRegionOpt.isDefined)
     val newLineBuffer = deleteRegion(regionToDelete)
     LineBufferResult(newLineBuffer, copyOpt)
   }
@@ -206,6 +205,8 @@ case class LineBuffer(text: String,
         selectionOffsetOpt.toSeq.map(i ⇒ '▷' → (i - 0.5))
     decoratedChars.sortBy(_._2).map(_._1).mkString
   }
+
+  def withoutSelection: LineBuffer = copy(selectionOffsetOpt = None)
 
 }
 
