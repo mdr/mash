@@ -191,17 +191,16 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("1▷234▶5").backspace shouldEqual lineBuffer("1▶5")
     lineBuffer("1▶234▷5").backspace shouldEqual lineBuffer("1▶5")
     lineBuffer("1▷2345▶").backspace shouldEqual lineBuffer("1▶")
-
   }
 
   it should "let you delete forward a word" in {
-    lineBuffer("▶foo").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = Some("foo"))
-    lineBuffer("fo▶o").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("fo▶"), copiedOpt = Some("o"))
-    lineBuffer("foo▶").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("foo▶"), copiedOpt = None)
-    lineBuffer("foo ▶bar baz").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("foo ▶ baz"), copiedOpt = Some("bar"))
-    lineBuffer("▶").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("▶"), copiedOpt = None)
+    lineBuffer("▶foo").deleteForwardWord shouldEqual lineBuffer("▶")
+    lineBuffer("fo▶o").deleteForwardWord shouldEqual lineBuffer("fo▶")
+    lineBuffer("foo▶").deleteForwardWord shouldEqual lineBuffer("foo▶")
+    lineBuffer("foo ▶bar baz").deleteForwardWord shouldEqual lineBuffer("foo ▶ baz")
+    lineBuffer("▶").deleteForwardWord shouldEqual lineBuffer("▶")
 
-    lineBuffer("1▷234▶5").deleteForwardWord shouldEqual LineBufferResult(lineBuffer("1▶5"), copiedOpt = Some("234"))
+    lineBuffer("1▷234▶5").deleteForwardWord shouldEqual lineBuffer("1▶5")
   }
 
   it should "let you delete backwards a word" in {

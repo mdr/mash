@@ -26,7 +26,7 @@ object LineBufferActionHandler {
     case BackwardDeleteChar             ⇒ noCopy(_.backspace)
     case KillLine                       ⇒ noCopy(_.deleteToEndOfLine)
     case BackwardKillLine               ⇒ noCopy(_.deleteToBeginningOfLine)
-    case KillWord                       ⇒ _.deleteForwardWord
+    case KillWord                       ⇒ noCopy(_.deleteForwardWord)
     case BackwardKillWord               ⇒ _.deleteBackwardWord
   }
 
