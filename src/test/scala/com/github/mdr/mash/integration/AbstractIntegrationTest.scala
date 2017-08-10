@@ -4,8 +4,9 @@ import java.io.PrintStream
 import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
+import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
-import com.github.mdr.mash.repl.NormalActions.{ Enter, AssistInvocation, BackwardKillLine, SelfInsert }
+import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, BackwardKillLine, Enter, SelfInsert }
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
@@ -55,6 +56,11 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def path = getState.path
 
+    private def handleAction(action: InputAction): TwoDBrowser = {
+      repl.handleAction(action)
+      this
+    }
+
     def rows: Seq[Seq[String]] = {
       val model = getState.model
       model.rows.map(row ⇒ model.columnIds.map(columnId ⇒ row.cells(columnId).renderedValue))
@@ -69,35 +75,17 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def currentColumnOpt: Option[Int] = getState.currentColumnOpt
 
-    def nextColumn() = {
-      repl.handleAction(NextColumn)
-      this
-    }
+    def nextColumn() = handleAction(NextColumn)
 
-    def previousColumn() = {
-      repl.handleAction(PreviousColumn)
-      this
-    }
+    def previousColumn() = handleAction(PreviousColumn)
 
-    def unfocusColumn() = {
-      repl.handleAction(UnfocusColumn)
-      this
-    }
+    def unfocusColumn() = handleAction(UnfocusColumn)
 
-    def beginExpression() = {
-      repl.handleAction(BeginExpression)
-      this
-    }
+    def beginExpression() = handleAction(BeginExpression)
 
-    def backwardKillLine() = {
-      repl.handleAction(BackwardKillLine)
-      this
-    }
+    def backwardKillLine() = handleAction(BackwardKillLine)
 
-    def input(s: String) = {
-      repl.handleAction(SelfInsert(s))
-      this
-    }
+    def input(s: String) = handleAction(SelfInsert(s))
 
     def acceptLine() = {
       repl.handleAction(Enter)
@@ -122,60 +110,36 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     import com.github.mdr.mash.repl.NormalActions._
 
-    def input(s: String): Repl = {
-      repl.handleAction(SelfInsert(s))
+    private def handleAction(action: InputAction): Repl = {
+      repl.handleAction(action)
       repl
     }
 
-    def assistInvocation(): Repl = {
-      repl.handleAction(AssistInvocation)
-      repl
-    }
+    def input(s: String): Repl = handleAction(SelfInsert(s))
 
-    def incrementalHistorySearch(): Repl = {
-      repl.handleAction(IncrementalHistorySearch)
-      repl
-    }
+    def assistInvocation(): Repl = handleAction(AssistInvocation)
 
-    def complete(): Repl = {
-      repl.handleAction(Complete)
-      repl
-    }
+    def incrementalHistorySearch(): Repl = handleAction(IncrementalHistorySearch)
 
-    def up(): Repl = {
-      repl.handleAction(Up)
-      repl
-    }
+    def complete(): Repl = handleAction(Complete)
 
-    def down(): Repl = {
-      repl.handleAction(Down)
-      repl
-    }
+    def up(): Repl = handleAction(Up)
 
-    def acceptLine(): Repl = {
-      repl.handleAction(Enter)
-      repl
-    }
+    def down(): Repl = handleAction(Down)
 
-    def toggleQuote(): Repl = {
-      repl.handleAction(ToggleQuote)
-      repl
-    }
+    def acceptLine(): Repl = handleAction(Enter)
 
-    def inline(): Repl = {
-      repl.handleAction(Inline)
-      repl
-    }
+    def toggleQuote(): Repl = handleAction(ToggleQuote)
 
-    def expandSelection(): Repl = {
-      repl.handleAction(ExpandSelection)
-      repl
-    }
+    def inline(): Repl = handleAction(Inline)
 
-    def insertLastArgument(): Repl = {
-      repl.handleAction(InsertLastArg)
-      repl
-    }
+    def expandSelection(): Repl = handleAction(ExpandSelection)
+
+    def backwardKillWord(): Repl = handleAction(BackwardKillWord)
+
+    def paste(): Repl = handleAction(Paste)
+
+    def insertLastArgument(): Repl = handleAction(InsertLastArg)
 
     def text: String = lineBuffer.text
 
@@ -187,15 +151,9 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
-    def delete(): Repl = {
-      repl.handleAction(DeleteChar)
-      repl
-    }
+    def delete(): Repl = handleAction(DeleteChar)
 
-    def backspace(): Repl = {
-      repl.handleAction(BackwardDeleteChar)
-      repl
-    }
+    def backspace(): Repl = handleAction(BackwardDeleteChar)
 
     def draw(): Repl = {
       repl.draw()
@@ -238,10 +196,3 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
   }
 
 }
-
-
-
-
-
-
-

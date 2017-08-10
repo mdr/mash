@@ -220,4 +220,16 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .lineBuffer shouldEqual lineBuffer("1 + ▷2 * 3▶")
   }
 
+  "Cutting selection and pasting" should "work" in {
+    makeRepl()
+      .input("1 + 2 * 3")
+      .left(2)
+      .expandSelection()
+      .backwardKillWord()
+      .paste()
+      .input(" + ")
+      .paste()
+      .lineBuffer shouldEqual lineBuffer("1 + 2 * 3 + 2 * 3▶")
+  }
+
 }
