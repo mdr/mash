@@ -72,14 +72,8 @@ trait ObjectBrowserActionHandler
       case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
     }
 
-  protected def focus(value: MashValue, path: String, tree: Boolean): Unit = {
-    val newBrowserState =
-      if (tree && (value.isAList || value.isAnObject))
-        makeObjectTreeBrowserState(value, path)
-      else
-        getNewBrowserState(value, path)
-    navigateForward(newBrowserState)
-  }
+  protected def focus(value: MashValue, path: String, tree: Boolean): Unit =
+    navigateForward(getNewBrowserState(value, path, tree))
 
   protected def viewAsTree(browserState: BrowserState): Unit =
     updateState(makeObjectTreeBrowserState(browserState.rawValue, browserState.path))
@@ -119,6 +113,12 @@ trait ObjectBrowserActionHandler
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState =
     BrowserState.fromModel(DisplayModel.getDisplayModel(value, viewConfig, terminal.size), path)
+
+  protected def getNewBrowserState(value: MashValue, path: String, tree: Boolean): BrowserState =
+    if (tree && (value.isAList || value.isAnObject))
+      makeObjectTreeBrowserState(value, path)
+    else
+      getNewBrowserState(value, path)
 
   private def insert(expression: String): Unit = {
     state = state.copy(
@@ -169,10 +169,10 @@ trait ObjectBrowserActionHandler
 
   private case class ItemAndPath(item: MashValue, path: String)
 
-  protected def selectParentItem(browserState: BrowserState, delta: Int) = {
+  protected def selectParentItem(browserState: BrowserState, delta: Int, tree: Boolean = false) = {
     val newItemAndPath = selectParentItemByIntegerIndex(browserState, delta) orElse selectParentItemByName(browserState, delta)
     for (ItemAndPath(newItem, newPath) ← newItemAndPath)
-      updateState(getNewBrowserState(newItem, newPath))
+      updateState(getNewBrowserState(newItem, newPath, tree))
   }
 
   private def getParentValue: Option[MashValue] =

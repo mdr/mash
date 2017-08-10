@@ -17,6 +17,8 @@ trait ObjectTreeBrowserActionHandler {
       case PreviousColumn                  ⇒ updateState(browserState.left)
       case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
       case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
+      case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1, tree = true)
+      case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1, tree = true)
       case ViewAsTree                      ⇒ updateState(getNewBrowserState(browserState.rawValue, browserState.path))
       case InsertItem                      ⇒ handleInsertItem(browserState)
       case Open                            ⇒ handleOpenItem(browserState)
