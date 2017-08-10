@@ -8,7 +8,7 @@ import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.input.KeyDsl._
 
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
-  control('t') → Inline,
+  alt('e') → Inline,
   control('p') → NormalActions.Up,
   KeyPress(Key.Up) → NormalActions.Up,
   control('n') → NormalActions.Down,
@@ -60,4 +60,4 @@ object LineBufferKeyMap extends KeyMap(Map(
   alt(Backspace) → BackwardKillWord,
   control('w') → BackwardKillWord,
   control('q') → ToggleQuote,
-  alt('e') → ExpandSelection))
+  control('t') → ExpandSelection))
