@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.screen.Style.StylableString
+  import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, Style, StyledString }
 
 object KeyHint {
@@ -11,13 +11,14 @@ object KeyHint {
   val Insert = KeyHint("i", "insert")
   val InsertWhole = KeyHint("I", "insert whole")
   val Mark = KeyHint("m", "mark")
-  val Row = KeyHint("r", "row")
+  val Row = KeyHint("R", "row")
   val Tree = KeyHint("t", "tree")
   val Table = KeyHint("t", "table")
   val HideColumn = KeyHint("h", "hide col")
   val Search = KeyHint("/", "find")
   val Expression = KeyHint("e", "expr")
   val Dir = KeyHint("d", "dir")
+  val Read = KeyHint("r", "read")
   val Open = KeyHint("o", "open")
   val Copy = KeyHint("c", "copy")
 
@@ -28,7 +29,7 @@ object KeyHint {
   val DoneSearch = KeyHint("ret", "done")
   val QuitSearch = KeyHint("^Q", "quit")
 
-  val NextHistoryHit = KeyHint("^R", "next")
+  val NextHistoryHit = KeyHint("Up", "next")
   val ChangeDirectory = KeyHint("^D", "cd")
 
   def renderKeyHint(hint: KeyHint): StyledString =
