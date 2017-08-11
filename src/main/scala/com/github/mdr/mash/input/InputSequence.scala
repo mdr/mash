@@ -12,11 +12,15 @@ object KeyDsl {
 
   def control(c: Char) = KeyPress(c, control = true)
 
+  def control(key: Key) = KeyPress(key, control = true)
+
   def alt(c: Char) = KeyPress(c, alt = true)
 
   def alt(key: Key) = KeyPress(key, alt = true)
 
   def altShift(c: Char) = KeyPress(c, alt = true, shift = true)
+
+  def altShift(key: Key) = KeyPress(key, alt = true, shift = true)
 
   def shift(key: Key) = KeyPress(key, shift = true)
 

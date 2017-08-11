@@ -91,9 +91,15 @@ trait ExpressionActionHandler {
       case Complete                   ⇒ handleComplete(browserState, expressionState)
       case Enter                      ⇒ handleEnter(browserState, expressionState)
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
+      case Paste                      ⇒ handlePaste(browserState, expressionState)
       case _                          ⇒
     }
     updateInvocationAssistance(browserState)
+  }
+
+  private def handlePaste(browserState: BrowserState, expressionState: ExpressionState) = {
+    for (copy ← state.copiedOpt)
+      updateState(browserState.setExpression(expressionState.updateLineBuffer(_.insertAtCursor(copy))))
   }
 
   private def handleAssistInvocation(browserState: BrowserState, expressionState: ExpressionState) {

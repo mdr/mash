@@ -18,13 +18,15 @@ object ReflogFunction extends MashFunction("git.reflog") {
     }
 
   private def asMashObject(entry: ReflogEntry): MashObject = {
-    import com.github.mdr.mash.ns.git.ReflogEntryClass.Fields._
+    import ReflogEntryClass.Fields._
     MashObject.of(
       ListMap(
-        Commit -> MashString(entry.getNewId.getName),
+        Commit -> MashString(entry.getNewId.getName, Some(CommitHashClass)),
         Comment -> MashString(entry.getComment)),
       ReflogEntryClass)
   }
+
+  override def typeInferenceStrategy = Seq(ReflogEntryClass)
 
   override def summaryOpt: Option[String] = Some("The Git reference log")
 

@@ -6,7 +6,7 @@ import com.github.mdr.mash.ns.core.StringClass
 object ReflogEntryClass extends MashClass("git.ReflogEntry") {
 
   object Fields {
-    val Commit = Field("commit", Some("Commit hash"), StringClass taggedWith CommitClass)
+    val Commit = Field("commit", Some("Commit hash"), StringClass taggedWith CommitHashClass)
     val Comment = Field("comment", Some("Comment"), StringClass)
   }
   import Fields._
