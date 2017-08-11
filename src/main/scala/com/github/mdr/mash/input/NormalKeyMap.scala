@@ -55,6 +55,8 @@ object LineBufferKeyMap extends KeyMap(Map(
   alt('b') → BackwardWord,
   altShift('f') → ForwardWordExtendingSelection,
   altShift('b') → BackwardWordExtendingSelection,
+  altShift(Key.Right) → ForwardWordExtendingSelection,
+  altShift(Key.Left) → BackwardWordExtendingSelection,
   control('d') → DeleteChar,
   KeyPress(Delete) → DeleteChar,
   KeyPress(Backspace) → BackwardDeleteChar,

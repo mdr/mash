@@ -9,8 +9,8 @@ object InputSequenceReader {
 
   import InputSequence._
 
-  private def makeEscapeTree(xs: (String, KeyPress)*): PrefixTree[KeyPress] =
-    PrefixTree(xs.map { case (s, k) ⇒ s.drop(2) → k }: _*)
+  private def makeEscapeTree(escapes: (String, KeyPress)*): PrefixTree[KeyPress] =
+    PrefixTree(escapes.map { case (escape, key) ⇒ escape.replace("^[", Esc.toString).tail → key }: _*)
 
   private val Esc = '\u001b'
   private val Del = '\u007f'
@@ -25,6 +25,8 @@ object InputSequenceReader {
     "^[[1;3A" → alt(Key.Up),
     "^[[1;4C" → altShift(Key.Right),
     "^[[1;4D" → altShift(Key.Left),
+    "^[^[[C" → altShift(Key.Right),
+    "^[^[[D" → altShift(Key.Left),
     "^[[1;5C" → control(Key.Right),
     "^[[1;5D" → control(Key.Left),
     "^[[3~" → KeyPress(Delete),
