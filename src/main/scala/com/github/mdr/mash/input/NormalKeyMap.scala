@@ -49,6 +49,8 @@ object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(Left) → BackwardChar,
   shift(Right) → ForwardCharExtendingSelection,
   shift(Left) → BackwardCharExtendingSelection,
+  shift(Key.Down) → DownExtendingSelection,
+  shift(Key.Up) → UpExtendingSelection,
   alt('f') → ForwardWord,
   alt('b') → BackwardWord,
   altShift('f') → ForwardWordExtendingSelection,

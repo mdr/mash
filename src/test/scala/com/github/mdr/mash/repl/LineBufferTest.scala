@@ -72,61 +72,73 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you move the cursor up" in {
-    lineBuffer("abc▶").cursorUp shouldEqual lineBuffer("abc▶")
-    lineBuffer("▶").cursorUp shouldEqual lineBuffer("▶")
+    lineBuffer("abc▶").cursorUp() shouldEqual lineBuffer("abc▶")
+    lineBuffer("▶").cursorUp() shouldEqual lineBuffer("▶")
 
     lineBuffer(
       """abc
-        |▶def""").cursorUp shouldEqual lineBuffer(
+        |▶def""").cursorUp() shouldEqual lineBuffer(
       """▶abc
         |def""")
 
     lineBuffer(
       """abcdef
-        |ghi▶""").cursorUp shouldEqual lineBuffer(
+        |ghi▶""").cursorUp() shouldEqual lineBuffer(
       """abc▶def
         |ghi""")
 
     lineBuffer(
       """abc
-        |defghi▶""").cursorUp shouldEqual lineBuffer(
+        |defghi▶""").cursorUp() shouldEqual lineBuffer(
       """abc▶
         |defghi""")
 
     lineBuffer(
       """
-        |▶def""").cursorUp shouldEqual lineBuffer(
+        |▶def""").cursorUp() shouldEqual lineBuffer(
       """▶
         |def""")
+
+    lineBuffer(
+      """abcdef
+        |ghi▶""").cursorUp(extendSelection = true) shouldEqual lineBuffer(
+      """abc▶def
+        |ghi▷""")
   }
 
   it should "let you move the cursor down" in {
-    lineBuffer("abc▶").cursorDown shouldEqual lineBuffer("abc▶")
-    lineBuffer("▶").cursorDown shouldEqual lineBuffer("▶")
+    lineBuffer("abc▶").cursorDown() shouldEqual lineBuffer("abc▶")
+    lineBuffer("▶").cursorDown() shouldEqual lineBuffer("▶")
 
     lineBuffer(
       """▶abc
-        |def""").cursorDown shouldEqual lineBuffer(
+        |def""").cursorDown() shouldEqual lineBuffer(
       """abc
         |▶def""")
 
     lineBuffer(
       """abc▶def
-        |ghi""").cursorDown shouldEqual lineBuffer(
+        |ghi""").cursorDown() shouldEqual lineBuffer(
       """abcdef
         |ghi▶""")
 
     lineBuffer(
       """abc▶
-        |defghi""").cursorDown shouldEqual lineBuffer(
+        |defghi""").cursorDown() shouldEqual lineBuffer(
       """abc
         |def▶ghi""")
 
     lineBuffer(
       """▶
-        |def""").cursorDown shouldEqual lineBuffer(
+        |def""").cursorDown() shouldEqual lineBuffer(
       """
         |▶def""")
+
+    lineBuffer(
+      """abc▶def
+        |ghi""").cursorDown(extendSelection = true) shouldEqual lineBuffer(
+      """abc▷def
+        |ghi▶""")
   }
 
   it should "abandon selection if you move the cursor without extending selection" in {
@@ -134,8 +146,8 @@ class LineBufferTest extends FlatSpec with Matchers {
     lineBuffer("▷abc▶").cursorRight() shouldEqual lineBuffer("abc▶")
     lineBuffer("a▶bc▷").cursorLeft() shouldEqual lineBuffer("▶abc")
     lineBuffer("▶abc▷").cursorLeft() shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶abc▷").cursorUp shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶abc▷").cursorDown shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶abc▷").cursorUp() shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶abc▷").cursorDown() shouldEqual lineBuffer("▶abc")
   }
 
   it should "let you add a character at the cursor" in {

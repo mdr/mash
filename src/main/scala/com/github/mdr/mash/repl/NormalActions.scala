@@ -18,7 +18,9 @@ object NormalActions {
   case object ForwardWordExtendingSelection extends InputAction
   case object BackwardWordExtendingSelection extends InputAction
   case object Up extends InputAction
+  case object UpExtendingSelection extends InputAction
   case object Down extends InputAction
+  case object DownExtendingSelection extends InputAction
   case object DeleteChar extends InputAction
   case object EndOfFile extends InputAction
   case object BackwardDeleteChar extends InputAction

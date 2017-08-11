@@ -187,15 +187,16 @@ case class LineBuffer(text: String,
     copy(cursorOffset = newCursorOffset, selectionOffsetOpt = newSelectionOffsetOpt)
   }
 
-  def cursorUp: LineBuffer = moveCursorUpDownBy(-1)
+  def cursorUp(extendSelection: Boolean = false): LineBuffer = moveCursorUpDownBy(-1, extendSelection)
 
-  def cursorDown: LineBuffer = moveCursorUpDownBy(1)
+  def cursorDown(extendSelection: Boolean = false): LineBuffer = moveCursorUpDownBy(1, extendSelection)
 
-  private def moveCursorUpDownBy(delta: Int): LineBuffer = {
+  private def moveCursorUpDownBy(delta: Int, extendSelection: Boolean): LineBuffer = {
     val newRow = 0 max cursorPos.row + delta min lineInfo.lineCount - 1
     val line = lineInfo.line(newRow)
     val newColumn = cursorPos.column min line.length
-    withCursorPos(Point(newRow, newColumn))
+    val newCursorOffset = lineInfo.offset(newRow, newColumn)
+    moveCursor(newCursorOffset, extendSelection)
   }
 
   override def toString = {

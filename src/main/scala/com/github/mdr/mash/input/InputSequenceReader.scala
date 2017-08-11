@@ -18,8 +18,10 @@ object InputSequenceReader {
   private val EscapeSequenceTree = makeEscapeTree(
     "^[." → alt('.'),
     "^[," → alt(','),
-    "^[[1;2D" → shift(Key.Left),
+    "^[[1;2A" → shift(Key.Up),
+    "^[[1;2B" → shift(Key.Down),
     "^[[1;2C" → shift(Key.Right),
+    "^[[1;2D" → shift(Key.Left),
     "^[[1;5C" → alt(Key.Right),
     "^[[1;5D" → alt(Key.Left),
     "^[[3~" → KeyPress(Delete),

@@ -34,7 +34,9 @@ trait NormalActionHandler extends InlineHandler {
       case RedrawScreen               ⇒ handleRedrawScreen()
       case EndOfFile                  ⇒ handleEof()
       case Up                         ⇒ handleUp()
+      case UpExtendingSelection       ⇒ state = state.updateLineBuffer(_.cursorUp(extendSelection = true))
       case Down                       ⇒ handleDown()
+      case DownExtendingSelection     ⇒ state = state.updateLineBuffer(_.cursorDown(extendSelection = true))
       case AssistInvocation           ⇒ handleAssistInvocation()
       case InsertLastArg              ⇒ handleInsertLastArg()
       case ToggleQuote                ⇒ handleToggleQuote()
@@ -88,7 +90,7 @@ trait NormalActionHandler extends InlineHandler {
     val newLineBuffer = state.lineBuffer
     if (oldLineBuffer.text != newLineBuffer.text) {
       history.resetHistoryPosition()
-        state = state.copy(undoRedoState = state.undoRedoState.push(oldLineBuffer.withoutSelection))
+      state = state.copy(undoRedoState = state.undoRedoState.push(oldLineBuffer.withoutSelection))
     }
     result
   }
@@ -96,7 +98,7 @@ trait NormalActionHandler extends InlineHandler {
   private def handleUp() = {
     val lineBuffer = state.lineBuffer
     if (!lineBuffer.onFirstLine && history.isCommittedToEntry)
-      state = state.updateLineBuffer(_.cursorUp)
+      state = state.updateLineBuffer(_.cursorUp())
     else {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
@@ -105,7 +107,7 @@ trait NormalActionHandler extends InlineHandler {
       else
         history.goBackwards(lineBuffer.text) match {
           case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
-          case None      ⇒ state = state.updateLineBuffer(_.cursorUp)
+          case None      ⇒ state = state.updateLineBuffer(_.cursorUp())
         }
     }
   }
@@ -114,10 +116,10 @@ trait NormalActionHandler extends InlineHandler {
     if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
       history.goForwards() match {
         case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
-        case None      ⇒ state = state.updateLineBuffer(_.cursorDown)
+        case None      ⇒ state = state.updateLineBuffer(_.cursorDown())
       }
     else
-      state = state.updateLineBuffer(_.cursorDown)
+      state = state.updateLineBuffer(_.cursorDown())
 
   private def handleToggleQuote() = handleTextChange {
     state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
