@@ -6,12 +6,21 @@ class LineInfo(s: String) {
 
   private val lineStarts: Seq[Int] = findLineStarts(0, Seq(0))
 
+  /**
+    * Lines exclude newline material
+    */
   val lines: Seq[String] = s.split("""\r?\n""", -1)
 
+  /**
+    * @return contents of the line, excluding newline material
+    */
   def line(lineIndex: Int): String = lines(lineIndex)
 
   def lineCount: Int = lines.size
 
+  /**
+    * @return the length of the given line (excluding newline material)
+    */
   def lineLength(line: Int): Int = lines(line).length
 
   @tailrec
@@ -23,13 +32,22 @@ class LineInfo(s: String) {
 
   def lineStart(line: Int): Int = lineStarts(line)
 
+  /**
+    * @return the position immediately after the end of the line (including newline material)
+    */
   def lineEnd(line: Int): Int = if (line >= lines.size - 1) s.length else lineStarts(line + 1)
 
+  /**
+    * @return the region of the text covered by the given line (excluding the newline material)
+    */
   def lineRegion(line: Int): Region = {
     val offset = lineStarts(line)
     Region(offset, lineLength(line))
   }
 
+  /**
+    * @return the regions of the text covered by all lines (excluding newline material)
+    */
   def lineRegions: Seq[Region] =
     for (i ← 0 until lineCount)
       yield lineRegion(i)
@@ -38,8 +56,8 @@ class LineInfo(s: String) {
     (lines.take(lineIndex) ++ Seq(newLine) ++ lines.drop(lineIndex + 1)).mkString("\n")
 
   /**
-   * @return number of the line (0-indexed) containing the given pos in the original string
-   */
+    * @return number of the line (0-indexed) containing the given pos in the original string
+    */
   def lineAndColumn(pos: Int): Point = {
     val line = Utils.indexWhere[Int](lineStarts, _ > pos).getOrElse(lineStarts.length) - 1
     val column = pos - lineStarts(line)

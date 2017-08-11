@@ -30,7 +30,7 @@ case class LineBuffer(text: String,
   require(selectionOffsetOpt.forall(_ != cursorOffset),
     s"Selection offset must not equal cursor offset: $cursorOffset")
 
-  private lazy val lineInfo = new LineInfo(text)
+  lazy val lineInfo = new LineInfo(text)
 
   lazy val cursorPos: Point = lineInfo.lineAndColumn(cursorOffset)
 
@@ -98,8 +98,6 @@ case class LineBuffer(text: String,
   def backwardWord(extendSelection: Boolean = false): LineBuffer = moveCursor(backwardWordOffset, extendSelection)
 
   private def withCursorOffset(offset: Int) = copy(cursorOffset = offset, selectionOffsetOpt = None)
-
-  private def withCursorPos(pos: Point) = withCursorOffset(lineInfo.offset(pos.row, pos.column))
 
   private def withCursorColumn(column: Int) = withCursorOffset(lineInfo.offset(cursorPos.row, column))
 

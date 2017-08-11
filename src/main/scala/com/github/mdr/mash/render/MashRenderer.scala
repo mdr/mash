@@ -101,7 +101,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     matchingBracketOffsetOpt match {
       case Some(offset) if token.region contains offset ⇒
         val posWithinToken = offset - token.offset
-        val newChar = initialTokenChars(posWithinToken).updateStyle(_.copy(foregroundColour = BasicColour.Cyan, inverse = true))
+        val newChar = initialTokenChars(posWithinToken).updateStyle(_.copy(underline = true))
         initialTokenChars.updated(posWithinToken, newChar)
       case _                                            ⇒
         initialTokenChars
