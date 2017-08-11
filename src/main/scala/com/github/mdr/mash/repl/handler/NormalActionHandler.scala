@@ -13,7 +13,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.NormalActions.{ Down, _ }
 import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
-import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl }
+import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl, UndoRedoState }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
 import com.github.mdr.mash.terminal.Terminal
 
@@ -28,8 +28,7 @@ trait NormalActionHandler extends InlineHandler {
   def handleNormalAction(action: InputAction) = {
     action match {
       case Enter                      ⇒ handleEnter()
-      case LineBufferActionHandler(f) ⇒
-        handleTextChange(state = state.updateLineBufferResult(f))
+      case LineBufferActionHandler(f) ⇒ handleTextChange(state = state.updateLineBufferResult(f))
       case Complete                   ⇒ handleComplete()
       case RedrawScreen               ⇒ handleRedrawScreen()
       case EndOfFile                  ⇒ handleEof()
@@ -156,7 +155,7 @@ trait NormalActionHandler extends InlineHandler {
       previousScreenOpt = None
 
       val cmd = state.lineBuffer.text
-      state = state.withLineBuffer(LineBuffer.Empty)
+      state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean)
       if (cmd.trim.nonEmpty)
         runCommand(cmd)
     } else

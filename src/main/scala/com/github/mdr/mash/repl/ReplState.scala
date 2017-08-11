@@ -5,6 +5,12 @@ import com.github.mdr.mash.repl.browser.ObjectBrowserStateStack
 import com.github.mdr.mash.repl.completions.CompletionState
 import com.github.mdr.mash.repl.handler.InsertLastArgState
 
+object UndoRedoState {
+
+  val Clean = UndoRedoState()
+
+}
+
 case class UndoRedoState(previousLineBuffers: List[LineBuffer] = List()) {
 
   def push(lineBuffer: LineBuffer): UndoRedoState = copy(previousLineBuffers = lineBuffer :: previousLineBuffers)
@@ -18,7 +24,7 @@ case class UndoRedoState(previousLineBuffers: List[LineBuffer] = List()) {
 
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      copiedOpt: Option[String] = None,
-                     undoRedoState: UndoRedoState = UndoRedoState(),
+                     undoRedoState: UndoRedoState = UndoRedoState.Clean,
                      commandNumber: Int = 0,
                      continue: Boolean = true, // Whether to loop or exit
                      mish: Boolean = false,
