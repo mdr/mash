@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.render._
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
@@ -25,7 +25,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   protected def renderUpperStatusLines: LinesAndCursorPos =
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
-        val LinesAndCursorPos(lines, cursorPosOpt) = LineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
+        val LinesAndCursorPos(lines, cursorPosOpt) = lineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
           terminalSize, mashRenderingContext)
         val assistanceLines = renderAssistanceState(expressionState.assistanceStateOpt, terminalSize)
         val availableSpace = terminalSize.shrink(rows = lines.size + assistanceLines.size)
@@ -35,6 +35,8 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
       case None                  ⇒
         LinesAndCursorPos(Seq(Line(new MashRenderer(mashRenderingContext).renderChars(state.path))))
     }
+
+  private def lineBufferRenderer: LineBufferRenderer = new LineBufferRenderer(LinuxEnvironmentInteractions, LinuxFileSystem)
 
   private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalSize: Dimensions) =
     assistanceStateOpt.toSeq.flatMap(AssistanceRenderer.render(_, terminalSize))

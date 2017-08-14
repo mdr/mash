@@ -58,13 +58,15 @@ class Repl(protected val terminal: Terminal,
   }
 
   def draw() {
-    val newScreen = new ReplRenderer(terminal.size, globalVariables, bareWords).render(state)
+    val newScreen = render
     val drawn = newScreen.draw(previousScreenOpt, terminal.columns)
     previousScreenOpt = Some(newScreen)
 
     output.write(drawn.getBytes)
     output.flush()
   }
+
+  def render: Screen = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords).render(state)
 
   @tailrec
   private def inputLoop() {

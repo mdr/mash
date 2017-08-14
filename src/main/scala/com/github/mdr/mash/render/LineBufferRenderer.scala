@@ -1,17 +1,14 @@
 package com.github.mdr.mash.render
 
 import com.github.mdr.mash.evaluator.TildeExpander
-import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, _ }
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point, Region }
 
-object LineBufferRenderer {
-
-  private val envInteractions = LinuxEnvironmentInteractions
-  private val fileSystem = LinuxFileSystem
+class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: FileSystem) {
 
   def renderLineBuffer(state: ReplState,
                        terminalSize: Dimensions,

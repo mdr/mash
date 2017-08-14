@@ -8,8 +8,9 @@ object DummyTerminal {
 
 }
 
-case class DummyTerminal(width: Int = 80) extends Terminal {
+case class DummyTerminal(override val rows: Int = DummyTerminal.SufficientlyLargeTerminalSize.rows,
+                         override val columns: Int = DummyTerminal.SufficientlyLargeTerminalSize.columns) extends Terminal {
 
-  override def size = Dimensions(width, 40)
+  override def size = Dimensions(columns, rows)
 
 }

@@ -14,16 +14,17 @@ import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectT
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.terminal.DummyTerminal
+import com.github.mdr.mash.terminal.{ DummyTerminal, Terminal }
 import org.scalatest._
 
 class AbstractIntegrationTest extends FlatSpec with Matchers {
 
-  def makeRepl(fileSystem: FileSystem = new MockFileSystem) = {
+  def makeRepl(fileSystem: FileSystem = new MockFileSystem,
+               terminal: Terminal = DummyTerminal()) = {
     val history = InMemoryHistoryStorage.testHistory()
     val globalVariables = StandardEnvironment.createGlobalVariables()
     object NullPrintStream extends PrintStream(_ => ())
-    new Repl(DummyTerminal(), NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
+    new Repl(terminal, NullPrintStream, fileSystem, new MockEnvironmentInteractions, history = history,
       sessionId = UUID.randomUUID, globalVariables = globalVariables)
   }
 

@@ -1,7 +1,8 @@
 package com.github.mdr.mash.render
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.evaluator.TildeExpander
+import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.render.browser._
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser._
@@ -15,9 +16,11 @@ case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point] = Non
   * Render the current state (input buffer, completion state, assistance information etc) into a set of lines of styled
   * characters.
   */
-class ReplRenderer(terminalSize: Dimensions, globalVariables: MashObject, bareWords: Boolean) {
-
-  private val fileSystem = LinuxFileSystem
+class ReplRenderer(fileSystem: FileSystem,
+                   envInteractions: EnvironmentInteractions,
+                   terminalSize: Dimensions,
+                   globalVariables: MashObject,
+                   bareWords: Boolean) {
 
   def render(state: ReplState): Screen =
     state.objectBrowserStateStackOpt match {
@@ -28,7 +31,7 @@ class ReplRenderer(terminalSize: Dimensions, globalVariables: MashObject, bareWo
   private def renderRegularRepl(state: ReplState): Screen = {
     val mashRenderingContext = getMashRenderingContext(state)
     val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
-      LineBufferRenderer.renderLineBuffer(state, terminalSize, mashRenderingContext)
+      new LineBufferRenderer(envInteractions, fileSystem).renderLineBuffer(state, terminalSize, mashRenderingContext)
     val historySearchLinesAndCursorPosOpt = state.incrementalHistorySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchLinesAndCursorPosOpt.map(_.lines).getOrElse(Seq())
@@ -43,7 +46,7 @@ class ReplRenderer(terminalSize: Dimensions, globalVariables: MashObject, bareWo
       case Some(LinesAndCursorPos(_, cursorPosOpt)) ⇒ cursorPosOpt.map(_.down(bufferLines.size))
       case None                                     ⇒ bufferCursorPosOpt
     }
-    val title = fileSystem.pwd.toString
+    val title = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
     Screen(truncatedLines, newCursorPosOpt, title)
   }
 
