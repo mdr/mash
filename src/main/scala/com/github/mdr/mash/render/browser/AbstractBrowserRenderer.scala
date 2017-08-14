@@ -26,7 +26,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = LineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
-          mashRenderingContext, terminalSize = terminalSize)
+          terminalSize, mashRenderingContext)
         val assistanceLines = renderAssistanceState(expressionState.assistanceStateOpt, terminalSize)
         val availableSpace = terminalSize.shrink(rows = lines.size + assistanceLines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines

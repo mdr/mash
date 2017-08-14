@@ -18,13 +18,13 @@ object LineBufferRenderer {
                        context: MashRenderingContext): LinesAndCursorPos = {
     val prefix = renderPrompt(state.commandNumber, state.mish)
     val matchRegionOpt = state.incrementalHistorySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
-    renderLineBuffer(state.lineBuffer, context, prefix, terminalSize, matchRegionOpt)
+    renderLineBuffer(state.lineBuffer, terminalSize, context, prefix, matchRegionOpt)
   }
 
   def renderLineBuffer(lineBuffer: LineBuffer,
+                       terminalSize: Dimensions,
                        context: MashRenderingContext,
                        prefix: StyledString = StyledString.Empty,
-                       terminalSize: Dimensions,
                        matchRegionOpt: Option[Region] = None): LinesAndCursorPos = {
     val unwrappedLines = renderWithoutWrapping(lineBuffer, prefix, context, matchRegionOpt)
 
