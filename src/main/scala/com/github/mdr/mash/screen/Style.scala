@@ -67,4 +67,5 @@ case class Style(foregroundColour: Colour = DefaultColour,
 
   def apply(c: Character): StyledCharacter = StyledCharacter(c, this)
 
+  def invert: Style = copy(inverse = !inverse)
 }

@@ -57,9 +57,14 @@ case class StyledString(chars: Seq[StyledCharacter]) {
 
   def forgetStyling: String = chars.map(_.c).mkString
 
-  def invert(region: Region): StyledString =
+  def invert(region: Region): StyledString = restyle(region, _.invert)
+
+  def restyle(region: Region, style: Style): StyledString =
+    restyle(region, _ ⇒ style)
+
+  def restyle(region: Region, f: Style => Style): StyledString =
     StyledString(
       for ((c, i) ← chars.zipWithIndex)
-        yield c.when(region contains i, _.updateStyle(_.withInverse)))
+        yield c.when(region contains i, _.updateStyle(f)))
 
 }

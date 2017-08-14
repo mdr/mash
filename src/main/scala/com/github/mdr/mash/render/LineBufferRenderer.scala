@@ -61,7 +61,7 @@ object LineBufferRenderer {
     val mashRenderer = new MashRenderer(context)
     val renderedMash: StyledString =
       mashRenderer.renderChars(rawChars, Some(cursorOffset), matchRegionOpt)
-        .invert(lineBuffer.selectedOrCursorRegion)
+        .restyle(lineBuffer.selectedOrCursorRegion, Style(inverse = true))
 
     val continuationPrefix = if (prefix.isEmpty) "" else "." * (prefix.length - 1) + " "
     val lineInfo = lineBuffer.lineInfo
