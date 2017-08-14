@@ -44,13 +44,7 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =
     withLineBuffer(transformation(this.lineBuffer))
 
-  def updateLineBufferResult(transformation: LineBuffer ⇒ LineBufferResult): ReplState =
-    withLineBuffer(transformation(this.lineBuffer))
-
   def withLineBuffer(lineBuffer: LineBuffer): ReplState = copy(lineBuffer = lineBuffer)
-
-  def withLineBuffer(lineBufferResult: LineBufferResult): ReplState =
-    copy(lineBuffer = lineBufferResult.lineBuffer, copiedOpt = lineBufferResult.copiedOpt orElse copiedOpt)
 
   def incrementCommandNumber: ReplState = copy(commandNumber = commandNumber + 1)
 

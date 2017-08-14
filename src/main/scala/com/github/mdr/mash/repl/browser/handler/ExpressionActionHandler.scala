@@ -85,7 +85,7 @@ trait ExpressionActionHandler {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
     action match {
-      case LineBufferActionHandler(f) ⇒ updateState(browserState.setExpression(expressionState.updateLineBufferResult(f)))
+      case LineBufferActionHandler(f) ⇒ updateExpressionBuffer(f)
       case ToggleQuote                ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
       case ExpandSelection            ⇒ updateExpressionBuffer(SyntaxSelection.expandSelection(_, state.mish))
       case Complete                   ⇒ handleComplete(browserState, expressionState)

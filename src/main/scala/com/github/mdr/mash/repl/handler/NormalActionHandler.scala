@@ -28,7 +28,8 @@ trait NormalActionHandler extends InlineHandler {
   def handleNormalAction(action: InputAction) = {
     action match {
       case Enter                      ⇒ handleEnter()
-      case LineBufferActionHandler(f) ⇒ handleTextChange(state = state.updateLineBufferResult(f))
+      case BackwardKillWord           ⇒ handleBackwardKillWord()
+      case LineBufferActionHandler(f) ⇒ handleTextChange(state = state.updateLineBuffer(f))
       case Complete                   ⇒ handleComplete()
       case RedrawScreen               ⇒ handleRedrawScreen()
       case EndOfFile                  ⇒ handleEof()
@@ -52,6 +53,12 @@ trait NormalActionHandler extends InlineHandler {
       history.commitToEntry()
     if (action != InsertLastArg && action != RedrawScreen)
       state = state.copy(insertLastArgStateOpt = None)
+  }
+
+  private def handleBackwardKillWord() = handleTextChange {
+    for (selectedText ← state.lineBuffer.selectedTextOpt)
+      state = state.copy(copiedOpt = Some(selectedText))
+    state = state.updateLineBuffer(_.deleteBackwardWord)
   }
 
   private def handlePaste() = handleTextChange {

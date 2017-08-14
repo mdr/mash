@@ -58,11 +58,9 @@ case class LineBuffer(text: String,
     deleteRegion(regionToDelete)
   }
 
-  def deleteBackwardWord: LineBufferResult = {
+  def deleteBackwardWord: LineBuffer = {
     val regionToDelete = selectedRegionOpt getOrElse Region.fromStartEnd(backwardWordOffset, cursorOffset)
-    val copyOpt = Some(regionToDelete.of(text)).filter(_.nonEmpty && selectedRegionOpt.isDefined)
-    val newLineBuffer = deleteRegion(regionToDelete)
-    LineBufferResult(newLineBuffer, copyOpt)
+    deleteRegion(regionToDelete)
   }
 
   private def forwardWordOffset: Int = {
@@ -208,5 +206,3 @@ case class LineBuffer(text: String,
   def withoutSelection: LineBuffer = copy(selectionOffsetOpt = None)
 
 }
-
-case class LineBufferResult(lineBuffer: LineBuffer, copiedOpt: Option[String] = None)
