@@ -41,6 +41,8 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
     incrementalHistorySearchStateOpt = None,
     insertLastArgStateOpt = None)
 
+  def withCopied(text: String) = copy(copiedOpt = Some(text))
+
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ReplState =
     withLineBuffer(transformation(this.lineBuffer))
 

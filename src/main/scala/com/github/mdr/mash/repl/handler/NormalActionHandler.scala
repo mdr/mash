@@ -56,9 +56,10 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleBackwardKillWord() = handleTextChange {
-    for (selectedText ← state.lineBuffer.selectedTextOpt)
-      state = state.copy(copiedOpt = Some(selectedText))
-    state = state.updateLineBuffer(_.deleteBackwardWord)
+    state = state.lineBuffer.selectedTextOpt
+      .map(state.withCopied)
+      .getOrElse(state)
+      .updateLineBuffer(_.deleteBackwardWord)
   }
 
   private def handlePaste() = handleTextChange {

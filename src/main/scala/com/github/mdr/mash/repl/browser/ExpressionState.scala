@@ -9,6 +9,8 @@ case class ExpressionState(lineBuffer: LineBuffer,
                            completionStateOpt: Option[CompletionState] = None,
                            assistanceStateOpt: Option[AssistanceState] = None) {
 
+  def withCopied(text: String) = copy(copiedOpt = Some(text))
+
   def updateLineBuffer(transformation: LineBuffer ⇒ LineBuffer): ExpressionState =
     withLineBuffer(transformation(this.lineBuffer))
 
