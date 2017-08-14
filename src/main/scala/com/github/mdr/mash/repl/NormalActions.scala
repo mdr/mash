@@ -28,6 +28,7 @@ object NormalActions {
   case object BackwardKillLine extends InputAction
   case object KillWord extends InputAction
   case object BackwardKillWord extends InputAction
+  case object Copy extends InputAction
   case object Paste extends InputAction
   case object Undo extends InputAction
   case object Complete extends InputAction
@@ -35,7 +36,7 @@ object NormalActions {
   case object Noop extends InputAction
   case object AssistInvocation extends InputAction
   case object IncrementalHistorySearch extends InputAction
-  case object AbandonHistorySearch extends InputAction
+  case object Quit extends InputAction
   case object PageUp extends InputAction
   case object PageDown extends InputAction
   case object InsertLastArg extends InputAction

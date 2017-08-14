@@ -45,8 +45,10 @@ trait NormalActionHandler extends InlineHandler {
       case BrowseLastResult           ⇒ handleBrowseLastResult()
       case Inline                     ⇒ handleTextChange(state = handleInline(state))
       case ExpandSelection            ⇒ handleExpandSelection()
+      case Copy                       ⇒ handleCopy()
       case Paste                      ⇒ handlePaste()
       case Undo                       ⇒ handleUndo()
+      case Quit                       ⇒ handleQuit()
       case _                          ⇒
     }
     if (action != Down && action != Up && action != RedrawScreen)
@@ -65,6 +67,12 @@ trait NormalActionHandler extends InlineHandler {
   private def handlePaste() = handleTextChange {
     for (copy ← state.copiedOpt)
       state = state.updateLineBuffer(_.insertAtCursor(copy))
+  }
+
+  private def handleCopy() = handleTextChange {
+    state = state.lineBuffer.selectedTextOpt
+      .map(state.withCopied)
+      .getOrElse(state)
   }
 
   private def handleUndo() = {
@@ -159,7 +167,7 @@ trait NormalActionHandler extends InlineHandler {
   private def handleEnter() = {
     history.resetHistoryPosition()
     if (canAcceptBuffer) {
-      updateScreenAfterAccept()
+      updateScreenAfterFinishingWithLine()
       previousScreenOpt = None
 
       val cmd = state.lineBuffer.text
@@ -168,6 +176,15 @@ trait NormalActionHandler extends InlineHandler {
         runCommand(cmd)
     } else
       state = state.updateLineBuffer(_.insertAtCursor('\n'))
+  }
+
+  private def handleQuit() {
+    state = state.withLineBuffer(LineBuffer.Empty)
+    history.resetHistoryPosition()
+    updateScreenAfterFinishingWithLine()
+    previousScreenOpt = None
+
+    state = state.copy(undoRedoState = UndoRedoState.Clean)
   }
 
   def canAcceptBuffer: Boolean = {
@@ -181,7 +198,7 @@ trait NormalActionHandler extends InlineHandler {
     (state.lineBuffer.cursorAtEnd || !state.lineBuffer.isMultiline) && !mismatchedBrackets
   }
 
-  protected def updateScreenAfterAccept() {
+  protected def updateScreenAfterFinishingWithLine() {
     state = state.copy(
       completionStateOpt = None,
       assistanceStateOpt = None,

@@ -44,6 +44,7 @@ object InputSequenceReader {
     "^[d" → alt('d'),
     "^[e" → alt('e'),
     "^[f" → alt('f'),
+    "^[w" → alt('w'),
     "^[B" → altShift('b'),
     "^[F" → altShift('f'),
     "^[OH" → KeyPress(Home),

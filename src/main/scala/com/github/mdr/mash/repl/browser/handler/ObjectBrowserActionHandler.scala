@@ -156,7 +156,7 @@ trait ObjectBrowserActionHandler
       state = state.copy(
         lineBuffer = LineBuffer.Empty,
         objectBrowserStateStackOpt = None)
-      updateScreenAfterAccept()
+      updateScreenAfterFinishingWithLine()
       val command = combineSafely(expression, " | open")
       runCommand(command)
     }

@@ -45,7 +45,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           case IncrementalHistorySearch | Up ⇒ Result(nextHit(searchState, state))
           case Down                          ⇒ Result(previousHit(searchState, state))
           case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
-          case AbandonHistorySearch          ⇒ Result(handleAbandonSearch(searchState, state))
+          case Quit                          ⇒ Result(handleAbandonSearch(searchState, state))
           case ChangeDirectory               ⇒ Result(handleChangeDirectory(hitStatus, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }

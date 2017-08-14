@@ -1,8 +1,9 @@
 v0.0.9 (..)
 -----------
 
-* Undo
-* Copy (using Ctrl-w), Paste (Ctrl-y)
+* Quit (Ctrl-g)
+* Undo (Ctrl-_)
+* Copy (using Alt-w), Cut (Ctrl-w) and Paste (Ctrl-y)
 * os.jump to quickly access recent dirs
 * Allow shift selection
 * json.prettyPrint --compact

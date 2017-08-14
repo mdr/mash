@@ -8,6 +8,7 @@ import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.input.KeyDsl._
 
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
+  alt('w') → Copy,
   control('y') → Paste,
   alt('e') → Inline,
   control('p') → NormalActions.Up,
@@ -33,7 +34,7 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   KeyPress(Backspace) → BackwardDeleteChar,
   KeyPress(Key.Enter) → NormalActions.Enter,
   control('d') → ChangeDirectory,
-  control('g') → AbandonHistorySearch))
+  control('g') → Quit))
 
 object LineBufferKeyMap extends KeyMap(Map(
   control('l') → RedrawScreen,
@@ -67,4 +68,5 @@ object LineBufferKeyMap extends KeyMap(Map(
   control('w') → BackwardKillWord,
   control('q') → ToggleQuote,
   control('t') → ExpandSelection,
-  alt(Key.Up) → ExpandSelection))
+  alt(Key.Up) → ExpandSelection,
+  control('g') → Quit))

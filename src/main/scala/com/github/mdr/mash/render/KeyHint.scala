@@ -27,7 +27,7 @@ object KeyHint {
   val CaseSensitive = KeyHint("^T", "case sensitive")
   val CaseInsensitive = KeyHint("^T", "ignore case")
   val DoneSearch = KeyHint("ret", "done")
-  val QuitSearch = KeyHint("^G", "quit")
+  val Quit = KeyHint("^G", "quit")
 
   val NextHistoryHit = KeyHint("Up", "next")
   val ChangeDirectory = KeyHint("^D", "cd")

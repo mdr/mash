@@ -29,7 +29,7 @@ object IncrementalHistorySearchRenderer {
     LinesAndCursorPos(lines, cursorPosOpt)
   }
 
-  private val KeyHintLine = Line(KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch, QuitSearch, ChangeDirectory)))
+  private val KeyHintLine = Line(KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch, Quit, ChangeDirectory)))
 
   private def renderHitLine(hitStatus: HitStatus): Option[Line] =
     hitStatus match {
