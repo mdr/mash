@@ -23,6 +23,7 @@ object InputSequenceReader {
     "^[[1;2C" → shift(Key.Right),
     "^[[1;2D" → shift(Key.Left),
     "^[[1;3A" → alt(Key.Up),
+    "^[^[[B" → alt(Key.Down),
     "^[[1;4C" → altShift(Key.Right),
     "^[[1;4D" → altShift(Key.Left),
     "^[^[[C" → altShift(Key.Right),

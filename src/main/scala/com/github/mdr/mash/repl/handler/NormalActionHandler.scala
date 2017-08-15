@@ -34,9 +34,9 @@ trait NormalActionHandler extends InlineHandler {
       case RedrawScreen               ⇒ handleRedrawScreen()
       case EndOfFile                  ⇒ handleEof()
       case Up                         ⇒ handleUp()
-      case UpExtendingSelection       ⇒ state = state.updateLineBuffer(_.cursorUp(extendSelection = true))
+      case UpExtendingSelection       ⇒ handleTextChange(state = state.updateLineBuffer(_.cursorUp(extendSelection = true)))
       case Down                       ⇒ handleDown()
-      case DownExtendingSelection     ⇒ state = state.updateLineBuffer(_.cursorDown(extendSelection = true))
+      case DownExtendingSelection     ⇒ handleTextChange(state = state.updateLineBuffer(_.cursorDown(extendSelection = true)))
       case AssistInvocation           ⇒ handleAssistInvocation()
       case InsertLastArg              ⇒ handleInsertLastArg()
       case ToggleQuote                ⇒ handleToggleQuote()
@@ -45,6 +45,7 @@ trait NormalActionHandler extends InlineHandler {
       case BrowseLastResult           ⇒ handleBrowseLastResult()
       case Inline                     ⇒ handleTextChange(state = handleInline(state))
       case ExpandSelection            ⇒ handleExpandSelection()
+      case UnexpandSelection          ⇒ handleUnexpandSelection()
       case Copy                       ⇒ handleCopy()
       case Paste                      ⇒ handlePaste()
       case Undo                       ⇒ handleUndo()
@@ -75,15 +76,20 @@ trait NormalActionHandler extends InlineHandler {
       .getOrElse(state)
   }
 
-  private def handleUndo() = {
+  private def handleUndo() =
     for ((lineBuffer, newUndoRedoState) <- state.undoRedoState.pop) {
-      state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState)
+      state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState, oldSelections = Seq())
       history.resetHistoryPosition()
     }
+
+  private def handleExpandSelection() = {
+    for (newSelection ← SyntaxSelection.expandSelection(state.lineBuffer, state.mish))
+      state = state.pushSelection(newSelection)
   }
 
-  private def handleExpandSelection() =
-    state = state.updateLineBuffer(SyntaxSelection.expandSelection(_, state.mish))
+  private def handleUnexpandSelection() = {
+    state = state.popSelection
+  }
 
   private def handleBrowseLastResult() {
     if (state.commandNumber > 0) {
@@ -96,8 +102,9 @@ trait NormalActionHandler extends InlineHandler {
     }
   }
 
-  private def handleIncrementalHistorySearch() =
+  private def handleIncrementalHistorySearch() = handleTextChange {
     state = IncrementalHistorySearchActionHandler(history).beginFreshIncrementalSearch(state)
+  }
 
   private def handleTextChange[T](f: ⇒ T): T = {
     val oldLineBuffer = state.lineBuffer
@@ -107,18 +114,21 @@ trait NormalActionHandler extends InlineHandler {
       history.resetHistoryPosition()
       state = state.copy(undoRedoState = state.undoRedoState.push(oldLineBuffer.withoutSelection))
     }
+    if (oldLineBuffer != newLineBuffer) {
+      state = state.copy(oldSelections = Seq())
+    }
     result
   }
 
   private def handleUp() = {
     val lineBuffer = state.lineBuffer
     if (!lineBuffer.onFirstLine && history.isCommittedToEntry)
-      state = state.updateLineBuffer(_.cursorUp())
+      handleTextChange(state = state.updateLineBuffer(_.cursorUp()))
     else {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
       if (shouldInitiateIncrementalSearch)
-        state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearchFromLine(state)
+        handleTextChange(state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearchFromLine(state))
       else
         history.goBackwards(lineBuffer.text) match {
           case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
@@ -134,7 +144,7 @@ trait NormalActionHandler extends InlineHandler {
         case None      ⇒ state = state.updateLineBuffer(_.cursorDown())
       }
     else
-      state = state.updateLineBuffer(_.cursorDown())
+      handleTextChange(state = state.updateLineBuffer(_.cursorDown()))
 
   private def handleToggleQuote() = handleTextChange {
     state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
@@ -166,16 +176,20 @@ trait NormalActionHandler extends InlineHandler {
 
   private def handleEnter() = {
     history.resetHistoryPosition()
-    if (canAcceptBuffer) {
-      updateScreenAfterFinishingWithLine()
-      previousScreenOpt = None
+    if (canAcceptBuffer)
+      acceptLine()
+    else
+      handleTextChange(state = state.updateLineBuffer(_.insertAtCursor('\n')))
+  }
 
-      val cmd = state.lineBuffer.text
-      state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean)
-      if (cmd.trim.nonEmpty)
-        runCommand(cmd)
-    } else
-      state = state.updateLineBuffer(_.insertAtCursor('\n'))
+  private def acceptLine() {
+    updateScreenAfterFinishingWithLine()
+    previousScreenOpt = None
+
+    val cmd = state.lineBuffer.text
+    state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean, oldSelections = Seq())
+    if (cmd.trim.nonEmpty)
+      runCommand(cmd)
   }
 
   private def handleQuit() {
@@ -184,7 +198,7 @@ trait NormalActionHandler extends InlineHandler {
     updateScreenAfterFinishingWithLine()
     previousScreenOpt = None
 
-    state = state.copy(undoRedoState = UndoRedoState.Clean)
+    state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean, oldSelections = Seq())
   }
 
   def canAcceptBuffer: Boolean = {
@@ -262,7 +276,7 @@ trait NormalActionHandler extends InlineHandler {
     globalVariables.set(ResultsListName, newResults)
   }
 
-  private def handleComplete() =
+  private def handleComplete() = handleTextChange {
     for (result ← complete) {
       history.resetHistoryPosition()
       result.completions match {
@@ -270,9 +284,11 @@ trait NormalActionHandler extends InlineHandler {
         case _               ⇒ enterIncrementalCompletionState(result)
       }
     }
+  }
 
-  private def handleAssistInvocation() =
+  private def handleAssistInvocation() = handleTextChange {
     state = InvocationAssistanceUpdater.toggleInvocationAssistance(state, getBindings)
+  }
 
   private def immediateInsert(completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(state.lineBuffer.text, completion.replacement)

@@ -27,7 +27,7 @@ case class LineBuffer(text: String,
   require(selectionOffsetOpt.forall(offset ⇒ offset >= 0 && offset <= text.length),
     s"Selection offset out of range: offset = $selectionOffsetOpt, text length = ${text.length}")
 
-  require(selectionOffsetOpt.forall(_ != cursorOffset),
+  require(!selectionOffsetOpt.contains(cursorOffset),
     s"Selection offset must not equal cursor offset: $cursorOffset")
 
   lazy val lineInfo = new LineInfo(text)
@@ -204,5 +204,11 @@ case class LineBuffer(text: String,
   }
 
   def withoutSelection: LineBuffer = copy(selectionOffsetOpt = None)
+
+  def withSelection(region: Region): LineBuffer = {
+    val newCursorOffset = region.posAfter
+    val newSelectionOffsetOpt = Some(region.offset).filterNot(_ == newCursorOffset)
+    LineBuffer(text, newCursorOffset, newSelectionOffsetOpt)
+  }
 
 }

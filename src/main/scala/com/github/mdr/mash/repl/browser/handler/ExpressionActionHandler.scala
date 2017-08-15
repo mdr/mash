@@ -88,7 +88,7 @@ trait ExpressionActionHandler {
       case BackwardKillWord           ⇒ handleBackwardKillWord(browserState, expressionState)
       case LineBufferActionHandler(f) ⇒ updateExpressionBuffer(f)
       case ToggleQuote                ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
-      case ExpandSelection            ⇒ updateExpressionBuffer(SyntaxSelection.expandSelection(_, state.mish))
+      case ExpandSelection            ⇒ handleExpandSelection(browserState, expressionState)
       case Complete                   ⇒ handleComplete(browserState, expressionState)
       case Enter                      ⇒ handleEnter(browserState, expressionState)
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
@@ -96,6 +96,11 @@ trait ExpressionActionHandler {
       case _                          ⇒
     }
     updateInvocationAssistance(browserState)
+  }
+
+  private def handleExpandSelection(browserState: BrowserState, expressionState: ExpressionState) = {
+    for (newSelection ← SyntaxSelection.expandSelection(state.lineBuffer, state.mish))
+      updateState(browserState.setExpression(expressionState.updateLineBuffer(_.withSelection(newSelection))))
   }
 
   private def handleBackwardKillWord(browserState: BrowserState, expressionState: ExpressionState) = {

@@ -212,12 +212,21 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .text shouldEqual "7"
   }
 
-  "Expanding selection" should "work" in {
-    makeRepl()
+  "Expanding and unexpanding selection" should "work" in {
+    val repl = makeRepl()
       .input("1 + 2 * 3")
       .left(2)
-      .expandSelection()
-      .lineBuffer shouldEqual lineBuffer("1 + ▷2 * 3▶")
+    repl.lineBuffer shouldEqual lineBuffer("1 + 2 *▶ 3")
+    repl.expandSelection()
+    repl.lineBuffer shouldEqual lineBuffer("1 + ▷2 * 3▶")
+    repl.expandSelection()
+    repl.lineBuffer shouldEqual lineBuffer("▷1 + 2 * 3▶")
+    repl.unexpandSelection()
+    repl.lineBuffer shouldEqual lineBuffer("1 + ▷2 * 3▶")
+    repl.unexpandSelection()
+    repl.lineBuffer shouldEqual lineBuffer("1 + 2 *▶ 3")
+    repl.unexpandSelection()
+    repl.lineBuffer shouldEqual lineBuffer("1 + 2 *▶ 3")
   }
 
   "Cutting selection and pasting" should "work" in {

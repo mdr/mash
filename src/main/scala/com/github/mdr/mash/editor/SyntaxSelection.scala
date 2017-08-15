@@ -8,7 +8,7 @@ import com.github.mdr.mash.utils.Region
 
 object SyntaxSelection {
 
-  def expandSelection(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
+  def expandSelection(lineBuffer: LineBuffer, mish: Boolean): Option[Region] = {
     val initialRegion = lineBuffer.selectedOrCursorRegion
     val lexerResult = MashLexer.tokenise(lineBuffer.text, forgiving = true, mish = mish)
     val tokenRegions = lexerResult
@@ -20,23 +20,16 @@ object SyntaxSelection {
       case decl: FunctionDeclaration ⇒ decl.docCommentOpt.map(_.region merge decl.region) getOrElse decl.region
       case node                      ⇒ node.region
     }
-    val nextBiggestRegion: Region =
-      (tokenRegions ++ astRegions)
-        .filter(_ contains initialRegion)
-        .filter(_.length > initialRegion.length)
-        .sortBy(_.length)
-        .headOption
-        .getOrElse(Region(0, lineBuffer.text.length))
-    expandSelection(lineBuffer, nextBiggestRegion)
+    (tokenRegions ++ astRegions)
+      .filter(_ contains initialRegion)
+      .filter(_.length > initialRegion.length)
+      .sortBy(_.length)
+      .headOption
+      .orElse(Some(Region(0, lineBuffer.text.length)))
+      .filter(_ != initialRegion)
   }
 
   private def isSelectable(tokenType: TokenType): Boolean =
     tokenType.isKeyword || tokenType.isComment || tokenType.isIdentifier || tokenType.isFlag
-
-  private def expandSelection(lineBuffer: LineBuffer, newSelectionRegion: Region): LineBuffer = {
-    val newCursorOffset = newSelectionRegion.posAfter
-    val newSelectionOffsetOpt = Some(newSelectionRegion.offset)
-    LineBuffer(lineBuffer.text, newCursorOffset, newSelectionOffsetOpt)
-  }
 
 }

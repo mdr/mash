@@ -136,6 +136,8 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def expandSelection(): Repl = handleAction(ExpandSelection)
 
+    def unexpandSelection(): Repl = handleAction(UnexpandSelection)
+
     def backwardKillWord(): Repl = handleAction(BackwardKillWord)
 
     def paste(): Repl = handleAction(Paste)

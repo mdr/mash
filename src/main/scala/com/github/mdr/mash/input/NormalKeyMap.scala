@@ -69,4 +69,5 @@ object LineBufferKeyMap extends KeyMap(Map(
   control('q') → ToggleQuote,
   control('t') → ExpandSelection,
   alt(Key.Up) → ExpandSelection,
+  alt(Key.Down) → UnexpandSelection,
   control('g') → Quit))
