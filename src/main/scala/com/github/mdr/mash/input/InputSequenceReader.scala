@@ -20,8 +20,12 @@ object InputSequenceReader {
     "^[," → alt(','),
     "^[[1;2A" → shift(Key.Up),
     "^[[1;2B" → shift(Key.Down),
-    "^[[1;2C" → shift(Key.Right),
     "^[[1;2D" → shift(Key.Left),
+    "^[[1;2C" → shift(Key.Right),
+    "^[[a" → shift(Key.Up), // rxvt
+    "^[[b" → shift(Key.Down), // rxvt
+    "^[[d" → shift(Key.Left), // rxvt
+    "^[[c" → shift(Key.Right), // rxvt
     "^[[1;3A" → alt(Key.Up), // Gnome terminal, xterm
     "^[[1;3B" → alt(Key.Down), // Gnome terminal, xterm
     "^[^[[A" → alt(Key.Up), // iTerm, rxvt
@@ -32,16 +36,24 @@ object InputSequenceReader {
     "^[^[[D" → altShift(Key.Left),
     "^[[1;5C" → control(Key.Right),
     "^[[1;5D" → control(Key.Left),
-    "^[[3~" → KeyPress(Delete),
-    "^[[5~" → KeyPress(PageUp),
-    "^[[6~" → KeyPress(PageDown),
-    "^[[A" → KeyPress(Key.Up),
-    "^[[B" → KeyPress(Key.Down),
-    "^[[C" → KeyPress(Key.Right),
-    "^[[D" → KeyPress(Key.Left),
+    "^[[3~" → KeyPress(Delete), // Linux console
+    "^[[5~" → KeyPress(PageUp), // Linux console
+    "^[[6~" → KeyPress(PageDown), // Linux console
+    "^[[A" → KeyPress(Key.Up), // Linux console
+    "^[[B" → KeyPress(Key.Down), // Linux console
+    "^[[C" → KeyPress(Key.Right), // Linux console
+    "^[[D" → KeyPress(Key.Left), // Linux console
     "^[[Z" → shift(Tab),
-    "^[[H" → KeyPress(Home),
-    "^[[F" → KeyPress(End),
+    "^[[7$" → shift(Home), // rxvt
+    "^[[8$" → shift(End), // rxvt
+    "^[[1;2H" → shift(Home), // Konsole/xterm
+    "^[[1;2F" → shift(End), // Konsole/xterm
+    "^[[1~" → KeyPress(Home), // Linux console
+    "^[[4~" → KeyPress(End), // Linux console
+    "^[[H" → KeyPress(Home), // gnome-terminal, iTerm
+    "^[[F" → KeyPress(End), // gnome-terminal, iTerm
+    "^[OH" → KeyPress(Home),
+    "^[OF" → KeyPress(End),
     ("^[" + Del) → alt(Backspace),
     "^[b" → alt('b'),
     "^[d" → alt('d'),
@@ -49,9 +61,7 @@ object InputSequenceReader {
     "^[f" → alt('f'),
     "^[w" → alt('w'),
     "^[B" → altShift('b'),
-    "^[F" → altShift('f'),
-    "^[OH" → KeyPress(Home),
-    "^[OF" → KeyPress(End))
+    "^[F" → altShift('f'))
 
   private def readChar(): Char = System.in.read().asInstanceOf[Char]
 
