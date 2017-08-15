@@ -18,44 +18,44 @@ object InputSequenceReader {
   private val EscapeSequenceTree = makeEscapeTree(
     "^[." → alt('.'),
     "^[," → alt(','),
-    "^[[1;2A" → shift(Key.Up),
-    "^[[1;2B" → shift(Key.Down),
-    "^[[1;2D" → shift(Key.Left),
-    "^[[1;2C" → shift(Key.Right),
+    "^[[1;2A" → shift(Key.Up), // Gnome terminal, xterm
+    "^[[1;2B" → shift(Key.Down), // Gnome terminal, xterm
+    "^[[1;2D" → shift(Key.Left), // Gnome terminal, xterm
+    "^[[1;2C" → shift(Key.Right), // Gnome terminal, xterm
     "^[[a" → shift(Key.Up), // rxvt
     "^[[b" → shift(Key.Down), // rxvt
     "^[[d" → shift(Key.Left), // rxvt
     "^[[c" → shift(Key.Right), // rxvt
     "^[[1;3A" → alt(Key.Up), // Gnome terminal, xterm
     "^[[1;3B" → alt(Key.Down), // Gnome terminal, xterm
-    "^[^[[A" → alt(Key.Up), // iTerm, rxvt
-    "^[^[[B" → alt(Key.Down), // iTerm, rxvt
-    "^[[1;4C" → altShift(Key.Right),
-    "^[[1;4D" → altShift(Key.Left),
-    "^[^[[C" → altShift(Key.Right),
-    "^[^[[D" → altShift(Key.Left),
-    "^[[1;5C" → control(Key.Right),
-    "^[[1;5D" → control(Key.Left),
-    "^[[3~" → KeyPress(Delete), // Linux console
-    "^[[5~" → KeyPress(PageUp), // Linux console
-    "^[[6~" → KeyPress(PageDown), // Linux console
-    "^[[A" → KeyPress(Key.Up), // Linux console
-    "^[[B" → KeyPress(Key.Down), // Linux console
-    "^[[C" → KeyPress(Key.Right), // Linux console
-    "^[[D" → KeyPress(Key.Left), // Linux console
-    "^[[Z" → shift(Tab),
+    "^[^[[A" → alt(Key.Up), // iTerm, rxvt, putty
+    "^[^[[B" → alt(Key.Down), // iTerm, rxvt, putty
+    "^[[1;4C" → altShift(Key.Right), // xterm
+    "^[[1;4D" → altShift(Key.Left), // xterm
+    "^[^[[C" → altShift(Key.Right), // putty
+    "^[^[[D" → altShift(Key.Left), // putty
+    "^[[1;5C" → control(Key.Right), // xterm
+    "^[[1;5D" → control(Key.Left), // xterm
+    "^[[3~" → KeyPress(Delete), // Linux console, xterm, Gnome terminal, putty
+    "^[[5~" → KeyPress(PageUp), // Linux console, xterm, Gnome terminal, putty
+    "^[[6~" → KeyPress(PageDown), // Linux console, xterm, Gnome terminal, putty
+    "^[[A" → KeyPress(Key.Up), // Linux console, xterm, Gnome terminal, putty
+    "^[[B" → KeyPress(Key.Down), // Linux console, xterm, Gnome terminal, putty
+    "^[[C" → KeyPress(Key.Right), // Linux console, xterm, Gnome terminal, putty
+    "^[[D" → KeyPress(Key.Left), // Linux console, xterm, Gnome terminal, putty
+    "^[[Z" → shift(Tab), // xterm, Gnome terminal, putty
     "^[[7$" → shift(Home), // rxvt
     "^[[8$" → shift(End), // rxvt
-    "^[[1;2H" → shift(Home), // Konsole/xterm
-    "^[[1;2F" → shift(End), // Konsole/xterm
-    "^[[1~" → KeyPress(Home), // Linux console
-    "^[[4~" → KeyPress(End), // Linux console
+    "^[[1;2H" → shift(Home), // Konsole, xterm
+    "^[[1;2F" → shift(End), // Konsole, xterm
+    "^[[1~" → KeyPress(Home), // Linux console, putty
+    "^[[4~" → KeyPress(End), // Linux console, putty
     "^[[7~" → KeyPress(Home), // rxvt
     "^[[8~" → KeyPress(End), // rxvt
-    "^[[H" → KeyPress(Home), // gnome-terminal, iTerm
-    "^[[F" → KeyPress(End), // gnome-terminal, iTerm
-    "^[OH" → KeyPress(Home),
-    "^[OF" → KeyPress(End),
+    "^[[H" → KeyPress(Home), // gnome-terminal, iTerm, xterm
+    "^[[F" → KeyPress(End), // gnome-terminal, iTerm, xterm
+    "^[OH" → KeyPress(Home), // older Gnome terminal? https://bugzilla.gnome.org/show_bug.cgi?id=600659
+    "^[OF" → KeyPress(End), // older Gnome terminal?
     ("^[" + Del) → alt(Backspace),
     "^[b" → alt('b'),
     "^[d" → alt('d'),
