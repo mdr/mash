@@ -22,8 +22,10 @@ object InputSequenceReader {
     "^[[1;2B" → shift(Key.Down),
     "^[[1;2C" → shift(Key.Right),
     "^[[1;2D" → shift(Key.Left),
-    "^[[1;3A" → alt(Key.Up),
-    "^[^[[B" → alt(Key.Down),
+    "^[[1;3A" → alt(Key.Up), // Gnome terminal, xterm
+    "^[[1;3B" → alt(Key.Down), // Gnome terminal, xterm
+    "^[^[[A" → alt(Key.Up), // iTerm, rxvt
+    "^[^[[B" → alt(Key.Down), // iTerm, rxvt
     "^[[1;4C" → altShift(Key.Right),
     "^[[1;4D" → altShift(Key.Left),
     "^[^[[C" → altShift(Key.Right),
