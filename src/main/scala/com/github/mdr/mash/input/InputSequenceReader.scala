@@ -50,6 +50,8 @@ object InputSequenceReader {
     "^[[1;2F" → shift(End), // Konsole/xterm
     "^[[1~" → KeyPress(Home), // Linux console
     "^[[4~" → KeyPress(End), // Linux console
+    "^[[7~" → KeyPress(Home), // rxvt
+    "^[[8~" → KeyPress(End), // rxvt
     "^[[H" → KeyPress(Home), // gnome-terminal, iTerm
     "^[[F" → KeyPress(End), // gnome-terminal, iTerm
     "^[OH" → KeyPress(Home),
