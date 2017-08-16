@@ -84,6 +84,7 @@ trait ExpressionActionHandler {
   private def handleNormalExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
+
     action match {
       case Enter                      ⇒ handleEnter(browserState, expressionState)
       case BackwardKillWord           ⇒ handleBackwardKillWord(browserState, expressionState)
@@ -94,10 +95,14 @@ trait ExpressionActionHandler {
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
       case Copy                       ⇒ handleCopy(browserState, expressionState)
       case Paste                      ⇒ handlePaste(browserState, expressionState)
+      case Quit                       ⇒ handleQuit(browserState)
       case _                          ⇒
     }
     updateInvocationAssistance(browserState)
   }
+
+  private def handleQuit(browserState: BrowserState) =
+    updateState(browserState.acceptExpression)
 
   private def handleExpandSelection(browserState: BrowserState, expressionState: ExpressionState) = {
     for (newSelection ← SyntaxSelection.expandSelection(state.lineBuffer, state.mish))
