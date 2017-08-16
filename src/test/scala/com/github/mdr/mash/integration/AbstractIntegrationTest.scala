@@ -5,16 +5,16 @@ import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
-import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, BackwardKillLine, Enter, SelfInsert }
+import com.github.mdr.mash.os.{FileSystem, MockEnvironmentInteractions, MockFileSystem}
+import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
-import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{PreviousColumn, UnfocusColumn, _}
+import com.github.mdr.mash.repl.browser.{ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState}
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.terminal.{ DummyTerminal, Terminal }
+import com.github.mdr.mash.terminal.{DummyTerminal, Terminal}
 import org.scalatest._
 
 class AbstractIntegrationTest extends FlatSpec with Matchers {
@@ -55,6 +55,8 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
   case class TwoDBrowser(repl: Repl) {
 
+    def lineBuffer: LineBuffer = repl.getTwoDBrowserState.expressionStateOpt.get.lineBuffer
+
     def path = getState.path
 
     private def handleAction(action: InputAction): TwoDBrowser = {
@@ -87,6 +89,19 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
     def backwardKillLine() = handleAction(BackwardKillLine)
 
     def input(s: String) = handleAction(SelfInsert(s))
+
+    def left(n: Int = 1, extendSelection: Boolean = false): TwoDBrowser = {
+      val action = if (extendSelection) BackwardCharExtendingSelection else BackwardChar
+      for (i ← 1 to n)
+        repl.handleAction(action)
+      this
+    }
+
+    def copy(): TwoDBrowser = handleAction(NormalActions.Copy)
+
+    def paste(): TwoDBrowser = handleAction(Paste)
+
+    def end(): TwoDBrowser = handleAction(EndOfLine)
 
     def acceptLine() = {
       repl.handleAction(Enter)
@@ -142,17 +157,22 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def paste(): Repl = handleAction(Paste)
 
+    def copy(): Repl = handleAction(Copy)
+
     def insertLastArgument(): Repl = handleAction(InsertLastArg)
 
     def text: String = lineBuffer.text
 
     def lineBuffer: LineBuffer = repl.state.lineBuffer
 
-    def left(n: Int = 1): Repl = {
+    def left(n: Int = 1, extendSelection: Boolean = false): Repl = {
+      val action = if (extendSelection) BackwardCharExtendingSelection else BackwardChar
       for (i ← 1 to n)
-        repl.handleAction(BackwardChar)
+        repl.handleAction(action)
       repl
     }
+
+    def end(): Repl = handleAction(EndOfLine)
 
     def delete(): Repl = handleAction(DeleteChar)
 

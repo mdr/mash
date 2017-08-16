@@ -241,4 +241,14 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .lineBuffer shouldEqual lineBuffer("1 + 2 * 3 + 2 * 3▶")
   }
 
+  "Copy and paste" should "work" in {
+    makeRepl()
+      .input("1 + 1")
+      .left(4, extendSelection = true)
+      .copy()
+      .end()
+      .paste()
+      .lineBuffer shouldEqual lineBuffer("1 + 1 + 1▶")
+  }
+
 }

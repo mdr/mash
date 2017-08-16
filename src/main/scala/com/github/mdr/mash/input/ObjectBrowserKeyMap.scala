@@ -2,11 +2,12 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, Paste, RedrawScreen }
+import com.github.mdr.mash.repl.NormalActions.{AssistInvocation, Paste, RedrawScreen}
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{NextParentItem, _}
 import com.github.mdr.mash.input.KeyDsl._
+import com.github.mdr.mash.repl.NormalActions
 
 object ObjectBrowserKeyMap extends KeyMap(Map(
   control('l') -> RedrawScreen,
@@ -49,6 +50,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
 
   object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
     shift(Space) -> AssistInvocation,
+    alt('w') → NormalActions.Copy,
     control('y') → Paste))
 
   object IncrementalSearch extends KeyMap(Map(

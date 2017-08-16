@@ -85,13 +85,14 @@ trait ExpressionActionHandler {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
       updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
     action match {
+      case Enter                      ⇒ handleEnter(browserState, expressionState)
       case BackwardKillWord           ⇒ handleBackwardKillWord(browserState, expressionState)
       case LineBufferActionHandler(f) ⇒ updateExpressionBuffer(f)
+      case Complete                   ⇒ handleComplete(browserState, expressionState)
       case ToggleQuote                ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
       case ExpandSelection            ⇒ handleExpandSelection(browserState, expressionState)
-      case Complete                   ⇒ handleComplete(browserState, expressionState)
-      case Enter                      ⇒ handleEnter(browserState, expressionState)
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
+      case Copy                       ⇒ handleCopy(browserState, expressionState)
       case Paste                      ⇒ handlePaste(browserState, expressionState)
       case _                          ⇒
     }
@@ -115,6 +116,13 @@ trait ExpressionActionHandler {
   private def handlePaste(browserState: BrowserState, expressionState: ExpressionState) = {
     for (copy ← expressionState.copiedOpt)
       updateState(browserState.setExpression(expressionState.updateLineBuffer(_.insertAtCursor(copy))))
+  }
+
+  private def handleCopy(browserState: BrowserState, expressionState: ExpressionState) = {
+    val newExpressionState = expressionState.lineBuffer.selectedTextOpt
+      .map(expressionState.withCopied)
+      .getOrElse(expressionState)
+    updateState(browserState.setExpression(newExpressionState))
   }
 
   private def handleAssistInvocation(browserState: BrowserState, expressionState: ExpressionState) {

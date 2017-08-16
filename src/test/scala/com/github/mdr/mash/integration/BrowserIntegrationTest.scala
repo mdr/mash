@@ -1,5 +1,7 @@
 package com.github.mdr.mash.integration
 
+import com.github.mdr.mash.repl.LineBufferTestHelper.lineBuffer
+
 class BrowserIntegrationTest extends AbstractIntegrationTest {
 
   "2D table browser" should "allow column selection" in {
@@ -95,6 +97,22 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
         .affirmInTwoDBrowser
     browser.path should equal("[{ a: 3, b: 4 }]")
     browser.rows should equal(Seq(Seq("0", "3", "4")))
+  }
+
+  "Expression browser" should "support copy and paste" in {
+    val browser = makeRepl()
+      .input("view.browser [{ a: 1, b: 2 }]")
+      .acceptLine()
+      .affirmInTwoDBrowser
+      .beginExpression()
+      .backwardKillLine()
+      .input("1 + 1")
+      .left(4, extendSelection = true)
+      .copy()
+      .end()
+      .paste()
+    browser.lineBuffer shouldEqual lineBuffer("1 + 1 + 1▶")
+
   }
 
 }
