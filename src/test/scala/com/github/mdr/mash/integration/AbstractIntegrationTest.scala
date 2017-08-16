@@ -143,7 +143,7 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def down(): Repl = handleAction(Down)
 
-    def acceptLine(): Repl = handleAction(Enter)
+    def enter(): Repl = handleAction(Enter)
 
     def toggleQuote(): Repl = handleAction(ToggleQuote)
 
@@ -160,6 +160,8 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
     def copy(): Repl = handleAction(Copy)
 
     def insertLastArgument(): Repl = handleAction(InsertLastArg)
+
+    def quit(): Repl = handleAction(Quit)
 
     def text: String = lineBuffer.text
 

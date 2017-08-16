@@ -26,8 +26,8 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
 
   "Multiple lines" should "be indented with dots under the prefix" in {
     val screen = makeRepl()
-      .input("{").acceptLine()
-      .input("  42").acceptLine()
+      .input("{").enter()
+      .input("  42").enter()
       .input("}").render
 
     screen.lines.map(getText) shouldEqual Seq(

@@ -137,7 +137,7 @@ object Evaluator extends EvaluatorHelper {
     val fields = objectExpr.fields.map {
       case FullObjectEntry(field, value, _)                 ⇒ getFieldName(field) -> evaluate(value)
       case entry@ShorthandObjectEntry(field, sourceInfoOpt) ⇒
-        val evaluatedIdentifier = evaluateIdentifier(field, sourceInfoOpt.map(_.location))
+        val evaluatedIdentifier = evaluateIdentifier(field, sourceInfoOpt.flatMap(_.locationOpt))
         val finalResult = invokeNullaryFunctions(evaluatedIdentifier, sourceLocation(entry))
         MashString(field) -> finalResult
     }

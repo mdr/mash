@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.SourceLocation
 
 case class SourceInfo(provenance: Provenance, node: ConcreteSyntax.AstNode) {
 
-  def location = SourceLocation(provenance, node.pointedRegion)
+  def locationOpt: Option[SourceLocation] = node.pointedRegionOpt.map(pointedRegion ⇒ SourceLocation(provenance, pointedRegion))
 
 }
 

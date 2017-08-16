@@ -13,7 +13,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Repl" should "work" in {
     makeRepl()
       .input("1")
-      .acceptLine()
+      .enter()
       .lastValue shouldEqual MashNumber(1)
   }
 
@@ -44,8 +44,8 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
   "History" should "not have a bug if you attempt to go forwards in history past the current" in {
     val repl = makeRepl()
-    repl.input("1").acceptLine()
-    repl.input("2").acceptLine()
+    repl.input("1").enter()
+    repl.input("2").enter()
     repl.text shouldEqual ""
     repl.up().text shouldEqual "2"
     repl.down().text shouldEqual ""
@@ -56,9 +56,9 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
   "History" should "reset if an old line is edited" in {
     val repl = makeRepl()
-      .input("command1").acceptLine()
-      .input("command2").acceptLine()
-      .input("{").acceptLine()
+      .input("command1").enter()
+      .input("command2").enter()
+      .input("{").enter()
       .input("partial")
       .up()
       .up()
@@ -88,27 +88,27 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
 
   "Repl" should "respect bare words setting" in {
     val repl = makeRepl()
-    repl.input(s"config.${Config.Language.BareWords} = true").acceptLine()
-    repl.input("foo").acceptLine()
+    repl.input(s"config.${Config.Language.BareWords} = true").enter()
+    repl.input("foo").enter()
     repl.lastValue shouldEqual MashString("foo")
 
-    repl.input(s"config.${Config.Language.BareWords} = false").acceptLine()
-    repl.input("foo").acceptLine()
+    repl.input(s"config.${Config.Language.BareWords} = false").enter()
+    repl.input("foo").enter()
     repl.lastValue shouldEqual MashBoolean.False /* Repl should have emitted an error */
   }
 
   "Type inference loop bug" should "not happen" in {
     makeRepl()
-      .input("a => a").acceptLine()
+      .input("a => a").enter()
       .complete() // previously blew up here
   }
 
   "Local variables" should "not collide with global" in {
     makeRepl()
-      .input("a = 0").acceptLine()
-      .input("def setA n = { a = n }").acceptLine()
-      .input("setA 42").acceptLine()
-      .input("a").acceptLine()
+      .input("a = 0").enter()
+      .input("def setA n = { a = n }").enter()
+      .input("setA 42").enter()
+      .input("a").enter()
       .lastValue shouldEqual MashNumber(0)
   }
 
@@ -121,15 +121,15 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Multiline editing" should "be supported" in {
     val repl = makeRepl()
     repl
-      .input("{").acceptLine()
-      .input("  42").acceptLine()
-      .input("}").acceptLine()
+      .input("{").enter()
+      .input("  42").enter()
+      .input("}").enter()
     repl.lastValue shouldEqual MashNumber(42)
   }
 
   "Type inferencer" should "handle previously-defined user-defined nullary functions" in {
     makeRepl()
-      .input("foo = { bar: => { baz: 100 } }").acceptLine()
+      .input("foo = { bar: => { baz: 100 } }").enter()
       .input("foo.bar.ba").complete()
       .text shouldEqual "foo.bar.baz"
   }
@@ -137,8 +137,8 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Incremental history search" should "find results matching case-insensitively" in {
     val repl =
       makeRepl()
-        .input("FOO = 100").acceptLine()
-        .input("foobar = 42").acceptLine()
+        .input("FOO = 100").enter()
+        .input("foobar = 42").enter()
         .incrementalHistorySearch()
         .input("FOO")
     repl.text shouldEqual "foobar = 42"
@@ -149,8 +149,8 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Incremental history search" should "support starting incremental search from a partial line" in {
     val repl =
       makeRepl()
-        .input("FOO = 100").acceptLine()
-        .input("foobar = 42").acceptLine()
+        .input("FOO = 100").enter()
+        .input("foobar = 42").enter()
         .input("FOO")
         .up()
     repl.text shouldEqual "foobar = 42"
@@ -161,8 +161,8 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Inserting last argument" should "be supported" in {
     val repl =
       makeRepl()
-        .input("sort 'arg1'").acceptLine()
-        .input("sort 'arg2'").acceptLine()
+        .input("sort 'arg1'").enter()
+        .input("sort 'arg2'").enter()
         .input("sort ")
         .insertLastArgument()
     repl.text shouldEqual "sort 'arg2'"
@@ -189,7 +189,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     val repl =
       makeRepl()
         .input("view.browser [{ foo: 42 }]")
-        .acceptLine()
+        .enter()
         .affirmInTwoDBrowser
         .beginExpression()
         .input(" | reverse")
@@ -249,6 +249,16 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .end()
       .paste()
       .lineBuffer shouldEqual lineBuffer("1 + 1 + 1▶")
+  }
+
+  "Abandoning a command" should "work" in {
+    val repl = makeRepl()
+      .input("{").enter()
+      .input("  def foo = 42")
+      .quit()
+
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+    repl.state.commandNumber shouldEqual 0
   }
 
 }

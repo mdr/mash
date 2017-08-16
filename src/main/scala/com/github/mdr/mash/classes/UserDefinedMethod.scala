@@ -29,7 +29,7 @@ case class UserDefinedMethod(docCommentOpt: Option[DocComment],
 
   override def descriptionOpt = docCommentOpt.flatMap(_.descriptionOpt)
 
-  private def sourceLocationOpt: Option[SourceLocation] = decl.sourceInfoOpt.map(_.location)
+  private def sourceLocationOpt: Option[SourceLocation] = decl.sourceInfoOpt.flatMap(_.locationOpt)
 
   override def sourceOpt: Option[String] = sourceLocationOpt.map(_.reindentedSource)
 

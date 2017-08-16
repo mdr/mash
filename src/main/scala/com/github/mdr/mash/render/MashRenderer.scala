@@ -7,7 +7,7 @@ import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, Style, StyledCharacter, StyledString }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Region
 import com.github.mdr.mash.utils.Utils._
 
@@ -21,10 +21,10 @@ object MashRenderer {
     tokenType match {
       case COMMENT                                                    ⇒ Style(foregroundColour = BasicColour.Cyan)
       case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = BasicColour.Blue)
-      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = BasicColour.Yellow.bright)
+      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = GreyscaleColour256(20))
       case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
       case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue.bright)
-      case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
+      case t if t.isKeyword                                           ⇒ Style(foregroundColour = RgbColour256(5, 1, 3))
       case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
       case _                                                          ⇒ Style()
     }

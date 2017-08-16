@@ -7,7 +7,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "2D table browser" should "allow column selection" in {
     val twoDBrowser =
       makeRepl()
-        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").acceptLine()
+        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
         .affirmInTwoDBrowser
     twoDBrowser.currentRow should equal(0)
     twoDBrowser.currentColumnOpt should equal(None)
@@ -20,7 +20,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
     val browser =
       makeRepl()
         .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }, { a: 5, b: 6 }]")
-        .acceptLine()
+        .enter()
         .affirmInTwoDBrowser
         .focus()
         .affirmInSingleObjectBrowser
@@ -51,7 +51,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
     val browser =
       makeRepl()
         .input("view.browser { first: { a: 1, b: 2 }, 'second-item': { a: 3, b: 4 } }")
-        .acceptLine()
+        .enter()
         .affirmInTwoDBrowser
         .focus()
         .affirmInSingleObjectBrowser
@@ -70,7 +70,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
     var browser =
       makeRepl()
         .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]")
-        .acceptLine()
+        .enter()
         .affirmInTwoDBrowser
         .beginExpression()
         .input(" | reverse")
@@ -88,7 +88,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
     val browser =
       makeRepl()
         .input("view.browser [{ a: 1, b: 2 }]")
-        .acceptLine()
+        .enter()
         .affirmInTwoDBrowser
         .beginExpression()
         .backwardKillLine()
@@ -102,7 +102,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "Expression browser" should "support copy and paste" in {
     val browser = makeRepl()
       .input("view.browser [{ a: 1, b: 2 }]")
-      .acceptLine()
+      .enter()
       .affirmInTwoDBrowser
       .beginExpression()
       .backwardKillLine()

@@ -255,7 +255,7 @@ class MashParserTest extends FlatSpec with Matchers {
   }
 
   "Parsing '(=> 1 +'" should "have a sensible region" in {
-    parse("(=> 1 +").region shouldEqual Region(0, 7)
+    parse("(=> 1 +").regionOpt shouldEqual Some(Region(0, 7))
   }
 
 }
