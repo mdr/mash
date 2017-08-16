@@ -8,7 +8,9 @@ object NormalActions {
   case object RedrawScreen extends InputAction
   case object Enter extends InputAction
   case object BeginningOfLine extends InputAction
+  case object BeginningOfLineExtendingSelection extends InputAction
   case object EndOfLine extends InputAction
+  case object EndOfLineExtendingSelection extends InputAction
   case object ForwardChar extends InputAction
   case object BackwardChar extends InputAction
   case object ForwardCharExtendingSelection extends InputAction

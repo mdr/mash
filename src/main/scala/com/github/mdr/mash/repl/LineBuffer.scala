@@ -95,10 +95,6 @@ case class LineBuffer(text: String,
 
   def backwardWord(extendSelection: Boolean = false): LineBuffer = moveCursor(backwardWordOffset, extendSelection)
 
-  private def withCursorOffset(offset: Int) = copy(cursorOffset = offset, selectionOffsetOpt = None)
-
-  private def withCursorColumn(column: Int) = withCursorOffset(lineInfo.offset(cursorPos.row, column))
-
   def backspace: LineBuffer = selectedRegionOpt match {
     case Some(selectedRegion) ⇒ deleteRegion(selectedRegion)
     case None                 ⇒ deleteRegion(Region.fromStartEnd(0 max cursorOffset - 1, cursorOffset))
@@ -113,24 +109,26 @@ case class LineBuffer(text: String,
         delete(cursorOffset)
   }
 
-  private def moveCursorToStartOfBuffer: LineBuffer = withCursorOffset(0)
+  private def moveCursorToStartOfBuffer(extendSelection: Boolean): LineBuffer = moveCursor(0, extendSelection)
 
-  private def moveCursorToStartOfLine: LineBuffer = withCursorColumn(0)
+  private def moveCursorToStartOfLine(extendSelection: Boolean): LineBuffer = moveCursorToColumn(0, extendSelection)
 
-  private def moveCursorToEndOfBuffer: LineBuffer = withCursorOffset(text.length)
+  private def moveCursorToEndOfBuffer(extendSelection: Boolean): LineBuffer = moveCursor(text.length, extendSelection)
 
-  private def moveCursorToEndOfLine: LineBuffer = {
+  private def moveCursorToEndOfLine(extendSelection: Boolean): LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
-    withCursorColumn(line.length)
+    moveCursorToColumn(line.length, extendSelection)
   }
 
   private def isAtStartOfLine: Boolean = lineInfo.lineStart(cursorPos.row) == cursorOffset
 
   private def isAtEndOfLine: Boolean = lineInfo.lineEnd(cursorPos.row) - 1 == cursorOffset
 
-  def moveCursorToStart = if (isAtStartOfLine) moveCursorToStartOfBuffer else moveCursorToStartOfLine
+  def moveCursorToStart(extendSelection: Boolean = false): LineBuffer =
+    if (isAtStartOfLine) moveCursorToStartOfBuffer(extendSelection) else moveCursorToStartOfLine(extendSelection)
 
-  def moveCursorToEnd = if (isAtEndOfLine) moveCursorToEndOfBuffer else moveCursorToEndOfLine
+  def moveCursorToEnd(extendSelection: Boolean = false): LineBuffer =
+    if (isAtEndOfLine) moveCursorToEndOfBuffer(extendSelection) else moveCursorToEndOfLine(extendSelection)
 
   def deleteToEndOfLine: LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
@@ -182,6 +180,9 @@ case class LineBuffer(text: String,
     val newSelectionOffsetOpt = extendSelection.option(selectionOffsetOpt getOrElse cursorOffset).filterNot(_ == newCursorOffset)
     copy(cursorOffset = newCursorOffset, selectionOffsetOpt = newSelectionOffsetOpt)
   }
+
+  private def moveCursorToColumn(column: Int, extendSelection: Boolean): LineBuffer =
+   moveCursor(lineInfo.offset(cursorPos.row, column), extendSelection)
 
   def cursorUp(extendSelection: Boolean = false): LineBuffer = moveCursorUpDownBy(-1, extendSelection)
 

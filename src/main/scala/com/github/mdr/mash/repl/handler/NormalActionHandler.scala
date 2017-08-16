@@ -216,7 +216,7 @@ trait NormalActionHandler extends InlineHandler {
     state = state.copy(
       completionStateOpt = None,
       assistanceStateOpt = None,
-      lineBuffer = state.lineBuffer.moveCursorToEnd)
+      lineBuffer = state.lineBuffer.moveCursorToEnd(extendSelection = false))
     draw()
 
     for (previousScreen ← previousScreenOpt) {

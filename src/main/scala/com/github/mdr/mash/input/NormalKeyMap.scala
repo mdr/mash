@@ -44,6 +44,8 @@ object LineBufferKeyMap extends KeyMap(Map(
   KeyPress(Home) → BeginningOfLine,
   control('e') → EndOfLine,
   KeyPress(End) → EndOfLine,
+  shift(Home) → BeginningOfLineExtendingSelection,
+  shift(End) → EndOfLineExtendingSelection,
   control('f') → ForwardChar,
   KeyPress(Right) → ForwardChar,
   control('b') → BackwardChar,

@@ -1,5 +1,6 @@
 package com.github.mdr.mash
 
+import scala.language.implicitConversions
 import java.nio.file.{ Path, Paths }
 
 import org.scalatest.{ FlatSpec, Matchers }

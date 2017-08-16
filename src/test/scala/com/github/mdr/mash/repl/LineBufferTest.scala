@@ -253,55 +253,73 @@ class LineBufferTest extends FlatSpec with Matchers {
   }
 
   it should "let you move to the beginning of the line" in {
-    lineBuffer("abc▶").moveCursorToStart shouldEqual lineBuffer("▶abc")
-    lineBuffer("abc▶def").moveCursorToStart shouldEqual lineBuffer("▶abcdef")
-    lineBuffer("▶abc").moveCursorToStart shouldEqual lineBuffer("▶abc")
-    lineBuffer("▶").moveCursorToStart shouldEqual lineBuffer("▶")
+    lineBuffer("abc▶").moveCursorToStart() shouldEqual lineBuffer("▶abc")
+    lineBuffer("abc▶def").moveCursorToStart() shouldEqual lineBuffer("▶abcdef")
+    lineBuffer("▶abc").moveCursorToStart() shouldEqual lineBuffer("▶abc")
+    lineBuffer("▶").moveCursorToStart() shouldEqual lineBuffer("▶")
 
     lineBuffer(
       """abc
-        |def▶""".stripMargin).moveCursorToStart shouldEqual lineBuffer(
+        |def▶""".stripMargin).moveCursorToStart() shouldEqual lineBuffer(
       """abc
         |▶def""".stripMargin)
 
-    lineBuffer("ab▷c▶").moveCursorToStart shouldEqual lineBuffer("▶abc")
+    lineBuffer(
+      """abc
+        |def▶""".stripMargin).moveCursorToStart(extendSelection = true) shouldEqual lineBuffer(
+      """abc
+        |▶def▷""".stripMargin)
+
+    lineBuffer("ab▷c▶").moveCursorToStart() shouldEqual lineBuffer("▶abc")
   }
 
   it should "let you move to the end of the line" in {
-    lineBuffer("abc▶").moveCursorToEnd shouldEqual lineBuffer("abc▶")
-    lineBuffer("abc▶def").moveCursorToEnd shouldEqual lineBuffer("abcdef▶")
-    lineBuffer("▶abc").moveCursorToEnd shouldEqual lineBuffer("abc▶")
-    lineBuffer("▶").moveCursorToEnd shouldEqual lineBuffer("▶")
+    lineBuffer("abc▶").moveCursorToEnd() shouldEqual lineBuffer("abc▶")
+    lineBuffer("abc▶def").moveCursorToEnd() shouldEqual lineBuffer("abcdef▶")
+    lineBuffer("▶abc").moveCursorToEnd() shouldEqual lineBuffer("abc▶")
+    lineBuffer("▶").moveCursorToEnd() shouldEqual lineBuffer("▶")
 
     lineBuffer(
       """abc
-        |▶def""".stripMargin).moveCursorToEnd shouldEqual lineBuffer(
+        |▶def""".stripMargin).moveCursorToEnd() shouldEqual lineBuffer(
       """abc
         |def▶""".stripMargin)
 
-    lineBuffer("▶ab▷c").moveCursorToEnd shouldEqual lineBuffer("abc▶")
-  }
+    lineBuffer("▶ab▷c").moveCursorToEnd() shouldEqual lineBuffer("abc▶")
 
-  it should "let you move to the beginning of the buffer if at the beginning of a line, else the start of the line" in {
     lineBuffer(
       """abc
-        |▶def""".stripMargin).moveCursorToStart shouldEqual lineBuffer(
+        |▶def""".stripMargin).moveCursorToEnd(extendSelection = true) shouldEqual lineBuffer(
+      """abc
+        |▷def▶""".stripMargin)
+  }
+
+  it should "let you move to the beginning of the buffer if at the beginning of a line" in {
+    lineBuffer(
+      """abc
+        |▶def""".stripMargin).moveCursorToStart() shouldEqual lineBuffer(
       """▶abc
         |def""".stripMargin)
 
     lineBuffer(
       """abc
-        |d▶ef""".stripMargin).moveCursorToStart shouldEqual lineBuffer(
-      """abc
-        |▶def""".stripMargin)
+        |▶def""".stripMargin).moveCursorToStart(extendSelection = true) shouldEqual lineBuffer(
+      """▶abc
+        |▷def""".stripMargin)
   }
 
-  it should "let you move to the end of the buffer if at the end of a line, else the end of the line" in {
+  it should "let you move to the end of the buffer if at the end of a line" in {
     lineBuffer(
-      """ab▶c
-        |def""".stripMargin).moveCursorToEnd shouldEqual lineBuffer(
       """abc▶
-        |def""".stripMargin)
+        |def""".stripMargin).moveCursorToEnd() shouldEqual lineBuffer(
+      """abc
+        |def▶""".stripMargin)
+
+    lineBuffer(
+      """abc▶
+        |def""".stripMargin).moveCursorToEnd(extendSelection = true) shouldEqual lineBuffer(
+      """abc▷
+        |def▶""".stripMargin)
   }
 
   it should "let you delete from the cursor to the beginning of the line" in {
