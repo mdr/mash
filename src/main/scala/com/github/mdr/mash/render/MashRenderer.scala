@@ -24,7 +24,7 @@ object MashRenderer {
       case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = GreyscaleColour256(20))
       case ERROR                                                      ⇒ Style(foregroundColour = BasicColour.Red, bold = true)
       case t if t.isFlag                                              ⇒ Style(foregroundColour = BasicColour.Blue.bright)
-      case t if t.isKeyword                                           ⇒ Style(foregroundColour = BasicColour.Magenta, bold = true)
+      case t if t.isKeyword                                           ⇒ Style(foregroundColour = RgbColour256(5, 1, 3))
       case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = BasicColour.Green.bright)
       case _                                                          ⇒ Style()
     }
