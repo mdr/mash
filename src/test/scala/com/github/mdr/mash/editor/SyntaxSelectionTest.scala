@@ -27,13 +27,34 @@ class SyntaxSelectionTest extends FlatSpec with Matchers {
   "def foo = 42 # comm▶ent" ==> "def foo = 42 ▷# comment▶"
   "def foo = 42 ▷# comment▶" ==> "▷def foo = 42 # comment▶"
 
+  " ▶" ==> "▷ ▶"
+  "▶" ==> "▶"
+
+  """{
+    |  # Comment
+    |  ▶def foo▷ = 42
+    |}""" ==>
+  """{
+    |  ▷# Comment
+    |  def foo = 42▶
+    |}"""
+
+  """{
+    |  # Comment
+    |  ▶class Foo▷
+    |}""" ==>
+  """{
+    |  ▷# Comment
+    |  class Foo▶
+    |}"""
+
   implicit class RichString(s: String) {
     def ==>(expectedStr: String) {
       "Expanding selection using AST" should s"expand $s into $expectedStr" in {
-        val expected = lineBuffer(expectedStr)
-        val input = lineBuffer(s)
-        val actual = input.withSelection(expandSelection(input, mish = false).get)
-        actual should equal(expected)
+        val expected = lineBuffer(expectedStr.stripMargin)
+        val input = lineBuffer(s.stripMargin)
+        val actual = expandSelection(input, mish = false).map(selection ⇒ input.withSelection(selection)).getOrElse(input)
+        actual shouldEqual expected
       }
     }
   }

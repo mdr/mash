@@ -44,7 +44,7 @@ object InvocationAssistance {
       case expr: Expr if expr.preInvocationTypeOpt.isDefined && expandedRegionContains(expr, tokens, pos) ⇒ expr
       case expr: Expr if hasFunctionType(expr) && expandedRegionContains(expr, tokens, pos)               ⇒ expr
     }
-    def size(expr: Expr): Int = expr.sourceInfoOpt.map(_.node.region.length).getOrElse(Integer.MAX_VALUE)
+    def size(expr: Expr): Int = expr.sourceInfoOpt.flatMap(_.node.regionOpt).map(_.length).getOrElse(Integer.MAX_VALUE)
     minBy(enclosingInvocations, size)
   }
 
@@ -67,7 +67,7 @@ object InvocationAssistance {
     }
     // Grow EOF tokens to pick up cursors at the end of the buffer, which is one more than the size of the buffer contents.
     def getRegion(token: Token) = token.region.when(token.isEof, _ grow 1)
-    rightmostTokenOpt.map(getRegion) getOrElse Region(0, 0) merge node.region
+    (rightmostTokenOpt.map(getRegion) getOrElse Region(0, 0)) merge (node.regionOpt getOrElse Region(0, 0))
   }
 
   private def getTokensAfterLast(lastToken: Token, remainingTokens: Seq[Token]): Seq[Token] =

@@ -59,14 +59,14 @@ object SelectFunction extends MashFunction("collections.select") {
             Some(s.s -> FunctionHelpers.interpretAsFunction(s))
           case x             ⇒
             throw new ArgumentException(s"Positional arguments must be a String, but was a ${x.typeName}",
-              argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+              argumentNodeOpt.flatMap(_.sourceInfoOpt).flatMap(_.locationOpt))
         }
       case EvaluatedArgument.ShortFlag(flags, argumentNodeOpt)   ⇒
         if (flags == Seq(AddShortFlag.toString))
           None
         else
           throw new ArgumentException(s"Short flags not supported by select: ${flags.map(f ⇒ "-" + f).mkString(", ")}",
-            argumentNodeOpt.flatMap(_.sourceInfoOpt).map(_.location))
+            argumentNodeOpt.flatMap(_.sourceInfoOpt).flatMap(_.locationOpt))
       case EvaluatedArgument.LongFlag(flag, None, _)             ⇒
         if (Add.nameOpt contains flag)
           None

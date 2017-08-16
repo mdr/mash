@@ -14,13 +14,21 @@ object ConcreteSyntax {
 
     val tokens: Seq[Token]
 
-    def startPos: Int = tokens.head.offset
+    private def startPosOpt: Option[Int] = tokens.headOption.map(_.offset)
 
-    def posAfter: Int = tokens.last.region.posAfter
+    private def posAfterOpt: Option[Int] = tokens.lastOption.map(_.region.posAfter)
 
-    def region = Region(startPos, posAfter - startPos)
+    def regionOpt: Option[Region] =
+      for {
+        startPos ← startPosOpt
+        posAfter ← posAfterOpt
+      } yield Region(startPos, posAfter - startPos)
 
-    def pointedRegion = PointedRegion(startPos, region)
+    def pointedRegionOpt: Option[PointedRegion] =
+      for {
+        startPos ← startPosOpt
+        region ← regionOpt
+      } yield PointedRegion(startPos, region)
 
     def children: Seq[AstNode]
 
@@ -194,7 +202,7 @@ object ConcreteSyntax {
   case class BinOpExpr(left: Expr, op: Token, right: Expr) extends Expr {
     lazy val tokens = (left.tokens :+ op) ++ right.tokens
 
-    override def pointedRegion = PointedRegion(op.offset, region)
+    override def pointedRegionOpt = regionOpt.map(PointedRegion(op.offset, _))
 
     def children = Seq(left, right)
   }

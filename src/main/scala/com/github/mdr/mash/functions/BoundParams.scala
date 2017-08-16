@@ -52,7 +52,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
     SourceLocation(location1.provenance, location1.pointedRegion merge location2.pointedRegion)
 
   private def locationOpt(param: Parameter): Option[SourceLocation] =
-    parameterToArguments.get(param).flatMap(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).map(_.location).reduceOption(mergeLocation))
+    parameterToArguments.get(param).flatMap(nodes ⇒ nodes.flatMap(_.sourceInfoOpt).flatMap(_.locationOpt).reduceOption(mergeLocation))
 
   def validateSequence(param: Parameter, allowStrings: Boolean = true): Seq[MashValue] = this (param) match {
     case xs: MashList                     ⇒ xs.elements
