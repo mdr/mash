@@ -51,6 +51,7 @@ object JumpFunction extends MashFunction("os.jump") {
       .groupBy(_.workingDirectory)
       .map((score _).tupled)
       .toSeq
+      .filter(p ⇒ Files.isDirectory(p.path))
 
   private def findHighestScoringMatchingPath(scoredPaths: Seq[ScoredPath], matcher: Path ⇒ Boolean): Option[ScoredPath] =
     getMatchingPaths(scoredPaths, matcher)
