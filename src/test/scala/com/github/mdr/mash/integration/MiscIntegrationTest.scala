@@ -246,7 +246,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
       .input("{").enter()
       .input("  def foo = 42")
       .quit()
-    
+
     repl.lineBuffer shouldEqual lineBuffer("▶")
     repl.state.commandNumber shouldEqual 0
   }

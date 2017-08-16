@@ -176,7 +176,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
       suspendedValue.resolve(safe = param.isSafe)
 
   private def getLocation(arg: EvaluatedArgument[_]): Option[SourceLocation] =
-    arg.argumentNodeOpt.flatMap(_.sourceInfoOpt).flatMap(_.locationOpt)
+    arg.argumentNodeOpt.flatMap(_.locationOpt)
 
 }
 
