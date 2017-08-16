@@ -92,6 +92,7 @@ trait ExpressionActionHandler {
       case Complete                   ⇒ handleComplete(browserState, expressionState)
       case ToggleQuote                ⇒ updateExpressionBuffer(QuoteToggler.toggleQuotes(_, mish = false))
       case ExpandSelection            ⇒ handleExpandSelection(browserState, expressionState)
+      case UnexpandSelection          ⇒ handleUnexpandSelection(browserState, expressionState)
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
       case Copy                       ⇒ handleCopy(browserState, expressionState)
       case Paste                      ⇒ handlePaste(browserState, expressionState)
@@ -104,10 +105,12 @@ trait ExpressionActionHandler {
   private def handleQuit(browserState: BrowserState) =
     updateState(browserState.acceptExpression)
 
-  private def handleExpandSelection(browserState: BrowserState, expressionState: ExpressionState) = {
-    for (newSelection ← SyntaxSelection.expandSelection(state.lineBuffer, state.mish))
-      updateState(browserState.setExpression(expressionState.updateLineBuffer(_.withSelection(newSelection))))
-  }
+  private def handleExpandSelection(browserState: BrowserState, expressionState: ExpressionState) =
+    for (newSelection ← SyntaxSelection.expandSelection(expressionState.lineBuffer))
+      updateState(browserState.setExpression(expressionState.pushSelection(newSelection)))
+
+  private def handleUnexpandSelection(browserState: BrowserState, expressionState: ExpressionState) =
+    updateState(browserState.setExpression(expressionState.popSelection))
 
   private def handleBackwardKillWord(browserState: BrowserState, expressionState: ExpressionState) = {
     val newExpressionState =

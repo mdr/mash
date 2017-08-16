@@ -8,7 +8,7 @@ import com.github.mdr.mash.utils.Region
 
 object SyntaxSelection {
 
-  def expandSelection(lineBuffer: LineBuffer, mish: Boolean): Option[Region] = {
+  def expandSelection(lineBuffer: LineBuffer, mish: Boolean = false): Option[Region] = {
     val initialRegion = lineBuffer.selectedOrCursorRegion
     val lexerResult = MashLexer.tokenise(lineBuffer.text, forgiving = true, mish = mish)
     val tokenRegions = lexerResult
