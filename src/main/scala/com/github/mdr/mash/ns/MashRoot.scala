@@ -121,6 +121,7 @@ object MashRoot {
     CreateTempFileFunction,
     CurrentDirectoryFunction,
     DeleteFunction,
+    FindExecutableInPathFunction,
     ForwardFunction,
     GlobFunction,
     HomeFunction,
@@ -200,7 +201,8 @@ object MashRoot {
     "rm" -> DeleteFunction,
     "man" -> HelpFunction,
     "mkdir" -> CreateDirectoryFunction,
-    "pwd" -> CurrentDirectoryFunction) ++
+    "pwd" -> CurrentDirectoryFunction,
+    "which" → FindExecutableInPathFunction) ++
     (if (SystemUtils.IS_OS_MAC_OSX)
       Map(
         "df" -> DiskSpaceFunction)

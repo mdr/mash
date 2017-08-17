@@ -8,4 +8,6 @@ object LinuxEnvironmentInteractions extends EnvironmentInteractions {
 
   override def home = Paths.get(System.getProperty("user.home"))
 
+  def path: String = System.getenv().get("PATH")
+
 }

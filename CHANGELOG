@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add os.findExecutableInPath (which)
 * Quit (Ctrl-g)
 * Undo (Ctrl-_)
 * Copy (using Alt-w), Cut (Ctrl-w) and Paste (Ctrl-y)
