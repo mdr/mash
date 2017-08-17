@@ -81,7 +81,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleUndo() =
-    for ((lineBuffer, newUndoRedoState) <- state.undoRedoState.pop) {
+    for ((lineBuffer, newUndoRedoState) ← state.undoRedoState.pop) {
       state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState, oldSelections = Seq())
       history.resetHistoryPosition()
     }

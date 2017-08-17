@@ -1,12 +1,13 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.assist.AssistanceState
-import com.github.mdr.mash.repl.{LineBuffer, ReplState}
+import com.github.mdr.mash.repl.{LineBuffer, ReplState, UndoRedoState}
 import com.github.mdr.mash.repl.completions.CompletionState
 import com.github.mdr.mash.utils.Region
 
 case class ExpressionState(lineBuffer: LineBuffer,
                            copiedOpt: Option[String] = None,
+                           undoRedoState: UndoRedoState = UndoRedoState.Clean,
                            oldSelections: Seq[Region] = Seq(),
                            completionStateOpt: Option[CompletionState] = None,
                            assistanceStateOpt: Option[AssistanceState] = None) {

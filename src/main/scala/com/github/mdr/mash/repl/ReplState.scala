@@ -6,23 +6,6 @@ import com.github.mdr.mash.repl.completions.CompletionState
 import com.github.mdr.mash.repl.handler.InsertLastArgState
 import com.github.mdr.mash.utils.Region
 
-object UndoRedoState {
-
-  val Clean = UndoRedoState()
-
-}
-
-case class UndoRedoState(previousLineBuffers: List[LineBuffer] = List()) {
-
-  def push(lineBuffer: LineBuffer): UndoRedoState = copy(previousLineBuffers = lineBuffer :: previousLineBuffers)
-
-  def pop: Option[(LineBuffer, UndoRedoState)] = previousLineBuffers match {
-    case Nil          ⇒ None
-    case head :: tail ⇒ Some(head, copy(previousLineBuffers = tail))
-  }
-
-}
-
 case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      copiedOpt: Option[String] = None,
                      undoRedoState: UndoRedoState = UndoRedoState.Clean,
