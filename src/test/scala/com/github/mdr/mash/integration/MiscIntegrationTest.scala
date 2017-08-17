@@ -261,4 +261,13 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     repl.state.commandNumber shouldEqual 0
   }
 
+  "Inserting a newline" should "work" in {
+    val repl = makeRepl()
+      .input("def foo =")
+      .newline()
+    repl.lineBuffer shouldEqual lineBuffer(
+      """def foo =
+        |▶""".stripMargin)
+  }
+
 }

@@ -163,6 +163,8 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def quit(): Repl = handleAction(Quit)
 
+    def newline() = handleAction(Newline)
+
     def text: String = lineBuffer.text
 
     def lineBuffer: LineBuffer = repl.state.lineBuffer

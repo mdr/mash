@@ -63,7 +63,8 @@ object InputSequenceReader {
     "^[f" → alt('f'),
     "^[w" → alt('w'),
     "^[B" → altShift('b'),
-    "^[F" → altShift('f'))
+    "^[F" → altShift('f'),
+    "^[\r" → alt(Enter))
 
   private def readChar(): Char = System.in.read().asInstanceOf[Char]
 

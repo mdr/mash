@@ -36,6 +36,7 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   control('g') → Quit))
 
 object LineBufferKeyMap extends KeyMap(Map(
+  alt(Key.Enter) → Newline,
   alt('e') → Inline,
   control('l') → RedrawScreen,
   KeyPress(Tab) → Complete,

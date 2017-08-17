@@ -27,18 +27,17 @@ object StyleToAnsi {
     s"$EscapePrefix${attribs mkString ";"}m"
 
   private def fg(colour: Colour): Seq[Int] = colour match {
-    case BasicColour.Black              ⇒ Seq(30)
-    case BasicColour.Red                ⇒ Seq(31)
-    case BasicColour.Green              ⇒ Seq(32)
-    case BasicColour.Yellow             ⇒ Seq(33)
-    case BasicColour.Blue               ⇒ Seq(34)
-    case BasicColour.Magenta            ⇒ Seq(35)
-    case BasicColour.Cyan               ⇒ Seq(36)
-    case BasicColour.Grey               ⇒ Seq(37)
-    case BrightColour(basicColour)      ⇒ addToFirstAttribute(fg(basicColour), 60)
-    case RgbColour256(r, g, b)          ⇒ Seq(38, 5, 16 + 36 * r + 6 * g + b)
-    case GreyscaleColour256(brightness) ⇒ Seq(38, 5, brightness + 232)
-    case DefaultColour                  ⇒ Seq(39)
+    case BasicColour.Black         ⇒ Seq(30)
+    case BasicColour.Red           ⇒ Seq(31)
+    case BasicColour.Green         ⇒ Seq(32)
+    case BasicColour.Yellow        ⇒ Seq(33)
+    case BasicColour.Blue          ⇒ Seq(34)
+    case BasicColour.Magenta       ⇒ Seq(35)
+    case BasicColour.Cyan          ⇒ Seq(36)
+    case BasicColour.Grey          ⇒ Seq(37)
+    case BrightColour(basicColour) ⇒ addToFirstAttribute(fg(basicColour), 60)
+    case Colour256(n)              ⇒ Seq(38, 5, n)
+    case DefaultColour             ⇒ Seq(39)
   }
 
   private def bg(colour: Colour): Seq[Int] =
