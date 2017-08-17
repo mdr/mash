@@ -49,6 +49,7 @@ trait NormalActionHandler extends InlineHandler {
       case Copy                       ⇒ handleCopy()
       case Paste                      ⇒ handlePaste()
       case Undo                       ⇒ handleUndo()
+      case Redo                       ⇒ handleRedo()
       case Quit                       ⇒ handleQuit()
       case _                          ⇒
     }
@@ -81,7 +82,13 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleUndo() =
-    for ((lineBuffer, newUndoRedoState) ← state.undoRedoState.pop) {
+    for ((lineBuffer, newUndoRedoState) ← state.undoRedoState.undo(state.lineBuffer)) {
+      state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState, oldSelections = Seq())
+      history.resetHistoryPosition()
+    }
+
+  private def handleRedo() =
+    for ((lineBuffer, newUndoRedoState) ← state.undoRedoState.redo(state.lineBuffer)) {
       state = state.withLineBuffer(lineBuffer).copy(undoRedoState = newUndoRedoState, oldSelections = Seq())
       history.resetHistoryPosition()
     }

@@ -18,6 +18,7 @@ object InputSequenceReader {
   private val EscapeSequenceTree = makeEscapeTree(
     "^[." → alt('.'),
     "^[," → alt(','),
+    "^[_" → alt('_'),
     "^[[1;2A" → shift(Key.Up), // Gnome terminal, xterm
     "^[[1;2B" → shift(Key.Down), // Gnome terminal, xterm
     "^[[1;2D" → shift(Key.Left), // Gnome terminal, xterm

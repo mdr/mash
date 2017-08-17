@@ -22,7 +22,8 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   alt('.') → InsertLastArg,
   alt(',') → ToggleMish,
   control('v') → BrowseLastResult,
-  control('_') → Undo))
+  control('_') → Undo,
+  alt('_') → Redo))
 
 object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   control('p') → NormalActions.Up,

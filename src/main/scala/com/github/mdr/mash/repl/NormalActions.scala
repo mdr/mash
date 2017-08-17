@@ -34,6 +34,7 @@ object NormalActions {
   case object Copy extends InputAction
   case object Paste extends InputAction
   case object Undo extends InputAction
+  case object Redo extends InputAction
   case object Complete extends InputAction
   case object BackwardComplete extends InputAction
   case object Noop extends InputAction

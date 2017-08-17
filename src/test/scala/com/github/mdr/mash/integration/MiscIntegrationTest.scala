@@ -270,4 +270,35 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
         |▶""".stripMargin)
   }
 
+  "Undo / redo" should "work" in {
+    val repl = makeRepl()
+      .input("a")
+      .input("b")
+      .input("c")
+      .backwardKillWord()
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+
+    repl.undo()
+    repl.lineBuffer shouldEqual lineBuffer("abc▶")
+    repl.undo()
+    repl.lineBuffer shouldEqual lineBuffer("ab▶")
+    repl.undo()
+    repl.lineBuffer shouldEqual lineBuffer("a▶")
+    repl.undo()
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+    repl.undo()
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+
+    repl.redo()
+    repl.lineBuffer shouldEqual lineBuffer("a▶")
+    repl.redo()
+    repl.lineBuffer shouldEqual lineBuffer("ab▶")
+    repl.redo()
+    repl.lineBuffer shouldEqual lineBuffer("abc▶")
+    repl.redo()
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+    repl.redo()
+    repl.lineBuffer shouldEqual lineBuffer("▶")
+  }
+
 }

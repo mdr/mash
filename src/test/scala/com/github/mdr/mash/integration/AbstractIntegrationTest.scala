@@ -182,6 +182,10 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
 
     def backspace(): Repl = handleAction(BackwardDeleteChar)
 
+    def undo(): Repl = handleAction(Undo)
+
+    def redo(): Repl = handleAction(Redo)
+
     def draw(): Repl = {
       repl.draw()
       repl
