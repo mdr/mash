@@ -43,7 +43,7 @@ trait NormalActionHandler extends InlineHandler {
       case ToggleMish                 ⇒ handleToggleMish()
       case IncrementalHistorySearch   ⇒ handleIncrementalHistorySearch()
       case BrowseLastResult           ⇒ handleBrowseLastResult()
-      case Inline                     ⇒ handleTextChange(state = handleInline(state))
+      case Inline                     ⇒ handleInline()
       case ExpandSelection            ⇒ handleExpandSelection()
       case UnexpandSelection          ⇒ handleUnexpandSelection()
       case Copy                       ⇒ handleCopy()
@@ -56,6 +56,10 @@ trait NormalActionHandler extends InlineHandler {
       history.commitToEntry()
     if (action != InsertLastArg && action != RedrawScreen)
       state = state.copy(insertLastArgStateOpt = None)
+  }
+
+  private def handleInline(): Unit = handleTextChange {
+    state = handleInline(state)
   }
 
   private def handleBackwardKillWord() = handleTextChange {

@@ -97,6 +97,7 @@ trait ExpressionActionHandler {
       case Copy                       ⇒ handleCopy(browserState, expressionState)
       case Paste                      ⇒ handlePaste(browserState, expressionState)
       case Quit                       ⇒ handleQuit(browserState)
+      case Inline                     ⇒ updateExpressionBuffer(lineBuffer ⇒ handleInline(lineBuffer, mish = false))
       case _                          ⇒
     }
     updateInvocationAssistance(browserState)

@@ -11,25 +11,27 @@ import scala.util.control.NonFatal
 trait InlineHandler {
   self: Repl ⇒
 
-  protected def handleInline(state: ReplState): ReplState = {
-    val lineBuffer = state.lineBuffer
+  protected def handleInline(state: ReplState): ReplState =
+    state.withLineBuffer(handleInline(state.lineBuffer, state.mish))
+
+  protected def handleInline(lineBuffer: LineBuffer, mish: Boolean): LineBuffer = {
     val cmd = lineBuffer.selectedTextOpt getOrElse lineBuffer.text
     val newLineBufferOpt =
       for {
-        result ← runCommand(cmd, state)
+        result ← runCommand(cmd, mish)
         expression ← ValueToExpression.getExpression(result)
         newLineBuffer = lineBuffer.selectedRegionOpt match {
           case Some(selectedRegion) ⇒ lineBuffer.replaceRegion(selectedRegion, expression)
           case None                 ⇒ LineBuffer(expression)
         }
       } yield newLineBuffer
-    state.withLineBuffer(newLineBufferOpt getOrElse lineBuffer)
+    newLineBufferOpt getOrElse lineBuffer
   }
 
-  private def runCommand(cmd: String, state: ReplState): Option[MashValue] = {
+  private def runCommand(cmd: String, mish: Boolean = false): Option[MashValue] = {
     val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId, printErrors = false)
     val unitName = s"command-inline"
-    val unit = CompilationUnit(cmd, unitName, interactive = true, mish = state.mish)
+    val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
     try
       commandRunner.runCompilationUnit(unit, bareWords)
     catch {

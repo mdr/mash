@@ -10,7 +10,6 @@ import com.github.mdr.mash.input.KeyDsl._
 object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
   alt('w') → Copy,
   control('y') → Paste,
-  alt('e') → Inline,
   control('p') → NormalActions.Up,
   KeyPress(Key.Up) → NormalActions.Up,
   control('n') → NormalActions.Down,
@@ -37,6 +36,7 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   control('g') → Quit))
 
 object LineBufferKeyMap extends KeyMap(Map(
+  alt('e') → Inline,
   control('l') → RedrawScreen,
   KeyPress(Tab) → Complete,
   KeyPress(Key.Enter) → NormalActions.Enter,
