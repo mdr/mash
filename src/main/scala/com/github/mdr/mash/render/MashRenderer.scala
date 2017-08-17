@@ -19,13 +19,13 @@ object MashRenderer {
 
   def getTokenStyle(tokenType: TokenType): Style =
     tokenType match {
-      case COMMENT                                                    ⇒ Style(foregroundColour = Colour256(61))
-      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = Colour256(141))
-      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = Colour256(231))
-      case ERROR                                                      ⇒ Style(foregroundColour = Colour256(203))
-      case t if t.isFlag                                              ⇒ Style(foregroundColour = Colour256(117))
-      case t if t.isKeyword                                           ⇒ Style(foregroundColour = Colour256(212))
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = Colour256(228))
+      case COMMENT                                                    ⇒ Style(foregroundColour = Colour256.nearest("#6272a4"))
+      case NUMBER_LITERAL                                             ⇒ Style(foregroundColour = Colour256.nearest("#bd93f9"))
+      case IDENTIFIER | MISH_WORD                                     ⇒ Style(foregroundColour = Colour256.nearest("#f8f8f2"))
+      case ERROR                                                      ⇒ Style(foregroundColour = Colour256.nearest("#ff5555"))
+      case t if t.isFlag                                              ⇒ Style(foregroundColour = Colour256.nearest("#8be9fd"))
+      case t if t.isKeyword                                           ⇒ Style(foregroundColour = Colour256.nearest("#ff79c6"))
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = Colour256.nearest("#f1fa8c"))
       case _                                                          ⇒ Style()
     }
 
