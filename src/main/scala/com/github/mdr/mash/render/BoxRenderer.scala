@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render
 
-import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.{ Dimensions, StringUtils, StyledStringUtils }
 import com.github.mdr.mash.screen.Style.StylableString
 
@@ -17,7 +17,7 @@ object BoxRenderer {
   private val NumberOfInnerLineCharsNotUsedForContent = InnerLineStart.length + InnerLineEnd.length
   private val NumberOfBottomLineCharsNotUsedForFiller = BottomLineStart.length + BottomLineEnd.length
 
-  private val TitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
+  private val TitleStyle = Style(bold = true, foregroundColour = DefaultColours.Yellow)
 
   def render(boxContent: BoxContent, terminalSize: Dimensions): Seq[Line] = {
     val BoxContent(title, lines) = boxContent

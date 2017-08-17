@@ -147,8 +147,8 @@ class TwoDTableCommonRenderer(model: TwoDTableModel,
 
   private def getStyle(highlight: Boolean = false, isSearchMatch: Boolean = false, isLabel: Boolean = false): Style = {
     val foregroundColour =
-      if (isSearchMatch) BasicColour.Cyan
-      else if (isLabel) BasicColour.Yellow
+      if (isSearchMatch) DefaultColours.Cyan
+      else if (isLabel) DefaultColours.Yellow
       else DefaultColour
     Style(inverse = highlight, bold = isSearchMatch, foregroundColour = foregroundColour)
   }

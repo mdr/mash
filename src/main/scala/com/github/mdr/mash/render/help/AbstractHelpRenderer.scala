@@ -3,7 +3,7 @@ package com.github.mdr.mash.render.help
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.printer.model.{ Link, LinkPath }
 import com.github.mdr.mash.screen.Style._
-import com.github.mdr.mash.screen.{ BasicColour, Line, Style, StyledString }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.{ LineInfo, Region }
 
 object LinesAndLinks {
@@ -30,11 +30,11 @@ case class LinesAndLinks(lines: Seq[Line] = Seq(), links: Seq[Link] = Seq()) {
 
 abstract class AbstractHelpRenderer {
 
-  protected val ParamNameStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
+  protected val ParamNameStyle = Style(foregroundColour = DefaultColours.Cyan, bold = true)
 
-  protected val FieldAndMethodStyle = Style(foregroundColour = BasicColour.Blue, bold = true)
+  protected val FieldAndMethodStyle = Style(foregroundColour = DefaultColours.Cyan, bold = true)
 
-  protected val SectionTitleStyle = Style(bold = true, foregroundColour = BasicColour.Yellow)
+  protected val SectionTitleStyle = Style(bold = true, foregroundColour = DefaultColours.Yellow)
 
   protected val NameStyle = Style(bold = true)
 

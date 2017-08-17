@@ -38,7 +38,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
     }
 
     def print(s: String, highlighted: Boolean = false, yellow: Boolean = false): Unit = {
-      val foregroundColour = if (yellow) BasicColour.Yellow else DefaultColour
+      val foregroundColour = if (yellow) DefaultColours.Yellow else DefaultColour
       line += s.style(Style(inverse = highlighted, foregroundColour = foregroundColour))
     }
 

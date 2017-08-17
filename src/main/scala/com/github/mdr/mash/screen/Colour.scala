@@ -49,3 +49,19 @@ case class Colour256(n: Int) extends Colour {
   def rgbColour: RgbColour = Colour256.HexCodes(n)
 
 }
+
+object DefaultColours {
+
+  // See: https://github.com/dracula/dracula-theme/
+
+  val Foreground = Colour256.nearest("#f8f8f2")
+  val Comment = Colour256.nearest("#6272a4")
+  val Cyan = Colour256.nearest("#8be9fd")
+  val Green = Colour256.nearest("#50fa7b")
+  val Orange = Colour256.nearest("#ffb86c")
+  val Pink = Colour256.nearest("#ff79c6")
+  val Purple = Colour256.nearest("#bd93f9")
+  val Red = Colour256.nearest("#ff5555")
+  val Yellow = Colour256.nearest("#f1fa8c")
+
+}

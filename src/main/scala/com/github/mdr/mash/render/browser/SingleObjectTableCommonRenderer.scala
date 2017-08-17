@@ -138,12 +138,12 @@ class SingleObjectTableCommonRenderer(model: SingleObjectTableModel,
   private def renderFooterLine(addArrow: Boolean): Line =
     renderBorderRow(doubleBottomLeft, doubleHorizontal, doubleHorizontalSingleUp, doubleBottomRight, downArrow = addArrow)
 
-  private val classNameStyle: Style = Style(bold = true, foregroundColour = BasicColour.Yellow)
+  private val classNameStyle: Style = Style(bold = true, foregroundColour = DefaultColours.Yellow)
 
   private def getStyle(highlight: Boolean = false, isSearchMatch: Boolean = false, isLabel: Boolean = false): Style = {
     val foregroundColour =
-      if (isSearchMatch) BasicColour.Cyan
-      else if (isLabel) BasicColour.Yellow
+      if (isSearchMatch) DefaultColours.Cyan
+      else if (isLabel) DefaultColours.Yellow
       else DefaultColour
     Style(inverse = highlight, bold = isSearchMatch, foregroundColour = foregroundColour)
   }
