@@ -11,7 +11,7 @@ import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, _ }
 import com.github.mdr.mash.repl.browser.{ BrowserState, ExpressionState }
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions.{ AcceptCompletion, NavigateUp, _ }
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, IncrementalCompletionState, ReplStateMemento }
-import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl }
+import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl, ReplState }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 
 trait ExpressionActionHandler {
@@ -26,7 +26,7 @@ trait ExpressionActionHandler {
       val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState,
         activeCompletion = activeCompletion, expressionState.lineBuffer)
       val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
-      updateState(browserState.setExpression(newExpressionState))
+      updateState(browserState.withExpressionState(newExpressionState))
     }
     action match {
       case NextCompletion     ⇒ navigate(navigator.next)
@@ -37,10 +37,10 @@ trait ExpressionActionHandler {
       case NavigateUp         ⇒ navigate(navigator.up)
       case AcceptCompletion   ⇒
         val newExpressionState = expressionState.copy(completionStateOpt = None)
-        updateState(browserState.setExpression(newExpressionState))
+        updateState(browserState.withExpressionState(newExpressionState))
       case _                  ⇒
         val newExpressionState = expressionState.copy(completionStateOpt = None)
-        val newBrowserState = browserState.setExpression(newExpressionState)
+        val newBrowserState = browserState.withExpressionState(newExpressionState)
         updateState(newBrowserState)
         handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
     }
@@ -54,19 +54,19 @@ trait ExpressionActionHandler {
       case SelfInsert(s)                                              ⇒
         val (newLineBuffer, newCompletionStateOpt) = getNewIncrementalSearchState(s, expressionState.lineBuffer, completionState, mish = false)
         val newExpressionState = expressionState.copy(completionStateOpt = newCompletionStateOpt, lineBuffer = newLineBuffer)
-        updateState(browserState.setExpression(newExpressionState))
+        updateState(browserState.withExpressionState(newExpressionState))
       case BackwardDeleteChar if completionState.mementoOpt.isDefined ⇒ // restore previous state
         for (ReplStateMemento(lineBuffer, completionState) ← completionState.mementoOpt) {
           val newExpressionState = expressionState.copy(completionStateOpt = Some(completionState), lineBuffer = lineBuffer)
-          updateState(browserState.setExpression(newExpressionState))
+          updateState(browserState.withExpressionState(newExpressionState))
         }
       case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
         val (newCompletionState, newLineBuffer) = getBrowseCompletionState(completionState, activeCompletion = 0, expressionState.lineBuffer)
         val newExpressionState = expressionState.copy(completionStateOpt = Some(newCompletionState), lineBuffer = newLineBuffer)
-        updateState(browserState.setExpression(newExpressionState))
+        updateState(browserState.withExpressionState(newExpressionState))
       case _                                                          ⇒ // exit back to normal mode, and handle there
         val newExpressionState = expressionState.copy(completionStateOpt = None)
-        val newBrowserState = browserState.setExpression(newExpressionState)
+        val newBrowserState = browserState.withExpressionState(newExpressionState)
         updateState(newBrowserState)
         handleNormalExpressionInputAction(action, newBrowserState, newExpressionState)
     }
@@ -83,8 +83,8 @@ trait ExpressionActionHandler {
 
   private def handleNormalExpressionInputAction(action: InputAction, browserState: BrowserState, expressionState: ExpressionState) {
     def updateExpressionBuffer(f: LineBuffer ⇒ LineBuffer) =
-      updateState(browserState.setExpression(expressionState.updateLineBuffer(f)))
-
+      updateState(browserState.withExpressionState(expressionState.updateLineBuffer(f)))
+    val context = Context(browserState, expressionState)
     action match {
       case Enter                      ⇒ handleEnter(browserState, expressionState)
       case BackwardKillWord           ⇒ handleBackwardKillWord(browserState, expressionState)
@@ -94,8 +94,8 @@ trait ExpressionActionHandler {
       case ExpandSelection            ⇒ handleExpandSelection(browserState, expressionState)
       case UnexpandSelection          ⇒ handleUnexpandSelection(browserState, expressionState)
       case AssistInvocation           ⇒ handleAssistInvocation(browserState, expressionState)
-      case Copy                       ⇒ handleCopy(browserState, expressionState)
-      case Paste                      ⇒ handlePaste(browserState, expressionState)
+      case Copy                       ⇒ handleCopy(context)
+      case Paste                      ⇒ handlePaste(context)
       case Quit                       ⇒ handleQuit(browserState)
       case Inline                     ⇒ updateExpressionBuffer(lineBuffer ⇒ handleInline(lineBuffer, mish = false))
       case _                          ⇒
@@ -108,10 +108,10 @@ trait ExpressionActionHandler {
 
   private def handleExpandSelection(browserState: BrowserState, expressionState: ExpressionState) =
     for (newSelection ← SyntaxSelection.expandSelection(expressionState.lineBuffer))
-      updateState(browserState.setExpression(expressionState.pushSelection(newSelection)))
+      updateState(browserState.withExpressionState(expressionState.pushSelection(newSelection)))
 
   private def handleUnexpandSelection(browserState: BrowserState, expressionState: ExpressionState) =
-    updateState(browserState.setExpression(expressionState.popSelection))
+    updateState(browserState.withExpressionState(expressionState.popSelection))
 
   private def handleBackwardKillWord(browserState: BrowserState, expressionState: ExpressionState) = {
     val newExpressionState =
@@ -119,24 +119,45 @@ trait ExpressionActionHandler {
         .map(expressionState.withCopied)
         .getOrElse(expressionState)
         .updateLineBuffer(_.deleteBackwardWord)
-    updateState(browserState.setExpression(newExpressionState))
+    updateState(browserState.withExpressionState(newExpressionState))
   }
 
-  private def handlePaste(browserState: BrowserState, expressionState: ExpressionState) = {
-    for (copy ← expressionState.copiedOpt)
-      updateState(browserState.setExpression(expressionState.updateLineBuffer(_.insertAtCursor(copy))))
+  private def updateState(context: Context): Unit = updateState(context.browserState)
+
+  private case class Context(browserState: BrowserState, expressionState: ExpressionState) {
+
+    def lineBuffer: LineBuffer = expressionState.lineBuffer
+
+    def withLineBuffer(lineBuffer: LineBuffer): Context =
+      updateExpressionState(_.withLineBuffer(lineBuffer))
+
+    def updateLineBuffer(f: LineBuffer ⇒ LineBuffer): Context =
+      withLineBuffer(f(expressionState.lineBuffer))
+
+    def withExpressionState(newExpressionState: ExpressionState): Context = {
+      val newBrowserState = browserState.withExpressionState(newExpressionState)
+      Context(newBrowserState, newExpressionState)
+    }
+
+    def updateExpressionState(f: ExpressionState ⇒ ExpressionState): Context =
+      withExpressionState(f(expressionState))
+
   }
 
-  private def handleCopy(browserState: BrowserState, expressionState: ExpressionState) = {
-    val newExpressionState = expressionState.lineBuffer.selectedTextOpt
-      .map(expressionState.withCopied)
-      .getOrElse(expressionState)
-    updateState(browserState.setExpression(newExpressionState))
+  private def handlePaste(context: Context) = {
+    for (text ← context.expressionState.copiedOpt)
+      updateState(context.updateLineBuffer(_.insertAtCursor(text)))
   }
+
+  private def handleCopy(context: Context) =
+    updateState(
+      context.lineBuffer.selectedTextOpt
+        .map(text ⇒ context.updateExpressionState(_.withCopied(text)))
+        .getOrElse(context))
 
   private def handleAssistInvocation(browserState: BrowserState, expressionState: ExpressionState) {
     val newExpressionState = toggleInvocationAssistance(expressionState)
-    updateState(browserState.setExpression(newExpressionState))
+    updateState(browserState.withExpressionState(newExpressionState))
   }
 
   private def handleEnter(browserState: BrowserState, expressionState: ExpressionState) {
@@ -160,7 +181,7 @@ trait ExpressionActionHandler {
       val newAssistanceStateOpt = InvocationAssistanceUpdater.updateInvocationAssistance(expressionState.lineBuffer,
         getBindings, mish = false, Some(assistanceState))
       val newExpressionState = expressionState.copy(assistanceStateOpt = newAssistanceStateOpt)
-      updateState(browserState.setExpression(newExpressionState))
+      updateState(browserState.withExpressionState(newExpressionState))
     }
   }
 
@@ -175,13 +196,13 @@ trait ExpressionActionHandler {
 
   private def enterIncrementalCompletionState(browserState: BrowserState, result: CompletionResult, lineBuffer: LineBuffer) = {
     val (completionState, newLineBuffer) = initialIncrementalCompletionState(result, lineBuffer)
-    updateState(browserState.setExpression(ExpressionState(newLineBuffer, completionStateOpt = Some(completionState))))
+    updateState(browserState.withExpressionState(ExpressionState(newLineBuffer, completionStateOpt = Some(completionState))))
   }
 
   private def immediateInsert(browserState: BrowserState, lineBuffer: LineBuffer, completion: Completion, result: CompletionResult) {
     val newText = result.replacementLocation.replace(lineBuffer.text, completion.replacement)
     val newOffset = result.replacementLocation.offset + completion.replacement.length
-    updateState(browserState.setExpression(ExpressionState(LineBuffer(newText, newOffset))))
+    updateState(browserState.withExpressionState(ExpressionState(LineBuffer(newText, newOffset))))
   }
 
   private def acceptExpression(currentPath: String, currentValue: MashValue, expression: String) =

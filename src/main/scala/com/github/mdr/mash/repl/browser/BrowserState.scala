@@ -60,9 +60,9 @@ trait BrowserState {
 
   def withExpressionState(expressionStateOpt: Option[ExpressionState]): BrowserState
 
-  def beginExpression: BrowserState = setExpression(ExpressionState(LineBuffer(path)))
+  def withExpressionState(expressionState: ExpressionState): BrowserState = withExpressionState(Some(expressionState))
 
-  def setExpression(expressionState: ExpressionState): BrowserState = withExpressionState(Some(expressionState))
+  def beginExpression: BrowserState = withExpressionState(ExpressionState(LineBuffer(path)))
 
   def acceptExpression: BrowserState = withExpressionState(None)
 
