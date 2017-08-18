@@ -25,7 +25,7 @@ object MashRenderer {
       case ERROR                                                      ⇒ Style(foregroundColour = DefaultColours.Red)
       case t if t.isFlag                                              ⇒ Style(foregroundColour = DefaultColours.Cyan)
       case t if t.isKeyword                                           ⇒ Style(foregroundColour = DefaultColours.Pink)
-      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = DefaultColours.Orange)
+      case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = DefaultColours.Yellow)
       case _                                                          ⇒ Style()
     }
 

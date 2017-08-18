@@ -138,7 +138,8 @@ trait ObjectBrowserActionHandler
     else
       browserStateStack.headState.expressionStateOpt match {
         case Some(expressionState) ⇒
-          handleBrowserExpressionInputAction(action, browserStateStack.headState, expressionState)
+          val context = Context(browserStateStack.headState, expressionState)
+          handleBrowserExpressionInputAction(action, context)
         case None                  ⇒
           browserStateStack.headState match {
             case browserState: TwoDTableBrowserState         ⇒ handleTwoDTableBrowserAction(action, browserState)
