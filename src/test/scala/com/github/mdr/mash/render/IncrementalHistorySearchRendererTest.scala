@@ -12,7 +12,7 @@ import com.github.mdr.mash.utils.{ Point, Region }
 
 class IncrementalHistorySearchRendererTest extends RendererTest {
 
-  val expectedHintLine = "Up next, ret done, ^G quit, ^D cd"
+  val expectedHintLine = "↑ next, ↩ done, ⌃g quit, ⌃d cd, ⌥d this dir only"
 
   "Incremental history search" should "render correctly before first hit" in {
     val state = IncrementalHistorySearchState("", "", BeforeFirstHit)
@@ -42,7 +42,7 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
     val state = IncrementalHistorySearchState("searchString", "", BeforeFirstHit)
     val LinesAndCursorPos(Seq(line1, line2), cursorPosOpt) = renderHistorySearchState(state, SufficientlyLargeTerminalSize.withColumns(5))
     getText(line1) shouldEqual "Incr…"
-    getText(line2) shouldEqual "Up n…"
+    getText(line2) shouldEqual "↑ ne…"
     cursorPosOpt shouldEqual None
   }
 
