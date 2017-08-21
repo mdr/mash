@@ -35,5 +35,5 @@ object IncrementalHistorySearchState {
 
 case class IncrementalHistorySearchState(searchString: String = "",
                                          originalLineBuffer: String,
-                                         hitStatus: HitStatus)
-
+                                         hitStatus: HitStatus,
+                                         currentDirOnly: Boolean = false)

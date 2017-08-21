@@ -35,12 +35,13 @@ trait History extends HistoricalArgumentSource {
   /**
     * Search backwards through history to find a match for a given search string.
     */
-  def findMatch(searchString: String, index: Int): Option[Match] = findMatches(searchString).drop(index).headOption
+  def findMatch(searchString: String, index: Int, directoryOpt: Option[Path]): Option[Match] =
+    findMatches(searchString, directoryOpt).drop(index).headOption
 
-  def findLastMatch(searchString: String): Option[(Match, Int)] =
-    findMatches(searchString).zipWithIndex.lastOption
+  def findLastMatch(searchString: String, directoryOpt: Option[Path]): Option[(Match, Int)] =
+    findMatches(searchString, directoryOpt).zipWithIndex.lastOption
 
-  private def findMatches(searchString: String): Stream[Match] = {
+  private def findMatches(searchString: String, directoryOpt: Option[Path]): Stream[Match] = {
     val pattern = Pattern.compile(Pattern.quote(searchString), Pattern.CASE_INSENSITIVE)
 
     def tryMatch(entry: HistoryEntry): Option[Match] = {
@@ -51,7 +52,9 @@ trait History extends HistoricalArgumentSource {
       }
     }
 
-    getHistory.toStream.flatMap(tryMatch)
+    getHistory.toStream
+      .flatMap(tryMatch)
+      .filter(m ⇒ directoryOpt.forall(m.workingDirectory == _))
   }
 
   def getHistoricalArguments(lastArgIndex: Int): Option[String] =

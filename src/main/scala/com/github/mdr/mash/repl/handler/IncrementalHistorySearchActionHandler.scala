@@ -1,13 +1,17 @@
 package com.github.mdr.mash.repl.handler
 
+import java.nio.file.Path
+
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit }
+import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit, ToggleCurrentDirOnly }
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.repl.history.History.Match
 import com.github.mdr.mash.repl.{ IncrementalHistorySearchState, LineBuffer, ReplState }
+import com.github.mdr.mash.utils.Utils._
 
 import scala.util.control.NonFatal
 
@@ -20,6 +24,8 @@ object IncrementalHistorySearchActionHandler {
 case class IncrementalHistorySearchActionHandler(history: History) {
 
   import IncrementalHistorySearchActionHandler._
+
+  private val fileSystem = LinuxFileSystem
 
   def beginFreshIncrementalSearch(state: ReplState): ReplState = {
     history.resetHistoryPosition()
@@ -38,7 +44,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
 
   def handleAction(action: InputAction, state: ReplState): Result =
     state.incrementalHistorySearchStateOpt match {
-      case Some(searchState@IncrementalHistorySearchState(searchString, _, hitStatus)) ⇒
+      case Some(searchState@IncrementalHistorySearchState(searchString, _, hitStatus, _)) ⇒
         action match {
           case SelfInsert(c)                 ⇒ Result(freshSearch(searchString + c, searchState, state))
           case BackwardDeleteChar            ⇒ Result(handleDeleteChar(searchState, state))
@@ -47,13 +53,19 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
           case Quit                          ⇒ Result(handleAbandonSearch(searchState, state))
           case ChangeDirectory               ⇒ Result(handleChangeDirectory(hitStatus, state))
+          case ToggleCurrentDirOnly          ⇒ Result(handleToggleCurrentDirOnly(searchState, state))
           case FirstHit                      ⇒ Result(handleFirstHit(searchState, state))
           case LastHit                       ⇒ Result(handleLastHit(searchState, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
-      case None                                                                        ⇒
+      case None                                                                           ⇒
         Result(state, actionConsumed = false)
     }
+
+  private def handleToggleCurrentDirOnly(searchState: IncrementalHistorySearchState, state: ReplState): ReplState = {
+    val newSearchState = searchState.copy(currentDirOnly = !searchState.currentDirOnly)
+    freshSearch(newSearchState.searchString, newSearchState, state)
+  }
 
   private def handleAbandonSearch(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
     state.copy(
@@ -74,8 +86,11 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     }
   }
 
+  private def directoryOpt(searchState: IncrementalHistorySearchState): Option[Path] =
+    searchState.currentDirOnly.option(currentDir)
+
   private def freshSearch(newSearchString: String, searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
-    history.findMatch(newSearchString, index = 0) match {
+    history.findMatch(newSearchString, index = 0, directoryOpt(searchState)) match {
       case Some(historyMatch) ⇒
         newMatchFound(newSearchString, searchState, state, resultIndex = 0, historyMatch)
       case None               ⇒
@@ -97,7 +112,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     if (searchState.hitStatus == NoHits)
       state
     else
-      history.findLastMatch(searchState.searchString) match {
+      history.findLastMatch(searchState.searchString, directoryOpt(searchState)) match {
         case Some((historyMatch, resultIndex)) ⇒
           newMatchFound(searchState.searchString, searchState, state, resultIndex, historyMatch)
         case None                              ⇒
@@ -108,7 +123,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     if (searchState.hitStatus == NoHits)
       state
     else
-      history.findMatch(searchState.searchString, resultIndex) match {
+      history.findMatch(searchState.searchString, resultIndex, directoryOpt(searchState)) match {
         case Some(historyMatch) ⇒ newMatchFound(searchState.searchString, searchState, state, resultIndex, historyMatch)
         case None               ⇒ state
       }
@@ -152,5 +167,7 @@ case class IncrementalHistorySearchActionHandler(history: History) {
     }
     state
   }
+
+  private def currentDir: Path = fileSystem.pwd
 
 }

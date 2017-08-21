@@ -2,7 +2,7 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit }
+import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit, ToggleCurrentDirOnly }
 import com.github.mdr.mash.repl.NormalActions
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.input.KeyDsl._
@@ -34,6 +34,7 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   KeyPress(Backspace) → BackwardDeleteChar,
   KeyPress(Key.Enter) → NormalActions.Enter,
   control('d') → ChangeDirectory,
+  alt('d') → ToggleCurrentDirOnly,
   control('g') → Quit,
   KeyPress(Home) → LastHit,
   KeyPress(End) → FirstHit))
