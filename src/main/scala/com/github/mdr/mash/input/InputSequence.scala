@@ -10,6 +10,8 @@ object KeyDsl {
 
   implicit def charToBasicKey(c: Char): BasicKey = BasicKey(c)
 
+  implicit def basicKeyToKeyPress(key: Key): KeyPress = KeyPress(key)
+
   def control(c: Char) = KeyPress(c, control = true)
 
   def control(key: Key) = KeyPress(key, control = true)

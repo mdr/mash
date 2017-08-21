@@ -25,11 +25,14 @@ object IncrementalHistorySearchRenderer {
     val cursorPosOpt = (chars.size < terminalSize.columns).option(Point(0, chars.size))
 
     val hintLine = renderHitLine(searchState.hitStatus)
-    val lines = (Seq(searchLine) ++ hintLine ++ Seq(KeyHintLine)).map(truncateIfNecessary(_, terminalSize))
+    val lines = (Seq(searchLine) ++ hintLine ++ Seq(keyHintLine(searchState))).map(truncateIfNecessary(_, terminalSize))
     LinesAndCursorPos(lines, cursorPosOpt)
   }
 
-  private val KeyHintLine = Line(KeyHint.renderKeyHints(Seq(NextHistoryHit, DoneSearch, Quit, ChangeDirectory)))
+  private def keyHintLine(searchState: IncrementalHistorySearchState) = {
+    val hints = Seq(NextHistoryHit, DoneSearch, Quit, ChangeDirectory) :+ (if (searchState.currentDirOnly) AllDirs else ThisDirOnly)
+    Line(KeyHint.renderKeyHints(hints))
+  }
 
   private def renderHitLine(hitStatus: HitStatus): Option[Line] =
     hitStatus match {
