@@ -11,6 +11,7 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.RedrawScreen
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.Rerender
 import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
@@ -140,6 +141,8 @@ trait ObjectBrowserActionHandler
   protected def handleObjectBrowserAction(action: InputAction, browserStateStack: ObjectBrowserStateStack): Unit =
     if (action == RedrawScreen)
       handleRedrawScreen()
+    else if (action == Rerender)
+      rerender(browserStateStack.headState)
     else
       browserStateStack.headState.expressionStateOpt match {
         case Some(expressionState) ⇒
@@ -156,6 +159,20 @@ trait ObjectBrowserActionHandler
             case browserState                                ⇒ throw new AssertionError("Unexpected browser state: " + browserState)
           }
       }
+
+  private def rerender(browserState: BrowserState) {
+    browserState match {
+      case browserState: SingleObjectTableBrowserState ⇒
+        val newModel = createSingleObjectTableModel(browserState.model.rawValue)
+        updateState(browserState.copy(model = newModel))
+      case browserState: TwoDTableBrowserState         ⇒
+        val newModel = createTwoDModel(browserState.model.rawValue)
+        updateState(browserState.copy(model = newModel))
+      case _                                           ⇒
+    }
+    clearScreen()
+    previousScreenOpt = None
+  }
 
   protected def handleOpenItem(browserState: BrowserState) =
     for (expression ← browserState.getInsertExpressionOpt) {

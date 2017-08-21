@@ -4,7 +4,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
-import com.github.mdr.mash.repl.browser.{ SearchState, SingleObjectTableBrowserState, TwoDTableBrowserState }
+import com.github.mdr.mash.repl.browser.{ SearchState, SingleObjectTableBrowserState }
 
 trait SingleObjectTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
@@ -40,7 +40,6 @@ trait SingleObjectTableBrowserActionHandler {
       case View2D                          ⇒ view2D(browserState)
       case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
       case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
-      case Rerender                        ⇒ rerender(browserState)
       case _                               ⇒
     }
 
@@ -61,12 +60,5 @@ trait SingleObjectTableBrowserActionHandler {
   private def unsearch(browserState: SingleObjectTableBrowserState, searchState: SearchState) =
     if (searchState.query.nonEmpty)
       updateState(browserState.setSearch(searchState.query.init, terminalRows))
-
-  private def rerender(browserState: SingleObjectTableBrowserState) {
-    val newModel = createSingleObjectTableModel(browserState.model.rawValue)
-    updateState(browserState.copy(model = newModel))
-    clearScreen()
-    previousScreenOpt = None
-  }
 
 }

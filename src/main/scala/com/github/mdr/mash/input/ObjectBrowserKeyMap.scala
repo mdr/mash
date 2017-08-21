@@ -53,7 +53,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   object ExpressionInput extends KeyMap(LineBufferKeyMap.map ++ Map(
     alt('w') → NormalActions.Copy,
     shift(Space) → AssistInvocation,
-    control('y') → Paste))
+    control('y') → Paste,
+    TerminalWindowChanged → Rerender))
 
   object IncrementalSearch extends KeyMap(Map(
     control('l') → RedrawScreen,

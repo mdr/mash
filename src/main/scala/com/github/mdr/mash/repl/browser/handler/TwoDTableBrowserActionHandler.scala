@@ -11,15 +11,12 @@ trait TwoDTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState) =
-    if (action == Rerender)
-      rerender(browserState)
-    else
-      browserState.searchStateOpt match {
-        case Some(searchState) ⇒
-          handleIncrementalSearchAction(action, browserState, searchState)
-        case None              ⇒
-          handleDefaultTwoDTableBrowserAction(action, browserState)
-      }
+    browserState.searchStateOpt match {
+      case Some(searchState) ⇒
+        handleIncrementalSearchAction(action, browserState, searchState)
+      case None              ⇒
+        handleDefaultTwoDTableBrowserAction(action, browserState)
+    }
 
   private def handleIncrementalSearchAction(action: InputAction, browserState: TwoDTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._
@@ -72,13 +69,6 @@ trait TwoDTableBrowserActionHandler {
   private def unsearch(browserState: TwoDTableBrowserState, searchState: SearchState) =
     if (searchState.query.nonEmpty)
       updateState(browserState.setSearch(searchState.query.init, terminalRows))
-
-  private def rerender(browserState: TwoDTableBrowserState) {
-    val newModel = createTwoDModel(browserState.model.rawValue)
-    updateState(browserState.copy(model = newModel))
-    clearScreen()
-    previousScreenOpt = None
-  }
 
   private def handleHideColumn(browserState: TwoDTableBrowserState) =
     for (currentColumn ← browserState.currentColumnOpt if currentColumn > 0)
