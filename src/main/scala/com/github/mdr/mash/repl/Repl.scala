@@ -158,4 +158,9 @@ class Repl(protected val terminal: Terminal,
 
   protected def getBindings: Map[String, MashValue] = globalVariables.stringFields
 
+  protected def clearScreen() {
+    output.write(Terminal.ClearScreenEscapeSequence.getBytes)
+    output.flush()
+  }
+
 }

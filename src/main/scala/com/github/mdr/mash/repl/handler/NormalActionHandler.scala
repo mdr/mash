@@ -166,8 +166,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   protected def handleRedrawScreen() {
-    output.write(Terminal.ClearScreenEscapeSequence.getBytes)
-    output.flush()
+    clearScreen()
     previousScreenOpt = None
   }
 

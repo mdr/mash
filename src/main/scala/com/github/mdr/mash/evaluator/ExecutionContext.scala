@@ -21,7 +21,7 @@ class ExecutionContext(thread: Thread) {
 
   def interrupt() = synchronized {
     _interrupted = true
-    thread.interrupt()
+    // thread.interrupt() // seems to be lots of problems doing this, to investigate...
   }
 
   def interrupted = synchronized {

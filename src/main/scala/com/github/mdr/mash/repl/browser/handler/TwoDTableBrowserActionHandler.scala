@@ -72,9 +72,8 @@ trait TwoDTableBrowserActionHandler {
       updateState(browserState.setSearch(searchState.query.init, terminalRows))
 
   private def rerender(browserState: TwoDTableBrowserState) {
-    val modelCreator = new TwoDTableModelCreator(terminal.size, supportMarking = true, viewConfig)
-    val model = modelCreator.create(browserState.model.rawValue)
-    updateState(browserState.copy(model = model))
+    view2D(browserState)
+    clearScreen()
     previousScreenOpt = None
   }
 

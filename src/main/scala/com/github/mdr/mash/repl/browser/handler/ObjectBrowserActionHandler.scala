@@ -120,11 +120,10 @@ trait ObjectBrowserActionHandler
     else
       getNewBrowserState(value, path)
 
-  private def insert(expression: String): Unit = {
+  private def insert(expression: String): Unit =
     state = state.copy(
       lineBuffer = LineBuffer(expression),
       objectBrowserStateStackOpt = None)
-  }
 
   protected def handleInsertWholeItem(browserState: BrowserState) = insert(browserState.path)
 
