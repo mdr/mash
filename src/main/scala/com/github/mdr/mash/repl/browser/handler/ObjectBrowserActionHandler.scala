@@ -86,7 +86,7 @@ trait ObjectBrowserActionHandler
   protected def view1D(browserState: BrowserState): Unit =
     browserState.rawValue match {
       case obj: MashObject if obj.nonEmpty ⇒
-        val model = new SingleObjectTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(obj)
+        val model = createSingleObjectTableModel(obj)
         val newState = SingleObjectTableBrowserState(model, path = browserState.path)
         updateState(newState)
       case xs: MashList                    ⇒
@@ -96,9 +96,12 @@ trait ObjectBrowserActionHandler
       case _                               ⇒
     }
 
+  protected def createSingleObjectTableModel(obj: MashObject): SingleObjectTableModel =
+    new SingleObjectTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(obj)
+
   protected def view2D(browserState: BrowserState) = {
     def view2D(value: MashValue): Unit = {
-      val model = new TwoDTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(value)
+      val model = createTwoDModel(value)
       val newState = TwoDTableBrowserState(model, path = browserState.path)
       updateState(newState)
     }
@@ -110,6 +113,9 @@ trait ObjectBrowserActionHandler
       case _                                                                                   ⇒
     }
   }
+
+  protected def createTwoDModel(value: MashValue): TwoDTableModel =
+    new TwoDTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(value)
 
   protected def getNewBrowserState(value: MashValue, path: String): BrowserState =
     BrowserState.fromModel(DisplayModel.getDisplayModel(value, viewConfig, terminal.size), path)

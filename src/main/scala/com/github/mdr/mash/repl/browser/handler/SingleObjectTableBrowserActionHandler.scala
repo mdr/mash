@@ -63,7 +63,8 @@ trait SingleObjectTableBrowserActionHandler {
       updateState(browserState.setSearch(searchState.query.init, terminalRows))
 
   private def rerender(browserState: SingleObjectTableBrowserState) {
-    view1D(browserState)
+    val newModel = createSingleObjectTableModel(browserState.model.rawValue)
+    updateState(browserState.copy(model = newModel))
     clearScreen()
     previousScreenOpt = None
   }

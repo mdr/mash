@@ -11,12 +11,15 @@ trait TwoDTableBrowserActionHandler {
   self: ObjectBrowserActionHandler with Repl ⇒
 
   protected def handleTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState) =
-    browserState.searchStateOpt match {
-      case Some(searchState) ⇒
-        handleIncrementalSearchAction(action, browserState, searchState)
-      case None              ⇒
-        handleDefaultTwoDTableBrowserAction(action, browserState)
-    }
+    if (action == Rerender)
+      rerender(browserState)
+    else
+      browserState.searchStateOpt match {
+        case Some(searchState) ⇒
+          handleIncrementalSearchAction(action, browserState, searchState)
+        case None              ⇒
+          handleDefaultTwoDTableBrowserAction(action, browserState)
+      }
 
   private def handleIncrementalSearchAction(action: InputAction, browserState: TwoDTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._
@@ -57,7 +60,6 @@ trait TwoDTableBrowserActionHandler {
       case FocusDirectory                  ⇒ focusDirectory(browserState)
       case ReadFile                        ⇒ readFile(browserState)
       case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
-      case Rerender                        ⇒ rerender(browserState)
       case ViewAsTree                      ⇒ viewAsTree(browserState)
       case View1D                          ⇒ view1D(browserState)
       case View2D                          ⇒ view2D(browserState)
@@ -72,7 +74,8 @@ trait TwoDTableBrowserActionHandler {
       updateState(browserState.setSearch(searchState.query.init, terminalRows))
 
   private def rerender(browserState: TwoDTableBrowserState) {
-    view2D(browserState)
+    val newModel = createTwoDModel(browserState.model.rawValue)
+    updateState(browserState.copy(model = newModel))
     clearScreen()
     previousScreenOpt = None
   }

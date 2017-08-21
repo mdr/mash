@@ -56,6 +56,8 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
     control('y') → Paste))
 
   object IncrementalSearch extends KeyMap(Map(
+    control('l') → RedrawScreen,
+    TerminalWindowChanged → Rerender,
     KeyPress(Enter) → ExitSearch,
     KeyPress(Backspace) → Unsearch,
     control('t') → ToggleCase,
