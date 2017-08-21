@@ -55,5 +55,6 @@ object NormalActions {
 
 object IncrementalHistorySearchActions {
   case object ChangeDirectory extends InputAction
-
+  case object FirstHit extends InputAction
+  case object LastHit extends InputAction
 }

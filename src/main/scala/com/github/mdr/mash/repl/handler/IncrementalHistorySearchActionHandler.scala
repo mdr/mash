@@ -2,7 +2,7 @@ package com.github.mdr.mash.repl.handler
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.repl.IncrementalHistorySearchActions.ChangeDirectory
+import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit }
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.history.History
@@ -47,6 +47,8 @@ case class IncrementalHistorySearchActionHandler(history: History) {
           case Enter                         ⇒ Result(state.copy(incrementalHistorySearchStateOpt = None))
           case Quit                          ⇒ Result(handleAbandonSearch(searchState, state))
           case ChangeDirectory               ⇒ Result(handleChangeDirectory(hitStatus, state))
+          case FirstHit                      ⇒ Result(handleFirstHit(searchState, state))
+          case LastHit                       ⇒ Result(handleLastHit(searchState, state))
           case _                             ⇒ exitSearchAndHandleNormally(action, state)
         }
       case None                                                                        ⇒
@@ -87,6 +89,20 @@ case class IncrementalHistorySearchActionHandler(history: History) {
 
   private def nextHit(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
     getHitAtIndex(searchState, state, nextResultIndex(searchState.hitStatus))
+
+  private def handleFirstHit(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    getHitAtIndex(searchState, state, 0)
+
+  private def handleLastHit(searchState: IncrementalHistorySearchState, state: ReplState): ReplState =
+    if (searchState.hitStatus == NoHits)
+      state
+    else
+      history.findLastMatch(searchState.searchString) match {
+        case Some((historyMatch, resultIndex)) ⇒
+          newMatchFound(searchState.searchString, searchState, state, resultIndex, historyMatch)
+        case None                              ⇒
+          state
+      }
 
   private def getHitAtIndex(searchState: IncrementalHistorySearchState, state: ReplState, resultIndex: Int): ReplState =
     if (searchState.hitStatus == NoHits)

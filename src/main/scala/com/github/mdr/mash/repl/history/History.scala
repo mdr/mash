@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.history
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.Path
 import java.time.Instant
 import java.util.regex.Pattern
 
@@ -35,8 +35,14 @@ trait History extends HistoricalArgumentSource {
   /**
     * Search backwards through history to find a match for a given search string.
     */
-  def findMatch(searchString: String, index: Int): Option[Match] = {
+  def findMatch(searchString: String, index: Int): Option[Match] = findMatches(searchString).drop(index).headOption
+
+  def findLastMatch(searchString: String): Option[(Match, Int)] =
+    findMatches(searchString).zipWithIndex.lastOption
+
+  private def findMatches(searchString: String): Stream[Match] = {
     val pattern = Pattern.compile(Pattern.quote(searchString), Pattern.CASE_INSENSITIVE)
+
     def tryMatch(entry: HistoryEntry): Option[Match] = {
       val matcher = pattern.matcher(entry.command)
       matcher.find().option {
@@ -44,10 +50,8 @@ trait History extends HistoricalArgumentSource {
         Match(entry.command, region, entry.timestamp, entry.workingDirectory)
       }
     }
-    getHistory.toStream
-      .flatMap(tryMatch)
-      .drop(index)
-      .headOption
+
+    getHistory.toStream.flatMap(tryMatch)
   }
 
   def getHistoricalArguments(lastArgIndex: Int): Option[String] =

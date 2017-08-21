@@ -1,6 +1,7 @@
 package com.github.mdr.mash.repl.handler
 
-import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ NoHits, BeforeFirstHit, Hit }
+import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ FirstHit, LastHit }
+import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ BeforeFirstHit, Hit, NoHits }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl.handler.IncrementalHistorySearchActionHandler.Result
@@ -123,6 +124,19 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
     val state1 = actionHandler.beginIncrementalSearchFromLine(state0)
     state1.fixTime shouldEqual replState("apple▶").withHistorySearchState("app", 0, Region(0, 3), "app")
+  }
+
+  it should "allow the user to jump to the first or last hit" in {
+    val actionHandler = makeActionHandler
+
+    val state0 = replState("existing▶")
+    val state1 = actionHandler.beginFreshIncrementalSearch(state0)
+    val Result(state2, true) = actionHandler.handleAction(LastHit, state1)
+
+    state2.fixTime shouldEqual replState("foo▶").withHistorySearchState("", 2, Region(0, 0))
+
+    val Result(state3, true) = actionHandler.handleAction(FirstHit, state2)
+    state3.fixTime shouldEqual replState("baz▶").withHistorySearchState("", 0, Region(0, 0))
   }
 
   implicit class RichReplState(state: ReplState) {
