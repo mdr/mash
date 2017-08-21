@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.history
 
-import java.nio.file.Paths
+import java.nio.file.{ Path, Paths }
 
 import com.github.mdr.mash.utils.MonotonicallyTickingClock
 
@@ -8,12 +8,15 @@ object InMemoryHistoryStorage {
 
   val WorkingDirectory = Paths.get("")
 
-  def testHistory(entries: String*): HistoryImpl = {
+  def testHistoryWithPaths(entries: (String, Path)*): HistoryImpl = {
     val history = new HistoryImpl(new InMemoryHistoryStorage(), clock = MonotonicallyTickingClock)
-    for ((entry, i) ← entries.zipWithIndex)
-      history.record(entry, i, mish = false, resultOpt = None, workingDirectory = WorkingDirectory)
+    for (((command, path), i) ← entries.zipWithIndex)
+      history.record(command, i, workingDirectory = path)
     history
   }
+
+  def testHistory(entries: String*): HistoryImpl =
+    testHistoryWithPaths(entries.map(_ → WorkingDirectory): _*)
 
 }
 

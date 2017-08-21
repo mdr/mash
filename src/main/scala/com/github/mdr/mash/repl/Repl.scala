@@ -128,7 +128,7 @@ class Repl(protected val terminal: Terminal,
   }
 
   private def handleHistorySearchAction(action: InputAction) = {
-    val Result(newState, actionConsumed) = IncrementalHistorySearchActionHandler(history).handleAction(action, state)
+    val Result(newState, actionConsumed) = IncrementalHistorySearchActionHandler(history, fileSystem).handleAction(action, state)
     state = newState
     if (!actionConsumed)
       handleNormalAction(action)

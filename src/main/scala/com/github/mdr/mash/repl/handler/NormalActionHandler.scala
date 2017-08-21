@@ -114,7 +114,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleIncrementalHistorySearch() = handleTextChange {
-    state = IncrementalHistorySearchActionHandler(history).beginFreshIncrementalSearch(state)
+    state = IncrementalHistorySearchActionHandler(history, fileSystem).beginFreshIncrementalSearch(state)
   }
 
   private def handleTextChange[T](f: ⇒ T): T = {
@@ -139,7 +139,7 @@ trait NormalActionHandler extends InlineHandler {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
       if (shouldInitiateIncrementalSearch)
-        handleTextChange(state = IncrementalHistorySearchActionHandler(history).beginIncrementalSearchFromLine(state))
+        handleTextChange(state = IncrementalHistorySearchActionHandler(history, fileSystem).beginIncrementalSearchFromLine(state))
       else
         history.goBackwards(lineBuffer.text) match {
           case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
@@ -257,7 +257,7 @@ trait NormalActionHandler extends InlineHandler {
     if (toggleMish)
       state = state.copy(mish = !state.mish)
     else {
-      history.record(cmd, commandNumber, state.mish, actualResultOpt, workingDirectory)
+      history.record(cmd, commandNumber, workingDirectory, state.mish, actualResultOpt)
       state = state.incrementCommandNumber
     }
     actualResultOpt.foreach(saveResult(commandNumber))

@@ -13,7 +13,6 @@ object MockFileSystem {
 
   def of(path: String): MockFileSystem = {
     val segments = path.split("/").toSeq.tail
-    val (init, last) = (segments.init, segments.last)
     val root = segments.foldRight[MockFileObject](MockFileObject.File()) {
       case (name, child) ⇒ MockFileObject.Directory(name -> child)
     }.asInstanceOf[MockFileObject.Directory]
