@@ -73,7 +73,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, bareObjectKeyTokens, attributeTokens, matchingBracketOffsetOpt, context.bareWords).chars
+      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, bareObjectKeyTokens, attributeTokens, matchingBracketOffsetOpt).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
@@ -124,11 +124,10 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
                           declaredNameTokens: Set[Token],
                           bareObjectKeyTokens: Set[Token],
                           attributeTokens: Set[Token],
-                          matchingBracketOffsetOpt: Option[Int],
-                          bareWords: Boolean): StyledString = {
+                          matchingBracketOffsetOpt: Option[Int]): StyledString = {
     val style =
       if (bareTokens contains token)
-        if (bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
+        if (context.bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
       else if (declaredNameTokens contains token)
         getTokenStyle(token).withBold
       else if (bareObjectKeyTokens contains token)

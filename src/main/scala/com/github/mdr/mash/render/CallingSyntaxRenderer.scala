@@ -3,7 +3,7 @@ package com.github.mdr.mash.render
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.compiler.DesugarHoles
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod, Parameter, ParameterModel }
-import com.github.mdr.mash.lexer.TokenType.{ IDENTIFIER, LONG_FLAG, SHORT_FLAG }
+import com.github.mdr.mash.lexer.TokenType._
 import com.github.mdr.mash.render.MashRenderer.getTokenStyle
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen.StyledString
@@ -13,11 +13,11 @@ object CallingSyntaxRenderer {
   private val identifierStyle = getTokenStyle(IDENTIFIER)
 
   def render(f: MashFunction): StyledString =
-    f.name.style(identifierStyle) + " ".style + render(f.params)
+    f.name.style(identifierStyle.withBold) + " ".style + render(f.params)
 
   def render(method: MashMethod, classOpt: Option[MashClass] = None): StyledString = {
     val targetName = classOpt.map(_.exampleTargetName).getOrElse("target").style(identifierStyle)
-    val methodName = method.name.style(identifierStyle)
+    val methodName = method.name.style(identifierStyle.withBold)
     if (method.params.isEmpty)
       style"$targetName.$methodName"
     else
@@ -72,4 +72,5 @@ object CallingSyntaxRenderer {
     else
       renderedParam
   }
+
 }

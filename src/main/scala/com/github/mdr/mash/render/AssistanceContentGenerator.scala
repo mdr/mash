@@ -34,7 +34,7 @@ object AssistanceContentGenerator {
 
   private def assistFunction(f: Type.UserDefinedFunction) = {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = f
-    val callingSyntaxLine = (nameOpt getOrElse "f").style(identifierStyle) + " ".style + CallingSyntaxRenderer.render(params)
+    val callingSyntaxLine = (nameOpt getOrElse "f").style(identifierStyle.withBold) + " ".style + CallingSyntaxRenderer.render(params)
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
     BoxContent(
       title = nameOpt.getOrElse("Anonymous function"),
@@ -53,7 +53,7 @@ object AssistanceContentGenerator {
     val Type.UserDefinedFunction(docCommentOpt, _, nameOpt, params, _, _) = method
     val summaryLineOpt = docCommentOpt.map(_.summary.style)
     val target = "target".style(identifierStyle)
-    val methodName = (nameOpt getOrElse "method").style(identifierStyle)
+    val methodName = (nameOpt getOrElse "method").style(identifierStyle.withBold)
     val callingSyntaxLine = style"$target.$methodName ${CallingSyntaxRenderer.render(params)}"
     BoxContent(
       title = nameOpt.getOrElse("Anonymous method"),
@@ -63,7 +63,7 @@ object AssistanceContentGenerator {
   private def assistClassConstructor(userClass: UserClass): BoxContent = {
     val summaryLine = s"Construct a new ${userClass.name} object".style
     val className = userClass.name.style(identifierStyle)
-    val constructorMethodName = MashClass.ConstructorMethodName.style(identifierStyle)
+    val constructorMethodName = MashClass.ConstructorMethodName.style(identifierStyle.withBold)
     val callingSyntaxLine = style"$className.$constructorMethodName ${CallingSyntaxRenderer.render(userClass.params)}"
     BoxContent(
       title = MashClass.ConstructorMethodName,
