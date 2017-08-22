@@ -27,7 +27,7 @@ class HistoryTest extends FlatSpec with Matchers {
   implicit class RichHistory(history: History) {
 
     def record(command: String) =
-      history.record(command, commandNumber = 1, mish = false, resultOpt = None, workingDirectory = Paths.get(""))
+      history.record(command, commandNumber = 1, workingDirectory = Paths.get(""))
 
   }
 

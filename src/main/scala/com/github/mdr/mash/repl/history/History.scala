@@ -20,7 +20,11 @@ trait History extends HistoricalArgumentSource {
 
   import History._
 
-  def record(cmd: String, commandNumber: Int, mish: Boolean, resultOpt: Option[MashValue], workingDirectory: Path)
+  def record(cmd: String,
+             commandNumber: Int,
+             workingDirectory: Path,
+             mish: Boolean = false,
+             resultOpt: Option[MashValue] = None)
 
   def resetHistoryPosition(): Unit
 

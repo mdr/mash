@@ -322,6 +322,22 @@ class LineBufferTest extends FlatSpec with Matchers {
         |def▶""".stripMargin)
   }
 
+  it should "let you move to the end of the buffer" in {
+    lineBuffer(
+      """a▶bc
+        |def""".stripMargin).moveCursorToEndOfBuffer() shouldEqual lineBuffer(
+      """abc
+        |def▶""".stripMargin)
+  }
+
+  it should "let you move to the beginning of the buffer" in {
+    lineBuffer(
+      """abc
+        |de▶f""".stripMargin).moveCursorToStartOfBuffer() shouldEqual lineBuffer(
+      """▶abc
+        |def""".stripMargin)
+  }
+
   it should "let you delete from the cursor to the beginning of the line" in {
     lineBuffer("▶").deleteToBeginningOfLine shouldEqual lineBuffer("▶")
     lineBuffer("abc▶").deleteToBeginningOfLine shouldEqual lineBuffer("▶")

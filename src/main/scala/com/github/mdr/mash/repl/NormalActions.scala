@@ -31,6 +31,8 @@ object NormalActions {
   case object BackwardKillLine extends InputAction
   case object KillWord extends InputAction
   case object BackwardKillWord extends InputAction
+  case object BeginningOfBuffer extends InputAction
+  case object EndOfBuffer extends InputAction
   case object Copy extends InputAction
   case object Paste extends InputAction
   case object Undo extends InputAction

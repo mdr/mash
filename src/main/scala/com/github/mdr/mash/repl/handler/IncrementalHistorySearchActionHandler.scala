@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit, ToggleCurrentDirOnly }
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
@@ -21,11 +21,9 @@ object IncrementalHistorySearchActionHandler {
 
 }
 
-case class IncrementalHistorySearchActionHandler(history: History) {
+case class IncrementalHistorySearchActionHandler(history: History, fileSystem: FileSystem) {
 
   import IncrementalHistorySearchActionHandler._
-
-  private val fileSystem = LinuxFileSystem
 
   def beginFreshIncrementalSearch(state: ReplState): ReplState = {
     history.resetHistoryPosition()

@@ -27,8 +27,8 @@ object NormalKeyMap extends KeyMap(LineBufferKeyMap.map ++ Map(
 
 object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   control('p') → NormalActions.Up,
-  KeyPress(Key.Up) → NormalActions.Up,
   control('n') → NormalActions.Down,
+  KeyPress(Key.Up) → NormalActions.Up,
   KeyPress(Key.Down) → NormalActions.Down,
   control('r') → IncrementalHistorySearch,
   KeyPress(Backspace) → BackwardDeleteChar,
@@ -37,7 +37,9 @@ object IncrementalHistorySearchKeyMap extends KeyMap(Map(
   alt('d') → ToggleCurrentDirOnly,
   control('g') → Quit,
   KeyPress(Home) → LastHit,
-  KeyPress(End) → FirstHit))
+  KeyPress(End) → FirstHit,
+  alt('<') → LastHit,
+  alt('>') → FirstHit))
 
 object LineBufferKeyMap extends KeyMap(Map(
   alt(Key.Enter) → Newline,
@@ -76,4 +78,6 @@ object LineBufferKeyMap extends KeyMap(Map(
   control('q') → ToggleQuote,
   alt(Key.Up) → ExpandSelection,
   alt(Key.Down) → UnexpandSelection,
-  control('g') → Quit))
+  control('g') → Quit,
+  alt('<') → BeginningOfBuffer,
+  alt('>') → EndOfBuffer))
