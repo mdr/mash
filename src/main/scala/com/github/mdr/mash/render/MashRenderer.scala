@@ -31,6 +31,7 @@ object MashRenderer {
            MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS | LONG_EQUALS |
            NOT_EQUALS | GREATER_THAN | GREATER_THAN_EQUALS |
            LESS_THAN_EQUALS | LESS_THAN | SEMI                        ⇒ Style(foregroundColour = DefaultColours.Orange)
+      case AT                                                         ⇒ Style(foregroundColour = DefaultColours.Green)
       case _                                                          ⇒ Style()
     }
 
@@ -56,10 +57,11 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
         BracketMatcher.findMatchingBracket(program, cursorOffset))
       val declaredNameTokens = getDeclaredNameTokens(program)
       val bareObjectKeyTokens = getBareObjectKeyTokens(program)
-      TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens)
+      val attributeTokens = getAttributeTokens(program)
+      TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens, attributeTokens)
     }
 
-    val TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens) =
+    val TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens, attributeTokens) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
           getTokenInformation(mishCmd, mish = true)
@@ -71,7 +73,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, bareObjectKeyTokens, matchingBracketOffsetOpt, context.bareWords).chars
+      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, bareObjectKeyTokens, attributeTokens, matchingBracketOffsetOpt, context.bareWords).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
@@ -88,7 +90,8 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
                                bareTokens: Set[Token],
                                matchingBracketOffsetOpt: Option[Int],
                                declaredNameTokens: Set[Token],
-                               bareObjectKeyTokens: Set[Token])
+                               bareObjectKeyTokens: Set[Token],
+                               attributeTokens: Set[Token])
 
   private def getDeclaredNameTokens(program: ConcreteSyntax.Program): Set[Token] =
     program.findAll {
@@ -100,6 +103,12 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     program.findAll {
       case ShorthandObjectEntry(identifier)              ⇒ identifier
       case FullObjectEntry(Identifier(identifier), _, _) ⇒ identifier
+    }.toSet
+
+  private def getAttributeTokens(program: ConcreteSyntax.Program): Set[Token] =
+    program.findAll {
+      case SimpleAttribute(_, identifier)            ⇒ identifier
+      case ArgumentAttribute(_, _, identifier, _, _) ⇒ identifier
     }.toSet
 
   private def getBareTokens(program: ConcreteSyntax.Program): Set[Token] =
@@ -114,6 +123,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
                           bareTokens: Set[Token],
                           declaredNameTokens: Set[Token],
                           bareObjectKeyTokens: Set[Token],
+                          attributeTokens: Set[Token],
                           matchingBracketOffsetOpt: Option[Int],
                           bareWords: Boolean): StyledString = {
     val style =
@@ -123,6 +133,8 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
         getTokenStyle(token).withBold
       else if (bareObjectKeyTokens contains token)
         MashRenderer.getTokenStyle(TokenType.STRING_LITERAL)
+      else if (attributeTokens contains token)
+        MashRenderer.getTokenStyle(TokenType.AT)
       else
         getTokenStyle(token)
 

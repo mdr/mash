@@ -1,7 +1,7 @@
 v0.0.9 (..)
 -----------
 
-* Distinct styling for class / function definition names & object literal fields
+* Distinct styling for class / function definition names, object literal fields and attributes
 * Add os.findExecutableInPath (which)
 * Quit (Ctrl-g)
 * Undo (Ctrl-_), Redo (Alt-_)
