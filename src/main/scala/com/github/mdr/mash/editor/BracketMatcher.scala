@@ -14,13 +14,16 @@ object BracketMatcher {
     */
   def findMatchingBracket(programText: String, offset: Int, mish: Boolean): Option[Int] = {
     val program = MashParser.parseForgiving(programText, mish = mish)
+    findMatchingBracket(program, offset)
+  }
+
+  def findMatchingBracket(program: Program, offset: Int): Option[Int] =
     for {
       token ← program.tokens find (_.region contains offset)
       matchingBracket ← findMatchingBracket(program, token)
       if matchingBracket.text.nonEmpty // exclude synthetic tokens
       offset = matchingBracket.offset + internalBracketOffset(matchingBracket)
     } yield offset
-  }
 
   /**
     * Pattern for extracting a pair of matching brackets in the syntax tree

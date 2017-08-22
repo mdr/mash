@@ -4,8 +4,8 @@ import com.github.mdr.mash.commands.{ MishCommand, SuffixMishCommand }
 import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.editor.BracketMatcher
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
-import com.github.mdr.mash.parser.ConcreteSyntax.{ ClassDeclaration, FunctionDeclaration }
-import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
+import com.github.mdr.mash.parser.ConcreteSyntax._
+import com.github.mdr.mash.parser.{ Abstractifier, ConcreteSyntax, MashParser, Provenance }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
@@ -44,15 +44,18 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
-      val bareTokens = getBareTokens(s, mish)
-      val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
+      val lexerResult = MashLexer.tokenise(s, forgiving = true, mish = mish)
+      val program = MashParser.parseProgram(lexerResult, forgiving = true, mish = mish)
+      val tokens = lexerResult.rawTokens
+      val bareTokens = getBareTokens(program)
       val matchingBracketOffsetOpt = cursorOffsetOpt.flatMap(cursorOffset ⇒
-        BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish))
-      val declaredNameTokens = getDeclaredNameTokens(rawChars, mish)
-      TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens)
+        BracketMatcher.findMatchingBracket(program, cursorOffset))
+      val declaredNameTokens = getDeclaredNameTokens(program)
+      val bareObjectKeyTokens = getBareObjectKeyTokens(program)
+      TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens)
     }
 
-    val TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens) =
+    val TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens, bareObjectKeyTokens) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
           getTokenInformation(mishCmd, mish = true)
@@ -64,7 +67,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, matchingBracketOffsetOpt, context.bareWords).chars
+      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, bareObjectKeyTokens, matchingBracketOffsetOpt, context.bareWords).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
@@ -80,26 +83,33 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
   private case class TokenInfo(tokens: Seq[Token],
                                bareTokens: Set[Token],
                                matchingBracketOffsetOpt: Option[Int],
-                               declaredNameTokens: Set[Token])
+                               declaredNameTokens: Set[Token],
+                               bareObjectKeyTokens: Set[Token])
 
-  private def getDeclaredNameTokens(rawChars: String, mish: Boolean): Set[Token] =
-    MashParser.parseForgiving(rawChars, mish = mish).findAll {
+  private def getDeclaredNameTokens(program: ConcreteSyntax.Program): Set[Token] =
+    program.findAll {
       case classDecl: ClassDeclaration       ⇒ classDecl.name
       case functionDecl: FunctionDeclaration ⇒ functionDecl.name
     }.toSet
 
-  private def getBareTokens(s: String, mish: Boolean): Set[Token] =
+  private def getBareObjectKeyTokens(program: ConcreteSyntax.Program): Set[Token] =
+    program.findAll {
+      case ShorthandObjectEntry(identifier)              ⇒ identifier
+      case FullObjectEntry(Identifier(identifier), _, _) ⇒ identifier
+    }.toSet
+
+  private def getBareTokens(program: ConcreteSyntax.Program): Set[Token] =
     context.globalVariablesOpt.map { globalVariables ⇒
       val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
-      val concreteProgram = MashParser.parseForgiving(s, mish = mish)
-      val provenance = Provenance("not required", s)
-      val abstractExpr = new Abstractifier(provenance).abstractify(concreteProgram).body
+      val provenance = Provenance("not required", "")
+      val abstractExpr = new Abstractifier(provenance).abstractify(program).body
       BareStringify.getBareTokens(abstractExpr, bindings)
     }.getOrElse(Set())
 
   private def renderToken(token: Token,
                           bareTokens: Set[Token],
                           declaredNameTokens: Set[Token],
+                          bareObjectKeyTokens: Set[Token],
                           matchingBracketOffsetOpt: Option[Int],
                           bareWords: Boolean): StyledString = {
     val style =
@@ -107,6 +117,8 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
         if (bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
       else if (declaredNameTokens contains token)
         getTokenStyle(token).withBold
+      else if (bareObjectKeyTokens contains token)
+        MashRenderer.getTokenStyle(TokenType.STRING_LITERAL)
       else
         getTokenStyle(token)
 
