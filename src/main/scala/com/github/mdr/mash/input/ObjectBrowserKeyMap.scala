@@ -2,7 +2,7 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, Paste, RedrawScreen }
+import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, Paste, Quit, RedrawScreen }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
@@ -25,6 +25,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
   KeyPress(PageDown) → NextPage,
   OtherSequence(" ") → NextPage,
   OtherSequence("q") → ExitBrowser,
+  control('g') → ExitBrowser,
   OtherSequence("g") → FirstItem,
   OtherSequence("G") → LastItem,
   KeyPress(Home) → FirstItem,
@@ -62,6 +63,7 @@ object ObjectBrowserKeyMap extends KeyMap(Map(
     control('l') → RedrawScreen,
     TerminalWindowChanged → Rerender,
     KeyPress(Enter) → ExitSearch,
+    control('g') → ExitSearch,
     KeyPress(Backspace) → Unsearch,
     control('t') → ToggleCase,
     KeyPress(Up) → PreviousHit,
