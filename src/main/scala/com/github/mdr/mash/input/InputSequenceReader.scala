@@ -16,9 +16,6 @@ object InputSequenceReader {
   private val Del = '\u007f'
 
   private val EscapeSequenceTree = makeEscapeTree(
-    "^[." → alt('.'),
-    "^[," → alt(','),
-    "^[_" → alt('_'),
     "^[[1;2A" → shift(Key.Up), // Gnome terminal, xterm
     "^[[1;2B" → shift(Key.Down), // Gnome terminal, xterm
     "^[[1;2D" → shift(Key.Left), // Gnome terminal, xterm
@@ -58,6 +55,11 @@ object InputSequenceReader {
     "^[OH" → KeyPress(Home), // older Gnome terminal? https://bugzilla.gnome.org/show_bug.cgi?id=600659
     "^[OF" → KeyPress(End), // older Gnome terminal?
     ("^[" + Del) → alt(Backspace),
+    "^[." → alt('.'),
+    "^[," → alt(','),
+    "^[_" → alt('_'),
+    "^[<" → alt('<'),
+    "^[>" → alt('>'),
     "^[b" → alt('b'),
     "^[d" → alt('d'),
     "^[e" → alt('e'),

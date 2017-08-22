@@ -27,6 +27,8 @@ object LineBufferActionHandler {
     case BackwardKillLine                  ⇒ _.deleteToBeginningOfLine
     case KillWord                          ⇒ _.deleteForwardWord
     case BackwardKillWord                  ⇒ _.deleteBackwardWord
+    case BeginningOfBuffer                 ⇒ _.moveCursorToStartOfBuffer()
+    case EndOfBuffer                       ⇒ _.moveCursorToEndOfBuffer()
     case Newline                           ⇒ _.insertAtCursor('\n')
   }
 

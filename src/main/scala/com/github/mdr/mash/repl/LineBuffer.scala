@@ -109,11 +109,11 @@ case class LineBuffer(text: String,
         delete(cursorOffset)
   }
 
-  private def moveCursorToStartOfBuffer(extendSelection: Boolean): LineBuffer = moveCursor(0, extendSelection)
+  def moveCursorToStartOfBuffer(extendSelection: Boolean = false): LineBuffer = moveCursor(0, extendSelection)
 
   private def moveCursorToStartOfLine(extendSelection: Boolean): LineBuffer = moveCursorToColumn(0, extendSelection)
 
-  private def moveCursorToEndOfBuffer(extendSelection: Boolean): LineBuffer = moveCursor(text.length, extendSelection)
+  def moveCursorToEndOfBuffer(extendSelection: Boolean = false): LineBuffer = moveCursor(text.length, extendSelection)
 
   private def moveCursorToEndOfLine(extendSelection: Boolean): LineBuffer = {
     val line = lineInfo.line(cursorPos.row)
@@ -176,7 +176,7 @@ case class LineBuffer(text: String,
     moveCursor(newCursorOffset, extendSelection)
   }
 
-  private def moveCursor(newCursorOffset: Int, extendSelection: Boolean): LineBuffer = {
+  private def moveCursor(newCursorOffset: Int, extendSelection: Boolean = false): LineBuffer = {
     val newSelectionOffsetOpt = extendSelection.option(selectionOffsetOpt getOrElse cursorOffset).filterNot(_ == newCursorOffset)
     copy(cursorOffset = newCursorOffset, selectionOffsetOpt = newSelectionOffsetOpt)
   }
