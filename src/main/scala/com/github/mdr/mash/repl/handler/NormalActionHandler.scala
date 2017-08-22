@@ -15,7 +15,6 @@ import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsList
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl, UndoRedoState }
 import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
-import com.github.mdr.mash.terminal.Terminal
 
 import scala.PartialFunction.cond
 import scala.util.control.NonFatal

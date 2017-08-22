@@ -2,10 +2,10 @@ package com.github.mdr.mash.input
 
 import com.github.mdr.mash.input.InputSequence._
 import com.github.mdr.mash.input.Key._
-import com.github.mdr.mash.repl.NormalActions.{AssistInvocation, Paste, RedrawScreen}
+import com.github.mdr.mash.repl.NormalActions.{ AssistInvocation, Paste, RedrawScreen }
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.IncrementalSearch._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{NextParentItem, _}
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ NextParentItem, _ }
 import com.github.mdr.mash.input.KeyDsl._
 import com.github.mdr.mash.repl.NormalActions
 
