@@ -63,6 +63,8 @@ case class Style(foregroundColour: Colour = DefaultColour,
 
   def withInverse: Style = copy(inverse = true)
 
+  def withBold : Style = copy(bold = true)
+
   def apply(s: String): StyledString = StyledString(s.map(StyledCharacter(_, this)))
 
   def apply(c: Character): StyledCharacter = StyledCharacter(c, this)

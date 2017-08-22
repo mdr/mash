@@ -4,6 +4,7 @@ import com.github.mdr.mash.commands.{ MishCommand, SuffixMishCommand }
 import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.editor.BracketMatcher
 import com.github.mdr.mash.lexer.{ MashLexer, Token, TokenType }
+import com.github.mdr.mash.parser.ConcreteSyntax.{ ClassDeclaration, FunctionDeclaration }
 import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.runtime.{ MashObject, MashString }
 import com.github.mdr.mash.screen.Style.StylableString
@@ -43,14 +44,15 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     val styledChars = new ArrayBuffer[StyledCharacter]
 
     def getTokenInformation(s: String, mish: Boolean): TokenInfo = {
-      val bareTokensOpt = getBareTokens(s, mish)
+      val bareTokens = getBareTokens(s, mish)
       val tokens = MashLexer.tokenise(s, forgiving = true, mish = mish).rawTokens
       val matchingBracketOffsetOpt = cursorOffsetOpt.flatMap(cursorOffset ⇒
         BracketMatcher.findMatchingBracket(rawChars, cursorOffset, mish = mish))
-      TokenInfo(tokens, bareTokensOpt, matchingBracketOffsetOpt)
+      val declaredNameTokens = getDeclaredNameTokens(rawChars, mish)
+      TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens)
     }
 
-    val TokenInfo(tokens, bareTokensOpt, matchingBracketOffsetOpt) =
+    val TokenInfo(tokens, bareTokens, matchingBracketOffsetOpt, declaredNameTokens) =
       rawChars match {
         case SuffixMishCommand(mishCmd, suffix) ⇒
           getTokenInformation(mishCmd, mish = true)
@@ -62,7 +64,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
       }
 
     for (token ← tokens)
-      styledChars ++= renderToken(token, bareTokensOpt, matchingBracketOffsetOpt, context.bareWords).chars
+      styledChars ++= renderToken(token, bareTokens, declaredNameTokens, matchingBracketOffsetOpt, context.bareWords).chars
 
     rawChars match {
       case SuffixMishCommand(mishCmd, suffix) ⇒
@@ -75,24 +77,36 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     StyledString(restyledChars)
   }
 
-  private def getBareTokens(s: String, mish: Boolean): Option[Set[Token]] =
+  private case class TokenInfo(tokens: Seq[Token],
+                               bareTokens: Set[Token],
+                               matchingBracketOffsetOpt: Option[Int],
+                               declaredNameTokens: Set[Token])
+
+  private def getDeclaredNameTokens(rawChars: String, mish: Boolean): Set[Token] =
+    MashParser.parseForgiving(rawChars, mish = mish).findAll {
+      case classDecl: ClassDeclaration       ⇒ classDecl.name
+      case functionDecl: FunctionDeclaration ⇒ functionDecl.name
+    }.toSet
+
+  private def getBareTokens(s: String, mish: Boolean): Set[Token] =
     context.globalVariablesOpt.map { globalVariables ⇒
       val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
       val concreteProgram = MashParser.parseForgiving(s, mish = mish)
       val provenance = Provenance("not required", s)
       val abstractExpr = new Abstractifier(provenance).abstractify(concreteProgram).body
       BareStringify.getBareTokens(abstractExpr, bindings)
-    }
-
-  private case class TokenInfo(tokens: Seq[Token], bareTokensOpt: Option[Set[Token]], matchingBracketOffsetOpt: Option[Int])
+    }.getOrElse(Set())
 
   private def renderToken(token: Token,
-                          bareTokensOpt: Option[Set[Token]],
+                          bareTokens: Set[Token],
+                          declaredNameTokens: Set[Token],
                           matchingBracketOffsetOpt: Option[Int],
                           bareWords: Boolean): StyledString = {
     val style =
-      if (bareTokensOpt exists (_ contains token))
+      if (bareTokens contains token)
         if (bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
+      else if (declaredNameTokens contains token)
+        getTokenStyle(token).withBold
       else
         getTokenStyle(token)
 
