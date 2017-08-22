@@ -27,6 +27,10 @@ object MashRenderer {
       case t if t.isFlag                                              ⇒ Style(foregroundColour = DefaultColours.Cyan)
       case t if t.isKeyword                                           ⇒ Style(foregroundColour = DefaultColours.Pink)
       case STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE ⇒ Style(foregroundColour = DefaultColours.Yellow)
+      case PIPE | PLUS | TIMES | SHORT_EQUALS | PLUS_EQUALS |
+           MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS | LONG_EQUALS |
+           NOT_EQUALS | GREATER_THAN | GREATER_THAN_EQUALS |
+           LESS_THAN_EQUALS | LESS_THAN | SEMI                        ⇒ Style(foregroundColour = DefaultColours.Orange)
       case _                                                          ⇒ Style()
     }
 
