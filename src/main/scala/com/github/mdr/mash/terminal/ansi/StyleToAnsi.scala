@@ -37,6 +37,7 @@ object StyleToAnsi {
     case BasicColour.Grey          ⇒ Seq(37)
     case BrightColour(basicColour) ⇒ addToFirstAttribute(fg(basicColour), 60)
     case Colour256(n)              ⇒ Seq(38, 5, n)
+    case RgbColour(r, g, b)        ⇒ Seq(38, 2, r, g, b)
     case DefaultColour             ⇒ Seq(39)
   }
 

@@ -1,6 +1,8 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.utils.{ RgbColour, Utils }
+import java.awt.Color
+
+import com.github.mdr.mash.utils.Utils
 
 sealed trait Colour
 
@@ -13,21 +15,13 @@ sealed trait BasicColour extends Colour {
 case object DefaultColour extends Colour
 
 object BasicColour {
-
   case object Black extends BasicColour
-
   case object Red extends BasicColour
-
   case object Green extends BasicColour
-
   case object Yellow extends BasicColour
-
   case object Blue extends BasicColour
-
   case object Magenta extends BasicColour
-
   case object Cyan extends BasicColour
-
   case object Grey extends BasicColour
 
 }
@@ -45,23 +39,34 @@ object Colour256 {
 }
 
 case class Colour256(n: Int) extends Colour {
+  require(0 <= n && n < 256)
 
   def rgbColour: RgbColour = Colour256.HexCodes(n)
 
 }
 
-object DefaultColours {
+object RgbColour {
 
-  // See: https://github.com/dracula/dracula-theme/
+  def parse(s: String) = {
+    val c = Color.decode(s)
+    RgbColour(c.getRed, c.getGreen, c.getBlue)
+  }
 
-  val Foreground = Colour256.nearest("#f8f8f2")
-  val Comment = Colour256.nearest("#6272a4")
-  val Cyan = Colour256.nearest("#8be9fd")
-  val Green = Colour256.nearest("#50fa7b")
-  val Orange = Colour256.nearest("#ffb86c")
-  val Pink = Colour256.nearest("#ff79c6")
-  val Purple = Colour256.nearest("#bd93f9")
-  val Red = Colour256.nearest("#ff5555")
-  val Yellow = Colour256.nearest("#f1fa8c")
+}
+
+case class RgbColour(red: Int, green: Int, blue: Int) extends Colour {
+
+  def distance(that: RgbColour) = {
+    val rmean = (this.red.toDouble + that.red) / 2
+    val r = this.red - that.red
+    val g = this.green - that.green
+    val b = this.blue - that.blue
+    val weightR = 2 + rmean / 256
+    val weightG = 4.0
+    val weightB = 2 + (255 - rmean) / 256
+    Math.sqrt(weightR * r * r + weightG * g * g + weightB * b * b)
+  }
+
+  override def toString = "#%02x%02x%02x".format(red, green, blue)
 
 }
