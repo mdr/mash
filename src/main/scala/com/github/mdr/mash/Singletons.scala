@@ -5,7 +5,7 @@ import com.github.mdr.mash.os.linux.LinuxFileSystem
 import com.github.mdr.mash.repl.ScriptExecutor
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.terminal.TerminalControl
+import com.github.mdr.mash.terminal.{ Terminal, TerminalControl }
 
 /**
  * Horrible global singletons, until we get the DI story sorted.
@@ -29,6 +29,8 @@ object Singletons {
   var environment: MashObject = _
 
   var terminalWindowChanged = false
+
+  var terminal: Terminal = _
 }
 
 object GlobalInterpreterLock {

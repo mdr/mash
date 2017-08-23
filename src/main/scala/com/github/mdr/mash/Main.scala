@@ -31,6 +31,7 @@ object Main extends App {
       Singletons.terminalControl = new TerminalControlImpl(terminal)
       Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
       Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
+      Singletons.terminal = terminalWrapper
 
       val loader = new Loader(terminalWrapper, output, sessionId, globalVariables, ns)
       loader.load()

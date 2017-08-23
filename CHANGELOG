@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add terminal function
 * Distinct styling for class / function definition names, object literal fields and attributes
 * Add os.findExecutableInPath (which)
 * Quit (Ctrl-g)
