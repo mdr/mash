@@ -3,10 +3,11 @@ package com.github.mdr.mash.terminal.ansi
 import com.github.mdr.mash.screen._
 
 import scala.collection.mutable.ArrayBuffer
+import com.github.mdr.mash.utils.CharUtils._
 
-object StyleToAnsi {
+object StyleToEscapeSequence {
 
-  private val EscapePrefix = "\u001b["
+  private val EscapePrefix = s"$Esc["
 
   def apply(style: Style): String = {
     val attribs = ArrayBuffer[Int]()

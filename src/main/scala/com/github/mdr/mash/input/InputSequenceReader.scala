@@ -4,6 +4,7 @@ import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.utils.PrefixTree
 import com.github.mdr.mash.input.KeyDsl._
 import com.github.mdr.mash.input.Key.{ Left ⇒ _, Right ⇒ _, _ }
+import com.github.mdr.mash.utils.CharUtils._
 
 object InputSequenceReader {
 
@@ -11,9 +12,6 @@ object InputSequenceReader {
 
   private def makeEscapeTree(escapes: (String, KeyPress)*): PrefixTree[KeyPress] =
     PrefixTree(escapes.map { case (escape, key) ⇒ escape.replace("^[", Esc.toString).tail → key }: _*)
-
-  private val Esc = '\u001b'
-  private val Del = '\u007f'
 
   private val EscapeSequenceTree = makeEscapeTree(
     "^[[1;2A" → shift(Key.Up), // Gnome terminal, xterm

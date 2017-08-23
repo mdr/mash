@@ -18,6 +18,7 @@ import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.screen.Screen
 import com.github.mdr.mash.terminal.Terminal
+import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 
@@ -159,7 +160,7 @@ class Repl(protected val terminal: Terminal,
   protected def getBindings: Map[String, MashValue] = globalVariables.stringFields
 
   protected def clearScreen() {
-    output.write(Terminal.ClearScreenEscapeSequence.getBytes)
+    output.write(EscapeSequence.ClearScreen.getBytes)
     output.flush()
   }
 

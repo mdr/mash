@@ -2,12 +2,6 @@ package com.github.mdr.mash.terminal
 
 import com.github.mdr.mash.utils.Dimensions
 
-object Terminal {
-
-  val ClearScreenEscapeSequence = "\u001b[H\u001b[2J"
-
-}
-
 trait Terminal {
 
   def size: Dimensions

@@ -1,7 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
-import com.github.mdr.mash.terminal.ansi.{ Ansi, StyleToAnsi }
+import com.github.mdr.mash.terminal.ansi.{ EscapeSequence, StyleToEscapeSequence }
 import com.github.mdr.mash.utils.{ Point, Utils }
 
 object Line {
@@ -30,13 +30,13 @@ object Screen {
     var previousStyleOpt: Option[Style] = None
     for (StyledCharacter(c, style) ← string.chars) {
       if (previousStyleOpt != Some(style)) {
-        sb.append(StyleToAnsi.Reset)
-        sb.append(StyleToAnsi(style))
+        sb.append(StyleToEscapeSequence.Reset)
+        sb.append(StyleToEscapeSequence(style))
       }
       sb.append(c)
       previousStyleOpt = Some(style)
     }
-    sb.append(StyleToAnsi.Reset)
+    sb.append(StyleToEscapeSequence.Reset)
     sb.toString
   }
 
@@ -60,8 +60,8 @@ case class Screen(lines: Seq[Line],
       sb.append("\r\n")
       currentRow += 1
     }
-    sb.append(Ansi.EraseLine)
-    sb.append(StyleToAnsi.Reset)
+    sb.append(EscapeSequence.EraseLine)
+    sb.append(StyleToEscapeSequence.Reset)
     sb.toString
   }
 

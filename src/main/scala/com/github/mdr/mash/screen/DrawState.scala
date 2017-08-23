@@ -1,24 +1,14 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.terminal.ansi.Ansi
-
-object DrawState {
-
-  private val CursorForward = "\u001b[C"
-  private val CursorBackward = "\b"
-  private val CursorUp = "\u001b[A"
-  private val CursorDown = "\u001b[B"
-  private val HideCursor = "\u001b[?25l"
-  private val ShowCursor = "\u001b[?25h"
-
-}
+import com.github.mdr.mash.terminal.ansi.EscapeSequence
+import com.github.mdr.mash.utils.CharUtils._
 
 /**
  * Helper class to manage current characters written and location of cursor during drawing
  */
 class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
-  import DrawState._
+  import EscapeSequence._
 
   private val sb = new StringBuilder(HideCursor)
 
@@ -92,11 +82,11 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
   }
 
   def eraseLine() {
-    sb.append(Ansi.EraseLine)
+    sb.append(EscapeSequence.EraseLine)
   }
 
   def title(s: String) {
-    sb.append(s"\u001b]0;${s}\u0007")
+    sb.append(EscapeSequence.title(s))
   }
 
   def complete(showCursor: Boolean): String = {
