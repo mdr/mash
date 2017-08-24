@@ -19,24 +19,21 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     * Move up to the correct row, or down to just before the correct row, as required.
     */
   def navigateUpToRowOrDownToJustAbove(row: Int) {
-    while (currentRow > row) {
-      sb.append(CursorUp)
-      currentRow -= 1
+    if (currentRow > row) {
+      sb.append(EscapeSequence.cursorUp(currentRow - row))
+      currentRow = row
     }
     while (currentRow < row - 1)
       crlf()
   }
 
   def navigateUpOrDownToRow(row: Int) {
-    while (currentRow > row) {
-      sb.append(CursorUp)
-      currentRow -= 1
+    if (currentRow > row) {
+      sb.append(EscapeSequence.cursorUp(currentRow - row))
+      currentRow = row
     }
-    while (currentRow < row) {
-      sb.append("\r\n")
-      currentRow += 1
-      currentColumn = 0
-    }
+    while (currentRow < row)
+      crlf()
   }
 
   def navigateToColumn(col: Int) {

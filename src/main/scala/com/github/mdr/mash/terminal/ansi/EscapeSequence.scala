@@ -24,7 +24,18 @@ object EscapeSequence {
   }
 
   val CursorUp = s"$Esc[A"
+
+  def cursorUp(n: Int) = {
+    require(n >= 1)
+    s"$Esc[${n}A"
+  }
+
   val CursorDown = s"$Esc[B"
+
+  def cursorDown(n: Int) = {
+    require(n >= 1)
+    s"$Esc[${n}B"
+  }
 
   val HideCursor = s"$Esc[?25l"
   val ShowCursor = s"$Esc[?25h"
