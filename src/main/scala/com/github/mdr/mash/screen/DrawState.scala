@@ -23,8 +23,11 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
       sb.append(EscapeSequence.cursorUp(currentRow - row))
       currentRow = row
     }
-    while (currentRow < row - 1)
-      crlf()
+    if (currentRow < row - 1) {
+      sb.append(EscapeSequence.cursorDown(row - 1 - currentRow))
+      currentRow = row - 1
+      cr()
+    }
   }
 
   def navigateUpOrDownToRow(row: Int) {
@@ -32,8 +35,11 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
       sb.append(EscapeSequence.cursorUp(currentRow - row))
       currentRow = row
     }
-    while (currentRow < row)
-      crlf()
+    if (currentRow < row) {
+      sb.append(EscapeSequence.cursorDown(row - currentRow))
+      currentRow = row
+      cr()
+    }
   }
 
   def navigateToColumn(col: Int) {
