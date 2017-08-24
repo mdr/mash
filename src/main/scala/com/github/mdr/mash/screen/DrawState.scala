@@ -1,11 +1,10 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
-import com.github.mdr.mash.utils.CharUtils._
 
 /**
- * Helper class to manage current characters written and location of cursor during drawing
- */
+  * Helper class to manage current characters written and location of cursor during drawing
+  */
 class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
   import EscapeSequence._
@@ -16,7 +15,9 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
   def getCurrentColumn = currentColumn
 
-  // Move up to the correct row, or down to just before the correct row, as required.
+  /**
+    * Move up to the correct row, or down to just before the correct row, as required.
+    */
   def navigateUpToRowOrDownToJustAbove(row: Int) {
     while (currentRow > row) {
       sb.append(CursorUp)
@@ -60,15 +61,17 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     currentColumn = 0
   }
 
-  def cursorForward(n: Int) {
-    sb.append(CursorForward * n)
-    currentColumn += n
-  }
+  def cursorForward(n: Int) =
+    if (n > 0) {
+      sb.append(EscapeSequence.cursorForward(n))
+      currentColumn += n
+    }
 
-  def cursorBackward(n: Int) {
-    sb.append(CursorBackward * n)
-    currentColumn += n
-  }
+  def cursorBackward(n: Int) =
+    if (n > 0) {
+      sb.append(EscapeSequence.cursorBackward(n))
+      currentColumn -= n
+    }
 
   def addChars(drawnChars: String, length: Int) {
     sb.append(drawnChars)
@@ -82,7 +85,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
   }
 
   def eraseLine() {
-    sb.append(EscapeSequence.EraseLine)
+    sb.append(EscapeSequence.EraseLineFromCursor)
   }
 
   def title(s: String) {

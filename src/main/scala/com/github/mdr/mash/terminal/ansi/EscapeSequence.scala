@@ -1,13 +1,28 @@
 package com.github.mdr.mash.terminal.ansi
+
 import com.github.mdr.mash.utils.CharUtils._
 
 object EscapeSequence {
 
-  val EraseLine = s"$Esc[K"
-  val ClearScreen = s"$Esc[H\u001b[2J"
+  val EraseLineFromCursor = s"$Esc[K"
+  val EraseEntireLine = s"$Esc[2K"
+
+  val ClearScreen = s"$Esc[H$Esc[2J"
 
   val CursorForward = s"$Esc[C"
+
+  def cursorForward(n: Int) = {
+    require(n >= 1)
+    s"$Esc[${n}C"
+  }
+
   val CursorBackward = "\b"
+
+  def cursorBackward(n: Int) = {
+    require(n >= 1)
+    s"$Esc[${n}D"
+  }
+
   val CursorUp = s"$Esc[A"
   val CursorDown = s"$Esc[B"
 
