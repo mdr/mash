@@ -4,7 +4,7 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.printer.model.SingleObjectTableModelCreator
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.Screen
+import com.github.mdr.mash.screen.{ Screen, StyledStringDrawer }
 import com.github.mdr.mash.render.browser.SingleObjectTableCommonRenderer
 import com.github.mdr.mash.utils.Dimensions
 
@@ -15,7 +15,7 @@ class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimensions, vi
     val renderer = new SingleObjectTableCommonRenderer(model)
     val lines = renderer.renderTableLines()
     for (line ← lines)
-      output.println(Screen.drawStyledChars(line.string))
+      output.println(StyledStringDrawer.drawStyledChars(line.string))
   }
 
 }

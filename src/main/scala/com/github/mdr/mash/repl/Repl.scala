@@ -16,7 +16,7 @@ import com.github.mdr.mash.repl.handler.{ IncrementalHistorySearchActionHandler,
 import IncrementalHistorySearchActionHandler.Result
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.screen.Screen
+import com.github.mdr.mash.screen.{ Screen, ScreenDrawer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.tips.Tips
@@ -60,7 +60,7 @@ class Repl(protected val terminal: Terminal,
 
   def draw() {
     val newScreen = render
-    val drawn = newScreen.draw(previousScreenOpt, terminal.columns)
+    val drawn = ScreenDrawer.draw(newScreen, previousScreenOpt)
     previousScreenOpt = Some(newScreen)
 
     output.write(drawn.getBytes)

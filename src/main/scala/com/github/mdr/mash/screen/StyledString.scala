@@ -33,6 +33,8 @@ case class StyledString(chars: Seq[StyledCharacter]) {
 
   def take(n: Int) = copy(chars.take(n))
 
+  def takeRight(n: Int) = copy(chars.takeRight(n))
+
   def drop(n: Int) = copy(chars.drop(n))
 
   def apply(i: Int) = chars.apply(i)

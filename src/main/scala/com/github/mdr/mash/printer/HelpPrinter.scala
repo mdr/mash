@@ -6,7 +6,7 @@ import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.render.help.{ ClassHelpRenderer, FieldHelpRenderer, FunctionHelpRenderer, MethodHelpRenderer }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.screen.{ Line, Screen }
+import com.github.mdr.mash.screen.{ Line, Screen, StyledStringDrawer }
 
 class HelpPrinter(output: PrintStream) {
 
@@ -20,6 +20,6 @@ class HelpPrinter(output: PrintStream) {
 
   private def printAll(lines: Seq[Line]): Unit =
     for (line ← lines)
-      output.println(Screen.drawStyledChars(line.string))
+      output.println(StyledStringDrawer.drawStyledChars(line.string))
 
 }

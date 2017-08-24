@@ -4,8 +4,7 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.runtime.MashObject
-import com.github.mdr.mash.screen.BasicColour
-import com.github.mdr.mash.screen.Screen._
+import com.github.mdr.mash.screen.{ BasicColour, StyledStringDrawer }
 import com.github.mdr.mash.screen.Style.StylableString
 
 /**
@@ -15,8 +14,8 @@ class GitStatusPrinter(output: PrintStream) {
 
   def print(obj: MashObject) {
     val status = StatusClass.Wrapper(obj)
-    def red(s: String) = drawStyledChars(s.style(foregroundColour = BasicColour.Red))
-    def green(s: String) = drawStyledChars(s.style(foregroundColour = BasicColour.Green))
+    def red(s: String) = StyledStringDrawer.drawStyledChars(s.style(foregroundColour = BasicColour.Red))
+    def green(s: String) = StyledStringDrawer.drawStyledChars(s.style(foregroundColour = BasicColour.Green))
     val indent = " " * 8
     output.println("On branch " + status.branch)
     val upstreamBranch = status.upstreamBranchOpt.getOrElse("")

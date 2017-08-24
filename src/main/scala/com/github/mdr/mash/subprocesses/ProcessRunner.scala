@@ -49,7 +49,7 @@ object ProcessRunner {
 
   // Clear out any partial output
   def clearPartialOutput() {
-    output.write(("\r" + EscapeSequence.EraseLine).getBytes)
+    output.write(("\r" + EscapeSequence.EraseLineFromCursor).getBytes)
     output.flush()
   }
 

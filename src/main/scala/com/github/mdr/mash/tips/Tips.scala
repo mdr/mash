@@ -6,7 +6,7 @@ import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.os.{ GlobFunction, OldDirsFunction, UpFunction }
 import com.github.mdr.mash.render.help.MashMarkupRenderer
 import com.github.mdr.mash.render.{ BoxContent, BoxRenderer }
-import com.github.mdr.mash.screen.{ Screen, StyledString }
+import com.github.mdr.mash.screen.{ Screen, StyledString, StyledStringDrawer }
 import com.github.mdr.mash.utils.Dimensions
 
 import scala.util.Random
@@ -43,7 +43,7 @@ object Tips {
     val boxContent: BoxContent = BoxContent(title = "Tip", lines = Seq(tipLine))
     val lines = BoxRenderer.render(boxContent, terminalSize)
     for (line ← lines)
-      output.println(Screen.drawStyledChars(line.string))
+      output.println(StyledStringDrawer.drawStyledChars(line.string))
   }
 
 }

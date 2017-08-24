@@ -17,7 +17,7 @@ import com.github.mdr.mash.ns.view.ViewClass
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.screen.Screen
+import com.github.mdr.mash.screen.{ Screen, StyledStringDrawer }
 import com.github.mdr.mash.utils.{ Dimensions, NumberUtils }
 import org.ocpsoft.prettytime.PrettyTime
 
@@ -165,7 +165,7 @@ class Printer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewCon
       browse(model)
     else {
       for (line ← model.lines)
-        output.println(Screen.drawStyledChars(line))
+        output.println(StyledStringDrawer.drawStyledChars(line))
       done
     }
   }
