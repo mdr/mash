@@ -7,7 +7,8 @@ object EscapeSequence {
   val EraseLineFromCursor = s"$Esc[K"
   val EraseEntireLine = s"$Esc[2K"
 
-  val ClearScreen = s"$Esc[H$Esc[2J"
+  val MoveCursorToTopLeft = s"$Esc[H"
+  val ClearScreen = s"$Esc[2J"
 
   val CursorForward = s"$Esc[C"
 
