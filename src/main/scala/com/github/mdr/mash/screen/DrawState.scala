@@ -43,13 +43,8 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
   }
 
   def navigateToColumn(col: Int) {
-    if (currentColumn > col) {
-      val delta = currentColumn - col
-      if (delta > col)
+    if (currentColumn > col)
         cr()
-      else
-        cursorBackward(delta)
-    }
     cursorForward(col - currentColumn)
   }
 
