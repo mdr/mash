@@ -67,7 +67,10 @@ class Repl(protected val terminal: Terminal,
     output.flush()
   }
 
-  def render: Screen = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords).render(state)
+  def render: Screen = {
+    val replRenderer = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords)
+    replRenderer.render(state)
+  }
 
   @tailrec
   private def inputLoop() {

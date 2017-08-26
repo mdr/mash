@@ -22,11 +22,13 @@ class ReplRenderer(fileSystem: FileSystem,
                    globalVariables: MashObject,
                    bareWords: Boolean) {
 
-  def render(state: ReplState): Screen =
-    state.objectBrowserStateStackOpt match {
+  def render(state: ReplState): Screen = {
+    val fullScreen = state.objectBrowserStateStackOpt match {
       case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, getMashRenderingContext(state))
       case None                     ⇒ renderRegularRepl(state)
     }
+    fullScreen.truncate(terminalSize)
+  }
 
   private def renderRegularRepl(state: ReplState): Screen = {
     val mashRenderingContext = getMashRenderingContext(state)

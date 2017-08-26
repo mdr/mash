@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.ansi.{ EscapeSequence, StyleToEscapeSequence }
-import com.github.mdr.mash.utils.Point
+import com.github.mdr.mash.utils.{ Dimensions, Point }
 
 object Line {
 
@@ -42,6 +42,12 @@ case class Screen(lines: Seq[Line],
     sb.append(EscapeSequence.EraseLineFromCursor)
     sb.append(StyleToEscapeSequence.Reset)
     sb.toString
+  }
+
+  def truncate(terminalSize: Dimensions): Screen = {
+    val newLines = lines.take(terminalSize.rows).map(_.truncate(terminalSize.columns))
+    val newCursorPosOpt = cursorPosOpt.filterNot(p ⇒ p.column >= terminalSize.columns || p.row >= terminalSize.rows)
+    copy(lines = newLines, cursorPosOpt = newCursorPosOpt)
   }
 
 }
