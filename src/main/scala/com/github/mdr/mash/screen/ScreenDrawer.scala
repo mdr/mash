@@ -5,12 +5,21 @@ import com.github.mdr.mash.utils.{ Point, Utils }
 object ScreenDrawer {
 
   def draw(newScreen: Screen, previousScreenOpt: Option[Screen]): String = {
-    val Screen(lines, cursorPosOpt, title) = newScreen
+    val Screen(lines, cursorPosOpt, title, alternateScreen) = newScreen
+
     val cursorPos = cursorPosOpt.getOrElse(Point(0, 0))
     val currentPos = previousScreenOpt.flatMap(_.cursorPosOpt).getOrElse(Point(0, 0))
 
-    val previousLines = previousScreenOpt.map(_.lines).getOrElse(Seq())
+    val oldAlternateScreen = previousScreenOpt.exists(_.alternateScreen)
+
+    val previousLines = if (oldAlternateScreen != alternateScreen) Seq() else previousScreenOpt.map(_.lines).getOrElse(Seq())
     val drawState = new DrawState(currentPos.row, currentPos.column)
+
+    if (alternateScreen && !oldAlternateScreen)
+      drawState.switchToAlternateScreen()
+    else if (!alternateScreen && oldAlternateScreen)
+      drawState.returnFromAlternateScreen()
+
     val newAndPreviousLines: Seq[(Option[Line], Option[Line])] =
       Utils.zipPad(lines.map(Some(_)), previousLines.map(Some(_)), None)
     for (((newLineOpt, previousLineOpt), row) ← newAndPreviousLines.zipWithIndex)

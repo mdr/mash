@@ -96,4 +96,19 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     sb.toString
   }
 
+  def switchToAlternateScreen(): Unit = {
+    sb.append(EscapeSequence.SwitchToAlternateScreen)
+    sb.append(EscapeSequence.MoveCursorToTopLeft + EscapeSequence.ClearScreen)
+    currentRow = 0
+    currentColumn = 0
+  }
+
+  def returnFromAlternateScreen(): Unit = {
+    sb.append(EscapeSequence.ReturnFromAlternateScreen)
+    sb.append("\r")
+    sb.append(EscapeSequence.EraseLineFromCursor)
+    currentRow = 0
+    currentColumn = 0
+  }
+
 }

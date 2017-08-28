@@ -43,4 +43,7 @@ object EscapeSequence {
 
   def title(s: String) = s"$Esc]0;${s}\u0007"
 
+  val SwitchToAlternateScreen = s"$Esc[?1049h"
+  val ReturnFromAlternateScreen = s"$Esc[?1049l"
+
 }
