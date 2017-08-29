@@ -1,6 +1,6 @@
 package com.github.mdr.mash.commands
 
-import java.io.PrintStream
+import java.io.{ OutputStream, PrintStream }
 import java.util.UUID
 
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }

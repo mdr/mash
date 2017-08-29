@@ -40,7 +40,7 @@ class Repl(protected val terminal: Terminal,
   protected val debugLogger = new DebugLogger(sessionId.toString)
   protected val completer = new Completer(fileSystem, envInteractions)
 
-  var state = new ReplState()
+  var state = ReplState()
 
   protected var previousScreenOpt: Option[Screen] = None
 
@@ -51,6 +51,8 @@ class Repl(protected val terminal: Terminal,
   def bareWords: Boolean = config.bareWords
 
   def showStartupTips: Boolean = config.showStartupTips
+
+  def discoBorders: Boolean = config.discoBorders
 
   def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput)
 
@@ -70,7 +72,7 @@ class Repl(protected val terminal: Terminal,
   }
 
   def render: Screen = {
-    val replRenderer = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords)
+    val replRenderer = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords, discoBorders)
     replRenderer.render(state)
   }
 

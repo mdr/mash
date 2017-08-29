@@ -9,6 +9,7 @@ import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.{ Line, Screen }
 import com.github.mdr.mash.utils.{ Dimensions, Point }
+import com.github.mdr.mash.utils.Utils._
 
 case class LinesAndCursorPos(lines: Seq[Line], cursorPosOpt: Option[Point] = None)
 
@@ -20,14 +21,15 @@ class ReplRenderer(fileSystem: FileSystem,
                    envInteractions: EnvironmentInteractions,
                    terminalSize: Dimensions,
                    globalVariables: MashObject,
-                   bareWords: Boolean) {
+                   bareWords: Boolean,
+                   discoBorders: Boolean) {
 
   def render(state: ReplState): Screen = {
     val fullScreen = state.objectBrowserStateStackOpt match {
       case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, getMashRenderingContext(state))
       case None                     ⇒ renderRegularRepl(state)
     }
-    fullScreen.truncate(terminalSize)
+    fullScreen.truncate(terminalSize).when(discoBorders, DiscoBorders.addDiscoBorders)
   }
 
   private def renderRegularRepl(state: ReplState): Screen = {

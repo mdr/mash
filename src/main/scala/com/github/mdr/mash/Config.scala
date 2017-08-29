@@ -28,6 +28,8 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
 
   def browseLargeOutput: Boolean = getBooleanConfig(Config.View.BrowseLargeOutput)
 
+  def discoBorders: Boolean = getBooleanConfig(Config.View.DiscoBorders)
+
   private def getBooleanConfig(configOption: ConfigOption): Boolean =
     getConfig(configOption).isTruthy
 
@@ -72,9 +74,10 @@ object Config {
   object View {
     val FuzzyTime = ConfigOption("view.fuzzyTime", defaultValue = MashBoolean.True)
     val BrowseLargeOutput = ConfigOption("view.browseLargeOutput", defaultValue = MashBoolean.True)
+    val DiscoBorders = ConfigOption("view.discoBorders", defaultValue = MashBoolean.False)
   }
 
-  val AllKeys = Seq(Language.BareWords, Cli.ShowStartupTips, View.FuzzyTime, View.BrowseLargeOutput)
+  val AllKeys = Seq(Cli.ShowStartupTips, Language.BareWords, View.BrowseLargeOutput, View.DiscoBorders, View.FuzzyTime)
 
   def defaultConfig = {
     val config = MashObject.empty

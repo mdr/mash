@@ -58,6 +58,7 @@ case class Style(foregroundColour: Colour = DefaultColour,
                  bold: Boolean = false,
                  inverse: Boolean = false,
                  underline: Boolean = false) {
+  def withForegroundColour(colour: Colour): Style = copy(foregroundColour = colour)
 
   def withUnderline: Style = copy(underline = true)
 
