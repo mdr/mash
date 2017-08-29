@@ -1,6 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
+import com.github.mdr.mash.utils.Point
 
 /**
   * Helper class to manage current characters written and location of cursor during drawing
@@ -30,7 +31,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     }
   }
 
-  def navigateUpOrDownToRow(row: Int) {
+  def moveCursorToRow(row: Int) {
     if (currentRow > row) {
       sb.append(EscapeSequence.cursorUp(currentRow - row))
       currentRow = row
@@ -42,10 +43,15 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     }
   }
 
-  def navigateToColumn(col: Int) {
+  def moveCursorToColumn(col: Int) {
     if (currentColumn > col)
         cr()
     cursorForward(col - currentColumn)
+  }
+
+  def moveCursor(pos: Point): Unit = {
+    moveCursorToRow(pos.row)
+    moveCursorToColumn(pos.column)
   }
 
   def crlf() {
@@ -86,7 +92,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     sb.append(EscapeSequence.EraseLineFromCursor)
   }
 
-  def title(s: String) {
+  def setTitle(s: String) {
     sb.append(EscapeSequence.title(s))
   }
 
@@ -103,12 +109,10 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     currentColumn = 0
   }
 
-  def returnFromAlternateScreen(): Unit = {
+  def returnFromAlternateScreen(cursorPos: Point): Unit = {
     sb.append(EscapeSequence.ReturnFromAlternateScreen)
-    sb.append("\r")
-    sb.append(EscapeSequence.EraseLineFromCursor)
-    currentRow = 0
-    currentColumn = 0
+    currentRow = cursorPos.row
+    currentColumn = cursorPos.column
   }
 
 }

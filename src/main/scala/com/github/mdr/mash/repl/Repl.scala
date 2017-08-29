@@ -16,7 +16,7 @@ import com.github.mdr.mash.repl.handler.{ IncrementalHistorySearchActionHandler,
 import IncrementalHistorySearchActionHandler.Result
 import com.github.mdr.mash.repl.history.History
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
-import com.github.mdr.mash.screen.{ Screen, ScreenDrawer }
+import com.github.mdr.mash.screen.{ Screen, ScreenDraw, ScreenDrawer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.tips.Tips
@@ -44,6 +44,8 @@ class Repl(protected val terminal: Terminal,
 
   protected var previousScreenOpt: Option[Screen] = None
 
+  protected var swappedOutScreenOpt: Option[Screen] = None
+
   private def config: ConfigWrapper = ConfigWrapper.fromGlobals(globalVariables)
 
   def bareWords: Boolean = config.bareWords
@@ -60,10 +62,10 @@ class Repl(protected val terminal: Terminal,
 
   def draw() {
     val newScreen = render
-    val drawn = ScreenDrawer.draw(newScreen, previousScreenOpt)
+    val ScreenDraw(drawString, newSwappedOutScreenOpt) = ScreenDrawer.draw(newScreen, previousScreenOpt, swappedOutScreenOpt)
     previousScreenOpt = Some(newScreen)
-
-    output.write(drawn.getBytes)
+    swappedOutScreenOpt = newSwappedOutScreenOpt
+    output.write(drawString.getBytes)
     output.flush()
   }
 
