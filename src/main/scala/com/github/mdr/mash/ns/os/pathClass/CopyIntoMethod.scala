@@ -28,7 +28,7 @@ object CopyIntoMethod extends MashMethod("copyInto") {
     val source = interpretAsPath(target)
     val destination = boundParams.validatePath(Destination)
     if (!Files.isDirectory(destination))
-      throw new EvaluatorException(s"Cannot copy into $destination, not a directory")
+      throw EvaluatorException(s"Cannot copy into $destination, not a directory")
     if (Files.isDirectory(source))
       FileUtils.copyDirectoryToDirectory(source.toFile, destination.toFile)
     else
