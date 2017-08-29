@@ -129,7 +129,7 @@ trait ObjectBrowserActionHandler
 
   private def insert(expression: String): Unit =
     state = state.copy(
-      lineBuffer = LineBuffer(expression),
+      lineBuffer = state.lineBuffer.insertAtCursor(expression),
       objectBrowserStateStackOpt = None)
 
   protected def handleInsertWholeItem(browserState: BrowserState) = insert(browserState.path)
