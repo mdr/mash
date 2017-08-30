@@ -5,6 +5,7 @@ import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference.TypeInferenceStrategy
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.runtime._
+import org.apache.commons.lang3.SystemUtils
 
 object OpenFunction extends MashFunction("os.open") {
 
@@ -32,7 +33,9 @@ object OpenFunction extends MashFunction("os.open") {
   }
 
   def openWithSystemOpener(value: MashValue): MashUnit = {
-    val process = new ProcessBuilder("open", ToStringifier.stringify(value)).start()
+    val argument = ToStringifier.stringify(value)
+    val builder = if (SystemUtils.IS_OS_MAC_OSX) new ProcessBuilder("open", argument) else new ProcessBuilder("xdg-open", argument)
+    val process = builder.start()
     process.waitFor()
     MashUnit
   }

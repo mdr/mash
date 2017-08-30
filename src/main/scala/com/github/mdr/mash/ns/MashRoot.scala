@@ -131,6 +131,7 @@ object MashRoot {
     ListFilesFunction,
     MoveFunction,
     OldDirsFunction,
+    OpenFunction,
     ReadFunction,
     ReadLinesFunction,
     TerminalFunction,
@@ -140,8 +141,7 @@ object MashRoot {
     ProcessesFunction) ++ (
     if (SystemUtils.IS_OS_MAC_OSX)
       Seq(
-        DiskSpaceFunction,
-        OpenFunction)
+        DiskSpaceFunction)
     else
       Seq(
         GroupsFunction,
