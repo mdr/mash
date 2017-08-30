@@ -202,12 +202,15 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleQuit() {
-    state = state.withLineBuffer(LineBuffer.Empty)
-    history.resetHistoryPosition()
-    updateScreenAfterFinishingWithLine()
-    previousScreenOpt = None
-
-    state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean, oldSelections = Seq())
+    if (state.assistanceStateOpt.isDefined)
+      state = state.copy(assistanceStateOpt = None)
+    else {
+      state = state.withLineBuffer(LineBuffer.Empty)
+      history.resetHistoryPosition()
+      updateScreenAfterFinishingWithLine()
+      previousScreenOpt = None
+      state = state.withLineBuffer(LineBuffer.Empty).copy(undoRedoState = UndoRedoState.Clean, oldSelections = Seq())
+    }
   }
 
   def canAcceptBuffer: Boolean = {

@@ -37,6 +37,8 @@ trait IncrementalCompletionActionHandler {
         completionState.mementoOpt.foreach(memento ⇒ state = memento.restoreInto(state))
       case Complete if completionState.immediatelyAfterCompletion     ⇒ // enter browse completions mode
         browseCompletions(completionState)
+      case Quit                                                       ⇒
+        state = state.exitCompletion
       case _                                                          ⇒ // exit back to normal mode, and handle there
         state = state.exitCompletion
         handleNormalAction(action)

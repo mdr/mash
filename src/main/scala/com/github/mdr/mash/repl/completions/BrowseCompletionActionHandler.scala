@@ -2,6 +2,7 @@ package com.github.mdr.mash.repl.completions
 
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.render.CompletionRenderer
+import com.github.mdr.mash.repl.NormalActions.Quit
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._
 import com.github.mdr.mash.utils.{ RaggedGridNavigator, Region, StringUtils }
@@ -12,15 +13,14 @@ trait BrowseCompletionActionHandler {
   protected def handleBrowserCompletionAction(action: InputAction, completionState: BrowserCompletionState) {
     val navigator = gridNavigator(completionState)
     action match {
-      case NextCompletion     ⇒ browseCompletions(completionState, navigator.next)
-      case PreviousCompletion ⇒ browseCompletions(completionState, navigator.previous)
-      case NavigateRight      ⇒ browseCompletions(completionState, navigator.right)
-      case NavigateLeft       ⇒ browseCompletions(completionState, navigator.left)
-      case NavigateDown       ⇒ browseCompletions(completionState, navigator.down)
-      case NavigateUp         ⇒ browseCompletions(completionState, navigator.up)
-      case AcceptCompletion   ⇒
-        state = state.exitCompletion
-      case _                  ⇒
+      case NextCompletion          ⇒ browseCompletions(completionState, navigator.next)
+      case PreviousCompletion      ⇒ browseCompletions(completionState, navigator.previous)
+      case NavigateRight           ⇒ browseCompletions(completionState, navigator.right)
+      case NavigateLeft            ⇒ browseCompletions(completionState, navigator.left)
+      case NavigateDown            ⇒ browseCompletions(completionState, navigator.down)
+      case NavigateUp              ⇒ browseCompletions(completionState, navigator.up)
+      case AcceptCompletion | Quit ⇒ state = state.exitCompletion
+      case _                       ⇒
         state = state.exitCompletion
         handleNormalAction(action)
     }
