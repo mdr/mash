@@ -18,9 +18,9 @@ trait StringInterpolationLexer { self: MashLexer ⇒
         modeStack = modeStack :+ StringInterpolationIdentifierMode
         token(STRING_INTERPOLATION_START_SIMPLE)
       } else if (forgiving)
-        readStringInterpolationToken()
+        token(STRING_INTERPOLATION_START_SIMPLE)
       else
-        throw new MashParserException("Invalid string interpolation sequence", currentPointedRegion)
+        throw MashParserException("Invalid string interpolation sequence", currentPointedRegion)
     case _ ⇒
       getInterpolatedStringPart()
   }
@@ -45,7 +45,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
               nextChar()
               getInterpolatedStringPart()
             } else
-              throw new MashParserException("Invalid string escape `" + c, currentPointedRegion)
+              throw MashParserException("Invalid string escape `" + c, currentPointedRegion)
         }
       case '"' ⇒
         nextChar()
@@ -54,7 +54,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
         if (forgiving) {
           endString()
         } else
-          throw new MashParserException("Unterminated string literal", currentPointedRegion)
+          throw MashParserException("Unterminated string literal", currentPointedRegion)
       case '$' ⇒
         token(STRING_MIDDLE)
       case _ ⇒
@@ -72,7 +72,7 @@ trait StringInterpolationLexer { self: MashLexer ⇒
         nextChar()
         token(DOT)
       } else
-        throw new MashParserException("Invalid string interpolation sequence", currentPointedRegion) // This actually shouldn't happen
+        throw MashParserException("Invalid string interpolation sequence", currentPointedRegion) // This actually shouldn't happen
     if (!isIdentifierStart(ch) && ch != '.')
       modeStack = modeStack.init
     tok

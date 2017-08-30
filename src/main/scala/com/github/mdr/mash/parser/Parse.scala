@@ -114,7 +114,7 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
       case Some(context) ⇒ s"While parsing $context, expected '$expected', but instead found '$actual'"
       case None          ⇒ s"Expected '$expected', but instead found '$actual'"
     }
-    throw new MashParserException(message, currentLocation)
+    throw MashParserException(message, currentLocation)
   }
 
   /**
@@ -205,9 +205,9 @@ class Parse(lexerResult: LexerResult, initialForgiving: Boolean) {
 
   protected def unexpectedToken() =
     if (EOF)
-      throw new MashParserException(s"Unexpected end-of-input", currentLocation)
+      throw MashParserException(s"Unexpected end-of-input", currentLocation)
     else
-      throw new MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
+      throw MashParserException(s"Unexpected token '${currentToken.text}'", currentLocation)
 
   protected def consumeRequiredToken(contextOpt: Option[String], tokenType: TokenType): Token =
     if (tokenType)

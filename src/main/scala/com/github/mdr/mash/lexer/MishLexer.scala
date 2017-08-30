@@ -48,7 +48,7 @@ trait MishLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
+        throw MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
   }
 
   protected def getMishWordRest(): Token = {

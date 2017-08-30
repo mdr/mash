@@ -46,7 +46,7 @@ trait NormalMashLexer { self: MashLexer ⇒
             nextChar()
             getStringLiteralRest(delimiter)
           } else
-            throw new MashParserException("Invalid string escape `" + c, currentPointedRegion)
+            throw MashParserException("Invalid string escape `" + c, currentPointedRegion)
       }
     case `delimiter` ⇒
       nextChar()
@@ -55,7 +55,7 @@ trait NormalMashLexer { self: MashLexer ⇒
       if (forgiving)
         token(STRING_LITERAL)
       else
-        throw new MashParserException("Unterminated string literal", currentPointedRegion)
+        throw MashParserException("Unterminated string literal", currentPointedRegion)
     case '$' if delimiter == '"' ⇒
       // We don't consume the dollar, but this signals that the string is interpolated, so we switch into that mode
       modeStack = modeStack :+ StringInterpolationMode
@@ -101,7 +101,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         if (forgiving)
           getNumberLiteralRest()
         else
-          throw new MashParserException("Invalid number literal", currentPointedRegion)
+          throw MashParserException("Invalid number literal", currentPointedRegion)
       } else
         token(NUMBER_LITERAL)
     } else {
@@ -207,7 +207,7 @@ trait NormalMashLexer { self: MashLexer ⇒
           nextChar()
           token(ERROR)
         } else
-          throw new MashParserException(s"Unexpected character $ch after '!!'", currentPointedRegion)
+          throw MashParserException(s"Unexpected character $ch after '!!'", currentPointedRegion)
       } else if (ch == '{') {
         nextChar()
         modeStack = modeStack :+ MishMode
@@ -219,7 +219,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashParserException(s"Unexpected character $ch after '!'", currentPointedRegion)
+        throw MashParserException(s"Unexpected character $ch after '!'", currentPointedRegion)
     case '-' ⇒
       nextChar()
       if (ch == '-') {
@@ -229,7 +229,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         else if (forgiving)
           token(LONG_FLAG)
         else
-          throw new MashParserException(s"Incomplete flag", currentPointedRegion)
+          throw MashParserException(s"Incomplete flag", currentPointedRegion)
       } else if (ch == '=') {
         nextChar()
         token(MINUS_EQUALS)
@@ -323,7 +323,7 @@ trait NormalMashLexer { self: MashLexer ⇒
         nextChar()
         token(ERROR)
       } else
-        throw new MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
+        throw MashParserException(s"Unexpected character: $ch (${ch.toHexString})", currentPointedRegion)
   }
 
   protected def getIdentRest(tokenTypeOpt: Option[TokenType] = None): Token = (ch: @switch) match {

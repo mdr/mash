@@ -29,6 +29,8 @@ trait InterpolatedStringParse { self: MashParse ⇒
         Hole(nextToken())
       else if (IDENTIFIER)
         Identifier(nextToken())
+      else if (forgiving)
+        Identifier(syntheticToken(IDENTIFIER))
       else
         errorExpectedToken(Some("interpolation"), "identifier or _") // shouldn't happen
     safeWhile(DOT) { // DOT_NULL_SAFE?
