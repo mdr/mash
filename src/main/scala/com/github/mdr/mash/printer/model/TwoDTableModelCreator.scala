@@ -14,10 +14,21 @@ object TwoDTableModelCreator {
   private val RowLabelColumnName = "#"
 
   def isSuitableForTwoDTable(value: MashValue) = cond(value) {
-    case xs: MashList    ⇒ xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))
-    case obj: MashObject ⇒ obj.nonEmpty && (obj.immutableFields.values.forall(_.isAnObject) || obj.immutableFields.values.forall(_.isAList))
+    case xs: MashList    ⇒
+      xs.nonEmpty && (xs.forall(_.isAnObject) || xs.forall(_.isAList))
+    case obj: MashObject ⇒
+      val values = obj.immutableFields.values
+      obj.nonEmpty && (values.forall(_.isAnObject) && schemasAreSimilar(values) || values.forall(_.isAList))
   }
 
+  private def schemasAreSimilar(values: Iterable[MashValue]) = {
+    val objectValues = values.flatMap(_.asObject).take(10)
+    val allFields = objectValues.flatMap(_.immutableFields.keys).toSet
+    val sharedFields = objectValues.map(_.immutableFields.keys.toSet).reduceOption(_ intersect _).getOrElse(Set())
+    val percentageShared = if (allFields.isEmpty) 0.0 else sharedFields.size.toDouble / allFields.size
+    percentageShared > 0.75
+  }
+  
 }
 
 class TwoDTableModelCreator(terminalSize: Dimensions,
@@ -61,6 +72,7 @@ class TwoDTableModelCreator(terminalSize: Dimensions,
       val columnName = columnSpecs(columnId).name
       (tableRows.map(_.renderedValue(columnId)) :+ columnName).map(_.length).max
     }
+
     val requestedColumnWidths: Map[ColumnId, Int] =
       (for (columnId ← dataColumnIds)
         yield columnId -> desiredColumnWidth(columnId)).toMap
