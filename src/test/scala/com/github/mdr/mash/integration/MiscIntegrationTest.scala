@@ -58,17 +58,46 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
     val repl = makeRepl()
       .input("command1").enter()
       .input("command2").enter()
-      .input("{").enter()
-      .input("partial")
+      .input("command3").enter()
       .up()
       .up()
     repl.text shouldEqual "command2"
-    repl.down().text shouldEqual "{\npartial"
+    repl.down().text shouldEqual "command3"
     repl.up().backspace().text shouldEqual "command"
 
     repl.down()
 
     repl.text shouldEqual "command"
+  }
+
+  "Up" should "only move the cursor in a multiline editor" in {
+    val repl = makeRepl().input("{").enter().input("}")
+    repl.up().up()
+    repl.text shouldEqual "{\n}"
+  }
+
+  "Down" should "only move the cursor in a multiline editor" in {
+    val repl = makeRepl().input("{").enter().input("}").enter()
+    repl.input("command2").enter()
+    repl.up().up().end()
+    repl.text shouldEqual "{\n}"
+    repl.down()
+    repl.text shouldEqual "{\n}"
+  }
+
+  "History" should "let you navigate past a multiline entry" in {
+    val repl = makeRepl().input("command1").enter()
+    repl.input("{").enter().input("}").enter()
+    repl.input("command3").enter()
+    repl.up()
+    repl.up()
+    repl.text shouldEqual "{\n}"
+    repl.up()
+    repl.text shouldEqual "command1"
+    repl.down()
+    repl.text shouldEqual "{\n}"
+    repl.down()
+    repl.text shouldEqual "command3"
   }
 
   "Toggling quotes" should "enclose adjacent string in quotes if unquoted, or remove them if quoted" in {

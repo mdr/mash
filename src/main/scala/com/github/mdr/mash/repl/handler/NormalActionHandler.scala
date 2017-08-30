@@ -132,7 +132,7 @@ trait NormalActionHandler extends InlineHandler {
 
   private def handleUp() = {
     val lineBuffer = state.lineBuffer
-    if (!lineBuffer.onFirstLine && history.isCommittedToEntry)
+    if (lineBuffer.isMultiline && history.isCommittedToEntry)
       handleTextChange(state = state.updateLineBuffer(_.cursorUp()))
     else {
       val shouldInitiateIncrementalSearch =
@@ -148,13 +148,13 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleDown() =
-    if (state.lineBuffer.onLastLine || !history.isCommittedToEntry)
+    if (state.lineBuffer.isMultiline && history.isCommittedToEntry)
+      handleTextChange(state = state.updateLineBuffer(_.cursorDown()))
+    else
       history.goForwards() match {
         case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))
         case None      ⇒ state = state.updateLineBuffer(_.cursorDown())
       }
-    else
-      handleTextChange(state = state.updateLineBuffer(_.cursorDown()))
 
   private def handleToggleQuote() = handleTextChange {
     state = state.updateLineBuffer(QuoteToggler.toggleQuotes(_, state.mish))
