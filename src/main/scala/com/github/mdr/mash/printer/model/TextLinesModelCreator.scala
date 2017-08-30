@@ -9,8 +9,11 @@ class TextLinesModelCreator(viewConfig: ViewConfig) {
   def create(list: MashList): TextLinesModel = {
     val lines =
       for (line ← list.elements)
-        yield ToStringifier.stringify(line)
+        yield fixCharacters(ToStringifier.stringify(line))
     TextLinesModel(lines, list)
   }
+
+  private def fixCharacters(s: String) =
+    s.replace("\t", " " * 8)
 
 }
