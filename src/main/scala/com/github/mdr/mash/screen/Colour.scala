@@ -1,7 +1,6 @@
 package com.github.mdr.mash.screen
 
 import scala.collection.JavaConverters._
-import java.awt.Color
 import java.nio.charset.StandardCharsets
 import com.github.mdr.mash.utils.Utils
 import org.apache.commons.io.IOUtils
@@ -61,8 +60,8 @@ case class Colour256(n: Int) extends Colour {
 object RgbColour {
 
   def parse(s: String) = {
-    val c = Color.decode(s)
-    RgbColour(c.getRed, c.getGreen, c.getBlue)
+    val i = Integer.decode(s).intValue
+    RgbColour((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF)
   }
 
 }
