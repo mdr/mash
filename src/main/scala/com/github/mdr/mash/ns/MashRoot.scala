@@ -115,6 +115,7 @@ object MashRoot {
     BackFunction,
     ChangeDirectoryFunction,
     ChildrenFunction,
+    ClipboardFunction,
     CopyFunction,
     CreateDirectoryFunction,
     CreateTempDirectoryFunction,
@@ -138,7 +139,7 @@ object MashRoot {
     WriteFunction,
     ProcessesFunction) ++ (
     if (SystemUtils.IS_OS_MAC_OSX)
-      Seq(ClipboardFunction,
+      Seq(
         DiskSpaceFunction,
         OpenFunction)
     else

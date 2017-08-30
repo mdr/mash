@@ -9,6 +9,7 @@ import com.github.mdr.mash.ns.core.NoArgFunction._
 import com.github.mdr.mash.ns.core.{ NoArgFunction, StringClass }
 import com.github.mdr.mash.runtime._
 import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.SystemUtils
 
 object ClipboardFunction extends MashFunction("os.clipboard") {
 
@@ -23,16 +24,16 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
 
   val params = ParameterModel(Item)
 
-  override def call(boundParams: BoundParams): MashValue = {
+  override def call(boundParams: BoundParams): MashValue =
     NoArgFunction.option(boundParams(Item)) match {
       case Some(xs: MashList) ⇒ setClipboard(xs.elements.map(ToStringifier.stringify).mkString("\n"))
       case Some(item)         ⇒ setClipboard(ToStringifier.stringify(item))
       case None               ⇒ MashString(getClipboard)
     }
-  }
 
   private def setClipboard(contents: String): MashUnit = {
-    val process = new ProcessBuilder("pbcopy", contents).redirectInput(ProcessBuilder.Redirect.PIPE).start()
+    val builder = if (SystemUtils.IS_OS_MAC_OSX) new ProcessBuilder("pbcopy") else new ProcessBuilder("xclip", "-selection", "clipboard")
+    val process = builder.redirectInput(ProcessBuilder.Redirect.PIPE).start()
     IOUtils.write(contents, process.getOutputStream, StandardCharsets.UTF_8)
     process.getOutputStream.close()
     process.waitFor()
@@ -40,7 +41,8 @@ object ClipboardFunction extends MashFunction("os.clipboard") {
   }
 
   private def getClipboard: String = {
-    val process = new ProcessBuilder("pbpaste").redirectOutput(ProcessBuilder.Redirect.PIPE).start()
+    val builder = if (SystemUtils.IS_OS_MAC_OSX) new ProcessBuilder("pbpaste") else new ProcessBuilder("xclip", "-selection", "clipboard", "-out")
+    val process = builder.redirectOutput(ProcessBuilder.Redirect.PIPE).start()
     val output = IOUtils.toString(process.getInputStream, StandardCharsets.UTF_8)
     process.waitFor()
     output
