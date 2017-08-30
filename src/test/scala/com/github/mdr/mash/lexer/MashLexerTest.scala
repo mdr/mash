@@ -138,7 +138,7 @@ class MashLexerTest extends FlatSpec with Matchers {
 
     implicit val mode = Mode(mish = true, forgiving = true)
 
-    "foo $" shouldProduce Seq(MISH_WORD, STRING_END)
+    "foo $" shouldProduce Seq(MISH_WORD, STRING_INTERPOLATION_START_SIMPLE)
   }
 
   { // Forgiving mode
