@@ -122,6 +122,7 @@ object MashRoot {
     CreateTempFileFunction,
     CurrentDirectoryFunction,
     DeleteFunction,
+    DiskSpaceFunction,
     FindExecutableInPathFunction,
     ForwardFunction,
     GlobFunction,
@@ -140,8 +141,7 @@ object MashRoot {
     WriteFunction,
     ProcessesFunction) ++ (
     if (SystemUtils.IS_OS_MAC_OSX)
-      Seq(
-        DiskSpaceFunction)
+      Seq()
     else
       Seq(
         GroupsFunction,
@@ -204,12 +204,8 @@ object MashRoot {
     "man" -> HelpFunction,
     "mkdir" -> CreateDirectoryFunction,
     "pwd" -> CurrentDirectoryFunction,
-    "which" → FindExecutableInPathFunction) ++
-    (if (SystemUtils.IS_OS_MAC_OSX)
-      Map(
-        "df" -> DiskSpaceFunction)
-    else
-      Map())
+    "which" → FindExecutableInPathFunction,
+    "df" -> DiskSpaceFunction)
 
   val AllClasses: Seq[MashClass] = Seq(
     GroupClass,
