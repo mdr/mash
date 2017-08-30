@@ -14,6 +14,6 @@ object OpenMethod extends MashMethod("open") {
 
   override def typeInferenceStrategy = UnitClass
 
-  override def summaryOpt = Some("Open a this path with the default application")
+  override def summaryOpt = Some("Open this path with the default application")
 
 }
