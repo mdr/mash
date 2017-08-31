@@ -25,7 +25,7 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState,
 
   private def renderRegularStatusLine: Line = {
     import KeyHint._
-    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy, Dir) ++
+    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy, Dir, Read, NextParentResult, PreviousParentResult) ++
       state.currentColumnOpt.toSeq.flatMap(_ ⇒ Seq(Row, HideColumn))
     val countChars = s"${currentRow + 1}/${model.rows.size}".style(Style(inverse = true))
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)

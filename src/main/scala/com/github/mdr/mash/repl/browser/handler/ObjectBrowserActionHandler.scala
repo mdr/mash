@@ -49,20 +49,23 @@ trait ObjectBrowserActionHandler
     for (selectionInfo ← browserState.selectionInfoOpt)
       focus(selectionInfo.rawObject, selectionInfo.path, tree)
 
-  protected def focusDirectory(browserState: BrowserState): Unit =
+  private def getSelectedPath(browserState: BrowserState): Option[Path] =
     for {
       selectionInfo ← browserState.selectionInfoOpt
       value = selectionInfo.rawObject
       path ← getPath(value)
+    } yield path
+
+  protected def focusDirectory(browserState: BrowserState): Unit =
+    for {
+      path ← getSelectedPath(browserState)
       if Files.isDirectory(path)
       escapedPath = StringEscapes.escapeChars(path.toString)
     } acceptReplacementExpression(s""""$escapedPath".children""")
 
   protected def readFile(browserState: BrowserState) =
     for {
-      selectionInfo ← browserState.selectionInfoOpt
-      value = selectionInfo.rawObject
-      path ← getPath(value)
+      path ← getSelectedPath(browserState)
       if Files.isRegularFile(path)
       escapedPath = StringEscapes.escapeChars(path.toString)
     } acceptReplacementExpression(s""""$escapedPath".readLines""")

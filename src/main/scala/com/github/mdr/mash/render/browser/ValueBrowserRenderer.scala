@@ -28,7 +28,7 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimensions, m
 
   private def renderRegularStatusLine = {
     import KeyHint._
-    Line(renderKeyHints(Seq(Exit, Back, InsertWhole)))
+    Line(renderKeyHints(Seq(Exit, Back, Insert, Read, NextParentResult, PreviousParentResult)))
   }
 
   private def renderStatusLine: Line =

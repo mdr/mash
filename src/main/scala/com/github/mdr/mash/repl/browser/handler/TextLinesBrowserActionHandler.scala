@@ -24,7 +24,9 @@ trait TextLinesBrowserActionHandler {
       case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
       case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
       case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
-      case Focus                           ⇒ focus(browserState, tree = false)
+      case Focus                           ⇒ focus(browserState)
+      case FocusDirectory                  ⇒ focusDirectory(browserState)
+      case ReadFile                        ⇒ readFile(browserState)
       case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
       case _                               ⇒
     }

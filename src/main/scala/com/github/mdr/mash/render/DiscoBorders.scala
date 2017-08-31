@@ -1,11 +1,13 @@
 package com.github.mdr.mash.render
 
+import java.io.OutputStream
+
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 
 object DiscoBorders {
 
-  private val Colours =
+  val Colours =
     Array(
       RgbColour.parse("#ff0000"),
       RgbColour.parse("#ff7000"),

@@ -11,6 +11,8 @@ trait ObjectTreeBrowserActionHandler {
   protected def handleObjectTreeBrowserAction(action: InputAction, browserState: ObjectTreeBrowserState): Unit =
     action match {
       case Focus                           ⇒ focus(browserState, tree = true)
+      case FocusDirectory                  ⇒ focusDirectory(browserState)
+      case ReadFile                        ⇒ readFile(browserState)
       case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
       case Back                            ⇒ navigateBack()
       case NextColumn                      ⇒ updateState(browserState.right)

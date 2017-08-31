@@ -2,7 +2,6 @@ package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.TextLinesBrowserState
-import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
@@ -22,15 +21,15 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimen
 
   private def renderRegularStatusLine = {
     import KeyHint._
-    val hints = Seq(Exit, Back, InsertWhole)
+    val hints = Seq(Exit, Back, InsertWhole, NextParentResult, PreviousParentResult)
     val countChars = s"${state.selectedRow + 1}/${state.model.renderedLines.size}".style(Style(inverse = true))
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
 
   private def renderStatusLine: Line =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
-      case None                  ⇒ renderRegularStatusLine
+      case Some(_) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
+      case None    ⇒ renderRegularStatusLine
     }
 
   protected val windowSize = state.windowSize(terminalSize.rows)

@@ -21,7 +21,7 @@ class SingleObjectTableBrowserRenderer(state: SingleObjectTableBrowserState, ter
 
   private def renderRegularStatusLine = {
     import KeyHint._
-    Line(renderKeyHints(Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy)))
+    Line(renderKeyHints(Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy, Read, NextParentResult, PreviousParentResult)))
   }
 
   private def renderStatusLine: Line =

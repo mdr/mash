@@ -29,6 +29,8 @@ trait SingleObjectTableBrowserActionHandler {
       case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
       case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
       case Focus                           ⇒ focus(browserState)
+      case FocusDirectory                  ⇒ focusDirectory(browserState)
+      case ReadFile                        ⇒ readFile(browserState)
       case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
       case Back                            ⇒ navigateBack()
       case InsertItem                      ⇒ handleInsertItem(browserState)

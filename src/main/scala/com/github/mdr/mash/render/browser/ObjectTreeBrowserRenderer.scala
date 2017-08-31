@@ -11,7 +11,9 @@ import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 
-case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState,
+                                     terminalSize: Dimensions,
+                                     mashRenderingContext: MashRenderingContext)
   extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderLines: LinesAndCursorPos = {
@@ -27,17 +29,17 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
 
     private var line: StyledString = StyledString.Empty
 
-    def println(): Unit = {
+    def println() {
       lines += Line(line)
       line = StyledString.Empty
     }
 
-    def println(s: String): Unit = {
+    def println(s: String) {
       line += s.style
       println()
     }
 
-    def print(s: String, highlighted: Boolean = false, yellow: Boolean = false): Unit = {
+    def print(s: String, highlighted: Boolean = false, yellow: Boolean = false) {
       val foregroundColour = if (yellow) DefaultColours.Yellow else DefaultColour
       line += s.style(Style(inverse = highlighted, foregroundColour = foregroundColour))
     }
@@ -50,7 +52,7 @@ case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState, terminalSize
 
   private def renderRegularStatusLine: Line = {
     import KeyHint._
-    val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table, Open, Copy)
+    val hints = Seq(Exit, Back, Focus, Insert, InsertWhole, Table, Open, Copy, Read, NextParentResult, PreviousParentResult)
     Line(renderKeyHints(hints))
   }
 
