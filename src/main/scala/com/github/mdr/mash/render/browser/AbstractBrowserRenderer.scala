@@ -5,6 +5,7 @@ import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSys
 import com.github.mdr.mash.render._
 import com.github.mdr.mash.repl.browser.BrowserState
 import com.github.mdr.mash.screen._
+import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Dimensions
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext) {
@@ -22,19 +23,22 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
     Screen(fixedLines, cursorPosOpt, title = title, alternateScreen = true)
   }
 
-  protected def renderUpperStatusLines: LinesAndCursorPos =
+  protected def renderUpperStatusLines: LinesAndCursorPos = {
+    val prefix = "Browse: ".style
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = lineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
-          terminalSize, mashRenderingContext)
+          terminalSize, mashRenderingContext, prefix)
         val assistanceLines = renderAssistanceState(expressionState.assistanceStateOpt, terminalSize)
         val availableSpace = terminalSize.shrink(rows = lines.size + assistanceLines.size)
         val completionLines = CompletionRenderer.renderCompletions(expressionState.completionStateOpt, availableSpace).lines
         val expressionLines = if (lines.isEmpty) Seq(Line.Empty) else lines
         LinesAndCursorPos(expressionLines ++ completionLines ++ assistanceLines, cursorPosOpt)
       case None                  ⇒
-        LinesAndCursorPos(Seq(Line(new MashRenderer(mashRenderingContext).renderChars(state.path))))
+        val expression = state.path.replace('\n', ' ')
+        LinesAndCursorPos(Seq(Line(prefix + new MashRenderer(mashRenderingContext).renderChars(expression))))
     }
+  }
 
   private def lineBufferRenderer: LineBufferRenderer = new LineBufferRenderer(LinuxEnvironmentInteractions, LinuxFileSystem)
 

@@ -20,7 +20,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
 
     repl.getText shouldEqual
       """[0]
-        | ~
+        | ~ 
         |$ """.stripMargin
   }
 
@@ -47,10 +47,10 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
       .input("XXX")
       .repl
       .getText shouldEqual
-      """r0
-        |
-        |
-        |XXX
+      """Browse: r0
+        |....... 
+        |....... 
+        |....... XXX
         |║ │0│1│2║
         |║ │1│3│4║
         |╚═╧═╧═╧═╝
