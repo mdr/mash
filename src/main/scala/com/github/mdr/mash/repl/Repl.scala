@@ -76,6 +76,8 @@ class Repl(protected val terminal: Terminal,
     replRenderer.render(state)
   }
 
+  def getText: String = render.lines.map(_.string.forgetStyling).mkString("\n")
+
   @tailrec
   private def inputLoop() {
     try

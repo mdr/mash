@@ -40,7 +40,12 @@ class RegionTest extends FlatSpec with Matchers {
     Region(10, 10) contains Region(20, 0) shouldBe false
     Region(10, 0) contains Region(10, 0) shouldBe false
     Region(10, 0) contains Region(10, 1) shouldBe false
+  }
 
+  "Taking a region of a string" should "work" in {
+    Region(0, 5) of "12345" shouldEqual "12345"
+    Region(1, 3) of "12345" shouldEqual "234"
+    Region(1, 0) of "12345" shouldEqual ""
   }
 
 }

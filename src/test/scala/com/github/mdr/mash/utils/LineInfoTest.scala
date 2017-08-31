@@ -42,5 +42,22 @@ class LineInfoTest extends FlatSpec with Matchers {
     info.lines shouldEqual Seq("abc", "")
     info.lineRegions shouldEqual Seq(Region(0, 3), Region(4, 0))
   }
-  
+
+  it should "locate empty line regions correctly" in {
+    val s = """|abc
+               |
+               |
+               |
+               |
+               |def""".stripMargin
+    val info = new LineInfo(s)
+    info.lines shouldEqual Seq("abc", "", "", "", "", "def")
+    info.lineRegions shouldEqual Seq(
+      Region(0, 3),
+      Region(4, 0),
+      Region(5, 0),
+      Region(6, 0),
+      Region(7, 0),
+      Region(8, 3))
+  }
 }

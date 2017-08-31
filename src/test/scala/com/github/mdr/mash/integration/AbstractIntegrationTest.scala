@@ -108,6 +108,8 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
       repl
     }
 
+    def newline() = handleAction(Newline)
+
     def assistInvocation(): Repl = {
       repl.handleAction(AssistInvocation)
       repl

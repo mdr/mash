@@ -16,24 +16,45 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
   }
 
   "Rendering the initial empty REPL" should "wrap if insufficient terminal width" in {
-    val screen = makeRepl(terminal = DummyTerminal(rows = 3)).render
+    val repl = makeRepl(terminal = DummyTerminal(columns = 3))
 
-    screen.lines.map(getText) shouldEqual Seq(
-      "[0]",
-      " ~ ",
-      "$ ")
+    repl.getText shouldEqual
+      """[0]
+        | ~
+        |$ """.stripMargin
   }
 
   "Multiple lines" should "be indented with dots under the prefix" in {
-    val screen = makeRepl()
+    val repl = makeRepl()
       .input("{").enter()
       .input("  42").enter()
-      .input("}").render
+      .input("}")
 
-    screen.lines.map(getText) shouldEqual Seq(
-      "[0] ~ $ {",
-      ".......   42",
-      "....... }")
+    repl.getText shouldEqual
+      """[0] ~ $ {
+        |.......   42
+        |....... }""".stripMargin
+  }
+
+  "Empty lines" should "be rendered in browser expression editor" in {
+    makeRepl()
+      .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
+      .affirmInTwoDBrowser
+      .beginExpression()
+      .newline()
+      .newline()
+      .newline()
+      .input("XXX")
+      .repl
+      .getText shouldEqual
+      """r0
+        |
+        |
+        |XXX
+        |║ │0│1│2║
+        |║ │1│3│4║
+        |╚═╧═╧═╧═╝
+        |↩ done""".stripMargin
   }
 
   private def getText(line: Line): String = line.string.forgetStyling

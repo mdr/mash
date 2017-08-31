@@ -28,7 +28,7 @@ object TwoDTableModelCreator {
     val percentageShared = if (allFields.isEmpty) 0.0 else sharedFields.size.toDouble / allFields.size
     percentageShared > 0.75
   }
-  
+
 }
 
 class TwoDTableModelCreator(terminalSize: Dimensions,

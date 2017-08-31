@@ -21,6 +21,8 @@ case class Line(string: StyledString, endsInNewline: Boolean = true) {
     else
       this
 
+  def isEmpty: Boolean = string.isEmpty
+
 }
 
 case class Screen(lines: Seq[Line],

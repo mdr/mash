@@ -4,7 +4,7 @@ import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, _ }
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point, Region }
 
@@ -39,7 +39,7 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
   }
 
   private def wrap(line: Line, columns: Int, selectionWraps: Boolean = false): Seq[Line] = {
-    val groups = line.string.grouped(columns).toSeq
+    val groups = if (line.isEmpty) Seq(line.string) else line.string.grouped(columns).toSeq
     for {
       (group, index) ← groups.zipWithIndex
       isLastGroup = index == groups.size - 1

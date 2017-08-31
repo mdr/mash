@@ -11,6 +11,6 @@ object DummyTerminal {
 case class DummyTerminal(override val rows: Int = DummyTerminal.SufficientlyLargeTerminalSize.rows,
                          override val columns: Int = DummyTerminal.SufficientlyLargeTerminalSize.columns) extends Terminal {
 
-  override def size = Dimensions(columns, rows)
+  override def size = Dimensions(rows, columns)
 
 }
