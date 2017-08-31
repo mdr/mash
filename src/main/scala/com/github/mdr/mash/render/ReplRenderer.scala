@@ -45,13 +45,12 @@ class ReplRenderer(fileSystem: FileSystem,
     val CompletionRenderResult(completionLines) =
       CompletionRenderer.renderCompletions(state.completionStateOpt, remainingSpace)
     val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
-    val truncatedLines = lines.take(terminalSize.rows)
     val newCursorPosOpt = historySearchLinesAndCursorPosOpt match {
       case Some(LinesAndCursorPos(_, cursorPosOpt)) ⇒ cursorPosOpt.map(_.down(bufferLines.size))
       case None                                     ⇒ bufferCursorPosOpt
     }
     val title = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
-    Screen(truncatedLines, newCursorPosOpt, title)
+    Screen(lines, newCursorPosOpt, title)
   }
 
   private def getMashRenderingContext(state: ReplState): MashRenderingContext =

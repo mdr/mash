@@ -2,7 +2,6 @@ package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.ValueBrowserState
-import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
@@ -34,8 +33,8 @@ class ValueBrowserRenderer(state: ValueBrowserState, terminalSize: Dimensions, m
 
   private def renderStatusLine: Line =
     state.expressionStateOpt match {
-      case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
-      case None                  ⇒ renderRegularStatusLine
+      case Some(_) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
+      case None    ⇒ renderRegularStatusLine
     }
 
   protected val windowSize = terminalSize.rows - 2 // two status lines

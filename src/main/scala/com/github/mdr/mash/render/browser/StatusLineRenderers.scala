@@ -9,7 +9,7 @@ object StatusLineRenderers {
 
   import KeyHint._
 
-  def renderExpressionInputStatusLine: Line = Line(renderKeyHints(Seq(DoneSearch)))
+  def renderExpressionInputStatusLine: Line = Line(renderKeyHints(Seq(Quit, DoneSearch)))
 
   def renderIncrementalSearchStatusLine(currentRow: Int, searchState: SearchState): Line = {
     val hits = searchState.rows
