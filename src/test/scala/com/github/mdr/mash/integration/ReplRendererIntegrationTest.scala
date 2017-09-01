@@ -54,7 +54,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
         |║ │0│1│2║
         |║ │1│3│4║
         |╚═╧═╧═╧═╝
-        |↩ done""".stripMargin
+        |⌃g quit, ↩ done""".stripMargin
   }
 
   private def getText(line: Line): String = line.string.forgetStyling
