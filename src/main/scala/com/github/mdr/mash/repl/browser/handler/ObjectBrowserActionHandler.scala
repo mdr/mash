@@ -19,6 +19,22 @@ import com.github.mdr.mash.utils.Utils.indexOf
 
 import scala.PartialFunction.condOpt
 
+object ObjectBrowserActionHandler {
+
+  def getSelectedPath(browserState: BrowserState): Option[Path] =
+    for {
+      selectionInfo ← browserState.selectionInfoOpt
+      path ← getPath(selectionInfo.rawObject)
+    } yield path
+
+  private def getPath(value: MashValue): Option[Path] =
+    condOpt(value) {
+      case s: MashString                                             ⇒ Paths.get(s.s)
+      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
+    }
+
+}
+
 trait ObjectBrowserActionHandler
   extends TextLinesBrowserActionHandler
     with ValueBrowserActionHandler
@@ -29,6 +45,8 @@ trait ObjectBrowserActionHandler
     with ExpressionActionHandler {
   self: Repl ⇒
 
+  import ObjectBrowserActionHandler._
+  
   private def updateObjectBrowserStateStack(f: ObjectBrowserStateStack ⇒ Option[ObjectBrowserStateStack]) =
     state.objectBrowserStateStackOpt.foreach { stack ⇒
       state = state.copy(objectBrowserStateStackOpt = f(stack))
@@ -49,13 +67,6 @@ trait ObjectBrowserActionHandler
     for (selectionInfo ← browserState.selectionInfoOpt)
       focus(selectionInfo.rawObject, selectionInfo.path, tree)
 
-  private def getSelectedPath(browserState: BrowserState): Option[Path] =
-    for {
-      selectionInfo ← browserState.selectionInfoOpt
-      value = selectionInfo.rawObject
-      path ← getPath(value)
-    } yield path
-
   protected def focusDirectory(browserState: BrowserState): Unit =
     for {
       path ← getSelectedPath(browserState)
@@ -69,13 +80,7 @@ trait ObjectBrowserActionHandler
       if Files.isRegularFile(path)
       escapedPath = StringEscapes.escapeChars(path.toString)
     } acceptReplacementExpression(s""""$escapedPath".readLines""")
-
-  private def getPath(value: MashValue): Option[Path] =
-    condOpt(value) {
-      case s: MashString                                             ⇒ Paths.get(s.s)
-      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
-    }
-
+  
   protected def focus(value: MashValue, path: String, tree: Boolean): Unit =
     navigateForward(getNewBrowserState(value, path, tree))
 
