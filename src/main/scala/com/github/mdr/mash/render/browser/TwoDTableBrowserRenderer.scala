@@ -32,9 +32,10 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState,
     val selectedPathOpt = ObjectBrowserActionHandler.getSelectedPath(state)
     val isDir = selectedPathOpt.exists(Files.isDirectory(_))
     val isFile = selectedPathOpt.exists(Files.isRegularFile(_))
-    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy) ++ 
-      isDir.option(Dir) ++ 
-      isFile.option(Read) ++ Seq(NextParentResult, PreviousParentResult) ++
+    val hints = Seq(Exit, Mark, Focus, Back, Insert, InsertWhole, Tree, Search, Expression, Open, Copy) ++
+      isDir.option(Dir) ++
+      isFile.option(Read) ++
+      Seq(NextParentResult, PreviousParentResult) ++
       state.currentColumnOpt.toSeq.flatMap(_ ⇒ Seq(Row, HideColumn))
     val countChars = s"${currentRow + 1}/${model.rows.size}".style(Style(inverse = true))
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)

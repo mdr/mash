@@ -49,7 +49,7 @@ case class Screen(lines: Seq[Line],
 
   def truncate(terminalSize: Dimensions): Screen = {
     val newLines = lines.take(terminalSize.rows).map(_.truncate(terminalSize.columns))
-    val newCursorPosOpt = cursorPosOpt.filterNot(p ⇒ p.column >= terminalSize.columns || p.row >= terminalSize.rows)
+    val newCursorPosOpt = cursorPosOpt.filter(terminalSize.contains)
     copy(lines = newLines, cursorPosOpt = newCursorPosOpt)
   }
 

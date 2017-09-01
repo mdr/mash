@@ -36,19 +36,26 @@ class ReplRenderer(fileSystem: FileSystem,
     val mashRenderingContext = getMashRenderingContext(state)
     val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
       new LineBufferRenderer(envInteractions, fileSystem).renderLineBuffer(state, terminalSize, mashRenderingContext)
+
     val historySearchLinesAndCursorPosOpt = state.incrementalHistorySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))
     val historySearchLines = historySearchLinesAndCursorPosOpt.map(_.lines).getOrElse(Seq())
+
+    val newCursorPosOpt: Option[Point] = 
+      historySearchLinesAndCursorPosOpt
+        .flatMap(_.cursorPosOpt)
+        .map(_.down(bufferLines.size))
+        .orElse(bufferCursorPosOpt)
+    
     val assistanceLines = renderAssistanceState(state.assistanceStateOpt, terminalSize)
-    val remainingRows = math.max(0, terminalSize.rows - bufferLines.size - assistanceLines.size - historySearchLines.size)
+
+    val remainingRows = 0 max terminalSize.rows - bufferLines.size - assistanceLines.size - historySearchLines.size
     val remainingSpace = terminalSize.copy(rows = remainingRows)
     val CompletionRenderResult(completionLines) =
       CompletionRenderer.renderCompletions(state.completionStateOpt, remainingSpace)
-    val lines = bufferLines ++ historySearchLines ++ completionLines ++ assistanceLines
-    val newCursorPosOpt = historySearchLinesAndCursorPosOpt match {
-      case Some(LinesAndCursorPos(_, cursorPosOpt)) ⇒ cursorPosOpt.map(_.down(bufferLines.size))
-      case None                                     ⇒ bufferCursorPosOpt
-    }
+
+    val lines = bufferLines ++ historySearchLines ++ assistanceLines ++ completionLines
+
     val title = new TildeExpander(envInteractions).retilde(fileSystem.pwd.toString)
     Screen(lines, newCursorPosOpt, title)
   }
@@ -82,7 +89,7 @@ class ReplRenderer(fileSystem: FileSystem,
       case browserState: ValueBrowserState             ⇒ renderValueBrowser(browserState, mashRenderingContext)
       case browserState: TextLinesBrowserState         ⇒ renderTextLinesBrowserState(browserState, mashRenderingContext)
       case browserState: HelpBrowserState              ⇒ renderHelpBrowserState(browserState, mashRenderingContext)
-      case browserState                                ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
+      case _                                           ⇒ throw new RuntimeException(s"Unknown browser state of type: ${state.getClass.getSimpleName}")
     }
 
   private def renderAssistanceState(assistanceStateOpt: Option[AssistanceState], terminalSize: Dimensions): Seq[Line] =

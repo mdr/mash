@@ -25,8 +25,8 @@ object KeyHint {
   val Read = KeyHint(BasicKey('r'), "read")
   val Open = KeyHint(BasicKey('o'), "open")
   val Copy = KeyHint(BasicKey('c'), "copy")
-  val NextParentResult = KeyHint(BasicKey('N'), "next parent")
-  val PreviousParentResult = KeyHint(BasicKey('P'), "prev parent")
+  val NextParentResult = KeyHint(BasicKey('N'), "next prnt")
+  val PreviousParentResult = KeyHint(BasicKey('P'), "prev prnt")
   
   val NextHit = KeyHint(control('n'), "next")
   val PreviousHit = KeyHint(control('p'), "prev")

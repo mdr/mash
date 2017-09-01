@@ -11,9 +11,9 @@ import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
 
 import scala.collection.mutable.ArrayBuffer
 
-case class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState,
-                                     terminalSize: Dimensions,
-                                     mashRenderingContext: MashRenderingContext)
+class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState,
+                                terminalSize: Dimensions,
+                                mashRenderingContext: MashRenderingContext)
   extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderLines: LinesAndCursorPos = {

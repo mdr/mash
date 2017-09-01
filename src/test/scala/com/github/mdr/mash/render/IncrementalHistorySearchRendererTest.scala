@@ -38,12 +38,4 @@ class IncrementalHistorySearchRendererTest extends RendererTest {
     getText(line3) shouldEqual expectedHintLine
   }
 
-  it should "truncate with ellipses if there is insufficient width, and not display a cursor" in {
-    val state = IncrementalHistorySearchState("searchString", "", BeforeFirstHit)
-    val LinesAndCursorPos(Seq(line1, line2), cursorPosOpt) = renderHistorySearchState(state, SufficientlyLargeTerminalSize.withColumns(5))
-    getText(line1) shouldEqual "Incr…"
-    getText(line2) shouldEqual "↑ ne…"
-    cursorPosOpt shouldEqual None
-  }
-
 }

@@ -10,7 +10,6 @@ import com.github.mdr.mash.repl.IncrementalHistorySearchState
 import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ Hit, HitStatus }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
-import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point, StyledStringUtils }
 
 object IncrementalHistorySearchRenderer {
@@ -22,10 +21,10 @@ object IncrementalHistorySearchRenderer {
     val searchString = searchState.searchString.style(SearchStringStyle)
     val chars = prefix + searchString
     val searchLine = Line(chars)
-    val cursorPosOpt = (chars.size < terminalSize.columns).option(Point(0, chars.size))
+    val cursorPosOpt = Some(Point(0, chars.size))
 
     val hintLine = renderHitLine(searchState.hitStatus)
-    val lines = (Seq(searchLine) ++ hintLine ++ Seq(keyHintLine(searchState))).map(truncateIfNecessary(_, terminalSize))
+    val lines = Seq(searchLine) ++ hintLine ++ Seq(keyHintLine(searchState))
     LinesAndCursorPos(lines, cursorPosOpt)
   }
 
