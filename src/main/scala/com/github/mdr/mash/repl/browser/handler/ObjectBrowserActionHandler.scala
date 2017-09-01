@@ -11,7 +11,7 @@ import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.RedrawScreen
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.Rerender
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions._
 import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }
 import com.github.mdr.mash.repl.{ LineBuffer, _ }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
@@ -109,6 +109,7 @@ trait ObjectBrowserActionHandler
       val newState = TwoDTableBrowserState(model, path = browserState.path)
       updateState(newState)
     }
+
     browserState.rawValue match {
       case obj: MashObject if obj.immutableFields.values.forall(v ⇒ v.isAnObject || v.isAList) ⇒
         view2D(obj)
@@ -231,5 +232,20 @@ trait ObjectBrowserActionHandler
     } yield ItemAndPath(newItem, newPath)
 
   protected def terminalRows: Int = terminal.size.rows
+
+  protected def commonBrowserActionHandler(browserState: BrowserState): PartialFunction[InputAction, Unit] = {
+    case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
+    case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
+    case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
+    case Open                            ⇒ handleOpenItem(browserState)
+    case Copy                            ⇒ handleCopyItem(browserState)
+    case Back                            ⇒ navigateBack()
+    case Focus                           ⇒ focus(browserState)
+    case FocusDirectory                  ⇒ focusDirectory(browserState)
+    case ReadFile                        ⇒ readFile(browserState)
+    case InsertItem                      ⇒ handleInsertItem(browserState)
+    case InsertWholeItem                 ⇒ handleInsertWholeItem(browserState)
+    case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
+  }
 
 }

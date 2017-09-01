@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.browser.handler
 import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, _ }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, _ }
 import com.github.mdr.mash.repl.browser.{ SearchState, SingleObjectTableBrowserState }
 
 trait SingleObjectTableBrowserActionHandler {
@@ -18,32 +18,23 @@ trait SingleObjectTableBrowserActionHandler {
     }
 
   private def handleDefaultSingleObjectTableBrowserAction(action: InputAction, browserState: SingleObjectTableBrowserState): Unit =
-    action match {
-      case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
-      case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
-      case NextPage                        ⇒ updateState(browserState.nextPage(terminalRows))
-      case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
-      case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
-      case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
-      case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
-      case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
-      case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
-      case Focus                           ⇒ focus(browserState)
-      case FocusDirectory                  ⇒ focusDirectory(browserState)
-      case ReadFile                        ⇒ readFile(browserState)
-      case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
-      case Back                            ⇒ navigateBack()
-      case InsertItem                      ⇒ handleInsertItem(browserState)
-      case InsertWholeItem                 ⇒ handleInsertWholeItem(browserState)
-      case Open                            ⇒ handleOpenItem(browserState)
-      case Copy                            ⇒ handleCopyItem(browserState)
-      case ViewAsTree                      ⇒ viewAsTree(browserState)
-      case View1D                          ⇒ view1D(browserState)
-      case View2D                          ⇒ view2D(browserState)
-      case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
-      case _                               ⇒
-    }
+    commonBrowserActionHandler(browserState)
+      .orElse(singleObjectTableBrowserActionHandler(browserState))
+      .lift(action)
+
+  private def singleObjectTableBrowserActionHandler(browserState: SingleObjectTableBrowserState): PartialFunction[InputAction, Unit] = {
+    case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
+    case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
+    case NextPage                        ⇒ updateState(browserState.nextPage(terminalRows))
+    case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
+    case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
+    case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
+    case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
+    case ViewAsTree                      ⇒ viewAsTree(browserState)
+    case View1D                          ⇒ view1D(browserState)
+    case View2D                          ⇒ view2D(browserState)
+    case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
+  }
 
   private def handleIncrementalSearchAction(action: InputAction, browserState: SingleObjectTableBrowserState, searchState: SearchState): Unit = {
     import IncrementalSearch._

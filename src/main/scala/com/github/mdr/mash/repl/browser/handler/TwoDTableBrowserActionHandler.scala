@@ -4,7 +4,7 @@ import com.github.mdr.mash.input.InputAction
 import com.github.mdr.mash.printer.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, Focus, PreviousPage, _ }
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, PreviousPage, _ }
 import com.github.mdr.mash.repl.browser.{ SearchState, TwoDTableBrowserState }
 
 trait TwoDTableBrowserActionHandler {
@@ -32,39 +32,30 @@ trait TwoDTableBrowserActionHandler {
     }
   }
 
-  protected def handleDefaultTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState) =
-    action match {
-      case NextColumn                      ⇒ updateState(browserState.nextColumn)
-      case PreviousColumn                  ⇒ updateState(browserState.previousColumn)
-      case UnfocusColumn                   ⇒ updateState(browserState.unfocusColumn)
-      case FirstColumn                     ⇒ updateState(browserState.lastColumn)
-      case LastColumn                      ⇒ updateState(browserState.firstColumn)
-      case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
-      case NextPage                        ⇒ updateState(browserState.nextPage(terminalRows))
-      case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
-      case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
-      case NextParentItem                  ⇒ selectParentItem(browserState, delta = 1)
-      case PreviousParentItem              ⇒ selectParentItem(browserState, delta = -1)
-      case ExitBrowser                     ⇒ state = state.copy(objectBrowserStateStackOpt = None)
-      case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
-      case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
-      case InsertItem                      ⇒ handleInsertItem(browserState)
-      case InsertWholeItem                 ⇒ handleInsertWholeItem(browserState)
-      case Open                            ⇒ handleOpenItem(browserState)
-      case Copy                            ⇒ handleCopyItem(browserState)
-      case Back                            ⇒ navigateBack()
-      case Focus                           ⇒ focus(browserState)
-      case FocusDirectory                  ⇒ focusDirectory(browserState)
-      case ReadFile                        ⇒ readFile(browserState)
-      case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
-      case ViewAsTree                      ⇒ viewAsTree(browserState)
-      case View1D                          ⇒ view1D(browserState)
-      case View2D                          ⇒ view2D(browserState)
-      case HideColumn                      ⇒ handleHideColumn(browserState)
-      case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
-      case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
-      case _                               ⇒
-    }
+  private def twoDTableBrowserActionHandler(browserState: TwoDTableBrowserState): PartialFunction[InputAction, Unit] = {
+    case NextColumn                      ⇒ updateState(browserState.nextColumn)
+    case PreviousColumn                  ⇒ updateState(browserState.previousColumn)
+    case UnfocusColumn                   ⇒ updateState(browserState.unfocusColumn)
+    case FirstColumn                     ⇒ updateState(browserState.lastColumn)
+    case LastColumn                      ⇒ updateState(browserState.firstColumn)
+    case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
+    case NextPage                        ⇒ updateState(browserState.nextPage(terminalRows))
+    case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
+    case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
+    case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
+    case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
+    case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
+    case ViewAsTree                      ⇒ viewAsTree(browserState)
+    case View1D                          ⇒ view1D(browserState)
+    case View2D                          ⇒ view2D(browserState)
+    case HideColumn                      ⇒ handleHideColumn(browserState)
+    case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
+  }
+
+  protected def handleDefaultTwoDTableBrowserAction(action: InputAction, browserState: TwoDTableBrowserState): Unit =
+    commonBrowserActionHandler(browserState)
+      .orElse(twoDTableBrowserActionHandler(browserState))
+      .lift(action)
 
   private def unsearch(browserState: TwoDTableBrowserState, searchState: SearchState) =
     if (searchState.query.nonEmpty)
@@ -84,4 +75,3 @@ trait TwoDTableBrowserActionHandler {
   }
 
 }
-
