@@ -25,9 +25,9 @@ class ObjectTreeBrowserRenderer(state: ObjectTreeBrowserState,
 
   private class Printer() {
 
-    private val lines: ArrayBuffer[Line] = ArrayBuffer()
+    private val lines = ArrayBuffer[Line]()
 
-    private var line: StyledString = StyledString.Empty
+    private var line = StyledString.Empty
 
     def println() {
       lines += Line(line)
