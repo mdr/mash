@@ -52,7 +52,7 @@ class CommandRunner(output: PrintStream,
 
   private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
     val printer = new Printer(output, terminalSize, viewConfig)
-    val PrintResult(displayModelOpt) = printer.print(result)
+    val PrintResult(displayModelOpt) = printer.printOrBrowse(result)
     CommandResult(Some(result), displayModelOpt = displayModelOpt)
   }
 

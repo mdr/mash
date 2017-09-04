@@ -14,4 +14,8 @@ object ObjectTreeNode {
 
 }
 
-case class ObjectTreeModel(root: ObjectTreeNode, rawValue: MashValue) extends DisplayModel
+case class ObjectTreeModel(root: ObjectTreeNode, rawValue: MashValue) extends DisplayModel {
+  
+  
+  
+}
