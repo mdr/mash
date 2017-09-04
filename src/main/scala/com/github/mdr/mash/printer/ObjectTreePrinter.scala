@@ -7,6 +7,7 @@ import com.github.mdr.mash.render.browser.ObjectTreeCommonRenderer
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.StyledStringDrawer
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.ViewConfig
 
 class ObjectTreePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {
 

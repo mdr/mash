@@ -8,7 +8,6 @@ import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
-import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.render.ReplRenderer
 import com.github.mdr.mash.repl.browser.handler.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
@@ -20,6 +19,7 @@ import com.github.mdr.mash.screen.{ Screen, ScreenDraw, ScreenDrawer }
 import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.tips.Tips
+import com.github.mdr.mash.view.ViewConfig
 import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
 
 import scala.annotation.tailrec

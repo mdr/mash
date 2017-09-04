@@ -7,6 +7,7 @@ import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.{ Screen, StyledStringDrawer }
 import com.github.mdr.mash.render.browser.SingleObjectTableCommonRenderer
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.ViewConfig
 
 class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {
 

@@ -2,10 +2,10 @@ package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.render.help._
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.ViewConfig
 
 class HelpModelCreator(terminalSize: Dimensions,
                        viewConfig: ViewConfig) {

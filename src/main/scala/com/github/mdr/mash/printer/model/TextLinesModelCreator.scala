@@ -1,8 +1,8 @@
 package com.github.mdr.mash.printer.model
 
 import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.runtime.MashList
+import com.github.mdr.mash.view.ViewConfig
 
 class TextLinesModelCreator(viewConfig: ViewConfig) {
 

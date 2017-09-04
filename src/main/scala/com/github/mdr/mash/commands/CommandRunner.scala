@@ -6,11 +6,11 @@ import java.util.UUID
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
-import com.github.mdr.mash.printer.{ PrintResult, Printer, ViewConfig }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen.{ BasicColour, Screen, StyledStringDrawer }
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.{ ViewResult, Viewer, ViewConfig }
 import com.github.mdr.mash.{ DebugLogger, Singletons }
 
 class CommandRunner(output: PrintStream,
@@ -51,8 +51,8 @@ class CommandRunner(output: PrintStream,
     runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
 
   private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
-    val printer = new Printer(output, terminalSize, viewConfig)
-    val PrintResult(displayModelOpt) = printer.printOrBrowse(result)
+    val viewer = new Viewer(output, terminalSize, viewConfig)
+    val ViewResult(displayModelOpt) = viewer.view(result)
     CommandResult(Some(result), displayModelOpt = displayModelOpt)
   }
 

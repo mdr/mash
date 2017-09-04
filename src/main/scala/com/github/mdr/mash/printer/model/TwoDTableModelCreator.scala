@@ -6,6 +6,7 @@ import com.github.mdr.mash.printer._
 import com.github.mdr.mash.printer.model.TwoDTableModel.{ Cell, Column, Row, RowLabelColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.{ Dimensions, Utils }
+import com.github.mdr.mash.view.{ FieldRenderer, ViewConfig }
 
 import scala.PartialFunction.cond
 

@@ -1,12 +1,12 @@
 package com.github.mdr.mash.render
 
 import com.github.mdr.mash.completions.{ Completion, CompletionFragment, CompletionType }
-import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.repl.completions.{ BrowserCompletionState, CompletionState, IncrementalCompletionState }
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, StringUtils }
+import com.github.mdr.mash.view.Viewer
 
 import scala.PartialFunction._
 
@@ -106,7 +106,7 @@ object CompletionRenderer {
         val boxWidth = math.max(description.size + 4, title.size + 4) min terminalSize.columns
         val innerWidth = boxWidth - 4
         val displayTitle = StringUtils.ellipsisise(title, innerWidth)
-        val displayDescription = StringUtils.ellipsisise(Printer.replaceProblematicChars(description), innerWidth)
+        val displayDescription = StringUtils.ellipsisise(Viewer.replaceProblematicChars(description), innerWidth)
         Seq(
           Line(("┌─" + displayTitle + "─" * (innerWidth - displayTitle.length) + "─┐").style),
           Line(("│ " + displayDescription + " " * (innerWidth - displayDescription.length) + " │").style),

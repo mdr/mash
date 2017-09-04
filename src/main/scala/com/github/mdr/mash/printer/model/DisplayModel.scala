@@ -3,10 +3,10 @@ package com.github.mdr.mash.printer.model
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.help.{ FieldHelpClass, MethodHelpClass }
-import com.github.mdr.mash.printer.ViewConfig
 import com.github.mdr.mash.printer.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashValue }
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.ViewConfig
 
 trait DisplayModel
 

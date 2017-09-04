@@ -1,7 +1,7 @@
 package com.github.mdr.mash.printer.model
 
-import com.github.mdr.mash.printer.{ FieldRenderer, ViewConfig }
 import com.github.mdr.mash.runtime.MashValue
+import com.github.mdr.mash.view.{ FieldRenderer, ViewConfig }
 
 class ValueModelCreator(viewConfig: ViewConfig) {
 

@@ -4,13 +4,13 @@ import java.util.Date
 
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.printer.Printer
 import com.github.mdr.mash.render.KeyHint._
 import com.github.mdr.mash.repl.IncrementalHistorySearchState
 import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ Hit, HitStatus }
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.{ Dimensions, Point, StyledStringUtils }
+import com.github.mdr.mash.view.Viewer
 
 object IncrementalHistorySearchRenderer {
 
@@ -36,7 +36,7 @@ object IncrementalHistorySearchRenderer {
   private def renderHitLine(hitStatus: HitStatus): Option[Line] =
     hitStatus match {
       case Hit(resultIndex, _, timestamp, workingDirectory) ⇒
-        val time = Printer.prettyTime.format(Date.from(timestamp))
+        val time = Viewer.prettyTime.format(Date.from(timestamp))
         val directoryWithTilde = new TildeExpander(envInteractions).retilde(workingDirectory.toString)
         Some(Line(("Hit " + (resultIndex + 1) + ": " + time + " in " + directoryWithTilde).style(HitStyle)))
       case _                                                ⇒
