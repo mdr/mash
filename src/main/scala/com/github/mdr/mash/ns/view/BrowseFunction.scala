@@ -3,7 +3,7 @@ package com.github.mdr.mash.ns.view
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.runtime.MashObject
 
-object BrowserFunction extends MashFunction("view.browser") {
+object BrowseFunction extends MashFunction("view.browse") {
 
   object Params {
     val Data = Parameter(
@@ -21,6 +21,6 @@ object BrowserFunction extends MashFunction("view.browser") {
 
   override def typeInferenceStrategy = ViewClass
 
-  override def summaryOpt = Some("View data in the object browser, where possible")
+  override def summaryOpt = Some("View data in the object browser")
 
 }

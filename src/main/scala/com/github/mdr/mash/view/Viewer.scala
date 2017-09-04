@@ -40,7 +40,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
   case class PrintConfig(disableCustomViews: Boolean = false,
                          alwaysUseBrowser: Boolean = false,
                          alwaysUseTree: Boolean = false,
-                         printTree: Boolean = false)
+                         alwaysPrint: Boolean = false)
 
   private def done = ViewResult()
 
@@ -51,27 +51,27 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
     if (printConfig.alwaysUseBrowser) {
       val model = DisplayModel.getDisplayModel(value, viewConfig, terminalSize)
       ViewResult(Some(model))
-    } else if (printConfig.printTree) {
+    } else if (printConfig.alwaysPrint) {
       new ObjectTreePrinter(output, terminalSize, viewConfig).print(value)
       done
     } else {
       value match {
         case _: MashList | _: MashObject if printConfig.alwaysUseTree                                    ⇒
-          printOrBrowserTree(value)
+          viewTree(value)
         case _ if isSuitableForTwoDTable(value)                                                          ⇒
-          view(value)
+          view2D(value)
         case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                       ⇒
-          printOrBrowseTextLines(xs)
+          viewTextLines(xs)
         case f: MashFunction if !printConfig.disableCustomViews                                          ⇒
-          view(f)
+          viewHelp(f)
         case klass: MashClass if !printConfig.disableCustomViews                                         ⇒
-          view(klass)
+          viewHelp(klass)
         case obj: MashObject if obj.classOpt == Some(MethodHelpClass)                                    ⇒
-          printOrBrowseHelp(obj)
+          viewHelp(obj)
         case obj: MashObject if obj.classOpt == Some(FieldHelpClass)                                     ⇒
-          printOrBrowseHelp(obj)
+          viewHelp(obj)
         case obj: MashObject if obj.classOpt == Some(ViewClass)                                          ⇒
-          printOrBrowseWithView(obj)
+          viewWithView(obj)
         case obj: MashObject if obj.classOpt == Some(MethodHelpClass) && !printConfig.disableCustomViews ⇒
           helpPrinter.printMethodHelp(obj)
           done
@@ -82,7 +82,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
           new GitStatusPrinter(output).print(obj)
           done
         case obj: MashObject if obj.nonEmpty                                                             ⇒
-          view(obj)
+          viewSingleObject(obj)
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                   ⇒
           done // Don't print out sequence of unit
         case method: BoundMethod if !printConfig.disableCustomViews                                      ⇒
@@ -96,7 +96,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
       }
     }
 
-  private def printOrBrowserTree(value: MashValue) = {
+  private def viewTree(value: MashValue) = {
     val model = new ObjectTreeModelCreator(viewConfig).create(value)
     val commonRenderer = new ObjectTreeCommonRenderer(model, selectionPathOpt = None, terminalSize)
     val lines = commonRenderer.renderTableLines
@@ -109,46 +109,48 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
     }
   }
 
-  private def printOrBrowseWithView(obj: MashObject): ViewResult = {
+  private def viewWithView(obj: MashObject): ViewResult = {
     val viewConfig = ViewClass.Wrapper(obj)
     val printConfig = PrintConfig(
       disableCustomViews = viewConfig.disableCustomViews,
       alwaysUseBrowser = viewConfig.useBrowser,
       alwaysUseTree = viewConfig.useTree,
-      printTree = viewConfig.printTree)
+      alwaysPrint = viewConfig.print)
     view(viewConfig.data, printConfig)
   }
 
-  private def printOrBrowseTextLines(xs: MashList): ViewResult =
-    if (xs.length > terminalSize.rows - 1 && viewConfig.browseLargeOutput) {
+  private def viewTextLines(xs: MashList): ViewResult = {
+    val tooBig = xs.length > terminalSize.rows - 1
+    if (tooBig && viewConfig.browseLargeOutput) {
       val model = new TextLinesModelCreator(viewConfig).create(xs)
       browse(model)
     } else {
       xs.elements.foreach(output.println)
       done
     }
+  }
 
-  private def printOrBrowseHelp(obj: MashObject): ViewResult = {
+  private def viewHelp(obj: MashObject): ViewResult = {
     val model =
       obj.classOpt match {
         case Some(MethodHelpClass) ⇒ new HelpModelCreator(terminalSize, viewConfig).createForMethod(obj)
         case Some(FieldHelpClass)  ⇒ new HelpModelCreator(terminalSize, viewConfig).createForField(obj)
         case _                     ⇒ throw new IllegalArgumentException(s"Unknown help object: $obj")
       }
-    view(model)
+    viewHelp(model)
   }
 
-  private def view(klass: MashClass): ViewResult = {
+  private def viewHelp(klass: MashClass): ViewResult = {
     val model = new HelpModelCreator(terminalSize, viewConfig).createForClass(klass)
-    view(model)
+    viewHelp(model)
   }
 
-  private def view(f: MashFunction): ViewResult = {
+  private def viewHelp(f: MashFunction): ViewResult = {
     val model = new HelpModelCreator(terminalSize, viewConfig).createForFunction(f)
-    view(model)
+    viewHelp(model)
   }
 
-  private def view(model: HelpModel): ViewResult = {
+  private def viewHelp(model: HelpModel): ViewResult = {
     val tooBig = model.lines.size > terminalSize.rows - 1
     if (tooBig && viewConfig.browseLargeOutput)
       browse(model)
@@ -159,10 +161,11 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
     }
   }
 
-  private def view(obj: MashObject): ViewResult = {
+  private def viewSingleObject(obj: MashObject): ViewResult = {
     val size = obj.size
     val nonDataRows = 2 // 1 header rows + 1 footer
-    if (size > terminalSize.rows - nonDataRows - 1 && viewConfig.browseLargeOutput) {
+    val tooBig = size > terminalSize.rows - nonDataRows - 1 && viewConfig.browseLargeOutput
+    if (tooBig) {
       val model = new SingleObjectTableModelCreator(terminalSize, supportMarking = true, viewConfig).create(obj)
       browse(model)
     } else {
@@ -171,13 +174,14 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
     }
   }
 
-  private def view(value: MashValue): ViewResult = {
+  private def view2D(value: MashValue): ViewResult = {
     val size = value match {
       case xs: MashList    ⇒ xs.size
       case obj: MashObject ⇒ obj.size
     }
     val nonDataRows = 4 // 3 header rows + 1 footer
-    if (size > terminalSize.rows - nonDataRows - 1 && viewConfig.browseLargeOutput) {
+    val tooBig = size > terminalSize.rows - nonDataRows - 1
+    if (tooBig && viewConfig.browseLargeOutput) {
       val model = new TwoDTableModelCreator(terminalSize, supportMarking = true, viewConfig).create(value)
       browse(model)
     } else {

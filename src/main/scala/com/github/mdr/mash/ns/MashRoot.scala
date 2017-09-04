@@ -12,7 +12,7 @@ import com.github.mdr.mash.ns.git.remote
 import com.github.mdr.mash.ns.maths.StatsClass
 import com.github.mdr.mash.ns.os.{ WithinFunction, GroupClass ⇒ _, _ }
 import com.github.mdr.mash.ns.time._
-import com.github.mdr.mash.ns.view.{ ViewClass, _ }
+import com.github.mdr.mash.ns.view.ViewClass
 import org.apache.commons.lang3.SystemUtils
 
 object MashRoot {
@@ -41,7 +41,11 @@ object MashRoot {
   lazy private val OtherFunctions =
     GitNamespace.GitFunctions ++
       MathsFunctions ++
-      Seq(BrowserFunction, RawFunction, TreeFunction, PrintTreeFunction) ++
+      Seq(
+        view.BrowseFunction,
+        view.RawFunction,
+        view.TreeFunction,
+        view.PrintFunction) ++
       Seq(csv.WriteFunction) ++
       Seq(
         xml.ReadFunction,

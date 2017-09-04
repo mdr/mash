@@ -7,7 +7,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "2D table browser" should "allow column selection" in {
     val twoDBrowser =
       makeRepl()
-        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
+        .input("view.browse [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
         .affirmInTwoDBrowser
     twoDBrowser.currentRow should equal(0)
     twoDBrowser.currentColumnOpt should equal(None)
@@ -19,7 +19,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "Browser" should "allow moving backwards and forwards through parent item list" in {
     val browser =
       makeRepl()
-        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }, { a: 5, b: 6 }]")
+        .input("view.browse [{ a: 1, b: 2 }, { a: 3, b: 4 }, { a: 5, b: 6 }]")
         .enter()
         .affirmInTwoDBrowser
         .focus()
@@ -50,7 +50,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "Browser" should "allow moving backwards and forwards through parent fields" in {
     val browser =
       makeRepl()
-        .input("view.browser { first: { a: 1, b: 2 }, 'second-item': { a: 3, b: 4 } }")
+        .input("view.browse { first: { a: 1, b: 2 }, 'second-item': { a: 3, b: 4 } }")
         .enter()
         .affirmInTwoDBrowser
         .focus()
@@ -69,7 +69,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "Browser" should "allow navigation to a follow-on expression" in {
     var browser =
       makeRepl()
-        .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]")
+        .input("view.browse [{ a: 1, b: 2 }, { a: 3, b: 4 }]")
         .enter()
         .affirmInTwoDBrowser
         .beginExpression()
@@ -87,7 +87,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
   "Browser" should "allow replacement expression" in {
     val browser =
       makeRepl()
-        .input("view.browser [{ a: 1, b: 2 }]")
+        .input("view.browse [{ a: 1, b: 2 }]")
         .enter()
         .affirmInTwoDBrowser
         .beginExpression()
@@ -101,7 +101,7 @@ class BrowserIntegrationTest extends AbstractIntegrationTest {
 
   "Expression browser" should "support copy and paste" in {
     val browser = makeRepl()
-      .input("view.browser [{ a: 1, b: 2 }]")
+      .input("view.browse [{ a: 1, b: 2 }]")
       .enter()
       .affirmInTwoDBrowser
       .beginExpression()

@@ -38,7 +38,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
 
   "Empty lines" should "be rendered in browser expression editor" in {
     makeRepl()
-      .input("view.browser [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
+      .input("view.browse [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
       .affirmInTwoDBrowser
       .beginExpression()
       .newline()

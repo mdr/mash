@@ -19,7 +19,7 @@ object ViewClass extends MashClass("view.View") {
     val DisableCustomViews = Field("disableCustomViews", Some("If true, disable custom views for this data"), BooleanClass)
     val UseBrowser = Field("useBrowser", Some("If true, always use the object browser where possible"), BooleanClass)
     val UseTree = Field("useTree", Some("If true, always use the tree object browser where possible"), BooleanClass)
-    val PrintTree = Field("printTree", Some("If true, print the tree"), BooleanClass)
+    val Print = Field("printTree", Some("If true, print the tree"), BooleanClass)
   }
 
   import Fields._
@@ -33,7 +33,7 @@ object ViewClass extends MashClass("view.View") {
 
     def useTree: Boolean = getBooleanField(UseTree)
     
-    def printTree: Boolean = getBooleanField(PrintTree)
+    def print: Boolean = getBooleanField(Print)
 
     def data = getField(Data)
   }
@@ -42,13 +42,13 @@ object ViewClass extends MashClass("view.View") {
             disableCustomViews: Boolean = false,
             useBrowser: Boolean = false,
             useTree: Boolean = false,
-            printTree: Boolean = false) =
+            print: Boolean = false) =
     MashObject.of(ListMap(
       Data -> data,
       DisableCustomViews -> MashBoolean(disableCustomViews),
       UseBrowser -> MashBoolean(useBrowser),
       UseTree -> MashBoolean(useTree),
-      PrintTree -> MashBoolean(printTree)), ViewClass)
+      Print -> MashBoolean(print)), ViewClass)
 
   override val staticMethods = Seq(NewStaticMethod(this))
 

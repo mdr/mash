@@ -217,7 +217,7 @@ class MiscIntegrationTest extends AbstractIntegrationTest {
   "Invocation assistance" should "work in expression browser" in {
     val repl =
       makeRepl()
-        .input("view.browser [{ foo: 42 }]")
+        .input("view.browse [{ foo: 42 }]")
         .enter()
         .affirmInTwoDBrowser
         .beginExpression()
