@@ -19,7 +19,7 @@ object ViewClass extends MashClass("view.View") {
     val DisableCustomViews = Field("disableCustomViews", Some("If true, disable custom views for this data"), BooleanClass)
     val UseBrowser = Field("useBrowser", Some("If true, always use the object browser where possible"), BooleanClass)
     val UseTree = Field("useTree", Some("If true, always use the tree object browser where possible"), BooleanClass)
-    val Print = Field("printTree", Some("If true, print the tree"), BooleanClass)
+    val Print = Field("print", Some("If true, print"), BooleanClass)
   }
 
   import Fields._
@@ -43,12 +43,23 @@ object ViewClass extends MashClass("view.View") {
             useBrowser: Boolean = false,
             useTree: Boolean = false,
             print: Boolean = false) =
-    MashObject.of(ListMap(
-      Data -> data,
-      DisableCustomViews -> MashBoolean(disableCustomViews),
-      UseBrowser -> MashBoolean(useBrowser),
-      UseTree -> MashBoolean(useTree),
-      Print -> MashBoolean(print)), ViewClass)
+    data match {
+      case obj: MashObject if obj.classOpt == Some(ViewClass) ⇒
+        val wrapper = Wrapper(obj)
+        MashObject.of(ListMap(
+          Data -> wrapper.data,
+          DisableCustomViews -> MashBoolean(disableCustomViews || wrapper.disableCustomViews),
+          UseBrowser -> MashBoolean(useBrowser || wrapper.useBrowser),
+          UseTree -> MashBoolean(useTree || wrapper.useTree),
+          Print -> MashBoolean(print || wrapper.print)), ViewClass)
+      case value: MashValue ⇒
+        MashObject.of(ListMap(
+          Data -> data,
+          DisableCustomViews -> MashBoolean(disableCustomViews),
+          UseBrowser -> MashBoolean(useBrowser),
+          UseTree -> MashBoolean(useTree),
+          Print -> MashBoolean(print)), ViewClass)
+    }
 
   override val staticMethods = Seq(NewStaticMethod(this))
 
