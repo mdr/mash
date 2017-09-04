@@ -13,6 +13,7 @@ import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.StyledStringDrawer
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.common.ObjectTreeCommonRenderer
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true,
@@ -56,8 +57,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
     } else {
       value match {
         case _: MashList | _: MashObject if printConfig.alwaysUseTree                                    ⇒
-          val model = new ObjectTreeModelCreator(viewConfig).create(value)
-          browse(model)
+          printOrBrowserTree(value)
         case _ if isSuitableForTwoDTable(value)                                                          ⇒
           view(value)
         case xs: MashList if xs.nonEmpty && xs.forall(x ⇒ x.isAString || x.isNull)                       ⇒
@@ -95,6 +95,19 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
           done
       }
     }
+
+  private def printOrBrowserTree(value: MashValue) = {
+    val model = new ObjectTreeModelCreator(viewConfig).create(value)
+    val commonRenderer = new ObjectTreeCommonRenderer(model, selectionPathOpt = None, terminalSize)
+    val lines = commonRenderer.renderTableLines
+    if (lines.size > terminalSize.rows - 1)
+      browse(model)
+    else {
+      for (line ← lines)
+        output.println(StyledStringDrawer.drawStyledChars(line.string))
+      done
+    }
+  }
 
   private def printOrBrowseWithView(obj: MashObject): ViewResult = {
     val viewConfig = ViewClass.Wrapper(obj)
