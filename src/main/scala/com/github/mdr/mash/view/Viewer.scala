@@ -32,22 +32,24 @@ object Viewer {
 
 case class ViewResult(displayModelOpt: Option[DisplayModel] = None)
 
-class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig = ViewConfig()) {
+case class PrintConfig(disableCustomViews: Boolean = false,
+                       alwaysUseBrowser: Boolean = false,
+                       alwaysUseTree: Boolean = false,
+                       alwaysPrint: Boolean = false)
+
+case class Viewer(output: PrintStream,
+                  terminalSize: Dimensions,
+                  viewConfig: ViewConfig = ViewConfig(),
+                  printConfig: PrintConfig = PrintConfig()) {
 
   private val helpPrinter = new HelpPrinter(output)
   private val fieldRenderer = new FieldRenderer(viewConfig)
-
-  case class PrintConfig(disableCustomViews: Boolean = false,
-                         alwaysUseBrowser: Boolean = false,
-                         alwaysUseTree: Boolean = false,
-                         alwaysPrint: Boolean = false)
 
   private def done = ViewResult()
 
   private def browse(model: DisplayModel) = ViewResult(Some(model))
 
-  def view(value: MashValue,
-           printConfig: PrintConfig = PrintConfig()): ViewResult =
+  def view(value: MashValue): ViewResult =
     if (printConfig.alwaysUseBrowser) {
       val model = DisplayModel.getDisplayModel(value, viewConfig, terminalSize)
       ViewResult(Some(model))
@@ -86,7 +88,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
         case xs: MashList if xs.nonEmpty && xs.forall(_ == ((): Unit))                                   ⇒
           done // Don't print out sequence of unit
         case method: BoundMethod if !printConfig.disableCustomViews                                      ⇒
-          view(HelpCreator.getHelp(method), printConfig)
+          view(HelpCreator.getHelp(method))
         case MashUnit                                                                                    ⇒
           // Don't print out Unit
           done
@@ -116,7 +118,7 @@ class Viewer(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConf
       alwaysUseBrowser = viewConfig.useBrowser,
       alwaysUseTree = viewConfig.useTree,
       alwaysPrint = viewConfig.print)
-    view(viewConfig.data, printConfig)
+    copy(printConfig = printConfig).view(viewConfig.data)
   }
 
   private def viewTextLines(xs: MashList): ViewResult = {
