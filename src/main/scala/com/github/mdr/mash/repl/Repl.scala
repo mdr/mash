@@ -8,7 +8,7 @@ import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
-import com.github.mdr.mash.render.ReplRenderer
+import com.github.mdr.mash.view.render.ReplRenderer
 import com.github.mdr.mash.repl.browser.handler.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.handler.{ IncrementalHistorySearchActionHandler, NormalActionHandler }

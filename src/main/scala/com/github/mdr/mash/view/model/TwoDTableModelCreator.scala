@@ -2,7 +2,7 @@ package com.github.mdr.mash.view.model
 
 import com.github.mdr.mash.ns.collections.GroupClass
 import com.github.mdr.mash.ns.git.CommitClass
-import com.github.mdr.mash.printer._
+import com.github.mdr.mash.view.printer._
 import com.github.mdr.mash.view.model.TwoDTableModel.{ Cell, Column, Row, RowLabelColumnId }
 import com.github.mdr.mash.runtime.{ MashList, MashObject, MashString, MashValue }
 import com.github.mdr.mash.utils.{ Dimensions, Utils }

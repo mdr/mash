@@ -1,7 +1,7 @@
 package com.github.mdr.mash.view.model
 
 import com.github.mdr.mash.view.model.TwoDTableModel._
-import com.github.mdr.mash.printer.{ ColumnId, ValueFetch }
+import com.github.mdr.mash.view.printer.{ ColumnId, ValueFetch }
 import com.github.mdr.mash.runtime.MashValue
 
 object TwoDTableModel {

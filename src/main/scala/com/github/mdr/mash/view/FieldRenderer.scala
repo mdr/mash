@@ -8,7 +8,7 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.ns.core.BytesClass
 import com.github.mdr.mash.ns.os.{ PermissionsClass, PermissionsSectionClass }
 import com.github.mdr.mash.ns.time.{ MillisecondsClass, SecondsClass }
-import com.github.mdr.mash.printer.{ BytesPrinter, PermissionsPrinter }
+import com.github.mdr.mash.view.printer.{ BytesPrinter, PermissionsPrinter }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.NumberUtils
 

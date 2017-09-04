@@ -4,8 +4,8 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.os.{ GlobFunction, OldDirsFunction, UpFunction }
-import com.github.mdr.mash.render.help.MashMarkupRenderer
-import com.github.mdr.mash.render.{ BoxContent, BoxRenderer }
+import com.github.mdr.mash.view.render.help.MashMarkupRenderer
+import com.github.mdr.mash.view.render.{ BoxContent, BoxRenderer }
 import com.github.mdr.mash.screen.{ Screen, StyledString, StyledStringDrawer }
 import com.github.mdr.mash.utils.Dimensions
 

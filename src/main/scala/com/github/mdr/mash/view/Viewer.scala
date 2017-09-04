@@ -7,7 +7,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.ns.core.help._
 import com.github.mdr.mash.ns.git.StatusClass
 import com.github.mdr.mash.ns.view.ViewClass
-import com.github.mdr.mash.printer._
+import com.github.mdr.mash.view.printer._
 import com.github.mdr.mash.view.model.TwoDTableModelCreator.isSuitableForTwoDTable
 import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.runtime._

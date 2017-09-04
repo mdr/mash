@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.completions
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.render.CompletionRenderer
+import com.github.mdr.mash.view.render.CompletionRenderer
 import com.github.mdr.mash.repl.NormalActions.Quit
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.completions.BrowseCompletionActions._

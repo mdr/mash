@@ -4,7 +4,7 @@ import java.util.regex.{ Pattern, PatternSyntaxException }
 
 import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.parser.ExpressionCombiner._
-import com.github.mdr.mash.printer.ColumnId
+import com.github.mdr.mash.view.printer.ColumnId
 import com.github.mdr.mash.view.model.TwoDTableModel
 import com.github.mdr.mash.view.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.runtime._

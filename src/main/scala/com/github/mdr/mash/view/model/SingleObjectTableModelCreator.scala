@@ -1,7 +1,7 @@
 package com.github.mdr.mash.view.model
 
 import com.github.mdr.mash.evaluator.ToStringifier
-import com.github.mdr.mash.printer._
+import com.github.mdr.mash.view.printer._
 import com.github.mdr.mash.runtime.{ MashObject, MashValue }
 import com.github.mdr.mash.utils.Dimensions
 import com.github.mdr.mash.view.{ FieldRenderer, ViewConfig }
