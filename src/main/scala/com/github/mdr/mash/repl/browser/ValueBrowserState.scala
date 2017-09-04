@@ -1,6 +1,6 @@
 package com.github.mdr.mash.repl.browser
 
-import com.github.mdr.mash.printer.model.ValueModel
+import com.github.mdr.mash.view.model.ValueModel
 import com.github.mdr.mash.runtime.MashValue
 
 case class ValueBrowserState(model: ValueModel,

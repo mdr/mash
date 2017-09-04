@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.help
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.printer.model.{ Link, LinkPath }
+import com.github.mdr.mash.view.model.{ Link, LinkPath }
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.{ LineInfo, Region }

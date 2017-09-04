@@ -1,4 +1,4 @@
-package com.github.mdr.mash.printer.model
+package com.github.mdr.mash.view.model
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction

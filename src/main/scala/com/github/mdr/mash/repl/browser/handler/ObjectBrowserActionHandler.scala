@@ -9,7 +9,7 @@ import com.github.mdr.mash.parser.ExpressionCombiner._
 import com.github.mdr.mash.parser.LookupDecomposer._
 import com.github.mdr.mash.parser.StringEscapes
 import com.github.mdr.mash.parser.StringEscapes.escapeChars
-import com.github.mdr.mash.printer.model._
+import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.repl.NormalActions.RedrawScreen
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions._
 import com.github.mdr.mash.repl.browser.{ TwoDTableBrowserState, ValueBrowserState, _ }

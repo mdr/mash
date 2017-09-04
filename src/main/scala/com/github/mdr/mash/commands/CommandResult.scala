@@ -1,6 +1,6 @@
 package com.github.mdr.mash.commands
 
-import com.github.mdr.mash.printer.model.DisplayModel
+import com.github.mdr.mash.view.model.DisplayModel
 import com.github.mdr.mash.runtime.MashValue
 
 case class CommandResult(valueOpt: Option[MashValue] = None,

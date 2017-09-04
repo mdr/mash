@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.browser.handler
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.printer.model._
+import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.repl.NormalActions.SelfInsert
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ ExpressionInput, PreviousPage, _ }

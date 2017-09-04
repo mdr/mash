@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.browser
 
 import com.github.mdr.mash.printer.UnicodeBoxCharacterSupplier
-import com.github.mdr.mash.printer.model.SingleObjectTableModel
+import com.github.mdr.mash.view.model.SingleObjectTableModel
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._

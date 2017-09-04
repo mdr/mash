@@ -3,7 +3,7 @@ package com.github.mdr.mash.repl.browser
 import com.github.mdr.mash.compiler.{ CompilationSettings, CompilationUnit, Compiler }
 import com.github.mdr.mash.evaluator._
 import com.github.mdr.mash.parser.ParseError
-import com.github.mdr.mash.printer.model.TwoDTableModelCreator
+import com.github.mdr.mash.view.model.TwoDTableModelCreator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.terminal.DummyTerminal
 import com.github.mdr.mash.view.ViewConfig

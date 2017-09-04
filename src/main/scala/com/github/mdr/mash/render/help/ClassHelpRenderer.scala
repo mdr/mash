@@ -3,7 +3,7 @@ package com.github.mdr.mash.render.help
 import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.functions.{ MashFunction, MashMethod }
 import com.github.mdr.mash.ns.core.help.{ FieldHelpClass, MethodHelpClass }
-import com.github.mdr.mash.printer.model.{ Link, LinkPath }
+import com.github.mdr.mash.view.model.{ Link, LinkPath }
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.Region

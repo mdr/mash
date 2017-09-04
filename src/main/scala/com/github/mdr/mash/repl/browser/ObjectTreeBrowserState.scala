@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
+import com.github.mdr.mash.view.model.{ ObjectTreeModel, ObjectTreeNode }
 import com.github.mdr.mash.repl.browser.ObjectTreeChoice.{ FieldChoice, IndexChoice, OntoFieldLabel, OntoValue }
 import com.github.mdr.mash.runtime.MashValue
 

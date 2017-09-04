@@ -4,7 +4,7 @@ import com.github.mdr.mash.classes.{ Field, MashClass }
 import com.github.mdr.mash.inference.Type
 import com.github.mdr.mash.ns.core.AnyClass
 import com.github.mdr.mash.ns.core.help.FieldHelpClass
-import com.github.mdr.mash.printer.model.{ Link, LinkPath }
+import com.github.mdr.mash.view.model.{ Link, LinkPath }
 import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.screen.Line
 import com.github.mdr.mash.screen.Style._

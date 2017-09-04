@@ -5,7 +5,7 @@ import com.github.mdr.mash.functions.MashFunction
 import com.github.mdr.mash.language.ValueToExpression
 import com.github.mdr.mash.lexer.MashLexer._
 import com.github.mdr.mash.parser.ExpressionCombiner.combineSafely
-import com.github.mdr.mash.printer.model.{ TextLinesModel, _ }
+import com.github.mdr.mash.view.model.{ TextLinesModel, _ }
 import com.github.mdr.mash.repl.LineBuffer
 import com.github.mdr.mash.runtime._
 

@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render.browser
 
-import com.github.mdr.mash.printer.model.Link
+import com.github.mdr.mash.view.model.Link
 import com.github.mdr.mash.render.{ KeyHint, LinesAndCursorPos, MashRenderingContext }
 import com.github.mdr.mash.repl.browser.HelpBrowserState
 import com.github.mdr.mash.runtime.MashObject

@@ -2,7 +2,7 @@ package com.github.mdr.mash.printer
 
 import java.io.PrintStream
 
-import com.github.mdr.mash.printer.model.TwoDTableModelCreator
+import com.github.mdr.mash.view.model.TwoDTableModelCreator
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.screen.{ Screen, StyledStringDrawer }
 import com.github.mdr.mash.render.browser.TwoDTableCommonRenderer

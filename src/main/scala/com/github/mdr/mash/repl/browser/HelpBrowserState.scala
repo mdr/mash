@@ -1,7 +1,7 @@
 package com.github.mdr.mash.repl.browser
 
 import com.github.mdr.mash.parser.ExpressionCombiner._
-import com.github.mdr.mash.printer.model.{ HelpModel, Link, LinkPath }
+import com.github.mdr.mash.view.model.{ HelpModel, Link, LinkPath }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.utils.Utils._
 

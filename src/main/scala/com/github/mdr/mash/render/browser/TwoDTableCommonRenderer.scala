@@ -1,7 +1,7 @@
 package com.github.mdr.mash.render.browser
 
-import com.github.mdr.mash.printer.model.TwoDTableModel
-import com.github.mdr.mash.printer.model.TwoDTableModel.RowLabelColumnId
+import com.github.mdr.mash.view.model.TwoDTableModel
+import com.github.mdr.mash.view.model.TwoDTableModel.RowLabelColumnId
 import com.github.mdr.mash.printer.{ ColumnId, UnicodeBoxCharacterSupplier }
 import com.github.mdr.mash.repl.browser.SearchState
 import com.github.mdr.mash.screen.Style.StylableString

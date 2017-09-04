@@ -1,6 +1,6 @@
 package com.github.mdr.mash.render.browser
 
-import com.github.mdr.mash.printer.model.{ ObjectTreeModel, ObjectTreeNode }
+import com.github.mdr.mash.view.model.{ ObjectTreeModel, ObjectTreeNode }
 import com.github.mdr.mash.repl.browser.ObjectTreePath
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.screen._
