@@ -4,7 +4,7 @@ import com.github.mdr.mash.input.InputSequence.KeyPress
 import com.github.mdr.mash.input.{ Key, KeyDescriber }
 import com.github.mdr.mash.input.Key.BasicKey
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, Style, StyledString }
+import com.github.mdr.mash.screen.{ BasicColour, DefaultColours, Style, StyledString }
 import com.github.mdr.mash.input.KeyDsl._
 
 object KeyHint {
@@ -46,7 +46,7 @@ object KeyHint {
   def renderKeyHints(hints: Seq[KeyHint]): StyledString =
     StyledString.join(hints.map(renderKeyHint), ", ".style)
 
-  val hintStyle = Style(inverse = true, foregroundColour = BasicColour.Cyan)
+  val hintStyle = Style(inverse = true, foregroundColour = DefaultColours.Cyan)
 
 }
 

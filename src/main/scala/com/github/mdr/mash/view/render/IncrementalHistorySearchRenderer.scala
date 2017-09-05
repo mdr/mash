@@ -43,9 +43,9 @@ object IncrementalHistorySearchRenderer {
         None
     }
 
-  private val HitStyle = Style(foregroundColour = BasicColour.Grey)
+  private val HitStyle = Style(foregroundColour = DefaultColours.Foreground)
 
-  private val SearchStringStyle = Style(foregroundColour = BasicColour.Cyan)
+  private val SearchStringStyle = Style(foregroundColour = DefaultColours.Cyan)
 
   private def truncateIfNecessary(line: Line, terminalSize: Dimensions): Line =
     Line(StyledStringUtils.ellipsisise(line.string, terminalSize.columns))

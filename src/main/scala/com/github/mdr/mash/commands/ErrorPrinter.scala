@@ -6,7 +6,7 @@ import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpander }
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
 import com.github.mdr.mash.view.render.MashRenderer
-import com.github.mdr.mash.screen.BasicColour
+import com.github.mdr.mash.screen.{ BasicColour, DefaultColours }
 import com.github.mdr.mash.screen.StyledStringDrawer.drawStyledChars
 import com.github.mdr.mash.screen.Style.StylableString
 import com.github.mdr.mash.utils._
@@ -71,9 +71,9 @@ class ErrorPrinter(output: PrintStream) {
   }
 
   private def formatStrong(s: String): String =
-    drawStyledChars(s.style(foregroundColour = BasicColour.Red, bold = true))
+    drawStyledChars(s.style(foregroundColour = DefaultColours.Red, bold = true))
 
   private def formatRegular(s: String) =
-    drawStyledChars(s.style(foregroundColour = BasicColour.Red))
+    drawStyledChars(s.style(foregroundColour = DefaultColours.Red))
 
 }

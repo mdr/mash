@@ -8,9 +8,9 @@ import com.github.mdr.mash.evaluator.{ StandardEnvironment, _ }
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, Screen, StyledStringDrawer }
+import com.github.mdr.mash.screen.{ BasicColour, DefaultColours, Screen, StyledStringDrawer }
 import com.github.mdr.mash.utils.Dimensions
-import com.github.mdr.mash.view.{ ViewResult, Viewer, ViewConfig }
+import com.github.mdr.mash.view.{ ViewConfig, ViewResult, Viewer }
 import com.github.mdr.mash.{ DebugLogger, Singletons }
 
 class CommandRunner(output: PrintStream,
@@ -74,8 +74,8 @@ class CommandRunner(output: PrintStream,
         debugLogger.logException(e)
         None
       case EvaluationInterruptedException       ⇒
-        val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
-          " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
+        val chars = "Interrupted:".style(foregroundColour = DefaultColours.Yellow, bold = true) +
+          " command cancelled by user".style(foregroundColour = DefaultColours.Yellow)
         output.println(StyledStringDrawer.drawStyledChars(chars))
         None
     }

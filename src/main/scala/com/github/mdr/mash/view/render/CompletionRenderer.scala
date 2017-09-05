@@ -25,15 +25,15 @@ object CompletionRenderer {
 
   private def getCompletionColour(completionTypeOpt: Option[CompletionType]): Colour =
     completionTypeOpt.collect {
-      case CompletionType.Directory ⇒ BasicColour.Magenta
-      case CompletionType.File      ⇒ BasicColour.Yellow
-      case CompletionType.Flag      ⇒ BasicColour.Cyan
+      case CompletionType.Directory ⇒ DefaultColours.Purple
+      case CompletionType.File      ⇒ DefaultColours.Yellow
+      case CompletionType.Flag      ⇒ DefaultColours.Cyan
       case CompletionType.Binding   ⇒ DefaultColour
-      case CompletionType.Function  ⇒ BasicColour.Green
-      case CompletionType.Class     ⇒ BasicColour.Cyan
+      case CompletionType.Function  ⇒ DefaultColours.Green
+      case CompletionType.Class     ⇒ DefaultColours.Cyan
       case CompletionType.Field     ⇒ DefaultColour
-      case CompletionType.Method    ⇒ BasicColour.Green
-    }.getOrElse(BasicColour.Blue)
+      case CompletionType.Method    ⇒ DefaultColours.Green
+    }.getOrElse(DefaultColours.Pink)
 
   def getNumberOfCompletionColumns(completionState: CompletionState, terminalSize: Dimensions): Int = {
     val completions = completionState.completions

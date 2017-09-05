@@ -127,7 +127,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
                           matchingBracketOffsetOpt: Option[Int]): StyledString = {
     val style =
       if (bareTokens contains token)
-        if (context.bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = BasicColour.Red)
+        if (context.bareWords) MashRenderer.getTokenStyle(TokenType.STRING_LITERAL) else Style(foregroundColour = DefaultColours.Red)
       else if (declaredNameTokens contains token)
         getTokenStyle(token).withBold
       else if (bareObjectKeyTokens contains token)

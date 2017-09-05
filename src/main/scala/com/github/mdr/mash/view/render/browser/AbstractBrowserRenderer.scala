@@ -23,7 +23,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   }
 
   protected def renderUpperStatusLines: LinesAndCursorPos = {
-    val prefix = "Browse: ".style
+    val prefix = "Browse: ".style(DefaultColours.Orange)
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = lineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,

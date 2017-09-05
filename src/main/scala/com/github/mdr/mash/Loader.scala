@@ -14,7 +14,7 @@ import com.github.mdr.mash.parser.AbstractSyntax.NamespaceDeclaration
 import com.github.mdr.mash.parser.{ AbstractSyntax, ParseError }
 import com.github.mdr.mash.runtime.{ MashObject, MashString, MashValue }
 import com.github.mdr.mash.screen.Style.StylableString
-import com.github.mdr.mash.screen.{ BasicColour, Screen, StyledStringDrawer }
+import com.github.mdr.mash.screen.{ BasicColour, DefaultColours, Screen, StyledStringDrawer }
 import com.github.mdr.mash.terminal.Terminal
 import org.apache.commons.io.FileUtils
 
@@ -96,8 +96,8 @@ class Loader(terminal: Terminal,
         debugLogger.logException(e)
         None
       case EvaluationInterruptedException       ⇒
-        val chars = "Interrupted:".style(foregroundColour = BasicColour.Yellow, bold = true) +
-          " command cancelled by user".style(foregroundColour = BasicColour.Yellow)
+        val chars = "Interrupted:".style(foregroundColour = DefaultColours.Yellow, bold = true) +
+          " command cancelled by user".style(foregroundColour = DefaultColours.Yellow)
         output.println(StyledStringDrawer.drawStyledChars(chars))
         None
     }
