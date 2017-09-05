@@ -53,7 +53,11 @@ case class Viewer(output: PrintStream,
 
   def view(value: MashValue): ViewResult =
     if (alwaysUseBrowser) {
-      val model = DisplayModel.getDisplayModel(value, viewConfig, terminalSize)
+      val model =
+        if (alwaysUseTree)
+          new ObjectTreeModelCreator(viewConfig).create(value)
+        else
+          DisplayModel.getDisplayModel(value, viewConfig, terminalSize)
       browse(model)
     } else
       value match {
