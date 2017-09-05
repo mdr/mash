@@ -19,6 +19,13 @@ import org.ocpsoft.prettytime.PrettyTime
 case class ViewConfig(fuzzyTime: Boolean = true,
                       browseLargeOutput: Boolean = true)
 
+case class ViewDirectives(disableCustomViews: Boolean = false,
+                          alwaysUseBrowser: Boolean = false,
+                          alwaysUseTree: Boolean = false,
+                          alwaysPrint: Boolean = false)
+
+case class ViewResult(displayModelOpt: Option[DisplayModel] = None)
+
 object Viewer {
 
   val prettyTime = new PrettyTime
@@ -29,13 +36,6 @@ object Viewer {
   }
 
 }
-
-case class ViewResult(displayModelOpt: Option[DisplayModel] = None)
-
-case class ViewDirectives(disableCustomViews: Boolean = false,
-                          alwaysUseBrowser: Boolean = false,
-                          alwaysUseTree: Boolean = false,
-                          alwaysPrint: Boolean = false)
 
 case class Viewer(output: PrintStream,
                   terminalSize: Dimensions,
@@ -74,7 +74,7 @@ case class Viewer(output: PrintStream,
         case obj: MashObject if obj.classOpt == Some(FieldHelpClass) && !disableCustomViews  ⇒
           viewHelp(obj)
         case obj: MashObject if obj.classOpt == Some(ViewClass)                              ⇒
-          viewWithView(obj)
+          viewWithDirectives(obj)
         case obj: MashObject if obj.classOpt == Some(StatusClass) && !disableCustomViews     ⇒
           printGitStatus(obj)
         case obj: MashObject if obj.nonEmpty                                                 ⇒
@@ -108,7 +108,7 @@ case class Viewer(output: PrintStream,
     }
   }
 
-  private def viewWithView(obj: MashObject): ViewResult = {
+  private def viewWithDirectives(obj: MashObject): ViewResult = {
     val viewConfig = ViewClass.Wrapper(obj)
     val viewDirectives = ViewDirectives(
       disableCustomViews = viewConfig.disableCustomViews,
