@@ -31,8 +31,6 @@ trait SingleObjectTableBrowserActionHandler {
     case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
     case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
     case ViewAsTree                      ⇒ viewAsTree(browserState)
-    case View1D                          ⇒ view1D(browserState)
-    case View2D                          ⇒ view2D(browserState)
     case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
   }
 

@@ -247,6 +247,8 @@ trait ObjectBrowserActionHandler
     case InsertItem                      ⇒ handleInsertItem(browserState)
     case InsertWholeItem                 ⇒ handleInsertWholeItem(browserState)
     case ExpressionInput.BeginExpression ⇒ updateState(browserState.beginExpression)
+    case View1D                          ⇒ view1D(browserState)
+    case View2D                          ⇒ view2D(browserState)
   }
 
 }
