@@ -14,6 +14,7 @@ trait HelpBrowserActionHandler {
       .lift(action)
 
   private def helpBrowserActionHandler(browserState: HelpBrowserState): PartialFunction[InputAction, Unit] = {
+    case ViewAsTree   ⇒ viewAsTree(browserState)
     case NextItem     ⇒ updateState(browserState.nextItem(terminalRows))
     case PreviousItem ⇒ updateState(browserState.previousItem(terminalRows))
     case NextPage     ⇒ updateState(browserState.nextPage(terminalRows))

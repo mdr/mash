@@ -46,7 +46,7 @@ trait ObjectBrowserActionHandler
   self: Repl ⇒
 
   import ObjectBrowserActionHandler._
-  
+
   private def updateObjectBrowserStateStack(f: ObjectBrowserStateStack ⇒ Option[ObjectBrowserStateStack]) =
     state.objectBrowserStateStackOpt.foreach { stack ⇒
       state = state.copy(objectBrowserStateStackOpt = f(stack))
@@ -80,12 +80,14 @@ trait ObjectBrowserActionHandler
       if Files.isRegularFile(path)
       escapedPath = StringEscapes.escapeChars(path.toString)
     } acceptReplacementExpression(s""""$escapedPath".readLines""")
-  
+
   protected def focus(value: MashValue, path: String, tree: Boolean): Unit =
     navigateForward(getNewBrowserState(value, path, tree))
 
-  protected def viewAsTree(browserState: BrowserState): Unit =
-    updateState(makeObjectTreeBrowserState(browserState.rawValue, browserState.path))
+  protected def viewAsTree(browserState: BrowserState): Unit = browserState.rawValue match {
+    case _: MashList | _: MashObject ⇒ updateState(makeObjectTreeBrowserState(browserState.rawValue, browserState.path))
+    case _                           ⇒
+  }
 
   private def makeObjectTreeBrowserState(value: MashValue, path: String): ObjectTreeBrowserState = {
     val model = new ObjectTreeModelCreator(viewConfig).create(value)

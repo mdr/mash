@@ -23,15 +23,15 @@ trait SingleObjectTableBrowserActionHandler {
       .lift(action)
 
   private def singleObjectTableBrowserActionHandler(browserState: SingleObjectTableBrowserState): PartialFunction[InputAction, Unit] = {
-    case NextItem                        ⇒ updateState(browserState.nextItem(terminalRows))
-    case PreviousItem                    ⇒ updateState(browserState.previousItem(terminalRows))
-    case NextPage                        ⇒ updateState(browserState.nextPage(terminalRows))
-    case PreviousPage                    ⇒ updateState(browserState.previousPage(terminalRows))
-    case FirstItem                       ⇒ updateState(browserState.firstItem(terminalRows))
-    case LastItem                        ⇒ updateState(browserState.lastItem(terminalRows))
-    case ToggleMarked                    ⇒ updateState(browserState.toggleMark)
-    case ViewAsTree                      ⇒ viewAsTree(browserState)
-    case IncrementalSearch.BeginSearch   ⇒ updateState(browserState.beginSearch)
+    case NextItem                      ⇒ updateState(browserState.nextItem(terminalRows))
+    case PreviousItem                  ⇒ updateState(browserState.previousItem(terminalRows))
+    case NextPage                      ⇒ updateState(browserState.nextPage(terminalRows))
+    case PreviousPage                  ⇒ updateState(browserState.previousPage(terminalRows))
+    case FirstItem                     ⇒ updateState(browserState.firstItem(terminalRows))
+    case LastItem                      ⇒ updateState(browserState.lastItem(terminalRows))
+    case ToggleMarked                  ⇒ updateState(browserState.toggleMark)
+    case ViewAsTree                    ⇒ viewAsTree(browserState)
+    case IncrementalSearch.BeginSearch ⇒ updateState(browserState.beginSearch)
   }
 
   private def handleIncrementalSearchAction(action: InputAction, browserState: SingleObjectTableBrowserState, searchState: SearchState): Unit = {

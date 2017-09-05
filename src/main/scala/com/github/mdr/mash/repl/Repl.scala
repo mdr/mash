@@ -95,6 +95,7 @@ class Repl(protected val terminal: Terminal,
       case NonFatal(e) ⇒
         e.printStackTrace(output)
         debugLogger.logException(e)
+        state = state.reset
     }
     if (state.continue)
       inputLoop()

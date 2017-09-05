@@ -18,12 +18,7 @@ case class ReplState(lineBuffer: LineBuffer = LineBuffer.Empty,
                      assistanceStateOpt: Option[AssistanceState] = None,
                      insertLastArgStateOpt: Option[InsertLastArgState] = None,
                      objectBrowserStateStackOpt: Option[ObjectBrowserStateStack] = None) {
-  def reset: ReplState = copy(
-    lineBuffer = LineBuffer.Empty,
-    completionStateOpt = None,
-    assistanceStateOpt = None,
-    incrementalHistorySearchStateOpt = None,
-    insertLastArgStateOpt = None)
+  def reset: ReplState = ReplState(commandNumber = commandNumber)
 
   def withCopied(text: String) = copy(copiedOpt = Some(text))
 
