@@ -39,7 +39,7 @@ class ObjectTreeCommonRenderer(model: ObjectTreeModel,
       line += s.style(Style(inverse = highlighted, foregroundColour = foregroundColour))
     }
 
-    def getLines: Seq[Line] = lines :+ Line(line)
+    def getLines: Seq[Line] = lines
 
     def currentColumn: Int = line.size
 
@@ -151,5 +151,5 @@ class ObjectTreeCommonRenderer(model: ObjectTreeModel,
       (prefix, if (isLastNode) "└" else "├")
     }
   }
-  
+
 }
