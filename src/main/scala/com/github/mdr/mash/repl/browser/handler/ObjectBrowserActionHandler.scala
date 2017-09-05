@@ -29,9 +29,9 @@ object ObjectBrowserActionHandler {
 
   private def getPath(value: MashValue): Option[Path] =
     condOpt(value) {
-      case s: MashString                                             ⇒ Paths.get(s.s)
-      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ Paths.get(PathSummaryClass.Wrapper(obj).path)
-    }
+      case s: MashString                                             ⇒ s.s
+      case obj: MashObject if obj.classOpt contains PathSummaryClass ⇒ PathSummaryClass.Wrapper(obj).path
+    }.map(Paths.get(_))
 
 }
 
@@ -185,18 +185,14 @@ trait ObjectBrowserActionHandler
 
   protected def handleOpenItem(browserState: BrowserState) =
     for (expression ← browserState.getInsertExpressionOpt) {
-      state = state.copy(
-        lineBuffer = LineBuffer.Empty,
-        objectBrowserStateStackOpt = None)
-      updateScreenAfterFinishingWithLine()
       val command = combineSafely(expression, " | open")
-      runCommand(command)
+      runCommandQuietly(command)
     }
 
   protected def handleCopyItem(browserState: BrowserState) =
     for (expression ← browserState.getInsertExpressionOpt) {
       val command = combineSafely(expression, " | clipboard")
-      runCommand(command)
+      runCommandQuietly(command)
     }
 
   private case class ItemAndPath(item: MashValue, path: String)

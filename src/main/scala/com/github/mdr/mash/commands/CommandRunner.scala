@@ -33,24 +33,24 @@ class CommandRunner(output: PrintStream,
           CommandResult(toggleMish = true)
         else {
           val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-          runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
+          runCommandAndViewResult(unit, bareWords = bareWords, viewConfig = viewConfig)
         }
       case SuffixMishCommand(mishCmd, suffix) ⇒
         val unit = CompilationUnit(mishCmd, unitName, interactive = true, mish = true)
-        runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
+        runCommandAndViewResult(unit, bareWords = bareWords, viewConfig = viewConfig)
       case _                                  ⇒
         val unit = CompilationUnit(cmd, unitName, interactive = true, mish = mish)
-        runCommandAndPrintResult(unit, bareWords = bareWords, viewConfig = viewConfig)
+        runCommandAndViewResult(unit, bareWords = bareWords, viewConfig = viewConfig)
     }
   }
 
   def runCompilationUnit(unit: CompilationUnit, bareWords: Boolean): Option[MashValue] =
     safeCompile(unit, bareWords = bareWords, printErrors = printErrors).flatMap(runProgram(_, unit))
 
-  private def runCommandAndPrintResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
-    runCompilationUnit(unit, bareWords).map(printResult(viewConfig)).getOrElse(CommandResult())
+  private def runCommandAndViewResult(unit: CompilationUnit, bareWords: Boolean, viewConfig: ViewConfig): CommandResult =
+    runCompilationUnit(unit, bareWords).map(viewResult(viewConfig)).getOrElse(CommandResult())
 
-  private def printResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
+  private def viewResult(viewConfig: ViewConfig)(result: MashValue): CommandResult = {
     val viewer = new Viewer(output, terminalSize, viewConfig)
     val ViewResult(displayModelOpt) = viewer.view(result)
     CommandResult(Some(result), displayModelOpt = displayModelOpt)

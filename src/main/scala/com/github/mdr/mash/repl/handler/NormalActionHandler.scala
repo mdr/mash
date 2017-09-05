@@ -252,6 +252,17 @@ trait NormalActionHandler extends InlineHandler {
     processCommandResult(cmd, commandResult, workingDirectory = fileSystem.pwd)
   }
 
+  protected def runCommandQuietly(command: String) {
+    val commandRunner = new CommandRunner(output, terminal.size, globalVariables, sessionId)
+    val unitName = "quiet-command"
+    try
+      commandRunner.run(command, unitName, mish = false, bareWords, viewConfig)
+    catch {
+      case NonFatal(e) ⇒
+        debugLogger.logException(e)
+    }
+  }
+
   private def processCommandResult(cmd: String, commandResult: CommandResult, workingDirectory: Path) {
     val CommandResult(valueOpt, toggleMish, displayModelOpt) = commandResult
     val actualResultOpt = valueOpt.map(ViewClass.unpackView)
