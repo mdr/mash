@@ -12,9 +12,10 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimen
 
   protected def renderDataLines: Seq[Line] =
     for {
-      (l, index) ← state.model.renderedLines.window(state.firstRow, windowSize).zipWithIndex
-      inverse = index == state.selectedRow - state.firstRow && state.expressionStateOpt.isEmpty
-    } yield Line(l.style(Style(inverse = inverse)))
+      (lineContents, index) ← state.model.renderedLines.zipWithIndex.window(state.firstRow, windowSize)
+      isSelected = index == state.selectedRow && state.expressionStateOpt.isEmpty
+      actualLineContents = if (isSelected && lineContents.isEmpty) " " else lineContents
+    } yield Line(actualLineContents.style(Style(inverse = isSelected)))
 
   protected def renderLines: LinesAndCursorPos =
     combineUpperStatusLines(renderUpperStatusLines, renderDataLines ++ Seq(renderStatusLine))

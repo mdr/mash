@@ -19,7 +19,7 @@ case class TextLinesBrowserState(model: TextLinesModel,
     Some(SelectionInfo(selectionPath, model.rawValue.elements(selectedRow)))
   }
 
-  def size = model.renderedLines.size
+  def size: Int = model.renderedLines.size
 
   def previousItem(terminalRows: Int): TextLinesBrowserState = adjustSelectedRow(-1, terminalRows)
 

@@ -109,7 +109,7 @@ trait ObjectBrowserActionHandler
     new SingleObjectTableModelCreator(terminal.size, supportMarking = true, viewConfig).create(obj)
 
   protected def view2D(browserState: BrowserState) = {
-    def view2D(value: MashValue): Unit = {
+    def view2D(value: MashValue) {
       val model = createTwoDModel(value)
       val newState = TwoDTableBrowserState(model, path = browserState.path)
       updateState(newState)
