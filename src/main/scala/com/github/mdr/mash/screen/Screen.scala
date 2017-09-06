@@ -28,7 +28,7 @@ case class Line(string: StyledString, endsInNewline: Boolean = true) {
 case class Screen(lines: Seq[Line],
                   cursorPosOpt: Option[Point],
                   title: String,
-                  alternateScreen: Boolean = false) {
+                  isAlternateScreen: Boolean = false) {
 
   private def cursorPos = cursorPosOpt getOrElse Point(0, 0)
 

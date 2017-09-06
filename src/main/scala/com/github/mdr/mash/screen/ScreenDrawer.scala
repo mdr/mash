@@ -6,11 +6,13 @@ case class ScreenDraw(drawString: String, swappedOutScreenOpt: Option[Screen])
 
 object ScreenDrawer {
 
-  def draw(newScreen: Screen, previousScreenOpt: Option[Screen], swappedOutScreenOpt: Option[Screen]): ScreenDraw = {
+  def draw(newScreen: Screen,
+           previousScreenOpt: Option[Screen] = None,
+           swappedOutScreenOpt: Option[Screen] = None): ScreenDraw = {
     val Screen(lines, cursorPosOpt, title, alternateScreen) = newScreen
     val cursorPos = cursorPosOpt.getOrElse(Point(0, 0))
 
-    val oldAlternateScreen = previousScreenOpt.exists(_.alternateScreen)
+    val oldAlternateScreen = previousScreenOpt.exists(_.isAlternateScreen)
     val swappingOut = alternateScreen && !oldAlternateScreen
     val swappingBackIn = !alternateScreen && oldAlternateScreen
 
@@ -44,7 +46,7 @@ object ScreenDrawer {
     ScreenDraw(output, swappedOutScreenOpt = newSwappedOutScreenOpt)
   }
 
-  private def drawLines(drawState: DrawState, lines: Seq[Line], actualPreviousScreenOpt: Option[Screen]) = {
+  private def drawLines(drawState: DrawState, lines: Seq[Line], actualPreviousScreenOpt: Option[Screen]) {
     val previousLines = actualPreviousScreenOpt.map(_.lines).getOrElse(Seq())
     val newAndPreviousLines: Seq[(Option[Line], Option[Line])] =
       Utils.zipPad(lines.map(Some(_)), previousLines.map(Some(_)), None)

@@ -19,7 +19,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   def renderObjectBrowser: Screen = {
     val LinesAndCursorPos(lines, cursorPosOpt) = renderLines
     val title = "mash " + fileSystem.pwd.toString
-    Screen(lines, cursorPosOpt, title = title, alternateScreen = true)
+    Screen(lines, cursorPosOpt, title = title, isAlternateScreen = true)
   }
 
   protected def renderUpperStatusLines: LinesAndCursorPos = {
