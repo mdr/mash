@@ -4,9 +4,9 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.MashFunction
-import com.github.mdr.mash.view.render.help.{ ClassHelpRenderer, FieldHelpRenderer, FunctionHelpRenderer, MethodHelpRenderer }
 import com.github.mdr.mash.runtime._
-import com.github.mdr.mash.screen.{ Line, Screen, StyledStringDrawer }
+import com.github.mdr.mash.screen.{ Line, StyledStringDrawer }
+import com.github.mdr.mash.view.render.help.{ ClassHelpRenderer, FieldHelpRenderer, FunctionHelpRenderer, MethodHelpRenderer }
 
 class HelpPrinter(output: PrintStream) {
 

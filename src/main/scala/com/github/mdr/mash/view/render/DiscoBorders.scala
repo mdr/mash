@@ -1,7 +1,5 @@
 package com.github.mdr.mash.view.render
 
-import java.io.OutputStream
-
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 
@@ -25,14 +23,19 @@ object DiscoBorders {
 
   private var shift = 0
 
-  def addDiscoBorders(screen: Screen): Screen = {
-    val newLines = screen.lines.zipWithIndex.map { case (line, row) ⇒ addDiscoBorders(line, row) }
+  def addDiscoBorders(screen: Screen): Screen =
+    screen.copy(lines = addDiscoBorders(screen.lines))
+
+  def addDiscoBorders(lines: Seq[Line]): Seq[Line] = {
+    val newLines = lines.zipWithIndex.map { case (line, row) ⇒ addDiscoBorders(line, row) }
     shift = shift - 1 + Colours.length
-    screen.copy(lines = newLines)
+    newLines
   }
 
   private def addDiscoBorders(line: Line, row: Int): Line = {
-    val newString = StyledString(line.string.chars.zipWithIndex.map { case (char, column) ⇒ addDiscoBorders(char, row, column) })
+    val newString = StyledString(line.string.chars.zipWithIndex.map { case (char, column) ⇒
+      addDiscoBorders(char, row, column)
+    })
     line.copy(string = newString)
   }
 

@@ -54,7 +54,7 @@ class Repl(protected val terminal: Terminal,
 
   def discoBorders: Boolean = config.discoBorders
 
-  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput)
+  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput, config.discoBorders)
 
   def run() {
     if (showStartupTips)

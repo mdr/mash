@@ -13,11 +13,11 @@ import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.StyledStringDrawer
 import com.github.mdr.mash.utils.Dimensions
-import com.github.mdr.mash.view.common.ObjectTreeCommonRenderer
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true,
-                      browseLargeOutput: Boolean = true)
+                      browseLargeOutput: Boolean = true,
+                      discoBorders: Boolean = false)
 
 case class ViewDirectives(disableCustomViews: Boolean = false,
                           alwaysUseBrowser: Boolean = false,
@@ -99,9 +99,8 @@ case class Viewer(output: PrintStream,
   }
 
   private def viewTree(value: MashValue) = {
-    val model = new ObjectTreeModelCreator(viewConfig).create(value)
-    val commonRenderer = new ObjectTreeCommonRenderer(model, selectionPathOpt = None, terminalSize)
-    val lines = commonRenderer.renderTableLines
+    val printer = new ObjectTreePrinter(output, terminalSize, viewConfig)
+    val (lines, model) = printer.renderLines(value)
     val tooBig = lines.size > terminalSize.rows - 1
     if (tooBig && browseLargeOutput && !alwaysPrint)
       browse(model)
