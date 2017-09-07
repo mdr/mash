@@ -58,7 +58,7 @@ class Repl(protected val terminal: Terminal,
 
   def run() {
     if (showStartupTips)
-      Tips.showTip(output, terminal.size)
+      Tips.showTip(output, terminal.size, viewConfig)
     inputLoop()
   }
 

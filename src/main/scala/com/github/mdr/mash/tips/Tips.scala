@@ -4,10 +4,12 @@ import java.io.PrintStream
 
 import com.github.mdr.mash.Config
 import com.github.mdr.mash.ns.os.{ GlobFunction, OldDirsFunction, UpFunction }
-import com.github.mdr.mash.view.render.help.MashMarkupRenderer
-import com.github.mdr.mash.view.render.{ BoxContent, BoxRenderer }
-import com.github.mdr.mash.screen.{ Screen, StyledString, StyledStringDrawer }
+import com.github.mdr.mash.screen.{ StyledString, StyledStringDrawer }
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.utils.Utils._
+import com.github.mdr.mash.view.ViewConfig
+import com.github.mdr.mash.view.render.help.MashMarkupRenderer
+import com.github.mdr.mash.view.render.{ BoxContent, BoxRenderer, DiscoBorders }
 
 import scala.util.Random
 
@@ -31,17 +33,19 @@ object Tips {
     s"Suppress tips by setting <mash>config.${Config.Cli.ShowStartupTips} = false</mash>.",
     s"Set <mash>config.${Config.View.FuzzyTime} = true</mash> to view date/times as '3 hours ago', etc.",
     s"Set <mash>config.${Config.View.BrowseLargeOutput} = false</mash> to avoid starting the browser on long output.",
+    s"""Set <mash>config.${Config.View.DiscoBorders} = true</mash> (or <mash>"animate"</mash>, for the brave).""",
     "Alt-Up expands the current selection to the nearest enclosing piece of syntax; Alt-Down unexpands.",
     "Shift-left/right/up/down expands the selection.",
     "Ctrl-_ undoes the previous edit",
-    "Ctrl-w cuts the current selection, Alt-w copies, and Ctrl-y pastes.")
+    "Ctrl-w cuts the current selection, Alt-w copies, and Ctrl-y pastes.",
+    "In the object browser, 'e' lets you edit the expression that generates the current data.")
 
   private def randomTip = Tips(Random.nextInt(Tips.length))
 
-  def showTip(output: PrintStream, terminalSize: Dimensions) {
+  def showTip(output: PrintStream, terminalSize: Dimensions, viewConfig: ViewConfig) {
     val tipLine: StyledString = MashMarkupRenderer.render(randomTip)
     val boxContent: BoxContent = BoxContent(title = "Tip", lines = Seq(tipLine))
-    val lines = BoxRenderer.render(boxContent, terminalSize)
+    val lines = BoxRenderer.render(boxContent, terminalSize).whenOpt(viewConfig.discoModeOpt)(DiscoBorders.addDiscoBorders)
     for (line ← lines)
       output.println(StyledStringDrawer.drawStyledChars(line.string))
   }

@@ -49,7 +49,7 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
     valueOpt.getOrElse(configOption.defaultValue)
   }
 
-  private def getConfig(obj: MashObject, path: Seq[String]): Option[MashValue] = {
+  private def getConfig(obj: MashObject, path: Seq[String]): Option[MashValue] =
     for {
       first ← path.headOption
       rest = path.tail
@@ -64,7 +64,6 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
           }
       }
     } yield restValue
-  }
 
 }
 

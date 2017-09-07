@@ -4,30 +4,36 @@ import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 
 sealed trait DiscoMode
+
 object DiscoMode {
-  
+
   case object Static extends DiscoMode
+
   case object Animated extends DiscoMode
-  
+
 }
 
 object DiscoBorders {
 
-  val Colours =
+  private val BorderCharacters = "╔╗╝╚╤║│═╟─┼┬╢╧├└┌┐┘".toSet
+
+  private val HalfColours =
     Array(
-      RgbColour.parse("#ff0000"),
-      RgbColour.parse("#ff7000"),
-      RgbColour.parse("#ffbe00"),
-      RgbColour.parse("#ffd000"),
-      RgbColour.parse("#ffef00"),
-      RgbColour.parse("#97f000"),
-      RgbColour.parse("#05ff00"),
-      RgbColour.parse("#02d580"),
-      RgbColour.parse("#00b0ff"),
-      RgbColour.parse("#0060ff"),
-      RgbColour.parse("#000bff"),
-      RgbColour.parse("#4500ff"),
-      RgbColour.parse("#9200ff"))
+      "#ff0000",
+      "#ff7000",
+      "#ffbe00",
+      "#ffd000",
+      "#ffef00",
+      "#97f000",
+      "#05ff00",
+      "#02d580",
+      "#00b0ff",
+      "#0060ff",
+      "#000bff",
+      "#4500ff",
+      "#9200ff").map(RgbColour.parse)
+
+  private val Colours = HalfColours ++ HalfColours.reverse.drop(1)
 
   private var shift = 0
 
@@ -49,9 +55,12 @@ object DiscoBorders {
   }
 
   private def addDiscoBorders(character: StyledCharacter, row: Int, column: Int): StyledCharacter = {
-    val restyle = "╔╗╝╚╤║│═╟─┼┬╢╧├└┌┐┘" contains character.c
-    val colour = Colours((row + column + shift + Colours.length) % Colours.length)
-    character.when(restyle, _.updateStyle(_.withForegroundColour(colour)))
+    val shouldRestyle = BorderCharacters contains character.c
+    val colour = getColour(row, column)
+    character.when(shouldRestyle, _.updateStyle(_.withForegroundColour(colour)))
   }
+
+  private def getColour(row: Int, column: Int) =
+    Colours((row + column + shift + Colours.length) % Colours.length)
 
 }
