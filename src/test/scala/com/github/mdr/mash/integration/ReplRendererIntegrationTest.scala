@@ -22,6 +22,18 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
       """[0]
         | ~ 
         |$ """.stripMargin
+    repl.render.cursorPosOpt shouldEqual Some(Point(2, 2))
+    repl.render.lines.map(_.endsInNewline) shouldEqual Seq(false, false, true)
+  }
+
+  "Rendering a REPL as wide as the terminal" should "work" in {
+    val repl = makeRepl(terminal = DummyTerminal(columns = 10))
+    repl.input("89")
+    repl.getText shouldEqual
+      """[0] ~ $ 89
+        |""".stripMargin
+    repl.render.cursorPosOpt shouldEqual Some(Point(1, 0))
+    repl.render.lines.map(_.endsInNewline) shouldEqual Seq(false, true)
   }
 
   "Multiple lines" should "be indented with dots under the prefix" in {

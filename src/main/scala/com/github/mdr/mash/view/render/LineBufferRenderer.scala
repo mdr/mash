@@ -39,7 +39,8 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
   }
 
   private def wrap(line: Line, columns: Int, selectionWraps: Boolean = false): Seq[Line] = {
-    val groups = if (line.isEmpty) Seq(line.string) else line.string.grouped(columns).toSeq
+    val groupedGroups = if (line.isEmpty) Seq(StyledString.Empty) else line.string.grouped(columns).toSeq
+    val groups = groupedGroups.when(groupedGroups.last.chars.length == columns, _ :+ StyledString.Empty)
     for {
       (group, index) ← groups.zipWithIndex
       isLastGroup = index == groups.size - 1

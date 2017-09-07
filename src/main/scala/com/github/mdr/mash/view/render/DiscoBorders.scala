@@ -40,7 +40,7 @@ object DiscoBorders {
   }
 
   private def addDiscoBorders(character: StyledCharacter, row: Int, column: Int): StyledCharacter = {
-    val restyle = "╔╗╝╚╤║│═╟─┼┬╢╧├└┌" contains character.c
+    val restyle = "╔╗╝╚╤║│═╟─┼┬╢╧├└┌┐┘" contains character.c
     val colour = Colours((row + column + shift + Colours.length) % Colours.length)
     character.when(restyle, _.updateStyle(_.withForegroundColour(colour)))
   }
