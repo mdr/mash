@@ -8,7 +8,7 @@ import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input._
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
-import com.github.mdr.mash.view.render.ReplRenderer
+import com.github.mdr.mash.view.render.{ DiscoMode, ReplRenderer }
 import com.github.mdr.mash.repl.browser.handler.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
 import com.github.mdr.mash.repl.handler.{ IncrementalHistorySearchActionHandler, NormalActionHandler }
@@ -52,9 +52,9 @@ class Repl(protected val terminal: Terminal,
 
   def showStartupTips: Boolean = config.showStartupTips
 
-  def discoBorders: Boolean = config.discoBorders
+  def discoBorders: Option[DiscoMode] = config.discoModeOpt
 
-  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput, config.discoBorders)
+  def viewConfig: ViewConfig = ViewConfig(config.viewFuzzyTime, config.browseLargeOutput, config.discoModeOpt)
 
   def run() {
     if (showStartupTips)

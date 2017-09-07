@@ -16,7 +16,7 @@ class ObjectTreePrinter(output: PrintStream, terminalSize: Dimensions, viewConfi
   def renderLines(value: MashValue): (Seq[Line], ObjectTreeModel) = {
     val model = new ObjectTreeModelCreator(viewConfig).create(value)
     val renderer = new ObjectTreeCommonRenderer(model, selectionPathOpt = None, terminalSize)
-    val lines = renderer.renderTableLines.when(viewConfig.discoBorders, DiscoBorders.addDiscoBorders)
+    val lines = renderer.renderTableLines.whenOpt(viewConfig.discoModeOpt)(DiscoBorders.addDiscoBorders)
     (lines, model)
   }
   

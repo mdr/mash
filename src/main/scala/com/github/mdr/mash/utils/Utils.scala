@@ -136,6 +136,12 @@ object Utils {
 
     def when(cond: Boolean, f: T ⇒ T): T = if (cond) f(t) else t
 
+    def whenOpt[U](optional: Option[U])(f: (T, U) ⇒ T): T =
+      optional match {
+        case Some(u) ⇒ f(t, u)
+        case None    ⇒ t
+      }
+
   }
 
   implicit class RichBoolean(b: Boolean) {
@@ -159,6 +165,5 @@ object Utils {
         xs.take(maxLength - 1) :+ truncationItem
     }
   }
-
 
 }

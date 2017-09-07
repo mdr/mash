@@ -17,7 +17,7 @@ class TwoDTablePrinter(output: PrintStream, terminalSize: Dimensions, viewConfig
     val creator = new TwoDTableModelCreator(terminalSize, supportMarking = false, viewConfig)
     val model = creator.create(value)
     val renderer = new TwoDTableCommonRenderer(model, terminalSize)
-    val lines = renderer.renderAllTableLines.when(viewConfig.discoBorders, DiscoBorders.addDiscoBorders)
+    val lines = renderer.renderAllTableLines.whenOpt(viewConfig.discoModeOpt)(DiscoBorders.addDiscoBorders)
     
     for (line ← lines)
       output.println(StyledStringDrawer.drawStyledChars(line.string))

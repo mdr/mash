@@ -22,14 +22,14 @@ class ReplRenderer(fileSystem: FileSystem,
                    terminalSize: Dimensions,
                    globalVariables: MashObject,
                    bareWords: Boolean,
-                   discoBorders: Boolean) {
+                   discoModeOpt: Option[DiscoMode]) {
 
   def render(state: ReplState): Screen = {
     val fullScreen = state.objectBrowserStateStackOpt match {
       case Some(objectBrowserState) ⇒ renderObjectBrowser(objectBrowserState, getMashRenderingContext(state))
       case None                     ⇒ renderRegularRepl(state)
     }
-    fullScreen.truncate(terminalSize).when(discoBorders, DiscoBorders.addDiscoBorders)
+    fullScreen.truncate(terminalSize).whenOpt(discoModeOpt)(DiscoBorders.addDiscoBorders)
   }
 
   private def renderRegularRepl(state: ReplState): Screen = {

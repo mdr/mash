@@ -1,7 +1,10 @@
 package com.github.mdr.mash
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
-import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashBoolean, MashObject, MashString, MashValue }
+import com.github.mdr.mash.view.render.DiscoMode
+
+import scala.annotation.tailrec
 
 case class ConfigOption(name: String, defaultValue: MashValue) {
 
@@ -28,7 +31,11 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
 
   def browseLargeOutput: Boolean = getBooleanConfig(Config.View.BrowseLargeOutput)
 
-  def discoBorders: Boolean = getBooleanConfig(Config.View.DiscoBorders)
+  def discoModeOpt: Option[DiscoMode] = getConfig(Config.View.DiscoBorders) match {
+    case MashString("animated", _) ⇒ Some(DiscoMode.Animated)
+    case value if value.isTruthy   ⇒ Some(DiscoMode.Static)
+    case _                         ⇒ None
+  }
 
   private def getBooleanConfig(configOption: ConfigOption): Boolean =
     getConfig(configOption).isTruthy
@@ -50,7 +57,7 @@ case class ConfigWrapper(configObjectOpt: Option[MashObject]) {
       restValue ← rest match {
         case Seq() ⇒
           Some(firstValue)
-        case _ ⇒
+        case _     ⇒
           firstValue match {
             case obj: MashObject ⇒ getConfig(obj, rest)
             case _               ⇒ None
@@ -77,19 +84,26 @@ object Config {
     val DiscoBorders = ConfigOption("view.discoBorders", defaultValue = MashBoolean.False)
   }
 
-  val AllKeys = Seq(Cli.ShowStartupTips, Language.BareWords, View.BrowseLargeOutput, View.DiscoBorders, View.FuzzyTime)
+  val AllKeys = Seq(
+    Cli.ShowStartupTips,
+    Language.BareWords,
+    View.BrowseLargeOutput,
+    View.DiscoBorders,
+    View.FuzzyTime)
 
-  def defaultConfig = {
+  def defaultConfig: MashObject = {
     val config = MashObject.empty
+
+    @tailrec
     def addConfigOption(obj: MashObject, path: Seq[String], value: MashValue) {
       path match {
-        case Seq()    ⇒
-        case Seq(key) ⇒ obj.set(key, value)
-        case Seq(head, rest @ _*) ⇒
+        case Seq()              ⇒
+        case Seq(key)           ⇒ obj.set(key, value)
+        case Seq(head, rest@_*) ⇒
           val childObj = obj.get(head) match {
             case Some(obj: MashObject) ⇒
               obj
-            case _ ⇒
+            case _                     ⇒
               val newObj = MashObject.empty
               obj.set(head, newObj)
               newObj
@@ -97,9 +111,9 @@ object Config {
           addConfigOption(childObj, rest, value)
       }
     }
-    for (configOption ← Config.AllKeys) {
+
+    for (configOption ← Config.AllKeys)
       addConfigOption(config, configOption.path, configOption.defaultValue)
-    }
     config
   }
 

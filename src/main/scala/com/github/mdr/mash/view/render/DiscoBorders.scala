@@ -3,6 +3,14 @@ package com.github.mdr.mash.view.render
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 
+sealed trait DiscoMode
+object DiscoMode {
+  
+  case object Static extends DiscoMode
+  case object Animated extends DiscoMode
+  
+}
+
 object DiscoBorders {
 
   val Colours =
@@ -23,12 +31,13 @@ object DiscoBorders {
 
   private var shift = 0
 
-  def addDiscoBorders(screen: Screen): Screen =
-    screen.copy(lines = addDiscoBorders(screen.lines))
+  def addDiscoBorders(screen: Screen, discoMode: DiscoMode): Screen =
+    screen.copy(lines = addDiscoBorders(screen.lines, discoMode))
 
-  def addDiscoBorders(lines: Seq[Line]): Seq[Line] = {
+  def addDiscoBorders(lines: Seq[Line], discoMode: DiscoMode): Seq[Line] = {
     val newLines = lines.zipWithIndex.map { case (line, row) ⇒ addDiscoBorders(line, row) }
-    shift = shift - 1 + Colours.length
+    if (discoMode == DiscoMode.Animated)
+      shift = shift - 1 + Colours.length
     newLines
   }
 

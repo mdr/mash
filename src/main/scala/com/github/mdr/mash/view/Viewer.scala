@@ -13,11 +13,12 @@ import com.github.mdr.mash.view.model._
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.StyledStringDrawer
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.render.DiscoMode
 import org.ocpsoft.prettytime.PrettyTime
 
 case class ViewConfig(fuzzyTime: Boolean = true,
                       browseLargeOutput: Boolean = true,
-                      discoBorders: Boolean = false)
+                      discoModeOpt: Option[DiscoMode] = None)
 
 case class ViewDirectives(disableCustomViews: Boolean = false,
                           alwaysUseBrowser: Boolean = false,

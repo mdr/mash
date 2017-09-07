@@ -16,7 +16,7 @@ class SingleObjectTablePrinter(output: PrintStream, terminalSize: Dimensions, vi
   def printObject(obj: MashObject) {
     val model = new SingleObjectTableModelCreator(terminalSize, supportMarking = false, viewConfig).create(obj)
     val renderer = new SingleObjectTableCommonRenderer(model)
-    val lines = renderer.renderTableLines().when(viewConfig.discoBorders, DiscoBorders.addDiscoBorders)
+    val lines = renderer.renderTableLines().whenOpt(viewConfig.discoModeOpt)(DiscoBorders.addDiscoBorders)
     for (line ← lines)
       output.println(StyledStringDrawer.drawStyledChars(line.string))
   }
