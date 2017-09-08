@@ -35,7 +35,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
   }
 
   "Multiple lines" should "be indented with dots under the prefix" in {
-    val repl = makeRepl(terminal = DummyTerminal(columns = 20))
+    val repl = makeRepl(terminal = DummyTerminal(columns = 15))
       .input("{").enter()
       .input("  42").enter()
       .input("}")
@@ -43,7 +43,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
     repl.getText shouldEqual
       """[0] ~ $ {
         |.......   42
-        |....... }          ◉""".stripMargin
+        |....... }     ◉""".stripMargin
   }
 
   "Empty lines" should "be rendered in browser expression editor" in {

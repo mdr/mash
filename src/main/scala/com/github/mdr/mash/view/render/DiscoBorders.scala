@@ -33,7 +33,7 @@ object DiscoBorders {
       "#4500ff",
       "#9200ff").map(RgbColour.parse)
 
-  private val Colours = HalfColours ++ HalfColours.reverse.drop(1)
+  private val Colours = HalfColours ++ HalfColours.reverse
 
   private var shift = 0
 
