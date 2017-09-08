@@ -2,11 +2,12 @@ package com.github.mdr.mash.view.render.browser
 
 import com.github.mdr.mash.assist.AssistanceState
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
-import com.github.mdr.mash.view.render._
 import com.github.mdr.mash.repl.browser.BrowserState
-import com.github.mdr.mash.screen._
+import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.screen.Style._
+import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
+import com.github.mdr.mash.view.render._
 
 abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext) {
 
@@ -23,7 +24,7 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   }
 
   protected def renderUpperStatusLines: LinesAndCursorPos = {
-    val prefix = "Browse: ".style(DefaultColours.Orange)
+    val prefix = s"$typeName: ".style(DefaultColours.Orange)
     state.expressionStateOpt match {
       case Some(expressionState) ⇒
         val LinesAndCursorPos(lines, cursorPosOpt) = lineBufferRenderer.renderLineBuffer(expressionState.lineBuffer,
@@ -47,6 +48,17 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   protected def combineUpperStatusLines(upperLines: LinesAndCursorPos, otherLines: Seq[Line]): LinesAndCursorPos = {
     val newLines = upperLines.lines ++ otherLines.drop(upperLines.lines.length - 1)
     LinesAndCursorPos(newLines, upperLines.cursorPosOpt)
+  }
+
+  protected def typeName: String = (state.rawValue match {
+    case MashString(_, Some(tagClass)) ⇒ tagClass
+    case MashNumber(_, Some(tagClass)) ⇒ tagClass
+    case other                         ⇒ other.primaryClass
+  }).name
+
+  protected def renderCount(current: Int, total: Int): StyledString = {
+    val paddedCurrent = current.toString.reverse.padTo(total.toString.length, ' ').reverse
+    s"$paddedCurrent/$total".style(inverse = true)
   }
 
 }

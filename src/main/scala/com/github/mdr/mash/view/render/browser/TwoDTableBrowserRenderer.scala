@@ -38,7 +38,7 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState,
       isFile.option(Read) ++
       Seq(NextParentResult, PreviousParentResult) ++
       state.currentColumnOpt.toSeq.flatMap(_ ⇒ Seq(Row, HideColumn))
-    val countChars = s"${currentRow + 1}/${model.rows.size}".style(Style(inverse = true))
+    val countChars = renderCount(currentRow + 1, model.rows.size)
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
 
@@ -47,8 +47,8 @@ class TwoDTableBrowserRenderer(state: TwoDTableBrowserState,
       case Some(searchState) ⇒ StatusLineRenderers.renderIncrementalSearchStatusLine(currentRow, searchState)
       case None              ⇒
         state.expressionStateOpt match {
-          case Some(expressionState) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
-          case None                  ⇒ renderRegularStatusLine
+          case Some(_) ⇒ StatusLineRenderers.renderExpressionInputStatusLine
+          case None    ⇒ renderRegularStatusLine
         }
     }
 

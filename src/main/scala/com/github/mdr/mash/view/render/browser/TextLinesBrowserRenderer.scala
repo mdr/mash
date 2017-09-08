@@ -7,7 +7,9 @@ import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Dimensions
 import com.github.mdr.mash.utils.Utils._
 
-class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimensions, mashRenderingContext: MashRenderingContext)
+class TextLinesBrowserRenderer(state: TextLinesBrowserState,
+                               terminalSize: Dimensions,
+                               mashRenderingContext: MashRenderingContext)
   extends AbstractBrowserRenderer(state, terminalSize, mashRenderingContext) {
 
   protected def renderDataLines: Seq[Line] =
@@ -23,7 +25,7 @@ class TextLinesBrowserRenderer(state: TextLinesBrowserState, terminalSize: Dimen
   private def renderRegularStatusLine = {
     import KeyHint._
     val hints = Seq(Exit, Back, InsertWhole, NextParentResult, PreviousParentResult)
-    val countChars = s"${state.selectedRow + 1}/${state.model.renderedLines.size}".style(Style(inverse = true))
+    val countChars = renderCount(state.selectedRow + 1, state.model.renderedLines.size)
     Line(countChars + " (".style + renderKeyHints(hints) + ")".style)
   }
 
