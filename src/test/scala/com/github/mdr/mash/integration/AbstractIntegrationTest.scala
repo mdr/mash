@@ -5,16 +5,16 @@ import java.util.UUID
 
 import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.os.{FileSystem, MockEnvironmentInteractions, MockFileSystem}
+import com.github.mdr.mash.os.{ FileSystem, MockEnvironmentInteractions, MockFileSystem }
 import com.github.mdr.mash.repl.NormalActions._
 import com.github.mdr.mash.repl._
 import com.github.mdr.mash.repl.browser.ObjectBrowserActions.ExpressionInput.BeginExpression
-import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{PreviousColumn, UnfocusColumn, _}
-import com.github.mdr.mash.repl.browser.{ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState}
+import com.github.mdr.mash.repl.browser.ObjectBrowserActions.{ PreviousColumn, UnfocusColumn, _ }
+import com.github.mdr.mash.repl.browser.{ ObjectBrowserStateStack, SingleObjectTableBrowserState, TwoDTableBrowserState }
 import com.github.mdr.mash.repl.completions.IncrementalCompletionState
 import com.github.mdr.mash.repl.history.InMemoryHistoryStorage
 import com.github.mdr.mash.runtime.MashValue
-import com.github.mdr.mash.terminal.{DummyTerminal, Terminal}
+import com.github.mdr.mash.terminal.{ DummyTerminal, Terminal }
 import org.scalatest._
 
 class AbstractIntegrationTest extends FlatSpec with Matchers {
@@ -127,6 +127,11 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
   implicit class RichRepl(repl: Repl) {
 
     import com.github.mdr.mash.repl.NormalActions._
+
+    def getText: String =
+      repl.render.lines
+        .map(line ⇒ line.string.forgetStyling + (if (line.endsInNewline) "" else "⤦"))
+        .mkString("\n")
 
     private def handleAction(action: InputAction): Repl = {
       repl.handleAction(action)
