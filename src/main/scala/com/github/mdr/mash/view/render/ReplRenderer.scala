@@ -22,7 +22,8 @@ class ReplRenderer(fileSystem: FileSystem,
                    terminalSize: Dimensions,
                    globalVariables: MashObject,
                    bareWords: Boolean,
-                   discoModeOpt: Option[DiscoMode]) {
+                   discoModeOpt: Option[DiscoMode],
+                   completed: Boolean) {
 
   def render(state: ReplState): Screen = {
     val fullScreen = state.objectBrowserStateStackOpt match {
@@ -35,7 +36,7 @@ class ReplRenderer(fileSystem: FileSystem,
   private def renderRegularRepl(state: ReplState): Screen = {
     val mashRenderingContext = getMashRenderingContext(state)
     val LinesAndCursorPos(bufferLines, bufferCursorPosOpt) =
-      new LineBufferRenderer(envInteractions, fileSystem).renderLineBuffer(state, terminalSize, mashRenderingContext)
+      new LineBufferRenderer(envInteractions, fileSystem).renderLineBuffer(state, terminalSize, mashRenderingContext, completed)
 
     val historySearchLinesAndCursorPosOpt = state.incrementalHistorySearchStateOpt.map(
       IncrementalHistorySearchRenderer.renderHistorySearchState(_, terminalSize))

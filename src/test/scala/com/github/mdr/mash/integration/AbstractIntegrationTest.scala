@@ -129,7 +129,7 @@ class AbstractIntegrationTest extends FlatSpec with Matchers {
     import com.github.mdr.mash.repl.NormalActions._
 
     def getText: String =
-      repl.render.lines
+      repl.render().lines
         .map(line ⇒ line.string.forgetStyling + (if (line.endsInNewline) "" else "⤦"))
         .mkString("\n")
 

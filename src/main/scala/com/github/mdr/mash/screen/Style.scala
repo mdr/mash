@@ -25,9 +25,9 @@ object Style {
 
   implicit class StylableChar(c: Char) {
 
-    def style(aStyle: Style): StyledCharacter = aStyle(c)
-
     def style: StyledCharacter = StyledCharacter(c)
+
+    def style(aStyle: Style): StyledCharacter = aStyle(c)
 
   }
 

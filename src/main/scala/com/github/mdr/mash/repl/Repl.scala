@@ -62,8 +62,8 @@ class Repl(protected val terminal: Terminal,
     inputLoop()
   }
 
-  def draw() {
-    val newScreen = render
+  def draw(completed: Boolean = false) {
+    val newScreen = render(completed)
     val ScreenDraw(drawString, newSwappedOutScreenOpt) = ScreenDrawer.draw(newScreen, previousScreenOpt, swappedOutScreenOpt)
     previousScreenOpt = Some(newScreen)
     swappedOutScreenOpt = newSwappedOutScreenOpt
@@ -71,8 +71,8 @@ class Repl(protected val terminal: Terminal,
     output.flush()
   }
 
-  def render: Screen = {
-    val replRenderer = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords, discoBorders)
+  def render(completed: Boolean = false): Screen = {
+    val replRenderer = new ReplRenderer(fileSystem, envInteractions, terminal.size, globalVariables, bareWords, discoBorders, completed)
     replRenderer.render(state)
   }
 

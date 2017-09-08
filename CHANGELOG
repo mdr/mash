@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add status indicator suffix to line
 * Disco borders
 * Force printing using view.print
 * Render the object browser on the alternate screen

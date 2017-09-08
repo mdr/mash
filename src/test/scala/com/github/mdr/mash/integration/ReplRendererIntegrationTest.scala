@@ -7,11 +7,11 @@ import com.github.mdr.mash.utils.Point
 class ReplRendererIntegrationTest extends AbstractIntegrationTest {
 
   "Rendering the initial empty REPL" should "work" in {
-    val screen = makeRepl().render
+    val screen = makeRepl(terminal = DummyTerminal(columns = 10)).render()
 
-    val expectedLine = "[0] ~ $ "
+    val expectedLine = "[0] ~ $  ◉"
     screen.lines.map(getText) shouldEqual Seq(expectedLine)
-    screen.cursorPosOpt shouldEqual Some(Point(0, expectedLine.length))
+    screen.cursorPosOpt shouldEqual Some(Point(0, 8))
     screen.title shouldEqual "~"
   }
 
@@ -21,8 +21,8 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
     repl.getText shouldEqual
       """[0]⤦
         | ~ ⤦
-        |$ """.stripMargin
-    repl.render.cursorPosOpt shouldEqual Some(Point(2, 2))
+        |$ ◉""".stripMargin
+    repl.render().cursorPosOpt shouldEqual Some(Point(2, 2))
   }
 
   "Rendering a REPL as wide as the terminal" should "work" in {
@@ -30,12 +30,12 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
     repl.input("89")
     repl.getText shouldEqual
       """[0] ~ $ 89⤦
-        |""".stripMargin
-    repl.render.cursorPosOpt shouldEqual Some(Point(1, 0))
+        |         ◉""".stripMargin
+    repl.render().cursorPosOpt shouldEqual Some(Point(1, 0))
   }
 
   "Multiple lines" should "be indented with dots under the prefix" in {
-    val repl = makeRepl()
+    val repl = makeRepl(terminal = DummyTerminal(columns = 20))
       .input("{").enter()
       .input("  42").enter()
       .input("}")
@@ -43,11 +43,11 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
     repl.getText shouldEqual
       """[0] ~ $ {
         |.......   42
-        |....... }""".stripMargin
+        |....... }          ◉""".stripMargin
   }
 
   "Empty lines" should "be rendered in browser expression editor" in {
-    makeRepl()
+    makeRepl(terminal = DummyTerminal(columns = 15))
       .input("view.browse [{ a: 1, b: 2 }, { a: 3, b: 4 }]").enter()
       .affirmInTwoDBrowser
       .beginExpression()
@@ -60,7 +60,7 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
       """Browse: r0
         |....... 
         |....... 
-        |....... XXX
+        |....... XXX   ◉
         |║ │0│1│2║
         |║ │1│3│4║
         |╚═╧═╧═╧═╝

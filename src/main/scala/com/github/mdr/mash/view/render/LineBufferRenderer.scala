@@ -2,8 +2,9 @@ package com.github.mdr.mash.view.render
 
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.parser.MashParser
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
-import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
 import com.github.mdr.mash.utils.{ Dimensions, Point, Region }
@@ -12,17 +13,19 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
 
   def renderLineBuffer(state: ReplState,
                        terminalSize: Dimensions,
-                       context: MashRenderingContext): LinesAndCursorPos = {
+                       context: MashRenderingContext,
+                       completed: Boolean): LinesAndCursorPos = {
     val prefix = renderPrompt(state.commandNumber, state.mish)
     val matchRegionOpt = state.incrementalHistorySearchStateOpt.flatMap(_.hitStatus.matchRegionOpt)
-    renderLineBuffer(state.lineBuffer, terminalSize, context, prefix, matchRegionOpt)
+    renderLineBuffer(state.lineBuffer, terminalSize, context, prefix, matchRegionOpt, completed)
   }
 
   def renderLineBuffer(lineBuffer: LineBuffer,
                        terminalSize: Dimensions,
                        context: MashRenderingContext,
                        prefix: StyledString = StyledString.Empty,
-                       matchRegionOpt: Option[Region] = None): LinesAndCursorPos = {
+                       matchRegionOpt: Option[Region] = None,
+                       completed: Boolean = false): LinesAndCursorPos = {
     val unwrappedLines = renderWithoutWrapping(lineBuffer, prefix, context, matchRegionOpt)
 
     val wrappedLines = unwrappedLines.flatMap { case UnwrappedRenderedLine(line, selectionWraps) ⇒
@@ -35,7 +38,19 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
     val column = (prefix.length + cursorPos.column) % terminalSize.columns
     val wrappedCursorPos = Point(row, column)
 
-    LinesAndCursorPos(wrappedLines, Some(wrappedCursorPos))
+    val lines = wrappedLines.when(!completed, addStatusIndicator(lineBuffer, context, terminalSize))
+
+    LinesAndCursorPos(lines, Some(wrappedCursorPos))
+  }
+
+  private def addStatusIndicator(lineBuffer: LineBuffer, context: MashRenderingContext, terminalSize: Dimensions)(wrappedLines: Seq[Line]) = {
+    val lastLine = wrappedLines.last.string.padTo(terminalSize.columns, StyledCharacter(' '))
+    val syntaxError = MashParser.parse(lineBuffer.text, context.mishByDefault).isLeft
+    val indicatorStyle = if (syntaxError) Style(foregroundColour = DefaultColours.Red) else Style(DefaultColours.Green)
+    val errorIndicatorStyled = '◉'.style(indicatorStyle)
+    val newLastLine = lastLine.updated(lastLine.length - 1, errorIndicatorStyled)
+    val lines = wrappedLines.init :+ Line(newLastLine)
+    lines
   }
 
   private def wrap(line: Line, columns: Int, selectionWraps: Boolean = false): Seq[Line] = {

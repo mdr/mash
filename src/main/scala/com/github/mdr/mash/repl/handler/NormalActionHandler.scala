@@ -229,7 +229,7 @@ trait NormalActionHandler extends InlineHandler {
       completionStateOpt = None,
       assistanceStateOpt = None,
       lineBuffer = state.lineBuffer.moveCursorToEnd())
-    draw()
+    draw(completed = true)
 
     for (previousScreen ← previousScreenOpt) {
       output.write(previousScreen.acceptScreen.getBytes)

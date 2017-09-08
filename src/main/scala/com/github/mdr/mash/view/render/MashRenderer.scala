@@ -83,6 +83,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
     val restyledChars =
       for ((c, i) ← styledChars.zipWithIndex)
         yield c.when(matchRegionOpt.exists(_ contains i), _.updateStyle(_.withUnderline))
+
     StyledString(restyledChars)
   }
 
