@@ -57,10 +57,10 @@ class ReplRendererIntegrationTest extends AbstractIntegrationTest {
       .input("XXX")
       .repl
       .getText shouldEqual
-      """Browse: r0
-        |....... 
-        |....... 
-        |....... XXX   ◉
+      """List: r0
+        |..... 
+        |..... 
+        |..... XXX     ◉
         |║ │0│1│2║
         |║ │1│3│4║
         |╚═╧═╧═╧═╝
