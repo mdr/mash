@@ -19,7 +19,21 @@ class AnyMethodsTest extends AbstractEvaluatorTest {
 
   // Any.isA
   "42.isA Number" ==> true
+  "42.isA Any" ==> true
   "42.isA String" ==> false
+  "42.isA Object" ==> false
+  
+  "null.isA Object" ==> false
+  "null.isA Null" ==> true
+  "null.isA Any" ==> true
+  
+  "class A; A.new.isA A" ==> true
+  "class A; A.new.isA Object" ==> true
+  "class A; A.new.isA Any" ==> true
+  "class A; {}.isA A" ==> false
+  "class A; A.isA A" ==> false
+  "class A; A.isA Class" ==> true
+  
   "3.days.isA 3.days.tag" ==> true
 
 }
