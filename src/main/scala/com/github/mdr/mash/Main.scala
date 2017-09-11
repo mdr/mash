@@ -19,7 +19,7 @@ object Main extends App {
   else
     launchRepl()
 
-  private def launchRepl() = {
+  private def launchRepl() {
     handleSignals()
     val sessionId = UUID.randomUUID
     TerminalHelper.withTerminal { terminal ⇒

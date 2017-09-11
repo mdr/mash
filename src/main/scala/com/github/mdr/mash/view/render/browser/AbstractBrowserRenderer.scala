@@ -51,9 +51,8 @@ abstract class AbstractBrowserRenderer(state: BrowserState, terminalSize: Dimens
   }
 
   protected def typeName: String = (state.rawValue match {
-    case MashString(_, Some(tagClass)) ⇒ tagClass
-    case MashNumber(_, Some(tagClass)) ⇒ tagClass
-    case other                         ⇒ other.primaryClass
+    case TaggableMashValue.TagClass(tagClass) ⇒ tagClass
+    case other                                ⇒ other.primaryClass
   }).name
 
   protected def renderCount(current: Int, total: Int): StyledString = {

@@ -10,7 +10,7 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
   "ScreenDrawer" should "handle an empty screen" in {
     val screen = Screen(lines = Seq(), cursorPosOpt = None, title = "mash")
     val ScreenDraw(drawString, None) = ScreenDrawer.draw(screen)
-    replaceEscapes(drawString) shouldEqual "(hide-cursor)(set-title mash)"
+    replaceEscapes(drawString) shouldEqual "(hide-cursor)(reset)(set-title mash)"
   }
 
   it should "handle a single line" in {
