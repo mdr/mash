@@ -19,7 +19,7 @@ object ScreenDrawer {
     val actualPreviousScreenOpt = if (swappingBackIn) swappedOutScreenOpt else previousScreenOpt
 
     val currentPos = actualPreviousScreenOpt.flatMap(_.cursorPosOpt).getOrElse(Point(0, 0))
-    val drawState = new DrawState(currentPos.row, currentPos.column)
+    val drawState = new DrawState(currentPos.row, currentPos.column, Style.Default)
 
     if (swappingOut)
       drawState.switchToAlternateScreen()
@@ -76,8 +76,7 @@ object ScreenDrawer {
         // We rewrite the last character to force a wrap
         val lastChars = aboveLine.string.takeRight(1)
         drawState.moveCursorToColumn(aboveLine.string.size)
-        val drawnChars = StyledStringDrawer.drawStyledChars(lastChars)
-        drawState.addChars(drawnChars, lastChars.length)
+        drawState.addChars(lastChars)
         drawState.funkyWrap()
       }
     }
@@ -90,8 +89,7 @@ object ScreenDrawer {
       drawState.moveCursorToColumn(commonPrefixLength)
       drawState.eraseLine()
       val remainder = newLine.string.drop(commonPrefixLength)
-      val drawnChars = StyledStringDrawer.drawStyledChars(remainder)
-      drawState.addChars(drawnChars, remainder.length)
+      drawState.addChars(remainder)
     }
   }
 

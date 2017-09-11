@@ -1,20 +1,32 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.terminal.ansi.EscapeSequence
+import com.github.mdr.mash.terminal.ansi.{ EscapeSequence, StyleToEscapeSequence }
 import com.github.mdr.mash.utils.Point
 
 /**
   * Helper class to manage current characters written and state of the terminal during drawing
   */
-class DrawState(private var currentRow: Int, private var currentColumn: Int) {
+class DrawState(private var currentRow: Int, 
+                private var currentColumn: Int,
+                private var currentStyle: Style) {
 
   import EscapeSequence._
 
-  private val sb = new StringBuilder(HideCursor)
+  private val sb = new StringBuilder(HideCursor + StyleToEscapeSequence.Reset)
 
-  def getCurrentRow = currentRow
+  def addChars(s: StyledString) = s.chars.foreach(addChar)
 
-  def getCurrentColumn = currentColumn
+  def addChar(char: StyledCharacter) {
+    if (char.style != currentStyle) {
+      sb.append(StyleToEscapeSequence.Reset)
+      sb.append(StyleToEscapeSequence(char.style))
+      currentStyle = char.style
+    }
+    sb.append(char.c)
+    currentColumn += 1
+  }
+
+  def getCurrentRow: Int = currentRow
 
   /**
     * Move up to the correct row, or down to just before the correct row, as required.
@@ -45,7 +57,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 
   def moveCursorToColumn(col: Int) {
     if (currentColumn > col)
-        cr()
+      cr()
     cursorForward(col - currentColumn)
   }
 
@@ -76,12 +88,7 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
       sb.append(EscapeSequence.cursorBackward(n))
       currentColumn -= n
     }
-
-  def addChars(drawnChars: String, length: Int) {
-    sb.append(drawnChars)
-    currentColumn += length
-  }
-
+  
   def funkyWrap() {
     sb.append(" \r") // this one weird trick Readline doesn't want you to know
     currentRow += 1
@@ -102,14 +109,14 @@ class DrawState(private var currentRow: Int, private var currentColumn: Int) {
     sb.toString
   }
 
-  def switchToAlternateScreen(): Unit = {
+  def switchToAlternateScreen() {
     sb.append(EscapeSequence.SwitchToAlternateScreen)
     sb.append(EscapeSequence.MoveCursorToTopLeft + EscapeSequence.ClearScreen)
     currentRow = 0
     currentColumn = 0
   }
 
-  def returnFromAlternateScreen(cursorPos: Point): Unit = {
+  def returnFromAlternateScreen(cursorPos: Point) {
     sb.append(EscapeSequence.ReturnFromAlternateScreen)
     currentRow = cursorPos.row
     currentColumn = cursorPos.column

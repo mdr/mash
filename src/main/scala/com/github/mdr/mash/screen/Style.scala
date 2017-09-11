@@ -4,6 +4,8 @@ import scala.collection.mutable.ArrayBuffer
 
 object Style {
 
+  val Default = Style()
+  
   implicit class StyledStringInterpolation(val sc: StringContext) extends AnyVal {
 
     def style(args: Any*): StyledString = {
