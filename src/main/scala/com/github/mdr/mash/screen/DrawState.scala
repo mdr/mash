@@ -4,7 +4,7 @@ import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.utils.Point
 
 /**
-  * Helper class to manage current characters written and location of cursor during drawing
+  * Helper class to manage current characters written and state of the terminal during drawing
   */
 class DrawState(private var currentRow: Int, private var currentColumn: Int) {
 

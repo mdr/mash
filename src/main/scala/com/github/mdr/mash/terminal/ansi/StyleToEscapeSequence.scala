@@ -2,23 +2,21 @@ package com.github.mdr.mash.terminal.ansi
 
 import com.github.mdr.mash.screen._
 
-import scala.collection.mutable.ArrayBuffer
 import com.github.mdr.mash.utils.CharUtils._
+import com.github.mdr.mash.utils.Utils._
 
 object StyleToEscapeSequence {
 
   private val EscapePrefix = s"$Esc["
 
   def apply(style: Style): String = {
-    val attribs = ArrayBuffer[Int]()
-    attribs ++= fg(style.foregroundColour)
-    attribs ++= bg(style.backgroundColour)
-    if (style.inverse)
-      attribs += 7
-    if (style.bold)
-      attribs += 1
-    if (style.underline)
-      attribs += 4
+    import style._
+    val attribs =
+      fg(foregroundColour) ++
+        bg(backgroundColour) ++
+        inverse.option(7) ++
+        bold.option(1) ++
+        underline.option(4)
     attribEscape(attribs)
   }
 
