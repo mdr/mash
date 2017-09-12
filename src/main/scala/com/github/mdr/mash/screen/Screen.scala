@@ -23,6 +23,8 @@ case class Line(string: StyledString, endsInNewline: Boolean = true) {
 
   def isEmpty: Boolean = string.isEmpty
 
+  def length: Int = string.length
+  
 }
 
 case class Screen(lines: Seq[Line],

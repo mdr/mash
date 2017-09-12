@@ -1,10 +1,10 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.utils.{ Point, Utils }
+import com.github.mdr.mash.utils.{ Dimensions, Point, Utils }
 
 case class ScreenDraw(drawString: String, swappedOutScreenOpt: Option[Screen])
 
-object ScreenDrawer {
+class ScreenDrawer(terminalSize: Dimensions) {
 
   def draw(newScreen: Screen,
            previousScreenOpt: Option[Screen] = None,
@@ -19,7 +19,7 @@ object ScreenDrawer {
     val actualPreviousScreenOpt = if (swappingBackIn) swappedOutScreenOpt else previousScreenOpt
 
     val currentPos = actualPreviousScreenOpt.flatMap(_.cursorPosOpt).getOrElse(Point(0, 0))
-    val drawState = new DrawState(currentPos.row, currentPos.column, Style.Default)
+    val drawState = new DrawState(terminalSize, currentPos.row, currentPos.column, Style.Default)
 
     if (swappingOut)
       drawState.switchToAlternateScreen()
@@ -75,7 +75,7 @@ object ScreenDrawer {
       else {
         // We rewrite the last character to force a wrap
         val lastChars = aboveLine.string.takeRight(1)
-        drawState.moveCursorToColumn(aboveLine.string.size)
+        drawState.moveCursorToColumn(aboveLine.string.size - 1)
         drawState.addChars(lastChars)
         drawState.funkyWrap()
       }
@@ -90,6 +90,8 @@ object ScreenDrawer {
       drawState.eraseLine()
       val remainder = newLine.string.drop(commonPrefixLength)
       drawState.addChars(remainder)
+      //      if (previousLineOpt.exists(_.length > newLine.length))
+      //      drawState.eraseLine()
     }
   }
 

@@ -1,14 +1,15 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.terminal.ansi.{ EscapeSequence, StyleToEscapeSequence }
-import com.github.mdr.mash.utils.Point
+import com.github.mdr.mash.utils.{ Dimensions, Point }
 
 /**
   * Helper class to manage current characters written and state of the terminal during drawing
   */
-class DrawState(private var currentRow: Int, 
-                private var currentColumn: Int,
-                private var currentStyle: Style) {
+class DrawState(terminalSize: Dimensions,
+                var currentRow: Int,
+                var currentColumn: Int,
+                var currentStyle: Style) {
 
   import EscapeSequence._
 
@@ -23,7 +24,7 @@ class DrawState(private var currentRow: Int,
       currentStyle = char.style
     }
     sb.append(char.c)
-    currentColumn += 1
+    currentColumn = (currentColumn + 1) min (terminalSize.columns - 1)
   }
 
   def getCurrentRow: Int = currentRow
@@ -54,12 +55,12 @@ class DrawState(private var currentRow: Int,
       cr()
     }
   }
-
-  def moveCursorToColumn(col: Int) {
+  
+  def moveCursorToColumn(col: Int) =
     if (currentColumn > col)
-      cr()
-    cursorForward(col - currentColumn)
-  }
+      cursorBackward(currentColumn - col)
+    else
+      cursorForward(col - currentColumn)
 
   def moveCursor(pos: Point): Unit = {
     moveCursorToRow(pos.row)
@@ -88,7 +89,7 @@ class DrawState(private var currentRow: Int,
       sb.append(EscapeSequence.cursorBackward(n))
       currentColumn -= n
     }
-  
+
   def funkyWrap() {
     sb.append(" \r") // this one weird trick Readline doesn't want you to know
     currentRow += 1

@@ -64,7 +64,7 @@ class Repl(protected val terminal: Terminal,
 
   def draw(completed: Boolean = false) {
     val newScreen = render(completed)
-    val ScreenDraw(drawString, newSwappedOutScreenOpt) = ScreenDrawer.draw(newScreen, previousScreenOpt, swappedOutScreenOpt)
+    val ScreenDraw(drawString, newSwappedOutScreenOpt) = new ScreenDrawer(terminal.size).draw(newScreen, previousScreenOpt, swappedOutScreenOpt)
     previousScreenOpt = Some(newScreen)
     swappedOutScreenOpt = newSwappedOutScreenOpt
     output.write(drawString.getBytes)
