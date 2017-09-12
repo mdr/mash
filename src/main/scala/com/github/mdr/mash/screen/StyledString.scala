@@ -23,6 +23,10 @@ object StyledString {
 
 case class StyledString(chars: Seq[StyledCharacter]) {
 
+  def lastOption: Option[StyledCharacter] = chars.lastOption
+
+  def headOption: Option[StyledCharacter] = chars.headOption
+
   def head: StyledCharacter = chars.head
 
   def last: StyledCharacter = chars.last

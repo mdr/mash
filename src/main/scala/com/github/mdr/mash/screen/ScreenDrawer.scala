@@ -1,6 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.utils.{ Dimensions, Point, Utils }
+import Style._
 
 case class ScreenDraw(drawString: String, swappedOutScreenOpt: Option[Screen])
 
@@ -73,11 +74,11 @@ class ScreenDrawer(terminalSize: Dimensions) {
       if (aboveLine.endsInNewline)
         drawState.crlf()
       else {
-        // We rewrite the last character to force a wrap
-        val lastChars = aboveLine.string.takeRight(1)
+        // We rewrite the last character of the previous line and the first character of the new line to force a wrap
+        val lastCharOfPreviousLine = aboveLine.string.lastOption getOrElse ' '.style
+        val firstCharOfNewLine = newLine.string.headOption getOrElse ' '.style
         drawState.moveCursorToColumn(aboveLine.string.size - 1)
-        drawState.addChars(lastChars)
-        drawState.funkyWrap()
+        drawState.funkyWrap(lastCharOfPreviousLine, firstCharOfNewLine)
       }
     }
     val commonPrefixLength = previousLineOpt match {

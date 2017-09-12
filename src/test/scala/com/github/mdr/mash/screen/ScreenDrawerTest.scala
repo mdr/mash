@@ -49,9 +49,28 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
         Line("000".style)),
       cursorPosOpt = Some(Point(1, 3)),
       title = Title)
-    val ScreenDraw(drawString, None) = new ScreenDrawer(DummyTerminal.SufficientlyLargeTerminalSize.withColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
+    val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
     replaceEscapes(drawString) shouldEqual 
-      s"(hide-cursor)(reset)(cursor-up 1)(erase-line-from-cursor) 000 (carriage-return)(cursor-forward 2)(erase-line-from-cursor)0(show-cursor)"
+      s"(hide-cursor)(reset)(cursor-up 1)(erase-line-from-cursor) 00(carriage-return)(cursor-forward 4)00(carriage-return)(cursor-forward 2)(erase-line-from-cursor)0(show-cursor)"
+  }
+  
+  it should "handle drawing a line with a cursor in the last column" in {
+    val screen1 = Screen(
+      lines = Seq(Line("123 X".style)),
+      cursorPosOpt = Some(Point(0, 3)),
+      title = Title)
+    val screen2 = Screen(
+      lines = Seq(Line("1234X".style)),
+      cursorPosOpt = Some(Point(0, 4)),
+      title = Title)
+    val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
+    replaceEscapes(drawString) shouldEqual
+      s"(hide-cursor)(reset)(erase-line-from-cursor)4X(carriage-return)(cursor-forward 4)(show-cursor)"
+
+  }
+
+  private def terminalWithColumns(numberOfColumns: Int) = {
+    DummyTerminal.SufficientlyLargeTerminalSize.withColumns(numberOfColumns)
   }
 
   private def replaceEscapes(s: String): String = {

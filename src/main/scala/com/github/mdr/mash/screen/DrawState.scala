@@ -24,7 +24,11 @@ class DrawState(terminalSize: Dimensions,
       currentStyle = char.style
     }
     sb.append(char.c)
-    currentColumn = (currentColumn + 1) min (terminalSize.columns - 1)
+    if (currentColumn == terminalSize.columns) {
+      currentColumn = 0
+      currentRow += 1
+    }
+    currentColumn += 1
   }
 
   def getCurrentRow: Int = currentRow
@@ -56,11 +60,14 @@ class DrawState(terminalSize: Dimensions,
     }
   }
   
-  def moveCursorToColumn(col: Int) =
+  def moveCursorToColumn(col: Int) = {
+    if (currentColumn == terminalSize.columns)
+      cr()
     if (currentColumn > col)
       cursorBackward(currentColumn - col)
     else
       cursorForward(col - currentColumn)
+  }
 
   def moveCursor(pos: Point): Unit = {
     moveCursorToRow(pos.row)
@@ -90,10 +97,10 @@ class DrawState(terminalSize: Dimensions,
       currentColumn -= n
     }
 
-  def funkyWrap() {
-    sb.append(" \r") // this one weird trick Readline doesn't want you to know
-    currentRow += 1
-    currentColumn = 0
+  def funkyWrap(lastChar: StyledCharacter, firstChar: StyledCharacter) {
+    addChar(lastChar)
+    addChar(firstChar)
+    cr()
   }
 
   def eraseLine() {
