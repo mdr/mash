@@ -89,7 +89,7 @@ object UrlClass extends MashClass("net.Url") {
     def call(target: MashValue, boundParams: BoundParams): MashUnit =
       OpenFunction.openWithSystemOpener(target)
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Open a this URL with the default application")
 

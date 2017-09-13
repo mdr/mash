@@ -47,7 +47,7 @@ object DeleteFunction extends MashFunction("git.branch.delete") {
       case Branches ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches)
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Delete a local branch")
 }

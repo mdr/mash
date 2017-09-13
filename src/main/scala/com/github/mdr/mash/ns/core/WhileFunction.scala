@@ -29,7 +29,7 @@ object WhileFunction extends MashFunction("core.while") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Loop executing the given block while the condition remains true")
 

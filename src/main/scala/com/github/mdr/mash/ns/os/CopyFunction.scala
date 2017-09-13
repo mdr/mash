@@ -65,7 +65,7 @@ If the destination is not a directory, only a single source path may be provided
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

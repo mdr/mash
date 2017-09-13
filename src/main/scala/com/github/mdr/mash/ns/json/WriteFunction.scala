@@ -32,7 +32,7 @@ object WriteFunction extends MashFunction("json.write") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

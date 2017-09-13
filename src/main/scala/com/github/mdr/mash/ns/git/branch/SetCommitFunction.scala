@@ -44,7 +44,7 @@ object SetCommitFunction extends MashFunction("git.branch.setCommit") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Update a branch to point to a different commit")
 }

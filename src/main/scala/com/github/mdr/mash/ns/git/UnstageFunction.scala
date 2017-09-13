@@ -57,7 +57,7 @@ object UnstageFunction extends MashFunction("git.unstage") {
     (status.getAdded.asScala ++ status.getChanged.asScala ++ status.getRemoved.asScala).toSeq
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Unstage files")
 

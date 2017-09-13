@@ -6,6 +6,7 @@ import com.github.mdr.mash.evaluator.StandardEnvironment
 import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.repl.history.{ FileBackedHistoryStorage, HistoryImpl }
 import com.github.mdr.mash.repl.{ Repl, ScriptExecutor }
+import com.github.mdr.mash.runtime.MashObject
 import com.github.mdr.mash.terminal.{ JLineTerminalWrapper, TerminalControlImpl, TerminalHelper }
 import sun.misc.Signal
 
@@ -28,15 +29,18 @@ object Main extends App {
       val terminalWrapper = new JLineTerminalWrapper(terminal)
       val globalVariables = StandardEnvironment.createGlobalVariables()
       val ns = globalVariables(StandardEnvironment.Ns).asObject.getOrElse(throw new AssertionError("ns was not an object"))
+      val loader = new Loader(terminalWrapper, output, sessionId, globalVariables, ns)
+      val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)
       Singletons.terminalControl = new TerminalControlImpl(terminal)
       Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
       Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
       Singletons.terminal = terminalWrapper
+      Singletons.loader = loader
+      Singletons.initScriptRunner = initScriptRunner
+      Singletons.globals = globalVariables
+      Singletons.ns = ns
 
-      val loader = new Loader(terminalWrapper, output, sessionId, globalVariables, ns)
       loader.load()
-
-      val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)
       initScriptRunner.processInitFile()
 
       val repl = new Repl(terminalWrapper, output, LinuxFileSystem, LinuxEnvironmentInteractions,

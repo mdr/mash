@@ -31,7 +31,7 @@ abstract class ChronoUnitClass(name: String, unit: ChronoUnit) extends MashClass
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Sleep for this many " + unit.name.toLowerCase)
 

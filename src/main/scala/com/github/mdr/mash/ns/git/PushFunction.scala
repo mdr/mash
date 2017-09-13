@@ -106,7 +106,7 @@ object PushFunction extends MashFunction("git.push") {
     config.save()
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Update remote refs along with associated objects")
 

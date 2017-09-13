@@ -57,7 +57,7 @@ object RestoreFunction extends MashFunction("git.restore") {
     (status.getModified.asScala ++ status.getMissing.asScala ++ status.getRemoved.asScala ++ status.getChanged.asScala).toSeq.distinct
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Restore modified or deleted files in the working directory")
 

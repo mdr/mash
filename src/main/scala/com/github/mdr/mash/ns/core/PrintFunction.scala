@@ -25,7 +25,7 @@ object PrintFunction extends MashFunction("core.print") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Print the given argument to standard output")
 

@@ -72,7 +72,7 @@ object ProcessClass extends MashClass("os.Process") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Kill this process")
 

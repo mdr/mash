@@ -19,7 +19,7 @@ object ApplyFunction extends MashFunction("git.stash.apply") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Apply stashed changes to the current working directory")
 

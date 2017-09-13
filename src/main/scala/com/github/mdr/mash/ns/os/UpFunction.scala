@@ -31,7 +31,7 @@ object UpFunction extends MashFunction("os.up") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Change the current working directory to a parent (or ancestor)")
 

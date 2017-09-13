@@ -22,7 +22,7 @@ object BackFunction extends MashFunction("os.back") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Go to the previous directory in the history")
 

@@ -71,7 +71,7 @@ The default signal is TERM."""))
       case Params.Signal ⇒ CompletionSpec.Items(SignalClass.Signals)
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Send a signal to a process")
 

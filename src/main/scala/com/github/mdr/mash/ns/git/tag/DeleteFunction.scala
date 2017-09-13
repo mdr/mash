@@ -48,7 +48,7 @@ object DeleteFunction extends MashFunction("git.tag.delete") {
       case Tags ⇒ CompletionSpec.Items(ListFunction.getTagNames)
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Delete a tag")
 }

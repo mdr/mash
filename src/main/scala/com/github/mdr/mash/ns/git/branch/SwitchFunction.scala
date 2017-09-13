@@ -43,7 +43,7 @@ object SwitchFunction extends MashFunction("git.branch.switch") {
       case _: Exception ⇒ Seq()
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Switch to a local branch")
 

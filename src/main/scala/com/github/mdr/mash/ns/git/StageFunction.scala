@@ -80,7 +80,7 @@ object StageFunction extends MashFunction("git.stage") {
       status.getConflicting.asScala).toSeq.distinct
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Stage files")
 

@@ -31,6 +31,14 @@ object Singletons {
   var terminalWindowChanged = false
 
   var terminal: Terminal = _
+
+  var loader: Loader = _
+
+  var initScriptRunner: InitScriptRunner = _
+
+  var ns: MashObject = _
+
+  var globals: MashObject = _
 }
 
 object GlobalInterpreterLock {

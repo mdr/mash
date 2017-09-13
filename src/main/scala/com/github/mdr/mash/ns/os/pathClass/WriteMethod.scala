@@ -36,7 +36,7 @@ Otherwise, write the item as a string."""))
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Write an object or sequence of objects to a file as a string")
 

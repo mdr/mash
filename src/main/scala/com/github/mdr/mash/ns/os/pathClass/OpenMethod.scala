@@ -12,7 +12,7 @@ object OpenMethod extends MashMethod("open") {
   def call(target: MashValue, boundParams: BoundParams): MashUnit =
     OpenFunction.openWithSystemOpener(target)
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Open this path with the default application")
 

@@ -55,7 +55,7 @@ object MergeFunction extends MashFunction("git.merge") {
       case Commit ⇒ CompletionSpec.Items(SwitchFunction.getLocalBranches ++ CreateFunction.getRemoteBranches)
     }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Merge another commit into this branch")
 

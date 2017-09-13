@@ -23,7 +23,7 @@ object DeleteMethod extends MashMethod("delete") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Delete this path")
 

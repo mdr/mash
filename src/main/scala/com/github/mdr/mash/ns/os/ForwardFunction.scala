@@ -22,7 +22,7 @@ object ForwardFunction extends MashFunction("os.forward") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Go forwards to the next directory in the history")
 

@@ -55,7 +55,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Delete this branch")
 
@@ -110,7 +110,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Push this branch")
 
@@ -128,7 +128,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Switch to this branch")
 
@@ -150,7 +150,7 @@ object BranchClass extends MashClass("git.branch.Branch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Update this branch to point to a given commit")
 

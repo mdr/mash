@@ -80,6 +80,7 @@ object MashRoot {
       Seq(
         mash.ExpressionForFunction,
         mash.EvalFunction,
+        mash.ReloadFunction,
         mash.SourceFunction,
         mash.VersionFunction)
 

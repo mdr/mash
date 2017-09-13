@@ -19,7 +19,7 @@ object CreateFunction extends MashFunction("git.stash.create") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Stash changes in the working directory")
 

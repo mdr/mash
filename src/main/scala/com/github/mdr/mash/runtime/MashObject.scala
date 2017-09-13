@@ -28,7 +28,6 @@ object MashObject {
 
 case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
                               classOpt: Option[MashClass] = None) extends MashValue with Comparable[MashObject] {
-
   for (klass ← classOpt) {
     val classFields = klass.fields.map(_.name).toSet
     val providedFields = fields.keySet.collect { case s: MashString ⇒ s.s }
@@ -132,6 +131,8 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
   }
 
   override def compareTo(that: MashObject) = MashValueOrdering.compare(this.immutableFields, that.immutableFields)
+
+  def clear() = withLock(fields.clear())
 
   def size: Int = immutableFields.size
 

@@ -15,6 +15,7 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
       nameOpt = Some("sequence"),
       summaryOpt = Some("Sequence to count matches in"))
   }
+
   import Params._
 
   val params = ParameterModel(Predicate, Sequence)
@@ -33,7 +34,8 @@ object CountMatchesFunction extends MashFunction("collections.countMatches") {
 
   override def summaryOpt = Some("Count how many times a predicate holds within a sequence")
 
-  override def descriptionOpt = Some("""Examples:
+  override def descriptionOpt = Some(
+    """Examples:
 <mash>
   countMatches (_ > 3) [1, 2, 3, 4, 5] # 2
 </mash>""")

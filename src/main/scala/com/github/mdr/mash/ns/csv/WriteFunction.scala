@@ -58,7 +58,7 @@ object WriteFunction extends MashFunction("csv.write") {
     csvFilePrinter.close()
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.File)
 

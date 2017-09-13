@@ -56,7 +56,7 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
     result
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) = Seq(CompletionSpec.Directory)
 

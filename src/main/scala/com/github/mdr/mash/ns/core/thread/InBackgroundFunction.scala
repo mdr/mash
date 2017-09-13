@@ -28,7 +28,7 @@ object InBackgroundFunction extends MashFunction("core.thread.inBackground") {
     MashUnit
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Fork off the given code in the background")
 

@@ -23,7 +23,7 @@ object ChangeDirectoryMethod extends MashMethod("changeDirectory") {
     }
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def summaryOpt = Some("Change directory to this path")
 

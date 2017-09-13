@@ -40,7 +40,7 @@ object TagClass extends MashClass("git.tag.Tag") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Delete this tag")
 

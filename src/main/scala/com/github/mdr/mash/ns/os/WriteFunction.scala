@@ -55,7 +55,7 @@ Otherwise, write the item as a string."""))
     }
   }
 
-  override def typeInferenceStrategy = UnitClass
+  override def typeInferenceStrategy = Unit
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =
     Seq(CompletionSpec.File)

@@ -95,7 +95,7 @@ object RemoteBranchClass extends MashClass("git.branch.RemoteBranch") {
       MashUnit
     }
 
-    override def typeInferenceStrategy = UnitClass
+    override def typeInferenceStrategy = Unit
 
     override def summaryOpt = Some("Delete this remote branch")
 
