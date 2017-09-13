@@ -69,9 +69,8 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
 
   }
 
-  private def terminalWithColumns(numberOfColumns: Int) = {
+  private def terminalWithColumns(numberOfColumns: Int) =
     DummyTerminal.SufficientlyLargeTerminalSize.withColumns(numberOfColumns)
-  }
 
   private def replaceEscapes(s: String): String = {
     val replacements = Map(

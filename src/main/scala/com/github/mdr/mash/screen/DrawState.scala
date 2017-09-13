@@ -62,7 +62,7 @@ class DrawState(terminalSize: Dimensions,
   
   def moveCursorToColumn(col: Int) = {
     if (currentColumn == terminalSize.columns)
-      cr()
+      cr() // Most reliable way of getting back to a safe position ... cursor backward does different things on xterm, rxvt, etc
     if (currentColumn > col)
       cursorBackward(currentColumn - col)
     else
