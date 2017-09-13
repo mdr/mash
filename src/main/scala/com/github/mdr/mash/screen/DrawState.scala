@@ -97,7 +97,7 @@ class DrawState(terminalSize: Dimensions,
       currentColumn -= n
     }
 
-  def eraseLine() =
+  def eraseLineFromCursor() =
     sb.append(EscapeSequence.EraseLineFromCursor)
 
   def setTitle(s: String) =

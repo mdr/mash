@@ -49,7 +49,7 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
 
     replaceEscapes(drawString) shouldEqual 
-      s"(hide-cursor)(reset)(cursor-up 1) 00(carriage-return)(cursor-forward 4)00(cursor-forward 1)0(show-cursor)"
+      s"(hide-cursor)(reset)(cursor-up 1) (cursor-forward 1)00(cursor-forward 1)0(show-cursor)"
   }
   
   it should "handle drawing a line with a cursor in the last column" in {
@@ -64,7 +64,7 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
 
     replaceEscapes(drawString) shouldEqual
-      s"(hide-cursor)(reset)4X(carriage-return)(cursor-forward 4)(show-cursor)"
+      s"(hide-cursor)(reset)4(show-cursor)"
   }
 
   private def makeScreen(lines: Seq[Line], cursorPos: Point) = Screen(lines, Some(cursorPos), Title)

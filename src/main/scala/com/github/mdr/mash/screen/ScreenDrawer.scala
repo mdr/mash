@@ -82,24 +82,30 @@ class ScreenDrawer(terminalSize: Dimensions) {
         drawState.addChar(firstCharOfNewLine)
       }
     }
-    val commonPrefixLength = previousLineOpt match {
-      case Some(previousLine) ⇒ Utils.commonPrefix(newLine.string.chars, previousLine.string.chars).length
-      case _                  ⇒ 0
-    }
-    if (previousLineOpt.map(_.string) != Some(newLine.string)) {
-      // Only redraw if the actual characters have changed
-      drawState.moveCursorToColumn(commonPrefixLength)
-      val remainder = newLine.string.drop(commonPrefixLength)
-      drawState.addChars(remainder)
-      if (previousLineOpt.exists(_.length > newLine.length))
-        drawState.eraseLine()
+    previousLineOpt match {
+      case Some(previousLine) ⇒
+        val previousChars = previousLine.string.chars
+        val newChars = newLine.string.chars
+        val previousAndNewChars = previousChars.map(Some(_)).padTo(newChars.length, None).zip(newChars)
+        for (((previousCharOpt, newChar), col) ← previousAndNewChars.zipWithIndex)
+          if (previousCharOpt != Some(newChar)) {
+            drawState.moveCursorToColumn(col)
+            drawState.addChar(newChar)
+          }
+        if (previousLine.length > newLine.length) {
+          drawState.moveCursorToColumn(newLine.length)
+          drawState.eraseLineFromCursor()
+        }
+      case None               ⇒
+        drawState.moveCursorToColumn(0)
+        drawState.addChars(newLine.string)
     }
   }
 
   private def eraseLine(drawState: DrawState, row: Int) {
     drawState.moveCursorToRow(row)
     drawState.cr()
-    drawState.eraseLine()
+    drawState.eraseLineFromCursor()
   }
 
 }
