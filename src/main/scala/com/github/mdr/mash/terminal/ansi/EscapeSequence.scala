@@ -17,8 +17,6 @@ object EscapeSequence {
     s"$Esc[${n}C"
   }
 
-  val CursorBackward = "\b"
-
   def cursorBackward(n: Int) = {
     require(n >= 1)
     s"$Esc[${n}D"
@@ -41,7 +39,7 @@ object EscapeSequence {
   val HideCursor = s"$Esc[?25l"
   val ShowCursor = s"$Esc[?25h"
 
-  def title(s: String) = s"$Esc]0;${s}\u0007"
+  def setTitle(s: String) = s"$Esc]0;${s}\u0007"
 
   val SwitchToAlternateScreen = s"$Esc[?1049h"
   val ReturnFromAlternateScreen = s"$Esc[?1049l"

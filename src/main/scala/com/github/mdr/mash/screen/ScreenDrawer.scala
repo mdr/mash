@@ -78,7 +78,8 @@ class ScreenDrawer(terminalSize: Dimensions) {
         val lastCharOfPreviousLine = aboveLine.string.lastOption getOrElse ' '.style
         val firstCharOfNewLine = newLine.string.headOption getOrElse ' '.style
         drawState.moveCursorToColumn(aboveLine.string.size - 1)
-        drawState.funkyWrap(lastCharOfPreviousLine, firstCharOfNewLine)
+        drawState.addChar(lastCharOfPreviousLine)
+        drawState.addChar(firstCharOfNewLine)
       }
     }
     val commonPrefixLength = previousLineOpt match {
@@ -88,11 +89,10 @@ class ScreenDrawer(terminalSize: Dimensions) {
     if (previousLineOpt.map(_.string) != Some(newLine.string)) {
       // Only redraw if the actual characters have changed
       drawState.moveCursorToColumn(commonPrefixLength)
-      drawState.eraseLine()
       val remainder = newLine.string.drop(commonPrefixLength)
       drawState.addChars(remainder)
-      //      if (previousLineOpt.exists(_.length > newLine.length))
-      //      drawState.eraseLine()
+      if (previousLineOpt.exists(_.length > newLine.length))
+        drawState.eraseLine()
     }
   }
 

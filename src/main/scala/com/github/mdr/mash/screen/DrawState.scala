@@ -97,19 +97,11 @@ class DrawState(terminalSize: Dimensions,
       currentColumn -= n
     }
 
-  def funkyWrap(lastChar: StyledCharacter, firstChar: StyledCharacter) {
-    addChar(lastChar)
-    addChar(firstChar)
-    cr()
-  }
-
-  def eraseLine() {
+  def eraseLine() =
     sb.append(EscapeSequence.EraseLineFromCursor)
-  }
 
-  def setTitle(s: String) {
-    sb.append(EscapeSequence.title(s))
-  }
+  def setTitle(s: String) =
+    sb.append(EscapeSequence.setTitle(s))
 
   def complete(showCursor: Boolean): String = {
     if (showCursor)
