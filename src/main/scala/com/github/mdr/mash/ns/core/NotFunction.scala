@@ -18,7 +18,7 @@ object NotFunction extends MashFunction("core.not") {
     MashBoolean(boundParams(Item).isFalsey)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Logically negate the given item")
 

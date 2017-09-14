@@ -15,7 +15,7 @@ object IsDirectoryMethod extends MashMethod("isDirectory") {
     MashBoolean(Files.isDirectory(interpretAsPath(target)))
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Check if path is a directory")
 

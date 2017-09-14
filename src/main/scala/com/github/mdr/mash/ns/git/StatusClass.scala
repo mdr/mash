@@ -41,7 +41,7 @@ object StatusClass extends MashClass("git.Status") {
       MashBoolean(!dirty)
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("Return true if and only if the repository is in a clean state (no modified or untracked files)")
 

@@ -24,7 +24,7 @@ object TapFunction extends MashFunction("core.tap") {
     value
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Apply a function to a value, ignore the result, and return the original value.")
 

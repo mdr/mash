@@ -22,7 +22,7 @@ object HasFieldMethod extends MashMethod("hasField") {
     MashBoolean(obj hasField field)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Return true if this object contains the given field")
 

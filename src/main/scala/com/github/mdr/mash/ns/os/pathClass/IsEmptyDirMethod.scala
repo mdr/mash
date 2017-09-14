@@ -19,7 +19,7 @@ object IsEmptyDirMethod extends MashMethod("isEmptyDir") {
     MashBoolean(Files.isDirectory(path) && fileSystem.getChildren(path, ignoreDotFiles = false, recursive = false).isEmpty)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Check if path is an empty directory")
 

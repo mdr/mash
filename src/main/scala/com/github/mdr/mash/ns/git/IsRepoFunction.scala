@@ -23,7 +23,7 @@ object IsRepoFunction extends MashFunction("git.isRepo") {
     MashBoolean(GitHelper.isRepository(path))
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Return true if a directory is within a Git repository")
 

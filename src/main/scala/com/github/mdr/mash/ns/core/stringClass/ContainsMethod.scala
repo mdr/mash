@@ -23,7 +23,7 @@ object ContainsMethod extends MashMethod("contains") {
     MashBoolean(s contains pattern)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Test whether this string contains the given substring")
 

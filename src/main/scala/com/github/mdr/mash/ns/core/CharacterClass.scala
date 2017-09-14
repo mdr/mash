@@ -18,7 +18,7 @@ object CharacterClass extends MashClass("core.Character") {
       MashBoolean(regex.forall(_.isDigit))
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("Return true if this character is a digit")
   }

@@ -22,7 +22,7 @@ object StartsWithMethod extends MashMethod("startsWith") {
     MashBoolean(s startsWith pattern)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Check if this string starts with another")
 

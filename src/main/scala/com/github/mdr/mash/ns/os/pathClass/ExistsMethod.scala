@@ -16,7 +16,7 @@ object ExistsMethod extends MashMethod("exists") {
     MashBoolean(fileSystem.exists(path))
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Whether or not an item exists at this location")
 

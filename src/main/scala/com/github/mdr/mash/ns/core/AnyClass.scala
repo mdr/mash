@@ -34,7 +34,7 @@ object AnyClass extends MashClass("core.Any") {
   0.isNull    # false
 </mash>""")
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override val isShy = true
 
@@ -59,7 +59,7 @@ object AnyClass extends MashClass("core.Any") {
   10.isTruthy    # true
 </mash>""")
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override val isShy = true
 
@@ -82,7 +82,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(target isA klass)
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("Return true if and only if this value is an instance of the given class")
 
@@ -171,7 +171,7 @@ object AnyClass extends MashClass("core.Any") {
       MashBoolean(sequence.contains(target))
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("Check whether this element is contained in a sequence")
 

@@ -22,7 +22,7 @@ object EndsWithMethod extends MashMethod("endsWith") {
     MashBoolean(s.reverse.startsWith(pattern.reverse))
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Check if this string ends with another")
 

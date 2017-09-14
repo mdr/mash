@@ -164,7 +164,7 @@ abstract class AbstractIsAncestorOfMethod extends MashMethod("isAncestorOf") {
     }
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def getCompletionSpecs(argPos: Int, targetTypeOpt: Option[Type], arguments: TypedArguments) =
     params.bindTypes(arguments).paramAt(argPos).toSeq.collect {

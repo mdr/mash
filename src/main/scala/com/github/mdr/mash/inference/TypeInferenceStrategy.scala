@@ -2,7 +2,7 @@ package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.functions.{ Parameter, ParameterModel }
-import com.github.mdr.mash.ns.core.UnitClass
+import com.github.mdr.mash.ns.core.{ BooleanClass, UnitClass }
 
 import scala.language.implicitConversions
 
@@ -10,6 +10,9 @@ object TypeInferenceStrategy {
 
   implicit def constantTypeInferenceStrategy[T](unit: Unit.type): ConstantTypeInferenceStrategy =
     UnitClass
+
+  implicit def constantTypeInferenceStrategy[T](boolean: Boolean.type): ConstantTypeInferenceStrategy =
+    BooleanClass
 
   implicit def constantTypeInferenceStrategy[T](klass: MashClass): ConstantTypeInferenceStrategy =
     ConstantTypeInferenceStrategy(Type.Instance(klass))

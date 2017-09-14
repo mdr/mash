@@ -70,7 +70,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashBoolean(Wrapper(target).exitStatus == 0)
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("True if the status had a zero exit code")
 
@@ -84,7 +84,7 @@ object ProcessResultClass extends MashClass("os.ProcessResult") {
       MashBoolean(Wrapper(target).exitStatus != 0)
     }
 
-    override def typeInferenceStrategy = BooleanClass
+    override def typeInferenceStrategy = Boolean
 
     override def summaryOpt = Some("True if the status had a non-zero exit code")
 

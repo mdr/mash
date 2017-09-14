@@ -15,7 +15,7 @@ object NonEmptyFunction extends MashFunction("collections.nonEmpty") {
     MashBoolean(sequence.nonEmpty)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Check whether a given sequence is non-empty")
 

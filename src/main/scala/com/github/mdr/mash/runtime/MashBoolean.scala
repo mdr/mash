@@ -3,11 +3,12 @@ package com.github.mdr.mash.runtime
 import scala.PartialFunction.condOpt
 
 sealed trait MashBoolean extends MashValue with Comparable[MashBoolean] {
+
   import MashBoolean._
 
-  def value = this == True
+  def value: Boolean = this == True
 
-  def negate = this match {
+  def negate: MashBoolean = this match {
     case True  ⇒ False
     case False ⇒ True
   }
@@ -19,8 +20,8 @@ sealed trait MashBoolean extends MashValue with Comparable[MashBoolean] {
 
   def compareTo(that: MashBoolean) = (this, that) match {
     case (True, True) | (False, False) ⇒ 0
-    case (False, True) ⇒ -1
-    case (True, False) ⇒ 1
+    case (False, True)                 ⇒ -1
+    case (True, False)                 ⇒ 1
   }
 
 }
@@ -28,12 +29,12 @@ sealed trait MashBoolean extends MashValue with Comparable[MashBoolean] {
 object MashBoolean {
 
   case object True extends MashBoolean
+
   case object False extends MashBoolean
 
   def apply(x: Boolean): MashBoolean = if (x) True else False
 
   def unapply(x: MashValue): Option[MashBoolean] = condOpt(x) {
-    case True  ⇒ True
-    case False ⇒ False
+    case x: MashBoolean ⇒ x
   }
 }

@@ -34,7 +34,7 @@ object MatchesMethod extends MashMethod("matches") {
     MashBoolean(Pattern.compile(pattern, flags).matcher(s).find)
   }
 
-  override def typeInferenceStrategy = BooleanClass
+  override def typeInferenceStrategy = Boolean
 
   override def summaryOpt = Some("Test whether this string contains a match within it to a given regular expression")
 
