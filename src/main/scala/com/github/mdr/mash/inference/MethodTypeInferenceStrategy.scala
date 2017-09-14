@@ -1,10 +1,14 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.ns.core.UnitClass
 
 import scala.language.implicitConversions
 
 object MethodTypeInferenceStrategy {
+
+  implicit def constantTypeInferenceStrategy[T](unit: Unit.type): ConstantMethodTypeInferenceStrategy =
+    UnitClass
 
   implicit def constantTypeInferenceStrategy[T](klass: MashClass): ConstantMethodTypeInferenceStrategy =
     ConstantMethodTypeInferenceStrategy(Type.Instance(klass))
