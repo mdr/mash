@@ -9,6 +9,8 @@ object StyleToEscapeSequence {
 
   private val EscapePrefix = s"$Esc["
 
+  def setForegroundColour(colour: Colour): String = attribEscape(fg(colour))
+
   def apply(style: Style): String = {
     import style._
     val attribs =

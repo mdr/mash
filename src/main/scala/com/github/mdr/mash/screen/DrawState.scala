@@ -19,8 +19,13 @@ class DrawState(terminalSize: Dimensions,
 
   def addChar(char: StyledCharacter) {
     if (char.style != currentStyle) {
-      sb.append(StyleToEscapeSequence.Reset)
-      sb.append(StyleToEscapeSequence(char.style))
+      val differsOnlyInForegroundColour = currentStyle.withForegroundColour(char.style.foregroundColour) == char.style
+      if (differsOnlyInForegroundColour)
+        sb.append(StyleToEscapeSequence.setForegroundColour(char.style.foregroundColour))
+      else {
+        sb.append(StyleToEscapeSequence.Reset)
+        sb.append(StyleToEscapeSequence(char.style))
+      }
       currentStyle = char.style
     }
     sb.append(char.c)

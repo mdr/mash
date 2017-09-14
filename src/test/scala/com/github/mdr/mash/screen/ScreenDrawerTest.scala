@@ -48,10 +48,10 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
 
     val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
 
-    replaceEscapes(drawString) shouldEqual 
+    replaceEscapes(drawString) shouldEqual
       s"(hide-cursor)(reset)(cursor-up 1) (cursor-forward 1)00(cursor-forward 1)0(show-cursor)"
   }
-  
+
   it should "handle drawing a line with a cursor in the last column" in {
     val screen1 = makeScreen(
       lines = Seq(Line("123 X".style)),
@@ -67,8 +67,19 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
       s"(hide-cursor)(reset)4(show-cursor)"
   }
 
+  it should "not reset if only changing colour" in {
+    val screen = makeScreen(Seq(
+      Line(
+        "Y".style(foregroundColour = BasicColour.Yellow) +
+          "G".style(foregroundColour = BasicColour.Green))), cursorPos = Point(0, 2))
+    val ScreenDraw(drawString, None) = new ScreenDrawer(SufficientlyLargeTerminalSize).draw(screen)
+    replaceEscapes(drawString) shouldEqual
+      s"(hide-cursor)(reset)(yellow)Y(green)G(set-title $Title)(show-cursor)"
+
+  }
+
   private def makeScreen(lines: Seq[Line], cursorPos: Point) = Screen(lines, Some(cursorPos), Title)
-  
+
   private def terminalWithColumns(numberOfColumns: Int) =
     SufficientlyLargeTerminalSize.withColumns(numberOfColumns)
 
@@ -81,6 +92,8 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
       s"$Esc\\[(\\d+)D" → "(cursor-backward $1)",
       s"$Esc\\[\\?25l" → "(hide-cursor)",
       s"$Esc\\[\\?25h" → "(show-cursor)",
+      s"$Esc\\[32m" → "(green)",
+      s"$Esc\\[33m" → "(yellow)",
       s"$Esc\\[39;49m" → "(default-colour)",
       s"$Esc\\[0m" → "(reset)",
       s"$Esc\\[0?K" → "(erase-line-from-cursor)",
