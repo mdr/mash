@@ -40,6 +40,7 @@ object PathClass extends MashClass("os.Path") {
     SetReadableMethod,
     SetWritableMethod,
     SizeMethod,
+    WithTildeMethod,
     TypeMethod,
     WriteMethod) ++
     (if (SystemUtils.IS_OS_MAC_OSX)

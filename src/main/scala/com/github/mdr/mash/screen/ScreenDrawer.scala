@@ -1,8 +1,8 @@
 package com.github.mdr.mash.screen
 
+import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.utils.{ Dimensions, Point, Utils }
 import com.github.mdr.mash.utils.Utils._
-import Style._
 
 case class ScreenDraw(drawString: String, swappedOutScreenOpt: Option[Screen])
 
