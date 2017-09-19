@@ -4,6 +4,7 @@ import com.github.mdr.mash.utils.CharUtils.Esc
 import org.scalatest.{ FlatSpec, Matchers }
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.DummyTerminal.SufficientlyLargeTerminalSize
+import com.github.mdr.mash.terminal.InMemoryTerminal
 import com.github.mdr.mash.utils.Point
 
 class ScreenDrawerTest extends FlatSpec with Matchers {
@@ -14,6 +15,10 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val screen = Screen(lines = Seq(), cursorPosOpt = None, title = Title)
     val ScreenDraw(drawString, None) = new ScreenDrawer(SufficientlyLargeTerminalSize).draw(screen)
     replaceEscapes(drawString) shouldEqual s"(hide-cursor)(reset)(set-title $Title)"
+    val terminal = new InMemoryTerminal(SufficientlyLargeTerminalSize)
+    terminal.print(drawString)
+    terminal.consume()
+    terminal.screen shouldEqual screen
   }
 
   it should "handle a single line" in {
@@ -21,6 +26,10 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val ScreenDraw(drawString, None) = new ScreenDrawer(SufficientlyLargeTerminalSize).draw(screen)
     replaceEscapes(drawString) shouldEqual
       s"(hide-cursor)(reset)abc(set-title $Title)(show-cursor)"
+    val terminal = new InMemoryTerminal(SufficientlyLargeTerminalSize)
+    terminal.print(drawString)
+    terminal.consume()
+    terminal.screen shouldEqual screen
   }
 
   it should "handle a single extra character" in {
@@ -31,6 +40,15 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val ScreenDraw(drawString, None) = new ScreenDrawer(SufficientlyLargeTerminalSize).draw(screen2, previousScreenOpt = Some(screen1))
 
     replaceEscapes(drawString) shouldEqual s"(hide-cursor)(reset)d(show-cursor)"
+
+    val terminal = new InMemoryTerminal(SufficientlyLargeTerminalSize)
+    val screenDrawer = new ScreenDrawer(SufficientlyLargeTerminalSize)
+    terminal.print(screenDrawer.draw(screen1).drawString)
+    terminal.consume()
+    terminal.screen shouldEqual screen1
+    terminal.print(drawString)
+    terminal.consume()
+    terminal.screen shouldEqual screen2
   }
 
   it should "correctly handle differences between wrapped lines" in {
@@ -40,16 +58,29 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
         Line("00".style)),
       cursorPos = Point(1, 2))
 
+    val terminalSize = terminalWithColumns(5)
+    val screenDrawer = new ScreenDrawer(terminalSize)
+    val drawString1 = screenDrawer.draw(screen1).drawString
+    replaceEscapes(drawString1) shouldEqual
+      s"(hide-cursor)(reset)  000(carriage-return)(cursor-forward 4)00(cursor-backward 1)00(set-title title)(show-cursor)"
+
     val screen2 = makeScreen(
       lines = Seq(
         Line("   00".style, endsInNewline = false),
         Line("000".style)),
       cursorPos = Point(1, 3))
 
-    val ScreenDraw(drawString, None) = new ScreenDrawer(terminalWithColumns(5)).draw(screen2, previousScreenOpt = Some(screen1))
-
-    replaceEscapes(drawString) shouldEqual
+    val ScreenDraw(drawString2, None) = screenDrawer.draw(screen2, previousScreenOpt = Some(screen1))
+    replaceEscapes(drawString2) shouldEqual
       s"(hide-cursor)(reset)(cursor-up 1) (cursor-forward 1)00(cursor-forward 1)0(show-cursor)"
+
+    val terminal = new InMemoryTerminal(terminalSize)
+    terminal.print(drawString1)
+    terminal.consume()
+    terminal.screen shouldEqual screen1
+    terminal.print(drawString2)
+    terminal.consume()
+    terminal.screen shouldEqual screen2
   }
 
   it should "handle drawing a line with a cursor in the last column" in {

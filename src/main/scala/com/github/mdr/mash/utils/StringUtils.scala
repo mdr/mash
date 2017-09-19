@@ -14,7 +14,7 @@ object StringUtils {
     *
     * @param maxLength of the string
     */
-  def ellipsisiseMiddle(s: String, maxLength: Int) =
+  def ellipsisiseMiddle(s: String, maxLength: Int): String =
     if (s.size > maxLength)
       if (s.size < 5)
         "." * maxLength
@@ -83,7 +83,7 @@ object StringUtils {
   /**
     * Remove initial whitespace
     */
-  def ltrim(s: String) = s.replaceAll("^\\s+", "")
+  def ltrim(s: String): String = s.replaceAll("^\\s+", "")
 
   /**
     * Split the given string into lines, by looking for \n or \r\n as line terminators.

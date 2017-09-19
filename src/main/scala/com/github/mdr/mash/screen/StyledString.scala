@@ -73,4 +73,6 @@ case class StyledString(chars: Seq[StyledCharacter]) {
       for ((c, i) ← chars.zipWithIndex)
         yield c.when(region contains i, _.updateStyle(f)))
 
+  override def toString: String = forgetStyling
+
 }
