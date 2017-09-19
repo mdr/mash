@@ -1,6 +1,7 @@
 package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.utils.{ Dimensions, Point, Utils }
+import com.github.mdr.mash.utils.Utils._
 import Style._
 
 case class ScreenDraw(drawString: String, swappedOutScreenOpt: Option[Screen])
@@ -68,18 +69,22 @@ class ScreenDrawer(terminalSize: Dimensions) {
 
   private def drawLine(drawState: DrawState, lines: Seq[Line], newLine: Line, previousLineOpt: Option[Line], row: Int) {
     drawState.navigateUpToRowOrDownToJustAbove(row)
+    var firstCharDrawn = false
     if (drawState.getCurrentRow == row - 1) {
       // We ended up on the line above
       val aboveLine = lines(row - 1)
       if (aboveLine.endsInNewline)
         drawState.crlf()
       else {
-        // We rewrite the last character of the previous line and the first character of the new line to force a wrap
-        val lastCharOfPreviousLine = aboveLine.string.lastOption getOrElse ' '.style
+        // Rewrite the last character of the previous line and the first character of the new line to force a wrap
+        if (drawState.getCurrentColumn < terminalSize.columns) {
+          val lastCharOfPreviousLine = aboveLine.string.lastOption getOrElse ' '.style
+          drawState.moveCursorToColumn(aboveLine.string.size - 1)
+          drawState.addChar(lastCharOfPreviousLine)
+        }
         val firstCharOfNewLine = newLine.string.headOption getOrElse ' '.style
-        drawState.moveCursorToColumn(aboveLine.string.size - 1)
-        drawState.addChar(lastCharOfPreviousLine)
         drawState.addChar(firstCharOfNewLine)
+        firstCharDrawn = true
       }
     }
     previousLineOpt match {
@@ -87,7 +92,7 @@ class ScreenDrawer(terminalSize: Dimensions) {
         val previousChars = previousLine.string.chars
         val newChars = newLine.string.chars
         val previousAndNewChars = previousChars.map(Some(_)).padTo(newChars.length, None).zip(newChars)
-        for (((previousCharOpt, newChar), col) ← previousAndNewChars.zipWithIndex)
+        for (((previousCharOpt, newChar), col) ← previousAndNewChars.zipWithIndex.when(firstCharDrawn, _ drop 1))
           if (previousCharOpt != Some(newChar)) {
             drawState.moveCursorToColumn(col)
             drawState.addChar(newChar)
@@ -97,8 +102,13 @@ class ScreenDrawer(terminalSize: Dimensions) {
           drawState.eraseLineFromCursor()
         }
       case None               ⇒
-        drawState.moveCursorToColumn(0)
-        drawState.addChars(newLine.string)
+        if (firstCharDrawn) {
+          drawState.moveCursorToColumn(1)
+          drawState.addChars(newLine.string drop 1)
+        } else {
+          drawState.moveCursorToColumn(0)
+          drawState.addChars(newLine.string)
+        }
     }
   }
 

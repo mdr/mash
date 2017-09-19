@@ -38,6 +38,8 @@ class DrawState(terminalSize: Dimensions,
 
   def getCurrentRow: Int = currentRow
 
+  def getCurrentColumn: Int = currentColumn
+
   /**
     * Move up to the correct row, or down to just before the correct row, as required.
     */

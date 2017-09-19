@@ -1,11 +1,11 @@
 package com.github.mdr.mash.screen
 
-import com.github.mdr.mash.utils.CharUtils.Esc
-import org.scalatest.{ FlatSpec, Matchers }
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.DummyTerminal.SufficientlyLargeTerminalSize
 import com.github.mdr.mash.terminal.InMemoryTerminal
+import com.github.mdr.mash.utils.CharUtils.Esc
 import com.github.mdr.mash.utils.Point
+import org.scalatest.{ FlatSpec, Matchers }
 
 class ScreenDrawerTest extends FlatSpec with Matchers {
 
@@ -62,7 +62,7 @@ class ScreenDrawerTest extends FlatSpec with Matchers {
     val screenDrawer = new ScreenDrawer(terminalSize)
     val drawString1 = screenDrawer.draw(screen1).drawString
     replaceEscapes(drawString1) shouldEqual
-      s"(hide-cursor)(reset)  000(carriage-return)(cursor-forward 4)00(cursor-backward 1)00(set-title title)(show-cursor)"
+      s"(hide-cursor)(reset)  00000(set-title title)(show-cursor)"
 
     val screen2 = makeScreen(
       lines = Seq(
