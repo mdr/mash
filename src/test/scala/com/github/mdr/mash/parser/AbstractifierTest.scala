@@ -10,7 +10,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
   "Abstract representation of a string literal" should "not include the quotes" in {
     val s = "\"foo\""
     val concreteProgram = parse(s)
-    val provenance = Provenance(s, source = "test")
+    val provenance = Provenance.internal(s)
 
     val abstractExpr = abstractify(concreteProgram, provenance)
 
@@ -21,7 +21,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
   "String literals that lack quotes" should "still work" in {
     val s = "\"foo"
     val concreteProgram = parse(s)
-    val provenance = Provenance(s, source = "test")
+    val provenance = Provenance.internal(s)
 
     val abstractExpr = abstractify(concreteProgram, provenance)
 
@@ -33,7 +33,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
     val s = "ls pwd"
     val concreteProgram = parse(s)
     val Concrete.InvocationExpr(function, Seq(arg: Concrete.Expr)) = concreteProgram.body
-    val provenance = Provenance(s, source = "test")
+    val provenance = Provenance.internal(s)
 
     val abstractExpr = abstractify(concreteProgram, provenance)
 
@@ -53,7 +53,7 @@ class AbstractifierTest extends FlatSpec with Matchers {
     val concreteProgram = parse(s)
     val Concrete.InvocationExpr(function, Seq(longArg)) = concreteProgram.body
     val Concrete.LongArg(_, Some((_, arg))) = longArg
-    val provenance = Provenance(s, source = "test")
+    val provenance = Provenance.internal(s)
 
     val abstractExpr = abstractify(concreteProgram, provenance)
 

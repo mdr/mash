@@ -115,7 +115,7 @@ class MashRenderer(context: MashRenderingContext = MashRenderingContext()) {
   private def getBareTokens(program: ConcreteSyntax.Program): Set[Token] =
     context.globalVariablesOpt.map { globalVariables ⇒
       val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
-      val provenance = Provenance("not required", "")
+      val provenance = Provenance.internal("not required")
       val abstractExpr = new Abstractifier(provenance).abstractify(program).body
       BareStringify.getBareTokens(abstractExpr, bindings)
     }.getOrElse(Set())

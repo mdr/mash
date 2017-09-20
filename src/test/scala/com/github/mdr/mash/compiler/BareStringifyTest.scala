@@ -42,7 +42,7 @@ class BareStringifyTest extends FlatSpec with Matchers {
 
   private def compile(input: String): Program = {
     val concreteProgram = MashParser.parseForgiving(input)
-    val abstractifier = new Abstractifier(Provenance(input, "test"))
+    val abstractifier = new Abstractifier(Provenance.internal(input))
     val abstractProgram = abstractifier.abstractify(concreteProgram)
     abstractProgram
   }

@@ -19,7 +19,7 @@ object LookupDecomposer {
   def decomposeLookupWithStringIndex(expr: String): Option[LookupWithStringIndex] =
     parse(expr).collect {
       case LookupExpr(targetExpr, _, Literal(token), _) if token.tokenType == TokenType.STRING_LITERAL ⇒
-        val stringLiteral = new Abstractifier(Provenance("internal", expr)).abstractifyStringLiteral(token)
+        val stringLiteral = new Abstractifier(Provenance.internal(expr)).abstractifyStringLiteral(token)
         targetExpr.regionOpt.map(region ⇒ LookupWithStringIndex(region.of(expr), stringLiteral.s))
     }.flatten
 

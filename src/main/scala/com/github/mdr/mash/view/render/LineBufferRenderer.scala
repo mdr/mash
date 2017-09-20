@@ -1,9 +1,11 @@
 package com.github.mdr.mash.view.render
 
+import com.github.mdr.mash.compiler.BareStringify
 import com.github.mdr.mash.evaluator.TildeExpander
 import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
-import com.github.mdr.mash.parser.MashParser
+import com.github.mdr.mash.parser.{ Abstractifier, MashParser, Provenance }
 import com.github.mdr.mash.repl.{ LineBuffer, ReplState }
+import com.github.mdr.mash.runtime.MashString
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.screen._
 import com.github.mdr.mash.utils.Utils._
@@ -45,12 +47,22 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
 
   private def addStatusIndicator(lineBuffer: LineBuffer, context: MashRenderingContext, terminalSize: Dimensions)(wrappedLines: Seq[Line]) = {
     val lastLine = wrappedLines.last.string.padTo(terminalSize.columns, StyledCharacter(' '))
-    val syntaxError = MashParser.parse(lineBuffer.text, context.mishByDefault).isLeft
-    val indicatorStyle = if (syntaxError) Style(foregroundColour = DefaultColours.Red) else Style(DefaultColours.Green)
+    val hasError = MashParser.parse(lineBuffer.text, context.mishByDefault) match {
+      case Left(_)        ⇒ false
+      case Right(program) ⇒
+        !context.bareWords && context.globalVariablesOpt.exists { globalVariables ⇒
+          val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }
+          val provenance = Provenance.internal(lineBuffer.text)
+          val abstractExpr = new Abstractifier(provenance).abstractify(program).body
+
+          BareStringify.getBareTokens(abstractExpr, bindings).nonEmpty
+        }
+    }
+
+    val indicatorStyle = if (hasError) Style(foregroundColour = DefaultColours.Red) else Style(DefaultColours.Green)
     val errorIndicatorStyled = '◉'.style(indicatorStyle)
     val newLastLine = lastLine.updated(lastLine.length - 1, errorIndicatorStyled)
-    val lines = wrappedLines.init :+ Line(newLastLine)
-    lines
+    wrappedLines.init :+ Line(newLastLine)
   }
 
   private def wrap(line: Line, columns: Int, selectionWraps: Boolean = false): Seq[Line] = {
