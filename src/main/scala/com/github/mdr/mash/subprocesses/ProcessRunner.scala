@@ -1,13 +1,13 @@
 package com.github.mdr.mash.subprocesses
 
-import java.io.PrintStream
+import java.io.{ IOException, PrintStream }
 import java.lang.ProcessBuilder.Redirect
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.time.Instant
 
 import com.github.mdr.mash.Singletons
-import com.github.mdr.mash.evaluator.ToStringifier
+import com.github.mdr.mash.evaluator.{ EvaluatorException, ToStringifier }
 import com.github.mdr.mash.runtime.MashValue
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import org.apache.commons.io.IOUtils
@@ -32,7 +32,12 @@ object ProcessRunner {
         .redirectError(ProcessBuilder.Redirect.INHERIT)
       setEnvironment(builder.environment())
       val start = Instant.now
-      val process = builder.start()
+      val process =
+        try
+          builder.start()
+        catch {
+          case e: IOException ⇒ throw EvaluatorException(e.getMessage)
+        }
 
       for (stdinImmediate ← stdinImmediateOpt)
         writeStdinImmediate(process, stdinImmediate)
