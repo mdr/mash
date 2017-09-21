@@ -51,6 +51,9 @@ object MashRoot {
         xml.ReadFunction,
         xml.FromStringFunction) ++
       Seq(
+        html.EscapeFunction
+      ) ++
+      Seq(
         json.DeleteFunction,
         json.ReadFunction,
         json.FromStringFunction,
