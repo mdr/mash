@@ -62,13 +62,24 @@ class SequenceFunctionsTest extends AbstractEvaluatorTest {
   "['apple', 'ball', 'cup'] | grep -r '(a|b)'" ==> "['apple', 'ball']"
   "['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'" ==> "['APPLE', 'ball']"
 
+  "[{ foo: 'bar' }, { foo: 'foo' }] | grep 'foo'" ==> "[{ foo: 'foo' }]"
+
   "'foo`nbar`nbaz' | grep 'b'" ==> "['bar', 'baz']"
   "'foo`nbar`nbaz'.grep 'b'" ==> "['bar', 'baz']"
 
-  "[{ foo: 'bar' }, { foo: 'foo' }] | grep 'foo'" ==> "[{ foo: 'foo' }]"
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
   "{ foo: 'wibble', bar: 'wobble', wibble: 'baz' } | grep 'wibble'" ==> "{ foo: 'wibble', wibble: 'baz' }"
   "{ a: 42 } | grep 'name'" ==> "{}"
+
+  // grep --first
+  "['foo', 'bar', 'baz'].grep --first 'b'" ==> "'bar'"
+  "['foo', 'bar', 'baz'].grep --first 'NOT FOUND'" ==> null
+
+  "'foo`nbar`nbaz' | grep --first 'b'" ==> "'bar'"
+  "'foo`nbar`nbaz' | grep --first 'NOT FOUND'" ==> null
+
+  "{ foo: 'wibble', bar: 'wobble', baz: 'wibble' }.grep --first 'wibble'" ==> "{ foo: 'wibble' }"
+  "{ foo: 'wibble', bar: 'wobble', baz: 'wibble' }.grep --first 'NOT FOUND'" ==> null
 
   // indexOf
   "[1, 2, 3, 2, 1].indexOf 2" ==> 1

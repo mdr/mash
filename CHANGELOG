@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add --first parameter to grep
 * Add html.escape
 * Add mash.reload to reload init files
 * Add status indicator suffix to line

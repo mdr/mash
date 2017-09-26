@@ -9,7 +9,7 @@ import com.github.mdr.mash.runtime.{ MashString, MashValue }
 object GrepMethod extends MashMethod("grep") {
   import GrepFunction.Params._
 
-  val params = ParameterModel(Query, IgnoreCase, Regex, Negate)
+  val params = ParameterModel(Query, IgnoreCase, Regex, Negate, First)
 
   override def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy
@@ -17,7 +17,8 @@ object GrepMethod extends MashMethod("grep") {
     val negate = boundParams(Negate).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
     val items = GrepFunction.getItems(target.asInstanceOf[MashString])
-    GrepFunction.runGrep(items, query, ignoreCase, regex, negate)
+    val first = boundParams(First).isTruthy
+    GrepFunction.runGrep(items, query, ignoreCase, regex, negate, first = first)
   }
 
   override object typeInferenceStrategy extends MethodTypeInferenceStrategy {

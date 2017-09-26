@@ -29,17 +29,18 @@ object SequenceLike {
 object SequenceLikeAnalyser {
 
   def analyse(boundParams: BoundParams, sequenceParam: Parameter)(f: SequenceLike ⇒ MashValue): MashValue = {
-    boundParams(sequenceParam) match {
+    val sequenceLike = boundParams(sequenceParam) match {
       case obj: MashObject ⇒
         ToListHelper.tryToList(obj) match {
-          case Some(items) ⇒ f(SequenceLike.List(items))
-          case None        ⇒ f(SequenceLike.Object(obj))
+          case Some(items) ⇒ SequenceLike.List(items)
+          case None        ⇒ SequenceLike.Object(obj)
         }
-      case s: MashString   ⇒ f(SequenceLike.String(s))
-      case xs: MashList    ⇒ f(SequenceLike.List(xs.immutableElements))
+      case s: MashString   ⇒ SequenceLike.String(s)
+      case xs: MashList    ⇒ SequenceLike.List(xs.immutableElements)
       case value           ⇒
         boundParams.throwInvalidArgument(sequenceParam, s"Must be a List, String, or Object, but was a ${value.typeName}")
     }
+    f(sequenceLike)
   }
 
 }

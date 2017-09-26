@@ -10,21 +10,26 @@ object GrepMethod extends MashMethod("grep") {
 
   import GrepFunction.Params._
 
-  val params = ParameterModel(Query, IgnoreCase, Regex, Negate)
+  val params = ParameterModel(Query, IgnoreCase, Regex, Negate, First)
 
-  def call(target: MashValue, boundParams: BoundParams): MashObject = {
+  def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]
     doGrep(obj, boundParams)
   }
 
-  def doGrep(obj: MashObject, boundParams: BoundParams): MashObject = {
+  def doGrep(obj: MashObject, boundParams: BoundParams): MashValue = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
     val query = ToStringifier.stringify(boundParams(Query))
     val negate = boundParams(Negate).isTruthy
+    val first = boundParams(First).isTruthy
     val items = obj.immutableFields.toSeq.map(MashObject.of(_))
-    val filteredItems = GrepFunction.runGrep(items, query, ignoreCase, regex, negate, ignoreFields = false)
-    filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ ++ _)
+    if (first) {
+      GrepFunction.grepForFirst(items, query, ignoreCase, regex, negate, ignoreFields = false)
+    } else {
+      val filteredItems = GrepFunction.grepForAll(items, query, ignoreCase, regex, negate, ignoreFields = false)
+      filteredItems.elements.flatMap(_.asObject).fold(MashObject.empty)(_ ++ _)
+    }
   }
 
   override def summaryOpt: Option[String] = Some("Find all the fields in the object which match the given query somewhere in its String representation")

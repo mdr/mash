@@ -19,6 +19,8 @@ case class BoundTypeParams(boundArguments: Map[Parameter, ValueInfo],
       case _                ⇒ None
     }
 
+  def getBooleanValue(param: Parameter): Option[Boolean] = getValue(param).map(_.isTruthy)
+
   def contains(param: Parameter): Boolean = getArgument(param).isDefined
 
   def paramAt(pos: Int): Option[Parameter] = posToParam get pos

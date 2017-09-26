@@ -110,6 +110,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // grep
   "[1, 2, 3] | grep 2" ==> Seq(NumberClass)
   "'foo`nbar' | grep 'b'" ==> Seq(StringClass)
+  "[1, 2, 3] | grep --first 2" ==> NumberClass
 
   // first
   "[1, 2, 3] | first" ==> NumberClass
