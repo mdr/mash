@@ -2,7 +2,7 @@ package com.github.mdr.mash.screen
 
 import com.github.mdr.mash.screen.Style._
 import com.github.mdr.mash.terminal.ansi.{ EscapeSequence, StyleToEscapeSequence }
-import com.github.mdr.mash.utils.{ Dimensions, Point }
+import com.github.mdr.mash.utils.{ Dimensions, Point, Utils }
 
 object Line {
 
@@ -33,6 +33,10 @@ case class Screen(lines: Seq[Line],
                   isAlternateScreen: Boolean = false) {
 
   private def cursorPos = cursorPosOpt getOrElse Point(0, 0)
+
+  def rows = lines.size
+
+  def size = Dimensions(rows, Utils.max(lines.map(_.length), 0))
 
   /**
     * Advance past the entire screen, leaving it untouched.

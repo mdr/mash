@@ -48,7 +48,7 @@ class LineBufferRenderer(envInteractions: EnvironmentInteractions, fileSystem: F
   private def addStatusIndicator(lineBuffer: LineBuffer, context: MashRenderingContext, terminalSize: Dimensions)(wrappedLines: Seq[Line]) = {
     val lastLine = wrappedLines.last.string.padTo(terminalSize.columns, StyledCharacter(' '))
     val hasError = MashParser.parse(lineBuffer.text, context.mishByDefault) match {
-      case Left(_)        ⇒ false
+      case Left(_)        ⇒ true
       case Right(program) ⇒
         !context.bareWords && context.globalVariablesOpt.exists { globalVariables ⇒
           val bindings = globalVariables.immutableFields.keySet.collect { case s: MashString ⇒ s.s }

@@ -23,10 +23,27 @@ class ScreenDrawer(terminalSize: Dimensions) {
     val currentPos = actualPreviousScreenOpt.flatMap(_.cursorPosOpt).getOrElse(Point(0, 0))
     val drawState = new DrawState(terminalSize, currentPos.row, currentPos.column, Style.Default)
 
-    if (swappingOut)
+    if (swappingOut) {
+      /**
+        * Os X's Terminal.app has a bug that, if there is a character in the very bottom right of the
+        * window when coming back from the alternate screen, a newline is inserted.
+        *
+        * As a workaround, we delete any bottom right character of a Screen before going to the alternate screen
+        * (even if this might not be the bottom right of the Terminal window, we can't tell because have no idea
+        * about scrollback). The character is restored when we return from the alternate screen.
+        */
+      for ((point, _) ← getBottomRightChar(actualPreviousScreenOpt)) {
+        drawState.moveCursor(point)
+        drawState.eraseLineFromCursor()
+      }
       drawState.switchToAlternateScreen()
-    else if (swappingBackIn)
+    } else if (swappingBackIn) {
       drawState.returnFromAlternateScreen(currentPos)
+      for ((point, c) ← getBottomRightChar(actualPreviousScreenOpt)) {
+        drawState.moveCursor(point)
+        drawState.addChar(c)
+      }
+    }
 
     drawLines(drawState, lines, actualPreviousScreenOpt)
 
@@ -46,6 +63,17 @@ class ScreenDrawer(terminalSize: Dimensions) {
         swappedOutScreenOpt
 
     ScreenDraw(output, swappedOutScreenOpt = newSwappedOutScreenOpt)
+  }
+
+  private def getBottomRightChar(actualPreviousScreenOpt: Option[Screen]) = {
+    for {
+      screen ← actualPreviousScreenOpt
+      lastLine ← screen.lines.lastOption
+      if lastLine.length == terminalSize.columns
+      c ← lastLine.string.chars.lastOption
+      size = screen.size
+      bottomRight = Point(size.rows - 1, size.columns - 1)
+    } yield (bottomRight, c)
   }
 
   private def drawLines(drawState: DrawState, lines: Seq[Line], actualPreviousScreenOpt: Option[Screen]) {

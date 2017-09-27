@@ -12,26 +12,26 @@ object EscapeSequence {
 
   val CursorForward = s"$Esc[C"
 
-  def cursorForward(n: Int) = {
+  def cursorForward(n: Int = 1) = {
     require(n >= 1)
     s"$Esc[${n}C"
   }
 
-  def cursorBackward(n: Int) = {
+  def cursorBackward(n: Int = 1) = {
     require(n >= 1)
     s"$Esc[${n}D"
   }
 
   val CursorUp = s"$Esc[A"
 
-  def cursorUp(n: Int) = {
+  def cursorUp(n: Int = 1) = {
     require(n >= 1)
     s"$Esc[${n}A"
   }
 
   val CursorDown = s"$Esc[B"
 
-  def cursorDown(n: Int) = {
+  def cursorDown(n: Int = 1) = {
     require(n >= 1)
     s"$Esc[${n}B"
   }
