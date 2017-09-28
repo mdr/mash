@@ -80,8 +80,7 @@ object HoistMethod extends MashMethod("hoist") {
     }
 
     private def getFields(typ: Type): Option[Map[String, Type]] = condOpt(typ) {
-      case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
-        klass.fieldsMap.mapValues(_.fieldType)
+      case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒ klass.fieldsMap.mapValues(_.fieldType)
       case Type.Object(fields)                                    ⇒ fields
     }
 

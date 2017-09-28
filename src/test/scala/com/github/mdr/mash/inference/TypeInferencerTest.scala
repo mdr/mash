@@ -302,6 +302,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // Object.withField
   "{ foo: 42 }.withField 'bar' 256" ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
   "ls.first.withField 'bar' 256" ==> PathSummaryClass
+  "class Point x y; Point 3 4 | .withField 'bar' 256" ===> { case Type.UserClassInstance(userClass) ⇒ userClass.name == "Point" }
 
   // Object.get
   "{ foo: 42 }.get 'foo'" ==> NumberClass
@@ -328,8 +329,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "zip [1] [2]" ==> Seq(Seq(NumberClass))
 
   // .hoist
-  "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" ==>
-    obj("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass)
+  "{ foo: 42, bar: { a: 1, b: 2 } }.hoist 'bar'" ==> obj("foo" -> NumberClass, "a" -> NumberClass, "b" -> NumberClass)
 
   // statements
   "a = 42; a" ==> NumberClass
@@ -464,13 +464,22 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
     def ==>(expectedType: Type) {
       "TypeInferencer" should s"infer '$s' as having type '$expectedType'" in {
-        val settings = CompilationSettings(inferTypes = true)
-        val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = environment.bindings, settings).body
-        val Some(actualType) = expr.typeOpt
-        actualType should equal(expectedType)
+        inferType should equal(expectedType)
       }
     }
 
+    def ===>(pf: PartialFunction[Type, Boolean]) {
+      "TypeInferencer" should s"infer '$s' as having the correct type" in {
+        pf.lift(inferType) should equal(Some(true))
+      }
+    }
+
+    private def inferType = {
+      val settings = CompilationSettings(inferTypes = true)
+      val expr = Compiler.compileForgiving(CompilationUnit(s), bindings = environment.bindings, settings).body
+      val Some(actualType) = expr.typeOpt
+      actualType
+    }
   }
 
 }

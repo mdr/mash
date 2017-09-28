@@ -34,6 +34,8 @@ object WithFieldMethod extends MashMethod("withField") {
       targetTypeOpt.flatMap {
         case Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒
           Some(klass)
+        case Type.UserClassInstance(userClass) ⇒
+          Some(Type.UserClassInstance(userClass))
         case Type.Object(fields)                                    ⇒
           for {
             ValueInfo(valueOpt, _) ← argBindings.getArgument(WithFieldMethod.Params.Name)
