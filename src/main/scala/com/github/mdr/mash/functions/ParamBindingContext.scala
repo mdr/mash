@@ -33,7 +33,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
       catch {
         case ArgBindingException(message, argumentOpt) ⇒
           val locationOpt = argumentOpt.collect { case arg: EvaluatedArgument[_] ⇒ arg }.flatMap(getLocation)
-          throw new ArgumentException(message, locationOpt)
+          throw ArgumentException(message, locationOpt)
       }
     result.parameterToArguments
   }
@@ -76,7 +76,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
               case xs: MashList ⇒
                 xs
               case x            ⇒
-                throw new ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
+                throw ArgumentException(s"A variadic parameter requires a List argument, but was given a " + x.typeName, getLocation(arg))
             }
             case _                                                  ⇒
               val rawArgs = evalArgs.map(getArgValue(param, _))
@@ -113,7 +113,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
     var flagsSeen: Set[String] = Set()
     def checkFlag(flag: String, arg: EvaluatedArgument[_]) =
       if (flagsSeen contains flag)
-        throw new ArgumentException(s"Argument '$flag' is provided multiple times", getLocation(arg))
+        throw ArgumentException(s"Argument '$flag' is provided multiple times", getLocation(arg))
       else
         flagsSeen += flag
 
@@ -152,7 +152,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
         for ((elementOpt, elementPattern) ← list.elements.map(Some(_)).padTo(patterns.length, None).zip(patterns))
           bindPattern(elementPattern, elementOpt.getOrElse(MashNull), locationOpt)
       case _              ⇒
-        throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
+        throw ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
     }
 
   private def bindObjectPattern(objectPattern: Object, locationOpt: Option[SourceLocation], value: MashValue) =
@@ -166,7 +166,7 @@ class ParamBindingContext(params: ParameterModel, arguments: Arguments, context:
               bindPattern(valuePattern, obj.get(fieldName).getOrElse(MashNull), locationOpt)
           }
       case _               ⇒
-        throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
+        throw ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
     }
 
   private def resolve(param: Parameter, suspendedValue: SuspendedMashValue): MashValue =

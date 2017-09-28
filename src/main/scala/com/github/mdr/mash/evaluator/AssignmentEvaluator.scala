@@ -50,7 +50,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
             for (entry ← entries)
               bindPattern(entry.valuePattern, obj.get(entry.field) getOrElse MashNull, locationOpt)
           case _               ⇒
-            throw new ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
+            throw ArgumentException(s"Cannot match object pattern against value of type " + value.typeName, locationOpt)
         }
       case HolePattern(_)            ⇒
       case IdentPattern(ident, _)    ⇒
@@ -61,7 +61,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
             for ((elementOpt, elementPattern) ← list.elements.map(Some(_)).padTo(patterns.length, None).zip(patterns))
               bindPattern(elementPattern, elementOpt.getOrElse(MashNull), locationOpt)
           case _              ⇒
-            throw new ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
+            throw ArgumentException(s"Cannot match list pattern against value of type " + value.typeName, locationOpt)
         }
     }
 

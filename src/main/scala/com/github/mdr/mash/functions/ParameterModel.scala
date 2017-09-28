@@ -18,7 +18,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
   /**
     * Parameters where arguments can be provided positionally
     */
-  val positionalParams = params.filterNot(p ⇒ p.isFlag || p.isNamedArgsParam)
+  val positionalParams: Seq[Parameter] = params.filterNot(p ⇒ p.isFlag || p.isNamedArgsParam)
 
   // Lookup parameter by name or short flag (if it has one)
   val paramByName: Map[String, Parameter] = {
@@ -52,7 +52,7 @@ case class ParameterModel(params: Seq[Parameter] = Seq()) {
     */
   def allowsTwoPositionalArguments: Boolean = allowsAtLeastThisManyPositionalArguments(2)
 
-  def allowsAtLeastThisManyPositionalArguments(count: Int) =
+  def allowsAtLeastThisManyPositionalArguments(count: Int): Boolean =
     params.exists(_.isVariadic) || params.exists(_.isAllArgsParam) || positionalParams.size >= count
 
   def bindTypes(arguments: TypedArguments): BoundTypeParams =

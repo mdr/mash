@@ -43,7 +43,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   @throws[EvaluatorException]
   def throwInvalidArgument(param: Parameter, message: String): Nothing = {
     val fullMessage = s"Invalid argument '${name(param)}'. $message"
-    throw new ArgumentException(fullMessage, locationOpt(param))
+    throw ArgumentException(fullMessage, locationOpt(param))
   }
 
   private def name(param: Parameter): String = param.nameOpt getOrElse Parameter.AnonymousParamName
@@ -133,7 +133,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
 
   private def throwInvalidArgumentType(desiredType: String, value: MashValue, param: Parameter) = {
     val message = s"Invalid argument '${name(param)}'. Must be a $desiredType, but was a ${value.typeName}"
-    throw new ArgumentException(message, locationOpt(param))
+    throw ArgumentException(message, locationOpt(param))
   }
 
   def validateClass(param: Parameter): MashClass =
@@ -153,7 +153,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   def validatePaths(param: Parameter): Seq[Path] = {
     val arg = this (param)
     catching(classOf[EvaluatorException]) opt FunctionHelpers.interpretAsPaths(arg) getOrElse (
-      throw new ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as a path.", locationOpt(param)))
+      throw ArgumentException(s"Invalid argument '${name(param)}', could not interpret value of type ${arg.typeName} as a path.", locationOpt(param)))
   }
 
   def validateInteger(param: Parameter): Int = validateInteger(param, this (param))
@@ -173,7 +173,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
   private def checkNonNegative(n: Int, param: Parameter): Unit = {
     if (n < 0) {
       val message = s"Invalid argument '${name(param)}'. Must be a positive integer, but was $n"
-      throw new ArgumentException(message, locationOpt(param))
+      throw ArgumentException(message, locationOpt(param))
     }
   }
 
@@ -188,10 +188,10 @@ case class BoundParams(boundNames: Map[String, MashValue],
       n
     case n: MashNumber  ⇒
       val message = s"Invalid argument '${name(param)}'. Must be an integer, but was '$n'"
-      throw new ArgumentException(message, locationOpt(param))
+      throw ArgumentException(message, locationOpt(param))
     case x              ⇒
       val message = s"Invalid argument '${name(param)}'. Must be an integer, but was a ${x.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+      throw ArgumentException(message, locationOpt(param))
   }
 
   def validateNumber(param: Parameter): Double = this (param) match {
@@ -199,7 +199,7 @@ case class BoundParams(boundNames: Map[String, MashValue],
       n
     case value            ⇒
       val message = s"Invalid argument '${name(param)}'. Must be an integer, but was a ${value.typeName}"
-      throw new ArgumentException(message, locationOpt(param))
+      throw ArgumentException(message, locationOpt(param))
   }
 
 }
