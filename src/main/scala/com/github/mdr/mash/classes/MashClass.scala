@@ -57,6 +57,8 @@ abstract class MashClass(val nameOpt: Option[String],
   def isSubClassOf(otherClass: MashClass): Boolean =
     this == otherClass || this.parentOpt.exists(_ isSubClassOf otherClass)
 
+  def isObjectClass: Boolean = isSubClassOf(ObjectClass)
+
   def withGenerics(types: Type*): Type.Generic = Type.Generic(this, types: _*)
 
   def compareTo(that: MashClass) = MashClassOrdering.compare(this, that)

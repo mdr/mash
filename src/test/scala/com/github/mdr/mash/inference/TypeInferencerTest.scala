@@ -53,8 +53,12 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "42 + 24" ==> NumberClass
   "[1] + [2]" ==> Seq(NumberClass)
   "{ foo: 42 } + { bar: 100 }" ==> obj("foo" -> NumberClass, "bar" -> NumberClass)
-  "class Bob { def foo = 42 }; Bob.new + Bob.new | .foo" ==> NumberClass
+  "ls.first + { foo: 42 }" ==> PathSummaryClass
   "ls.first + ls.first" ==> PathSummaryClass
+  "ls.first + ls.first.permissions" ==> PermissionsClass
+  "class Point x y; class Rectangle w h; Point 1 2 + Rectangle 3 4" ===> { case Type.UserClassInstance(userClass) ⇒ userClass.name == "Rectangle" }
+  "class Point x y; ls.first + Point 1 2" ===> { case Type.UserClassInstance(userClass) ⇒ userClass.name == "Point" }
+  "class Point x y; Point 1 2 + { foo: 42 }" ===> { case Type.UserClassInstance(userClass) ⇒ userClass.name == "Point" }
 
   // subtraction
   "2 - 1" ==> NumberClass

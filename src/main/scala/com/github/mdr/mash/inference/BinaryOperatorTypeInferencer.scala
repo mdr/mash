@@ -1,7 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
-import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, ObjectClass, StringClass }
+import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ BinOpExpr, Expr }
 import com.github.mdr.mash.parser.BinaryOperator
 import com.github.mdr.mash.runtime.{ MashList, MashString }
@@ -38,19 +38,17 @@ object BinaryOperatorTypeInferencer {
 
   def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(rightElementType))) ⇒
+      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(_)))                          ⇒
         if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
-      case (Some(StringLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(StringLike(_)))                                            ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _)                                            ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_)))                                            ⇒ rightTypeOpt
-      case (Some(Type.Instance(klass1)), Some(Type.Instance(klass2)))
-        if klass1 == klass2 && klass1.isSubClassOf(ObjectClass)                ⇒
-        Some(Type.Instance(klass1))
-      case (Some(Type.UserClassInstance(userClass1)), Some(Type.UserClassInstance(userClass2)))
-        if userClass1 == userClass2                                            ⇒
-        Some(Type.UserClassInstance(userClass1))
-      case _                                                                   ⇒
+      case (Some(StringLike(_)), _)                                                      ⇒ leftTypeOpt
+      case (_, Some(StringLike(_)))                                                      ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _)                                                      ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_)))                                                      ⇒ rightTypeOpt
+      case (Some(Type.Instance(_)), Some(Type.Instance(klass2))) if klass2.isObjectClass ⇒ rightTypeOpt
+      case (_, Some(Type.UserClassInstance(_)))                                          ⇒ rightTypeOpt
+      case (Some(Type.Instance(_)), _)                                                   ⇒ leftTypeOpt
+      case (Some(Type.UserClassInstance(_)), _)                                          ⇒ leftTypeOpt
+      case _                                                                             ⇒
         val objectAdditionTypeOpt =
           for {
             leftFields ← leftTypeOpt.flatMap(getObjectFields)
