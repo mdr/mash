@@ -45,12 +45,6 @@ libraryDependencies ++= Seq(
   "net.grey-panther" % "natural-comparator" % "1.1",
   "org.json" % "json" % "20170516")
 
-// == Eclipse integration =====================================================================
-
-EclipseKeys.withSource := true
-
-EclipseKeys.eclipseOutput := Some("bin")
-
 // == Misc ====================================================================================
 
 mainClass in (Compile, run) := Some("com.github.mdr.mash.Main")
