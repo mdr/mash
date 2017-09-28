@@ -4,7 +4,9 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.{ BoundParams, MashMethod, ParameterModel }
 import com.github.mdr.mash.inference.{ Inferencer, MethodTypeInferenceStrategy, Type, TypedArguments }
 import com.github.mdr.mash.ns.collections.GrepFunction
+import com.github.mdr.mash.ns.collections.GrepFunction.GrepOptions
 import com.github.mdr.mash.runtime.{ MashString, MashValue }
+import com.github.mdr.mash.utils.Utils._
 
 object GrepMethod extends MashMethod("grep") {
   import GrepFunction.Params._
@@ -18,12 +20,18 @@ object GrepMethod extends MashMethod("grep") {
     val query = ToStringifier.stringify(boundParams(Query))
     val items = GrepFunction.getItems(target.asInstanceOf[MashString])
     val first = boundParams(First).isTruthy
-    GrepFunction.runGrep(items, query, ignoreCase, regex, negate, first = first)
+    val options = GrepOptions(ignoreCase, regex, negate, first, ignoreFields = true)
+    GrepFunction.runGrep(items, query, options)
   }
 
   override object typeInferenceStrategy extends MethodTypeInferenceStrategy {
-    def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] =
-      targetTypeOpt.map(_.seq)
+
+    def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+      val argBindings = params.bindTypes(arguments)
+      val first = argBindings.getBooleanValue(First).isDefined
+      targetTypeOpt.map(_.when(!first, _.seq))
+    }
+
   }
 
   override def summaryOpt: Option[String] = Some("Find all the elements in the lines of this String which match the given query")

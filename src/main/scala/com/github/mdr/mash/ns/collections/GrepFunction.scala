@@ -6,24 +6,18 @@ import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions._
 import com.github.mdr.mash.inference._
 import com.github.mdr.mash.ns.core.objectClass.GrepMethod
-import com.github.mdr.mash.ns.core.{ AnyClass, StringClass }
+import com.github.mdr.mash.ns.core.{ ObjectClass, StringClass }
 import com.github.mdr.mash.runtime._
 import com.github.mdr.mash.utils.StringUtils
+import com.github.mdr.mash.utils.Utils._
 
 object GrepFunction extends MashFunction("collections.grep") {
 
   object Params {
     val IgnoreCase = Parameter(
       nameOpt = Some("ignoreCase"),
-      summaryOpt = Some("Perform a case-insensitive match"),
+      summaryOpt = Some("Perform a case-insensitive match (default false)"),
       shortFlagOpt = Some('i'),
-      isFlag = true,
-      defaultValueGeneratorOpt = Some(false),
-      isBooleanFlag = true)
-    val Negate = Parameter(
-      nameOpt = Some("negate"),
-      summaryOpt = Some("Find all items that don't match the given query"),
-      shortFlagOpt = Some('n'),
       isFlag = true,
       defaultValueGeneratorOpt = Some(false),
       isBooleanFlag = true)
@@ -34,74 +28,75 @@ object GrepFunction extends MashFunction("collections.grep") {
       defaultValueGeneratorOpt = Some(false),
       isFlag = true,
       isBooleanFlag = true)
+    val Negate = Parameter(
+      nameOpt = Some("negate"),
+      summaryOpt = Some("Find all items that don't match the given query (default false)"),
+      shortFlagOpt = Some('n'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(false),
+      isBooleanFlag = true)
+    val First = Parameter(
+      nameOpt = Some("first"),
+      summaryOpt = Some("Return the first match, if there is one, else null (default false)"),
+      shortFlagOpt = Some('f'),
+      isFlag = true,
+      defaultValueGeneratorOpt = Some(false),
+      isBooleanFlag = true)
     val Query = Parameter(
       nameOpt = Some("query"),
       summaryOpt = Some("Query to find in the given input"))
     val Input = Parameter(
       nameOpt = Some("input"),
       summaryOpt = Some("Sequence or string to search. A string will be treated as a sequence of lines."))
-    val First = Parameter(
-      nameOpt = Some("first"),
-      summaryOpt = Some("Return the first match, if there is one, else null"),
-      shortFlagOpt = Some('f'),
-      isFlag = true,
-      defaultValueGeneratorOpt = Some(false),
-      isBooleanFlag = true)
+
   }
 
   import Params._
 
-  val params = ParameterModel(IgnoreCase, Regex, Negate, Query, Input, First)
+  val params = ParameterModel(IgnoreCase, Regex, Negate, First, Query, Input)
+
+  case class GrepOptions(ignoreCase: Boolean,
+                         regex: Boolean,
+                         negate: Boolean,
+                         first: Boolean,
+                         ignoreFields: Boolean)
 
   def call(boundParams: BoundParams): MashValue = {
+    val query = ToStringifier.stringify(boundParams(Query))
     val ignoreCase = boundParams(IgnoreCase).isTruthy
     val regex = boundParams(Regex).isTruthy
-    val query = ToStringifier.stringify(boundParams(Query))
     val negate = boundParams(Negate).isTruthy
     val first = boundParams(First).isTruthy
+    val options = GrepOptions(ignoreCase, regex, negate, first, ignoreFields = true)
     SequenceLikeAnalyser.analyse(boundParams, Input) {
-      case SequenceLike.List(items) ⇒ runGrep(items, query, ignoreCase, regex, negate, first = first)
-      case SequenceLike.String(s)   ⇒ runGrep(getItems(s), query, ignoreCase, regex, negate, first = first)
+      case SequenceLike.List(items) ⇒ runGrep(items, query, options)
+      case SequenceLike.String(s)   ⇒ runGrep(getItems(s), query, options)
       case SequenceLike.Object(obj) ⇒ GrepMethod.doGrep(obj, boundParams)
     }
   }
 
   def getItems(s: MashString): Seq[MashString] = StringUtils.splitIntoLines(s.s).map(MashString(_, s.tagClassOpt))
 
-  def runGrep(items: Seq[MashValue],
-              query: String,
-              ignoreCase: Boolean,
-              regex: Boolean,
-              negate: Boolean,
-              ignoreFields: Boolean = true,
-              first: Boolean): MashValue =
-    if (first)
-      grepForFirst(items, query, ignoreCase, regex, negate, ignoreFields)
+  def runGrep(items: Seq[MashValue], query: String, options: GrepOptions): MashValue =
+    if (options.first)
+      grepForFirst(items, query, options)
     else
-      grepForAll(items, query, ignoreCase, regex, negate, ignoreFields)
+      grepForAll(items, query, options)
 
-  def grepForFirst(items: Seq[MashValue],
-                   query: String,
-                   ignoreCase: Boolean,
-                   regex: Boolean,
-                   negate: Boolean,
-                   ignoreFields: Boolean) =
-    items.find(matches(_, query, ignoreCase, regex, negate, ignoreFields)).getOrElse(MashNull)
+  /**
+    * Find the first matching item, if any, else MashNull
+    */
+  def grepForFirst(items: Seq[MashValue], query: String, options: GrepOptions): MashValue =
+    items.find(matches(_, query, options)).getOrElse(MashNull)
 
-  def grepForAll(items: Seq[MashValue],
-                 query: String,
-                 ignoreCase: Boolean,
-                 regex: Boolean,
-                 negate: Boolean,
-                 ignoreFields: Boolean): MashList =
-    MashList(items.filter(matches(_, query, ignoreCase, regex, negate, ignoreFields)))
+  /**
+    * Find all matching items, else the empty MashList
+    */
+  def grepForAll(items: Seq[MashValue], query: String, options: GrepOptions): MashList =
+    MashList(items.filter(matches(_, query, options)))
 
-  private def matches(value: MashValue,
-                      query: String,
-                      ignoreCase: Boolean,
-                      regex: Boolean,
-                      negate: Boolean,
-                      ignoreFields: Boolean): Boolean = {
+  private def matches(value: MashValue, query: String, options: GrepOptions): Boolean = {
+    import options._
     val valueString = value match {
       case obj: MashObject if ignoreFields ⇒ obj.immutableFields.values.mkString("\n")
       case _                               ⇒ ToStringifier.stringify(value)
@@ -114,31 +109,49 @@ object GrepFunction extends MashFunction("collections.grep") {
         valueString.toLowerCase contains query.toLowerCase
       else
         valueString contains query
-    if (negate) !valueMatches else valueMatches
+    valueMatches.when(negate, !_)
   }
 
-  override object typeInferenceStrategy extends TypeInferenceStrategy {
-
-    def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
-      val argBindings = params.bindTypes(arguments)
-      val first = argBindings.getBooleanValue(First).isDefined
-      val inputTypeOpt = argBindings.getType(Input)
-      val itemTypeOpt = inputTypeOpt.collect {
-        case Type.Seq(elementType)                                        ⇒ elementType
-        case s@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ s
-      }
-      val itemType = itemTypeOpt getOrElse Type.Any
-      Some(if (first) itemType else itemType.seq)
-    }
-
-  }
+  override def typeInferenceStrategy = GrepTypeInferenceStrategy
 
   override def summaryOpt = Some("Find all the elements in the input which match the given query somewhere in its String representation")
 
   override def descriptionOpt = Some(
-    """Examples:
+    """If given a String, matching lines will be returned.
+
+If given an Object, matching field/values will be retained.
+
+Examples:
 <mash>
   grep "b" ["apple", "book", "car"] # ["book"]
 </mash>""")
+
+}
+
+object GrepTypeInferenceStrategy extends TypeInferenceStrategy {
+
+  import GrepFunction.Params._
+
+  def inferTypes(inferencer: Inferencer, arguments: TypedArguments): Option[Type] = {
+    val argBindings = GrepFunction.params.bindTypes(arguments)
+    val first = argBindings.getBooleanValue(First).isDefined
+    val inputTypeOpt = argBindings.getType(Input)
+    val objectTypeOpt = inputTypeOpt.collect {
+      case t@Type.Instance(klass) if klass isSubClassOf ObjectClass ⇒ t
+      case t@(Type.Object(_) | Type.UserClassInstance(_))           ⇒ t
+    }
+    val resultType =
+      if (objectTypeOpt.isDefined)
+        Type.Instance(ObjectClass)
+      else {
+        val itemTypeOpt = inputTypeOpt.collect {
+          case Type.Seq(elementType)                                        ⇒ elementType
+          case s@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ s
+        }
+        val itemType = itemTypeOpt getOrElse Type.Any
+        if (first) itemType else itemType.seq
+      }
+    Some(resultType)
+  }
 
 }
