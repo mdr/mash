@@ -11,7 +11,7 @@ import com.github.mdr.mash.utils.Utils._
 object GrepMethod extends MashMethod("grep") {
   import GrepFunction.Params._
 
-  val params = ParameterModel(Query, IgnoreCase, Regex, Negate, First)
+  val params = ParameterModel(First, IgnoreCase, Negate, Regex, Query)
 
   override def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val ignoreCase = boundParams(IgnoreCase).isTruthy

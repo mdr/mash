@@ -11,7 +11,7 @@ object GrepMethod extends MashMethod("grep") {
 
   import GrepFunction.Params._
 
-  val params = ParameterModel(Query, IgnoreCase, Regex, Negate, First)
+  val params = ParameterModel(First, IgnoreCase, Negate, Regex, Query)
 
   def call(target: MashValue, boundParams: BoundParams): MashValue = {
     val obj = target.asInstanceOf[MashObject]

@@ -53,7 +53,7 @@ object GrepFunction extends MashFunction("collections.grep") {
 
   import Params._
 
-  val params = ParameterModel(IgnoreCase, Regex, Negate, First, Query, Input)
+  val params = ParameterModel(First, IgnoreCase, Negate, Regex, Query, Input)
 
   case class GrepOptions(ignoreCase: Boolean,
                          regex: Boolean,
@@ -146,7 +146,7 @@ object GrepTypeInferenceStrategy extends TypeInferenceStrategy {
       else {
         val itemTypeOpt = inputTypeOpt.collect {
           case Type.Seq(elementType)                                        ⇒ elementType
-          case s@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ s
+          case t@(Type.Instance(StringClass) | Type.Tagged(StringClass, _)) ⇒ t
         }
         val itemType = itemTypeOpt getOrElse Type.Any
         if (first) itemType else itemType.seq
