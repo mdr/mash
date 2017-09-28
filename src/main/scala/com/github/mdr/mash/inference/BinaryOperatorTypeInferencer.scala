@@ -38,17 +38,17 @@ object BinaryOperatorTypeInferencer {
 
   def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(_)))                          ⇒
+      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(_)))   ⇒
         if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
-      case (Some(StringLike(_)), _)                                                      ⇒ leftTypeOpt
-      case (_, Some(StringLike(_)))                                                      ⇒ rightTypeOpt
-      case (Some(NumberLike(_)), _)                                                      ⇒ leftTypeOpt
-      case (_, Some(NumberLike(_)))                                                      ⇒ rightTypeOpt
-      case (Some(Type.Instance(_)), Some(Type.Instance(klass2))) if klass2.isObjectClass ⇒ rightTypeOpt
-      case (_, Some(Type.UserClassInstance(_)))                                          ⇒ rightTypeOpt
-      case (Some(Type.Instance(_)), _)                                                   ⇒ leftTypeOpt
-      case (Some(Type.UserClassInstance(_)), _)                                          ⇒ leftTypeOpt
-      case _                                                                             ⇒
+      case (Some(StringLike(_)), _)                               ⇒ leftTypeOpt
+      case (_, Some(StringLike(_)))                               ⇒ rightTypeOpt
+      case (Some(NumberLike(_)), _)                               ⇒ leftTypeOpt
+      case (_, Some(NumberLike(_)))                               ⇒ rightTypeOpt
+      case (_, Some(Type.Instance(klass))) if klass.isObjectClass ⇒ rightTypeOpt
+      case (_, Some(Type.UserClassInstance(_)))                   ⇒ rightTypeOpt
+      case (Some(Type.Instance(klass)), _) if klass.isObjectClass ⇒ leftTypeOpt
+      case (Some(Type.UserClassInstance(_)), _)                   ⇒ leftTypeOpt
+      case _                                                      ⇒
         val objectAdditionTypeOpt =
           for {
             leftFields ← leftTypeOpt.flatMap(getObjectFields)
@@ -86,8 +86,8 @@ trait BinaryOperatorTypeInferencer {
             val removedFields = xs.elements.collect { case MashString(s, _) ⇒ s }.toSet
             Type.Object(leftFields.filterKeys(k ⇒ !removedFields.contains(k)))
         }
-      case (Some(Type.Seq(elementType)), _)                         ⇒ leftTypeOpt
-      case (_, Some(Type.Seq(elementType)))                         ⇒ rightTypeOpt
+      case (Some(Type.Seq(_)), _)                                   ⇒ leftTypeOpt
+      case (_, Some(Type.Seq(_)))                                   ⇒ rightTypeOpt
       case _                                                        ⇒ Some(NumberClass)
     }
 
