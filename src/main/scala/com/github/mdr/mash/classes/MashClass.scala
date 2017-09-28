@@ -61,7 +61,7 @@ abstract class MashClass(val nameOpt: Option[String],
 
   def withGenerics(types: Type*): Type.Generic = Type.Generic(this, types: _*)
 
-  def compareTo(that: MashClass) = MashClassOrdering.compare(this, that)
+  def compareTo(that: MashClass): Int = MashClassOrdering.compare(this, that)
 
   /**
     * An example target name for use in generating calling syntax

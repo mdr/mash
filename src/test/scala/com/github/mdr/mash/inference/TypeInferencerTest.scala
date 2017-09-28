@@ -67,7 +67,9 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "2 - 1" ==> NumberClass
   "{ foo: 42, bar: 100 } - 'foo'" ==> obj("bar" -> NumberClass)
   "{ foo: 42, bar: 100, baz: 128 } - ['foo', 'baz']" ==> obj("bar" -> NumberClass)
+  "class Point x y; Point 1 2 - 'x'" ==> obj("y" → Any)
   // "field = 'foo'; { foo: 42, bar: 100 } - field" ==> obj("bar" -> NumberClass)
+
 
   "[1, 2, 3] - [2]" ==> Seq(NumberClass)
 
@@ -175,7 +177,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   // where
   "[1, 2, 3] | where (_ > 2)" ==> Seq(NumberClass)
   "'foo' | where (_ > 'm')" ==> StringClass
-  "'[1, 2, 3]' | json.fromString | where (_ > 2)" ==> Seq(AnyClass)
+  "'[1, 2, 3]' | json.fromString | where (_ > 2)" ==> Seq(Any)
 
   "null" ==> NullClass
 
@@ -350,7 +352,7 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   "{ foo: => 42 }.foo" ==> NumberClass
 
-  "'{ foo: 42 }' | json.fromString | .foo" ==> AnyClass
+  "'{ foo: 42 }' | json.fromString | .foo" ==> Any
 
   // hint
   "json.read 'file.json' | type.hint { name: String, addresses: [{ houseNumber: String, postcode: String }] }" ==>
@@ -461,8 +463,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
 
   private def havingFirstRun(s: String)(f: Environment ⇒ Any) = {
     implicit val environment = StandardEnvironment.create
-    val expr = compile(s, environment.bindings)
     implicit val context = EvaluationContext(ScopeStack(environment.globalVariables))
+    val expr = compile(s, environment.bindings)
     Evaluator.evaluate(expr)
     f(environment)
   }

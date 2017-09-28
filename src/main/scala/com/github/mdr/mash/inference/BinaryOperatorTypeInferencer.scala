@@ -1,6 +1,7 @@
 package com.github.mdr.mash.inference
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.inference.Type.UserClass
 import com.github.mdr.mash.ns.core.{ BooleanClass, NumberClass, StringClass }
 import com.github.mdr.mash.parser.AbstractSyntax.{ BinOpExpr, Expr }
 import com.github.mdr.mash.parser.BinaryOperator
@@ -27,19 +28,22 @@ object BinaryOperatorTypeInferencer {
     def unapply(type_ : Type): Option[Map[String, Type]] = getObjectFields(type_)
   }
 
-  private def getObjectFields(type_ : Type): Option[Map[String, Type]] = condOpt(type_) {
-    case Type.Instance(klass)    ⇒ fields(klass)
-    case Type.Object(fields)     ⇒ fields
-    case Type.Generic(klass, _*) ⇒ fields(klass)
-  }
+  private def getObjectFields(type_ : Type): Option[Map[String, Type]] =
+    condOpt(type_) {
+      case Type.Instance(klass)              ⇒ fields(klass)
+      case Type.UserClassInstance(userClass) ⇒ fields(userClass)
+      case Type.Object(fields)               ⇒ fields
+      case Type.Generic(klass, _*)           ⇒ fields(klass)
+    }
+
+  private def fields(userClass: UserClass): Map[String, Type] = userClass.params.paramByName.mapValues(_ ⇒ Type.Any)
 
   private def fields(klass: MashClass): Map[String, Type] =
     klass.fieldsMap.map { case (fieldName, field) ⇒ fieldName -> field.fieldType }
 
   def inferTypeAdd(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
     (leftTypeOpt, rightTypeOpt) match {
-      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(_)))   ⇒
-        if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
+      case (Some(Type.Seq(leftElementType)), Some(Type.Seq(_)))   ⇒ if (leftElementType == Type.Any) rightTypeOpt else leftTypeOpt
       case (Some(StringLike(_)), _)                               ⇒ leftTypeOpt
       case (_, Some(StringLike(_)))                               ⇒ rightTypeOpt
       case (Some(NumberLike(_)), _)                               ⇒ leftTypeOpt
@@ -94,26 +98,24 @@ trait BinaryOperatorTypeInferencer {
   protected def inferTypeBinOpExpr(leftTypeOpt: Option[Type], op: BinaryOperator, rightTypeOpt: Option[Type], right: Expr): Option[Type] = {
     import BinaryOperator._
     op match {
-      case Plus                                                                             ⇒
-        inferTypeAdd(leftTypeOpt, rightTypeOpt)
-      case Multiply                                                                         ⇒
-        inferTypeMultiply(leftTypeOpt, rightTypeOpt)
-      case Minus                                                                            ⇒
-        inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
-      case Divide                                                                           ⇒
-        (leftTypeOpt, rightTypeOpt) match {
-          case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
-          case (_, Some(Type.Tagged(NumberClass, _))) ⇒ rightTypeOpt
-          case _                                      ⇒ Some(NumberClass)
-        }
-      case Equals | NotEquals | LessThan | LessThanEquals | GreaterThan | GreaterThanEquals ⇒
-        Some(BooleanClass)
-      case Sequence                                                                         ⇒
-        rightTypeOpt
-      case And | Or                                                                         ⇒
-        leftTypeOpt orElse rightTypeOpt
+      case Plus                            ⇒ inferTypeAdd(leftTypeOpt, rightTypeOpt)
+      case Multiply                        ⇒ inferTypeMultiply(leftTypeOpt, rightTypeOpt)
+      case Minus                           ⇒ inferTypeSubtract(leftTypeOpt, rightTypeOpt, right)
+      case Divide                          ⇒ inferTypeDivide(leftTypeOpt, rightTypeOpt)
+      case Equals | NotEquals |
+           LessThan | LessThanEquals |
+           GreaterThan | GreaterThanEquals ⇒ Some(BooleanClass)
+      case Sequence                        ⇒ rightTypeOpt
+      case And | Or                        ⇒ leftTypeOpt orElse rightTypeOpt
     }
   }
+
+  private def inferTypeDivide(leftTypeOpt: Option[Type], rightTypeOpt: Option[Type]): Option[Type] =
+    (leftTypeOpt, rightTypeOpt) match {
+      case (Some(Type.Tagged(NumberClass, _)), _) ⇒ leftTypeOpt
+      case (_, Some(Type.Tagged(NumberClass, _))) ⇒ rightTypeOpt
+      case _                                      ⇒ Some(NumberClass)
+    }
 
   protected def inferTypeBinOpExpr(binOpExpr: Expr, bindings: Map[String, Type]): Option[Type] = {
     val BinOpExpr(left, op, right, _) = binOpExpr

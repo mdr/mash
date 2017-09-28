@@ -111,7 +111,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
         val millis = duration.getSeconds * 1000 + duration.getNano / 1000000
         MashNumber(millis, Some(MillisecondsClass))
       case (left: MashList, right: MashList)                                            ⇒
-        left.diff(right)
+        left diff right
       case (left: MashObject, right: MashList)                                          ⇒
         left - right.immutableElements
       case (left: MashObject, right)                                                    ⇒
