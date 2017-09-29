@@ -1,23 +1,21 @@
 package com.github.mdr.mash.ns.os
 
-import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.WorkingDirectoryStack
 import com.github.mdr.mash.evaluator.EvaluatorException
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, ParameterModel }
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.os.linux.LinuxFileSystem
+import com.github.mdr.mash.os.FileSystem
 import com.github.mdr.mash.runtime.{ MashUnit, MashValue }
 
-object BackFunction extends MashFunction("os.back") {
-
-  private val workingDirectoryStack = Singletons.workingDirectoryStack
-  private val fileSystem = LinuxFileSystem
+case class BackFunction(workingDirectoryStack: WorkingDirectoryStack,
+                        fileSystem: FileSystem)
+  extends MashFunction("os.back") {
 
   val params = ParameterModel.Empty
 
   def call(boundParams: BoundParams): MashValue = {
     workingDirectoryStack.back() match {
       case Some(path) ⇒ fileSystem.chdir(path)
-      case None ⇒ throw new EvaluatorException("No previous directory in history")
+      case None       ⇒ throw EvaluatorException("No previous directory in history")
     }
     MashUnit
   }

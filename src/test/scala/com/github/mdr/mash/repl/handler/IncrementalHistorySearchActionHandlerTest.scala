@@ -2,7 +2,8 @@ package com.github.mdr.mash.repl.handler
 
 import java.nio.file.{ Path, Paths }
 
-import com.github.mdr.mash.os.MockFileSystem
+import com.github.mdr.mash.WorkingDirectoryStack
+import com.github.mdr.mash.os.{ CurrentDirectoryManager, MockFileSystem }
 import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ FirstHit, LastHit, ToggleCurrentDirOnly }
 import com.github.mdr.mash.repl.IncrementalHistorySearchState.{ BeforeFirstHit, Hit, NoHits }
 import com.github.mdr.mash.repl.LineBufferTestHelper._
@@ -89,7 +90,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   it should "perform case insensitive searches" in {
     val history = InMemoryHistoryStorage.testHistory("foo", "FOO")
-    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem)
+    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager)
 
     val state0 = replState("existing▶")
 
@@ -105,7 +106,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   it should "allow user to keep adding to the search, even if no hits" in {
     val history = InMemoryHistoryStorage.testHistory("apple")
-    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem)
+    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager)
 
     val state0 = replState("existing▶")
 
@@ -121,7 +122,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   it should "support starting with an initial search string" in {
     val history = InMemoryHistoryStorage.testHistory("apple")
-    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem)
+    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager)
 
     val state0 = replState("app▶")
 
@@ -148,7 +149,7 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
     val history = InMemoryHistoryStorage.testHistoryWithPaths("apple" → appleDir, "ball" → ballDir)
     val fileSystem = MockFileSystem.of(appleDir.toString)
     fileSystem.chdir(appleDir)
-    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem)
+    val actionHandler = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager)
     val state0 = replState("existing▶")
     val state1 = actionHandler.beginFreshIncrementalSearch(state0)
     val Result(state2, true) = actionHandler.handleAction(ToggleCurrentDirOnly, state1)
@@ -192,9 +193,10 @@ class IncrementalHistorySearchActionHandlerTest extends FlatSpec with Matchers {
 
   private def makeActionHandler: IncrementalHistorySearchActionHandler = {
     val history = InMemoryHistoryStorage.testHistory("foo", "bar", "baz")
-    IncrementalHistorySearchActionHandler(history, fileSystem)
+    IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager)
   }
 
+  private def currentDirectoryManager =  CurrentDirectoryManager(fileSystem, new WorkingDirectoryStack(InMemoryHistoryStorage.WorkingDirectory))
   private def fileSystem = new MockFileSystem
 
 }

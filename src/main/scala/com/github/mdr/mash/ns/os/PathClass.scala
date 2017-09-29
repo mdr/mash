@@ -1,13 +1,13 @@
 package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.MashClass
+import com.github.mdr.mash.functions.MashMethod
 import com.github.mdr.mash.ns.core._
 import com.github.mdr.mash.ns.os.pathClass._
-import org.apache.commons.lang3.SystemUtils
 
 object PathClass extends MashClass("os.Path") {
 
-  override val methods = Seq(
+  override val methods: Seq[MashMethod] = Seq(
     AbsoluteMethod,
     BaseNameMethod,
     ChangeDirectoryMethod,
@@ -27,6 +27,7 @@ object PathClass extends MashClass("os.Path") {
     CreateDirectoryMethod,
     MoveIntoMethod,
     NameMethod,
+    OpenMethod,
     OwnerMethod,
     ParentMethod,
     PermissionsMethod,
@@ -42,11 +43,7 @@ object PathClass extends MashClass("os.Path") {
     SizeMethod,
     WithTildeMethod,
     TypeMethod,
-    WriteMethod) ++
-    (if (SystemUtils.IS_OS_MAC_OSX)
-      Seq(OpenMethod)
-    else
-      Seq())
+    WriteMethod)
 
   override def summaryOpt = Some("Tag class for a filesystem path")
 

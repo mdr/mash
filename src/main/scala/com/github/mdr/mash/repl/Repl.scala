@@ -7,7 +7,7 @@ import com.github.mdr.mash.assist.InvocationAssistanceUpdater
 import com.github.mdr.mash.commands.MishCommand
 import com.github.mdr.mash.completions.{ Completer, CompletionResult }
 import com.github.mdr.mash.input._
-import com.github.mdr.mash.os.{ EnvironmentInteractions, FileSystem }
+import com.github.mdr.mash.os.{ CurrentDirectoryManager, EnvironmentInteractions, FileSystem }
 import com.github.mdr.mash.view.render.{ DiscoMode, ReplRenderer }
 import com.github.mdr.mash.repl.browser.handler.ObjectBrowserActionHandler
 import com.github.mdr.mash.repl.completions.{ BrowseCompletionActionHandler, BrowserCompletionState, IncrementalCompletionActionHandler, IncrementalCompletionState }
@@ -20,7 +20,7 @@ import com.github.mdr.mash.terminal.Terminal
 import com.github.mdr.mash.terminal.ansi.EscapeSequence
 import com.github.mdr.mash.tips.Tips
 import com.github.mdr.mash.view.ViewConfig
-import com.github.mdr.mash.{ ConfigWrapper, DebugLogger }
+import com.github.mdr.mash.{ ConfigWrapper, DebugLogger, Singletons }
 
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
@@ -136,8 +136,11 @@ class Repl(protected val terminal: Terminal,
     }
   }
 
+  protected lazy val currentDirectoryManager = CurrentDirectoryManager(fileSystem, Singletons.workingDirectoryStack)
   private def handleHistorySearchAction(action: InputAction) = {
-    val Result(newState, actionConsumed) = IncrementalHistorySearchActionHandler(history, fileSystem).handleAction(action, state)
+
+    val Result(newState, actionConsumed) =
+      IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager).handleAction(action, state)
     state = newState
     if (!actionConsumed)
       handleNormalAction(action)

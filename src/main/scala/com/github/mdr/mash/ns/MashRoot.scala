@@ -1,5 +1,6 @@
 package com.github.mdr.mash.ns
 
+import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.ns.collections._
 import com.github.mdr.mash.ns.core._
@@ -13,9 +14,23 @@ import com.github.mdr.mash.ns.maths.StatsClass
 import com.github.mdr.mash.ns.os.{ WithinFunction, GroupClass ⇒ _, _ }
 import com.github.mdr.mash.ns.time._
 import com.github.mdr.mash.ns.view.ViewClass
+import com.github.mdr.mash.os.CurrentDirectoryManager
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import org.apache.commons.lang3.SystemUtils
 
 object MashRoot {
+
+  private lazy val fileSystem = LinuxFileSystem
+
+  private lazy val workingDirectoryStack = Singletons.workingDirectoryStack
+
+  private lazy val environmentInteractions = LinuxEnvironmentInteractions
+
+  private lazy val currentDirectoryManager = CurrentDirectoryManager(fileSystem, workingDirectoryStack)
+
+  private lazy val changeDirectoryFunction = ChangeDirectoryFunction(currentDirectoryManager, environmentInteractions)
+
+  private lazy val history = Singletons.history
 
   lazy val AllFunctions = StandardFunctions ++ OtherFunctions
 
@@ -120,8 +135,8 @@ object MashRoot {
     maths.StatsFunction)
 
   private val OsFunctions = Seq(
-    BackFunction,
-    ChangeDirectoryFunction,
+    BackFunction(workingDirectoryStack, fileSystem),
+    changeDirectoryFunction,
     ChildrenFunction,
     ClipboardFunction,
     CopyFunction,
@@ -135,7 +150,7 @@ object MashRoot {
     ForwardFunction,
     GlobFunction,
     HomeFunction,
-    JumpFunction,
+    JumpFunction(history, currentDirectoryManager),
     KillFunction,
     ListFilesFunction,
     MoveFunction,
@@ -203,7 +218,7 @@ object MashRoot {
   val Aliases = Map(
     "mv" -> MoveFunction,
     "ps" -> ProcessesFunction,
-    "cd" -> ChangeDirectoryFunction,
+    "cd" -> changeDirectoryFunction,
     "cp" -> CopyFunction,
     "count" -> LengthFunction,
     "ls" -> ListFilesFunction,

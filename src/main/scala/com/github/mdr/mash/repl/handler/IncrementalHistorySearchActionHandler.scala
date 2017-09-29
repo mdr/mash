@@ -3,8 +3,7 @@ package com.github.mdr.mash.repl.handler
 import java.nio.file.Path
 
 import com.github.mdr.mash.input.InputAction
-import com.github.mdr.mash.ns.os.ChangeDirectoryFunction
-import com.github.mdr.mash.os.FileSystem
+import com.github.mdr.mash.os.{ CurrentDirectoryManager, FileSystem }
 import com.github.mdr.mash.repl.IncrementalHistorySearchActions.{ ChangeDirectory, FirstHit, LastHit, ToggleCurrentDirOnly }
 import com.github.mdr.mash.repl.IncrementalHistorySearchState._
 import com.github.mdr.mash.repl.NormalActions._
@@ -21,7 +20,9 @@ object IncrementalHistorySearchActionHandler {
 
 }
 
-case class IncrementalHistorySearchActionHandler(history: History, fileSystem: FileSystem) {
+case class IncrementalHistorySearchActionHandler(history: History,
+                                                 fileSystem: FileSystem,
+                                                 currentDirectoryManager: CurrentDirectoryManager) {
 
   import IncrementalHistorySearchActionHandler._
 
@@ -157,7 +158,7 @@ case class IncrementalHistorySearchActionHandler(history: History, fileSystem: F
     hitStatus match {
       case hit: Hit ⇒
         try
-          ChangeDirectoryFunction.changeDirectory(hit.workingDirectory)
+          currentDirectoryManager.changeDirectory(hit.workingDirectory)
         catch {
           case NonFatal(_) ⇒ // ignore
         }

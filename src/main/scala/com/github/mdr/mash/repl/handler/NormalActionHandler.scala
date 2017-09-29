@@ -14,9 +14,8 @@ import com.github.mdr.mash.repl.NormalActions.{ Down, _ }
 import com.github.mdr.mash.repl.ReplVariables.{ It, ResultVarPrefix, ResultsListName }
 import com.github.mdr.mash.repl.browser._
 import com.github.mdr.mash.repl.{ LineBuffer, LineBufferActionHandler, Repl, UndoRedoState }
-import com.github.mdr.mash.runtime.{ MashList, MashNull, MashObject, MashValue }
+import com.github.mdr.mash.runtime.{ MashList, MashNull, MashValue }
 
-import scala.PartialFunction.cond
 import scala.util.control.NonFatal
 
 trait NormalActionHandler extends InlineHandler {
@@ -113,7 +112,7 @@ trait NormalActionHandler extends InlineHandler {
   }
 
   private def handleIncrementalHistorySearch() = handleTextChange {
-    state = IncrementalHistorySearchActionHandler(history, fileSystem).beginFreshIncrementalSearch(state)
+    state = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager).beginFreshIncrementalSearch(state)
   }
 
   private def handleTextChange[T](f: ⇒ T): T = {
@@ -138,7 +137,7 @@ trait NormalActionHandler extends InlineHandler {
       val shouldInitiateIncrementalSearch =
         !lineBuffer.isMultiline && !lineBuffer.text.trim.isEmpty && history.isCommittedToEntry
       if (shouldInitiateIncrementalSearch)
-        handleTextChange(state = IncrementalHistorySearchActionHandler(history, fileSystem).beginIncrementalSearchFromLine(state))
+        handleTextChange(state = IncrementalHistorySearchActionHandler(history, fileSystem, currentDirectoryManager).beginIncrementalSearchFromLine(state))
       else
         history.goBackwards(lineBuffer.text) match {
           case Some(cmd) ⇒ state = state.withLineBuffer(LineBuffer(cmd))

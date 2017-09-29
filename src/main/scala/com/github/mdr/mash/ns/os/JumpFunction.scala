@@ -2,18 +2,17 @@ package com.github.mdr.mash.ns.os
 
 import java.nio.file.{ Files, Path, Paths }
 
-import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
+import com.github.mdr.mash.os.CurrentDirectoryManager
 import com.github.mdr.mash.repl.history.{ History, HistoryEntry }
 import com.github.mdr.mash.runtime.{ MashString, MashUnit }
 import com.github.mdr.mash.utils.Utils._
 import org.apache.commons.text.similarity.LongestCommonSubsequence
 
-object JumpFunction extends MashFunction("os.jump") {
-
-  private def history: History = Singletons.history
+case class JumpFunction(history: History,
+                        currentDirectoryManager: CurrentDirectoryManager) extends MashFunction("os.jump") {
 
   object Params {
     val Query = Parameter(
@@ -33,7 +32,7 @@ object JumpFunction extends MashFunction("os.jump") {
         queryAsPath
       else
         findMatchingPath(query) getOrElse boundParams.throwInvalidArgument(Query, s"No matching path")
-    ChangeDirectoryFunction.changeDirectory(finalPath)
+    currentDirectoryManager.changeDirectory(finalPath)
 
     MashUnit
   }

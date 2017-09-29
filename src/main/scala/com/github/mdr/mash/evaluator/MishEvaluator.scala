@@ -2,8 +2,11 @@ package com.github.mdr.mash.evaluator
 
 import java.nio.file.{ Path, Paths }
 
-import com.github.mdr.mash.ns.os.{ ChangeDirectoryFunction, PathClass, ProcessResultClass }
-import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
+import com.github.mdr.mash.Singletons
+import com.github.mdr.mash.ns.os.{ PathClass, ProcessResultClass }
+import com.github.mdr.mash.os.CurrentDirectoryManager
+import com.github.mdr.mash.os.CurrentDirectoryManager.{ NotADirectory, Success }
+import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
 import com.github.mdr.mash.parser.AbstractSyntax._
 import com.github.mdr.mash.parser.RedirectOperator
 import com.github.mdr.mash.runtime._
@@ -12,6 +15,8 @@ import com.github.mdr.mash.subprocesses.ProcessRunner
 object MishEvaluator extends EvaluatorHelper {
 
   private val environmentInteractions = LinuxEnvironmentInteractions
+  private val fileSystem = LinuxFileSystem
+  private val currentDirectoryManager = CurrentDirectoryManager(fileSystem, Singletons.workingDirectoryStack)
 
   def evaluateMishInterpolation(expr: MishInterpolation)(implicit context: EvaluationContext) =
     expr.part match {
@@ -49,17 +54,16 @@ object MishEvaluator extends EvaluatorHelper {
   }
 
   private def evaluateCd(args: Seq[MashValue], argExprs: Seq[Expr])(implicit context: EvaluationContext): MashUnit = {
-    import ChangeDirectoryFunction._
     args match {
       case Seq()          ⇒
-        val home = LinuxEnvironmentInteractions.home
-        changeDirectory(home) match {
+        val home = environmentInteractions.home
+        currentDirectoryManager.changeDirectory(home) match {
           case Success       ⇒ MashUnit
-          case NotADirectory ⇒ throw new EvaluatorException(s"Could not change directory to '$home', not a directory")
+          case NotADirectory ⇒ throw EvaluatorException(s"Could not change directory to '$home', not a directory")
         }
       case Seq(pathValue) ⇒
         val path = Paths.get(ToStringifier.stringify(pathValue))
-        changeDirectory(path) match {
+        currentDirectoryManager.changeDirectory(path) match {
           case Success       ⇒ MashUnit
           case NotADirectory ⇒ throw new EvaluatorException(s"Could not change directory to '$path', not a directory", sourceLocation(argExprs(0)))
         }

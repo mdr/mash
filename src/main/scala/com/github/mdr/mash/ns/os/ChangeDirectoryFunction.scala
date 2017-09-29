@@ -1,26 +1,15 @@
 package com.github.mdr.mash.ns.os
 
-import java.nio.file.Path
-
-import com.github.mdr.mash.Singletons
 import com.github.mdr.mash.completions.CompletionSpec
 import com.github.mdr.mash.functions.{ BoundParams, MashFunction, Parameter, ParameterModel }
 import com.github.mdr.mash.inference.TypedArguments
-import com.github.mdr.mash.ns.core.UnitClass
-import com.github.mdr.mash.os.linux.{ LinuxEnvironmentInteractions, LinuxFileSystem }
+import com.github.mdr.mash.os.CurrentDirectoryManager._
+import com.github.mdr.mash.os.{ CurrentDirectoryManager, EnvironmentInteractions }
 import com.github.mdr.mash.runtime.{ MashString, MashUnit }
 
-object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
-
-  sealed trait Result
-
-  case object Success extends Result
-
-  case object NotADirectory extends Result
-
-  private val fileSystem = LinuxFileSystem
-  private val environmentInteractions = LinuxEnvironmentInteractions
-  private val workingDirectoryStack = Singletons.workingDirectoryStack
+case class ChangeDirectoryFunction(currentDirectoryManager: CurrentDirectoryManager,
+                                   environmentInteractions: EnvironmentInteractions)
+  extends MashFunction("os.changeDirectory") {
 
   object Params {
     val Directory = Parameter(
@@ -35,26 +24,13 @@ object ChangeDirectoryFunction extends MashFunction("os.changeDirectory") {
 
   def call(boundParams: BoundParams): MashUnit = {
     val path = boundParams.validatePath(Directory)
-    changeDirectory(path) match {
-      case Success       ⇒
-        MashUnit
-      case NotADirectory ⇒
-        boundParams.throwInvalidArgument(Directory, s"Could not change directory to '$path', not a directory")
+    currentDirectoryManager.changeDirectory(path) match {
+      case Success       ⇒ MashUnit
+      case NotADirectory ⇒ boundParams.throwInvalidArgument(Directory, s"Could not change directory to '$path', not a directory")
     }
   }
 
   private def home = MashString(environmentInteractions.home.toString, Some(PathClass))
-
-  def changeDirectory(path: Path): Result = {
-    val result =
-      if (fileSystem.isDirectory(path)) {
-        fileSystem.chdir(path)
-        Success
-      } else
-        NotADirectory
-    workingDirectoryStack.push(fileSystem.pwd)
-    result
-  }
 
   override def typeInferenceStrategy = Unit
 
