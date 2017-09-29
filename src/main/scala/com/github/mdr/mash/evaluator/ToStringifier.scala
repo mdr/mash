@@ -51,7 +51,7 @@ object ToStringifier {
       val stringified = Evaluator.invokeNullaryFunctions(toStringMethod, locationOpt = None)
       stringified match {
         case MashString(s, _) ⇒ s
-        case _                ⇒ throw new EvaluatorException("Invalid toString value of type " + stringified.typeName)
+        case _                ⇒ throw EvaluatorException("Invalid toString value of type " + stringified.typeName)
       }
     }
 

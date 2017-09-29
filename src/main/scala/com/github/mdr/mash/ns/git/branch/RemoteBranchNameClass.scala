@@ -30,7 +30,7 @@ object RemoteBranchNameClass extends MashClass("git.branch.RemoteBranchName") {
       val git = new Git(repo)
       val remoteBranches = git.branchList.setListMode(ListMode.REMOTE).call().asScala
       val ref = remoteBranches.find(_.getName == "refs/remotes/" + branchName).getOrElse(
-        throw new EvaluatorException("No branch with name " + branchName))
+        throw EvaluatorException("No branch with name " + branchName))
       ListRemoteFunction.asMashObject(repo)(ref)
     }
 

@@ -20,7 +20,7 @@ object NaturalJoinMethod extends MashMethod("naturalJoin") {
     val objects1: Seq[MashObject] =
       target.asInstanceOf[MashList].immutableElements.map {
         case obj: MashObject ⇒ obj
-        case value           ⇒ throw new EvaluatorException(s"Can only call this on a list of Objects, but a value was ${value.typeName}")
+        case value           ⇒ throw EvaluatorException(s"Can only call this on a list of Objects, but a value was ${value.typeName}")
       }
     val objects2: Seq[MashObject] =
       boundParams.validateSequence(Sequence).map {

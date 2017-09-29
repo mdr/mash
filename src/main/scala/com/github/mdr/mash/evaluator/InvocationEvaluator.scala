@@ -82,7 +82,7 @@ object InvocationEvaluator extends EvaluatorHelper {
     }
 
   private def throwValueIsNotCallableException(x: MashValue, functionLocationOpt: Option[SourceLocation]): Nothing = {
-    throw new EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
+    throw EvaluatorException(s"Value of type ${x.typeName} is not callable", functionLocationOpt)
   }
 
   private def callBoundMethod(boundMethod: BoundMethod,
@@ -139,7 +139,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       p
     catch {
       case e: ArgumentException ⇒
-        throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
+        throw EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
     }
 
   def addInvocationToStackOnException[T](invocationLocationOpt: Option[SourceLocation] = None,
@@ -148,7 +148,7 @@ object InvocationEvaluator extends EvaluatorHelper {
       p
     catch {
       case e: ArgumentException  ⇒
-        throw new EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
+        throw EvaluatorException(e.message, e.locationOpt orElse invocationLocationOpt)
       case e: EvaluatorException ⇒
         throw e.lastWasFunction(functionOpt).push(invocationLocationOpt)
     }

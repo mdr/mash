@@ -86,7 +86,7 @@ object ClassClass extends MashClass("core.Class") {
       }
       val klass = target.asInstanceOf[MashClass]
       if (!klass.isSubClassOf(ObjectClass))
-        throw new EvaluatorException("Only object classes can be used to bless values")
+        throw EvaluatorException("Only object classes can be used to bless values")
       obj withClass klass
     }
 

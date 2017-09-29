@@ -62,7 +62,7 @@ object MemberEvaluator extends EvaluatorHelper {
   def throwCannotFindMemberException(target: MashValue, name: String, locationOpt: Option[SourceLocation]): Nothing = {
     val names = getMemberNames(target)
     val message = s"Cannot find member '$name' in value of type ${target.typeName}${Suggestor.suggestionSuffix(names, name)}"
-    throw new EvaluatorException(message, locationOpt)
+    throw EvaluatorException(message, locationOpt)
   }
 
   private def throwCannotFindMemberException(target: MashValue, field: MashValue, locationOpt: Option[SourceLocation]): Nothing =
@@ -72,7 +72,7 @@ object MemberEvaluator extends EvaluatorHelper {
       case _             ⇒
         val name = ToStringifier.safeStringify(field)
         val message = s"Cannot find member '$name' in value of type ${target.typeName}"
-        throw new EvaluatorException(message, locationOpt)
+        throw EvaluatorException(message, locationOpt)
     }
 
   def getLocation(memberExpr: AbstractMemberExpr): Option[SourceLocation] =

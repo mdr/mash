@@ -38,7 +38,7 @@ object RunFunction extends MashFunction("os.run") {
       }
     val stdinImmediateOpt = getStandardInOpt(boundParams)
     if (args.isEmpty)
-      throw new EvaluatorException("Must provide at least one argument for the command")
+      throw EvaluatorException("Must provide at least one argument for the command")
     val result = ProcessRunner.runProcess(args, captureProcess = true, stdinImmediateOpt = stdinImmediateOpt)
     ProcessResultClass.fromResult(result)
   }

@@ -21,7 +21,7 @@ object PidClass extends MashClass("os.Pid") {
 
   private case class Wrapper(value: MashValue) extends AbstractObjectWrapper(value) {
 
-    val pid = target.asInstanceOf[MashNumber].asInt.getOrElse(throw new EvaluatorException("Invalid pid: " + target))
+    val pid = target.asInstanceOf[MashNumber].asInt.getOrElse(throw EvaluatorException("Invalid pid: " + target))
 
   }
 
@@ -55,7 +55,7 @@ object PidClass extends MashClass("os.Pid") {
       val pid = Wrapper(target).pid
       val processInfo = PidClass.getProcessInfo(pid)
       val processObject = ProcessClass.makeProcess(processInfo)
-      processObject.get(field.name).getOrElse(throw new EvaluatorException("No field found: " + field.name))
+      processObject.get(field.name).getOrElse(throw EvaluatorException("No field found: " + field.name))
     }
 
     override def typeInferenceStrategy = ProcessClass.fieldsMap(field.name).fieldType
@@ -83,7 +83,7 @@ object PidClass extends MashClass("os.Pid") {
   }
 
   private def getProcessInfo(pid: Int): ProcessInfo =
-    processInteractions.getProcess(pid).getOrElse(throw new EvaluatorException("Cannot find process with pid " + pid))
+    processInteractions.getProcess(pid).getOrElse(throw EvaluatorException("Cannot find process with pid " + pid))
 
   override def enumerationValues: Option[Seq[String]] =
     Some(processInteractions.getProcesses.map(_.pid).map(_.toString))

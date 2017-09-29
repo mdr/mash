@@ -14,26 +14,26 @@ object LookupEvaluator extends EvaluatorHelper {
       case MashString(memberName, _) ⇒
         MemberEvaluator.lookupByString(target, memberName, includePrivate = thisTarget, sourceLocation(indexExpr))
       case n: MashNumber             ⇒
-        val i = n.asInt.getOrElse(throw new EvaluatorException("Unable to lookup, non-integer index: " + n, sourceLocation(lookupExpr)))
+        val i = n.asInt.getOrElse(throw EvaluatorException("Unable to lookup, non-integer index: " + n, sourceLocation(lookupExpr)))
         target match {
           case xs: MashList    ⇒
             val index = if (i < 0) i + xs.size else i
             if (index >= xs.size)
-              throw new EvaluatorException("Index out of range " + n, sourceLocation(indexExpr))
+              throw EvaluatorException("Index out of range " + n, sourceLocation(indexExpr))
             xs(index)
           case s: MashString   ⇒
             s.lookup(i)
           case obj: MashObject ⇒
             MemberEvaluator.lookup(target, index, includePrivate = thisTarget, sourceLocation(indexExpr))
           case _               ⇒
-            throw new EvaluatorException("Unable to lookup in target of type " + target.typeName, sourceLocation(lookupExpr))
+            throw EvaluatorException("Unable to lookup in target of type " + target.typeName, sourceLocation(lookupExpr))
         }
       case _                         ⇒
         target match {
           case obj: MashObject ⇒
             MemberEvaluator.lookup(target, index, includePrivate = thisTarget, sourceLocation(indexExpr))
           case _               ⇒
-            throw new EvaluatorException("Unable to lookup index of type " + index.typeName, sourceLocation(indexExpr))
+            throw EvaluatorException("Unable to lookup index of type " + index.typeName, sourceLocation(indexExpr))
         }
     }
   }

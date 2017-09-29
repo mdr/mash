@@ -32,7 +32,7 @@ object MoveFunction extends MashFunction("os.move") {
     val sourcePaths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val destination = boundParams.validatePath(Destination)
     if (sourcePaths.isEmpty)
-      throw new EvaluatorException("Must have at least one source path")
+      throw EvaluatorException("Must have at least one source path")
     move(sourcePaths, destination)
     MashUnit
   }
@@ -47,7 +47,7 @@ object MoveFunction extends MashFunction("os.move") {
           FileUtils.moveFileToDirectory(source.toFile, destination.toFile, false)
     } else {
       if (sourcePaths.size > 1)
-        throw new EvaluatorException("Multiple files can only be moved into a directory")
+        throw EvaluatorException("Multiple files can only be moved into a directory")
       for (source ← sourcePaths) {
         val newPath = source.resolveSibling(destination)
         Files.move(source, newPath, StandardCopyOption.REPLACE_EXISTING)

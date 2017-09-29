@@ -5,13 +5,13 @@ import com.github.mdr.mash.runtime._
 
 abstract class AbstractObjectWrapper(targetValue: MashValue) {
 
-  protected val target = targetValue match {
+  protected val target: MashObject = targetValue match {
     case obj: MashObject ⇒ obj
-    case _               ⇒ throw new EvaluatorException(s"target is of type ${targetValue.typeName}, not Object")
+    case _               ⇒ throw EvaluatorException(s"target is of type ${targetValue.typeName}, not Object")
   }
 
   protected def getField(field: Field): MashValue =
-    target.get(field).getOrElse(throw new EvaluatorException(s"No field '${field.name}' found in object"))
+    target.get(field).getOrElse(throw EvaluatorException(s"No field '${field.name}' found in object"))
 
   protected def getOptionalField(field: Field): Option[MashValue] =
     getField(field) match {
@@ -55,6 +55,6 @@ abstract class AbstractObjectWrapper(targetValue: MashValue) {
   }
 
   private def throwFieldTypeError(field: Field, expectedType: String, value: MashValue) =
-    throw new EvaluatorException(s"Field '${field.name}' should have type $expectedType, but was '${value.typeName}'")
+    throw EvaluatorException(s"Field '${field.name}' should have type $expectedType, but was '${value.typeName}'")
 
 }

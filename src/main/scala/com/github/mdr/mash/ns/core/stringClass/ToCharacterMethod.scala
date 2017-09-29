@@ -16,7 +16,7 @@ object ToCharacterMethod extends MashMethod("toCharacter") {
     if (s.length == 1)
       s.withTag(CharacterClass)
     else
-      throw new EvaluatorException("Must be a single character")
+      throw EvaluatorException("Must be a single character")
   }
 
   override def typeInferenceStrategy = StringClass taggedWith CharacterClass

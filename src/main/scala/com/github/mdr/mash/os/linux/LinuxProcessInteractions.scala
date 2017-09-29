@@ -30,7 +30,7 @@ object LinuxProcessInteractions extends ProcessInteractions {
     //    val process = Runtime.getRuntime.exec(s"kill $pid")
     //    val errorCode = process.waitFor()
     if (errorCode > 0)
-      throw new EvaluatorException(s"Unable to kill process with pid $pid, error code $errorCode")
+      throw EvaluatorException(s"Unable to kill process with pid $pid, error code $errorCode")
   }
 
 }

@@ -53,7 +53,7 @@ object CommitFunction extends MashFunction("git.commit") {
   private def getLastCommitMessage(git: Git): String = {
     val commitHistory = git.log.call().asScala.toSeq
     commitHistory.headOption.map(_.getFullMessage).getOrElse(
-      throw new EvaluatorException("No previous commit to amend"))
+      throw EvaluatorException("No previous commit to amend"))
   }
 
   override def typeInferenceStrategy = CommitClass

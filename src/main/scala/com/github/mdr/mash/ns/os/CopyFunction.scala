@@ -37,7 +37,7 @@ If the destination is not a directory, only a single source path may be provided
     val destination = boundParams.validatePath(Destination)
 
     if (sourcePaths.isEmpty)
-      throw new EvaluatorException("Must have at least one source path")
+      throw EvaluatorException("Must have at least one source path")
 
     val destinationIsDir = Files.isDirectory(destination)
     if (destinationIsDir) {
@@ -48,16 +48,16 @@ If the destination is not a directory, only a single source path may be provided
           FileUtils.copyFileToDirectory(source.toFile, destination.toFile)
     } else {
       if (sourcePaths.size > 1)
-        throw new EvaluatorException("Multiple source paths were provided, but the destination was not a directory")
+        throw EvaluatorException("Multiple source paths were provided, but the destination was not a directory")
       for (source ← sourcePaths)
         if (Files.isDirectory(source))
           if (Files.exists(destination))
-            throw new EvaluatorException("Destination already exists")
+            throw EvaluatorException("Destination already exists")
           else
             FileUtils.copyDirectory(source.toFile, destination.toFile)
         else {
           if (Files.exists(destination) && Files.isDirectory(destination))
-            throw new EvaluatorException("Destination already exists, and is a directory")
+            throw EvaluatorException("Destination already exists, and is a directory")
           else
             Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING)
         }

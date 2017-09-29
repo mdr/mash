@@ -71,7 +71,7 @@ object BoundMethodClass extends MashClass("core.BoundMethod") {
       val namedArguments = namedArgs.immutableFields.toSeq.map { case (field, value) ⇒
         val argumentName = field match {
           case s: MashString ⇒ s.s
-          case _             ⇒ throw new EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
+          case _             ⇒ throw EvaluatorException(s"Named arguments must be Strings, but was ${field.typeName}")
         }
         EvaluatedArgument.LongFlag(argumentName, Some(SuspendedMashValue(() ⇒ value)))
       }

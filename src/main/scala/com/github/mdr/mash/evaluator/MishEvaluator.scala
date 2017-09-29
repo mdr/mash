@@ -65,10 +65,10 @@ object MishEvaluator extends EvaluatorHelper {
         val path = Paths.get(ToStringifier.stringify(pathValue))
         currentDirectoryManager.changeDirectory(path) match {
           case Success       ⇒ MashUnit
-          case NotADirectory ⇒ throw new EvaluatorException(s"Could not change directory to '$path', not a directory", sourceLocation(argExprs(0)))
+          case NotADirectory ⇒ throw EvaluatorException(s"Could not change directory to '$path', not a directory", sourceLocation(argExprs(0)))
         }
       case _              ⇒
-        throw new EvaluatorException("Too many arguments to 'cd'", sourceLocation(argExprs(1)))
+        throw EvaluatorException("Too many arguments to 'cd'", sourceLocation(argExprs(1)))
     }
   }
 

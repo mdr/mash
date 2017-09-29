@@ -17,8 +17,8 @@ object FollowLinkMethod extends MashMethod("followLink") {
     val resolved =
       try Files.readSymbolicLink(path)
       catch  {
-        case _: NotLinkException ⇒ throw new EvaluatorException(s"Path '$path' is not a link")
-        case _: NoSuchFileException ⇒ throw new EvaluatorException(s"Path '$path' does not exist")
+        case _: NotLinkException ⇒ throw EvaluatorException(s"Path '$path' is not a link")
+        case _: NoSuchFileException ⇒ throw EvaluatorException(s"Path '$path' does not exist")
       }
     MashString(resolved.toString, PathClass)
   }

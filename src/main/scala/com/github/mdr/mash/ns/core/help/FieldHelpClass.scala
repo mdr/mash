@@ -31,7 +31,7 @@ object FieldHelpClass extends MashClass("core.help.FieldHelp") {
     def klass = getClassField(OwningClass)
 
     def field = klass.getField(name).getOrElse(
-      throw new EvaluatorException(s"No field '$name' found in '${klass.fullyQualifiedName}'"))
+      throw EvaluatorException(s"No field '$name' found in '${klass.fullyQualifiedName}'"))
 
   }
 

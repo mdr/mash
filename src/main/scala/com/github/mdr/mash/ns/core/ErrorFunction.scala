@@ -18,7 +18,7 @@ object ErrorFunction extends MashFunction("core.error") {
 
   def call(boundParams: BoundParams): MashValue = {
     val message = boundParams.validateString(Message)
-    throw new EvaluatorException(message.s)
+    throw EvaluatorException(message.s)
   }
 
   override def summaryOpt = Some("Throw an exception with the given message")

@@ -1,7 +1,6 @@
 package com.github.mdr.mash.ns.os.pathClass
 
 import com.github.mdr.mash.functions._
-import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.ns.os.OpenFunction
 import com.github.mdr.mash.runtime._
 

@@ -17,7 +17,7 @@ object ForwardFunction extends MashFunction("os.forward") {
   def call(boundParams: BoundParams): MashValue = {
     workingDirectoryStack.forward() match {
       case Some(path) ⇒ fileSystem.chdir(path)
-      case None       ⇒ throw new EvaluatorException("No next directory in history")
+      case None       ⇒ throw EvaluatorException("No next directory in history")
     }
     MashUnit
   }

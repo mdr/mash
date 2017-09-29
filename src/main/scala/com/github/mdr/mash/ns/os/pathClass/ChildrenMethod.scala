@@ -18,9 +18,9 @@ object ChildrenMethod extends MashMethod("children") {
     val recursive = boundParams(ChildrenFunction.Params.Recursive).isTruthy
     val parentDir = FunctionHelpers.interpretAsPath(target)
     if (!fileSystem.exists(parentDir))
-      throw new EvaluatorException(s"'$parentDir' does not exist")
+      throw EvaluatorException(s"'$parentDir' does not exist")
     if (!fileSystem.isDirectory(parentDir))
-      throw new EvaluatorException(s"'$parentDir' is not a directory")
+      throw EvaluatorException(s"'$parentDir' is not a directory")
     MashList(ChildrenFunction.getChildren(parentDir, ignoreDotFiles, recursive))
   }
 

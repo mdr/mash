@@ -61,9 +61,9 @@ The default signal is TERM."""))
 
   private def getPid(x: MashValue): Int =
     x match {
-      case n: MashNumber                         ⇒ n.asInt.getOrElse(throw new EvaluatorException("Invalid process ID: " + n))
+      case n: MashNumber                         ⇒ n.asInt.getOrElse(throw EvaluatorException("Invalid process ID: " + n))
       case obj@MashObject(_, Some(ProcessClass)) ⇒ ProcessClass.Wrapper(obj).pid
-      case _                                     ⇒ throw new EvaluatorException("Invalid process ID: " + x)
+      case _                                     ⇒ throw EvaluatorException("Invalid process ID: " + x)
     }
 
   override def getCompletionSpecs(argPos: Int, arguments: TypedArguments) =

@@ -34,7 +34,7 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
 
     val missingFields = classFields diff providedFields
     if (missingFields.nonEmpty)
-      throw new EvaluatorException(s"Missing fields for class '$klass': ${missingFields.map(f ⇒ s"'$f'").mkString(", ")}")
+      throw EvaluatorException(s"Missing fields for class '$klass': ${missingFields.map(f ⇒ s"'$f'").mkString(", ")}")
   }
 
   def withField(fieldName: MashValue, value: MashValue): MashObject =
@@ -116,7 +116,7 @@ case class MashObject private(fields: LinkedHashMap[MashValue, MashValue],
     if (klass isInstance value)
       value.asInstanceOf[T]
     else
-      throw new EvaluatorException("Field has unexpected type " + value.typeName)
+      throw EvaluatorException("Field has unexpected type " + value.typeName)
   }
 
   override def equals(x: Any) = withLock {

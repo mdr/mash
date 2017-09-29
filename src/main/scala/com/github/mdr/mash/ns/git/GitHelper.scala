@@ -36,7 +36,7 @@ object GitHelper {
     builder.findGitDir(filesystem.pwd.toFile)
     builder.setMustExist(true)
     if (builder.getGitDir == null)
-      throw new EvaluatorException("Not a git repository (or any of the parent directories)")
+      throw EvaluatorException("Not a git repository (or any of the parent directories)")
     else
       builder.build()
   }

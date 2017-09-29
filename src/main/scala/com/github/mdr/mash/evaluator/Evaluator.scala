@@ -76,7 +76,7 @@ object Evaluator extends EvaluatorHelper {
   def simpleEvaluate(expr: Expr)(implicit context: EvaluationContext): MashValue =
     expr match {
       case Hole(_, _) | PipeExpr(_, _, _) | HeadlessMemberExpr(_, _, _) ⇒ // Should have been removed from the AST by now
-        throw new EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
+        throw EvaluatorException("Unexpected AST node: " + expr, sourceLocation(expr))
       case thisExpr: ThisExpr                                           ⇒ evaluateThisExpr(thisExpr)
       case interpolatedString: InterpolatedString                       ⇒ evaluateInterpolatedString(interpolatedString)
       case ParenExpr(body, _)                                           ⇒ evaluate(body)
@@ -151,7 +151,7 @@ object Evaluator extends EvaluatorHelper {
 
   def evaluateThisExpr(thisExpr: ThisExpr)(implicit context: EvaluationContext): MashValue =
     context.scopeStack.thisOpt.getOrElse {
-      throw new EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
+      throw EvaluatorException(s"No binding for 'this'", sourceLocation(thisExpr))
     }
 
   def evaluateIdentifier(identifier: Identifier)(implicit context: EvaluationContext): MashValue =
@@ -161,12 +161,12 @@ object Evaluator extends EvaluatorHelper {
                                  locationOpt: Option[SourceLocation])(implicit context: EvaluationContext): MashValue =
     context.scopeStack.lookup(name).getOrElse {
       val names = context.scopeStack.bindings.keys.toSeq
-      throw new EvaluatorException(s"No binding for '$name'${Suggestor.suggestionSuffix(names, name)}", locationOpt)
+      throw EvaluatorException(s"No binding for '$name'${Suggestor.suggestionSuffix(names, name)}", locationOpt)
     }.value
 
   private def evaluateMinusExpr(subExpr: Expr)(implicit context: EvaluationContext): MashValue = evaluate(subExpr) match {
     case n: MashNumber ⇒ n.negate
-    case x             ⇒ throw new EvaluatorException("Could not negate a value of type " + x.typeName, sourceLocation(subExpr))
+    case x             ⇒ throw EvaluatorException("Could not negate a value of type " + x.typeName, sourceLocation(subExpr))
   }
 
   def evaluateStringLiteral(lit: StringLiteral): MashValue = {
@@ -299,11 +299,11 @@ object Evaluator extends EvaluatorHelper {
   private def verifyParameters(paramList: ParamList)(implicit context: EvaluationContext) {
     val params = paramList.params
     if (params.count(_.isVariadic) > 1)
-      throw new EvaluatorException("Multiple variadic parameters are not allowed")
+      throw EvaluatorException("Multiple variadic parameters are not allowed")
     for ((name, params) ← params.groupBy(_.nameOpt).collect {
       case (Some(name), ps) if ps.length > 1 ⇒ name -> ps
     }.headOption)
-      throw new EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
+      throw EvaluatorException(s"Duplicate parameter $name", params.lastOption.flatMap(sourceLocation))
   }
 
   private def evaluateInterpolatedString(interpolatedString: InterpolatedString)(implicit context: EvaluationContext): MashString = {

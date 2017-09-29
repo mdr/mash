@@ -40,7 +40,7 @@ object HistoryEntryClass extends MashClass("core.HistoryEntry") {
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val entryObject = target.asInstanceOf[MashObject]
       val command = entryObject.get(Command).getOrElse(
-        throw new EvaluatorException("Invalid history entry")).asInstanceOf[MashString].s
+        throw EvaluatorException("Invalid history entry")).asInstanceOf[MashString].s
       val mish = entryObject.get(Mish).get.asInstanceOf[MashBoolean].value
       scriptExecutor.runUnit(CompilationUnit(command, "eval", mish = mish))
     }

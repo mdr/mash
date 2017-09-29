@@ -29,7 +29,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         evaluateAssignmentToLookupExpr(lookupExpr, expr, operatorOpt, rightValue)
       case _                                                  ⇒
         // TODO: this is purely syntactic, and therefore should be handled by the parser/compiler, not evaluator
-        throw new EvaluatorException("Expression is not assignable", sourceLocation(left))
+        throw EvaluatorException("Expression is not assignable", sourceLocation(left))
     }
   }
 
@@ -78,7 +78,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case obj: MashObject ⇒
         assignToField(obj, indexValue, operatorOpt, rightValue, lookupExpr, assignmentExpr)
       case x               ⇒
-        throw new EvaluatorException("Cannot assign to indexes of objects of type " + x.typeName, sourceLocation(target))
+        throw EvaluatorException("Cannot assign to indexes of objects of type " + x.typeName, sourceLocation(target))
     }
   }
 
@@ -91,9 +91,9 @@ object AssignmentEvaluator extends EvaluatorHelper {
     indexValue match {
       case n: MashNumber ⇒
         val i = n.asInt.getOrElse(
-          throw new EvaluatorException("Invalid list index '" + indexValue + "'", sourceLocation(index)))
+          throw EvaluatorException("Invalid list index '" + indexValue + "'", sourceLocation(index)))
         if (i < 0 || i > xs.elements.size - 1)
-          throw new EvaluatorException("Index out of range '" + indexValue + "'", sourceLocation(index))
+          throw EvaluatorException("Index out of range '" + indexValue + "'", sourceLocation(index))
         val actualRightValue = operatorOpt match {
           case Some(op) ⇒
             val currentValue = xs.elements(i)
@@ -104,7 +104,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
         xs.elements(i) = actualRightValue
         actualRightValue
       case x             ⇒
-        throw new EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
+        throw EvaluatorException("Invalid list index of type " + x.typeName, sourceLocation(index))
     }
 
   private def evaluateAssignmentToMemberExpr(memberExpr: MemberExpr,
@@ -116,7 +116,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
       case obj: MashObject ⇒
         assignToField(obj, MashString(fieldName), operatorOpt, rightValue, memberExpr, assignmentExpr)
       case targetValue     ⇒
-        throw new EvaluatorException("Cannot assign to fields of a value of type " + targetValue.typeName, sourceLocation(assignmentExpr))
+        throw EvaluatorException("Cannot assign to fields of a value of type " + targetValue.typeName, sourceLocation(assignmentExpr))
     }
   }
 
@@ -133,7 +133,7 @@ object AssignmentEvaluator extends EvaluatorHelper {
           val currentValue = fields(fieldName)
           BinaryOperatorEvaluator.evaluateBinOp(currentValue, op, rightValue, sourceLocation(assignmentExpr))
         } else
-          throw new EvaluatorException(s"No field '${safeStringify(fieldName)}' to update", sourceLocation(objectExpr))
+          throw EvaluatorException(s"No field '${safeStringify(fieldName)}' to update", sourceLocation(objectExpr))
       case None     ⇒
         rightValue
     }

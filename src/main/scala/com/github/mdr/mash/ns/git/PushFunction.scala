@@ -61,7 +61,7 @@ object PushFunction extends MashFunction("git.push") {
       val pushResults =
         try cmd.call().asScala.toSeq
         catch {
-          case e: TransportException ⇒ throw new EvaluatorException(s"Error pushing: ${e.getMessage}")
+          case e: TransportException ⇒ throw EvaluatorException(s"Error pushing: ${e.getMessage}")
         }
       val results =
         for {

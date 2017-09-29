@@ -14,7 +14,7 @@ class MemberLifter(getFullObject: MashString ⇒ MashObject) {
     def call(target: MashValue, boundParams: BoundParams): MashValue = {
       val hash = target.asInstanceOf[MashString]
       val obj = getFullObject(hash)
-      obj.get(field.name).getOrElse(throw new EvaluatorException("No field found: " + field.name))
+      obj.get(field.name).getOrElse(throw EvaluatorException("No field found: " + field.name))
     }
 
     override def typeInferenceStrategy = field.fieldType

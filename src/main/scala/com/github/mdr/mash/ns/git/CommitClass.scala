@@ -51,7 +51,7 @@ object CommitClass extends MashClass("git.Commit") {
     def parents: Seq[String] =
       getListField(Parents).map {
         case s: MashString ⇒ s.s
-        case element       ⇒ throw new EvaluatorException(s"Expected parents to be of type String, but one was of type '${element.typeName}'")
+        case element       ⇒ throw EvaluatorException(s"Expected parents to be of type String, but one was of type '${element.typeName}'")
       }
 
     def parentOpt: Option[String] = parents.headOption

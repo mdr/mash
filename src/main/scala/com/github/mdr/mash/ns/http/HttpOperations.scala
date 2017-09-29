@@ -63,8 +63,8 @@ object HttpOperations {
       try
         client.execute(request)
       catch {
-        case e: UnknownHostException     ⇒ throw new EvaluatorException("Unknown host: " + e.getMessage)
-        case e: HttpHostConnectException ⇒ throw new EvaluatorException("Couldn't connect: " + e.getMessage)
+        case e: UnknownHostException     ⇒ throw EvaluatorException("Unknown host: " + e.getMessage)
+        case e: HttpHostConnectException ⇒ throw EvaluatorException("Couldn't connect: " + e.getMessage)
       }
 
     asMashObject(response, cookieStore)

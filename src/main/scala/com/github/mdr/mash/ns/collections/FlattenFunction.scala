@@ -45,7 +45,7 @@ object FlattenFunction extends MashFunction("collections.flatten") {
           rest.find(x ⇒ !x.isAList).get // safe, because of above forall check
         else
           first
-      throw new EvaluatorException("Invalid item of type " + badItem.typeName)
+      throw EvaluatorException("Invalid item of type " + badItem.typeName)
 
     }
 

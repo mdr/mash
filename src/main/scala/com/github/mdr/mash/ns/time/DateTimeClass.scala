@@ -27,7 +27,7 @@ object DateTimeClass extends MashClass("time.DateTime") {
 
     def instant: Instant = target match {
       case MashWrapped(i: Instant) ⇒ i
-      case _                       ⇒ throw new EvaluatorException(s"Unexpected type: ${target.typeName}")
+      case _                       ⇒ throw EvaluatorException(s"Unexpected type: ${target.typeName}")
     }
 
     def localDateTime: LocalDateTime = TimeUtils.localDateTime(instant)

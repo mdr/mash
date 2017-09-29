@@ -42,7 +42,7 @@ object ReadFunction extends MashFunction("json.read") {
       if (p.isNumber) MashNumber(p.getAsDouble)
       else if (p.isBoolean) MashBoolean(p.getAsBoolean)
       else if (p.isString) MashString(p.getAsString)
-      else throw new EvaluatorException("Unknown primitive in JSON: " + p)
+      else throw EvaluatorException("Unknown primitive in JSON: " + p)
     case obj: JsonObject ⇒
       val fields =
         for (x ← obj.entrySet.iterator.asScala.toSeq)

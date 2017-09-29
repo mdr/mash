@@ -46,7 +46,7 @@ object NumberClass extends MashClass("core.Number") {
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
-        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
+        throw EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
       val step = boundParams.validateInteger(Step)
       MashList(start.to(end, step).map(MashNumber(_)))
@@ -75,7 +75,7 @@ object NumberClass extends MashClass("core.Number") {
 
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val start = target.asInstanceOf[MashNumber].asInt.getOrElse(
-        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
+        throw EvaluatorException("Can only call this method on an integer, but was " + target))
       val end = boundParams.validateInteger(End)
       val step = boundParams.validateInteger(Step)
       MashList(start.until(end, step).map(MashNumber(_)))
@@ -102,7 +102,7 @@ object NumberClass extends MashClass("core.Number") {
     def call(target: MashValue, boundParams: BoundParams): MashList = {
       val f = boundParams(Block).asInstanceOf[MashFunction]
       val iterations = target.asInstanceOf[MashNumber].asInt.getOrElse(
-        throw new EvaluatorException("Can only call this method on an integer, but was " + target))
+        throw EvaluatorException("Can only call this method on an integer, but was " + target))
       val results =
         for (n ← 1 to iterations)
           yield f.callNullary()

@@ -34,7 +34,7 @@ object RestoreFunction extends MashFunction("git.restore") {
     val paths = FunctionHelpers.interpretAsPaths(boundParams(Paths))
     val all = boundParams(All).isTruthy
     if (paths.isEmpty && !all)
-      throw new EvaluatorException(s"Must provide either '$Paths' or '$All'")
+      throw EvaluatorException(s"Must provide either '$Paths' or '$All'")
     GitHelper.withGit { git ⇒
       val cmd = git.checkout.setStartPoint("HEAD")
       if (all)

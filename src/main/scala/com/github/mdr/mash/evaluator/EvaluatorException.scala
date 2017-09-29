@@ -36,14 +36,18 @@ case class SourceLocation(provenance: Provenance, pointedRegion: PointedRegion) 
 
 case class StackTraceItem(locationOpt: Option[SourceLocation], functionOpt: Option[MashCallable] = None)
 
+object EvaluatorException {
+
+  def apply(message: String, locationOpt: Option[SourceLocation]): EvaluatorException =
+    EvaluatorException(message, List(StackTraceItem(locationOpt)))
+
+}
+
 case class EvaluatorException(
   message: String,
   stack: List[StackTraceItem] = Nil,
   cause: Throwable = null)
     extends RuntimeException(message, cause) {
-
-  def this(message: String, locationOpt: Option[SourceLocation]) =
-    this(message, List(StackTraceItem(locationOpt)))
 
   def causeOpt: Option[Throwable] = Option(cause)
 

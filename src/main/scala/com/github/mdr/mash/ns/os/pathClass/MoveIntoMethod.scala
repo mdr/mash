@@ -28,7 +28,7 @@ object MoveIntoMethod extends MashMethod("moveInto") {
     val source = interpretAsPath(target)
     val destinationDir = boundParams.validatePath(Destination)
     if (!Files.exists(source))
-      throw new EvaluatorException(s"'$source' does not exist")
+      throw EvaluatorException(s"'$source' does not exist")
     if (!Files.exists(destinationDir))
       boundParams.throwInvalidArgument(Destination, s"'$destinationDir' does not exist")
     if (!Files.isDirectory(destinationDir))

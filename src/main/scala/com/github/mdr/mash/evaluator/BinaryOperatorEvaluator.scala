@@ -67,7 +67,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case (left: MashNumber, right: MashNumber) ⇒
         f(left, right)
       case _                                     ⇒
-        throw new EvaluatorException(s"Could not $name, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+        throw EvaluatorException(s"Could not $name, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
 
   private def multiply(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]) = (left, right) match {
@@ -77,7 +77,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (left: MashNumber, right: MashList) if left.isInt    ⇒ right * left.asInt.get
     case (left: MashNumber, right: MashNumber)                ⇒ left * right
     case _                                                    ⇒
-      throw new EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+      throw EvaluatorException(s"Could not multiply, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   private implicit class RichInstant(instant: Instant) {
@@ -97,7 +97,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
     case (MashNumber(n, Some(klass: ChronoUnitClass)), MashWrapped(instant: Instant)) ⇒
       MashWrapped(instant + klass.temporalAmount(n.toInt))
     case _                                                                            ⇒
-      throw new EvaluatorException(s"Could not add, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+      throw EvaluatorException(s"Could not add, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
   }
 
   def subtract(left: MashValue, right: MashValue, locationOpt: Option[SourceLocation]): MashValue =
@@ -117,7 +117,7 @@ object BinaryOperatorEvaluator extends EvaluatorHelper {
       case (left: MashObject, right)                                                    ⇒
         left - right
       case _                                                                            ⇒
-        throw new EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
+        throw EvaluatorException(s"Could not subtract, incompatible operands ${left.typeName} and ${right.typeName}", locationOpt)
     }
 
 }

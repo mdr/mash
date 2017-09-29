@@ -38,7 +38,7 @@ object MethodHelpClass extends MashClass("core.help.MethodHelp") {
     def klass: MashClass = getClassField(OwningClass)
 
     def method: MashMethod = klass.getMethod(name).getOrElse(
-      throw new EvaluatorException(s"No method '$name' found in '${klass.fullyQualifiedName}'"))
+      throw EvaluatorException(s"No method '$name' found in '${klass.fullyQualifiedName}'"))
 
   }
 

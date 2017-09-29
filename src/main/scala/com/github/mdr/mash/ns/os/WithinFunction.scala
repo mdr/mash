@@ -31,7 +31,7 @@ object WithinFunction extends MashFunction("os.within") {
     if (fileSystem.isDirectory(path))
       fileSystem.chdir(path)
     else
-      throw new EvaluatorException(s"Could not change directory to '$path', not a directory")
+      throw EvaluatorException(s"Could not change directory to '$path', not a directory")
     try
       f.callNullary()
     finally

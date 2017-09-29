@@ -27,7 +27,7 @@ object FunctionHelpers {
 
   def interpretAsPath(value: MashValue): Path =
     safeInterpretAsPath(value).getOrElse(
-      throw new EvaluatorException(s"Could not an object of type ${value.typeName} as a Path"))
+      throw EvaluatorException(s"Could not an object of type ${value.typeName} as a Path"))
 
   def asPathString(p: Path) = MashString(p.toString, PathClass)
 
@@ -52,7 +52,7 @@ object FunctionHelpers {
   def interpretAsSequence(value: MashValue): Seq[MashValue] = value match {
     case xs: MashList          ⇒ xs.elements
     case MashString(s, tagOpt) ⇒ s.toSeq.map(c ⇒ MashString(c.toString, tagOpt))
-    case _                     ⇒ throw new EvaluatorException(s"Could not interpret value of type ${value.typeName} as a sequence")
+    case _                     ⇒ throw EvaluatorException(s"Could not interpret value of type ${value.typeName} as a sequence")
   }
 
 }

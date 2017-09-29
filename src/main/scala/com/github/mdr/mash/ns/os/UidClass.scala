@@ -26,7 +26,7 @@ object UidClass extends MashClass("os.Uid") {
       val uid = target.asInstanceOf[MashNumber].asInt.get
       val passwdEntry = userInteractions.passwdEntries.find(_.uid == uid).get
       val userSummary = UserSummaryClass.fromPasswdEntry(passwdEntry)
-      userSummary.get(field.name).getOrElse(throw new EvaluatorException("No field found: " + field.name))
+      userSummary.get(field.name).getOrElse(throw EvaluatorException("No field found: " + field.name))
     }
 
     override def typeInferenceStrategy = UserSummaryClass.fieldsMap(field.name).fieldType

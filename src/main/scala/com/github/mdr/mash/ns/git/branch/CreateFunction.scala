@@ -55,7 +55,7 @@ object CreateFunction extends MashFunction("git.branch.create") {
     val fromRemoteOpt = validateRemote(boundParams)
     val switch = boundParams(Switch).isTruthy
     if (branchOpt.isEmpty && fromRemoteOpt.isEmpty)
-      throw new EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
+      throw EvaluatorException(s"Must provide at least one of '${Branch.name}' and '${FromRemote.name}'")
 
     GitHelper.withGit { git ⇒
       val localName = branchOpt.orElse(fromRemoteOpt.map(_.replaceAll("^origin/", ""))).get
