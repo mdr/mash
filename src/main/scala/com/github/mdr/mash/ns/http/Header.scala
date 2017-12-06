@@ -10,7 +10,19 @@ case class Header(name: String, value: String)
 object Header {
 
   def getHeaders(boundParams: BoundParams, param: Parameter): Seq[Header] = {
-    def getHeader(x: MashValue): Header = x match {
+
+    NoArgFunction.option(boundParams(param)).toSeq.flatMap {
+      case xs: MashList    ⇒
+        xs.immutableElements.map(getHeaderFromItem(boundParams, param))
+      case obj: MashObject ⇒
+        getHeadersFromObject(obj)
+      case _               ⇒
+        Seq()
+    }
+  }
+
+  private def getHeaderFromItem(boundParams: BoundParams, param: Parameter)(item: MashValue): Header =
+    item match {
       case MashString(s, _) ⇒
         val chunks = s.split(":").toSeq
         if (chunks.length != 2)
@@ -25,14 +37,17 @@ object Header {
       case value            ⇒
         boundParams.throwInvalidArgument(param, "Invalid header of type " + value.typeName)
     }
-    NoArgFunction.option(boundParams(param)).toSeq.flatMap {
-      case xs: MashList ⇒
-        xs.immutableElements.map(getHeader)
-      case obj: MashObject ⇒
-        obj.immutableFields.toSeq.map { case (fieldName, value) ⇒ Header(ToStringifier.stringify(fieldName), ToStringifier.stringify(value)) }
-      case _            ⇒
-        Seq()
+
+  private def getHeadersFromObject(obj: MashObject) =
+    obj.immutableFields.toSeq.flatMap { case (fieldName, value) ⇒
+      val headerName = ToStringifier.stringify(fieldName)
+      val values = value match {
+        case xs: MashList ⇒
+          xs.immutableElements
+        case _            ⇒
+          Seq(value)
+      }
+      values.map(value ⇒ Header(headerName, ToStringifier.stringify(value)))
     }
-  }
 
 }

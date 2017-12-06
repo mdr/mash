@@ -5,6 +5,7 @@ import java.net.URI
 import com.github.mdr.mash.evaluator.ToStringifier
 import com.github.mdr.mash.functions.BoundParams
 import com.github.mdr.mash.ns.http.HttpFunctions.Params._
+import com.github.mdr.mash.runtime.{ MashList, MashValue }
 import org.apache.http.client.utils.URIBuilder
 
 object QueryParameters {
@@ -17,8 +18,15 @@ object QueryParameters {
 
   private def getQueryParams(boundParams: BoundParams): Seq[(String, String)] = {
     val queryParamsObj = boundParams.validateObject(HttpFunctions.Params.QueryParams)
-    for ((field, value) ← queryParamsObj.immutableFields.toSeq)
-      yield ToStringifier.stringify(field) -> ToStringifier.stringify(value)
+    for {
+      (field, fieldValue) ← queryParamsObj.immutableFields.toSeq
+      value ← getValues(fieldValue)
+    } yield ToStringifier.stringify(field) -> ToStringifier.stringify(value)
+  }
+
+  private def getValues(value: MashValue): Seq[MashValue] = value match {
+    case xs: MashList ⇒ xs.immutableElements
+    case _            ⇒ Seq(value)
   }
 
   private def addQueryParameters(url: URI, queryParams: Seq[(String, String)]): URI = {
