@@ -20,6 +20,7 @@ object NumberClass extends MashClass("core.Number") {
     MinutesMethod,
     MonthsMethod,
     NegateMethod,
+    PowerMethod,
     SecondsMethod,
     TagMethod,
     TimesMethod,
@@ -28,6 +29,25 @@ object NumberClass extends MashClass("core.Number") {
     UntaggedMethod,
     UntilMethod,
     WeeksMethod)
+
+  object PowerMethod extends MashMethod("power") {
+
+    val Exponent = Parameter(
+      nameOpt = Some("exponent"),
+      summaryOpt = Some("Exponent"))
+
+    val params = ParameterModel(Exponent)
+
+    def call(target: MashValue, boundParams: BoundParams): MashNumber = {
+      val exponent = boundParams.validateNumber(Exponent)
+      MashNumber(math.pow(target.asInstanceOf[MashNumber].n, exponent))
+    }
+
+    override def typeInferenceStrategy = NumberClass
+
+    override def summaryOpt = Some("Returns this number raised to the power of the given exponent")
+
+  }
 
   object ToMethod extends MashMethod("to") {
 
@@ -40,6 +60,7 @@ object NumberClass extends MashClass("core.Number") {
         summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
         defaultValueGeneratorOpt = Some(MashNumber(1)))
     }
+
     import Params._
 
     val params = ParameterModel(End, Step)
@@ -69,6 +90,7 @@ object NumberClass extends MashClass("core.Number") {
         summaryOpt = Some("The number to increase by for each step of the sequence (default 1)"),
         defaultValueGeneratorOpt = Some(MashNumber(1)))
     }
+
     import Params._
 
     val params = ParameterModel(End, Step)
@@ -95,6 +117,7 @@ object NumberClass extends MashClass("core.Number") {
         summaryOpt = Some("Code to execute"),
         isLazy = true)
     }
+
     import Params._
 
     val params = ParameterModel(Block)
@@ -111,7 +134,7 @@ object NumberClass extends MashClass("core.Number") {
 
     override def typeInferenceStrategy = new MethodTypeInferenceStrategy {
 
-      def inferTypes(inferencer: Inferencer,  targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
+      def inferTypes(inferencer: Inferencer, targetTypeOpt: Option[Type], arguments: TypedArguments): Option[Type] = {
         val argBindings = params.bindTypes(arguments)
         argBindings.getType(Params.Block).map(_.seq)
       }
@@ -121,7 +144,6 @@ object NumberClass extends MashClass("core.Number") {
     override def summaryOpt = Some("Run the given argument this amount of times")
 
   }
-
 
   object ToIntMethod extends MashMethod("toInt") {
 
@@ -240,11 +262,17 @@ object NumberClass extends MashClass("core.Number") {
   }
 
   object MillisecondsMethod extends ChronoUnitMethod("milliseconds", MillisecondsClass)
+
   object SecondsMethod extends ChronoUnitMethod("seconds", SecondsClass)
+
   object MinutesMethod extends ChronoUnitMethod("minutes", MinutesClass)
+
   object HoursMethod extends ChronoUnitMethod("hours", HoursClass)
+
   object DaysMethod extends ChronoUnitMethod("days", DaysClass)
+
   object WeeksMethod extends ChronoUnitMethod("weeks", WeeksClass)
+
   object MonthsMethod extends ChronoUnitMethod("months", MonthsClass)
 
   object NegateMethod extends MashMethod("negate") {

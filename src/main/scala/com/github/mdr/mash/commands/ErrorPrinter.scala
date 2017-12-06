@@ -5,11 +5,11 @@ import java.io.PrintStream
 import com.github.mdr.mash.compiler.CompilationUnit
 import com.github.mdr.mash.evaluator.{ SourceLocation, StackTraceItem, TildeExpander }
 import com.github.mdr.mash.os.linux.LinuxEnvironmentInteractions
-import com.github.mdr.mash.view.render.MashRenderer
-import com.github.mdr.mash.screen.{ BasicColour, DefaultColours }
-import com.github.mdr.mash.screen.StyledStringDrawer.drawStyledChars
+import com.github.mdr.mash.screen.DefaultColours
 import com.github.mdr.mash.screen.Style.StylableString
+import com.github.mdr.mash.screen.StyledStringDrawer.drawStyledChars
 import com.github.mdr.mash.utils._
+import com.github.mdr.mash.view.render.MashRenderer
 
 /**
   * Print errors with stack traces
@@ -37,7 +37,6 @@ class ErrorPrinter(output: PrintStream) {
         val isImmediateError = unit.provenance == provenance && unit.interactive
         val functionName = functionOpt.map(f ⇒ ":" + f.name).getOrElse("")
         val prefix = if (isImmediateError) "" else s"${replaceHomePath(provenance.name)}:${pointLineIndex + 1}$functionName: "
-
         val (firstLineIndex, lastLineIndex) = lineInfo.linesOfRegion(region)
         for (lineIndex ← firstLineIndex to lastLineIndex) {
           val line = lineInfo.lines(lineIndex)

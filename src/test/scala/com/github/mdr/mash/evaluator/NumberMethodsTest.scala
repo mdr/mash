@@ -16,4 +16,6 @@ class NumberMethodsTest extends AbstractEvaluatorTest {
   "a = 0; 5.times (a += 1); a" ==> 5
   "a = 0; (a += 1) | 5.times" ==> "[1, 2, 3, 4, 5]"
 
+  // Number.power
+  "2.power 8" ==> 256
 }

@@ -59,6 +59,7 @@ class LineInfo(s: String) {
     * @return number of the line (0-indexed) containing the given pos in the original string
     */
   def lineAndColumn(pos: Int): Point = {
+    require(pos >= 0, s"Pos must not be negative, but was $pos")
     val line = Utils.indexWhere[Int](lineStarts, _ > pos).getOrElse(lineStarts.length) - 1
     val column = pos - lineStarts(line)
     Point(line, column)
@@ -67,11 +68,14 @@ class LineInfo(s: String) {
   /**
     * @return pair of the first and last line index that cover the region
     */
-  def linesOfRegion(region: Region): (Int, Int) = {
-    val firstLine = lineAndColumn(region.offset).row
-    val lastLine = lineAndColumn(region.lastPos).row
-    (firstLine, lastLine)
-  }
+  def linesOfRegion(region: Region): (Int, Int) =
+    if (region == Region(0, 0))
+      (0, 0)
+    else {
+      val firstLine = lineAndColumn(region.offset).row
+      val lastLine = lineAndColumn(region.lastPos).row
+      (firstLine, lastLine)
+    }
 
   def offset(lineIndex: Int, column: Int): Int =
     lines.take(lineIndex).map(_.length + 1).sum + column
