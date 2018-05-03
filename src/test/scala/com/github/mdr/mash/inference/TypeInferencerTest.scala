@@ -412,6 +412,8 @@ class TypeInferencerTest extends FlatSpec with Matchers {
   "class Bob { def n = 42 }; 1 | type.hint [Bob] | .n" ==> Seq(NumberClass)
 
   "[1, 2, 3].intersect [3, 4]" ==> Seq(NumberClass)
+  "[1, 2, 3].append 4" ==> Seq(NumberClass)
+  "[1, 2, 3].prepend 0" ==> Seq(NumberClass)
 
   // .bless
   "class Point x y { def method = 42 }; {x: 10, y: 20}.bless Point | .method" ==> NumberClass

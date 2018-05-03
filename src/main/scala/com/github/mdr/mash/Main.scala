@@ -26,15 +26,17 @@ object Main extends App {
     TerminalHelper.withTerminal { terminal ⇒
       // TODO: obviously this is horrible, will be fixed when DI gets sorted out
       val output = System.out
+      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
+      Singletons.terminalControl = new TerminalControlImpl(terminal)
       val terminalWrapper = new JLineTerminalWrapper(terminal)
+      Singletons.terminal = terminalWrapper
+
       val globalVariables = StandardEnvironment.createGlobalVariables()
       val ns = globalVariables(StandardEnvironment.Ns).asObject.getOrElse(throw new AssertionError("ns was not an object"))
       val loader = new Loader(terminalWrapper, output, sessionId, globalVariables, ns)
       val initScriptRunner = new InitScriptRunner(terminalWrapper, output, sessionId, globalVariables)
-      Singletons.terminalControl = new TerminalControlImpl(terminal)
-      Singletons.history = new HistoryImpl(new FileBackedHistoryStorage, sessionId = sessionId)
+
       Singletons.scriptExecutor = new ScriptExecutor(output, terminalWrapper, sessionId, globalVariables)
-      Singletons.terminal = terminalWrapper
       Singletons.loader = loader
       Singletons.initScriptRunner = initScriptRunner
       Singletons.globals = globalVariables

@@ -47,10 +47,12 @@ object ListClass extends MashClass("collections.List") {
     methodise(UniqueFunction),
     methodise(WhereFunction),
     methodise(WhereNotFunction),
+    AppendMethod,
     CartesianProductMethod,
     InnerJoinMethod,
     IntersectMethod,
     NaturalJoinMethod,
+    PrependMethod,
     SelectMethod)
 
   override val staticMethods = Seq(NewStaticMethod)

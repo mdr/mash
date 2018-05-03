@@ -1,6 +1,7 @@
 v0.0.9 (..)
 -----------
 
+* Add List.append/prepend
 * Add Number.power
 * Add --first parameter to grep
 * Add html.escape

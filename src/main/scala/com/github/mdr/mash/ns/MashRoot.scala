@@ -74,6 +74,7 @@ object MashRoot {
         json.FromStringFunction,
         json.GetFunction,
         json.PostFunction,
+        json.PatchFunction,
         json.PrettyPrintFunction,
         json.PutFunction,
         json.WriteFunction) ++
@@ -86,6 +87,7 @@ object MashRoot {
         http.GetFunction,
         http.PostFunction,
         http.PutFunction,
+        http.PatchFunction,
         net.UrlEncodeFunction,
         net.UrlFunction) ++
       Seq(
