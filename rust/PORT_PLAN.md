@@ -1,9 +1,10 @@
 # Mash → Rust: port plan
 
-Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M4
+Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M5
 done (syntax, values, evaluator, the pure standard library, type inference, completion and invocation assistance,
-`mash -e`/script runner, the GC swap, and the interactive shell with the file system and external commands); next
-is M5. Spikes live
+`mash -e`/script runner, the GC swap, the interactive shell with the file system and external commands, and the
+rest: users/groups, processes, git, http, the object browser); next is M6 (the browser build). The native code is
+tested on macOS and Linux (`spikes/linux/run.sh`: the test suite plus manual checks in a Debian container). Spikes live
 locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
 ported.
 
@@ -298,7 +299,7 @@ During the port (no language change):
 | M3 | Pure stdlib + IDE logic | String/object/number methods, json, time, maths, hash, etc.; type inference; completion and assistance (tested without a terminal) |
 | — | GC swap | Replace dumpster with the CPython-style collector before M4 (done) |
 | M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable (done) |
-| M5 | Remaining OS | Rest of os, users/groups, http, git, object browser |
+| M5 | Remaining OS | Rest of os, users/groups, http, git, object browser (done) |
 | M6 | Browser | `mash-web` with xterm.js |
 
 ## Deliberate differences from Scala Mash (so far)
