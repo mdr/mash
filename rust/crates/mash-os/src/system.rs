@@ -146,13 +146,19 @@ fn on_path(program: &str) -> bool {
 }
 
 /// The commands to copy to and paste from the clipboard: `pbcopy`/`pbpaste` on macOS; on Linux, `wl-copy`/
-/// `wl-paste` under Wayland, else `xclip` or `xsel`
+/// `wl-paste` under Wayland, else (with an X display) `xclip` or `xsel`
 fn clipboard_commands() -> io::Result<(Vec<&'static str>, Vec<&'static str>)> {
     if cfg!(target_os = "macos") {
         return Ok((vec!["pbcopy"], vec!["pbpaste"]));
     }
     if std::env::var_os("WAYLAND_DISPLAY").is_some() && on_path("wl-copy") {
         return Ok((vec!["wl-copy"], vec!["wl-paste", "--no-newline"]));
+    }
+    if std::env::var_os("DISPLAY").is_none() {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            "there is no display (neither WAYLAND_DISPLAY nor DISPLAY is set)",
+        ));
     }
     if on_path("xclip") {
         return Ok((
