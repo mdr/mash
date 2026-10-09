@@ -156,3 +156,20 @@ fn error_reports_show_the_source_and_the_call_stack() {
         );
     });
 }
+
+#[test]
+fn library_files_run_in_their_own_scope_and_report_their_namespace() {
+    with_big_stack(|| {
+        let mut ctx = ctx();
+        let (namespace, vars) = ctx
+            .load_library(
+                "lib/greet.mash",
+                "namespace acme.greetings\ndef hello name = \"Hello, \" + name",
+            )
+            .unwrap();
+        assert_eq!(namespace, Some(vec!["acme".to_string(), "greetings".to_string()]));
+        assert!(vars.get_str("hello").is_some());
+        // Nothing leaked into the globals
+        assert!(ctx.run("test", "hello 'x'").is_err());
+    });
+}

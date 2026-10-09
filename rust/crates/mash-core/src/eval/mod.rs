@@ -175,6 +175,24 @@ impl Ctx {
         self.with_unit(program.unit.clone(), |ctx| ctx.eval(&program.body, &scope))
     }
 
+    /// Run a library file (Scala `Loader`): evaluate it in its own scope, below the globals. Returns the
+    /// namespace it declares (if any) and the variables it defined, for the caller to publish.
+    pub fn load_library(&mut self, name: &str, text: &str) -> Result<(Option<Vec<String>>, Object), RunError> {
+        let compiled = self.compile(SourceUnit::new(name, text)).map_err(RunError::Syntax)?;
+        let program = compiled.program;
+        let vars = Object::new();
+        let scope = self.global_scope.child(ScopeKind::Full, vars.clone(), vec![]);
+        self.interrupt.store(false, Ordering::Relaxed);
+        self.steps = 0;
+        self.with_unit(program.unit.clone(), |ctx| ctx.eval(&program.body, &scope))
+            .map_err(RunError::Eval)?;
+        let namespace = program
+            .namespace
+            .as_ref()
+            .map(|segments| segments.iter().map(|s| s.to_string()).collect());
+        Ok((namespace, vars))
+    }
+
     /// Run `f` with `unit` as the current compilation unit
     pub(crate) fn with_unit<T>(&mut self, unit: Rc<SourceUnit>, f: impl FnOnce(&mut Ctx) -> T) -> T {
         let previous = std::mem::replace(&mut self.unit, unit);
