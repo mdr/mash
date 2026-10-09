@@ -346,6 +346,23 @@ const CASES: &[Case] = &[
     Case::contains(r#"'1234'.all (.isD▶"#, r#"isDigit"#),
     Case::contains(r#"'1234'[0].isD▶"#, r#"isDigit"#),
     Case::contains(r#"ls | groupBy (.perm▶"#, r#"permissions"#),
+    // New: the file functions of the data namespaces complete files; members of http responses and hosts
+    Case::files(
+        &[r#"/file.txt"#],
+        r#"/"#,
+        &[
+            Case::gives(r#"json.read ▶"#, &[r#"file.txt"#]),
+            Case::gives(r#"json.write ▶"#, &[r#"file.txt"#]),
+            Case::gives(r#"xml.read ▶"#, &[r#"file.txt"#]),
+            Case::gives(r#"csv.write ▶"#, &[r#"file.txt"#]),
+            Case::gives(r#"mash.source ▶"#, &[r#"file.txt"#]),
+        ],
+    ),
+    Case::gives(r#"http.get 'http://example.com' | .succ▶"#, &[r#"succeeded"#]),
+    Case::contains(r#"(http.get 'http://example.com').headers.▶"#, r#"name"#),
+    Case::contains(r#"(http.get 'http://example.com').cookies.va▶"#, r#"value"#),
+    Case::gives(r#"(net.url 'http://example.com').host.ipAddr▶"#, &[r#"ipAddresses"#]),
+    Case::contains(r#"http.get --ins▶"#, r#"--insecure"#),
 ];
 
 /// Cases that need builtins from later milestones (kill, users)

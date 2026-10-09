@@ -179,7 +179,7 @@ access can't creep into the core.
 | Area | Decision |
 |---|---|
 | git | Shell out to `git`, parsing machine formats (`status --porcelain=v2 --branch`, `log --format` with NULs, `for-each-ref`) into the same structured values. Small internal git interface so hot read paths can move to `gix` later. New integration tests using temp repos. |
-| http | `reqwest`/`ureq` with rustls. **TLS verified by default** (today trust-all is unconditional and installed JVM-wide); opt-in `--insecure`. |
+| http | `ureq` 3 with rustls (ring) and the system's trust store (`rustls-platform-verifier`). **TLS verified by default** (today trust-all is unconditional and installed JVM-wide); opt-in `--insecure`. Redirects and cookies handled in `mash-os` as Apache's client did. |
 | xml | Reimplement org.json's shape rules on `quick-xml`, but keep text as strings (no number/boolean coercion). |
 | users/groups | `getpwent` / `getgrent` / `getpwuid` (via `nix` or `uzers`) on both Linux and macOS. |
 | glob | Per-segment `globset`; `*` skips dotfiles unless the pattern starts with `.`; follow symlinks with loop detection (`walkdir`). |
@@ -235,7 +235,15 @@ During the port (no language change):
   push/pull/fetch, which `gix` lacks; no C dependency (`git2`). Requires `git` on the PATH.
 - **http and dns go through the `Platform` too** (`ureq` with rustls natively, TLS verified by default,
   `--insecure` to opt out), so the builtins stay in `mash-core`, are testable with canned responses, and could
-  use `fetch` in the browser.
+  use `fetch` in the browser. `Platform::http_request(&HttpRequest { method, url, headers, body, basic_auth,
+  cookies, insecure }) -> io::Result<HttpResponse { status, headers, cookies, body }>` (any status is a response;
+  errors carry user-facing messages; `HttpRequest::all_headers` turns cookies and basic auth into headers for
+  every implementation), `lookup_host(host) -> io::Result<Vec<String>>`, and `open_with_default_application(target)`
+  (`open`/`xdg-open`; also for `os.open` when that's ported). `TestPlatform` answers canned responses by method
+  and URL (`with_http_response`), records requests (`http_requests()`), resolves `hosts`, and records `opened`.
+- **`mash.reload`** resets the standard globals in `mash-core`, then runs a hook the host installs on the `Ctx`
+  (`Ctx::set_reload_hook`): the shell's (`mash-cli` `startup::reload_hook`) loads `~/.mash/lib` and runs
+  `~/.mash/init.mash` again. Scripts and `mash -e` have no hook. `mash.source` runs a file in the global scope.
 - Users, groups, processes, disk space and the clipboard are `Platform` methods as well; the REPL gives
   `mash-core` access to its history (for `history` and `jump`) through a small trait.
 - **REPL API** (`mash-repl::repl`): `Repl::new(ctx, Box<dyn HistoryStorage>, session_id)`; the host calls
@@ -314,14 +322,24 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `readLines`, `read`, `write` | Platform default charset | UTF-8 (invalid input decoded lossily) |
 | Child processes | Same process group as Mash; stdin written before stdout read (deadlock risk) | Own process group with the terminal (`tcsetpgrp`), concurrent stdin/stdout, Ctrl-C in a child interrupts evaluation, Ctrl-Z resumes the child with a message (as planned) |
 | `which` | `Files.isExecutable` (directories count) | Executable regular files only |
+| HTTPS certificates (`http.*`, `json.get` etc.) | Every certificate and host name trusted, JVM-wide (`TrustAllTrustManager`) | Verified against the system's trust store; new `--insecure` flag on every request function to skip verification, as planned |
+| Repeated request headers (`--headers=['A:1', 'A:2']`, `--headers={ A: [1, 2] }`) | Only the last is sent (`setHeader` replaces), defeating the support for several values | All are sent |
+| Request errors | "Unexpected error … URISyntaxException" / "… ClientProtocolException" for bad or relative URLs | "Invalid URL: Illegal character …", "Invalid URL 'foo': must be an absolute http or https URL"; unknown host and connection errors keep Scala's wording ("Unknown host: …", "Couldn't connect to …") |
+| `http.Response` field types | `headers` declared as `Object` and `headersObject`'s result as `[http.Header]` (swapped) | `headers: [http.Header]`, `headersObject: Object` (inference and completion only) |
+| Form bodies (`--form`) | Encoded as ISO-8859-1 | UTF-8 |
+| HTTP details | Apache client: `User-Agent: Apache-HttpClient/…`, `Accept-Encoding: gzip,deflate`, response header names as sent | ureq: its own `User-Agent`, `Accept: */*` if none given, gzip only; response header names capitalised from the `http` crate's lower case (`Content-Type`, but `Etag` for `ETag`) |
+| `Response.json`, `json.get` etc. | Lenient Gson parsing (a body of `oops!` is the string `oops!`) | Strict JSON, as `json.fromString` |
+| `dns.lookup`, `Host.ipAddresses` | IPv6 as `0:0:0:0:0:0:0:1` | `::1` (RFC 5952); IPv4 addresses still listed first, as Java does |
+| `mash.source` errors | Printed; returns unit | Propagate (as `mash.eval`) |
+| File errors in `json.read`, `xml.read`, `mash.source` | "Unexpected error … FileNotFoundException" | "Could not read 'x': No such file or directory" |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
 object browser is M5); git commit tables and `git.Status` printing arrive with the git classes (M5); help has no
 links yet (they're for the browser).
 
-Not yet ported, pending later milestones: `hash.sha256` of a file's contents, `json.read`/`write`/http, `xml.read`,
-`mash.source`/`reload`, `Url.open`, `Host.ipAddresses`; in `os`: users/groups (`user`, `Username`/`Group` methods),
-processes (`ps`, `kill`), `clipboard`, `open`/`Path.open`, `diskSpace`, `terminal`, `jump` (M5).
+Not yet ported, pending later milestones: in `os`: users/groups (`user`, `Username`/`Group` methods), processes
+(`ps`, `kill`), `clipboard`, `open`/`Path.open` (`Platform::open_with_default_application` is ready for them),
+`diskSpace`, `terminal`, `jump` (M5).
 
 ## Post-port backlog (language changes, deferred)
 

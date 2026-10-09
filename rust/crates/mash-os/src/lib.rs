@@ -2,16 +2,19 @@
 //! [`Platform`](mash_core::platform::Platform) implementation.
 
 mod fs;
+mod net;
 mod process;
 
 use std::io;
 
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
-use mash_core::platform::{DirEntry, FileKind, Metadata, Platform, ProcessOutcome, ProcessRequest};
+use mash_core::platform::{
+    DirEntry, FileKind, HttpRequest, HttpResponse, Metadata, Platform, ProcessOutcome, ProcessRequest,
+};
 
-/// The [`Platform`] for a native process: real environment, working directory, file system, processes, clock
-/// and time zone.
+/// The [`Platform`] for a native process: real environment, working directory, file system, processes, network,
+/// clock and time zone.
 #[derive(Debug, Default)]
 pub struct NativePlatform;
 
@@ -151,5 +154,17 @@ impl Platform for NativePlatform {
 
     fn run_process(&self, request: &ProcessRequest<'_>) -> io::Result<ProcessOutcome> {
         process::run_process(request)
+    }
+
+    fn http_request(&self, request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
+        net::http_request(request)
+    }
+
+    fn lookup_host(&self, host: &str) -> io::Result<Vec<String>> {
+        net::lookup_host(host)
+    }
+
+    fn open_with_default_application(&self, target: &str) -> io::Result<()> {
+        net::open_with_default_application(target)
     }
 }

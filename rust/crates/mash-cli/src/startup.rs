@@ -1,10 +1,11 @@
 //! What runs before the first prompt (Scala `Loader` and `InitScriptRunner`): library files from
 //! `~/.mash/lib`, whose definitions are published under the namespace each declares. (`~/.mash/init.mash` is
-//! then run by the REPL, which prints its errors like a command's.)
+//! then run by the REPL, which prints its errors like a command's.) Also `mash.reload`'s part in the shell.
 
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
-use mash_core::eval::{Ctx, RunError};
+use mash_core::eval::{Ctx, ReloadHook, RunError};
 use mash_core::value::{Object, Value};
 
 /// Load every `.mash` file under `lib_dir` (in path order). Each must declare a namespace; its definitions go
@@ -42,6 +43,22 @@ pub(crate) fn load_libraries(ctx: &mut Ctx, lib_dir: &Path) {
     for (name, value) in ns.entries() {
         ctx.globals().set(name, value);
     }
+}
+
+/// What `mash.reload` does once the standard globals are reset (Scala `ReloadFunction`): load the library
+/// files again, then run `init.mash`, reporting its errors (as at startup) rather than failing the reload.
+pub(crate) fn reload_hook(mash_dir: PathBuf) -> ReloadHook {
+    Rc::new(move |ctx: &mut Ctx| {
+        load_libraries(ctx, &mash_dir.join("lib"));
+        let init = mash_dir.join("init.mash");
+        if let Ok(text) = std::fs::read_to_string(&init) {
+            let name = init.display().to_string();
+            if let Err(error) = ctx.eval_source(&name, &text) {
+                eprintln!("{}", error.report());
+            }
+        }
+        Ok(())
+    })
 }
 
 /// Set `name` in the object at `path` below `obj`, creating objects along the way
@@ -121,5 +138,34 @@ mod tests {
             ctx.stringify(&value).unwrap()
         });
         assert_eq!(result, "[Hello, lib, 42, Hello, x, null]");
+    }
+
+    #[test]
+    fn reload_resets_builtins_and_reruns_libraries_and_init() {
+        let dir = tempfile::tempdir().unwrap();
+        let mash_dir = dir.path().to_path_buf();
+        std::fs::create_dir_all(mash_dir.join("lib")).unwrap();
+        std::fs::write(mash_dir.join("lib/a.mash"), "namespace acme\ndef answer = 42").unwrap();
+        std::fs::write(
+            mash_dir.join("init.mash"),
+            "initRuns = (global.get 'initRuns' or 0) + 1",
+        )
+        .unwrap();
+        let lib_file = mash_dir.join("lib/a.mash");
+        let result = with_big_stack(move || {
+            let mut ctx = Ctx::new(Rc::new(TestPlatform::default()));
+            ctx.set_reload_hook(reload_hook(mash_dir));
+            ctx.run("test", "def length x = 'mine'; ns.core = 'gone'").unwrap();
+            std::fs::write(lib_file, "namespace acme\ndef answer = 43").unwrap();
+            ctx.run("test", "mash.reload").unwrap();
+            let value = ctx
+                .run(
+                    "test",
+                    "[length [1, 2], acme.answer, ns.acme.answer, initRuns, ns.core.identity 1]",
+                )
+                .unwrap();
+            ctx.stringify(&value).unwrap()
+        });
+        assert_eq!(result, "[2, 43, 43, 1, 1]");
     }
 }

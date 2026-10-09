@@ -5,7 +5,8 @@ use base64::engine::general_purpose::STANDARD;
 use mash_macros::builtin;
 use sha2::{Digest, Sha256};
 
-use super::os::PATH_CLASS;
+use super::os::paths::{fs, io_error, path_of};
+use super::os::{PATH_CLASS, PATH_SUMMARY_CLASS};
 use crate::eval::{Ctx, MashError, R};
 use crate::function::BuiltinFunction;
 use crate::value::{Str, Value};
@@ -51,16 +52,29 @@ pub fn decode(ctx: &mut Ctx, #[param("String to decode")] string: Value) -> R<St
 
 /// Calculate the SHA-256 hash of the given input data
 ///
-/// If a Path, then the contents of the file will be hashed. Else, the given data will be turned into a String
-/// and hashed.
+/// If a Path or PathSummary, then the contents of the file will be hashed. Else, the given data will be turned
+/// into a String and hashed.
 #[builtin(namespace = "hash", returns = crate::infer::Type::STRING)]
 pub fn sha256(ctx: &mut Ctx, #[param("Data to hash")] data: Value) -> R<String> {
-    if let Value::Str(s) = &data
-        && s.tag().is_some_and(|tag| std::ptr::eq(tag, &PATH_CLASS))
-    {
-        return Err(MashError::new("Hashing the contents of files is not supported yet"));
-    }
-    let s = ctx.stringify(&data)?;
-    let digest = Sha256::digest(s.as_bytes());
+    let digest = match file_path(&data) {
+        Some(path) => {
+            let contents = ctx
+                .platform()
+                .read_file(fs(&path))
+                .map_err(|e| io_error("read", &path, &e))?;
+            Sha256::digest(contents)
+        }
+        None => Sha256::digest(ctx.stringify(&data)?.as_bytes()),
+    };
     Ok(digest.iter().map(|b| format!("{b:02x}")).collect())
+}
+
+/// The file a value denotes: a Path-tagged string or a PathSummary (Scala `safeInterpretAsPath` with
+/// `stringsMustHaveTags`)
+fn file_path(value: &Value) -> Option<String> {
+    match value {
+        Value::Str(s) if s.tag().is_some_and(|tag| std::ptr::eq(tag, &PATH_CLASS)) => path_of(value),
+        Value::Object(o) if o.class().is_some_and(|c| c.is_builtin(&PATH_SUMMARY_CLASS)) => path_of(value),
+        _ => None,
+    }
 }

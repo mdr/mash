@@ -427,8 +427,6 @@ const DEFERRED: &[&str] = &[
     r#"git.status"#,
     // M5: git
     r#"git['status']"#,
-    // M5: http
-    r#"json.get 'http://example.com' | .get 'foo' --default=42'"#,
 ];
 
 fn inferred_type(ctx: &mut Ctx, input: &str) -> String {

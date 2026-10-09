@@ -2,22 +2,30 @@
 //! Scala Mash used): an element becomes a field named after it; attributes and child elements become fields of
 //! its object, and its text a `content` field; an element with only text is just that text, and an empty one
 //! the empty string; repeated elements become a list. Unlike org.json, text and attribute values stay strings
-//! (no conversion of `42` or `true`). Reading files (`xml.read`) needs the OS and lives in `mash-os`.
+//! (no conversion of `42` or `true`).
 
 use mash_macros::builtin;
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
 
-use crate::eval::{MashError, R};
+use super::os::paths::PathArg;
+use super::os::{complete_files, read_text};
+use crate::eval::{Ctx, MashError, R};
 use crate::function::BuiltinFunction;
 use crate::value::{Object, Str, Value};
 
-pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&FromStringFunction];
+pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&FromStringFunction, &ReadFunction];
 
 /// Read the given string and parse it as XML
 #[builtin(namespace = "xml", returns = crate::infer::Type::OBJECT)]
 pub fn from_string(#[param("String to parse as XML")] string: Str) -> R<Object> {
     parse_xml(string.as_str())
+}
+
+/// Read the given file and parse it as XML
+#[builtin(namespace = "xml", returns = crate::infer::Type::OBJECT, completion = complete_files)]
+pub fn read(ctx: &mut Ctx, #[param("File from which to read an XML document")] file: PathArg) -> R<Object> {
+    parse_xml(&read_text(ctx, &file.0)?)
 }
 
 fn invalid(e: impl std::fmt::Display) -> MashError {

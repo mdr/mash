@@ -10,11 +10,15 @@ use std::time::Duration;
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
 
-use super::{DirEntry, MemoryFiles, Metadata, Platform, ProcessInput, ProcessOutcome, ProcessOutput, ProcessRequest};
+use super::{
+    DirEntry, HttpRequest, HttpResponse, MemoryFiles, Metadata, Platform, ProcessInput, ProcessOutcome, ProcessOutput,
+    ProcessRequest,
+};
 
 /// A deterministic platform for tests: fixed environment, home `/home/alice` (which exists, and is the
 /// initial working directory), UTC, a fixed clock (which `sleep` advances instead of sleeping), an in-memory
-/// file tree, and fake external commands (`echo`, `cat`, `true`, `false` by default).
+/// file tree, fake external commands (`echo`, `cat`, `true`, `false` by default), canned HTTP responses and
+/// DNS entries (`localhost` by default).
 #[derive(Debug, Clone)]
 pub struct TestPlatform {
     pub env: BTreeMap<String, String>,
@@ -34,6 +38,27 @@ pub struct TestPlatform {
     pub commands: BTreeMap<String, FakeCommand>,
     /// Every process run, in order
     pub processes: RefCell<Vec<ProcessRecord>>,
+    /// Canned HTTP responses, by method and URL (add with `with_http_response`); other requests fail as if
+    /// the host were unknown
+    pub http_responses: BTreeMap<(String, String), HttpResponse>,
+    /// Every HTTP request made, in order
+    pub http_requests: RefCell<Vec<HttpRecord>>,
+    /// IP addresses of host names, for DNS lookups
+    pub hosts: BTreeMap<String, Vec<String>>,
+    /// Everything opened with the default application, in order
+    pub opened: RefCell<Vec<String>>,
+}
+
+/// An HTTP request that a [`TestPlatform`] received.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HttpRecord {
+    pub method: String,
+    pub url: String,
+    /// Every header sent ([`HttpRequest::all_headers`]: including cookies and basic authentication)
+    pub headers: Vec<(String, String)>,
+    /// The body, decoded (lossily) as UTF-8
+    pub body: Option<String>,
+    pub insecure: bool,
 }
 
 /// A fake external command: computes the outcome of running it.
@@ -146,6 +171,10 @@ impl Default for TestPlatform {
             output: RefCell::new(String::new()),
             commands: default_commands(),
             processes: RefCell::new(vec![]),
+            http_responses: BTreeMap::new(),
+            http_requests: RefCell::new(vec![]),
+            hosts: BTreeMap::from([("localhost".into(), vec!["127.0.0.1".into(), "::1".into()])]),
+            opened: RefCell::new(vec![]),
         }
     }
 }
@@ -159,6 +188,17 @@ impl TestPlatform {
     ) -> TestPlatform {
         self.commands.insert(name.to_string(), FakeCommand::new(f));
         self
+    }
+
+    /// Answer `method` requests for `url` with `response`
+    pub fn with_http_response(mut self, method: &str, url: &str, response: HttpResponse) -> TestPlatform {
+        self.http_responses.insert((method.into(), url.into()), response);
+        self
+    }
+
+    /// The HTTP requests made so far
+    pub fn http_requests(&self) -> Vec<HttpRecord> {
+        self.http_requests.borrow().clone()
     }
 
     fn cwd(&self) -> String {
@@ -326,5 +366,39 @@ impl Platform for TestPlatform {
             finished: self.now(),
             interrupted: outcome.interrupted,
         })
+    }
+
+    fn http_request(&self, request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
+        self.http_requests.borrow_mut().push(HttpRecord {
+            method: request.method.into(),
+            url: request.url.into(),
+            headers: request.all_headers(),
+            body: request.body.map(|b| String::from_utf8_lossy(b).into_owned()),
+            insecure: request.insecure,
+        });
+        self.http_responses
+            .get(&(request.method.to_string(), request.url.to_string()))
+            .cloned()
+            .ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!(
+                        "Unknown host: no canned response for {} {}",
+                        request.method, request.url
+                    ),
+                )
+            })
+    }
+
+    fn lookup_host(&self, host: &str) -> io::Result<Vec<String>> {
+        self.hosts
+            .get(host)
+            .cloned()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, format!("Unknown host: {host}")))
+    }
+
+    fn open_with_default_application(&self, target: &str) -> io::Result<()> {
+        self.opened.borrow_mut().push(target.into());
+        Ok(())
     }
 }

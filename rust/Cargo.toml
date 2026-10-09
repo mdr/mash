@@ -33,6 +33,11 @@ signal-hook = "0.3"
 # Native only (mash-os): process groups, terminal control, signals, users and groups
 nix = { version = "0.31", features = ["fs", "process", "signal", "term", "user"] }
 tempfile = "3.27"
+# Native only (mash-os): HTTP with rustls, verifying certificates against the system's trust store
+ureq = { version = "3.4", default-features = false, features = ["rustls", "gzip", "platform-verifier"] }
+# Tests only (mash-os): a local HTTPS server with a self-signed certificate
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rcgen = { version = "0.14", default-features = false, features = ["crypto", "ring"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

@@ -58,7 +58,12 @@ pub struct Ctx {
     pub settings: Settings,
     /// Directories visited with `cd` (for `back`, `forward` and `oldDirs`)
     working_directories: builtins::os::WorkingDirectoryStack,
+    /// What `mash.reload` does after resetting the standard globals (see [`Ctx::set_reload_hook`])
+    reload_hook: Option<ReloadHook>,
 }
+
+/// A host's part of `mash.reload`: loading library files and running the init script again
+pub type ReloadHook = Rc<dyn Fn(&mut Ctx) -> R<()>>;
 
 impl std::fmt::Debug for Ctx {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -105,6 +110,21 @@ impl Ctx {
             steps: 0,
             settings: Settings::default(),
             working_directories,
+            reload_hook: None,
+        }
+    }
+
+    /// Set what `mash.reload` does after resetting the standard globals: the host loads its library files
+    /// and runs its init script (the interactive shell does; scripts and `mash -e` don't)
+    pub fn set_reload_hook(&mut self, hook: ReloadHook) {
+        self.reload_hook = Some(hook);
+    }
+
+    /// Run the reload hook, if there is one
+    pub(crate) fn run_reload_hook(&mut self) -> R<()> {
+        match self.reload_hook.clone() {
+            Some(hook) => hook(self),
+            None => Ok(()),
         }
     }
 

@@ -555,7 +555,87 @@ PARENT
 
 METHODS
     host - Return the host component of this URL (may be null)
+    open - Open a this URL with the default application
     withQueryParams - Add query parameters to this URL"#,
+    );
+}
+
+#[test]
+fn http_response_class_help() {
+    check(
+        80,
+        r#"http.Response"#,
+        r#"CLASS
+    http.Response - An HTTP response
+
+PARENT
+    core.Object
+
+FIELDS
+    status - Status code
+    body - Body of the response
+    headers - Response headers
+    cookies - Response cookies
+
+STATIC METHODS
+    new - Construct a new Response object
+
+METHODS
+    getHeader - Get header with the given name, ignoring case, else null
+    getHeaders - Get all headers with the given name, ignoring case
+    headersObject - The headers as an object
+    json - Parse response body as JSON
+    succeeded - True if the HTTP request succeeded (status code 2xx)"#,
+    );
+}
+
+/// Differs from Scala Mash deliberately: the `--insecure` flag is new (Scala Mash never verified certificates)
+#[test]
+fn http_function_help() {
+    check(
+        80,
+        r#"http.post?"#,
+        r#"FUNCTION
+    http.post - Make an HTTP POST request
+
+CALLING SYNTAX
+    post <url> [<body>] (--file | -f) (--json | -j) --form --basicAuth[=<value>] --headers[=<value>] --cookies[=<value>] --queryParams[=<value>] --insecure
+
+PARAMETERS
+    url - URL to send request to
+
+    body [optional] - Body of request
+
+    --file | -f [optional] - Whether the body should be fetched from a file (default false)
+        If true, the body parameter will be interpreted as a path, and the contents of the file at that location used as the body.
+        If false, the body will be used directly.
+
+    --json | -j [optional] - Whether to send the body as JSON (default false)
+
+    --form [optional] - Whether to send the body as a URL-encoded form (default false)
+
+    --basicAuth [optional] - Basic authentication
+        Must provide the username and password either as a colon-separated String:
+          --basicAuth='username:password'
+        or an object of the form:
+          --basicAuth={ username: 'username', password: 'password' }
+
+    --headers [optional] - Headers to add to request
+        Headers can be provided either as an object or a list of name/value pairs:
+          --headers={ header1: value }
+          --headers=["header1:value", "header2:value"]
+          --headers=[{ name: "header1", value: "value" }]
+
+    --cookies [optional] - Cookies to add to the request
+        Cookies can be provided as an object:
+          --cookies={ sessionId: 'xyz' }
+
+    --queryParams [optional] - Query parameters to add to the URL
+        Examples:
+          --queryParams={ name: "value" }
+
+    --insecure [optional] - Don't verify the server's TLS certificate (default false)
+        By default, HTTPS requests fail if the server's certificate isn't trusted, or doesn't match its host name."#,
     );
 }
 

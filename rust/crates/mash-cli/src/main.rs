@@ -103,6 +103,7 @@ fn run_repl() -> ExitCode {
             eprintln!("mash: could not handle Ctrl-C: {e}");
         }
         startup::load_libraries(&mut ctx, &mash_dir.join("lib"));
+        ctx.set_reload_hook(startup::reload_hook(mash_dir.clone()));
         let storage = history_file::FileHistoryStorage::new(mash_dir.join("history"));
         let mut repl = Repl::new(ctx, Box::new(storage), session_id);
         let mut terminal = match terminal::Terminal::new() {

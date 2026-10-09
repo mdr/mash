@@ -1,5 +1,5 @@
-//! The `type` and `mash` namespaces: type hints, and Mash about itself (`version`, `eval`, `expressionFor`).
-//! `mash.source` and `mash.reload` need files and the REPL, and come later.
+//! The `type` and `mash` namespaces: type hints, and Mash about itself (`version`, `eval`, `expressionFor`,
+//! `source`, `reload`).
 
 use std::rc::Rc;
 
@@ -12,8 +12,14 @@ use crate::function::{BuiltinFunction, Params};
 use crate::infer::{Inferencer, Type, TypedArgs};
 use crate::value::{ClassRef, Str, Value};
 
-pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] =
-    &[&HintFunction, &VersionFunction, &ExpressionForFunction, &EvalFunction];
+pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
+    &HintFunction,
+    &VersionFunction,
+    &ExpressionForFunction,
+    &EvalFunction,
+    &SourceFunction,
+    &ReloadFunction,
+];
 
 /// Hint that the argument is a list
 ///
@@ -82,6 +88,29 @@ pub fn expression_for(#[param("Value to turn into a Mash expression")] value: Va
 #[builtin(namespace = "mash")]
 pub fn eval(ctx: &mut Ctx, #[param("Mash code")] mash: Str) -> R<Value> {
     ctx.eval_source("eval", mash.as_str())
+}
+
+/// Read the given mash source file and execute its contents
+#[builtin(namespace = "mash", completion = super::os::complete_files)]
+pub fn source(ctx: &mut Ctx, #[param("Mash source file to read commands from")] file: super::os::PathArg) -> R<Value> {
+    let text = super::os::read_text(ctx, &file.0)?;
+    ctx.eval_source(&file.0, &text)
+}
+
+/// Reload init.mash and library files
+///
+/// The standard global variables (builtin functions, namespaces, `env`, `config`, …) are reset; then the host
+/// (e.g. the interactive shell) loads the library files in `~/.mash/lib` and runs `~/.mash/init.mash` again.
+#[builtin(namespace = "mash", returns = Type::UNIT)]
+pub fn reload(ctx: &mut Ctx) -> R<()> {
+    let fresh = super::standard_globals(ctx.platform());
+    let globals = ctx.globals().clone();
+    for (name, value) in fresh.entries() {
+        if name.as_str() != Some("global") {
+            globals.set(name, value);
+        }
+    }
+    ctx.run_reload_hook()
 }
 
 /// Mash source that evaluates to `value`, if there is any (Scala `ValueToExpression`): for null, booleans,

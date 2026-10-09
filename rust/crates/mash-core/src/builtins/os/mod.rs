@@ -18,6 +18,7 @@ use super::core::{ANY_CLASS, OBJECT_CLASS};
 
 pub use dirs::WorkingDirectoryStack;
 pub(crate) use dirs::mish_cd;
+pub(crate) use files::{complete_files, read_text};
 pub(crate) use glob::StringGlobMethod;
 pub use paths::{PathArg, PathArgs};
 

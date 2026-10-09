@@ -4,7 +4,9 @@
 pub mod collections;
 mod constructor;
 pub mod core;
+pub mod csv;
 pub mod encoding;
+pub mod http;
 pub mod json;
 pub mod maths;
 pub mod meta;
@@ -36,7 +38,9 @@ pub fn standard_functions() -> Vec<&'static dyn BuiltinFunction> {
 pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
     let mut functions = standard_functions();
     for namespace in [
+        csv::FUNCTIONS,
         encoding::FUNCTIONS,
+        http::FUNCTIONS,
         json::FUNCTIONS,
         maths::FUNCTIONS,
         meta::FUNCTIONS,
@@ -78,6 +82,7 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
         &net::URL_CLASS,
         &view::VIEW_CLASS,
     ]);
+    classes.extend_from_slice(http::CLASSES);
     classes.extend_from_slice(os::CLASSES);
     classes.extend_from_slice(time::CLASSES);
     classes.extend_from_slice(core::OTHER_CLASSES);

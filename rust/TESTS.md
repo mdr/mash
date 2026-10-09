@@ -36,10 +36,10 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `evaluator/SimpleEvaluatorTest` | `mash-core/tests/infer_misc.rs` | ported | Constant folding agrees with evaluation |
 | `functions/BindTypesTest` | `mash-core/tests/infer_misc.rs` | ported | |
 | `language/ValueToExpressionTest` | `mash-core/tests/value_to_expression.rs` | ported | |
-| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 251 of 257 pass; 6 need users/git/http (M5), listed in `DEFERRED` |
+| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 252 of 257 pass; 5 need users/git (M5), listed in `DEFERRED` |
 | `inference/ValueTypeDetectorTest` | `mash-core/tests/infer_misc.rs` | ported | The class-instance case uses `maths.Stats` instead of the os class `PermissionsSection` |
-| — | `mash-core/tests/infer_{collections,core,namespaces}.rs` | new | Inference rules and completion specs per builtin area |
-| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 146 pass, 3 need `kill`/`user` (M5) and are listed in `DEFERRED` |
+| — | `mash-core/tests/infer_{collections,core,namespaces}.rs` | new | Inference rules and completion specs per builtin area (`infer_namespaces.rs` includes http, dns, csv and the json/xml file and HTTP functions) |
+| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 146 pass, 3 need `kill`/`user` (M5) and are listed in `DEFERRED`. Plus 10 new cases: file completion for `json.read`/`write`, `xml.read`, `csv.write`, `mash.source`; members of `http.Response`, `net.Host`; `--insecure` |
 | `completions/ContiguousRegionFinderTest`, `InvocationFinderTest`, `PathCompleterTest` | `mash-core/tests/complete.rs` | ported | |
 | `assist/InvocationAssistanceTest` | `mash-core/tests/complete.rs` | ported (adapted) | Same cursor positions, with core functions in place of `ls`/`home` (M5) |
 | `evaluator/TildeExpanderTest` | | pending (M4) | Expansion is ported with path completion; retilde-ing for display comes with the REPL |
@@ -47,6 +47,9 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `os/GlobHelperTest` | `mash-core/src/builtins/os/glob.rs` | ported | Plus segment-matching tests; glob semantics changed (see PORT_PLAN.md) |
 | — | `mash-core/tests/os.rs` | new | os builtins, path methods, `!{…}`/`!!{…}`/`!cmd`/mish lines, `run`, `env` as the child environment, Ctrl-C in a child — against `MemoryFiles` and fake commands |
 | — | `mash-os/tests/native.rs`, `native_cd.rs` | new | Native processes (capture, exit status, SIGINT, stdin, 4 MB through `cat` without deadlock, redirects, environment) and file operations in temp directories |
+| — | `mash-core/tests/net.rs` | new | http (requests sent: headers, cookies, basic auth, bodies, forms, files, query parameters; responses and their methods; argument errors), `json.get` etc., dns, `Url.open`, and the data file functions (`json.read`/`write`, `xml.read`, `csv.write`, `hash.sha256` of a file, `mash.source`, `mash.reload`) — against `TestPlatform`'s canned responses and in-memory files; checked against Scala Mash with a local HTTP server |
+| — | `mash-os/tests/native_net.rs` | new | The native HTTP client against local servers: headers, cookies, basic auth, bodies, status codes, redirects (and POST not redirected by 302), connection refused, an HTTPS server with a self-signed certificate (refused unless `--insecure`), `localhost` DNS. `mash-os/src/net.rs` unit tests: TLS configuration, redirect locations, `Set-Cookie` parsing |
+| — | `mash-cli/src/startup.rs` (unit tests) | new | `mash.reload` with the shell's hook: builtins reset, libraries and `init.mash` run again |
 | `utils/*` (`LineInfoTest`, `PrefixTreeTest`, `RaggedGridNavigatorTest`, `RegionTest`, `StringUtilsTest`, `UtilsTest`) | | pending | Ported alongside the code that uses them |
 
 ## M4/M5 — REPL and OS
@@ -63,6 +66,6 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `view/printer/ColumnAllocatorTest` | `mash-repl/tests/columns.rs` | ported | Plus cases for the other branches |
 | `view/render/help/*Test` (class, field, function, method) | `mash-repl/tests/help.rs` | ported | The `TestPointClass` fixture becomes the equivalent `ClassDoc`/`FieldDoc`/… descriptions |
 | `view/render/CallingSyntaxRendererTest` (help) | `mash-repl/tests/help.rs` | ported | |
-| — | `mash-repl/tests/view.rs` | new | 74 golden cases for `view_value` (tables, objects, trees, help, `view.*`); expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
+| — | `mash-repl/tests/view.rs` | new | 76 golden cases for `view_value` (tables, objects, trees, help (including `http.Response` and `http.post?`), `view.*`); expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
 | `repl/browser/TwoDTableBrowserStateTest` | | pending (M5) | |
 | `integration/*` (object browser) | | pending (M5) | |

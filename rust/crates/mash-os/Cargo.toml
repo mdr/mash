@@ -11,9 +11,12 @@ publish.workspace = true
 mash-core.workspace = true
 jiff.workspace = true
 nix.workspace = true
+ureq.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+rustls.workspace = true
+rcgen.workspace = true
 
 [lints]
 workspace = true

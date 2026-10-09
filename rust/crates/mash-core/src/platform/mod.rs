@@ -4,6 +4,7 @@
 //! valid (callers use `.`).
 
 mod memory;
+mod net;
 mod test;
 
 use std::fmt::Debug;
@@ -14,7 +15,8 @@ use jiff::Timestamp;
 use jiff::tz::TimeZone;
 
 pub use memory::MemoryFiles;
-pub use test::{FakeCommand, FakeOutcome, FakeProcess, ProcessRecord, TestPlatform};
+pub use net::{HttpRequest, HttpResponse};
+pub use test::{FakeCommand, FakeOutcome, FakeProcess, HttpRecord, ProcessRecord, TestPlatform};
 
 /// Host services the interpreter needs. Implementations live outside `mash-core` (e.g. `mash-os` for
 /// native builds), so that the core stays portable. Grows as builtins are ported.
@@ -135,6 +137,30 @@ pub trait Platform: Debug {
         Err(io::Error::new(
             io::ErrorKind::Unsupported,
             "running external programs is not supported here",
+        ))
+    }
+
+    // ------------------------------------------------------------------------------------------ network
+
+    /// Make an HTTP request, following redirects. Any response is a success, whatever its status; errors
+    /// (unknown host, can't connect, TLS failures, …) have messages fit to show the user.
+    fn http_request(&self, _request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
+        Err(io::Error::new(io::ErrorKind::Unsupported, "HTTP is not supported here"))
+    }
+
+    /// The IP addresses of a host name (DNS), as strings (e.g. `93.184.215.14`, `::1`)
+    fn lookup_host(&self, _host: &str) -> io::Result<Vec<String>> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "DNS lookups are not supported here",
+        ))
+    }
+
+    /// Open a URL or file with the default application (`open` on macOS, `xdg-open` elsewhere)
+    fn open_with_default_application(&self, _target: &str) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "opening with the default application is not supported here",
         ))
     }
 }

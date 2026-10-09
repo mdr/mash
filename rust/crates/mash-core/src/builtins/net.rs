@@ -1,23 +1,26 @@
-//! The `net` namespace: URLs. Looking up hosts (`Host.ipAddresses`) and opening URLs (`Url.open`) need the OS
-//! and come with `mash-os`.
+//! The `net` and `dns` namespaces: URLs, and looking up hosts. Lookups and opening URLs go through the
+//! [`Platform`](crate::platform::Platform).
 
 use mash_macros::{builtin, builtin_method};
 
 use super::core::ANY_CLASS;
-use crate::eval::{Ctx, R};
+use super::os::paths::describe;
+use crate::eval::{Ctx, MashError, R};
 use crate::function::{Args, BuiltinFunction};
+use crate::infer::Type;
 use crate::value::{BuiltinClass, Object, Str, Value};
 
-pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&UrlFunction, &UrlEncodeFunction];
+pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&UrlFunction, &UrlEncodeFunction, &LookupFunction];
 
 pub static URL_CLASS: BuiltinClass = BuiltinClass {
     summary: "Tag class for a URL",
-    methods: &[&HostMethod, &WithQueryParamsMethod],
+    methods: &[&HostMethod, &OpenMethod, &WithQueryParamsMethod],
     ..BuiltinClass::new("net", "Url", Some(&ANY_CLASS))
 };
 
 pub static HOST_CLASS: BuiltinClass = BuiltinClass {
     summary: "Host",
+    methods: &[&IpAddressesMethod],
     ..BuiltinClass::new("net", "Host", Some(&ANY_CLASS))
 };
 
@@ -65,14 +68,48 @@ fn with_query_params(
     let mut params = vec![];
     for object in query_params.iter().chain([&named_query_params]) {
         for (field, value) in object.entries() {
-            params.push(format!(
-                "{}={}",
-                form_encode(&ctx.stringify(&field)?),
-                form_encode(&ctx.stringify(&value)?)
-            ));
+            params.push((ctx.stringify(&field)?, ctx.stringify(&value)?));
         }
     }
-    let url = target.as_str();
+    Ok(Str::tagged(add_query_params(target.as_str(), &params), &URL_CLASS))
+}
+
+/// Open a this URL with the default application
+#[builtin_method(returns = Type::UNIT)]
+fn open(ctx: &mut Ctx, target: &Value) -> R<()> {
+    let url = ctx.stringify(target)?;
+    ctx.platform()
+        .open_with_default_application(&url)
+        .map_err(|e| MashError::new(format!("Could not open '{url}': {}", describe(&e))))
+}
+
+/// The IP addresses of a host, as strings
+fn ip_addresses_of(ctx: &Ctx, host: &str) -> R<Value> {
+    let addresses = ctx
+        .platform()
+        .lookup_host(host)
+        .map_err(|e| MashError::new(describe(&e)))?;
+    Ok(Value::list(addresses.iter().map(|a| Value::str(a)).collect()))
+}
+
+/// Look up the IP addresses of the given host
+#[builtin_method(returns = Type::seq(Type::STRING))]
+fn ip_addresses(ctx: &mut Ctx, target: Str) -> R<Value> {
+    ip_addresses_of(ctx, target.as_str())
+}
+
+/// Look up the IP addresses of the given host
+#[builtin(namespace = "dns", returns = Type::seq(Type::STRING))]
+pub fn lookup(ctx: &mut Ctx, #[param("Host name")] host: Str) -> R<Value> {
+    ip_addresses_of(ctx, host.as_str())
+}
+
+/// `url` with `name=value` query parameters added (form-encoded), before any fragment (Apache's `URIBuilder`)
+pub(crate) fn add_query_params(url: &str, params: &[(String, String)]) -> String {
+    let params: Vec<String> = params
+        .iter()
+        .map(|(name, value)| format!("{}={}", form_encode(name), form_encode(value)))
+        .collect();
     let (before_fragment, fragment) = match url.find('#') {
         Some(i) => url.split_at(i),
         None => (url, ""),
@@ -88,12 +125,12 @@ fn with_query_params(
         result.push_str(&params.join("&"));
     }
     result.push_str(fragment);
-    Ok(Str::tagged(result, &URL_CLASS))
+    result
 }
 
 /// `application/x-www-form-urlencoded` encoding, as Java's `URLEncoder`: letters, digits and `.-*_` are kept,
 /// space becomes `+`, and anything else is percent-encoded as UTF-8
-fn form_encode(s: &str) -> String {
+pub(crate) fn form_encode(s: &str) -> String {
     let mut out = String::new();
     for b in s.bytes() {
         match b {
@@ -106,7 +143,7 @@ fn form_encode(s: &str) -> String {
 }
 
 /// Check a URI reference for characters `java.net.URI` rejects, with a message like Java's
-fn check_uri(s: &str) -> Result<(), String> {
+pub(crate) fn check_uri(s: &str) -> Result<(), String> {
     let chars: Vec<char> = s.chars().collect();
     let mut i = 0;
     while i < chars.len() {
