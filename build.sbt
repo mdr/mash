@@ -10,24 +10,22 @@ packageSummary := "Mash Object Shell"
 
 packageDescription := "An object shell"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.20"
 
 scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.0.3" % Test,
-  "junit" % "junit" % "4.12" % Test,
-  "com.lihaoyi" % "ammonite" % "1.0.1" % Test cross CrossVersion.full,
-  "org.pegdown" % "pegdown" % "1.6.0" % Test) // Needed for test reports
+  "org.scalatest" %% "scalatest" % "3.0.9" % Test,
+  "junit" % "junit" % "4.13.2" % Test)
 
 libraryDependencies ++= Seq(
   "commons-io" % "commons-io" % "2.5",
   "org.apache.commons" % "commons-lang3" % "3.6",
   "org.apache.commons" % "commons-text" % "1.1",
   "org.apache.commons" % "commons-csv" % "1.4",
-  "com.github.jnr" % "jnr-posix" % "3.0.41",
+  "com.github.jnr" % "jnr-posix" % "3.1.20",
   "org.apache.ant" % "ant" % "1.10.1",
   "org.ocpsoft.prettytime" % "prettytime" % "4.0.1.Final",
   "jline" % "jline" % "2.14.5",
@@ -36,8 +34,8 @@ libraryDependencies ++= Seq(
   "com.google.code.gson" % "gson" % "2.8.1",
   "com.fatboyindustrial.gson-javatime-serialisers" % "gson-javatime-serialisers" % "1.1.1",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.8.0.201706111038-r",
-  "org.slf4j" % "slf4j-nop" % "1.7.25" /* suppress logging from jgit */,
-  "com.outr.javasysmon" % "javasysmon_2.10" % "0.3.4",
+  "org.slf4j" % "slf4j-nop" % "2.0.16" /* suppress logging from jgit */,
+  "com.github.oshi" % "oshi-core" % "6.6.5",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.httpcomponents" % "httpclient" % "4.5.2", // 4.5.3 has bug HTTPCLIENT-1863
@@ -47,19 +45,19 @@ libraryDependencies ++= Seq(
 
 // == Misc ====================================================================================
 
-mainClass in (Compile, run) := Some("com.github.mdr.mash.Main")
+Compile / run / mainClass := Some("com.github.mdr.mash.Main")
 
-mainClass in assembly := (mainClass in (Compile, run)).value
+assembly / mainClass := (Compile / run / mainClass).value
 
-assemblyJarName in assembly := s"mash-${version.value}.jar"
+assembly / assemblyJarName := s"mash-${version.value}.jar"
 
 // javaOptions ++= Seq("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")
 
 // Fork mode:
 
-// fork in run := true
+// run / fork := true
 
-// connectInput in run := true
+// run / connectInput := true
 
 // outputStrategy := Some(StdoutOutput)
 
@@ -71,16 +69,15 @@ buildInfoPackage := "com.github.mdr.mash.build"
 
 // == Test ===================================================================================
 
-fork in test := true
+Test / fork := true
 
 testFrameworks := Seq(TestFrameworks.ScalaTest)
 
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT", "-h", "target/report") // T => show reminder of failed tests with short stack trace
+Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oDFT") // T => show reminder of failed tests with short stack trace
 
-initialCommands in (Test, console) := "ammonite.Main().run()"
 
 // Packaging
 
 enablePlugins(JavaAppPackaging)
 
-debianPackageDependencies in Debian ++= Seq("default-jre")
+Debian / debianPackageDependencies ++= Seq("default-jre")

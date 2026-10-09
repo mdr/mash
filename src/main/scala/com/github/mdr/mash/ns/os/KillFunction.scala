@@ -7,7 +7,7 @@ import com.github.mdr.mash.inference.TypedArguments
 import com.github.mdr.mash.ns.core.UnitClass
 import com.github.mdr.mash.os.linux.LinuxProcessInteractions
 import com.github.mdr.mash.runtime._
-import jnr.constants.platform.linux.Signal
+import jnr.constants.platform.Signal
 
 object KillFunction extends MashFunction("os.kill") {
 
@@ -15,7 +15,7 @@ object KillFunction extends MashFunction("os.kill") {
 
   private val Signals: Map[String, Int] = {
     val pairs =
-      for (signal ← Signal.values)
+      for (signal ← Signal.values if signal.defined)
         yield signal.name.drop(3) -> signal.value
     pairs.toMap
   }

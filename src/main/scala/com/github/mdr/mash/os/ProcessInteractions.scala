@@ -1,7 +1,5 @@
 package com.github.mdr.mash.os
 
-import com.jezhumble.javasysmon.{ ProcessInfo ⇒ JavaSysmonProcessInfo }
-
 trait ProcessInteractions {
 
   def kill(pid: Int, signal: Int)

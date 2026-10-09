@@ -2,13 +2,13 @@ package com.github.mdr.mash.ns.os
 
 import com.github.mdr.mash.classes.MashClass
 import com.github.mdr.mash.ns.core.AnyClass
-import jnr.constants.platform.linux.Signal
+import jnr.constants.platform.Signal
 
 object SignalClass extends MashClass("os.Signal") {
 
   override def enumerationValues: Option[Seq[String]] = Some(Signals)
 
-  val Signals = Signal.values.toSeq.map(_.name.drop(3))
+  val Signals = Signal.values.toSeq.filter(_.defined).map(_.name.drop(3))
 
   override def summaryOpt = Some("A signal")
 
