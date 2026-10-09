@@ -1,0 +1,28 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+# Local design spikes have their own workspace and are not part of the build.
+exclude = ["spikes"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "MIT"
+publish = false
+
+[workspace.dependencies]
+mash-syntax = { path = "crates/mash-syntax" }
+mash-core = { path = "crates/mash-core" }
+mash-os = { path = "crates/mash-os" }
+mash-repl = { path = "crates/mash-repl" }
+rowan = "0.16"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+dbg_macro = "warn"
+todo = "warn"
