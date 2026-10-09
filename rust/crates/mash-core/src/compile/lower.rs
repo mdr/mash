@@ -145,6 +145,7 @@ impl<'a> Lowerer<'a> {
             A::HeadlessMember(m) => ExprKind::HeadlessMember {
                 name: m.name_token().map(|t| t.text().into()).unwrap_or_else(|| "".into()),
                 null_safe: m.is_null_safe(),
+                name_range: m.name_token().map(|t| t.text_range()),
             },
             A::Lookup(l) => ExprKind::Lookup {
                 target: self.opt(l.target()),
@@ -375,27 +376,31 @@ impl<'a> Lowerer<'a> {
 
     /// `import a.b.c` imports `c` from `a.b`; `import a.b._` imports everything from `a.b`
     fn import(&mut self, i: &ast::ImportStmt) -> ExprKind {
-        let mut segments = i.segments();
-        let name = match segments.pop() {
-            Some(last) if last == "_" => None,
-            Some(last) => Some(Rc::from(last)),
-            None => return ExprKind::Missing,
+        let mut segments = i.segment_tokens();
+        let Some(last) = segments.pop() else {
+            return ExprKind::Missing;
         };
+        let name = (last.text() != "_").then(|| Rc::from(last.text()));
         let mut segments = segments.into_iter();
         let Some(first) = segments.next() else {
             return ExprKind::Missing;
         };
-        let mut expr = self.node(None, ExprKind::Identifier(first.into()));
+        let start = first.text_range().start();
+        let mut expr = self.node(Some(first.text_range()), ExprKind::Identifier(first.text().into()));
         for segment in segments {
             let kind = ExprKind::Member {
                 target: expr,
-                name: segment.into(),
+                name: segment.text().into(),
                 null_safe: false,
-                name_range: None,
+                name_range: Some(segment.text_range()),
             };
-            expr = self.node(None, kind);
+            expr = self.node(Some(TextRange::new(start, segment.text_range().end())), kind);
         }
-        ExprKind::Import { expr, name }
+        ExprKind::Import {
+            expr,
+            name,
+            name_range: Some(last.text_range()),
+        }
     }
 
     fn mish(&mut self, mish: &ast::MishExpr, capture_output: bool) -> E {

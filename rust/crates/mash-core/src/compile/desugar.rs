@@ -15,13 +15,17 @@ fn hole_variable(n: u8) -> Rc<str> {
 /// `.foo` means `_.foo`
 pub fn add_holes_to_headless_members(e: &E, ids: &mut NodeIdGen) -> E {
     transform(e, &mut |e| match &e.kind {
-        ExprKind::HeadlessMember { name, null_safe } => {
+        ExprKind::HeadlessMember {
+            name,
+            null_safe,
+            name_range,
+        } => {
             let hole = Expr::new(ids, None, ExprKind::Hole(1));
             e.with_kind(ExprKind::Member {
                 target: hole,
                 name: name.clone(),
                 null_safe: *null_safe,
-                name_range: e.range,
+                name_range: *name_range,
             })
         }
         _ => e,
@@ -253,9 +257,10 @@ impl HoleDesugarer<'_> {
             },
             K::MishInterpolation(e) => K::MishInterpolation(inner(self, e)),
             K::Help(e) => K::Help(inner(self, e)),
-            K::Import { expr, name } => K::Import {
+            K::Import { expr, name, name_range } => K::Import {
                 expr: inner(self, expr),
                 name: name.clone(),
+                name_range: *name_range,
             },
         };
         (e.with_kind(kind), max)

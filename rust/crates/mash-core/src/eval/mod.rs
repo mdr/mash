@@ -132,8 +132,12 @@ impl Ctx {
 
     /// Compile whatever can be made of the source, even if it doesn't parse (for IDE features)
     pub fn compile_forgiving(&mut self, unit: Rc<SourceUnit>) -> Compiled {
+        self.compile_forgiving_with(unit, self.settings)
+    }
+
+    pub fn compile_forgiving_with(&mut self, unit: Rc<SourceUnit>, settings: Settings) -> Compiled {
         let bindings = self.global_names();
-        compile::compile_forgiving(unit, self.settings, &bindings, &mut self.ids)
+        compile::compile_forgiving(unit, settings, &bindings, &mut self.ids)
     }
 
     fn global_names(&self) -> HashSet<Rc<str>> {
@@ -348,7 +352,7 @@ impl Ctx {
                 self.loc(e.range),
             )),
             K::Help(inner) => self.help(inner, scope),
-            K::Import { expr, name } => self.import(e, expr, name.as_deref(), scope),
+            K::Import { expr, name, .. } => self.import(e, expr, name.as_deref(), scope),
             K::Missing => Err(MashError::at("Incomplete expression", self.loc(e.range))),
             K::Hole(_) | K::HeadlessMember { .. } | K::Pipe { .. } => Err(MashError::at(
                 "Internal error: unexpected syntax after desugaring",

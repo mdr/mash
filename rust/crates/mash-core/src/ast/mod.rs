@@ -329,6 +329,7 @@ pub enum ExprKind {
     HeadlessMember {
         name: Rc<str>,
         null_safe: bool,
+        name_range: Option<TextRange>,
     },
     This,
     /// `!ls`: a system command as a function
@@ -402,6 +403,8 @@ pub enum ExprKind {
     Import {
         expr: E,
         name: Option<Rc<str>>,
+        /// The range of the last segment (the name, or `_`)
+        name_range: Option<TextRange>,
     },
     /// A part missing from an incomplete parse. Only produced by forgiving compilation (for completion);
     /// the evaluator reports it as an error if reached.

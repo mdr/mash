@@ -22,6 +22,8 @@ pub struct BuiltinClass {
     pub fields: &'static [Field],
     pub methods: &'static [&'static dyn BuiltinMethod],
     pub static_methods: &'static [&'static dyn BuiltinFunction],
+    /// For tag classes with a fixed set of values (e.g. file types), the values
+    pub enumeration: &'static [&'static str],
 }
 
 /// A field that instances of a builtin class have.
@@ -59,6 +61,7 @@ impl BuiltinClass {
             fields: &[],
             methods: &[],
             static_methods: &[],
+            enumeration: &[],
         }
     }
 

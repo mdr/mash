@@ -15,8 +15,8 @@ use std::sync::OnceLock;
 
 use crate::complete::CompletionSpec;
 use crate::eval::{Ctx, R};
-use crate::infer::{Inferencer, Type, TypedArg, TypedArgs, ValueInfo};
 use crate::function::{Args, BuiltinFunction, BuiltinMethod, Params};
+use crate::infer::{Inferencer, Type, TypedArg, TypedArgs, ValueInfo};
 use crate::value::{BuiltinClass, Value};
 
 use super::core::ANY_CLASS;
@@ -174,6 +174,9 @@ impl BuiltinMethod for Methodised {
 /// The function's arguments: the method's, plus the target (Scala `FunctionWrappingMethod.updateArgs`)
 fn with_target(target: Option<&Type>, args: &TypedArgs) -> TypedArgs {
     let mut args = args.clone();
-    args.args.push(TypedArg::Positional(ValueInfo { value: None, ty: target.cloned() }));
+    args.args.push(TypedArg::Positional(ValueInfo {
+        value: None,
+        ty: target.cloned(),
+    }));
     args
 }

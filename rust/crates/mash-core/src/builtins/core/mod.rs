@@ -10,8 +10,8 @@ mod regex;
 mod string;
 mod thread;
 
-use crate::infer::Type;
 use crate::function::{BuiltinFunction, BuiltinMethod};
+use crate::infer::Type;
 use crate::value::{BuiltinClass, Field};
 
 pub use functions::*;

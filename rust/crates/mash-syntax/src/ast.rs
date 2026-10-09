@@ -356,9 +356,13 @@ impl NamespaceDecl {
 impl ImportStmt {
     /// e.g. `import a.b._` => ["a", "b", "_"]
     pub fn segments(&self) -> Vec<String> {
+        self.segment_tokens().iter().map(|t| t.text().to_string()).collect()
+    }
+
+    /// The tokens of the segments (identifiers, and a final `_`)
+    pub fn segment_tokens(&self) -> Vec<SyntaxToken> {
         tokens(&self.0)
             .filter(|t| matches!(t.kind(), IDENTIFIER | HOLE))
-            .map(|t| t.text().to_string())
             .collect()
     }
 }

@@ -34,7 +34,7 @@ fn expr(out: &mut String, e: &Expr) {
         }
         K::Identifier(name) => out.push_str(name),
         K::Hole(n) => write!(out, "_{n}").unwrap(),
-        K::HeadlessMember { name, null_safe } => {
+        K::HeadlessMember { name, null_safe, .. } => {
             write!(out, "({}{name})", if *null_safe { "?." } else { "." }).unwrap()
         }
         K::This => out.push_str("this"),
@@ -154,7 +154,7 @@ fn expr(out: &mut String, e: &Expr) {
         }
         K::MishInterpolation(e) => node(out, "$", &[e]),
         K::Help(e) => node(out, "help", &[e]),
-        K::Import { expr: e, name } => {
+        K::Import { expr: e, name, .. } => {
             out.push_str("(import ");
             expr(out, e);
             write!(out, " {})", name.as_deref().unwrap_or("_")).unwrap()

@@ -108,9 +108,10 @@ impl Expr {
             },
             K::MishInterpolation(e) => K::MishInterpolation(f(e)),
             K::Help(e) => K::Help(f(e)),
-            K::Import { expr, name } => K::Import {
+            K::Import { expr, name, name_range } => K::Import {
                 expr: f(expr),
                 name: name.clone(),
+                name_range: *name_range,
             },
         };
         self.with_kind(kind)
