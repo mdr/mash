@@ -88,4 +88,4 @@ for (const [name, test] of Object.entries(tests)) {
     console.log(`FAIL ${name}\n${error.message}`);
   }
 }
-process.exit(failed ? 1 : 0);
+process.exitCode = failed ? 1 : 0;

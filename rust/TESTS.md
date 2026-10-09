@@ -77,3 +77,16 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `integration/BrowserIntegrationTest` | `mash-repl/tests/browser.rs` | ported | |
 | — | `mash-repl/tests/browser.rs` | new | 36 tests: opening the browser (large output, `browseLargeOutput`, `view.browse`/`print`/`tree`, Ctrl-V), keys and key maps, rows, pages, columns, focus and back, marking, hiding columns, the tree, 1D/2D views, help links, search, expressions (follow-on, replacement, globals untouched, completion), inserting into the command line, files and directories, rendering each view (screens from Scala Mash's browser renderers, styles), and drawing on the alternate screen |
 | — | `mash-repl/src/browser/search.rs` | new | Search matching (character ranges, invalid regexes as literal text) |
+
+## M6 — the browser
+
+No Scala tests (Scala Mash had no browser build).
+
+| Scala test | Rust | Status | Notes |
+|---|---|---|---|
+| — | `mash-web/tests/shell.rs` | new | The browser's platform and shell natively, with a fake bridge: sample files, the one user, what the browser can't do failing cleanly, output, HTTP, clipboard and URLs through the bridge, the time zone, interrupts, a session (commands, history saved and recalled, Ctrl-D) |
+| — | `mash-web/src/keys.rs` (unit tests) | new | Browser keyboard events as key presses: named keys, Shift, Ctrl, Option on macOS, AltGr, keys left to the browser |
+| — | `mash-web/www/test/wasm.mjs` | new | The wasm build in Node: evaluation, printing, the bundled time zone database, interrupts, HTTP errors, deep recursion stopping cleanly (and Mash usable afterwards) |
+| — | `mash-web/www/test/browser.mjs` | new | Deep recursion (`recursion.mjs`: plain, `map`, methods, `sortBy`, blocks) stops cleanly in headless Chromium, Firefox and WebKit, and how deep each allows |
+| — | `mash-web/www/test/page.mjs` | new | The page in headless Chromium, Firefox and WebKit: commands, Ctrl-C (variables kept), Ctrl-C without cross-origin isolation (a new session), history across reloads, the object browser, Ctrl-D and starting again |
+| — | `mash-core/tests/eval.rs` | new | `the_platform_can_interrupt_evaluation`: interrupts asked of the platform, while evaluating and sleeping |

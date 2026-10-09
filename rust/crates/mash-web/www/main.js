@@ -20,6 +20,8 @@ term.loadAddon(fit);
 term.loadAddon(new Unicode11Addon.Unicode11Addon());
 term.unicode.activeVersion = '11';
 term.open(document.getElementById('terminal'));
+// For tests (test/page.mjs), which read the screen
+window.mashTerminal = term;
 fit.fit();
 term.focus();
 

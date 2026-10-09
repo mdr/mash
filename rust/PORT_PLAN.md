@@ -1,9 +1,9 @@
 # Mash → Rust: port plan
 
-Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M5
+Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M6
 done (syntax, values, evaluator, the pure standard library, type inference, completion and invocation assistance,
-`mash -e`/script runner, the GC swap, the interactive shell with the file system and external commands, and the
-rest: users/groups, processes, git, http, the object browser); next is M6 (the browser build). The native code is
+`mash -e`/script runner, the GC swap, the interactive shell with the file system and external commands, the
+rest: users/groups, processes, git, http, the object browser; and the browser build). The native code is
 tested on macOS and Linux (`spikes/linux/run.sh`: the test suite plus manual checks in a Debian container). Spikes live
 locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
 ported.
@@ -32,7 +32,7 @@ ported.
 | `mash-os` | Native-only builtins: os, users, processes, git, http, dns | no |
 | `mash-repl` | Editor state machine, renderer to `Screen`, object browser. Key events in, `Screen` out; no terminal dependency | yes |
 | `mash-cli` | crossterm backend, signals, process groups, `main` | no |
-| `mash-web` (later) | wasm-bindgen glue, xterm.js backend | wasm only |
+| `mash-web` | The browser build: wasm-bindgen glue, the browser's `Platform`, the REPL host, and the page (`www/`: xterm.js, a Web Worker) | wasm (its platform, host and key translation also build natively, for tests) |
 
 CI builds `mash-syntax`, `mash-core` and `mash-repl` for `wasm32-unknown-unknown` from day one, so OS
 access can't creep into the core.
@@ -78,14 +78,19 @@ access can't creep into the core.
 **Stack**
 - The whole interpreter (REPL, evaluator, values) runs on one big-stack thread (~1 GB reserved, committed
   lazily). Signal handlers just set atomic flags.
-- Depth limit counted in Mash calls, with a clean error: 10,000 natively; on wasm a ~16 MB link-time stack
-  (~4,000 calls).
+- Depth limit counted in Mash calls, with a clean error: 10,000. In the browser the stack is the engine's
+  (see M6 design): before each call Mash asks the platform whether the stack is nearly full, and stops with
+  the same error.
 - Parser nesting limit ~1,000, which also bounds lowering, desugaring and inference.
-- A CI test checks that recursion at the limit, in a debug build, fits the configured stack.
+- A test checks that recursion at the limit fits the stack natively; in the browser, `mash-web`'s tests check
+  that deep recursion stops cleanly (`www/test/wasm.mjs` in Node, `www/test/browser.mjs` in real browsers).
 - Shrink evaluator frames only if needed. No explicit-stack evaluator.
 
 **Interrupts**
-- Ctrl-C sets an `AtomicBool` checked by the evaluator. In the browser, a step budget instead.
+- Ctrl-C sets an `AtomicBool` checked by the evaluator. In the browser, Ctrl-C sets a flag in memory shared with
+  Mash's worker, which the evaluator polls every 1,024 steps through `Platform::interrupt_requested` (instead of
+  the step budget first planned, which would have stopped long computations the user wanted). `Ctx::step_budget`
+  remains, for embedders.
 
 ## Syntax and evaluation
 
@@ -289,6 +294,44 @@ During the port (no language change):
   and the globals restored afterwards (Scala used a copy of them). The browser is drawn on the alternate
   screen, which `draw::ScreenDrawer` already supported.
 
+**M6 design:**
+
+- **Mash runs in a Web Worker**, so a long command doesn't freeze the page. The page (`www/main.js`) shows an
+  xterm.js terminal and sends the worker `keydown` events, pastes and resizes; the worker (`www/worker.js`)
+  hands them to `WebShell` (wasm-bindgen; `shell::Shell` is the REPL with the browser's platform) and sends back
+  what to write. Key events are translated in Rust (`keys.rs`): Meta (Command) shortcuts stay with the browser,
+  and with Alt on macOS (where Option changes the character) the physical key is used.
+- **`Bridge`** (`bridge.rs`) is what Mash needs from the worker's JavaScript: writing to the terminal, the clock
+  and time zone, randomness, interrupts and the stack check, sleeping, history, the clipboard, opening URLs and
+  HTTP. Tests use `FakeBridge`.
+- **`WebPlatform`**: files in memory (`MemoryFiles`, owned by the one user `guest`, home `/home/guest` with sample
+  files, lost when the page closes); HTTP by synchronous `XMLHttpRequest` (allowed in workers; subject to CORS
+  and forbidden headers; no cookies from responses); `open` for http(s) URLs only (a new tab); the clipboard
+  can be written but not read (paste with the browser's own keys); the time zone from `Intl`, using jiff's
+  bundled database. Running programs, processes, signals, disk space and DNS fail with "… is not possible in
+  the browser". There are no `~/.mash` library or init files.
+- **History** is kept in the page's local storage (the last 2,000 entries), in the same JSON format as
+  `~/.mash/history` (`HistoryEntry::to_json`, now in `mash-repl`).
+- **Ctrl-C** while a command runs: if the page is cross-origin isolated (`www/serve.py` sends the headers), it
+  sets a flag in a `SharedArrayBuffer` that Mash polls, and `sleep` waits on it with `Atomics.wait`. Otherwise
+  the page can't reach the busy worker, so it stops the worker and starts a new session, saying so.
+- **The stack.** wasm runs on the browser's native stack (Chromium gives a worker ~460 KB; WebKit less) at a
+  couple of hundred bytes per wasm frame, whatever the function; overflowing it throws through Mash's frames,
+  leaving it unusable. So the evaluator keeps frames per Mash call few (`eval_expr` handles common expressions
+  inline and loops on tail positions; a call is one frame), and before each call `Platform::stack_nearly_full`
+  checks both the wasm stack (16 MB, set in `build.rs`) and the native stack, probed from JavaScript (`stack.js`:
+  a call with 8,192 arguments needs 64 KB; if it doesn't fit, the RangeError is caught in JavaScript). It
+  probes only on getting 8 KB (of wasm stack) deeper than at the last probe. Plain recursion stops at about 400
+  levels in Chromium, 1,130 in Firefox and 115 in WebKit; through `map` and a lambda, 165, 360 and 40.
+- **Panics and overflows** that do happen stop the worker; the page starts a new session and says why.
+- **Building and testing:** `nix develop -c rust/crates/mash-web/build.sh [--dev]` (wasm-bindgen and wasm-opt
+  from the flake) writes `www/pkg/`; `python3 www/serve.py 8000 www` serves the page. `www/test/wasm.mjs` checks
+  the wasm in Node; `www/test/browser.mjs` (recursion) and `www/test/page.mjs` (typing commands, Ctrl-C with and
+  without isolation, history across reloads, the object browser, Ctrl-D) run in headless Chromium, Firefox and
+  WebKit via Playwright (not in the flake: put `playwright-core` on `NODE_PATH`; xterm.js comes from a CDN).
+- **Not done:** persistent files (e.g. IndexedDB), reading the clipboard, uploading or downloading files, and
+  more depth in WebKit (fewer frames per builtin call, or eventually an evaluator with its own stack).
+
 ## Milestones
 
 | # | Milestone | Contents |
@@ -300,7 +343,7 @@ During the port (no language change):
 | — | GC swap | Replace dumpster with the CPython-style collector before M4 (done) |
 | M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable (done) |
 | M5 | Remaining OS | Rest of os, users/groups, http, git, object browser (done) |
-| M6 | Browser | `mash-web` with xterm.js |
+| M6 | Browser | `mash-web` with xterm.js (done) |
 
 ## Deliberate differences from Scala Mash (so far)
 

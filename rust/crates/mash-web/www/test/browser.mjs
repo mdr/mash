@@ -6,33 +6,14 @@
 //
 // ENGINE is chromium, firefox or webkit (default: all); PROGRAM is a name in recursion.mjs (default: all).
 
-import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { RECURSION } from './recursion.mjs';
+import { serve, stop } from './server.mjs';
 
 const require = createRequire(import.meta.url);
 const playwright = require('playwright-core');
 
-const www = fileURLToPath(new URL('..', import.meta.url));
 const PORT = 8123;
-
-async function serve() {
-  const server = spawn(process.env.PYTHON ?? 'python3', [`${www}/serve.py`, String(PORT), www], {
-    stdio: ['ignore', 'pipe', 'pipe'],
-    // Its own process group, so that stopping it stops any process it starts (macOS's python3 is a launcher)
-    detached: true,
-  });
-  let errors = '';
-  server.stderr.on('data', (data) => (errors += data));
-  await new Promise((resolve, reject) => {
-    server.stdout.once('data', resolve);
-    server.once('exit', (code) => reject(new Error(`the server stopped (${code}): ${errors.trim()}`)));
-  });
-  // Drain its request log
-  server.stderr.resume();
-  return server;
-}
 
 function run(page, source, probe) {
   return page.evaluate(([s, p]) => window.runInWorker(s, p), [source, probe]);
@@ -61,7 +42,7 @@ const engines = split ? args.slice(0, split) : ['chromium', 'firefox', 'webkit']
 const programs = args.slice(split + 1).length ? args.slice(split + 1) : Object.keys(RECURSION);
 
 let failures = 0;
-const server = await serve();
+const server = await serve(PORT);
 try {
   for (const engine of engines) {
     const browser = await playwright[engine].launch();
@@ -97,6 +78,6 @@ try {
     }
   }
 } finally {
-  process.kill(-server.pid);
+  stop(server);
 }
-process.exit(failures ? 1 : 0);
+process.exitCode = failures ? 1 : 0;
