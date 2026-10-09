@@ -365,15 +365,8 @@ const CASES: &[Case] = &[
     Case::contains(r#"http.get --ins▶"#, r#"--insecure"#),
 ];
 
-/// Cases that need builtins from later milestones (kill, users)
-const DEFERRED: &[&str] = &[
-    // M5: kill (signals)
-    r#"kill --signal=H▶"#,
-    // M5: user
-    r#" "${user.fullNam▶} "#,
-    // M5: user
-    r#" "$user.fullNam▶ "#,
-];
+/// Cases that need builtins from later milestones
+const DEFERRED: &[&str] = &[];
 
 #[derive(Clone, Default)]
 struct Context {

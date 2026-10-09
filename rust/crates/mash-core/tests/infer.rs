@@ -417,12 +417,6 @@ const CASES: &[Case] = &[
 
 /// Cases that need builtins from later milestones (os, git, http), or that differ deliberately
 const DEFERRED: &[&str] = &[
-    // M5: users
-    r#"user.groups"#,
-    // M5: users
-    r#"user.primaryGroup"#,
-    // M5: users
-    r#"user.primaryGroup.gid"#,
     // M5: git
     r#"git.status"#,
     // M5: git

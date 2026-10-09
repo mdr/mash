@@ -12,6 +12,9 @@ mash-core.workspace = true
 jiff.workspace = true
 nix.workspace = true
 ureq.workspace = true
+sysinfo.workspace = true
+uzers.workspace = true
+crossterm.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

@@ -5,6 +5,7 @@ use std::fmt;
 use std::ops::Range;
 
 use jiff::Timestamp;
+use mash_core::value::Value;
 
 /// One command run at the REPL (Scala `HistoryEntry`, without the result).
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -17,6 +18,21 @@ pub struct HistoryEntry {
     /// Whether the command was run in mish mode
     pub mish: bool,
     pub working_directory: String,
+}
+
+impl HistoryEntry {
+    /// The entry as the interpreter sees it (for `os.history` and `jump`), with the command's result
+    pub fn for_interpreter(&self, result: Value) -> mash_core::history::HistoryEntry {
+        mash_core::history::HistoryEntry {
+            session_id: self.session_id.clone(),
+            command_number: self.command_number,
+            timestamp: self.timestamp,
+            command: self.command.clone(),
+            mish: self.mish,
+            result,
+            working_directory: self.working_directory.clone(),
+        }
+    }
 }
 
 pub trait HistoryStorage {
@@ -99,7 +115,7 @@ impl History {
         &self.entries
     }
 
-    /// Record a command that has just been run
+    /// Record a command that has just been run, returning its entry
     pub fn record(
         &mut self,
         command: &str,
@@ -107,7 +123,7 @@ impl History {
         working_directory: &str,
         mish: bool,
         timestamp: Timestamp,
-    ) {
+    ) -> &HistoryEntry {
         let entry = HistoryEntry {
             session_id: self.session_id.clone(),
             command_number,
@@ -120,6 +136,7 @@ impl History {
         let index = self.entries.partition_point(|e| e.timestamp > timestamp);
         self.entries.insert(index, entry);
         self.committed = true;
+        &self.entries[index]
     }
 
     /// Stop stepping through history

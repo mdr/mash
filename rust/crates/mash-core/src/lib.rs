@@ -12,6 +12,7 @@ pub mod compile;
 pub mod complete;
 pub mod eval;
 pub mod function;
+pub mod history;
 pub mod infer;
 pub mod platform;
 pub mod value;

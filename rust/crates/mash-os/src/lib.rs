@@ -4,17 +4,19 @@
 mod fs;
 mod net;
 mod process;
+mod system;
 
 use std::io;
 
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
 use mash_core::platform::{
-    DirEntry, FileKind, HttpRequest, HttpResponse, Metadata, Platform, ProcessOutcome, ProcessRequest,
+    DirEntry, DiskSpace, FileKind, GroupEntry, HttpRequest, HttpResponse, Metadata, Platform, ProcessInfo,
+    ProcessOutcome, ProcessRequest, Signal, TerminalSize, UserEntry,
 };
 
 /// The [`Platform`] for a native process: real environment, working directory, file system, processes, network,
-/// clock and time zone.
+/// clock, time zone, users and groups, clipboard, disks and terminal.
 #[derive(Debug, Default)]
 pub struct NativePlatform;
 
@@ -166,5 +168,45 @@ impl Platform for NativePlatform {
 
     fn open_with_default_application(&self, target: &str) -> io::Result<()> {
         net::open_with_default_application(target)
+    }
+
+    fn users(&self) -> io::Result<Vec<UserEntry>> {
+        system::users()
+    }
+
+    fn groups(&self) -> io::Result<Vec<GroupEntry>> {
+        system::groups()
+    }
+
+    fn current_user(&self) -> io::Result<String> {
+        system::current_user()
+    }
+
+    fn processes(&self) -> io::Result<Vec<ProcessInfo>> {
+        system::processes()
+    }
+
+    fn process(&self, pid: u32) -> io::Result<Option<ProcessInfo>> {
+        system::process(pid)
+    }
+
+    fn kill(&self, pid: u32, signal: &Signal) -> io::Result<()> {
+        system::kill(pid, signal)
+    }
+
+    fn clipboard(&self) -> io::Result<String> {
+        system::clipboard()
+    }
+
+    fn set_clipboard(&self, text: &str) -> io::Result<()> {
+        system::set_clipboard(text)
+    }
+
+    fn disk_space(&self) -> io::Result<Vec<DiskSpace>> {
+        system::disk_space()
+    }
+
+    fn terminal_size(&self) -> Option<TerminalSize> {
+        system::terminal_size()
     }
 }

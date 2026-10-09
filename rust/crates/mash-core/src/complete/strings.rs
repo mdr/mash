@@ -135,37 +135,44 @@ fn complete_from_spec(
                 .or_else(|| complete_paths(ctx.platform(), prefix, literal, directories_only, true))
         }
         CompletionSpec::Members(ty) => CompletionResult::of(complete_string_member(ty, prefix), literal),
-        CompletionSpec::Items(items) => {
-            let starting: Vec<Completion> = items
-                .iter()
-                .filter(|item| item.starts_with(prefix))
-                .map(|item| Completion {
-                    quoted: true,
-                    ..Completion::new(item)
-                })
-                .collect();
-            CompletionResult::of(starting, literal).or_else(|| {
-                let containing = items
-                    .iter()
-                    .filter_map(|item| {
-                        let index = item.find(prefix)?;
-                        let pos = item[..index].chars().count();
-                        let location = CompletionLocation {
-                            display_pos: pos,
-                            insert_pos: pos,
-                            ..Default::default()
-                        };
-                        Some(Completion {
-                            quoted: true,
-                            location,
-                            ..Completion::new(item)
-                        })
-                    })
-                    .collect();
-                CompletionResult::of(containing, literal)
-            })
+        CompletionSpec::Items(items) => complete_items(items, prefix, literal),
+        CompletionSpec::Computed(compute) => {
+            let items = compute(ctx, prefix);
+            complete_items(&items, prefix, literal)
         }
     }
+}
+
+/// Items starting with the prefix or, failing that, containing it
+fn complete_items(items: &[String], prefix: &str, literal: TextRange) -> Option<CompletionResult> {
+    let starting: Vec<Completion> = items
+        .iter()
+        .filter(|item| item.starts_with(prefix))
+        .map(|item| Completion {
+            quoted: true,
+            ..Completion::new(item)
+        })
+        .collect();
+    CompletionResult::of(starting, literal).or_else(|| {
+        let containing = items
+            .iter()
+            .filter_map(|item| {
+                let index = item.find(prefix)?;
+                let pos = item[..index].chars().count();
+                let location = CompletionLocation {
+                    display_pos: pos,
+                    insert_pos: pos,
+                    ..Default::default()
+                };
+                Some(Completion {
+                    quoted: true,
+                    location,
+                    ..Completion::new(item)
+                })
+            })
+            .collect();
+        CompletionResult::of(containing, literal)
+    })
 }
 
 /// `x == "fo▶"` where `x` is of a tag type with known values
@@ -198,17 +205,21 @@ fn complete_equality(ctx: &mut Ctx, text: &str, mish: bool, literal: TextRange) 
     };
     let quoted = std::ptr::eq(*base, &crate::builtins::core::STRING_CLASS);
     let prefix: String = text[literal].chars().filter(|c| *c != '"').collect();
-    let completions = enumeration(tag)
+    let completions = enumeration(ctx, tag)
         .iter()
         .filter(|v| v.starts_with(&prefix))
         .map(|v| Completion {
             quoted,
-            ..Completion::new(*v)
+            ..Completion::new(v.as_str())
         })
         .collect();
     CompletionResult::of(completions, literal)
 }
 
-fn enumeration(class: &'static BuiltinClass) -> &'static [&'static str] {
-    class.enumeration
+/// The values of a tag class with a known set of them
+fn enumeration(ctx: &Ctx, class: &'static BuiltinClass) -> Vec<String> {
+    match class.enumerate {
+        Some(enumerate) => enumerate(ctx.platform()),
+        None => class.enumeration.iter().map(|v| v.to_string()).collect(),
+    }
 }

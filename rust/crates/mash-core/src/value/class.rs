@@ -6,6 +6,7 @@ use super::{Scope, Tag};
 use crate::ast::{ClassDef, FnDef};
 use crate::function::{BuiltinFunction, BuiltinMethod, Params};
 use crate::infer::Type;
+use crate::platform::Platform;
 
 /// A class defined in Rust. Static data, never collected.
 pub struct BuiltinClass {
@@ -22,6 +23,8 @@ pub struct BuiltinClass {
     pub static_methods: &'static [&'static dyn BuiltinFunction],
     /// For tag classes with a fixed set of values (e.g. file types), the values
     pub enumeration: &'static [&'static str],
+    /// For tag classes whose values come from the system (e.g. usernames), computes the values
+    pub enumerate: Option<fn(&dyn Platform) -> Vec<String>>,
 }
 
 /// A field that instances of a builtin class have.
@@ -60,6 +63,7 @@ impl BuiltinClass {
             methods: &[],
             static_methods: &[],
             enumeration: &[],
+            enumerate: None,
         }
     }
 

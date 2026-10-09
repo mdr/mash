@@ -21,10 +21,12 @@
 //! the prompt.
 
 use std::ops::Range;
+use std::rc::Rc;
 
 use mash_core::builtins::meta::value_to_expression;
 use mash_core::complete::{Completion, complete};
 use mash_core::eval::Ctx;
+use mash_core::history::RecordedHistory;
 use mash_core::value::{List, Str, Value, gc};
 use mash_syntax::SyntaxKind;
 
@@ -65,6 +67,8 @@ pub struct Repl {
     ctx: Ctx,
     state: ReplState,
     history: History,
+    /// The history as the interpreter sees it (for `os.history` and `jump`), with this session's results
+    recorded_history: Rc<RecordedHistory>,
     /// What's on the terminal, for drawing only what changes
     previous_screen: Option<Screen>,
     swapped_out_screen: Option<Screen>,
@@ -72,11 +76,22 @@ pub struct Repl {
 
 impl Repl {
     /// A REPL running code with `ctx`, keeping history in `storage` under `session_id`
-    pub fn new(ctx: Ctx, storage: Box<dyn HistoryStorage>, session_id: impl Into<String>) -> Repl {
+    pub fn new(mut ctx: Ctx, storage: Box<dyn HistoryStorage>, session_id: impl Into<String>) -> Repl {
+        let history = History::new(storage, session_id);
+        let recorded_history = Rc::new(RecordedHistory::new(
+            history
+                .entries()
+                .iter()
+                .rev()
+                .map(|e| e.for_interpreter(Value::Null))
+                .collect(),
+        ));
+        ctx.set_command_history(recorded_history.clone());
         Repl {
             ctx,
             state: ReplState::default(),
-            history: History::new(storage, session_id),
+            history,
+            recorded_history,
             previous_screen: None,
             swapped_out_screen: None,
         }
@@ -452,7 +467,9 @@ impl Repl {
             Outcome::Ran(result) => {
                 let cwd = self.cwd().unwrap_or_default();
                 let now = self.ctx.platform().now();
-                self.history.record(command, number as u64, &cwd, mish, now);
+                let entry = self.history.record(command, number as u64, &cwd, mish, now);
+                let result_or_null = result.clone().unwrap_or(Value::Null);
+                self.recorded_history.record(entry.for_interpreter(result_or_null));
                 self.state.command_number += 1;
                 if let Some(result) = result {
                     self.save_result(number, result);

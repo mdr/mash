@@ -11,14 +11,14 @@ use jiff::Timestamp;
 use jiff::tz::TimeZone;
 
 use super::{
-    DirEntry, HttpRequest, HttpResponse, MemoryFiles, Metadata, Platform, ProcessInput, ProcessOutcome, ProcessOutput,
-    ProcessRequest,
+    DirEntry, DiskSpace, FakeSystem, GroupEntry, HttpRequest, HttpResponse, MemoryFiles, Metadata, Platform,
+    ProcessInfo, ProcessInput, ProcessOutcome, ProcessOutput, ProcessRequest, Signal, TerminalSize, UserEntry,
 };
 
 /// A deterministic platform for tests: fixed environment, home `/home/alice` (which exists, and is the
 /// initial working directory), UTC, a fixed clock (which `sleep` advances instead of sleeping), an in-memory
 /// file tree, fake external commands (`echo`, `cat`, `true`, `false` by default), canned HTTP responses and
-/// DNS entries (`localhost` by default).
+/// DNS entries (`localhost` by default), and a fake system (users, processes, clipboard …: see [`FakeSystem`]).
 #[derive(Debug, Clone)]
 pub struct TestPlatform {
     pub env: BTreeMap<String, String>,
@@ -47,6 +47,8 @@ pub struct TestPlatform {
     pub hosts: BTreeMap<String, Vec<String>>,
     /// Everything opened with the default application, in order
     pub opened: RefCell<Vec<String>>,
+    /// Users, groups, running processes, the clipboard, disks and the terminal
+    pub system: FakeSystem,
 }
 
 /// An HTTP request that a [`TestPlatform`] received.
@@ -175,6 +177,7 @@ impl Default for TestPlatform {
             http_requests: RefCell::new(vec![]),
             hosts: BTreeMap::from([("localhost".into(), vec!["127.0.0.1".into(), "::1".into()])]),
             opened: RefCell::new(vec![]),
+            system: FakeSystem::default(),
         }
     }
 }
@@ -400,5 +403,41 @@ impl Platform for TestPlatform {
     fn open_with_default_application(&self, target: &str) -> io::Result<()> {
         self.opened.borrow_mut().push(target.into());
         Ok(())
+    }
+    fn users(&self) -> io::Result<Vec<UserEntry>> {
+        Ok(self.system.users.clone())
+    }
+
+    fn groups(&self) -> io::Result<Vec<GroupEntry>> {
+        Ok(self.system.groups.clone())
+    }
+
+    fn current_user(&self) -> io::Result<String> {
+        Ok(self.system.current_user.clone())
+    }
+
+    fn processes(&self) -> io::Result<Vec<ProcessInfo>> {
+        Ok(self.system.processes.borrow().clone())
+    }
+
+    fn kill(&self, pid: u32, signal: &Signal) -> io::Result<()> {
+        self.system.kill(pid, signal)
+    }
+
+    fn clipboard(&self) -> io::Result<String> {
+        Ok(self.system.clipboard.borrow().clone())
+    }
+
+    fn set_clipboard(&self, text: &str) -> io::Result<()> {
+        *self.system.clipboard.borrow_mut() = text.to_string();
+        Ok(())
+    }
+
+    fn disk_space(&self) -> io::Result<Vec<DiskSpace>> {
+        Ok(self.system.disks.clone())
+    }
+
+    fn terminal_size(&self) -> Option<TerminalSize> {
+        self.system.terminal
     }
 }

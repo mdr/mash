@@ -26,6 +26,7 @@ use mash_syntax::{SyntaxError, TextRange};
 use crate::ast::*;
 use crate::builtins;
 use crate::compile::{self, Compiled, HOLE_VARIABLE_PREFIX, Settings};
+use crate::history::CommandHistory;
 use crate::platform::Platform;
 use crate::value::{List, Object, Scope, ScopeKind, Str, Value};
 
@@ -60,6 +61,8 @@ pub struct Ctx {
     working_directories: builtins::os::WorkingDirectoryStack,
     /// What `mash.reload` does after resetting the standard globals (see [`Ctx::set_reload_hook`])
     reload_hook: Option<ReloadHook>,
+    /// The REPL's command history, if there is one (for `os.history` and `jump`)
+    command_history: Option<Rc<dyn CommandHistory>>,
 }
 
 /// A host's part of `mash.reload`: loading library files and running the init script again
@@ -111,6 +114,7 @@ impl Ctx {
             settings: Settings::default(),
             working_directories,
             reload_hook: None,
+            command_history: None,
         }
     }
 
@@ -131,6 +135,16 @@ impl Ctx {
     /// The history of working directories
     pub fn working_directories(&mut self) -> &mut builtins::os::WorkingDirectoryStack {
         &mut self.working_directories
+    }
+
+    /// Give the interpreter access to the command history (the REPL does this)
+    pub fn set_command_history(&mut self, history: Rc<dyn CommandHistory>) {
+        self.command_history = Some(history);
+    }
+
+    /// The command history, if there is one
+    pub fn command_history(&self) -> Option<Rc<dyn CommandHistory>> {
+        self.command_history.clone()
     }
 
     pub fn globals(&self) -> &Object {

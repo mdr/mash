@@ -38,6 +38,9 @@ ureq = { version = "3.4", default-features = false, features = ["rustls", "gzip"
 # Tests only (mash-os): a local HTTPS server with a self-signed certificate
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 rcgen = { version = "0.14", default-features = false, features = ["crypto", "ring"] }
+# Native only (mash-os): processes, and walking the user and group databases
+sysinfo = { version = "0.39", default-features = false, features = ["system"] }
+uzers = { version = "0.12", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

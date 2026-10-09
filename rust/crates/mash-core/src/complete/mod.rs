@@ -34,6 +34,8 @@ pub enum CompletionSpec {
     Members(Type),
     /// One of these strings
     Items(Vec<String>),
+    /// One of the strings this function computes (from the system, say), given the text being completed
+    Computed(fn(&mut Ctx, &str) -> Vec<String>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

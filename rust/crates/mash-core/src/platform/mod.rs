@@ -5,6 +5,7 @@
 
 mod memory;
 mod net;
+mod system;
 mod test;
 
 use std::fmt::Debug;
@@ -16,6 +17,7 @@ use jiff::tz::TimeZone;
 
 pub use memory::MemoryFiles;
 pub use net::{HttpRequest, HttpResponse};
+pub use system::{DiskSpace, FakeSystem, GroupEntry, ProcessInfo, SIGNAL_NAMES, Signal, TerminalSize, UserEntry};
 pub use test::{FakeCommand, FakeOutcome, FakeProcess, HttpRecord, ProcessRecord, TestPlatform};
 
 /// Host services the interpreter needs. Implementations live outside `mash-core` (e.g. `mash-os` for
@@ -163,6 +165,64 @@ pub trait Platform: Debug {
             "opening with the default application is not supported here",
         ))
     }
+    // ------------------------------------------------------------------------------------------ the system
+
+    /// Every user account (the password database)
+    fn users(&self) -> io::Result<Vec<UserEntry>> {
+        Err(unsupported_system("users"))
+    }
+
+    /// Every group (the group database)
+    fn groups(&self) -> io::Result<Vec<GroupEntry>> {
+        Err(unsupported_system("groups"))
+    }
+
+    /// The name of the user running Mash
+    fn current_user(&self) -> io::Result<String> {
+        Err(unsupported_system("users"))
+    }
+
+    /// Every running process (that can be seen)
+    fn processes(&self) -> io::Result<Vec<ProcessInfo>> {
+        Err(unsupported_system("processes"))
+    }
+
+    /// One process, if it's running
+    fn process(&self, pid: u32) -> io::Result<Option<ProcessInfo>> {
+        Ok(self.processes()?.into_iter().find(|p| p.pid == pid))
+    }
+
+    /// Send a signal to a process
+    fn kill(&self, _pid: u32, _signal: &Signal) -> io::Result<()> {
+        Err(unsupported_system("processes"))
+    }
+
+    /// The text on the clipboard
+    fn clipboard(&self) -> io::Result<String> {
+        Err(unsupported_system("the clipboard"))
+    }
+
+    /// Put text on the clipboard
+    fn set_clipboard(&self, _text: &str) -> io::Result<()> {
+        Err(unsupported_system("the clipboard"))
+    }
+
+    /// Space on each mounted file system
+    fn disk_space(&self) -> io::Result<Vec<DiskSpace>> {
+        Err(unsupported_system("disk space"))
+    }
+
+    /// The size of the terminal Mash is running in, if there is one
+    fn terminal_size(&self) -> Option<TerminalSize> {
+        None
+    }
+}
+
+fn unsupported_system(what: &str) -> io::Error {
+    io::Error::new(
+        io::ErrorKind::Unsupported,
+        format!("access to {what} is not supported here"),
+    )
 }
 
 fn unsupported() -> io::Error {

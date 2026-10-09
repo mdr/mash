@@ -1,13 +1,19 @@
-//! The `os` namespace: files, directories, the working directory, and running external programs. Everything
-//! goes through the [`Platform`](crate::platform::Platform), so it works (and is tested) with an in-memory
-//! file system as well as natively.
+//! The `os` namespace: files, directories, the working directory, running external programs, users and groups,
+//! processes, the clipboard, disk space, the terminal and the command history. Everything goes through the
+//! [`Platform`](crate::platform::Platform), so it works (and is tested) with an in-memory file system and a fake
+//! system as well as natively.
 
 mod dirs;
 mod files;
 mod glob;
+mod history;
+mod lifted;
 mod path_methods;
 pub(crate) mod paths;
 pub(crate) mod process;
+mod processes;
+mod system;
+mod users;
 
 use crate::function::BuiltinFunction;
 use crate::infer::Type;
@@ -20,30 +26,45 @@ pub use dirs::WorkingDirectoryStack;
 pub(crate) use dirs::mish_cd;
 pub(crate) use files::{complete_files, read_text};
 pub(crate) use glob::StringGlobMethod;
+pub use history::HISTORY_ENTRY_CLASS;
 pub use paths::{PathArg, PathArgs};
+pub use processes::{PID_CLASS, PROCESS_CLASS, SIGNAL_CLASS};
+pub use system::{DISK_SPACE_ENTRY_CLASS, TERMINAL_CLASS};
+pub use users::{GID_CLASS, GROUP_INFO_CLASS, UID_CLASS, USER_SUMMARY_CLASS};
 
 /// Functions in `os` (all in the global scope)
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &dirs::BackFunction,
     &dirs::ChangeDirectoryFunction,
     &files::ChildrenFunction,
+    &system::ClipboardFunction,
     &files::CopyFunction,
     &files::CreateDirectoryFunction,
     &files::CreateTempDirectoryFunction,
     &files::CreateTempFileFunction,
     &dirs::CurrentDirectoryFunction,
     &files::DeleteFunction,
+    &system::DiskSpaceFunction,
     &files::FindExecutableInPathFunction,
     &dirs::ForwardFunction,
     &glob::GlobFunction,
+    &users::GroupsFunction,
+    &history::HistoryFunction,
     &dirs::HomeFunction,
+    &history::JumpFunction,
+    &processes::KillFunction,
     &files::ListFilesFunction,
     &files::MoveFunction,
     &dirs::OldDirsFunction,
+    &system::OpenFunction,
+    &processes::ProcessesFunction,
     &files::ReadFunction,
     &files::ReadLinesFunction,
     &process::RunFunction,
+    &system::TerminalFunction,
     &dirs::UpFunction,
+    &users::UserFunction,
+    &users::UsersFunction,
     &dirs::WithinFunction,
     &files::WriteFunction,
 ];
@@ -54,9 +75,11 @@ pub(crate) fn aliases() -> Vec<(&'static str, &'static dyn BuiltinFunction)> {
         ("cat", &files::ReadLinesFunction),
         ("cd", &dirs::ChangeDirectoryFunction),
         ("cp", &files::CopyFunction),
+        ("df", &system::DiskSpaceFunction),
         ("ls", &files::ListFilesFunction),
         ("mkdir", &files::CreateDirectoryFunction),
         ("mv", &files::MoveFunction),
+        ("ps", &processes::ProcessesFunction),
         ("pwd", &dirs::CurrentDirectoryFunction),
         ("rm", &files::DeleteFunction),
         ("which", &files::FindExecutableInPathFunction),
@@ -65,14 +88,24 @@ pub(crate) fn aliases() -> Vec<(&'static str, &'static dyn BuiltinFunction)> {
 
 /// Classes in `os`
 pub(crate) const CLASSES: &[&BuiltinClass] = &[
+    &DISK_SPACE_ENTRY_CLASS,
     &FILE_TYPE_CLASS,
+    &GID_CLASS,
     &GROUP_CLASS,
+    &GROUP_INFO_CLASS,
+    &HISTORY_ENTRY_CLASS,
     &PATH_CLASS,
     &PATH_SUMMARY_CLASS,
     &PERMISSIONS_CLASS,
     &PERMISSIONS_SECTION_CLASS,
+    &PID_CLASS,
+    &PROCESS_CLASS,
     &PROCESS_RESULT_CLASS,
+    &SIGNAL_CLASS,
+    &TERMINAL_CLASS,
+    &UID_CLASS,
     &USERNAME_CLASS,
+    &USER_SUMMARY_CLASS,
 ];
 
 pub static PATH_CLASS: BuiltinClass = BuiltinClass {
@@ -87,15 +120,17 @@ pub static FILE_TYPE_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("os", "FileType", Some(&ANY_CLASS))
 };
 
-/// Tag class for user names (methods about the user arrive with the users namespace)
 pub static USERNAME_CLASS: BuiltinClass = BuiltinClass {
     summary: "A username",
+    methods: users::USERNAME_METHODS,
+    enumerate: Some(users::usernames),
     ..BuiltinClass::new("os", "Username", Some(&ANY_CLASS))
 };
 
-/// Tag class for group names (methods about the group arrive with the users namespace)
 pub static GROUP_CLASS: BuiltinClass = BuiltinClass {
     summary: "A tag class for user group names",
+    methods: users::GROUP_METHODS,
+    enumerate: Some(users::group_names),
     ..BuiltinClass::new("os", "Group", Some(&ANY_CLASS))
 };
 
