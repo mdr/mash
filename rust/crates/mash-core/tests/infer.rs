@@ -257,7 +257,7 @@ const CASES: &[Case] = &[
     Case::infers(r#"!!{nano}"#, r#"core.Unit"#),
     Case::infers(r#"!{which ls}"#, r#"os.ProcessResult"#),
     Case::infers(r#"git.status"#, r#"git.Status"#),
-    Case::infers(r#"git['status']"#, r#"BuiltinFunction(StatusFunction)"#),
+    Case::infers(r#"git['status']"#, r#"BuiltinFunction(git.status)"#),
     Case::infers(
         r#"[1, 2, 3]['reverse']"#,
         r#"BoundBuiltinMethod([core.Number], reverse)"#,
@@ -416,12 +416,7 @@ const CASES: &[Case] = &[
 ];
 
 /// Cases that need builtins from later milestones (os, git, http), or that differ deliberately
-const DEFERRED: &[&str] = &[
-    // M5: git
-    r#"git.status"#,
-    // M5: git
-    r#"git['status']"#,
-];
+const DEFERRED: &[&str] = &[];
 
 fn inferred_type(ctx: &mut Ctx, input: &str) -> String {
     let compiled = ctx.compile_forgiving(SourceUnit::new("test", input));

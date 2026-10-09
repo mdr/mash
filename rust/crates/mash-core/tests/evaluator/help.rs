@@ -24,7 +24,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // No binding for 'git'
-    r#"git.log?"#,
-];
+const DEFERRED: &[&str] = &[];

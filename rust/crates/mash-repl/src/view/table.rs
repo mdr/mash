@@ -13,6 +13,7 @@
 use std::collections::HashSet;
 
 use mash_core::builtins::collections::GROUP_CLASS;
+use mash_core::builtins::git::COMMIT_CLASS;
 use mash_core::eval::{Ctx, MemberLookup, R, is_a};
 use mash_core::value::{ClassRef, Value};
 
@@ -213,7 +214,15 @@ fn column_specs(rows: &[Value]) -> Vec<ColumnSpec> {
             ColumnSpec::new(Fetch::member("values"), 1.0),
         ];
     }
-    // (git commits get their own columns when git is ported)
+    let commit_class = ClassRef::Builtin(&COMMIT_CLASS);
+    if sample.iter().all(|v| is_a(v, &commit_class)) {
+        return vec![
+            ColumnSpec::new(Fetch::member("hash"), 1.0),
+            ColumnSpec::new(Fetch::member("commitTime"), 10.0),
+            ColumnSpec::new(Fetch::member("author"), 10.0),
+            ColumnSpec::new(Fetch::member("summary"), 3.0),
+        ];
+    }
     if !sample.iter().all(|v| matches!(v, Value::Object(_) | Value::List(_))) {
         return vec![];
     }

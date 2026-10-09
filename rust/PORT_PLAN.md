@@ -233,6 +233,14 @@ During the port (no language change):
 - **git runs the `git` command** (porcelain/plumbing output formats, through `Platform::run_process`) rather than
   a library: everything works as the user's own git does (credentials, ssh agent, config, hooks), including
   push/pull/fetch, which `gix` lacks; no C dependency (`git2`). Requires `git` on the PATH.
+  Done: `mash-core/src/builtins/git/` — `run.rs` finds the repository (walking up for `.git` through the
+  `Platform`, so nothing runs outside one) and runs git in three modes (read-only queries: no stdin, `LC_ALL=C`,
+  `GIT_OPTIONAL_LOCKS=0`; quiet changes: stdout captured, stdin the terminal for hooks and credentials; changes
+  whose output the user sees: merge, pull); `parse.rs` parses `status --porcelain=v2 -z`, `log -z --format`,
+  `for-each-ref --format`, `diff-tree -z`, `reflog -z`, `push --porcelain`; fetch/pull results compare the
+  remote-tracking refs before and after. Tag classes' members (`git.CommitHash`, `LocalBranchName`,
+  `RemoteBranchName`) look up the object (`lifter.rs`, Scala `MemberLifter`). Completions that need to run git
+  use `CompletionSpec::Computed(fn(&mut Ctx) -> Vec<CompletionSpec>)`, evaluated only when completing.
 - **http and dns go through the `Platform` too** (`ureq` with rustls natively, TLS verified by default,
   `--insecure` to opt out), so the builtins stay in `mash-core`, are testable with canned responses, and could
   use `fetch` in the browser. `Platform::http_request(&HttpRequest { method, url, headers, body, basic_auth,
@@ -366,10 +374,19 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `history` without a REPL (`mash -e`, scripts) | `NullPointerException` | Empty |
 | `jump` with equally used matches | Unspecified order | The last in path order |
 | `os.DiskSpaceEntry` | Not a registered class | Registered, like the other os classes |
+| git | JGit: Mash's own implementation of git (ignores hooks, much config; pushes into a non-bare repository's checked-out branch) | The `git` command: the user's git, config, hooks and credentials (as decided); git's own messages on stderr, then "git X failed (exit status N)" instead of JGit exception messages |
+| Paths given to `git.add`/`stage`/`unstage`/`restore` | Relative to the top of the working tree (JGit) | Relative to the current directory, as git's; `--all` works from any subdirectory |
+| `git.Status` path lists | Hash-set order | Sorted |
+| `Tag.commit` of an annotated tag (`git.tag.create` makes one, as JGit's default) | The tag object's hash | The commit it points to |
+| `Commit.diff` of a root commit | Crashes (`None.get`) | Every file added |
+| `git.commit` message | Stored as given | git ends it with a newline (as messages of commits made with git already are) |
+| `git.merge` with conflicts | Returns quietly | git reports the conflicts, then an error; `merge` and `pull` show git's output |
+| `git.branch.current` with a detached HEAD | Crashes | "Not on a branch" |
+| Printing a `git.Status` behind its upstream | "by 1 commits": pluralised by the ahead count | By the behind count |
+| `RemoteBranchName.info` type | Inferred as `Branch` | `RemoteBranch` (what it returns) |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
-object browser is M5); git commit tables and `git.Status` printing arrive with the git classes (M5); help has no
-links yet (they're for the browser).
+object browser is M5); help has no links yet (they're for the browser).
 
 ## Post-port backlog (language changes, deferred)
 

@@ -8,6 +8,7 @@ pub mod boxes;
 pub mod calling_syntax;
 pub mod columns;
 pub mod field;
+mod git_status;
 pub mod help;
 pub mod highlight;
 mod object;
@@ -15,6 +16,7 @@ mod table;
 mod text;
 mod tree;
 
+use mash_core::builtins::git::STATUS_CLASS;
 use mash_core::builtins::view::{ViewDirectives, as_view};
 use mash_core::eval::{Ctx, R};
 use mash_core::value::Value;
@@ -42,6 +44,7 @@ impl Default for ViewConfig {
 /// * Functions, bound methods, classes and help objects (from `help`/`?`) show their help.
 /// * Other non-empty objects are a table of fields.
 /// * `view.View` objects (from `view.tree`, `view.raw`, …) show their data as they direct.
+/// * `git.Status` objects are shown like `git status` output.
 /// * Anything else is shown as text.
 pub fn view_value(ctx: &mut Ctx, value: &Value, size: Dimensions, config: &ViewConfig) -> R<Vec<StyledString>> {
     view(ctx, value, size, config, ViewDirectives::default())
@@ -79,6 +82,12 @@ fn view(
     }
     if let Some((data, directives)) = as_view(value) {
         return view(ctx, &data, size, config, directives);
+    }
+    if let Value::Object(o) = value
+        && custom_views
+        && o.class().is_some_and(|c| c.is_builtin(&STATUS_CLASS))
+    {
+        return Ok(git_status::status_lines(o));
     }
     match value {
         Value::Object(o) if !o.is_empty() => object::object_lines(ctx, o, size, config),

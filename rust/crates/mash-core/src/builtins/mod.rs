@@ -6,6 +6,7 @@ mod constructor;
 pub mod core;
 pub mod csv;
 pub mod encoding;
+pub mod git;
 pub mod http;
 pub mod json;
 pub mod maths;
@@ -41,6 +42,7 @@ pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
         csv::FUNCTIONS,
         encoding::FUNCTIONS,
         http::FUNCTIONS,
+        git::FUNCTIONS,
         json::FUNCTIONS,
         maths::FUNCTIONS,
         meta::FUNCTIONS,
@@ -83,6 +85,7 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
         &view::VIEW_CLASS,
     ]);
     classes.extend_from_slice(http::CLASSES);
+    classes.extend_from_slice(git::CLASSES);
     classes.extend_from_slice(os::CLASSES);
     classes.extend_from_slice(time::CLASSES);
     classes.extend_from_slice(core::OTHER_CLASSES);

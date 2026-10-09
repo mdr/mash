@@ -34,7 +34,7 @@ pub(crate) enum Output {
 
 /// The environment for a child process: the contents of Mash's `env` global (as Scala does), or the host's
 /// environment if `env` isn't an object
-fn child_environment(ctx: &mut Ctx) -> R<Vec<(String, String)>> {
+pub(crate) fn child_environment(ctx: &mut Ctx) -> R<Vec<(String, String)>> {
     match ctx.globals().get_str("env") {
         Some(Value::Object(env)) => {
             let mut vars = vec![];

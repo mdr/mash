@@ -136,6 +136,10 @@ fn complete_from_spec(
         }
         CompletionSpec::Members(ty) => CompletionResult::of(complete_string_member(ty, prefix), literal),
         CompletionSpec::Items(items) => complete_items(items, prefix, literal),
+        CompletionSpec::ComputedSpecs(specs) => specs(ctx)
+            .iter()
+            .map(|spec| complete_from_spec(ctx, spec, prefix, literal))
+            .fold(None, CompletionResult::merge),
         CompletionSpec::Computed(compute) => {
             let items = compute(ctx, prefix);
             complete_items(&items, prefix, literal)

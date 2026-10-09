@@ -36,6 +36,8 @@ pub enum CompletionSpec {
     Items(Vec<String>),
     /// One of the strings this function computes (from the system, say), given the text being completed
     Computed(fn(&mut Ctx, &str) -> Vec<String>),
+    /// Specs worked out when completing, from the interpreter (e.g. git branch names, from running git)
+    ComputedSpecs(fn(&mut Ctx) -> Vec<CompletionSpec>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
