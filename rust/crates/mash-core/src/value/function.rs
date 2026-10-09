@@ -1,21 +1,18 @@
 use std::fmt;
 use std::rc::Rc;
 
-use dumpster::{Trace, TraceWith, Visitor, unsync::Gc};
-
-use super::gc::Tracked;
+use super::gc::{Gc, Trace, Tracer};
 use super::{BuiltinClass, Class, Scope, Value};
 use crate::ast::FnDef;
 use crate::function::{BuiltinFunction, BuiltinMethod, Params, Suspended};
 
 /// A function value that isn't a builtin: a user-defined function or lambda, or one of a few function
 /// values that carry data.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct Function(Gc<FunctionData>);
 
 struct FunctionData {
     kind: FunctionKind,
-    _tracked: Tracked,
 }
 
 #[derive(Debug)]
@@ -38,23 +35,28 @@ pub enum FunctionKind {
 // SAFETY: visits every `Gc` (in scopes, classes and suspended values); `def` and `params` are plain data (the
 // AST invariant: no Values).
 #[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for FunctionData {
-    fn accept(&self, visitor: &mut V) -> Result<(), ()> {
+unsafe impl Trace for FunctionData {
+    fn trace(&self, tracer: &mut Tracer) {
         match &self.kind {
-            FunctionKind::Closure { scope, .. } => scope.accept(visitor),
-            FunctionKind::Suspended(suspended) => suspended.accept(visitor),
-            FunctionKind::Constructor(class) => class.accept(visitor),
-            FunctionKind::SystemCommand(_) => Ok(()),
+            FunctionKind::Closure { scope, .. } => scope.trace(tracer),
+            FunctionKind::Suspended(suspended) => suspended.trace(tracer),
+            FunctionKind::Constructor(class) => class.trace(tracer),
+            FunctionKind::SystemCommand(_) => {}
         }
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for Function {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
     }
 }
 
 impl Function {
     pub fn new(kind: FunctionKind) -> Self {
-        Function(Gc::new(FunctionData {
-            kind,
-            _tracked: Tracked::new(),
-        }))
+        Function(Gc::new(FunctionData { kind }))
     }
 
     pub fn closure(def: Rc<FnDef>, params: Rc<Params>, scope: Scope) -> Self {
@@ -79,7 +81,7 @@ impl Function {
     }
 
     pub(crate) fn addr(&self) -> usize {
-        Gc::as_ptr(&self.0) as *const () as usize
+        self.0.addr()
     }
 }
 
@@ -98,17 +100,34 @@ impl fmt::Debug for Function {
 }
 
 /// A method bound to its target, e.g. the value of `'foo'.startsWith` or `point.distance`.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct BoundMethod(Gc<BoundData>);
 
-#[derive(Trace)]
 struct BoundData {
     target: Value,
     method: MethodRef,
-    _tracked: Tracked,
 }
 
-#[derive(Clone, Trace)]
+// SAFETY: visits the target and the method's class.
+#[allow(unsafe_code)]
+unsafe impl Trace for BoundData {
+    fn trace(&self, tracer: &mut Tracer) {
+        self.target.trace(tracer);
+        if let MethodRef::User { class, .. } = &self.method {
+            class.trace(tracer);
+        }
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for BoundMethod {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
+    }
+}
+
+#[derive(Clone)]
 pub enum MethodRef {
     /// A builtin method, found in the given class
     Builtin {
@@ -155,11 +174,7 @@ impl MethodRef {
 
 impl BoundMethod {
     pub fn new(target: Value, method: MethodRef) -> Self {
-        BoundMethod(Gc::new(BoundData {
-            target,
-            method,
-            _tracked: Tracked::new(),
-        }))
+        BoundMethod(Gc::new(BoundData { target, method }))
     }
 
     pub fn target(&self) -> &Value {
@@ -205,14 +220,6 @@ impl Builtin {
 
     pub(crate) fn addr(self) -> usize {
         self.0 as *const dyn BuiltinFunction as *const () as usize
-    }
-}
-
-// SAFETY: builtins are 'static Rust data and hold no `Gc`s.
-#[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for Builtin {
-    fn accept(&self, _: &mut V) -> Result<(), ()> {
-        Ok(())
     }
 }
 

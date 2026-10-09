@@ -18,7 +18,6 @@ mash-os = { path = "crates/mash-os" }
 mash-repl = { path = "crates/mash-repl" }
 mash-macros = { path = "crates/mash-macros" }
 rowan = "0.16"
-dumpster = "2.1"
 indexmap = "2.14"
 jiff = "0.2.38"
 fancy-regex = "0.19"

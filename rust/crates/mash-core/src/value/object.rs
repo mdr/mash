@@ -1,24 +1,45 @@
 use std::cell::RefCell;
 use std::hash::{Hash, Hasher};
 
-use dumpster::{Trace, unsync::Gc};
-use indexmap::Equivalent;
+use indexmap::{Equivalent, IndexMap};
 
-use super::gc::Tracked;
-use super::trace_map::TraceMap;
+use super::gc::{Gc, Trace, Tracer};
 use super::{ClassRef, Str, Value, hash_str_key};
 
 /// A mutable, shared, insertion-ordered Mash object. Keys may be any value; an object may have a class.
 ///
 /// Like [`List`](super::List), no borrow escapes: iterate via [`Object::entries`].
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct Object(Gc<ObjectData>);
 
-#[derive(Trace)]
 struct ObjectData {
-    fields: RefCell<TraceMap<Value, Value>>,
+    fields: RefCell<IndexMap<Value, Value>>,
     class: Option<ClassRef>,
-    _tracked: Tracked,
+}
+
+// SAFETY: visits every key (frozen list and object keys hold `Gc`s too), value and the class.
+#[allow(unsafe_code)]
+unsafe impl Trace for ObjectData {
+    fn trace(&self, tracer: &mut Tracer) {
+        match self.fields.try_borrow() {
+            Ok(fields) => {
+                for (k, v) in fields.iter() {
+                    k.trace(tracer);
+                    v.trace(tracer);
+                }
+            }
+            Err(_) => tracer.fail(),
+        }
+        self.class.trace(tracer);
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for Object {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
+    }
 }
 
 /// Looks up a string key without allocating a `Value`.
@@ -43,9 +64,8 @@ impl Object {
 
     pub fn with_class(class: Option<ClassRef>) -> Self {
         Object(Gc::new(ObjectData {
-            fields: RefCell::new(TraceMap::default()),
+            fields: RefCell::new(IndexMap::new()),
             class,
-            _tracked: Tracked::new(),
         }))
     }
 
@@ -90,8 +110,7 @@ impl Object {
     pub fn set(&self, key: Value, value: Value) {
         let key = key.freeze_as_key();
         let old = self.0.fields.borrow_mut().insert(key, value);
-        // Dropped after the borrow is released: dropping a `Gc` can trigger a collection, which must be able to
-        // borrow this cell to trace it.
+        // Dropped after the borrow is released, so that nothing it frees can find this cell borrowed
         drop(old);
     }
 
@@ -134,7 +153,7 @@ impl Object {
         let copy = Object::with_class(class);
         // Keys are already frozen
         *copy.0.fields.borrow_mut() = {
-            let mut map = TraceMap::default();
+            let mut map = IndexMap::new();
             map.extend(self.entries());
             map
         };
@@ -152,7 +171,7 @@ impl Object {
     }
 
     pub(crate) fn addr(&self) -> usize {
-        Gc::as_ptr(&self.0) as *const () as usize
+        self.0.addr()
     }
 
     /// Insert without freezing the key, to demonstrate why keys are frozen

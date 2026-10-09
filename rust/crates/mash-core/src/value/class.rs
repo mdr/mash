@@ -1,9 +1,7 @@
 use std::fmt;
 use std::rc::Rc;
 
-use dumpster::{Trace, TraceWith, Visitor, unsync::Gc};
-
-use super::gc::Tracked;
+use super::gc::{Gc, Trace, Tracer};
 use super::{Scope, Tag};
 use crate::ast::{ClassDef, FnDef};
 use crate::function::{BuiltinFunction, BuiltinMethod, Params};
@@ -96,7 +94,7 @@ impl fmt::Debug for BuiltinClass {
 }
 
 /// A user-defined class (`class Point x y { def … }`).
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct Class(Gc<ClassData>);
 
 struct ClassData {
@@ -106,15 +104,22 @@ struct ClassData {
     methods: Vec<UserMethod>,
     /// The scope the class was declared in, which method bodies close over
     scope: Scope,
-    _tracked: Tracked,
 }
 
 // SAFETY: the only `Gc` is in `scope`; `def`, `params` and `methods` are plain data (the AST invariant: no
 // Values).
 #[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for ClassData {
-    fn accept(&self, visitor: &mut V) -> Result<(), ()> {
-        self.scope.accept(visitor)
+unsafe impl Trace for ClassData {
+    fn trace(&self, tracer: &mut Tracer) {
+        self.scope.trace(tracer);
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for Class {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
     }
 }
 
@@ -144,7 +149,6 @@ impl Class {
             params,
             methods,
             scope,
-            _tracked: Tracked::new(),
         }))
     }
 
@@ -185,7 +189,7 @@ impl Class {
     }
 
     pub(crate) fn addr(&self) -> usize {
-        Gc::as_ptr(&self.0) as *const () as usize
+        self.0.addr()
     }
 }
 
@@ -196,10 +200,20 @@ impl fmt::Debug for Class {
 }
 
 /// A class: builtins are `'static`, user classes are collected values.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub enum ClassRef {
     Builtin(&'static BuiltinClass),
     User(Class),
+}
+
+// SAFETY: visits the user class, if it is one.
+#[allow(unsafe_code)]
+unsafe impl Trace for ClassRef {
+    fn trace(&self, tracer: &mut Tracer) {
+        if let ClassRef::User(class) = self {
+            class.trace(tracer);
+        }
+    }
 }
 
 impl ClassRef {

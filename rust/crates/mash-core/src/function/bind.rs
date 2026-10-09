@@ -2,11 +2,10 @@
 
 use std::rc::Rc;
 
-use dumpster::{TraceWith, Visitor};
-
 use super::{DefaultValue, Param, Params};
 use crate::ast::{E, SourceUnit};
 use crate::eval::{Ctx, Location, MashError, R, suggestion_suffix};
+use crate::value::gc::{Trace, Tracer};
 use crate::value::{Function, FunctionKind, Object, Scope, Value};
 
 /// A not-yet-evaluated argument value (Scala `SuspendedMashValue`): an expression from Mash code, or a value
@@ -23,11 +22,11 @@ pub enum Suspended {
 
 // SAFETY: visits the scope or value; the expression and unit are plain data (the AST invariant).
 #[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for Suspended {
-    fn accept(&self, visitor: &mut V) -> Result<(), ()> {
+unsafe impl Trace for Suspended {
+    fn trace(&self, tracer: &mut Tracer) {
         match self {
-            Suspended::Expr { scope, .. } => scope.accept(visitor),
-            Suspended::Value(value) => value.accept(visitor),
+            Suspended::Expr { scope, .. } => scope.trace(tracer),
+            Suspended::Value(value) => value.trace(tracer),
         }
     }
 }

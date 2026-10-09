@@ -73,7 +73,7 @@ fn b_local_closures_in_a_loop_stay_bounded_without_explicit_collection() {
         max_live < base + 30_000,
         "garbage is not being collected: max live {max_live}"
     );
-    assert!(gc::growth_collections() > 0);
+    assert!(gc::stats().young > 0);
 
     drop(global);
     assert_all_freed(base);
@@ -230,5 +230,67 @@ fn bound_methods_and_suspended_values_are_traced() {
         obj.set_str("m", Value::BoundMethod(bound));
         global.vars().set_str("obj", Value::Object(obj));
     }
+    assert_all_freed(base);
+}
+
+#[test]
+fn young_collections_leave_a_large_old_heap_alone() {
+    let base = live_heap_objects();
+    let global = Scope::global(Object::new());
+    // 200k long-lived objects
+    let data: Vec<Value> = (0..200_000).map(|_| Value::Object(Object::new())).collect();
+    global.vars().set_str("data", Value::list(data));
+    let before = gc::stats();
+    for _ in 0..100_000 {
+        let local = local_scope(&global);
+        local.vars().set_str("g", Value::Function(closure("g", &local)));
+    }
+    let after = gc::stats();
+    // The garbage is found by young collections, which never trace the old heap: no full collection is due,
+    // because the heap hasn't grown
+    assert!(after.young > before.young);
+    assert_eq!(after.full, before.full);
+    assert!(live_heap_objects() < base + 200_010 + 30_000);
+    drop(global);
+    assert_all_freed(base);
+}
+
+#[test]
+fn deep_chains_are_freed_without_overflowing_the_stack() {
+    // Test threads have a 2 MiB stack; recursive freeing overflows at a few tens of thousands
+    let base = live_heap_objects();
+    let mut list = Value::list(vec![]);
+    for _ in 0..1_000_000 {
+        list = Value::list(vec![list]);
+    }
+    drop(list);
+    assert_eq!(live_heap_objects(), base);
+
+    // The same, as a cycle that only the collector can free
+    let head = Object::new();
+    let mut tail = head.clone();
+    for _ in 0..1_000_000 {
+        let next = Object::new();
+        tail.set_str("next", Value::Object(next.clone()));
+        tail = next;
+    }
+    tail.set_str("next", Value::Object(head.clone()));
+    drop((head, tail));
+    assert_all_freed(base);
+}
+
+#[test]
+fn values_held_only_by_rust_code_survive_collection() {
+    // No roots are registered: a handle held in Rust counts as a reference from outside
+    let base = live_heap_objects();
+    let a = Object::new();
+    let b = Object::new();
+    a.set_str("b", Value::Object(b.clone()));
+    b.set_str("a", Value::Object(a.clone()));
+    drop(a);
+    gc::collect();
+    assert_eq!(live_heap_objects(), base + 2);
+    assert!(matches!(b.get_str("a"), Some(Value::Object(a)) if a.get_str("b").is_some()));
+    drop(b);
     assert_all_freed(base);
 }

@@ -1,16 +1,14 @@
 use std::cell::{Cell, RefCell};
 
-use dumpster::{Trace, TraceWith, Visitor, unsync::Gc};
-
 use super::Value;
-use super::gc::{Tracked, is_contains_gcs_visitor};
+use super::gc::{Gc, Trace, Tracer};
 
 /// A mutable, shared Mash list.
 ///
 /// No method lets a borrow of the contents escape, so it is always safe to call back into the interpreter
 /// (which may mutate this same list) between calls. To iterate, take a [`List::snapshot`]: cloning `Value`s
 /// is cheap.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct List(Gc<ListData>);
 
 struct ListData {
@@ -18,29 +16,27 @@ struct ListData {
     /// How many elements hold `Gc`s. When zero (lists of numbers or strings) tracing is skipped entirely.
     /// Kept exact by every mutation below.
     heap_items: Cell<usize>,
-    _tracked: Tracked,
 }
 
-// SAFETY: visits every Gc-holding element whenever there are any (`heap_items` is exact), in a consistent
-// order.
+// SAFETY: visits every element (skipping the scan when none holds a `Gc`: `heap_items` is exact).
 #[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for ListData {
-    fn accept(&self, visitor: &mut V) -> Result<(), ()> {
+unsafe impl Trace for ListData {
+    fn trace(&self, tracer: &mut Tracer) {
         if self.heap_items.get() == 0 {
-            return Ok(());
+            return;
         }
-        let items = self.items.try_borrow().map_err(|_| ())?;
-        if is_contains_gcs_visitor::<V>() {
-            // Only "is there any Gc?" is being asked: one is enough
-            return items
-                .iter()
-                .find(|v| v.holds_gc())
-                .map_or(Ok(()), |v| v.accept(visitor));
+        match self.items.try_borrow() {
+            Ok(items) => items.iter().for_each(|item| item.trace(tracer)),
+            Err(_) => tracer.fail(),
         }
-        for item in items.iter() {
-            item.accept(visitor)?;
-        }
-        Ok(())
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for List {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
     }
 }
 
@@ -54,7 +50,6 @@ impl List {
         List(Gc::new(ListData {
             items: RefCell::new(items),
             heap_items,
-            _tracked: Tracked::new(),
         }))
     }
 
@@ -97,8 +92,7 @@ impl List {
         self.0
             .heap_items
             .set(self.0.heap_items.get() + new_heap - usize::from(old.holds_gc()));
-        // The old value is dropped here, after the borrow is released: dropping a `Gc` can trigger a
-        // collection, which must be able to borrow this cell to trace it.
+        // Dropped after the borrow is released, so that nothing it frees can find this cell borrowed
         drop(old);
         true
     }
@@ -142,7 +136,7 @@ impl List {
     }
 
     pub(crate) fn addr(&self) -> usize {
-        Gc::as_ptr(&self.0) as *const () as usize
+        self.0.addr()
     }
 }
 
@@ -155,5 +149,33 @@ impl FromIterator<Value> for List {
 impl std::fmt::Debug for List {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(&Value::List(self.clone()), f)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::value::{Object, gc};
+
+    #[test]
+    fn the_contents_of_a_list_being_mutated_during_a_collection_survive() {
+        let base = gc::live_heap_objects();
+        let xs = List::new(vec![]);
+        // A cycle referenced only from the list
+        let o = Object::new();
+        o.set_str("self", Value::Object(o.clone()));
+        xs.push(Value::Object(o));
+        {
+            let _borrowed = xs.0.items.borrow_mut();
+            gc::collect();
+            assert_eq!(gc::live_heap_objects(), base + 2);
+        }
+        let Some(Value::Object(o)) = xs.get(0) else {
+            panic!("expected the object");
+        };
+        assert!(o.get_str("self").is_some());
+        drop((o, xs));
+        gc::collect();
+        assert_eq!(gc::live_heap_objects(), base);
     }
 }

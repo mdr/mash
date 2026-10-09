@@ -41,7 +41,7 @@ fn collection_triggered_while_overwriting_a_slot_is_safe() {
 
 #[test]
 fn cloning_a_large_list_is_cheap() {
-    // dumpster scans a value for `Gc`s whenever a shared handle is dropped; lists of plain values skip this
+    // Dropping a shared handle only decrements a count (dumpster, the collector used before, scanned the value)
     let xs = List::new((0..1_000_000).map(|i| Value::num(i as f64)).collect());
     let start = std::time::Instant::now();
     for _ in 0..1000 {

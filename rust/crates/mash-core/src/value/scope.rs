@@ -1,13 +1,11 @@
 use std::fmt;
 use std::rc::Rc;
 
-use dumpster::{Trace, unsync::Gc};
-
-use super::gc::Tracked;
+use super::gc::{Gc, Trace, Tracer};
 use super::{Object, Value};
 
 /// Whether assignments to unknown names escape a scope.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Trace)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ScopeKind {
     /// Lambdas and `{ blocks }`: assigning a name not bound here assigns in the enclosing scope
     Leaky,
@@ -17,17 +15,33 @@ pub enum ScopeKind {
 
 /// A scope: variables (stored in an object, as in Mash), the names among them that are "safe" (not
 /// automatically invoked; from `@safe` parameters), an optional `this`, and the enclosing scope.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub struct Scope(Gc<ScopeData>);
 
-#[derive(Trace)]
 struct ScopeData {
     vars: Object,
     safe_names: Vec<Rc<str>>,
     this: Option<Value>,
     kind: ScopeKind,
     parent: Option<Scope>,
-    _tracked: Tracked,
+}
+
+// SAFETY: visits the variables, `this` and the parent; the rest is plain data.
+#[allow(unsafe_code)]
+unsafe impl Trace for ScopeData {
+    fn trace(&self, tracer: &mut Tracer) {
+        self.vars.trace(tracer);
+        self.this.trace(tracer);
+        self.parent.trace(tracer);
+    }
+}
+
+// SAFETY: visits its one handle.
+#[allow(unsafe_code)]
+unsafe impl Trace for Scope {
+    fn trace(&self, tracer: &mut Tracer) {
+        tracer.edge(&self.0);
+    }
 }
 
 /// The result of looking up a name.
@@ -66,7 +80,6 @@ impl Scope {
             this,
             kind,
             parent,
-            _tracked: Tracked::new(),
         }))
     }
 

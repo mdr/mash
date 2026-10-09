@@ -21,13 +21,12 @@ mod object;
 mod ordering;
 mod scope;
 mod string;
-mod trace_map;
 
 use std::collections::HashMap;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 
-use dumpster::{Trace, TraceWith, Visitor};
+use gc::Trace;
 use jiff::Timestamp;
 use jiff::civil::Date;
 
@@ -45,7 +44,7 @@ pub use string::Str;
 pub type Tag = &'static BuiltinClass;
 
 /// A Mash value. Cheap to clone: heap variants are reference-counted handles.
-#[derive(Clone, Trace)]
+#[derive(Clone)]
 pub enum Value {
     Null,
     Unit,
@@ -72,35 +71,26 @@ pub struct DateTime(pub Timestamp);
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct LocalDate(pub Date);
 
-// SAFETY: plain data, no `Gc`s.
+// SAFETY: visits the handle of each heap variant; the others (and tags, which are builtin classes) are plain
+// data.
 #[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for DateTime {
-    fn accept(&self, _: &mut V) -> Result<(), ()> {
-        Ok(())
-    }
-}
-
-// SAFETY: plain data, no `Gc`s.
-#[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for LocalDate {
-    fn accept(&self, _: &mut V) -> Result<(), ()> {
-        Ok(())
-    }
-}
-
-// SAFETY: plain data, no `Gc`s.
-#[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for Number {
-    fn accept(&self, _: &mut V) -> Result<(), ()> {
-        Ok(())
-    }
-}
-
-// SAFETY: tags are builtin classes ('static data), so there are no `Gc`s.
-#[allow(unsafe_code)]
-unsafe impl<V: Visitor> TraceWith<V> for Str {
-    fn accept(&self, _: &mut V) -> Result<(), ()> {
-        Ok(())
+unsafe impl Trace for Value {
+    fn trace(&self, tracer: &mut gc::Tracer) {
+        match self {
+            Value::List(l) => l.trace(tracer),
+            Value::Object(o) => o.trace(tracer),
+            Value::Function(f) => f.trace(tracer),
+            Value::BoundMethod(b) => b.trace(tracer),
+            Value::Class(c) => c.trace(tracer),
+            Value::Null
+            | Value::Unit
+            | Value::Bool(_)
+            | Value::Number(..)
+            | Value::Str(_)
+            | Value::Builtin(_)
+            | Value::DateTime(_)
+            | Value::Date(_) => {}
+        }
     }
 }
 
@@ -117,7 +107,7 @@ impl Value {
         Value::List(List::new(items))
     }
 
-    /// Whether this value holds a `Gc` (and so must be traced).
+    /// Whether this value is a handle to a heap value (and so must be traced).
     pub(crate) fn holds_gc(&self) -> bool {
         match self {
             Value::List(_) | Value::Object(_) | Value::Function(_) | Value::BoundMethod(_) => true,

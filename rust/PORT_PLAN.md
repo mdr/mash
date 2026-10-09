@@ -2,7 +2,7 @@
 
 Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M3
 done (syntax, values, evaluator, the pure standard library, type inference, completion and invocation assistance,
-`mash -e`/script runner); next is the GC swap, then M4. Spikes live
+`mash -e`/script runner) and the GC swap; next is M4. Spikes live
 locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
 ported.
 
@@ -49,14 +49,18 @@ access can't creep into the core.
 
 **Garbage collection (no leaks)**
 - Closures capture scope chains and scopes are objects, so cycles are routine; plain `Rc` would leak.
-- **End state:** CPython-style design. `Rc` frees acyclic garbage immediately; a generational
-  trial-deletion cycle detector over registered containers finds dead cycles. No root tracking is needed
-  (references held in Rust locals count as external), so it's safe to collect mid-evaluation. Worklist, not
-  recursion; iterative ("trashcan") drop for long chains.
-- **Until then:** `dumpster` (unsync) behind the `Value` abstraction through M1–M3, replaced before M4.
-- **Collection policy is ours:** always collect when the REPL goes idle, with heap doubling as a backstop
-  during long commands. (dumpster's built-in trigger never fired for the closure-in-a-loop pattern.)
-- The spike's leak tests become the collector's acceptance tests.
+- **Our own collector** (`mash-core/src/value/gc.rs`), CPython-style. Reference counts free acyclic garbage
+  immediately; a two-generation trial-deletion cycle detector over all heap boxes finds dead cycles. No root
+  tracking is needed (references held in Rust count as external), so it's safe to collect mid-evaluation; a
+  container whose `RefCell` is mutably borrowed is treated as reachable. Worklist, not recursion; freeing is
+  iterative, so million-deep chains drop without overflowing the stack.
+- **Policy:** a young collection when 10k young boxes are alive (it never traces the old heap); a full one
+  instead when the old generation has doubled since the last. The REPL should call `gc::collect()` when idle.
+- Replaced `dumpster` (used through M1–M3) after M3. Same benchmark, release: clone+drop 15.8 → 3.2 ns;
+  reclaiming 1M garbage cycles 678 → 86 ms; closure loop with 1M objects in globals 924 → 231 ns/call, worst
+  pause 643 → 0.9 ms; `fib 25` 129 → 108 ms. The cost: a full collection traverses the whole heap even when
+  it's clean (35 ms for 1M live objects, vs ~0 for dumpster). `examples/gc_bench.rs` reproduces these.
+- The spike's leak tests are the collector's acceptance tests (`tests/value_leaks.rs`).
 
 **Hash keys**
 - Structural equality and hashing for strings, numbers, lists, objects; identity for functions and classes.
@@ -210,7 +214,7 @@ During the port (no language change):
 | M1 | Syntax | Lexer, rowan parser, typed accessors (largely from the parser spike); port lexer/parser tests |
 | M2 | Evaluator | Value model, lowering, desugaring, evaluator, core + collections builtins used by the evaluator tests; `mash -c` and `mash script.mash`; builtin macro after ~10 builtins; port the golden evaluator tests |
 | M3 | Pure stdlib + IDE logic | String/object/number methods, json, time, maths, hash, etc.; type inference; completion and assistance (tested without a terminal) |
-| — | GC swap | Replace dumpster with the CPython-style collector before M4 |
+| — | GC swap | Replace dumpster with the CPython-style collector before M4 (done) |
 | M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable |
 | M5 | Remaining OS | Rest of os, users/groups, http, git, object browser |
 | M6 | Browser | `mash-web` with xterm.js |
