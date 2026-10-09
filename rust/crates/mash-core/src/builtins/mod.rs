@@ -27,6 +27,7 @@ pub fn standard_functions() -> Vec<&'static dyn BuiltinFunction> {
     functions.extend_from_slice(collections::SEQUENCE_FUNCTIONS);
     functions.extend_from_slice(collections::ORDERING_FUNCTIONS);
     functions.extend_from_slice(time::FUNCTIONS);
+    functions.extend_from_slice(os::FUNCTIONS);
     functions
 }
 
@@ -74,9 +75,9 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
         &maths::STATS_CLASS,
         &net::HOST_CLASS,
         &net::URL_CLASS,
-        &os::PATH_CLASS,
         &view::VIEW_CLASS,
     ]);
+    classes.extend_from_slice(os::CLASSES);
     classes.extend_from_slice(time::CLASSES);
     classes.extend_from_slice(core::OTHER_CLASSES);
     classes
@@ -84,7 +85,10 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
 
 /// Short names for standard functions (e.g. `count` for `length`)
 fn aliases() -> Vec<(&'static str, &'static dyn BuiltinFunction)> {
-    vec![("count", &collections::LengthFunction), ("man", &core::HelpFunction)]
+    let mut aliases: Vec<(&'static str, &'static dyn BuiltinFunction)> =
+        vec![("count", &collections::LengthFunction), ("man", &core::HelpFunction)];
+    aliases.extend(os::aliases());
+    aliases
 }
 
 /// The global variables of a new interpreter (Scala `StandardEnvironment.createGlobalVariables`): standard

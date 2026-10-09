@@ -53,6 +53,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
     &DeleteAfterMethod,
     &DeleteUpToMethod,
     &EndsWithMethod,
+    &crate::builtins::os::StringGlobMethod,
     &GrepMethod,
     &IndexOfMethod,
     &LinesMethod,

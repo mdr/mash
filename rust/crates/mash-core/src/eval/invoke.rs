@@ -40,10 +40,17 @@ impl Ctx {
         let arguments = self.arguments(args, scope);
         let call_site = self.loc(e.range);
         match &function.kind {
-            ExprKind::Mish { .. } => Err(MashError::at(
-                "Running system commands is not supported yet",
-                self.loc(function.range),
-            )),
+            ExprKind::Mish {
+                command,
+                args: words,
+                redirects,
+                capture_output,
+            } => {
+                let bound = bind(self, &super::mish::MISH_PARAMS, &arguments, &mut no_expr_defaults)
+                    .map_err(|e| argument_error_at_call(e, &call_site))?;
+                let stdin = bound.values[0].clone().unwrap_or(Value::Null);
+                self.mish(function, command, words, redirects, *capture_output, Some(stdin), scope)
+            }
             ExprKind::Member {
                 target,
                 name,
@@ -171,7 +178,8 @@ impl Ctx {
             Value::Function(function) => Some(match function.kind() {
                 FunctionKind::Closure { params, .. } => params,
                 FunctionKind::Constructor(class) => class.params(),
-                FunctionKind::Suspended(_) | FunctionKind::SystemCommand(_) => &NO_PARAMS,
+                FunctionKind::Suspended(_) => &NO_PARAMS,
+                FunctionKind::SystemCommand(_) => &super::mish::SYSTEM_COMMAND_PARAMS,
             }),
             Value::Builtin(builtin) => Some(builtin.0.params()),
             Value::BoundMethod(method) => Some(match method.method() {
@@ -209,8 +217,12 @@ impl Ctx {
                     .resolve(self, false)
                     .map_err(|e| e.through_call(None, call_site))
             }
-            FunctionKind::SystemCommand(_) => {
-                Err(MashError::at("Running system commands is not supported yet", call_site))
+            FunctionKind::SystemCommand(command) => {
+                let bound = bind(self, &super::mish::SYSTEM_COMMAND_PARAMS, args, &mut no_expr_defaults)
+                    .map_err(|e| argument_error_at_call(e, &call_site))?;
+                let args = bound.values[0].clone().unwrap_or(Value::Null);
+                self.call_system_command(command, args)
+                    .map_err(|e| e.through_call(None, call_site))
             }
         }
     }

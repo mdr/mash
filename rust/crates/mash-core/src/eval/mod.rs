@@ -12,6 +12,7 @@ mod declare;
 mod error;
 mod invoke;
 mod member;
+mod mish;
 mod ops;
 mod render;
 
@@ -55,6 +56,8 @@ pub struct Ctx {
     pub step_budget: Option<u64>,
     steps: u64,
     pub settings: Settings,
+    /// Directories visited with `cd` (for `back`, `forward` and `oldDirs`)
+    working_directories: builtins::os::WorkingDirectoryStack,
 }
 
 impl std::fmt::Debug for Ctx {
@@ -89,6 +92,7 @@ impl Ctx {
     /// An interpreter with the standard global environment.
     pub fn new(platform: Rc<dyn Platform>) -> Ctx {
         let globals = builtins::standard_globals(platform.as_ref());
+        let working_directories = builtins::os::WorkingDirectoryStack::new(platform.current_dir().unwrap_or_default());
         Ctx {
             global_scope: Scope::global(globals),
             platform,
@@ -100,7 +104,13 @@ impl Ctx {
             step_budget: None,
             steps: 0,
             settings: Settings::default(),
+            working_directories,
         }
+    }
+
+    /// The history of working directories
+    pub fn working_directories(&mut self) -> &mut builtins::os::WorkingDirectoryStack {
+        &mut self.working_directories
     }
 
     pub fn globals(&self) -> &Object {
@@ -209,7 +219,7 @@ impl Ctx {
         })
     }
 
-    fn check_interrupted(&mut self) -> R<()> {
+    pub(crate) fn check_interrupted(&mut self) -> R<()> {
         if self.interrupt.load(Ordering::Relaxed) {
             return Err(MashError::interrupted());
         }
@@ -365,10 +375,13 @@ impl Ctx {
             K::MishFunction(command) => Ok(Value::Function(crate::value::Function::new(
                 crate::value::FunctionKind::SystemCommand(command.clone()),
             ))),
-            K::Mish { .. } | K::MishInterpolation(_) => Err(MashError::at(
-                "Running system commands is not supported yet",
-                self.loc(e.range),
-            )),
+            K::Mish {
+                command,
+                args,
+                redirects,
+                capture_output,
+            } => self.mish(e, command, args, redirects, *capture_output, None, scope),
+            K::MishInterpolation(inner) => self.eval(inner, scope),
             K::Help(inner) => self.help(inner, scope),
             K::Import { expr, name, .. } => self.import(e, expr, name.as_deref(), scope),
             K::Missing => Err(MashError::at("Incomplete expression", self.loc(e.range))),

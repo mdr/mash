@@ -154,7 +154,7 @@ pub fn path_completions(
             kind: match entry.kind {
                 FileKind::Directory => Some(CompletionType::Directory),
                 FileKind::File => Some(CompletionType::File),
-                FileKind::Other => None,
+                FileKind::Other | FileKind::Symlink => None,
             },
             prefix_length,
             pos: prefix_length + pos,

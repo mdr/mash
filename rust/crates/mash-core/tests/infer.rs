@@ -417,52 +417,18 @@ const CASES: &[Case] = &[
 
 /// Cases that need builtins from later milestones (os, git, http), or that differ deliberately
 const DEFERRED: &[&str] = &[
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first + { foo: 42 }"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first + ls.first"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first + ls.first.permissions"#,
-    // M5: os (ls, pwd, readLines)
-    r#"class Point x y; Point 1 2 + ls.first"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first.children"#,
     // M5: users
     r#"user.groups"#,
     // M5: users
     r#"user.primaryGroup"#,
     // M5: users
     r#"user.primaryGroup.gid"#,
-    // M5: os (ls, pwd, readLines)
-    r#"[ls.first, ls.first] | sumBy identity"#,
-    // M5: os (ls, pwd, readLines)
-    r#"'size' pwd"#,
-    // M5: os (ls, pwd, readLines)
-    r#"'size' ls"#,
-    // M5: os (ls, pwd, readLines)
-    r#"pwd?.parent"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first.name.absolute"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls?"#,
-    // M5: os (ls, pwd, readLines)
-    r#"help readLines"#,
-    // M5: processes
-    r#"!{which ls}"#,
     // M5: git
     r#"git.status"#,
     // M5: git
     r#"git['status']"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first.withField 'bar' 256"#,
-    // M5: os (ls, pwd, readLines)
-    r#"ls.first.get 'size'"#,
     // M5: http
     r#"json.get 'http://example.com' | .get 'foo' --default=42'"#,
-    // M5: os (ls, pwd, readLines)
-    r#"timeTaken ls"#,
-    // M5: os (ls, pwd, readLines)
-    r#"timeTaken ls | .result"#,
 ];
 
 fn inferred_type(ctx: &mut Ctx, input: &str) -> String {

@@ -348,72 +348,14 @@ const CASES: &[Case] = &[
     Case::contains(r#"ls | groupBy (.perm▶"#, r#"permissions"#),
 ];
 
-/// Cases that need builtins from later milestones (os: cd, ls, readLines, pwd, kill, …)
+/// Cases that need builtins from later milestones (kill, users)
 const DEFERRED: &[&str] = &[
-    // M5: os (cd, ls, readLines, pwd)
-    r#"▶ ∋ ls"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd ▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd d▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd pw▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd(▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd(d▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd(pw▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"d▶ | cd"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd --directory="d"▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"def foo (n = ls.permiss▶)"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"(n = ls.permiss▶) => 42"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"class Foo (n = ls.permiss▶)"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"def foo (n = ls) = n.permiss▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"(n = ls) => n.permiss▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"class Foo (n = ls) { def foo = n.permiss▶ }"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"read▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"readLines ▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"pwd.children --recur▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"cd -▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"ls -▶ ∋ -a"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"'dir' | ls -▶ ∋ -a"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"map permiss▶ --sequence=ls"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"map --sequence=ls permiss▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"ls ▶--al"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"ls ▶- ∋ --all"#,
     // M5: kill (signals)
     r#"kill --signal=H▶"#,
     // M5: user
     r#" "${user.fullNam▶} "#,
     // M5: user
     r#" "$user.fullNam▶ "#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#" { ls.fir▶ : 42 }"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"(foo bar => foo.perm▶) --bar=100 --foo=ls.first"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"def foo = { ls.perm▶"#,
-    // M5: os (cd, ls, readLines, pwd)
-    r#"ls | groupBy (.perm▶ ∋ permissions"#,
 ];
 
 #[derive(Clone, Default)]

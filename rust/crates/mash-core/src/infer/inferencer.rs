@@ -167,8 +167,11 @@ impl TypeInferencer {
                 for arg in args {
                     self.infer(arg, bindings, true);
                 }
-                // The process result class arrives with the os namespace
-                (!capture_output).then_some(Type::UNIT)
+                Some(if *capture_output {
+                    Type::Instance(&crate::builtins::os::PROCESS_RESULT_CLASS)
+                } else {
+                    Type::UNIT
+                })
             }
             K::MishInterpolation(inner) => self.infer(inner, bindings, true),
             K::Invocation { function, args, .. } => self.invocation(function, args, bindings),

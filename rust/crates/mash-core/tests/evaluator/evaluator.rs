@@ -224,13 +224,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // No binding for 'pwd'
-    r#"[pwd].toString"#,
-    // No binding for 'pwd'
-    r#"(safe pwd).getClass"#,
-    // No binding for 'pwd'
-    r#"def f (@safe x) = x; f pwd"#,
-    // No binding for 'pwd'
-    r#"class A { def f (@safe x) = x}; A.new.f pwd"#,
-];
+const DEFERRED: &[&str] = &[];
