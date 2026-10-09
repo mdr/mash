@@ -216,6 +216,12 @@ During the port (no language change):
 - Commands run with the terminal in its normal (cooked) mode; the editor uses raw mode only while editing.
   Ctrl-C during a command is SIGINT, which sets the interpreter's interrupt flag.
 - Output too large for the screen is printed for now; the object browser arrives in M5.
+- **REPL API** (`mash-repl::repl`): `Repl::new(ctx, Box<dyn HistoryStorage>, session_id)`; the host calls
+  `start(&mut host)` (startup tip, first prompt), then `handle_event(InputEvent, &mut host) -> ReplStatus` for
+  each key press, paste or resize, until it returns `Exit` (Ctrl-D on an empty line). The REPL draws through
+  `Host::write` (ANSI from `draw::ScreenDrawer`, which writes only what changed), and runs each command between
+  `Host::begin_command` and `Host::end_command`. `handle_action`, `render` and `draw` are public for tests and
+  other front ends; `run_script` runs an init file. Ctrl-V (object browser) is a no-op until M5.
 
 ## Milestones
 
@@ -267,6 +273,14 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Viewing a list of units | Prints `[, ]` (its "print nothing" check never matches) | Prints nothing, as intended |
 | `view.View.new` result | Viewing it fails ("No field 'print'") | A missing directive is false |
 | `view.tree` of a cyclic value | Stack overflow | The repeated container is shown inline (`{…}`) |
+| Cursor movement and deletion in the editor | By UTF-16 unit; wrapping and the cursor counted characters | By grapheme; rendering, wrapping and drawing count display columns (wide characters) |
+| Ctrl-C at the prompt | SIGINT (the terminal kept `ISIG`) | Abandons the line, like Ctrl-G |
+| Ctrl-Left / Ctrl-Right | Recognised but unbound | Move by word |
+| Keys with no binding during history search | Became no-ops (and ended the search) | End the search and act as usual (e.g. Ctrl-A moves to the start) |
+| Pasting | Typed key by key (newlines could run the line) | Bracketed paste inserts the text literally, newlines included |
+| Status indicator for a `!` mish line | The whole line parsed as Mash (shown red) | The command after `!` parsed as mish |
+| Startup tips | Include object browser and disco-border tips | Those tips omitted until the features exist; `config.view.discoBorders`/`browseLargeOutput` ignored for now |
+| REPL error printing | `ErrorPrinter` | Same format (kept over `MashError::report()`, which suits scripts: the REPL shows the highlighted source line with `^---` under it and no file name for the line just typed) |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
 object browser is M5); permissions (`rwxr-x---`), git commit tables and `git.Status` printing arrive with the os and

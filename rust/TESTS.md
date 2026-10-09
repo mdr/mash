@@ -48,16 +48,19 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 
 ## M4/M5 — REPL and OS
 
-| Scala test | Status |
-|---|---|
-| `editor/BracketMatcherTest`, `QuoteTogglerTest` | pending (M4) |
-| `repl/LineBufferTest`, `repl/handler/*`, `repl/history/HistoryTest` | pending (M4) |
-| `screen/ScreenDrawerTest` | pending (M4) |
-| `view/printer/ColumnAllocatorTest` | ported: `mash-repl/tests/columns.rs` (plus cases for the other branches) |
-| `view/render/help/*Test` (class, field, function, method) | ported: `mash-repl/tests/help.rs`; the `TestPointClass` fixture becomes the equivalent `ClassDoc`/`FieldDoc`/… descriptions |
-| `view/render/CallingSyntaxRendererTest` | ported: `mash-repl/tests/help.rs` |
-| — | new: `mash-repl/tests/view.rs`, 74 golden cases for `view_value` (tables, objects, trees, help, `view.*`), expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
-| `view/render/AssistanceRendererTest`, `IncrementalHistorySearchRendererTest`, `RendererTest` | pending (M4, REPL) |
-| `repl/browser/TwoDTableBrowserStateTest` | pending (M5) |
-| `integration/*` | pending (M4/M5) |
-| `os/GlobHelperTest` | pending (M5); glob semantics change (see PORT_PLAN.md) |
+| Scala test | Rust | Status | Notes |
+|---|---|---|---|
+| `editor/BracketMatcherTest`, `QuoteTogglerTest` | `mash-repl/tests/editor.rs` | ported | |
+| `repl/LineBufferTest` | `mash-repl/tests/line_buffer.rs` | ported | Plus graphemes and wide characters |
+| `repl/handler/InsertLastArgHandlerTest`, `IncrementalHistorySearchActionHandlerTest` | `mash-repl/tests/handlers.rs` | ported | Timestamps come from a ticking test clock instead of being patched afterwards |
+| `repl/history/HistoryTest` (+ `InMemoryHistoryStorage`) | `mash-repl/tests/handlers.rs` | ported | `MemoryHistoryStorage` |
+| `screen/ScreenDrawerTest` (+ `terminal/InMemoryTerminal`) | `mash-repl/tests/screen_drawer.rs`, `tests/common/mod.rs` | ported | Plus erasing, wide characters, accepting; the in-memory terminal understands all SGR codes and wide characters |
+| `view/render/AssistanceRendererTest`, `IncrementalHistorySearchRendererTest`, `CallingSyntaxRendererTest` | `mash-repl/tests/render.rs` | ported | |
+| `integration/MiscIntegrationTest`, `IncrementalCompletionIntegrationTest`, `ReplRendererIntegrationTest` (+ `AbstractIntegrationTest`, `DummyTerminal`) | `mash-repl/tests/integration.rs`, `tests/common/mod.rs` | partial | All but the object-browser cases ("Invocation assistance should work in expression browser", "Empty lines should be rendered in browser expression editor"), due in M5. Plus new tests: printing results and errors, interrupts, mish toggling, key events, paste, Ctrl-D, startup tips, and drawing every step into the in-memory terminal |
+| `view/printer/ColumnAllocatorTest` | `mash-repl/tests/columns.rs` | ported | Plus cases for the other branches |
+| `view/render/help/*Test` (class, field, function, method) | `mash-repl/tests/help.rs` | ported | The `TestPointClass` fixture becomes the equivalent `ClassDoc`/`FieldDoc`/… descriptions |
+| `view/render/CallingSyntaxRendererTest` (help) | `mash-repl/tests/help.rs` | ported | |
+| — | `mash-repl/tests/view.rs` | new | 74 golden cases for `view_value` (tables, objects, trees, help, `view.*`); expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
+| `repl/browser/TwoDTableBrowserStateTest` | | pending (M5) | |
+| `integration/*` (object browser) | | pending (M5) | |
+| `os/GlobHelperTest` | | pending (M5) | Glob semantics change (see PORT_PLAN.md) |
