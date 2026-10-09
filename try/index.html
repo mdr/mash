@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mash</title>
+  <!-- Ctrl-C needs the page to be cross-origin isolated. Where the server can't send the headers for that (GitHub
+       Pages), this service worker adds them, reloading the page once; it does nothing over plain HTTP. -->
+  <script src="coi-serviceworker.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" crossorigin="anonymous">
+  <style>
+    :root { --background: #1b1d23; --text: #9aa0ab; }
+    html, body { height: 100%; margin: 0; background: var(--background); color: var(--text); }
+    body { display: flex; flex-direction: column; font: 13px system-ui, sans-serif; }
+    #terminal { flex: 1; min-height: 0; padding: 8px 0 0 8px; }
+    footer { padding: 6px 12px; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+  <footer>
+    Mash, running in your browser. Files live in memory and are lost when you leave.
+    Ctrl-C interrupts a command; some browsers keep Ctrl-W, Ctrl-T and Ctrl-N for themselves.
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-unicode11@0.8.0/lib/addon-unicode11.js" crossorigin="anonymous"></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
