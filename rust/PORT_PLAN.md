@@ -1,8 +1,9 @@
 # Mash → Rust: port plan
 
-Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M3
+Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M4
 done (syntax, values, evaluator, the pure standard library, type inference, completion and invocation assistance,
-`mash -e`/script runner) and the GC swap; next is M4. Spikes live
+`mash -e`/script runner, the GC swap, and the interactive shell with the file system and external commands); next
+is M5. Spikes live
 locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
 ported.
 
@@ -243,7 +244,7 @@ During the port (no language change):
 | M2 | Evaluator | Value model, lowering, desugaring, evaluator, core + collections builtins used by the evaluator tests; `mash -c` and `mash script.mash`; builtin macro after ~10 builtins; port the golden evaluator tests |
 | M3 | Pure stdlib + IDE logic | String/object/number methods, json, time, maths, hash, etc.; type inference; completion and assistance (tested without a terminal) |
 | — | GC swap | Replace dumpster with the CPython-style collector before M4 (done) |
-| M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable |
+| M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable (done) |
 | M5 | Remaining OS | Rest of os, users/groups, http, git, object browser |
 | M6 | Browser | `mash-web` with xterm.js |
 
@@ -328,4 +329,5 @@ processes (`ps`, `kill`), `clipboard`, `open`/`Path.open`, `diskSpace`, `termina
 | `spikes/values` | dumpster frees all cyclic shapes and runs on wasm, but needs our own collection policy; collection pauses grow with the heap and recurse; dropping a handle can scan a whole value. → CPython-style collector as end state. |
 | `spikes/parser` | Full grammar on rowan, 164 tests, lossless on every prefix, no backtracking; 10k lines in 8.5 ms, a REPL line in 4 µs; 30k-deep nesting overflows → nesting limit. |
 | `spikes/slice` | End-to-end mini-Mash: 125 ported golden cases + 14 integration tests; completion from the inference side table works; GC bounded under real evaluation; ~3.5 KB stack per call (release) → big-stack thread; needed `BoundMethod`. |
+| `spikes/vieworacle` | Not a spike: `mash-view 'expr'` prints what Scala Mash's `Viewer` shows for a value (`COLS=`, `FUZZY=0`, `ANSI=1`), for checking printer output. |
 | `spikes/dates` | Baseline natty run: 45/54 correct but returns garbage on partial matches. Proposed pipeline 46/54 with 1 wrong; `interim` panics on our `format` output. |
