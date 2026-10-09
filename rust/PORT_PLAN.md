@@ -206,6 +206,17 @@ During the port (no language change):
 - History: keep `~/.mash/history` (JSON lines) compatible; load only the tail; append under a file lock.
 - Object browser: port Mash's own renderers (not ratatui) initially.
 
+**M4 design (decided while starting M4):**
+- `mash-repl` modules: `screen` (styled text, `Screen`), `input` (`KeyPress`/`InputEvent`, translated by the
+  host), `host` (the `Host` trait: size, output, and switching terminal modes around commands), `history`
+  (entries and a `HistoryStorage` trait), `view` (printing command results), plus the editor/REPL itself.
+- **OS builtins live in `mash-core`, over the `Platform` trait** (files, directories, processes), not in
+  `mash-os`. They are then testable with `TestPlatform`'s in-memory files, and could work in the browser over
+  a virtual file system. `mash-os` provides `NativePlatform` (and later the native-only namespaces).
+- Commands run with the terminal in its normal (cooked) mode; the editor uses raw mode only while editing.
+  Ctrl-C during a command is SIGINT, which sets the interpreter's interrupt flag.
+- Output too large for the screen is printed for now; the object browser arrives in M5.
+
 ## Milestones
 
 | # | Milestone | Contents |

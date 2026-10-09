@@ -9,6 +9,10 @@ publish.workspace = true
 
 [dependencies]
 mash-core.workspace = true
+mash-syntax.workspace = true
+jiff.workspace = true
+unicode-width.workspace = true
+unicode-segmentation.workspace = true
 
 [lints]
 workspace = true
