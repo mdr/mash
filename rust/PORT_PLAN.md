@@ -228,6 +228,16 @@ During the port (no language change):
 - Commands run with the terminal in its normal (cooked) mode; the editor uses raw mode only while editing.
   Ctrl-C during a command is SIGINT, which sets the interpreter's interrupt flag.
 - Output too large for the screen is printed for now; the object browser arrives in M5.
+
+**M5 design:**
+- **git runs the `git` command** (porcelain/plumbing output formats, through `Platform::run_process`) rather than
+  a library: everything works as the user's own git does (credentials, ssh agent, config, hooks), including
+  push/pull/fetch, which `gix` lacks; no C dependency (`git2`). Requires `git` on the PATH.
+- **http and dns go through the `Platform` too** (`ureq` with rustls natively, TLS verified by default,
+  `--insecure` to opt out), so the builtins stay in `mash-core`, are testable with canned responses, and could
+  use `fetch` in the browser.
+- Users, groups, processes, disk space and the clipboard are `Platform` methods as well; the REPL gives
+  `mash-core` access to its history (for `history` and `jump`) through a small trait.
 - **REPL API** (`mash-repl::repl`): `Repl::new(ctx, Box<dyn HistoryStorage>, session_id)`; the host calls
   `start(&mut host)` (startup tip, first prompt), then `handle_event(InputEvent, &mut host) -> ReplStatus` for
   each key press, paste or resize, until it returns `Exit` (Ctrl-D on an empty line). The REPL draws through
