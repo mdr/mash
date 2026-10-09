@@ -45,6 +45,7 @@ mod skip_all_but_last;
 mod sort;
 mod string_interpolation;
 mod string_methods;
+mod strings;
 mod transpose;
 mod variadic_parameter;
 mod where_;

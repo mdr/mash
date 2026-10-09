@@ -221,7 +221,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Area | Scala Mash | Rust port |
 |---|---|---|
 | Selection expansion (M-Up) | Cursor just after a word selects the enclosing expression | Selects the word |
-| `"~/$x"` (interpolated string starting with `~`) | Tilde silently dropped (`/a1`) | Expanded to the home directory |
+| `"~/$x"` (interpolated string starting with `~`) | Tilde silently dropped (`/a1`), apparently a bug: detected and stripped, but never expanded | Expanded to the home directory, as in `"~/foo"`; `` "`~/$x" `` for a literal `~` |
 | Argument evaluation order | Hash-map order of parameters | Parameter order |
 | `max`/`min` of all-null items | Crashes (`empty.max`) | The `--default` value |
 | `naturalJoin` result order | Undefined (Scala `Set`) | Groups by first appearance in the target |
