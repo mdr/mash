@@ -1,5 +1,6 @@
 //! `groupBy` and the `Group` class.
 
+use crate::infer::Type;
 use indexmap::IndexMap;
 use mash_macros::{builtin, builtin_method};
 
@@ -15,10 +16,12 @@ pub static GROUP_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "key",
             summary: "Key that each element of the group shares",
+            ty: || Type::ANY,
         },
         Field {
             name: "values",
             summary: "Values of the group",
+            ty: || Type::seq(Type::ANY),
         },
     ],
     methods: &[&CountMethod],

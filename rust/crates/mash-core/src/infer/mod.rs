@@ -41,7 +41,7 @@ pub fn infer(ctx: &Ctx, body: &E) -> Inferred {
 
 /// The type of a field of a builtin class, if it has one by that name
 pub fn field_type(class: &'static BuiltinClass, name: &str) -> Option<Type> {
-    class.fields.iter().find(|f| f.name == name).map(|_| Type::ANY)
+    class.fields.iter().find(|f| f.name == name).map(|f| (f.ty)())
 }
 
 /// A user-defined function's parameters as far as they can be known without evaluating anything: attributes

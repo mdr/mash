@@ -9,6 +9,7 @@ extern crate self as mash_core;
 pub mod ast;
 pub mod builtins;
 pub mod compile;
+pub mod complete;
 pub mod eval;
 pub mod function;
 pub mod infer;

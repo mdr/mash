@@ -13,7 +13,9 @@ mod wrappers;
 
 use std::sync::OnceLock;
 
+use crate::complete::CompletionSpec;
 use crate::eval::{Ctx, R};
+use crate::infer::{Inferencer, Type, TypedArg, TypedArgs, ValueInfo};
 use crate::function::{Args, BuiltinFunction, BuiltinMethod, Params};
 use crate::value::{BuiltinClass, Value};
 
@@ -159,4 +161,19 @@ impl BuiltinMethod for Methodised {
     fn shy(&self) -> bool {
         self.shy
     }
+
+    fn infer(&self, inferencer: &mut Inferencer<'_>, target: Option<&Type>, args: &TypedArgs) -> Option<Type> {
+        self.function.infer(inferencer, &with_target(target, args))
+    }
+
+    fn completion_specs(&self, arg_pos: usize, target: Option<&Type>, args: &TypedArgs) -> Vec<CompletionSpec> {
+        self.function.completion_specs(arg_pos, &with_target(target, args))
+    }
+}
+
+/// The function's arguments: the method's, plus the target (Scala `FunctionWrappingMethod.updateArgs`)
+fn with_target(target: Option<&Type>, args: &TypedArgs) -> TypedArgs {
+    let mut args = args.clone();
+    args.args.push(TypedArg::Positional(ValueInfo { value: None, ty: target.cloned() }));
+    args
 }

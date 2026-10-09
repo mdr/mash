@@ -1,6 +1,7 @@
 //! Methods of objects (Scala `ObjectClass` and `objectClass/*`), the `Object.merge` and `Object.fromPairs`
 //! static methods, and the `FieldAndValue` class.
 
+use crate::infer::Type;
 use mash_macros::{builtin, builtin_method};
 
 use super::classes::class_field_names;
@@ -59,10 +60,12 @@ pub static FIELD_AND_VALUE_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "name",
             summary: "Field name",
+            ty: || Type::ANY,
         },
         Field {
             name: "value",
             summary: "Field value",
+            ty: || Type::ANY,
         },
     ],
     static_methods: &[&FieldAndValueNewFunction],

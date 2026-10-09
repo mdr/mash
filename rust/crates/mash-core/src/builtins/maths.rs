@@ -1,5 +1,6 @@
 //! The `maths` namespace.
 
+use crate::infer::Type;
 use mash_macros::builtin;
 
 use super::core::OBJECT_CLASS;
@@ -15,26 +16,32 @@ pub static STATS_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "min",
             summary: "Smallest value in data set",
+            ty: || Type::NUMBER,
         },
         Field {
             name: "max",
             summary: "Largest value in data set",
+            ty: || Type::NUMBER,
         },
         Field {
             name: "mean",
             summary: "Average value in the data set",
+            ty: || Type::NUMBER,
         },
         Field {
             name: "standardDeviation",
             summary: "Standard deviation",
+            ty: || Type::NUMBER,
         },
         Field {
             name: "median",
             summary: "Median value of the data set",
+            ty: || Type::NUMBER,
         },
         Field {
             name: "count",
             summary: "Number of elements in the data set",
+            ty: || Type::NUMBER,
         },
     ],
     ..BuiltinClass::new("maths", "Stats", Some(&OBJECT_CLASS))

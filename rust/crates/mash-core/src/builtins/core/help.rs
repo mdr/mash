@@ -1,6 +1,7 @@
 //! Help for functions, methods, classes and fields (`foo?`, `help foo`): Scala `HelpCreator` and the help
 //! classes.
 
+use crate::infer::Type;
 use mash_macros::builtin;
 
 use crate::eval::{Ctx, MemberLookup, R, primary_class};
@@ -14,10 +15,12 @@ pub static METHOD_HELP_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "name",
             summary: "Method name",
+            ty: || Type::STRING,
         },
         Field {
             name: "owningClass",
             summary: "The class the method belongs to",
+            ty: || Type::CLASS,
         },
     ],
     ..BuiltinClass::new("core.help", "MethodHelp", Some(&OBJECT_CLASS))
@@ -29,10 +32,12 @@ pub static FIELD_HELP_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "name",
             summary: "Field name",
+            ty: || Type::STRING,
         },
         Field {
             name: "owningClass",
             summary: "Class this field belongs to",
+            ty: || Type::CLASS,
         },
     ],
     ..BuiltinClass::new("core.help", "FieldHelp", Some(&OBJECT_CLASS))
@@ -44,38 +49,47 @@ pub static PARAMETER_HELP_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "name",
             summary: "Parameter name",
+            ty: || Type::STRING,
         },
         Field {
             name: "summary",
             summary: "Summary of what the parameter does",
+            ty: || Type::STRING,
         },
         Field {
             name: "description",
             summary: "Description of the parameter",
+            ty: || Type::STRING,
         },
         Field {
             name: "shortFlag",
             summary: "Alternative single-character flag form, or null if none",
+            ty: || Type::STRING,
         },
         Field {
             name: "isFlagParameter",
             summary: "If true, this parameter can only be given as a flag",
+            ty: || Type::BOOLEAN,
         },
         Field {
             name: "isOptional",
             summary: "If true, this parameter is optional",
+            ty: || Type::BOOLEAN,
         },
         Field {
             name: "isLazy",
             summary: "If true, this parameter is evaluated lazily",
+            ty: || Type::BOOLEAN,
         },
         Field {
             name: "isNamedArg",
             summary: "If true, this parameter is a @namedArg parameter",
+            ty: || Type::BOOLEAN,
         },
         Field {
             name: "isVariadic",
             summary: "If true, this parameter can take an arbitrary number of positional arguments",
+            ty: || Type::BOOLEAN,
         },
     ],
     ..BuiltinClass::new("core.help", "ParameterHelp", Some(&OBJECT_CLASS))

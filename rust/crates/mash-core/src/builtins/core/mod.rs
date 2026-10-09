@@ -10,6 +10,7 @@ mod regex;
 mod string;
 mod thread;
 
+use crate::infer::Type;
 use crate::function::{BuiltinFunction, BuiltinMethod};
 use crate::value::{BuiltinClass, Field};
 
@@ -99,10 +100,12 @@ pub static MATCH_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "matched",
             summary: "The matched region of text",
+            ty: || Type::STRING,
         },
         Field {
             name: "groups",
             summary: "Type (file, dir, link)",
+            ty: || Type::seq(Type::STRING),
         },
     ],
     ..BuiltinClass::new("core", "Match", Some(&OBJECT_CLASS))
@@ -122,14 +125,17 @@ pub static TIMED_RESULT_CLASS: BuiltinClass = BuiltinClass {
         Field {
             name: "result",
             summary: "Result of the piece of code executed",
+            ty: || Type::ANY,
         },
         Field {
             name: "started",
             summary: "Time execution started",
+            ty: || Type::Instance(&crate::builtins::time::DATE_TIME_CLASS),
         },
         Field {
             name: "duration",
             summary: "Duration of execution",
+            ty: || Type::tagged_number(&crate::builtins::time::MILLISECONDS_CLASS),
         },
     ],
     methods: &[&FinishedMethod],

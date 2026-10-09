@@ -9,6 +9,7 @@ pub use args::{Args, Callable, FromValue, Sequence};
 pub use bind::{ArgShape, Argument, AssignError, Bound, Suspended, assign, bind};
 pub use params::{DefaultValue, Param, Params};
 
+use crate::complete::CompletionSpec;
 use crate::eval::{Ctx, R};
 use crate::infer::{Inferencer, Type, TypedArgs};
 use crate::value::Value;
@@ -34,6 +35,11 @@ pub trait BuiltinFunction: Sync + 'static {
     /// The type of the result, given what's known about the arguments (Scala `typeInferenceStrategy`)
     fn infer(&self, _inferencer: &mut Inferencer<'_>, _args: &TypedArgs) -> Option<Type> {
         None
+    }
+
+    /// How to complete the argument at position `arg_pos` (an index into `args`)
+    fn completion_specs(&self, _arg_pos: usize, _args: &TypedArgs) -> Vec<CompletionSpec> {
+        vec![]
     }
 
     /// One-line description
@@ -69,6 +75,11 @@ pub trait BuiltinMethod: Sync + 'static {
     /// The type of the result, given the target's type and what's known about the arguments
     fn infer(&self, _inferencer: &mut Inferencer<'_>, _target: Option<&Type>, _args: &TypedArgs) -> Option<Type> {
         None
+    }
+
+    /// How to complete the argument at position `arg_pos` (an index into `args`)
+    fn completion_specs(&self, _arg_pos: usize, _target: Option<&Type>, _args: &TypedArgs) -> Vec<CompletionSpec> {
+        vec![]
     }
 
     fn summary(&self) -> &'static str;

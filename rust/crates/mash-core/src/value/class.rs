@@ -7,6 +7,7 @@ use super::gc::Tracked;
 use super::{Scope, Tag};
 use crate::ast::{ClassDef, FnDef};
 use crate::function::{BuiltinFunction, BuiltinMethod, Params};
+use crate::infer::Type;
 
 /// A class defined in Rust. Static data, never collected.
 pub struct BuiltinClass {
@@ -24,10 +25,17 @@ pub struct BuiltinClass {
 }
 
 /// A field that instances of a builtin class have.
-#[derive(Debug)]
 pub struct Field {
     pub name: &'static str,
     pub summary: &'static str,
+    /// The field's type, for type inference
+    pub ty: fn() -> Type,
+}
+
+impl std::fmt::Debug for Field {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {:?}", self.name, (self.ty)())
+    }
 }
 
 impl BuiltinClass {
