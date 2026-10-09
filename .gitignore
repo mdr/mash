@@ -17,3 +17,4 @@ _site/
 .classpath
 .DS_Store
 .idea/
+.direnv/
