@@ -949,3 +949,41 @@ fn infinite_numbers() {
 ╚═╧════════╝"#,
     );
 }
+
+#[test]
+fn permissions_are_shown_as_rwx() {
+    use mash_core::platform::MemoryFiles;
+    let files = MemoryFiles::of(&["/home/alice/"])
+        .with_file("/home/alice/a.sh", "echo hi")
+        .with_permissions("/home/alice/a.sh", 0o750);
+    let mut ctx = Ctx::new(Rc::new(TestPlatform {
+        files,
+        ..TestPlatform::default()
+    }));
+    let mut show = |source: &str| {
+        let value = ctx.run("test", source).unwrap_or_else(|e| panic!("{source}: {e}"));
+        let lines = view_value(&mut ctx, &value, Dimensions::new(1000, 80), &ViewConfig::default()).unwrap();
+        lines.iter().map(|l| l.forget_styling()).collect::<Vec<_>>().join("\n")
+    };
+    // As Scala Mash shows them (checked with its `Viewer`)
+    assert_eq!(
+        show("ls.first.permissions"),
+        "╔══════╤═══════╤════════╤══════════╗
+║#     │canRead│canWrite│canExecute║
+╟──────┼───────┼────────┼──────────╢
+║owner │✓      │✓       │✓         ║
+║group │✓      │✗       │✓         ║
+║others│✗      │✗       │✗         ║
+╚══════╧═══════╧════════╧══════════╝"
+    );
+    assert!(
+        show("ls.select 'name' 'permissions'").contains("║0│a.sh│rwxr-x---  ║"),
+        "{}",
+        show("ls.select 'name' 'permissions'")
+    );
+    // A section in a cell is `rwx`-style (alone, it's an object table, as in Scala)
+    assert_eq!(
+        show("{ g: ls.first.permissions.group, n: 1 }"),
+        "╔═╤═══╗\n║g│r-x║\n║n│1  ║\n╚═╧═══╝"
+    );
+}

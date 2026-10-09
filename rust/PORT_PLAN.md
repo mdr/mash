@@ -305,8 +305,8 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `which` | `Files.isExecutable` (directories count) | Executable regular files only |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
-object browser is M5); permissions (`rwxr-x---`), git commit tables and `git.Status` printing arrive with the os and
-git classes (M5); help has no links yet (they're for the browser).
+object browser is M5); git commit tables and `git.Status` printing arrive with the git classes (M5); help has no
+links yet (they're for the browser).
 
 Not yet ported, pending later milestones: `hash.sha256` of a file's contents, `json.read`/`write`/http, `xml.read`,
 `mash.source`/`reload`, `Url.open`, `Host.ipAddresses`; in `os`: users/groups (`user`, `Username`/`Group` methods),

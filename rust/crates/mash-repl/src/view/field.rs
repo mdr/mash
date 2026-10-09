@@ -1,9 +1,10 @@
 //! How a single value is shown: in a table cell, or on its own (Scala `FieldRenderer` and `BytesPrinter`).
 
 use mash_core::builtins::core::BYTES_CLASS;
+use mash_core::builtins::os::{PERMISSIONS_CLASS, PERMISSIONS_SECTION_CLASS};
 use mash_core::builtins::time::{MILLISECONDS_CLASS, SECONDS_CLASS};
 use mash_core::eval::{Ctx, MashError, MemberLookup, R, render};
-use mash_core::value::{Number, Value};
+use mash_core::value::{Number, Object, Value};
 
 use super::ViewConfig;
 
@@ -12,7 +13,7 @@ use super::ViewConfig;
 ///
 /// Numbers tagged as bytes are human-readable (`1.5KB`), milliseconds and seconds get a unit suffix, and
 /// date-times are relative ("3 days ago") or local ISO-style times, depending on `config.fuzzy_time`.
-/// (Permissions, rendered as `rwxr-x---`, arrive with the os classes.)
+/// Permissions are `rwxr-x---` (Scala `PermissionsPrinter`).
 pub fn render_field(ctx: &mut Ctx, value: &Value, in_cell: bool, config: &ViewConfig) -> R<String> {
     Ok(match value {
         Value::Bool(true) if in_cell => "✓".to_string(),
@@ -28,6 +29,14 @@ pub fn render_field(ctx: &mut Ctx, value: &Value, in_cell: bool, config: &ViewCo
             let fuzzy = ctx.invoke_nullary(fuzzy, None)?;
             ctx.stringify(&fuzzy)?
         }
+        Value::Object(o) if has_class(o, &PERMISSIONS_CLASS) => ["owner", "group", "others"]
+            .iter()
+            .map(|section| match o.get_str(section) {
+                Some(Value::Object(section)) => permissions_section(&section),
+                _ => "---".to_string(),
+            })
+            .collect(),
+        Value::Object(o) if has_class(o, &PERMISSIONS_SECTION_CLASS) => permissions_section(o),
         Value::DateTime(t) => t.0.to_zoned(ctx.time_zone()).strftime("%Y-%m-%d %H:%M:%S").to_string(),
         Value::List(xs) => {
             let items = xs
@@ -47,6 +56,24 @@ pub fn render_field(ctx: &mut Ctx, value: &Value, in_cell: bool, config: &ViewCo
             if in_cell { replace_problematic_chars(&s) } else { s }
         }
     })
+}
+
+fn has_class(object: &Object, class: &'static mash_core::value::BuiltinClass) -> bool {
+    object.class().is_some_and(|c| c.is_builtin(class))
+}
+
+/// `rwx`, with `-` for each permission not granted
+fn permissions_section(section: &Object) -> String {
+    [("canRead", 'r'), ("canWrite", 'w'), ("canExecute", 'x')]
+        .iter()
+        .map(|(field, c)| {
+            if section.get_str(field).is_some_and(|v| v.is_truthy()) {
+                *c
+            } else {
+                '-'
+            }
+        })
+        .collect()
 }
 
 /// Tabs, newlines, carriage returns and backspaces become spaces, so that text stays in its cell
