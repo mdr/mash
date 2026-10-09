@@ -143,3 +143,16 @@ fn closures_created_in_a_loop_are_collected() {
         );
     });
 }
+
+#[test]
+fn error_reports_show_the_source_and_the_call_stack() {
+    with_big_stack(|| {
+        let mut ctx = ctx();
+        let source = "def inner = error 'boom'\ndef outer = inner\nouter";
+        let report = eval_error(&mut ctx, source).report();
+        assert_eq!(
+            report,
+            "error: boom\n  --> test:1:13\n   | def inner = error 'boom'\n   |             ^^^^^^^^^^^^\n  called at test:2:13 in outer\n  called at test:3:1"
+        );
+    });
+}

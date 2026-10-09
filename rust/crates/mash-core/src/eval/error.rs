@@ -169,6 +169,63 @@ fn levenshtein(a: &str, b: &str) -> usize {
     previous[b.len()]
 }
 
+impl Location {
+    /// 1-based line and column (in chars) of the start of the location
+    pub fn line_col(&self) -> (usize, usize) {
+        let start = usize::from(self.range.start());
+        let before = &self.unit.text[..start];
+        let line = before.matches('\n').count() + 1;
+        let line_start = before.rfind('\n').map_or(0, |i| i + 1);
+        (line, before[line_start..].chars().count() + 1)
+    }
+}
+
+impl MashError {
+    /// A multi-line report: the message, the offending source line with the location underlined, and the Mash
+    /// stack trace.
+    pub fn report(&self) -> String {
+        let mut out = format!("error: {}", self.message);
+        if let Some(location) = self.location() {
+            let (line, col) = location.line_col();
+            let start = usize::from(location.range.start());
+            let text = &location.unit.text;
+            let line_start = text[..start].rfind('\n').map_or(0, |i| i + 1);
+            let line_end = text[start..].find('\n').map_or(text.len(), |i| start + i);
+            let source_line = &text[line_start..line_end];
+            let width = text[start..usize::from(location.range.end()).min(line_end)]
+                .chars()
+                .count()
+                .max(1);
+            out += &format!(
+                "\n  --> {}:{line}:{col}\n   | {source_line}\n   | {}{}",
+                location.unit.name,
+                " ".repeat(col - 1),
+                "^".repeat(width)
+            );
+        }
+        let frames: Vec<String> = self
+            .stack
+            .iter()
+            .skip(1)
+            .filter_map(|frame| {
+                let location = frame.location.as_ref()?;
+                let (line, col) = location.line_col();
+                let function = frame
+                    .function
+                    .as_deref()
+                    .map(|f| format!(" in {f}"))
+                    .unwrap_or_default();
+                Some(format!("  called at {}:{line}:{col}{function}", location.unit.name))
+            })
+            .collect();
+        if !frames.is_empty() {
+            out += "\n";
+            out += &frames.join("\n");
+        }
+        out
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
