@@ -262,6 +262,15 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `random.int` bounds | 32-bit | 64-bit (no 32-bit limit, as agreed) |
 | `mash.eval` errors | Printed; returns unit | Propagate |
 | Path completion under `/` | Common-prefix length off by one | Correct (affects only highlighting/common insertion) |
+| Table and tree cell widths | UTF-16 units (wide characters misalign columns) | Display columns |
+| Printing infinite numbers (`1/0`, alone or in tables) | `∞` (Java `DecimalFormat`) | `Infinity`, as `toString` |
+| Viewing a list of units | Prints `[, ]` (its "print nothing" check never matches) | Prints nothing, as intended |
+| `view.View.new` result | Viewing it fails ("No field 'print'") | A missing directive is false |
+| `view.tree` of a cyclic value | Stack overflow | The repeated container is shown inline (`{…}`) |
+
+Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
+object browser is M5); permissions (`rwxr-x---`), git commit tables and `git.Status` printing arrive with the os and
+git classes (M5); help has no links yet (they're for the browser).
 
 Not yet ported, pending later milestones (they need the OS): `hash.sha256` of a file's contents, `json.read`/`write`/
 http, `xml.read`, `String.glob`, `mash.source`/`reload`, `Url.open`, `Host.ipAddresses` (M5).

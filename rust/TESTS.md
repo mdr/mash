@@ -53,7 +53,11 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `editor/BracketMatcherTest`, `QuoteTogglerTest` | pending (M4) |
 | `repl/LineBufferTest`, `repl/handler/*`, `repl/history/HistoryTest` | pending (M4) |
 | `screen/ScreenDrawerTest` | pending (M4) |
-| `view/**` (renderers, help renderers, `ColumnAllocatorTest`) | pending (M4/M5) |
+| `view/printer/ColumnAllocatorTest` | ported: `mash-repl/tests/columns.rs` (plus cases for the other branches) |
+| `view/render/help/*Test` (class, field, function, method) | ported: `mash-repl/tests/help.rs`; the `TestPointClass` fixture becomes the equivalent `ClassDoc`/`FieldDoc`/… descriptions |
+| `view/render/CallingSyntaxRendererTest` | ported: `mash-repl/tests/help.rs` |
+| — | new: `mash-repl/tests/view.rs`, 74 golden cases for `view_value` (tables, objects, trees, help, `view.*`), expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
+| `view/render/AssistanceRendererTest`, `IncrementalHistorySearchRendererTest`, `RendererTest` | pending (M4, REPL) |
 | `repl/browser/TwoDTableBrowserStateTest` | pending (M5) |
 | `integration/*` | pending (M4/M5) |
 | `os/GlobHelperTest` | pending (M5); glob semantics change (see PORT_PLAN.md) |

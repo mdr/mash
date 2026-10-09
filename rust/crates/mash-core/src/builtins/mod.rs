@@ -11,6 +11,7 @@ pub mod net;
 pub mod os;
 pub mod random;
 pub mod time;
+pub mod view;
 pub mod xml;
 
 use std::collections::BTreeMap;
@@ -39,6 +40,7 @@ pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
         meta::FUNCTIONS,
         net::FUNCTIONS,
         random::FUNCTIONS,
+        view::FUNCTIONS,
         xml::FUNCTIONS,
     ] {
         functions.extend_from_slice(namespace);
@@ -73,6 +75,7 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
         &net::HOST_CLASS,
         &net::URL_CLASS,
         &os::PATH_CLASS,
+        &view::VIEW_CLASS,
     ]);
     classes.extend_from_slice(time::CLASSES);
     classes.extend_from_slice(core::OTHER_CLASSES);
