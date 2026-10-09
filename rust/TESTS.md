@@ -20,10 +20,14 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 
 ## M2 — evaluator (`mash-core`)
 
+| Scala test | Rust | Status | Notes |
+|---|---|---|---|
+| `parser/AbstractifierTest` | `mash-core/tests/compile.rs` | ported | Plus lowering of each kind of syntax |
+| `compiler/BareStringifyTest`, `DesugarHolesTest`, `DesugarPipesTest`, `ParenRemoverTest` | `mash-core/tests/compile.rs` | ported | |
+| — | `mash-core/tests/value_{leaks,keys,reentrancy}.rs` | new | From the values spike: cycles are collected, key semantics, no `RefCell` re-entrancy panics |
+
 | Scala test | Status |
 |---|---|
-| `parser/AbstractifierTest` | pending (M2) |
-| `compiler/BareStringifyTest`, `DesugarHolesTest`, `DesugarPipesTest`, `ParenRemoverTest` | pending (M2) |
 | `evaluator/*` (49 files incl. `EvaluatorTest`, `SimpleEvaluatorTest`) | pending (M2); cases needing M3 namespaces deferred |
 | `functions/BindTypesTest` | pending (M2/M3) |
 | `language/ValueToExpressionTest` | pending (M2) |

@@ -219,7 +219,7 @@ fn child_before<N: AstNode<Language = MashLanguage>>(node: &SyntaxNode, kinds: &
 /// Port of Abstractifier.getStringText: strip quotes, detect a `~` prefix, unescape. Returns (text, has_tilde).
 pub fn string_text(raw: &str, maybe_tilde: bool, prune_initial: bool, prune_final: bool) -> (String, bool) {
     let mut s = raw;
-    if prune_final && (s.ends_with('"') || s.ends_with('\'')) && s.len() >= 2 {
+    if prune_final && (s.ends_with('"') || s.ends_with('\'')) {
         s = &s[..s.len() - 1];
     }
     if prune_initial && (s.starts_with('"') || s.starts_with('\'')) {
@@ -501,15 +501,15 @@ impl InvocationExpr {
     }
 
     pub fn args(&self) -> Vec<Arg> {
-        self.0
-            .children()
-            .skip(1)
-            .filter_map(|n| match n.kind() {
-                SHORT_ARG => Some(Arg::Short(ShortArg(n))),
-                LONG_ARG => Some(Arg::Long(LongArg(n))),
-                _ => Expr::cast(n).map(Arg::Positional),
-            })
-            .collect()
+        self.0.children().skip(1).filter_map(arg).collect()
+    }
+}
+
+fn arg(node: SyntaxNode) -> Option<Arg> {
+    match node.kind() {
+        SHORT_ARG => Some(Arg::Short(ShortArg(node))),
+        LONG_ARG => Some(Arg::Long(LongArg(node))),
+        _ => Expr::cast(node).map(Arg::Positional),
     }
 }
 
@@ -745,6 +745,12 @@ impl Attribute {
         token(&self.0, IDENTIFIER)
             .map(|t| t.text().to_string())
             .unwrap_or_default()
+    }
+
+    /// The arguments of `@(name args…)`; None for `@name`
+    pub fn args(&self) -> Option<Vec<Arg>> {
+        token(&self.0, LPAREN)?;
+        Some(self.0.children().filter_map(arg).collect())
     }
 }
 

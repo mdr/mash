@@ -14,6 +14,12 @@ use std::rc::Rc;
 use mash_syntax::TextRange;
 use mash_syntax::doc_comment::DocComment;
 
+mod pretty;
+pub(crate) mod transform;
+
+pub use pretty::pretty;
+pub use transform::transform;
+
 pub type E = Rc<Expr>;
 
 /// Identifies an expression node. Unique within one interpreter (across all compilation units), so side
@@ -145,13 +151,13 @@ pub enum Literal {
     Null,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum InterpolationPart {
     Text(Rc<str>),
     Expr(E),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ObjectEntry {
     /// `field: value`. A plain identifier field is a name, not a variable reference.
     Full { field: E, value: E },
@@ -159,7 +165,7 @@ pub enum ObjectEntry {
     Shorthand { name: Rc<str>, range: Option<TextRange> },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Arg {
     Positional(E),
     /// `-abc` (one entry per flag character)
@@ -185,14 +191,14 @@ impl Arg {
 }
 
 /// `@name` or `@(name args…)` on a function, class, method or parameter
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attribute {
     pub name: Rc<str>,
     pub args: Option<Vec<Arg>>,
     pub range: Option<TextRange>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Pattern {
     Ident(Rc<str>),
     Hole,
@@ -200,7 +206,7 @@ pub enum Pattern {
     List(Vec<Pattern>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ObjectPatternEntry {
     pub field: Rc<str>,
     /// None for the shorthand `{ field }`, which binds `field`
@@ -231,7 +237,7 @@ impl Pattern {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Param {
     pub attributes: Vec<Attribute>,
     /// The parameter's name; None if it's a destructuring pattern
@@ -259,7 +265,7 @@ impl Param {
 }
 
 /// A `def`, method or lambda.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FnDef {
     /// None for lambdas
     pub name: Option<Rc<str>>,
@@ -284,7 +290,7 @@ impl FnDef {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ClassDef {
     pub name: Rc<str>,
     pub doc: Option<DocComment>,
@@ -297,13 +303,13 @@ pub struct ClassDef {
     pub range: Option<TextRange>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MishRedirect {
     pub op: RedirectOp,
     pub arg: E,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ExprKind {
     Literal(Literal),
     String {

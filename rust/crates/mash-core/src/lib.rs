@@ -4,6 +4,7 @@
 //! platform-specific goes through [`platform::Platform`].
 
 pub mod ast;
+pub mod compile;
 pub mod function;
 pub mod platform;
 pub mod value;
