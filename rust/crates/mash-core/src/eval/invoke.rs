@@ -343,17 +343,21 @@ impl Ctx {
     }
 
     fn enter_call(&mut self, call_site: &Option<Location>) -> R<()> {
-        if self.depth >= self.max_depth {
-            return Err(MashError::at(
-                format!(
-                    "Maximum call depth ({}) exceeded, possibly due to infinite recursion",
-                    self.max_depth
-                ),
-                call_site.clone(),
-            ));
+        let stack_full = self.platform.stack_nearly_full();
+        if self.depth >= self.max_depth || stack_full {
+            return Err(self.depth_exceeded(call_site, stack_full));
         }
         self.depth += 1;
         Ok(())
+    }
+
+    #[inline(never)]
+    fn depth_exceeded(&self, call_site: &Option<Location>, stack_full: bool) -> MashError {
+        let limit = if stack_full { self.depth } else { self.max_depth };
+        MashError::at(
+            format!("Maximum call depth ({limit}) exceeded, possibly due to infinite recursion"),
+            call_site.clone(),
+        )
     }
 
     #[inline(always)]

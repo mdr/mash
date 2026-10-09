@@ -35,12 +35,9 @@ pub use member::{MemberLookup, is_a, is_subclass_of, parent_of, primary_class};
 pub use ops::binary_op;
 pub use render::render;
 
-/// Default limit on nested Mash function calls.
-#[cfg(not(target_arch = "wasm32"))]
+/// Default limit on nested Mash function calls. In the browser, the stack usually runs out first (see
+/// [`Platform::stack_nearly_full`](crate::platform::Platform::stack_nearly_full)).
 pub const DEFAULT_MAX_DEPTH: usize = 10_000;
-/// Default limit on nested Mash function calls (the browser has a smaller, fixed stack).
-#[cfg(target_arch = "wasm32")]
-pub const DEFAULT_MAX_DEPTH: usize = 4_000;
 
 /// The interpreter: global state, the platform, and evaluation.
 pub struct Ctx {

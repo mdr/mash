@@ -30,6 +30,8 @@ extern "C" {
     fn random_u32(this: &JsBridge) -> u32;
     #[wasm_bindgen(method, js_name = interruptRequested)]
     fn interrupt_requested(this: &JsBridge) -> bool;
+    #[wasm_bindgen(method, js_name = stackNearlyFull)]
+    fn stack_nearly_full(this: &JsBridge) -> bool;
     #[wasm_bindgen(method)]
     fn sleep(this: &JsBridge, millis: f64);
     #[wasm_bindgen(method, js_name = commandRunning)]
@@ -95,6 +97,10 @@ impl Bridge for JsBridgeAdapter {
 
     fn interrupt_requested(&self) -> bool {
         self.0.interrupt_requested()
+    }
+
+    fn stack_nearly_full(&self) -> bool {
+        self.0.stack_nearly_full()
     }
 
     fn sleep(&self, millis: f64) {

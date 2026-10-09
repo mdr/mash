@@ -25,5 +25,5 @@ if __name__ == "__main__":
     server = http.server.ThreadingHTTPServer(
         ("127.0.0.1", port), lambda *args: Handler(*args, directory=directory)
     )
-    print(f"Serving Mash on http://localhost:{port}/")
+    print(f"Serving Mash on http://localhost:{port}/", flush=True)
     server.serve_forever()

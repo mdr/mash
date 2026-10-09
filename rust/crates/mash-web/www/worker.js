@@ -6,6 +6,7 @@
 //   { type: 'clipboard', text }, { type: 'open', url }, { type: 'exit' }, { type: 'crash', message }
 
 import init, { WebShell, lastPanic } from './pkg/mash_web.js';
+import { stackNearlyFull } from './stack.js';
 
 let shell = null;
 // interrupt[0] is set to 1 by the page on Ctrl-C while a command runs (if the page can share memory)
@@ -48,6 +49,7 @@ const bridge = {
   },
   randomU32: () => crypto.getRandomValues(new Uint32Array(1))[0],
   interruptRequested: () => (interrupt ? Atomics.exchange(interrupt, 0, 0) === 1 : false),
+  stackNearlyFull,
   sleep(millis) {
     flush();
     if (interrupt) {

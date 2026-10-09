@@ -15,6 +15,28 @@ use mash_core::platform::{
 
 use crate::bridge::Bridge;
 
+/// The size of the wasm stack (set when linking, in `build.rs`)
+pub const WASM_STACK_SIZE: usize = 16 << 20;
+/// Mash calls stop when less than this much of the wasm stack is left
+const WASM_STACK_RESERVE: usize = 1 << 20;
+/// Mash only asks the bridge about the native stack once it has used this much of the wasm stack, so that
+/// shallow code never pays for the check. The native stack is still far from full then.
+const WASM_STACK_BEFORE_NATIVE_CHECKS: usize = 64 << 10;
+/// Beyond that, Mash asks again each time it gets this much deeper (in wasm stack) than it was when it last
+/// asked. The bridge keeps enough native stack free for this much more wasm stack.
+const WASM_STACK_BETWEEN_NATIVE_CHECKS: usize = 8 << 10;
+
+/// The wasm stack left: rustc places the stack first in memory, growing down towards address 0 (so that
+/// overflowing it traps rather than overwriting data), so it's the address of a local variable. `None` natively.
+fn wasm_stack_left() -> Option<usize> {
+    if cfg!(target_arch = "wasm32") {
+        let marker = 0u8;
+        Some(std::hint::black_box(&marker) as *const u8 as usize)
+    } else {
+        None
+    }
+}
+
 /// The one user
 pub const USER: &str = "guest";
 pub const HOME: &str = "/home/guest";
@@ -36,6 +58,9 @@ pub struct WebPlatform {
     time_zone: TimeZone,
     /// The terminal's size (rows, columns), kept up to date by the host
     terminal: Rc<Cell<(u16, u16)>>,
+    /// How much wasm stack was left when the native stack was last found to have room (see
+    /// [`Platform::stack_nearly_full`])
+    checked_stack: Cell<usize>,
 }
 
 impl WebPlatform {
@@ -53,6 +78,7 @@ impl WebPlatform {
             cwd: RefCell::new(HOME.into()),
             time_zone,
             terminal,
+            checked_stack: Cell::new(usize::MAX),
         };
         let now = platform.now();
         for (path, contents) in SAMPLE_FILES {
@@ -125,6 +151,33 @@ impl Platform for WebPlatform {
 
     fn interrupt_requested(&self) -> bool {
         self.bridge.interrupt_requested()
+    }
+
+    /// Wasm runs on two stacks: its own (for Rust's locals, in linear memory) and the browser's native stack
+    /// (for wasm's frames). Either can run out first. Asking about the native stack takes a few microseconds,
+    /// so it's only asked on getting deeper than when it was last asked: code that calls functions in a loop
+    /// at the same depth asks once.
+    fn stack_nearly_full(&self) -> bool {
+        let Some(left) = wasm_stack_left() else {
+            return self.bridge.stack_nearly_full();
+        };
+        if left < WASM_STACK_RESERVE {
+            return true;
+        }
+        if WASM_STACK_SIZE.saturating_sub(left) < WASM_STACK_BEFORE_NATIVE_CHECKS {
+            // Shallow again: what was found deeper may be out of date (the browser may have recompiled
+            // Mash's code, with different frame sizes)
+            self.checked_stack.set(usize::MAX);
+            return false;
+        }
+        if left.saturating_add(WASM_STACK_BETWEEN_NATIVE_CHECKS) > self.checked_stack.get() {
+            return false;
+        }
+        let full = self.bridge.stack_nearly_full();
+        if !full {
+            self.checked_stack.set(left);
+        }
+        full
     }
 
     // ------------------------------------------------------------------------------------------ file system

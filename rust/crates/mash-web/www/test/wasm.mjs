@@ -7,6 +7,8 @@
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { initSync, evaluate } from '../pkg/mash_web.js';
+import { stackNearlyFull } from '../stack.js';
+import { RECURSION } from './recursion.mjs';
 
 initSync({ module: readFileSync(new URL('../pkg/mash_web_bg.wasm', import.meta.url)) });
 
@@ -19,6 +21,7 @@ function bridge(overrides = {}) {
     timeZone: () => 'Asia/Tokyo',
     randomU32: () => 4,
     interruptRequested: () => false,
+    stackNearlyFull,
     sleep: () => {},
     commandRunning: () => {},
     saveHistory: () => {},
@@ -60,14 +63,18 @@ const tests = {
   failsAtUnhelpfulHttp() {
     assert.match(run("http.get 'https://example.com'"), /no network in this test/);
   },
-  recursionToTheDepthLimitFitsTheStack() {
-    const depth = 'def f n = if n == 0 then 0 else 1 + f (n - 1)';
-    assert.equal(run(`${depth}; f 3990`), '3990');
-    assert.match(run(`${depth}; f 100000`), /depth/);
-    // Deeper Rust frames per Mash call: a method, a lambda and a pipeline in each
-    const busy = 'def g n = if n == 0 then 0 else [n] | map (x => g (x - 1)) | first';
-    assert.equal(run(`${busy}; g 1300`), '0');
-    assert.match(run(`${busy}; g 100000`), /depth/);
+  recursionStopsCleanlyBeforeTheStackRunsOut() {
+    for (const [name, program] of Object.entries(RECURSION)) {
+      const error = run(`${program} 1000000`);
+      assert.match(error, /Maximum call depth \(\d+\) exceeded/, `${name}: ${error}`);
+      console.log(`     ${name}: stopped at depth ${error.match(/\((\d+)\)/)[1]}`);
+      // Mash is still usable
+      assert.equal(run('[1, 2] | map (_ + 1)'), '[2, 3]', name);
+    }
+  },
+  moderateRecursionWorks() {
+    assert.equal(run(`${RECURSION.plain} 200`), '0');
+    assert.equal(run(`${RECURSION.map} 60`), '0');
   },
 };
 

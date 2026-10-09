@@ -64,6 +64,14 @@ pub trait Platform: Debug {
         false
     }
 
+    /// Whether the stack is too nearly full for another Mash call, for hosts whose stack is too small for
+    /// [`DEFAULT_MAX_DEPTH`](crate::eval::DEFAULT_MAX_DEPTH) calls, and can't be made bigger (in the browser,
+    /// overflowing it leaves the interpreter unusable). Asked on every call of a Mash function, so it must be
+    /// cheap.
+    fn stack_nearly_full(&self) -> bool {
+        false
+    }
+
     // ------------------------------------------------------------------------------------------ file system
 
     /// Change the current working directory

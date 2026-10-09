@@ -23,6 +23,10 @@ pub trait Bridge: Debug {
     /// Whether the user has pressed Ctrl-C while a command was running, since last asked
     fn interrupt_requested(&self) -> bool;
 
+    /// Whether V8's (or the browser's) native stack, on which wasm runs, is nearly full. Overflowing it throws
+    /// through Mash, leaving it unusable; the check doesn't (it probes the stack from JavaScript).
+    fn stack_nearly_full(&self) -> bool;
+
     /// Pause for `millis`, waking early if the user presses Ctrl-C
     fn sleep(&self, millis: f64);
 
@@ -78,6 +82,10 @@ impl Bridge for FakeBridge {
 
     fn interrupt_requested(&self) -> bool {
         self.interrupt.replace(false)
+    }
+
+    fn stack_nearly_full(&self) -> bool {
+        false
     }
 
     fn sleep(&self, millis: f64) {
