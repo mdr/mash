@@ -12,7 +12,7 @@ use crate::value::{ClassRef, DateTime, Number, Object, Str, Value};
 /// <mash>
 ///   identity 42 # 42
 /// </mash>
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", infer = super::infer_rules::identity)]
 pub fn identity(#[param("Item to return")] item: Value) -> R<Value> {
     Ok(item)
 }
@@ -28,7 +28,7 @@ pub fn identity(#[param("Item to return")] item: Value) -> R<Value> {
 ///   not 0     # true
 ///   not 1     # false
 /// </mash>
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", returns = crate::infer::Type::BOOLEAN)]
 pub fn not(#[param("Item to negate")] item: Value) -> R<bool> {
     Ok(!item.is_truthy())
 }
@@ -68,7 +68,7 @@ pub(crate) fn no_arg_value() -> Value {
 /// <mash>
 ///   parseNumber "42" # 42
 /// </mash>
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", returns = crate::infer::Type::NUMBER)]
 pub fn parse_number(#[param("String to parse as a number")] string: Str) -> R<Number> {
     Number::parse(string.as_str())
         .ok_or_else(|| MashError::new(format!("Could not parse '{}' as a number", string.as_str())))
@@ -87,7 +87,7 @@ pub fn safe(#[param(safe)] value: Value) -> R<Value> {
 }
 
 /// Apply a function to a value, ignore the result, and return the original value.
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", returns = crate::infer::Type::BOOLEAN)]
 pub fn tap(
     ctx: &mut Ctx,
     #[param("Function to apply to the item")] f: Callable,
@@ -98,7 +98,7 @@ pub fn tap(
 }
 
 /// Execute the given code, catching any exceptions
-#[builtin(namespace = "core", name = "try")]
+#[builtin(namespace = "core", name = "try", infer = super::infer_rules::try_)]
 pub fn try_(
     ctx: &mut Ctx,
     #[param("Code to execute", lazy)] body: Value,
@@ -123,7 +123,7 @@ pub fn try_(
 }
 
 /// Loop executing the given block while the condition remains true
-#[builtin(namespace = "core", name = "while")]
+#[builtin(namespace = "core", name = "while", returns = crate::infer::Type::UNIT)]
 pub fn while_(
     ctx: &mut Ctx,
     #[param("Condition of the while loop", lazy)] condition: Value,
@@ -141,7 +141,7 @@ pub fn while_(
 /// <mash>
 ///    timeTaken (ls --recursive) | .duration # 854
 /// </mash>
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", infer = super::infer_rules::time_taken)]
 pub fn time_taken(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value) -> R<Object> {
     let start = ctx.platform().now();
     let result = ctx.call_values(&block, vec![])?;
@@ -161,7 +161,7 @@ pub fn time_taken(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value)
 }
 
 /// When the timed code finished
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 pub fn finished(target: Object) -> R<Value> {
     let started = match target.get_str("started") {
         Some(Value::DateTime(t)) => t.0,

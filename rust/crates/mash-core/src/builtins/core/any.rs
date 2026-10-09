@@ -22,7 +22,7 @@ pub(super) const METHODS: &[&dyn BuiltinMethod] = &[
 ///   null.isNull # true
 ///   0.isNull    # false
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::BOOLEAN)]
 fn is_null(target: &Value) -> R<bool> {
     Ok(target.is_null())
 }
@@ -36,7 +36,7 @@ fn is_null(target: &Value) -> R<bool> {
 ///   null.isTruthy  # false
 ///   10.isTruthy    # true
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::BOOLEAN)]
 fn is_truthy(target: &Value) -> R<bool> {
     Ok(target.is_truthy())
 }
@@ -49,13 +49,13 @@ fn is_truthy(target: &Value) -> R<bool> {
 ///   42.isA Boolean # false
 ///   42.isA Any     # true
 /// </mash>
-#[builtin_method(name = "isA", shy)]
+#[builtin_method(name = "isA", shy, returns = crate::infer::Type::BOOLEAN)]
 fn is_a_(target: &Value, #[param("Class to check")] class: ClassRef) -> R<bool> {
     Ok(is_a(target, &class))
 }
 
 /// The class of this object
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::CLASS)]
 fn get_class(target: &Value) -> R<ClassRef> {
     Ok(primary_class(target))
 }
@@ -67,7 +67,7 @@ fn get_class(target: &Value) -> R<ClassRef> {
 ///   42.toString   # "42"
 ///   null.toString # "null"
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::STRING)]
 fn to_string(target: &Value) -> R<Value> {
     Ok(match target {
         Value::Str(_) => target.clone(),
@@ -83,7 +83,7 @@ fn to_string(target: &Value) -> R<Value> {
 ///   4.in [1, 2, 3] # false
 ///   "i".in "team"  # false
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::BOOLEAN)]
 fn in_(target: &Value, #[param("Sequence to check if element is contained in")] sequence: Sequence) -> R<bool> {
     Ok(sequence.items().iter().any(|item| item == target))
 }

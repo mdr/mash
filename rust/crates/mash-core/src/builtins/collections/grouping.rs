@@ -37,7 +37,7 @@ fn group(key: Value, values: Vec<Value>) -> Value {
 }
 
 /// The number of values in this group
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 pub(crate) fn count(target: &Value) -> R<usize> {
     match target {
         Value::Object(obj) => match obj.get_str("values") {
@@ -85,7 +85,7 @@ const DEFAULT_ALL_KEY: &str = "All";
 ///   ║f│foo│   ║
 ///   ║b│bar│baz║
 ///   ╚═╧═══╧═══╝
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_group_by, completion = super::inference::complete_map_function)]
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn group_by(
     ctx: &mut Ctx,

@@ -85,6 +85,12 @@ pub struct BoundTypes {
 }
 
 impl BoundTypes {
+    /// The name of the parameter the argument at position `pos` was bound to (Scala `paramAt`)
+    pub fn param_at<'p>(&self, params: &'p Params, pos: usize) -> Option<&'p str> {
+        let index = (*self.arg_params.get(pos)?)?;
+        params.params.get(index).map(|p| p.name())
+    }
+
     pub fn info(&self, params: &Params, name: &str) -> Option<&ValueInfo> {
         self.args.get(params.index_of(name)?)?.as_ref()
     }

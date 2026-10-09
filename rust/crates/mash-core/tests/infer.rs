@@ -318,7 +318,7 @@ const CASES: &[Case] = &[
     Case::infers(r#"42.isA Number"#, r#"core.Boolean"#),
     Case::infers(r#"def rev x = x.reverse; rev.isNull"#, r#"core.Boolean"#),
     Case::infers(r#"(x => x).isNull"#, r#"core.Boolean"#),
-    Case::infers(r#"Object.merge"#, r#"BuiltinFunction(MergeStaticMethod)"#),
+    Case::infers(r#"Object.merge"#, r#"BuiltinFunction(core.Object.merge)"#),
     Case::infers(r#"class Foo { def bar = 10 }; Foo.new.bar"#, r#"core.Number"#),
     Case::infers(r#"class Foo n { def bar = 10 }; Foo.new 5 | .bar"#, r#"core.Number"#),
     Case::infers(r#"class Foo { def bar = 10 }; Foo 5 | .bar"#, r#"core.Number"#),
@@ -416,7 +416,56 @@ const CASES: &[Case] = &[
 ];
 
 /// Cases that need builtins from later milestones (os, git, http), or that differ deliberately
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first + { foo: 42 }"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first + ls.first"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first + ls.first.permissions"#,
+    // M5: os (ls, pwd, readLines)
+    r#"class Point x y; Point 1 2 + ls.first"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first.children"#,
+    // M5: users
+    r#"user.groups"#,
+    // M5: users
+    r#"user.primaryGroup"#,
+    // M5: users
+    r#"user.primaryGroup.gid"#,
+    // M5: os (ls, pwd, readLines)
+    r#"[ls.first, ls.first] | sumBy identity"#,
+    // M5: os (ls, pwd, readLines)
+    r#"'size' pwd"#,
+    // M5: os (ls, pwd, readLines)
+    r#"'size' ls"#,
+    // M5: os (ls, pwd, readLines)
+    r#"pwd?.parent"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first.name.absolute"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls?"#,
+    // M5: os (ls, pwd, readLines)
+    r#"help readLines"#,
+    // M5: processes
+    r#"!{which ls}"#,
+    // M5: git
+    r#"git.status"#,
+    // M5: git
+    r#"git['status']"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first.withField 'bar' 256"#,
+    // M5: os (ls, pwd, readLines)
+    r#"ls.first.get 'size'"#,
+    // M5: http
+    r#"json.get 'http://example.com' | .get 'foo' --default=42'"#,
+    // M4: print
+    r#"5.times { print 'Hi' }"#,
+    // M5: os (ls, pwd, readLines)
+    r#"timeTaken ls"#,
+    // M5: os (ls, pwd, readLines)
+    r#"timeTaken ls | .result"#,
+];
 
 fn inferred_type(ctx: &mut Ctx, input: &str) -> String {
     let compiled = ctx.compile_forgiving(SourceUnit::new("test", input));
@@ -428,7 +477,6 @@ fn inferred_type(ctx: &mut Ctx, input: &str) -> String {
 }
 
 #[test]
-#[ignore = "builtins don't have inference rules yet"]
 fn type_inference() {
     let (failures, passing_deferred) = with_big_stack(|| {
         let mut failures = vec![];

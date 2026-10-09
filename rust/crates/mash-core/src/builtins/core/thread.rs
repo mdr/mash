@@ -10,7 +10,7 @@ use crate::value::Value;
 /// Fork off the given code in the background
 ///
 /// (The code runs immediately, to completion; errors are ignored.)
-#[builtin(namespace = "core.thread")]
+#[builtin(namespace = "core.thread", returns = crate::infer::Type::UNIT)]
 pub fn in_background(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value) -> R<()> {
     match ctx.call_values(&block, vec![]) {
         Err(error) if error.is_interrupted() => Err(error),
@@ -29,7 +29,7 @@ pub fn in_background(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Val
 /// <mash>
 ///   parallelMap (_ * 2) [1, 2, 3] # [2, 4, 6]
 /// </mash>
-#[builtin(namespace = "core.thread")]
+#[builtin(namespace = "core.thread", infer = super::infer_rules::parallel_map, completion = super::infer_rules::parallel_map_completion)]
 pub fn parallel_map(
     ctx: &mut Ctx,
     #[param("Function used to transform elements of the sequence")] f: Callable,

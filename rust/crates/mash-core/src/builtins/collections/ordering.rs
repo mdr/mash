@@ -36,7 +36,7 @@ pub(crate) fn natural_order_param() -> Param {
 ///   sort --descending [3, 1, 2]                         # [3, 2, 1]
 ///   sort --naturalOrder ["a2.txt", "a10.txt", "a1.txt"] # ["a1.txt", "a2.txt", "a10.txt"]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_same_sequence)]
 pub(crate) fn sort(
     ctx: &mut Ctx,
     args: &Args,
@@ -68,7 +68,7 @@ pub(crate) fn sort(
 ///   ["aa", "b", "ccc"] | sortBy length --descending # ["ccc", "aa", "b"]
 ///   ["az", "b", "aa"] | sortBy first last           # ["aa", "az", "b"]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_sort_by, completion = super::inference::complete_map_function)]
 pub(crate) fn sort_by(
     ctx: &mut Ctx,
     args: &Args,
@@ -281,7 +281,7 @@ fn extreme(ctx: &Ctx, items: Vec<Value>, default: Value, better: Ordering) -> Va
 ///   max 1 2 3          # 3
 ///   max [] --default=0 # 0
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_max)]
 pub(crate) fn max(
     ctx: &mut Ctx,
     #[param(
@@ -303,7 +303,7 @@ pub(crate) fn max(
 ///   min 1 2 3          # 1
 ///   min [] --default=0 # 0
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_max)]
 pub(crate) fn min(
     ctx: &mut Ctx,
     #[param(
@@ -343,7 +343,7 @@ fn extreme_by(ctx: &mut Ctx, items: Vec<Value>, attribute: &Callable, default: V
 /// <mash>
 ///   maxBy length ["a", "bbb", "cc"] # "bbb"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_max_by, completion = super::inference::complete_map_function)]
 pub(crate) fn max_by(
     ctx: &mut Ctx,
     #[param("Function to extract a value to compare elements")] attribute: Callable,
@@ -363,7 +363,7 @@ pub(crate) fn max_by(
 /// <mash>
 ///   minBy length ["a", "bbb", "cc"] # "a"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_max_by, completion = super::inference::complete_map_function)]
 pub(crate) fn min_by(
     ctx: &mut Ctx,
     #[param("Function to extract a value to compare elements")] attribute: Callable,

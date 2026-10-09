@@ -48,7 +48,7 @@ pub static STATS_CLASS: BuiltinClass = BuiltinClass {
 };
 
 /// Calculate the logarithm of a given value
-#[builtin(namespace = "maths")]
+#[builtin(namespace = "maths", returns = crate::infer::Type::NUMBER)]
 pub fn log(
     #[param("Number to take the logarithm of")] n: f64,
     #[param("base", default = std::f64::consts::E)] base: f64,
@@ -63,13 +63,13 @@ pub fn log(
 }
 
 /// Calculate the square root of a given value
-#[builtin(namespace = "maths", aliases = ["maths.sqrt"])]
+#[builtin(namespace = "maths", aliases = ["maths.sqrt"], returns = crate::infer::Type::NUMBER)]
 pub fn square_root(#[param("Number to take the square root of")] n: f64) -> R<f64> {
     Ok(n.sqrt())
 }
 
 /// Compute standard statistics (mean, standard deviation etc) on a collection of numbers
-#[builtin(namespace = "maths")]
+#[builtin(namespace = "maths", returns = crate::infer::Type::Instance(&STATS_CLASS))]
 pub fn stats(args: &Args, #[param("Sequence of numbers on which to compute statistics")] sequence: Value) -> R<Object> {
     let Value::List(xs) = &sequence else {
         return Err(args.invalid(

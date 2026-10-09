@@ -262,7 +262,7 @@ fn flatten_values(values: Vec<Value>, input: &Value) -> R<Value> {
 ///   all (_ > 0) [1, -2, 3] # false
 ///   all (_ > 0) []         # true
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_all, completion = super::inference::complete_map_function)]
 pub fn all(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -287,7 +287,7 @@ pub fn all(
 ///   any (_ > 0) [-1, -2, -3] # false
 ///   any (_ > 0) []           # false
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_all, completion = super::inference::complete_map_function)]
 pub fn any(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -307,7 +307,7 @@ pub fn any(
 /// <mash>
 ///   countMatches (_ > 3) [1, 2, 3, 4, 5] # 2
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_count_matches, completion = super::inference::complete_map_function)]
 pub fn count_matches(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -332,7 +332,7 @@ pub fn count_matches(
 ///   find (_ > 10) [1, 20, 3]  # 20
 ///   find (_ > 100) [1, 2, 3]  # null
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_find, completion = super::inference::complete_map_function)]
 pub fn find(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -353,7 +353,7 @@ pub fn find(
 ///   contains 2 [1, 2, 3] # true
 ///   contains 9 [1, 2, 3] # false
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
 pub fn contains(
     #[param("Element to test for membership")] element: Value,
     #[param("Sequence to check whether it contains the given element")] sequence: Sequence,
@@ -368,7 +368,7 @@ pub fn contains(
 ///   indexOf 2 [1, 2, 3] # 1
 ///   indexOf 9 [1, 2, 3] # null
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::NUMBER)]
 pub fn index_of(
     #[param("Element to test for membership")] element: Value,
     #[param("Sequence to check whether it contains the given element")] sequence: Sequence,
@@ -387,7 +387,7 @@ pub fn index_of(
 ///   isEmpty []        # true
 ///   isEmpty [1, 2, 3] # false
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
 pub fn is_empty(#[param("Sequence of elements to test")] sequence: Sequence) -> R<bool> {
     Ok(sequence.items().is_empty())
 }
@@ -399,7 +399,7 @@ pub fn is_empty(#[param("Sequence of elements to test")] sequence: Sequence) -> 
 ///   nonEmpty []        # false
 ///   nonEmpty [1, 2, 3] # true
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
 pub fn non_empty(#[param("Sequence of elements to test")] sequence: Sequence) -> R<bool> {
     Ok(!sequence.items().is_empty())
 }
@@ -417,7 +417,7 @@ pub fn non_empty(#[param("Sequence of elements to test")] sequence: Sequence) ->
 ///   map (_ * 2) []                    # []
 ///   map (v i => [v i]) ["a", "b", "c"] # [["a", 0], ["b", 1], ["c", 2]]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_map, completion = super::inference::complete_map_function)]
 pub fn map(
     ctx: &mut Ctx,
     args: &Args,
@@ -452,7 +452,7 @@ pub fn map(
 ///   flatMap (x => [x * 10, x * 100]) [1, 2, 3] # [20, 200, 40, 400, 60, 600]
 ///   flatMap (n i => [n, i]) [1, 2, 3]          # [1, 0, 2, 1, 3, 2]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_flat_map, completion = super::inference::complete_function_argument)]
 pub fn flat_map(
     ctx: &mut Ctx,
     args: &Args,
@@ -477,7 +477,7 @@ pub fn flat_map(
 }
 
 /// Flatten a sequence of sequences
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_flatten)]
 pub fn flatten(#[param("Sequence of sequences to flatten")] sequence: Sequence) -> R<Value> {
     let input = match &sequence {
         Sequence::List(xs) => Value::List(xs.clone()),
@@ -487,7 +487,7 @@ pub fn flatten(#[param("Sequence of sequences to flatten")] sequence: Sequence) 
 }
 
 /// Perform an action for each element in a sequence
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_each)]
 pub fn each(
     ctx: &mut Ctx,
     #[param("Function used to act on elements of the sequence")] action: Callable,
@@ -506,7 +506,7 @@ pub fn each(
 /// <mash>
 ///   where (_ > 1) [1, 2, 3, 2, 1] # [2, 3, 2]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_where, completion = super::inference::complete_map_function)]
 pub fn where_(
     ctx: &mut Ctx,
     args: &Args,
@@ -522,7 +522,7 @@ pub fn where_(
 /// <mash>
 ///   whereNot (_ > 1) [1, 2, 3, 2, 1] # [1, 2, 2, 1]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_where, completion = super::inference::complete_map_function)]
 pub fn where_not(
     ctx: &mut Ctx,
     args: &Args,
@@ -557,7 +557,7 @@ fn filter(ctx: &mut Ctx, args: &Args, predicate: &Callable, sequence: &Value, ke
 ///   join ":" []        # ""
 ///   join [1, 2, 3]     # "123"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::STRING)]
 pub fn join(
     ctx: &mut Ctx,
     #[param(
@@ -581,7 +581,7 @@ pub fn join(
 ///   reduce (x y => x + y) [1, 2, 3] # 6
 ///   reduce (x y => x + y) 1 [2, 3]  # 6
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_reduce)]
 pub fn reduce(
     ctx: &mut Ctx,
     args: &Args,
@@ -620,7 +620,7 @@ pub fn reduce(
 ///   sum []             # 0
 ///   sum "" []          # ""
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_sum)]
 pub fn sum(
     ctx: &mut Ctx,
     #[param("Value used as the sum of an empty list (default 0)", default = 0i64)] empty_value: Value,
@@ -640,7 +640,7 @@ pub fn sum(
 /// <mash>
 ///   sumBy length ["foo", "bar", "baz"] # 9
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_sum_by, completion = super::inference::complete_map_function)]
 pub fn sum_by(
     ctx: &mut Ctx,
     #[param("Function to extract a value from to sum")] attribute: Callable,
@@ -664,7 +664,7 @@ pub fn sum_by(
 /// <mash>
 ///   unique [1, 2, 3, 2, 1] # [1, 2, 3]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_same_sequence)]
 pub fn unique(#[param("Sequence to remove duplicates from")] sequence: Sequence) -> R<Value> {
     // Nothing can mutate the items while this runs, so their hashes stay valid
     #[allow(clippy::mutable_key_type)]
@@ -683,7 +683,7 @@ pub fn unique(#[param("Sequence to remove duplicates from")] sequence: Sequence)
 /// <mash>
 ///   zip [1, 2, 3] [4, 5] # [[1, 4], [2, 5]]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_zip)]
 pub fn zip(
     #[param("First sequence")] sequence1: Sequence,
     #[param("Second sequence")] sequence2: Sequence,
@@ -705,7 +705,7 @@ pub fn zip(
 /// <mash>
 ///   grep "b" ["apple", "book", "car"] # ["book"]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_grep)]
 #[allow(clippy::too_many_arguments)]
 pub fn grep(
     ctx: &mut Ctx,
@@ -861,7 +861,7 @@ pub(crate) fn grep_object(ctx: &mut Ctx, obj: &Object, query: &str, options: Gre
 ///   first []                # null
 ///   first 3 "abcdef"        # "abc
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_first_last)]
 pub fn first(
     ctx: &mut Ctx,
     args: &Args,
@@ -890,7 +890,7 @@ pub fn first(
 ///   last []                # null
 ///   last 3 "abcdef"        # "def"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_first_last)]
 pub fn last(
     ctx: &mut Ctx,
     args: &Args,
@@ -955,7 +955,7 @@ fn take_end(ctx: &mut Ctx, args: &Args, n: Option<usize>, from_end: bool) -> R<V
 ///   allButLast 3 [1, 2, 3, 4, 5] # [1, 2]
 ///   allButLast 5 [1, 2, 3]       # []
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_same_sequence)]
 pub fn all_but_last(
     ctx: &mut Ctx,
     args: &Args,
@@ -976,7 +976,7 @@ pub fn all_but_last(
 ///   skip 3 [1, 2]       # []
 ///   skip 3 "abcdef"     # "def"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_same_sequence)]
 pub fn skip(
     ctx: &mut Ctx,
     args: &Args,
@@ -1011,7 +1011,7 @@ fn drop_end(ctx: &mut Ctx, args: &Args, n: usize, from_end: bool) -> R<Value> {
 ///   reverse []        # []
 ///   reverse "part"    # "trap"
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_same_sequence)]
 pub fn reverse(ctx: &mut Ctx, args: &Args, #[param("Sequence to reverse")] sequence: Value) -> R<Value> {
     let _ = sequence;
     Ok(match sequence_like(ctx, args, "sequence")? {
@@ -1039,7 +1039,7 @@ pub fn reverse(ctx: &mut Ctx, args: &Args, #[param("Sequence to reverse")] seque
 /// <mash>
 ///   skipWhile (_ < 3) [1, 2, 3, 2, 1] # [3, 2, 1]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_where, completion = super::inference::complete_map_function)]
 pub fn skip_while(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -1054,7 +1054,7 @@ pub fn skip_while(
 /// <mash>
 ///   skipUntil (_ < 3) [1, 2, 3, 2, 1] # [2, 1]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_where, completion = super::inference::complete_map_function)]
 pub fn skip_until(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -1069,7 +1069,7 @@ pub fn skip_until(
 /// <mash>
 ///   takeWhile (_ < 3) [1, 2, 3, 2, 1] # [1, 2]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_where, completion = super::inference::complete_map_function)]
 pub fn take_while(
     ctx: &mut Ctx,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
@@ -1108,7 +1108,7 @@ fn skip_or_take_while(
 /// <mash>
 ///   chunked 2 [1, 2, 3, 4, 5] # [[1, 2], [3, 4], [5]]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_windows)]
 pub fn chunked(
     args: &Args,
     #[param("Number of elements in each chunk")] size: i64,
@@ -1128,7 +1128,7 @@ pub fn chunked(
 /// <mash>
 ///   sliding 2 [1, 2, 3] # [[1, 2], [2, 3]]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_windows)]
 pub fn sliding(
     args: &Args,
     #[param("Size of window")] size: i64,

@@ -670,7 +670,7 @@ fn generic_member(class: &'static BuiltinClass, types: &[Type], name: &str) -> O
 }
 
 /// The fields of an object-like type (Scala `getObjectFields`)
-fn object_fields(ty: &Type) -> Option<Vec<(Rc<str>, Type)>> {
+pub fn object_fields(ty: &Type) -> Option<Vec<(Rc<str>, Type)>> {
     match ty {
         Type::Instance(class) | Type::Generic(class, _) => Some(
             class
@@ -701,8 +701,8 @@ fn is_object_class(ty: &Type) -> bool {
     }
 }
 
-/// Scala `BinaryOperatorTypeInferencer.inferTypeAdd`
-pub(crate) fn infer_add(left: Option<Type>, right: Option<Type>) -> Option<Type> {
+/// The type of `left + right` (Scala `BinaryOperatorTypeInferencer.inferTypeAdd`)
+pub fn infer_add(left: Option<Type>, right: Option<Type>) -> Option<Type> {
     match (&left, &right) {
         (Some(Type::Seq(l)), Some(Type::Seq(_))) => {
             if l.is_any() {

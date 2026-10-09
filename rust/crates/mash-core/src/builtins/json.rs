@@ -10,13 +10,13 @@ use crate::value::{Number, Object, Str, Value};
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&FromStringFunction, &PrettyPrintFunction];
 
 /// Read the given string and parse it as JSON
-#[builtin(namespace = "json")]
+#[builtin(namespace = "json", returns = crate::infer::Type::ANY)]
 pub fn from_string(#[param("String to parse as JSON")] string: Str) -> R<Value> {
     parse_json(string.as_str())
 }
 
 /// Convert the given value to a pretty-printed JSON string
-#[builtin(namespace = "json")]
+#[builtin(namespace = "json", returns = crate::infer::Type::STRING)]
 pub fn pretty_print(
     ctx: &mut Ctx,
     #[param("Pretty print to a single line (default false)", short = 'c', boolean_flag)] compact: bool,

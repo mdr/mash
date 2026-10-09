@@ -75,7 +75,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
 ];
 
 /// Test whether this string contains the given substring
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::BOOLEAN)]
 fn contains(ctx: &mut Ctx, target: Str, #[param("Substring to match")] substring: Value) -> R<bool> {
     let substring = ctx.stringify(&substring)?;
     Ok(target.as_str().contains(&substring))
@@ -90,7 +90,7 @@ fn contains(ctx: &mut Ctx, target: Str, #[param("Substring to match")] substring
 ///   '{ "value": 10 } # comment'.deleteAfter '}'     # '{ "value": 10 }'
 ///   '10 # comment'.deleteAfter --andIncluding ' #'  # '10'
 /// </mash>
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn delete_after(
     target: Str,
     #[param("String to search for")] substring: Str,
@@ -112,7 +112,7 @@ fn delete_after(
 ///   'result: { "value": 10 }'.deleteUpTo '{'        # '{ "value": 10 }'
 ///   'value: 10'.deleteUpTo --andIncluding 'value: ' # '10'
 /// </mash>
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn delete_up_to(
     target: Str,
     #[param("String to search for")] substring: Str,
@@ -126,19 +126,19 @@ fn delete_up_to(
 }
 
 /// Check if this string ends with another
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::BOOLEAN)]
 fn ends_with(target: Str, #[param("Suffix to test")] suffix: Str) -> R<bool> {
     Ok(target.as_str().ends_with(suffix.as_str()))
 }
 
 /// Check if this string starts with another
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::BOOLEAN)]
 fn starts_with(target: Str, #[param("Prefix to test")] prefix: Str) -> R<bool> {
     Ok(target.as_str().starts_with(prefix.as_str()))
 }
 
 /// Find all the elements in the lines of this String which match the given query
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::string_grep)]
 fn grep(
     ctx: &mut Ctx,
     target: Str,
@@ -185,7 +185,7 @@ fn grep(
 ///   'abcde'.indexOf 'cd' # 2
 ///   'abcde'.indexOf 'x'  # null
 /// </mash>
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn index_of(target: Str, #[param("Substring to find")] substring: Str) -> R<Value> {
     let s = target.as_str();
     Ok(match s.find(substring.as_str()) {
@@ -195,7 +195,7 @@ fn index_of(target: Str, #[param("Substring to find")] substring: Str) -> R<Valu
 }
 
 /// Split this string into a sequence of lines
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::string_split)]
 fn lines(target: Str) -> R<Vec<Value>> {
     Ok(split_into_lines(target.as_str())
         .into_iter()
@@ -204,7 +204,7 @@ fn lines(target: Str) -> R<Vec<Value>> {
 }
 
 /// Test whether this string contains a match within it to a given regular expression
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::BOOLEAN)]
 fn matches(
     ctx: &mut Ctx,
     target: Str,
@@ -217,7 +217,7 @@ fn matches(
 }
 
 /// This string as a regular expression
-#[builtin_method(aliases = ["r"])]
+#[builtin_method(aliases = ["r"], returns = crate::infer::Type::tagged_string(&super::REGEX_CLASS))]
 fn regex(target: Str) -> R<Str> {
     Ok(target.with_tag(Some(&REGEX_CLASS)))
 }
@@ -226,7 +226,7 @@ fn regex(target: Str) -> R<Str> {
 ///
 /// With `--regex`, the target is a regular expression, and the replacement can refer to its groups as `$1` or
 /// `${1}` (or `${name}` for named groups); `$$` is a literal `$`.
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn replace(
     target: Str,
     #[param("String to replace", name = "target")] target_string: Str,
@@ -270,7 +270,7 @@ fn replace_all(regex: &fancy_regex::Regex, s: &str, replacement: &str) -> R<Stri
 ///   'a:b:'.split ':'                # ['a', 'b', '']
 ///   'a1b22c'.split --regex '[0-9]+' # ['a', 'b', 'c']
 /// </mash>
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::string_split)]
 fn split_(
     target: Str,
     #[param(
@@ -289,7 +289,7 @@ fn split_(
 }
 
 /// Split this string into a sequence of substrings using a separator
-#[builtin(namespace = "core")]
+#[builtin(namespace = "core", infer = super::infer_rules::split)]
 pub(crate) fn split(
     #[param(
         "Interpret separator as a regular expression; otherwise, interpret separator as the literal string (default false)",
@@ -336,19 +336,19 @@ fn regex_split(pattern: &str, s: &str) -> R<Vec<String>> {
 }
 
 /// This string's tagged type, if any
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::CLASS)]
 fn tag(target: Str) -> R<Value> {
     Ok(target.tag().map_or(Value::Null, |t| Value::Class(ClassRef::Builtin(t))))
 }
 
 /// This string without any tag class
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::STRING)]
 fn untagged(target: Str) -> R<Str> {
     Ok(target.with_tag(None))
 }
 
 /// Tag this String, which must be a a single character, as a Character
-#[builtin_method(aliases = ["c"])]
+#[builtin_method(aliases = ["c"], returns = crate::infer::Type::CHARACTER)]
 fn to_character(target: Str) -> R<Str> {
     if target.len() == 1 {
         Ok(target.with_tag(Some(&CHARACTER_CLASS)))
@@ -365,7 +365,7 @@ fn to_character(target: Str) -> R<Str> {
 /// <mash>
 ///   'string'.characters  # ['s', 't', 'r', 'i', 'n', 'g']
 /// </mash>
-#[builtin_method(aliases = ["characters"])]
+#[builtin_method(aliases = ["characters"], returns = crate::infer::Type::seq(crate::infer::Type::CHARACTER))]
 fn to_list(target: Str) -> R<List> {
     Ok(target
         .as_str()
@@ -375,13 +375,13 @@ fn to_list(target: Str) -> R<List> {
 }
 
 /// Convert string to lowercase
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn to_lower(target: Str) -> R<Str> {
     Ok(target.with_text(target.as_str().to_lowercase()))
 }
 
 /// Convert string to uppercase
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn to_upper(target: Str) -> R<Str> {
     Ok(target.with_text(target.as_str().to_uppercase()))
 }
@@ -389,20 +389,20 @@ fn to_upper(target: Str) -> R<Str> {
 /// Parse this string as a number
 ///
 /// Surrounding whitespace is ignored; `Infinity`, `-Infinity` and `NaN` are accepted.
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn to_number(target: Str) -> R<Number> {
     Number::parse(target.as_str())
         .ok_or_else(|| MashError::new(format!("Could not parse '{}' as a number", target.as_str())))
 }
 
 /// Tag this string as a path
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::PATH)]
 fn to_path(target: Str) -> R<Str> {
     Ok(target.with_tag(Some(&PATH_CLASS)))
 }
 
 /// Strip initial and trailing whitespace
-#[builtin_method]
+#[builtin_method(infer = super::infer_rules::same_string)]
 fn trim(target: Str) -> R<Str> {
     Ok(target.with_text(target.as_str().trim()))
 }

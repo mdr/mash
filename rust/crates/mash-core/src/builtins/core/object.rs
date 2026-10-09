@@ -103,7 +103,7 @@ fn new_object(fields: impl IntoIterator<Item = (Value, Value)>) -> Object {
 }
 
 /// Give this object the given class
-#[builtin_method(shy)]
+#[builtin_method(shy, infer = super::infer_rules::object_bless)]
 fn bless(target: Object, args: &Args, #[param("Class to associate with this object")] class: Value) -> R<Object> {
     let Value::Class(class) = class else {
         return Err(args.invalid("class", &format!("Must be a class, but was a {}", class.type_name())));
@@ -126,7 +126,7 @@ fn bless(target: Object, args: &Args, #[param("Class to associate with this obje
 }
 
 /// Return the fields of this object
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::seq(crate::infer::Type::Instance(&FIELD_AND_VALUE_CLASS)))]
 fn fields(target: Object) -> R<Vec<Value>> {
     Ok(target
         .entries()
@@ -145,7 +145,7 @@ fn fields(target: Object) -> R<Vec<Value>> {
 ///   {}.get 'age'                         # null
 ///   {}.get 'age' --default=18            # 18
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, infer = super::infer_rules::get, completion = super::infer_rules::get_completion)]
 fn get(
     target: Object,
     #[param("Field name")] name: Value,
@@ -159,7 +159,7 @@ fn get(
 }
 
 /// Find all the fields in the object which match the given query somewhere in its String representation
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn grep(
     ctx: &mut Ctx,
     target: Object,
@@ -196,7 +196,7 @@ fn grep(
 }
 
 /// Return true if this object contains the given field
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::BOOLEAN)]
 fn has_field(target: Object, #[param("Field name")] name: Value) -> R<bool> {
     Ok(target.contains(&name))
 }
@@ -221,7 +221,7 @@ fn has_field(target: Object, #[param("Field name")] name: Value) -> R<bool> {
 ///     baz2: 200
 ///   }
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, infer = super::infer_rules::hoist, completion = super::infer_rules::hoist_completion)]
 fn hoist(
     ctx: &mut Ctx,
     args: &Args,
@@ -286,7 +286,7 @@ fn hoist_one(ctx: &mut Ctx, object: &Object, field: &Value, sub: &Object, prefix
 /// <mash>
 ///   { apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })  # { APPLE: 1, BOB: 4, CAT: 9 }
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn map(
     ctx: &mut Ctx,
     args: &Args,
@@ -301,7 +301,7 @@ fn map(
 }
 
 /// Return a new object with fields sorted according to a given attribute
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn sort_by(
     ctx: &mut Ctx,
     args: &Args,
@@ -325,7 +325,7 @@ fn sort_by(
 /// <mash>
 ///   { foo: 3, bar: 4 }.transformFields (.toUpper) # { FOO: 3, BAR: 4 }
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn transform_fields(
     ctx: &mut Ctx,
     target: Object,
@@ -354,7 +354,7 @@ fn transform_fields(
 /// <mash>
 ///   { foo: 3, bar: 4 }.transformValues (n => n * n) # { foo: 9, bar: 16 }
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn transform_values(
     ctx: &mut Ctx,
     target: Object,
@@ -378,19 +378,19 @@ fn transform_values(
 }
 
 /// This object without any associated class
-#[builtin_method(shy)]
+#[builtin_method(shy, infer = super::infer_rules::unbless)]
 fn unbless(target: Object) -> R<Object> {
     Ok(target.copy_with_class(None))
 }
 
 /// Return the values of the fields of this object, as a List
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::seq(crate::infer::Type::ANY))]
 fn values(target: Object) -> R<Vec<Value>> {
     Ok(target.values())
 }
 
 /// Return a copy of this object with the given field added or updated with the given value.
-#[builtin_method(shy)]
+#[builtin_method(shy, infer = super::infer_rules::with_field)]
 fn with_field(target: Object, #[param("Field name")] name: Value, #[param("Field value")] value: Value) -> R<Object> {
     let copy = target.copy_with_class(target.class());
     copy.set(name, value);
@@ -404,7 +404,7 @@ fn with_field(target: Object, #[param("Field name")] name: Value, #[param("Field
 ///   { "foo": 1, "bar": 2, "baz": 3 }.where (.startsWith "b")                   # { "bar": 2, "baz": 3 }
 ///   { "foo": 1, "bar": 2, "baz": 3 }.where (f v => f.startsWith "f" or v == 3) # { "foo": 1, "baz": 3 }
 /// </mash>
-#[builtin_method(name = "where", shy)]
+#[builtin_method(name = "where", shy, returns = crate::infer::Type::OBJECT)]
 fn where_(
     ctx: &mut Ctx,
     args: &Args,
@@ -425,7 +425,7 @@ fn where_(
 ///   { "foo": 1, "bar": 2, "baz": 3 }.whereNot (.startsWith "b")                   # { "foo": 1 }
 ///   { "foo": 1, "bar": 2, "baz": 3 }.whereNot (f v => f.startsWith "f" or v == 3) # { "bar": 2 }
 /// </mash>
-#[builtin_method(shy)]
+#[builtin_method(shy, returns = crate::infer::Type::OBJECT)]
 fn where_not(
     ctx: &mut Ctx,
     args: &Args,

@@ -13,7 +13,7 @@ fn random_f64(ctx: &Ctx) -> f64 {
 }
 
 /// Generate a random integer in the given range
-#[builtin(namespace = "random")]
+#[builtin(namespace = "random", returns = crate::infer::Type::NUMBER)]
 pub fn int(
     ctx: &mut Ctx,
     #[param("Smallest number (inclusive)", default = 0i64)] from: i64,
@@ -25,13 +25,13 @@ pub fn int(
 }
 
 /// A random number between 0 (inclusive) and 1 (exclusive)
-#[builtin(namespace = "random")]
+#[builtin(namespace = "random", returns = crate::infer::Type::NUMBER)]
 pub fn number(ctx: &mut Ctx) -> R<f64> {
     Ok(random_f64(ctx))
 }
 
 /// A random UUID
-#[builtin(namespace = "random")]
+#[builtin(namespace = "random", returns = crate::infer::Type::STRING)]
 pub fn uuid(ctx: &mut Ctx) -> R<String> {
     let (high, low) = (ctx.platform().random_u64(), ctx.platform().random_u64());
     // Version 4 (random), variant 1

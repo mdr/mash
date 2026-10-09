@@ -31,7 +31,7 @@ use crate::value::{List, Object, Value};
 ///   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
 ///   select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_select, completion = super::inference::complete_select)]
 pub(crate) fn select(
     ctx: &mut Ctx,
     args: &Args,
@@ -73,7 +73,7 @@ pub(crate) fn select(
 ///   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
 ///   select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]
 /// </mash>
-#[builtin_method(name = "select")]
+#[builtin_method(name = "select", infer = super::inference::infer_select_method, completion = super::inference::complete_select_method)]
 pub(crate) fn select_on_list(
     ctx: &mut Ctx,
     args: &Args,
@@ -147,7 +147,7 @@ fn select_from(ctx: &mut Ctx, target: &Value, selections: &[(String, Value)], ad
 }
 
 /// Remove fields from an object or sequence of objects
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", completion = super::inference::complete_deselect)]
 pub(crate) fn deselect(
     #[param("Fields from the object", variadic, at_least_one)] fields: List,
     #[param("Object or sequence of objects to remove fields from")] target: Value,

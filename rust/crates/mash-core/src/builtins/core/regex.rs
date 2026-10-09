@@ -51,7 +51,7 @@ pub(crate) fn runtime_error(e: fancy_regex::Error) -> MashError {
 }
 
 /// Find the first match of the regex in the given string, or else null
-#[builtin_method(name = "match")]
+#[builtin_method(name = "match", returns = crate::infer::Type::Instance(&super::MATCH_CLASS))]
 fn match_(target: Str, #[param("String to search within for matches")] string: Str) -> R<Value> {
     let regex = compile(target.as_str(), false)?;
     let Some(captures) = regex.captures(string.as_str()).map_err(runtime_error)? else {

@@ -24,7 +24,7 @@ use crate::value::{Object, Value};
 ///   ║0│a│c│e║
 ///   ║1│b│d│f║
 ///   ╚═╧═╧═╧═╝
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", infer = super::inference::infer_transpose)]
 pub(crate) fn transpose(
     args: &Args,
     #[param(

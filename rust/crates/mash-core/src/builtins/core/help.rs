@@ -96,7 +96,7 @@ pub static PARAMETER_HELP_CLASS: BuiltinClass = BuiltinClass {
 };
 
 /// Find help for the given function, method, field or class
-#[builtin(namespace = "core.help")]
+#[builtin(namespace = "core.help", infer = super::infer_rules::help)]
 pub fn help(#[param("The item to find help for", safe)] item: Value) -> R<Value> {
     Ok(help_value(&item))
 }

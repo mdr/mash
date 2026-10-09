@@ -3,6 +3,7 @@
 
 mod functions;
 mod grouping;
+mod inference;
 mod list_methods;
 mod ordering;
 mod select;

@@ -37,6 +37,10 @@
 //! `infer = path`: for a function, `fn(&mut Inferencer, &Params, &TypedArgs) -> Option<Type>`; for a method,
 //! `fn(&mut Inferencer, Option<&Type>, &Params, &TypedArgs) -> Option<Type>` (the `Option<&Type>` is the
 //! target's type).
+//!
+//! For completion of arguments, `completion = path`: for a function, `fn(&Params, usize, &TypedArgs) ->
+//! Vec<CompletionSpec>`; for a method, `fn(&Params, usize, Option<&Type>, &TypedArgs) -> Vec<CompletionSpec>`
+//! (the `usize` is the position of the argument being completed).
 
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
@@ -85,6 +89,8 @@ struct Options {
     returns: Option<Expr>,
     /// A function inferring the result type
     infer: Option<Expr>,
+    /// A function giving completion specs for arguments
+    completion: Option<Expr>,
 }
 
 impl Parse for Options {
@@ -98,6 +104,7 @@ impl Parse for Options {
                 ("aliases", Meta::NameValue(nv)) => options.aliases = lit_strs(&nv.value)?,
                 ("returns", Meta::NameValue(nv)) => options.returns = Some(nv.value.clone()),
                 ("infer", Meta::NameValue(nv)) => options.infer = Some(nv.value.clone()),
+                ("completion", Meta::NameValue(nv)) => options.completion = Some(nv.value.clone()),
                 ("shy", Meta::Path(_)) => options.shy = true,
                 ("private", Meta::Path(_)) => options.private = true,
                 _ => return Err(syn::Error::new(meta.span(), "unknown builtin option")),
@@ -257,6 +264,19 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
         },
         (None, None, _) => quote!(),
     };
+    let completion = match (&options.completion, kind) {
+        (Some(f), Kind::Function) => quote! {
+            fn completion_specs(&self, arg_pos: usize, args: &::mash_core::infer::TypedArgs)
+                -> Vec<::mash_core::complete::CompletionSpec> { (#f)(self.params(), arg_pos, args) }
+        },
+        (Some(f), Kind::Method) => quote! {
+            fn completion_specs(&self, arg_pos: usize, target: Option<&::mash_core::infer::Type>,
+                args: &::mash_core::infer::TypedArgs) -> Vec<::mash_core::complete::CompletionSpec> {
+                (#f)(self.params(), arg_pos, target, args)
+            }
+        },
+        (None, _) => quote!(),
+    };
     let aliases = &options.aliases;
     let vis = &function.vis;
     let doc = format!("The builtin `{mash_name}`.");
@@ -286,6 +306,7 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
                     fn summary(&self) -> &'static str { #summary }
                     fn description(&self) -> Option<&'static str> { #description }
                     #infer
+                    #completion
                 }
             }
         }
@@ -317,6 +338,7 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
                     fn shy(&self) -> bool { #shy }
                     fn private(&self) -> bool { #private }
                     #infer
+                    #completion
                 }
             }
         }

@@ -1,13 +1,16 @@
 //! The `type` and `mash` namespaces: type hints, and Mash about itself (`version`, `eval`, `expressionFor`).
 //! `mash.source` and `mash.reload` need files and the REPL, and come later.
 
+use std::rc::Rc;
+
 use mash_macros::builtin;
 use mash_syntax::escapes::escape_chars;
 use mash_syntax::lexer::is_legal_identifier;
 
 use crate::eval::{Ctx, R, render};
-use crate::function::BuiltinFunction;
-use crate::value::{Str, Value};
+use crate::function::{BuiltinFunction, Params};
+use crate::infer::{Inferencer, Type, TypedArgs};
+use crate::value::{ClassRef, Str, Value};
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] =
     &[&HintFunction, &VersionFunction, &ExpressionForFunction, &EvalFunction];
@@ -15,20 +18,62 @@ pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] =
 /// Hint that the argument is a list
 ///
 /// Returns the item unchanged; the hint is used by type inference.
-#[builtin(namespace = "type")]
+#[builtin(namespace = "type", infer = hint_type)]
 pub fn hint(#[param("Hint")] hint: Value, #[param("Item to apply a type hint to")] item: Value) -> R<Value> {
     let _ = hint;
     Ok(item)
 }
 
+/// The type a `type.hint` hint describes, else the item's type (Scala `HintTypeInferenceStrategy`). A hint is a
+/// class (`String`), a list of one (`[String]`), or an object of hints (`{ name: String }`).
+fn hint_type(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    let bound = args.bind(params);
+    let from_hint = bound.info(params, "hint").and_then(|info| {
+        let from_value = info.value.as_ref().and_then(|v| hinted_type_of_value(inferencer, v));
+        from_value.or_else(|| info.ty.as_ref().and_then(hinted_type_of_type))
+    });
+    from_hint.or_else(|| bound.ty(params, "item"))
+}
+
+fn hinted_type_of_value(inferencer: &mut Inferencer<'_>, value: &Value) -> Option<Type> {
+    match value {
+        Value::Class(ClassRef::User(class)) => Some(Type::UserClassInstance(
+            inferencer.inferencer.detector.user_class(class),
+        )),
+        Value::Class(ClassRef::Builtin(class)) => Some(Type::Instance(class)),
+        Value::List(xs) if xs.len() == 1 => hinted_type_of_value(inferencer, &xs.first()?).map(Type::seq),
+        Value::Object(object) => {
+            let mut fields = vec![];
+            for (k, v) in object.entries() {
+                if let Some(name) = k.as_str() {
+                    fields.push((
+                        Rc::from(name),
+                        hinted_type_of_value(inferencer, &v).unwrap_or(Type::ANY),
+                    ));
+                }
+            }
+            Some(Type::object(fields))
+        }
+        _ => None,
+    }
+}
+
+fn hinted_type_of_type(ty: &Type) -> Option<Type> {
+    match ty {
+        Type::UserClass(class) => Some(Type::UserClassInstance(class.clone())),
+        Type::Seq(element) => Some(Type::seq(hinted_type_of_type(element).unwrap_or(Type::ANY))),
+        _ => None,
+    }
+}
+
 /// Return the version of Mash
-#[builtin(namespace = "mash")]
+#[builtin(namespace = "mash", returns = crate::infer::Type::STRING)]
 pub fn version() -> R<String> {
     Ok(env!("CARGO_PKG_VERSION").to_string())
 }
 
 /// Convert the given value into a Mash expression that evaluates to the same value
-#[builtin(namespace = "mash")]
+#[builtin(namespace = "mash", returns = crate::infer::Type::STRING)]
 pub fn expression_for(#[param("Value to turn into a Mash expression")] value: Value) -> R<Value> {
     Ok(value_to_expression(&value).map_or(Value::Null, |s| Value::Str(Str::new(s))))
 }

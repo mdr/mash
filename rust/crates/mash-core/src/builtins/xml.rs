@@ -15,7 +15,7 @@ use crate::value::{Object, Str, Value};
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&FromStringFunction];
 
 /// Read the given string and parse it as XML
-#[builtin(namespace = "xml")]
+#[builtin(namespace = "xml", returns = crate::infer::Type::OBJECT)]
 pub fn from_string(#[param("String to parse as XML")] string: Str) -> R<Object> {
     parse_xml(string.as_str())
 }

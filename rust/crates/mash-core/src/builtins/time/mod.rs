@@ -242,19 +242,19 @@ fn tagged_amount(target: &Value) -> R<(f64, TimeUnit)> {
 // ------------------------------------------------------------------------------------------------ functions
 
 /// The current date and time
-#[builtin(namespace = "time")]
+#[builtin(namespace = "time", returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 pub fn now(ctx: &mut Ctx) -> R<Value> {
     Ok(Value::DateTime(DateTime(ctx.platform().now())))
 }
 
 /// The current date
-#[builtin(namespace = "time")]
+#[builtin(namespace = "time", returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_CLASS))]
 pub fn today(ctx: &mut Ctx) -> R<Value> {
     Ok(Value::Date(LocalDate(now_zoned(ctx).date())))
 }
 
 /// Parse the given string as a date/time in ISO-8601 format
-#[builtin(namespace = "time")]
+#[builtin(namespace = "time", returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 pub fn parse_iso8601(#[param("Date in ISO-8601 format")] date: Str) -> R<Value> {
     let s = date.as_str();
     let parsed = s
@@ -270,7 +270,7 @@ pub fn parse_iso8601(#[param("Date in ISO-8601 format")] date: Str) -> R<Value> 
 }
 
 /// Get a DateTime representing the number of millis since the epoch
-#[builtin(namespace = "time")]
+#[builtin(namespace = "time", returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 pub fn from_millis_since_epoch(#[param("Milliseconds since the epoch")] millis: Number) -> R<Value> {
     let millis = millis.as_f64().trunc();
     let t = if millis.is_finite() {
@@ -289,7 +289,7 @@ pub fn from_millis_since_epoch(#[param("Milliseconds since the epoch")] millis: 
 ///   sleep 1000      # Sleep 1 second
 ///   sleep 3.seconds
 /// </mash>
-#[builtin(namespace = "time")]
+#[builtin(namespace = "time", returns = crate::infer::Type::UNIT)]
 pub fn sleep(
     ctx: &mut Ctx,
     #[param(
@@ -314,21 +314,21 @@ pub fn sleep(
 // ------------------------------------------------------------------------------------------------ unit methods
 
 /// Point in time this many units ago
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 fn ago(ctx: &mut Ctx, target: &Value) -> R<Value> {
     let (n, unit) = tagged_amount(target)?;
     add_to_date_time(ctx, ctx.platform().now(), -n, unit)
 }
 
 /// Point in time this many units from now
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 fn from_now(ctx: &mut Ctx, target: &Value) -> R<Value> {
     let (n, unit) = tagged_amount(target)?;
     add_to_date_time(ctx, ctx.platform().now(), n, unit)
 }
 
 /// Sleep for this many units
-#[builtin_method(name = "sleep")]
+#[builtin_method(name = "sleep", returns = crate::infer::Type::UNIT)]
 fn unit_sleep(ctx: &mut Ctx, target: &Value) -> R<()> {
     let (n, unit) = tagged_amount(target)?;
     let duration = duration_from_now(ctx, n, unit)?;
@@ -342,7 +342,7 @@ fn local(ctx: &Ctx, target: &Value) -> R<Zoned> {
 }
 
 /// Milliseconds since the Unix epoch
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn millis_since_epoch(target: &Value) -> R<Value> {
     Ok(Value::num(instant(target)?.as_millisecond() as f64))
 }
@@ -350,37 +350,37 @@ fn millis_since_epoch(target: &Value) -> R<Value> {
 /// Format as a human-friendly absolute time, e.g. Fri 9 Oct 2026 10:00:00 BST
 ///
 /// The format is fixed and locale-independent, and `toDateTime` parses it back (in the same time zone).
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::STRING)]
 fn format(ctx: &mut Ctx, target: &Value) -> R<String> {
     Ok(parse::format(instant(target)?, &ctx.time_zone()))
 }
 
 /// Render as human-friendly relative time, e.g. 1 day ago, 3 months from now, etc
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::STRING)]
 fn fuzzy(ctx: &mut Ctx, target: &Value) -> R<String> {
     Ok(fuzzy::fuzzy(&local(ctx, target)?, &now_zoned(ctx)))
 }
 
 /// Date portion of this date and time
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_CLASS))]
 fn date(ctx: &mut Ctx, target: &Value) -> R<Value> {
     Ok(Value::Date(LocalDate(local(ctx, target)?.date())))
 }
 
 /// Hour of the day, in the current time zone
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn hour(ctx: &mut Ctx, target: &Value) -> R<i64> {
     Ok(i64::from(local(ctx, target)?.hour()))
 }
 
 /// Minute of the hour, in the current time zone
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn minute(ctx: &mut Ctx, target: &Value) -> R<i64> {
     Ok(i64::from(local(ctx, target)?.minute()))
 }
 
 /// Second of the minute, in the current time zone
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn second(ctx: &mut Ctx, target: &Value) -> R<i64> {
     Ok(i64::from(local(ctx, target)?.second()))
 }
@@ -392,7 +392,7 @@ fn second(ctx: &mut Ctx, target: &Value) -> R<i64> {
 /// Accepts ISO 8601 / RFC 3339 (with or without a zone), RFC 2822, the output of `DateTime.format`, and
 /// natural language such as `tomorrow at 5pm`, `3 days ago`, `next tuesday` or `29th June 2017, 18:36:44`.
 /// Returns null if the string can't be parsed.
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_TIME_CLASS))]
 pub fn to_date_time(ctx: &mut Ctx, target: Str) -> R<Value> {
     Ok(parse::to_date_time(target.as_str(), &now_zoned(ctx)).map_or(Value::Null, |t| Value::DateTime(DateTime(t))))
 }
@@ -401,7 +401,7 @@ pub fn to_date_time(ctx: &mut Ctx, target: Str) -> R<Value> {
 ///
 /// Accepts the same formats as `toDateTime`, and takes the date in the current time zone. Returns null if the
 /// string can't be parsed.
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::Instance(&crate::builtins::time::DATE_CLASS))]
 pub fn to_date(ctx: &mut Ctx, target: Str) -> R<Value> {
     let tz: TimeZone = ctx.time_zone();
     Ok(parse::to_date_time(target.as_str(), &now_zoned(ctx))

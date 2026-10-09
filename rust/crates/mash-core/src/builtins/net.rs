@@ -22,7 +22,7 @@ pub static HOST_CLASS: BuiltinClass = BuiltinClass {
 };
 
 /// Interpret the given value as a URL
-#[builtin(namespace = "net")]
+#[builtin(namespace = "net", returns = crate::infer::Type::tagged_string(&URL_CLASS))]
 pub fn url(ctx: &mut Ctx, args: &Args, #[param("String to interpret as a URL")] url: Value) -> R<Str> {
     let s = ctx.stringify(&url)?;
     if let Err(message) = check_uri(&s) {
@@ -32,14 +32,14 @@ pub fn url(ctx: &mut Ctx, args: &Args, #[param("String to interpret as a URL")] 
 }
 
 /// URL encode the given value
-#[builtin(namespace = "net")]
+#[builtin(namespace = "net", returns = crate::infer::Type::STRING)]
 pub fn url_encode(ctx: &mut Ctx, #[param("String to URL encode")] string: Value) -> R<String> {
     let s = ctx.stringify(&string)?;
     Ok(form_encode(&s))
 }
 
 /// Return the host component of this URL (may be null)
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::tagged_string(&HOST_CLASS))]
 fn host(target: Str) -> R<Value> {
     Ok(match uri_host(target.as_str()) {
         Some(host) => Value::Str(Str::tagged(host, &HOST_CLASS)),
@@ -55,7 +55,7 @@ fn host(target: Str) -> R<Value> {
 ///   url.withQueryParams { param: 42 } # http://example.com?existing=1&param=42
 ///   url.withQueryParams --param=42    # http://example.com?existing=1&param=42
 /// </mash>
-#[builtin_method]
+#[builtin_method(returns = crate::infer::Type::tagged_string(&URL_CLASS))]
 fn with_query_params(
     ctx: &mut Ctx,
     target: Str,

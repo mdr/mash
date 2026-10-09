@@ -14,7 +14,7 @@ fn items(target: &Value) -> Vec<Value> {
 }
 
 /// Append the given item to the end of this List
-#[builtin_method]
+#[builtin_method(infer = super::inference::infer_append)]
 pub(crate) fn append(target: &Value, #[param("An item to place at the end of the List")] item: Value) -> R<Value> {
     let mut items = items(target);
     items.push(item);
@@ -22,7 +22,7 @@ pub(crate) fn append(target: &Value, #[param("An item to place at the end of the
 }
 
 /// Prepend the given item to the start of this List
-#[builtin_method]
+#[builtin_method(infer = super::inference::infer_append)]
 pub(crate) fn prepend(target: &Value, #[param("An item to place at the start of the List")] item: Value) -> R<Value> {
     let mut items = items(target);
     items.insert(0, item);
@@ -46,7 +46,7 @@ pub(crate) fn cartesian_product(
 }
 
 /// Compute the multiset intersection between this and another sequence
-#[builtin_method]
+#[builtin_method(infer = super::inference::infer_intersect)]
 pub(crate) fn intersect(
     target: &Value,
     #[param("Other sequence to intersect with this")] sequence: Sequence,
@@ -193,7 +193,7 @@ pub(crate) fn natural_join(
 }
 
 /// Construct a new List with the given elements
-#[builtin(namespace = "collections.List", name = "new")]
+#[builtin(namespace = "collections.List", name = "new", infer = super::inference::infer_list_new)]
 pub(crate) fn list_new(#[param("Elements of the list", variadic)] elements: List) -> R<Value> {
     Ok(Value::List(elements))
 }

@@ -4,6 +4,7 @@ mod any;
 mod classes;
 mod functions;
 pub mod help;
+mod infer_rules;
 mod number;
 mod object;
 mod regex;

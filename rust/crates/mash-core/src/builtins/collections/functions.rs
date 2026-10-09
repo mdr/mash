@@ -12,7 +12,7 @@ use crate::function::Sequence;
 ///   length [1, 2, 3] # 3
 ///   length []        # 0
 /// </mash>
-#[builtin(namespace = "collections")]
+#[builtin(namespace = "collections", returns = crate::infer::Type::NUMBER)]
 pub fn length(#[param("Sequence to find the length of")] sequence: Sequence) -> R<usize> {
     Ok(match sequence {
         Sequence::List(xs) => xs.len(),

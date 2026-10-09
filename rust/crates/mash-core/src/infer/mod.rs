@@ -17,7 +17,7 @@ use crate::eval::Ctx;
 use crate::function::{DefaultValue, Param, Params};
 use crate::value::BuiltinClass;
 
-pub use inferencer::{Inferencer, Inferred, THIS, TypeInferencer};
+pub use inferencer::{Inferencer, Inferred, THIS, TypeInferencer, infer_add, object_fields};
 pub use typed_args::{BoundTypes, TypedArg, TypedArgs, ValueInfo, bind_pattern, bind_types};
 pub use types::{
     Bindings, BuiltinFunctionType, FunctionBindings, Type, UserClassType, UserFunctionType, extend_bindings,
