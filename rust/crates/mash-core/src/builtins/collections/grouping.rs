@@ -3,7 +3,7 @@
 use indexmap::IndexMap;
 use mash_macros::{builtin, builtin_method};
 
-use crate::builtins::core::ANY_CLASS;
+use crate::builtins::core::OBJECT_CLASS;
 use crate::eval::Ctx;
 use crate::eval::{MashError, R};
 use crate::function::{Callable, Sequence};
@@ -23,7 +23,7 @@ pub static GROUP_CLASS: BuiltinClass = BuiltinClass {
     ],
     methods: &[&CountMethod],
     static_methods: &[&GroupNewFunction],
-    ..BuiltinClass::new("collections", "Group", Some(&ANY_CLASS))
+    ..BuiltinClass::new("collections", "Group", Some(&OBJECT_CLASS))
 };
 
 fn group(key: Value, values: Vec<Value>) -> Value {

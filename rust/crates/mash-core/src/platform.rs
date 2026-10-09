@@ -1,7 +1,9 @@
 //! The boundary between the interpreter and its host (native OS, browser, or a test fixture).
 
+use std::cell::Cell;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
+use std::time::Duration;
 
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
@@ -30,6 +32,12 @@ pub trait Platform: Debug {
     /// The entries of a directory (relative paths are relative to the current directory), not including `.`
     /// and `..`. Symbolic links are followed to decide whether an entry is a directory.
     fn read_dir(&self, path: &str) -> std::io::Result<Vec<DirEntry>>;
+
+    /// Pause for `duration` (callers sleep in short slices, so that they can respond to interrupts)
+    fn sleep(&self, duration: Duration);
+
+    /// 64 random bits (for `random.*`). Deterministic in tests.
+    fn random_u64(&self) -> u64;
 }
 
 /// An entry in a directory listing.
@@ -124,8 +132,8 @@ fn resolve(cwd: &str, path: &str) -> String {
     format!("/{}", segments.join("/"))
 }
 
-/// A deterministic platform for tests: fixed environment, home `/home/alice`, UTC, a fixed clock, and an
-/// in-memory file tree (empty by default).
+/// A deterministic platform for tests: fixed environment, home `/home/alice`, UTC, a fixed clock (which `sleep`
+/// advances instead of sleeping), and an in-memory file tree (empty by default).
 #[derive(Debug, Clone)]
 pub struct TestPlatform {
     pub env: BTreeMap<String, String>,
@@ -133,7 +141,9 @@ pub struct TestPlatform {
     pub cwd: String,
     pub time_zone: TimeZone,
     pub files: MemoryFiles,
-    pub now: Timestamp,
+    pub now: Cell<Timestamp>,
+    /// State of the deterministic random number generator
+    pub random_state: Cell<u64>,
 }
 
 impl Default for TestPlatform {
@@ -144,7 +154,8 @@ impl Default for TestPlatform {
             cwd: "/home/alice".into(),
             time_zone: TimeZone::UTC,
             files: MemoryFiles::default(),
-            now: "2026-10-09T12:00:00Z".parse().expect("valid timestamp"),
+            now: Cell::new("2026-10-09T12:00:00Z".parse().expect("valid timestamp")),
+            random_state: Cell::new(0x853c_49e6_748f_ea9b),
         }
     }
 }
@@ -171,10 +182,25 @@ impl Platform for TestPlatform {
     }
 
     fn now(&self) -> Timestamp {
-        self.now
+        self.now.get()
+    }
+
+    fn sleep(&self, duration: Duration) {
+        let later = self.now.get().checked_add(duration).unwrap_or(Timestamp::MAX);
+        self.now.set(later);
     }
 
     fn read_dir(&self, path: &str) -> std::io::Result<Vec<DirEntry>> {
         self.files.read_dir(&self.cwd, path)
+    }
+
+    /// splitmix64
+    fn random_u64(&self) -> u64 {
+        let state = self.random_state.get().wrapping_add(0x9e37_79b9_7f4a_7c15);
+        self.random_state.set(state);
+        let mut z = state;
+        z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+        z ^ (z >> 31)
     }
 }

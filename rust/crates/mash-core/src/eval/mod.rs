@@ -158,6 +158,19 @@ impl Ctx {
         self.with_unit(program.unit.clone(), |ctx| ctx.eval(&program.body, &scope))
     }
 
+    /// Compile and evaluate source text in the global scope, as part of an evaluation that's already running
+    /// (for `mash.eval`): unlike [`Ctx::run`], doesn't reset the interrupt flag or step count, and syntax
+    /// errors are evaluation errors.
+    pub fn eval_source(&mut self, name: &str, text: &str) -> R<Value> {
+        let compiled = self.compile(SourceUnit::new(name, text)).map_err(|errors| {
+            let messages: Vec<&str> = errors.iter().map(|e| e.message.as_str()).collect();
+            MashError::new(format!("Syntax error: {}", messages.join("; ")))
+        })?;
+        let scope = self.global_scope.clone();
+        let program = compiled.program;
+        self.with_unit(program.unit.clone(), |ctx| ctx.eval(&program.body, &scope))
+    }
+
     /// Run `f` with `unit` as the current compilation unit
     pub(crate) fn with_unit<T>(&mut self, unit: Rc<SourceUnit>, f: impl FnOnce(&mut Ctx) -> T) -> T {
         let previous = std::mem::replace(&mut self.unit, unit);

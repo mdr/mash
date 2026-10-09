@@ -56,4 +56,23 @@ impl Platform for NativePlatform {
         }
         Ok(entries)
     }
+
+    fn sleep(&self, duration: std::time::Duration) {
+        std::thread::sleep(duration);
+    }
+
+    fn random_u64(&self) -> u64 {
+        use std::io::Read;
+        let mut bytes = [0u8; 8];
+        match std::fs::File::open("/dev/urandom").and_then(|mut f| f.read_exact(&mut bytes)) {
+            Ok(()) => u64::from_ne_bytes(bytes),
+            // Fall back on the standard library's randomly-keyed hasher
+            Err(_) => {
+                use std::hash::{BuildHasher, Hasher};
+                let mut hasher = std::collections::hash_map::RandomState::new().build_hasher();
+                hasher.write_u128(Timestamp::now().as_nanosecond() as u128);
+                hasher.finish()
+            }
+        }
+    }
 }

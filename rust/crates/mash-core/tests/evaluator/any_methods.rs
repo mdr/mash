@@ -36,9 +36,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'tag' in value of type String
-    r#" "foo".toString.tag "#,
-    // Cannot find member 'days' in value of type Number
-    r#"3.days.isA 3.days.tag"#,
-];
+const DEFERRED: &[&str] = &[];

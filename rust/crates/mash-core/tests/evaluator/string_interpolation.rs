@@ -21,11 +21,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'reverse' in value of type String
-    r#"(name => "Hello $name.reverse!") "Matt" "#,
-    // Cannot find member 'reverse' in value of type String
-    r#"(name => "Hello ${name.reverse}!") "Matt" "#,
-    // Cannot find member 'reverse' in value of type String
-    r#" 'foo' | "$_.reverse" "#,
-];
+const DEFERRED: &[&str] = &[];

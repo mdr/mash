@@ -28,9 +28,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'second' in value of type Number
-    r#"3 * 1.second | .tag"#,
-    // Cannot find member 'second' in value of type Number
-    r#"1.second * 3 | .tag"#,
-];
+const DEFERRED: &[&str] = &[];

@@ -21,8 +21,13 @@ use super::core::ANY_CLASS;
 
 pub use functions::*;
 pub use grouping::GROUP_CLASS;
+pub(crate) use ordering::{SortFunction, attribute_functions, descending_param, natural_order_param, sort_object_by};
 pub use sequences::*;
-pub(crate) use wrappers::{LIST_STATIC_METHODS, ORDERING_FUNCTIONS};
+pub(crate) use transpose::TransposeFunction;
+pub(crate) use wrappers::{
+    GROUP_BY_METHOD, LIST_STATIC_METHODS, MAX_BY_METHOD, MAX_METHOD, MIN_BY_METHOD, MIN_METHOD, ORDERING_FUNCTIONS,
+    SORT_BY_METHOD, SORT_METHOD,
+};
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LengthFunction];
 
@@ -81,7 +86,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("collections", "List", Some(&ANY_CLASS))
 };
 
-static LENGTH_METHOD: Methodised = Methodised::new(&LengthFunction, "sequence", &["count"], false);
+pub(crate) static LENGTH_METHOD: Methodised = Methodised::new(&LengthFunction, "sequence", &["count"], false);
 
 /// A function exposed as a method: the target becomes the function's sequence argument (Scala
 /// `FunctionWrappingMethod`).

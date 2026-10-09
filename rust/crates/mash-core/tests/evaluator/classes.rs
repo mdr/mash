@@ -68,9 +68,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'merge' in value of type List
-    r#"[Object, Object].merge { foo: 42 }"#,
-    // Cannot find member 'fields' in value of type Foo
-    r#"class Foo { def getFields = this.fields }; Foo.new.getFields"#,
-];
+const DEFERRED: &[&str] = &[];

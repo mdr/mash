@@ -150,7 +150,13 @@ pub fn time_taken(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value)
     let object = Object::with_class(Some(ClassRef::Builtin(&super::TIMED_RESULT_CLASS)));
     object.set_str("result", result);
     object.set_str("started", Value::DateTime(DateTime(start)));
-    object.set_str("duration", Value::num(millis as f64));
+    object.set_str(
+        "duration",
+        Value::Number(
+            Number::new(millis as f64),
+            Some(&crate::builtins::time::MILLISECONDS_CLASS),
+        ),
+    );
     Ok(object)
 }
 

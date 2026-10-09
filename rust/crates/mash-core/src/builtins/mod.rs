@@ -3,8 +3,15 @@
 
 pub mod collections;
 pub mod core;
+pub mod encoding;
+pub mod json;
+pub mod maths;
+pub mod meta;
+pub mod net;
 pub mod os;
+pub mod random;
 pub mod time;
+pub mod xml;
 
 use std::collections::BTreeMap;
 
@@ -18,12 +25,25 @@ pub fn standard_functions() -> Vec<&'static dyn BuiltinFunction> {
     functions.extend_from_slice(collections::FUNCTIONS);
     functions.extend_from_slice(collections::SEQUENCE_FUNCTIONS);
     functions.extend_from_slice(collections::ORDERING_FUNCTIONS);
+    functions.extend_from_slice(time::FUNCTIONS);
     functions
 }
 
 /// Every builtin function, reachable by its full name under the namespace objects (e.g. `core.identity`)
 pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
-    standard_functions()
+    let mut functions = standard_functions();
+    for namespace in [
+        encoding::FUNCTIONS,
+        json::FUNCTIONS,
+        maths::FUNCTIONS,
+        meta::FUNCTIONS,
+        net::FUNCTIONS,
+        random::FUNCTIONS,
+        xml::FUNCTIONS,
+    ] {
+        functions.extend_from_slice(namespace);
+    }
+    functions
 }
 
 /// Classes available unqualified in the global scope
@@ -49,10 +69,12 @@ pub fn all_classes() -> Vec<&'static BuiltinClass> {
     let mut classes = standard_classes();
     classes.extend([
         &collections::GROUP_CLASS,
+        &maths::STATS_CLASS,
+        &net::HOST_CLASS,
+        &net::URL_CLASS,
         &os::PATH_CLASS,
-        &time::DATE_CLASS,
-        &time::DATE_TIME_CLASS,
     ]);
+    classes.extend_from_slice(time::CLASSES);
     classes.extend_from_slice(core::OTHER_CLASSES);
     classes
 }

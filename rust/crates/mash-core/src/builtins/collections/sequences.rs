@@ -772,7 +772,7 @@ pub(crate) struct GrepOptions {
 }
 
 /// Scala `StringUtils.splitIntoLines`
-fn split_into_lines(s: &str) -> Vec<String> {
+pub(crate) fn split_into_lines(s: &str) -> Vec<String> {
     if s.is_empty() {
         return vec![];
     }
@@ -786,7 +786,7 @@ fn split_into_lines(s: &str) -> Vec<String> {
     lines
 }
 
-fn run_grep(ctx: &mut Ctx, items: Vec<Value>, query: &str, options: &GrepOptions) -> R<Value> {
+pub(crate) fn run_grep(ctx: &mut Ctx, items: Vec<Value>, query: &str, options: &GrepOptions) -> R<Value> {
     let mut matching = vec![];
     for item in items {
         if grep_matches(ctx, &item, query, options)? {
@@ -809,7 +809,10 @@ fn grep_matches(ctx: &mut Ctx, value: &Value, query: &str, options: &GrepOptions
         _ => ctx.stringify(value)?,
     };
     let matches = if options.regex {
-        return Err(MashError::new("Regular expressions are not supported yet"));
+        let regex = crate::builtins::core::compile_regex(query, options.ignore_case)?;
+        regex
+            .is_match(&text)
+            .map_err(crate::builtins::core::regex_runtime_error)?
     } else if options.ignore_case {
         text.to_lowercase().contains(&query.to_lowercase())
     } else {

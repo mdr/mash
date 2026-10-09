@@ -53,23 +53,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'sort' in value of type String
-    r#"'eaebcd'.sort"#,
-    // Cannot find member 'fields' in value of type Object
-    r#"{ z: 26, m: 13, b: 2, c: 3, a: 1 } | sort | .fields.name.join"#,
-    // Cannot find member 'sort' in value of type Object
-    r#"{ z: 26, m: 13, b: 2, c: 3, a: 1 }.sort.fields.name.join"#,
-    // Cannot find member 'fields' in value of type Object
-    r#"sort { a1: 1, a10: 10, a2: 10 } --naturalOrder | .fields.name"#,
-    // Cannot find member 'toNumber' in value of type String
-    r#"'123' | sortBy (-_.toNumber)"#,
-    // Cannot find member 'sortBy' in value of type String
-    r#"'123'.sortBy (-_.toNumber)"#,
-    // Cannot find member 'sortBy' in value of type Object
-    r#"{ a: 3, b: 2, c: 1 }.sortBy (_2) | .fields.name.join"#,
-    // Cannot find member 'fields' in value of type Object
-    r#"{ a: 3, b: 2, c: 1 } | sortBy (_2) | .fields.name.join"#,
-    // Cannot find member 'sortBy' in value of type Object
-    r#"{ a: 3, b: 2, d: 1, c: 1 }.sortBy (f v => [v, f]) | .fields.name.join"#,
-];
+const DEFERRED: &[&str] = &[];

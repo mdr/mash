@@ -225,72 +225,12 @@ fn cases() {
 
 /// Cases that need builtins from later milestones
 const DEFERRED: &[&str] = &[
-    // Cannot find member 'startsWith' in value of type List
-    r#"['foo', 'bar', 'baz'].startsWith 'ba'"#,
-    // Cannot find member 'split' in value of type List
-    r#"['foo bar', 'baz'].split"#,
-    // Cannot find member 'split' in value of type List
-    r#"['foo:bar', 'baz'].split ':'"#,
-    // Cannot find member 'startsWith' in value of type List
-    r#"['foo', 'bar', 'baz'].startsWith | map (_ 'b')"#,
-    // Cannot find member 'startsWith' in value of type List
-    r#"'startsWith' ['foo', 'bar', 'baz'] | map (_ 'b')"#,
-    // Cannot find member 'length' in value of type String
-    r#" "foo`nbar".length "#,
-    // Cannot find member 'reverse' in value of type String
-    r#"['foo', 'bar', 'baz'] | map 'reverse'"#,
-    // Cannot find member 'startsWith' in value of type String
-    r#"['f', 'x'] | map 'foo'.startsWith"#,
-    // Cannot find member 'toUpper' in value of type String
-    r#"def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'"#,
-    // No binding for 'now'
-    r#"now.date.toString"#,
     // No binding for 'pwd'
     r#"[pwd].toString"#,
-    // Cannot find member 'toInt' in value of type Number
-    r#"3.14.toInt"#,
-    // Cannot find member 'toInt' in value of type Number
-    r#"(-3.14).toInt"#,
-    // Cannot find member 'toInt' in value of type Number
-    r#"1485187640884.6155.toInt"#,
-    // Cannot find member 'r' in value of type String
-    r#"'(.*)bar'.r.match 'wibblebar' | .groups.first"#,
-    // Cannot find member 'to' in value of type Number
-    r#"1.to 5 | reduce (_1 * _2)"#,
-    // No binding for 'maths'
-    r#"[1, 2, 3] | maths.stats | .mean"#,
-    // No binding for 'maths'
-    r#"maths.log 1000 --base=10"#,
-    // No binding for 'type'
-    r#"type.hint [String] 42"#,
-    // Cannot find member 'bless' in value of type Object
-    r#"class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff"#,
-    // No binding for 'xml'
-    r#"xml.fromString '<foo>bar</foo>'"#,
-    // No binding for 'json'
-    r#"123456789 | json.prettyPrint"#,
-    // No binding for 'json'
-    r#"{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint"#,
-    // No binding for 'json'
-    r#"{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint --compact"#,
-    // No binding for 'net'
-    r#"net.urlEncode 'user@example.com'"#,
-    // No binding for 'net'
-    r#"net.url 'http://example.com' | .withQueryParams { param: 42 }"#,
-    // No binding for 'net'
-    r#"net.url 'http://example.com' | .withQueryParams --param=42"#,
-    // No binding for 'net'
-    r#"net.url 'http://example.com' | .host"#,
     // No binding for 'pwd'
     r#"(safe pwd).getClass"#,
-    // Cannot find member 'negate' in value of type Number
-    r#"(safe 3.negate).getClass"#,
     // No binding for 'pwd'
     r#"def f (@safe x) = x; f pwd"#,
     // No binding for 'pwd'
     r#"class A { def f (@safe x) = x}; A.new.f pwd"#,
-    // No binding for 'mash'
-    r#"mash.expressionFor 42"#,
-    // No binding for 'mash'
-    r#"mash.expressionFor [1, 2, 3]"#,
 ];

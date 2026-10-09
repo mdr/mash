@@ -41,13 +41,4 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[
-    // Cannot find member 'max' in value of type String
-    r#"'abc'.max"#,
-    // Cannot find member 'maxBy' in value of type String
-    r#"'abcde'.maxBy (_)"#,
-    // Cannot find member 'min' in value of type String
-    r#"'abc'.min"#,
-    // No binding for 'now'
-    r#"a = now; b = 3.days.ago; min a b"#,
-];
+const DEFERRED: &[&str] = &[];

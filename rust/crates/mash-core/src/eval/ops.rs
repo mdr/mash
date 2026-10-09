@@ -5,6 +5,7 @@ use std::cmp::Ordering;
 use mash_syntax::TextRange;
 
 use crate::ast::BinOp;
+use crate::builtins::time::{self, TimeUnit};
 use crate::value::{List, Object, Str, Value, compare};
 
 use super::{Ctx, MashError, R};
@@ -54,6 +55,11 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
         BinOp::Equals => Value::Bool(left.mash_equals(right)),
         BinOp::NotEquals => Value::Bool(!left.mash_equals(right)),
         BinOp::Plus => match (left, right) {
+            // A date-time plus or minus a number of a unit of time, e.g. `now + 3.days`
+            (Value::DateTime(t), amount) | (amount, Value::DateTime(t)) if TimeUnit::of(amount).is_some() => {
+                let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
+                time::add_to_date_time(ctx, t.0, n, unit)?
+            }
             (Value::List(xs), Value::List(ys)) => {
                 let mut items = xs.snapshot();
                 items.extend(ys.snapshot());
@@ -75,6 +81,12 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
             _ => return Err(incompatible("add")),
         },
         BinOp::Minus => match (left, right) {
+            (Value::DateTime(t), amount) if TimeUnit::of(amount).is_some() => {
+                let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
+                time::add_to_date_time(ctx, t.0, -n, unit)?
+            }
+            // The difference between two date-times, in milliseconds
+            (Value::DateTime(a), Value::DateTime(b)) => time::difference(a.0, b.0),
             (Value::Number(a, tag_a), Value::Number(b, tag_b)) => {
                 Value::Number((a.as_f64() - b.as_f64()).into(), tag_a.or(*tag_b))
             }
