@@ -120,6 +120,7 @@ fn is_function_or_method(f: &Callable) -> bool {
 
 /// Call a function with an item, and also its index if it can take two arguments (Scala
 /// `validateFunction1Or2`)
+#[inline(always)]
 fn call_with_index(ctx: &mut Ctx, f: &Callable, takes_index: bool, item: Value, index: usize) -> R<Value> {
     if takes_index {
         f.call(ctx, vec![item, Value::num(index)])

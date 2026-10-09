@@ -28,6 +28,7 @@ static SHORT_FLAG_PARAMS: LazyLock<Params> = LazyLock::new(|| Params::new(vec![P
 static ALIAS_PARAMS: LazyLock<Params> = LazyLock::new(|| Params::new(vec![Param::named("name")]));
 
 impl Ctx {
+    #[inline(never)]
     pub(crate) fn lambda(&mut self, def: &Rc<FnDef>, scope: &Scope) -> R<Value> {
         let params = self.params_from_def(&def.params, None, scope)?;
         Ok(Value::Function(Function::closure(
@@ -37,6 +38,7 @@ impl Ctx {
         )))
     }
 
+    #[inline(never)]
     pub(crate) fn function_decl(&mut self, def: &Rc<FnDef>, scope: &Scope) -> R<Value> {
         // A function's own attributes are evaluated, for any errors, but otherwise unused
         for attribute in &def.attributes {
@@ -54,6 +56,7 @@ impl Ctx {
         Ok(function)
     }
 
+    #[inline(never)]
     pub(crate) fn class_decl(&mut self, def: &Rc<ClassDef>, scope: &Scope) -> R<Value> {
         let params = self.params_from_def(&def.params, def.doc.as_ref(), scope)?;
         let mut methods = vec![];

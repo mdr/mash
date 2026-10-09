@@ -178,10 +178,12 @@ impl FromValue for Callable {
 }
 
 impl Callable {
+    #[inline(always)]
     pub fn call(&self, ctx: &mut Ctx, args: Vec<Value>) -> R<Value> {
         ctx.call_values(&self.0, args)
     }
 
+    #[inline(always)]
     pub fn call1(&self, ctx: &mut Ctx, arg: Value) -> R<Value> {
         ctx.call_values(&self.0, vec![arg])
     }

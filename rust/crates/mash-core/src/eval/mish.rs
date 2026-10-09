@@ -38,6 +38,7 @@ fn located(error: MashError, location: Option<Location>) -> MashError {
 impl Ctx {
     /// Evaluate a mish expression, with `stdin` (if given) as text for the command's standard input
     #[allow(clippy::too_many_arguments)]
+    #[inline(never)]
     pub(crate) fn mish(
         &mut self,
         e: &E,

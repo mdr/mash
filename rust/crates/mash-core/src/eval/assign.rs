@@ -6,6 +6,7 @@ use crate::value::{Object, Scope, Value};
 use super::{Ctx, Location, MashError, R, render};
 
 impl Ctx {
+    #[inline(never)]
     pub(crate) fn assignment(&mut self, e: &E, lhs: &E, op: Option<BinOp>, rhs: &E, scope: &Scope) -> R<Value> {
         let right = self.eval(rhs, scope)?;
         match &lhs.kind {

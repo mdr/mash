@@ -161,6 +161,11 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
         if kind == Kind::Function { "Function" } else { "Method" }
     );
     let (summary, description) = doc_comment(&function.attrs);
+    // Inlined into the generated `call`, saving a stack frame when Mash code recurses through a builtin (as
+    // through `map`): in the browser, the number of frames limits how deep Mash code can recurse
+    if !function.attrs.iter().any(|a| a.path().is_ident("inline")) {
+        function.attrs.push(syn::parse_quote!(#[inline(always)]));
+    }
     let summary = summary.ok_or_else(|| syn::Error::new(fn_name.span(), "builtins need a doc comment"))?;
 
     let mut param_builders = vec![];

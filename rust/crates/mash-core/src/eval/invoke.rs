@@ -36,21 +36,13 @@ fn argument_error_at_call(error: MashError, call_site: &Option<Location>) -> Mas
 }
 
 impl Ctx {
+    /// Part of [`Ctx::eval_expr`] (inlined there, to save a stack frame per call)
+    #[inline(always)]
     pub(crate) fn invocation(&mut self, e: &E, function: &E, args: &[Arg], scope: &Scope) -> R<Value> {
         let arguments = self.arguments(args, scope);
         let call_site = self.loc(e.range);
         match &function.kind {
-            ExprKind::Mish {
-                command,
-                args: words,
-                redirects,
-                capture_output,
-            } => {
-                let bound = bind(self, &super::mish::MISH_PARAMS, &arguments, &mut no_expr_defaults)
-                    .map_err(|e| argument_error_at_call(e, &call_site))?;
-                let stdin = bound.values[0].clone().unwrap_or(Value::Null);
-                self.mish(function, command, words, redirects, *capture_output, Some(stdin), scope)
-            }
+            ExprKind::Mish { .. } => self.mish_invocation(function, &arguments, call_site, scope),
             ExprKind::Member {
                 target,
                 name,
@@ -80,7 +72,32 @@ impl Ctx {
         }
     }
 
+    /// A mish command called with an argument, its standard input (`!{ls} 'x'`)
+    #[inline(never)]
+    fn mish_invocation(
+        &mut self,
+        function: &E,
+        arguments: &[Argument],
+        call_site: Option<Location>,
+        scope: &Scope,
+    ) -> R<Value> {
+        let ExprKind::Mish {
+            command,
+            args: words,
+            redirects,
+            capture_output,
+        } = &function.kind
+        else {
+            unreachable!("a mish invocation")
+        };
+        let bound = bind(self, &super::mish::MISH_PARAMS, arguments, &mut no_expr_defaults)
+            .map_err(|e| argument_error_at_call(e, &call_site))?;
+        let stdin = bound.values[0].clone().unwrap_or(Value::Null);
+        self.mish(function, command, words, redirects, *capture_output, Some(stdin), scope)
+    }
+
     /// Arguments as written in a call, not yet evaluated
+    #[inline(never)]
     pub(crate) fn arguments(&self, args: &[Arg], scope: &Scope) -> Vec<Argument> {
         let suspend = |expr: &E| Suspended::Expr {
             expr: expr.clone(),
@@ -107,6 +124,7 @@ impl Ctx {
     }
 
     /// Call a function with argument values (for builtins calling back into Mash)
+    #[inline(always)]
     pub fn call_values(&mut self, f: &Value, args: Vec<Value>) -> R<Value> {
         let args: Vec<Argument> = args.into_iter().map(Argument::value).collect();
         self.call(f, &args, None, None)
@@ -114,6 +132,8 @@ impl Ctx {
 
     /// Call anything callable: functions, bound methods, classes (their constructor), strings (`'name' x` is
     /// `x.name`) and booleans (`cond a b` is if/else).
+    ///
+    /// Calls of Mash functions recurse through this, so it is kept to one stack frame (see [`Ctx::eval_expr`]).
     pub fn call(
         &mut self,
         f: &Value,
@@ -125,32 +145,52 @@ impl Ctx {
             Value::Function(function) => self.call_function(function, args, call_site),
             Value::Builtin(builtin) => self.call_builtin(builtin.0, args, call_site),
             Value::BoundMethod(method) => self.call_bound_method(method, args, call_site),
-            Value::Str(s) => {
-                let bound = bind(self, &STRING_FUNCTION_PARAMS, args, &mut no_expr_defaults)
-                    .map_err(|e| argument_error_at_call(e, &call_site))?;
-                let target = bound.values[0].clone().unwrap_or(Value::Null);
-                let result = (|| {
-                    let member = self.member(&target, s.as_str(), false, true, false, None)?;
-                    self.invoke_nullary(member.value, call_site.clone())
-                })();
-                result.map_err(|e| e.through_call(None, call_site.clone()))
-            }
-            Value::Bool(b) => {
-                let bound = bind(self, &BOOLEAN_FUNCTION_PARAMS, args, &mut no_expr_defaults)
-                    .map_err(|e| argument_error_at_call(e, &call_site))?;
-                let branch = bound.values[if *b { 0 } else { 1 }].clone().unwrap_or(Value::Unit);
-                let result = match branch {
-                    Value::Unit => Ok(Value::Unit),
-                    f => self.call(&f, &[], None, None),
-                };
-                result.map_err(|e| e.through_call(None, call_site.clone()))
-            }
-            Value::Class(class) => match class {
-                ClassRef::Builtin(c) => match c.static_method("new") {
-                    Some(constructor) => self.call_builtin(constructor, args, call_site),
-                    None => Err(not_callable(f, function_location)),
-                },
-                ClassRef::User(c) => self.call_constructor(c, args, call_site),
+            Value::Str(s) => self.call_string(s.as_str(), args, call_site),
+            Value::Bool(b) => self.call_boolean(*b, args, call_site),
+            Value::Class(ClassRef::User(c)) => self.call_constructor(c, args, call_site),
+            _ => self.call_other(f, args, function_location, call_site),
+        }
+    }
+
+    /// `'name' x` is `x.name`
+    #[inline(never)]
+    fn call_string(&mut self, name: &str, args: &[Argument], call_site: Option<Location>) -> R<Value> {
+        let bound = bind(self, &STRING_FUNCTION_PARAMS, args, &mut no_expr_defaults)
+            .map_err(|e| argument_error_at_call(e, &call_site))?;
+        let target = bound.values[0].clone().unwrap_or(Value::Null);
+        let result = (|| {
+            let member = self.member(&target, name, false, true, false, None)?;
+            self.invoke_nullary(member.value, call_site.clone())
+        })();
+        result.map_err(|e| e.through_call(None, call_site.clone()))
+    }
+
+    /// `cond a b` is `if cond then a else b`, calling the branch taken
+    #[inline(never)]
+    fn call_boolean(&mut self, b: bool, args: &[Argument], call_site: Option<Location>) -> R<Value> {
+        let bound = bind(self, &BOOLEAN_FUNCTION_PARAMS, args, &mut no_expr_defaults)
+            .map_err(|e| argument_error_at_call(e, &call_site))?;
+        let branch = bound.values[if b { 0 } else { 1 }].clone().unwrap_or(Value::Unit);
+        let result = match branch {
+            Value::Unit => Ok(Value::Unit),
+            f => self.call(&f, &[], None, None),
+        };
+        result.map_err(|e| e.through_call(None, call_site.clone()))
+    }
+
+    /// Builtin classes (their `new` method), and things that can't be called
+    #[inline(never)]
+    fn call_other(
+        &mut self,
+        f: &Value,
+        args: &[Argument],
+        function_location: Option<Location>,
+        call_site: Option<Location>,
+    ) -> R<Value> {
+        match f {
+            Value::Class(ClassRef::Builtin(c)) => match c.static_method("new") {
+                Some(constructor) => self.call_builtin(constructor, args, call_site),
+                None => Err(not_callable(f, function_location)),
             },
             _ => Err(not_callable(f, function_location)),
         }
@@ -192,6 +232,7 @@ impl Ctx {
         }
     }
 
+    #[inline(always)]
     fn call_function(&mut self, function: &Function, args: &[Argument], call_site: Option<Location>) -> R<Value> {
         match function.kind() {
             FunctionKind::Closure { def, params, scope } => {
@@ -210,6 +251,15 @@ impl Ctx {
                 )
             }
             FunctionKind::Constructor(class) => self.call_constructor(class, args, call_site),
+            FunctionKind::Suspended(_) | FunctionKind::SystemCommand(_) => {
+                self.call_other_function(function, args, call_site)
+            }
+        }
+    }
+
+    #[inline(never)]
+    fn call_other_function(&mut self, function: &Function, args: &[Argument], call_site: Option<Location>) -> R<Value> {
+        match function.kind() {
             FunctionKind::Suspended(suspended) => {
                 bind(self, &NO_PARAMS, args, &mut no_expr_defaults)
                     .map_err(|e| argument_error_at_call(e, &call_site))?;
@@ -224,11 +274,13 @@ impl Ctx {
                 self.call_system_command(command, args)
                     .map_err(|e| e.through_call(None, call_site))
             }
+            FunctionKind::Closure { .. } | FunctionKind::Constructor(_) => unreachable!("handled by call_function"),
         }
     }
 
     /// Call a user-defined function or method: bind the arguments (defaults are evaluated in `param_scope`),
     /// then evaluate the body in a new scope made by `body_scope`.
+    #[inline(always)]
     fn call_closure(
         &mut self,
         def: &Rc<FnDef>,
@@ -238,6 +290,28 @@ impl Ctx {
         body_scope: impl FnOnce(Object, Vec<Rc<str>>) -> Scope,
         param_scope: &Scope,
     ) -> R<Value> {
+        let (vars, safe_names) = self.bind_closure_args(def, params, args, &call_site, param_scope)?;
+        let scope = body_scope(vars, safe_names);
+        self.enter_call(&call_site)?;
+        let result = self.with_unit(def.unit.clone(), |ctx| ctx.eval(&def.body, &scope));
+        self.depth -= 1;
+        result.map_err(|e| {
+            let name = def.name.as_ref().map_or_else(|| "anonymous".into(), |n| n.to_string());
+            e.through_call(Some(name), call_site)
+        })
+    }
+
+    /// The variables of a call of a user-defined function: its parameters, bound to the arguments; and the
+    /// names of its safe parameters
+    #[inline(never)]
+    fn bind_closure_args(
+        &mut self,
+        def: &Rc<FnDef>,
+        params: &Params,
+        args: &[Argument],
+        call_site: &Option<Location>,
+        param_scope: &Scope,
+    ) -> R<(Object, Vec<Rc<str>>)> {
         let bound = bind(self, params, args, &mut |ctx, i| {
             let default = def.params[i]
                 .default
@@ -245,7 +319,7 @@ impl Ctx {
                 .expect("parameter with an expression default");
             ctx.with_unit(def.unit.clone(), |ctx| ctx.eval(default, param_scope))
         })
-        .map_err(|e| argument_error_at_call(e, &call_site))?;
+        .map_err(|e| argument_error_at_call(e, call_site))?;
         let vars = Object::new();
         let mut safe_names = vec![];
         for ((param, def_param), value) in params.params.iter().zip(&def.params).zip(bound.values) {
@@ -254,7 +328,7 @@ impl Ctx {
             match &def_param.pattern {
                 Some(pattern) if simple => self
                     .bind_pattern(pattern, &value, &mut |name, v| vars.set_str(name, v), None)
-                    .map_err(|e| argument_error_at_call(e, &call_site))?,
+                    .map_err(|e| argument_error_at_call(e, call_site))?,
                 _ => {
                     if let Some(name) = &def_param.name {
                         vars.set_str(name, value);
@@ -265,16 +339,7 @@ impl Ctx {
                 safe_names.extend(def_param.name.clone());
             }
         }
-        let scope = body_scope(vars, safe_names);
-        self.enter_call(&call_site)?;
-        let result = self.with_unit(def.unit.clone(), |ctx| ctx.eval(&def.body, &scope));
-        self.depth -= 1;
-        let name = def
-            .name
-            .as_ref()
-            .map(|n| n.to_string())
-            .unwrap_or_else(|| "anonymous".into());
-        result.map_err(|e| e.through_call(Some(name), call_site))
+        Ok((vars, safe_names))
     }
 
     fn enter_call(&mut self, call_site: &Option<Location>) -> R<()> {
@@ -291,6 +356,7 @@ impl Ctx {
         Ok(())
     }
 
+    #[inline(always)]
     fn call_builtin(
         &mut self,
         f: &'static dyn BuiltinFunction,

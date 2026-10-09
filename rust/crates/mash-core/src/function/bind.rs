@@ -219,6 +219,7 @@ fn bind_named_args(ctx: &mut Ctx, param: &Param, args: &[&Argument]) -> R<Value>
 }
 
 /// The value an argument gives its parameter
+#[inline(always)]
 fn arg_value(ctx: &mut Ctx, param: &Param, arg: &Argument) -> R<Value> {
     match arg {
         Argument::Positional { value, .. } => resolve(ctx, param, value),
@@ -227,6 +228,7 @@ fn arg_value(ctx: &mut Ctx, param: &Param, arg: &Argument) -> R<Value> {
     }
 }
 
+#[inline(always)]
 fn resolve(ctx: &mut Ctx, param: &Param, value: &Suspended) -> R<Value> {
     if param.lazy {
         Ok(Value::Function(Function::new(FunctionKind::Suspended(value.clone()))))

@@ -241,6 +241,7 @@ impl Ctx {
     }
 
     /// Run `f` with `unit` as the current compilation unit
+    #[inline(always)]
     pub(crate) fn with_unit<T>(&mut self, unit: Rc<SourceUnit>, f: impl FnOnce(&mut Ctx) -> T) -> T {
         let previous = std::mem::replace(&mut self.unit, unit);
         let result = f(self);
@@ -290,162 +291,196 @@ impl Ctx {
 
     /// Evaluate an expression. A name or member that refers to a function that can be called with no
     /// arguments is called (Scala `Evaluator.evaluate`).
+    #[inline(always)]
     pub fn eval(&mut self, e: &E, scope: &Scope) -> R<Value> {
-        self.check_interrupted()?;
-        match &e.kind {
-            ExprKind::Identifier(name) => {
-                let binding = self.lookup_identifier(name, e.range, scope)?;
-                if binding.safe {
-                    Ok(binding.value)
-                } else {
-                    self.invoke_nullary(binding.value, self.loc(e.range))
-                }
-            }
-            ExprKind::Member { .. } => {
-                let value = self.simple_eval(e, scope)?;
-                self.invoke_nullary(value, self.loc(e.range))
-            }
-            _ => self.simple_eval(e, scope),
-        }
+        self.eval_expr(e, scope, true)
     }
 
     /// Evaluate an expression without calling the resulting function, if it is one (Scala
     /// `Evaluator.simpleEvaluate`).
+    #[inline(always)]
     pub fn simple_eval(&mut self, e: &E, scope: &Scope) -> R<Value> {
+        self.eval_expr(e, scope, false)
+    }
+
+    /// [`Ctx::eval`] if `call_nullary`, else [`Ctx::simple_eval`].
+    ///
+    /// Mash code recurses through this once per level of expression, so it decides how deep Mash code can
+    /// recurse in the browser, where the stack is V8's (about 1 MB) and every wasm call costs a frame of a few
+    /// hundred bytes whatever the function. So the expressions that recursion usually passes through (blocks,
+    /// conditions, operators, calls, members) are handled here, without calls to helper functions; the rest are
+    /// in helpers, kept out of line so that their variables don't enlarge this frame. Expressions in tail
+    /// position (the branches of an `if`, the last statement of a block, …) are evaluated by looping rather
+    /// than recursing.
+    fn eval_expr(&mut self, mut e: &E, scope: &Scope, mut call_nullary: bool) -> R<Value> {
         use ExprKind as K;
-        match &e.kind {
-            K::Literal(Literal::Number(n)) => Ok(Value::num(*n)),
-            K::Literal(Literal::Bool(b)) => Ok(Value::Bool(*b)),
-            K::Literal(Literal::Null) => Ok(Value::Null),
-            K::String { value, quote, tilde } => Ok(self.string_literal(value, *quote == QuoteKind::Double, *tilde)),
-            K::Interpolated { parts, tilde } => self.interpolated_string(parts, *tilde, scope),
-            K::Identifier(name) => Ok(self.lookup_identifier(name, e.range, scope)?.value),
-            K::This => scope
-                .this()
-                .ok_or_else(|| MashError::at("No binding for 'this'", self.loc(e.range))),
-            K::Paren(inner) => self.eval(inner, scope),
-            K::Block(body) => {
-                let block_scope = scope.child(ScopeKind::Leaky, Object::new(), vec![]);
-                self.eval(body, &block_scope)
-            }
-            K::StatementSeq(statements) => {
-                let mut result = Value::Unit;
-                for statement in statements {
-                    result = self.eval(statement, scope)?;
+        let mut scope = scope;
+        let mut block_scope: Scope;
+        loop {
+            self.check_interrupted()?;
+            return match &e.kind {
+                K::Literal(Literal::Number(n)) => Ok(Value::num(*n)),
+                K::Literal(Literal::Bool(b)) => Ok(Value::Bool(*b)),
+                K::Literal(Literal::Null) => Ok(Value::Null),
+                K::String { value, quote, tilde } => {
+                    Ok(self.string_literal(value, *quote == QuoteKind::Double, *tilde))
                 }
-                Ok(result)
-            }
-            K::List(items) => {
-                let mut values = Vec::with_capacity(items.len());
-                for item in items {
-                    values.push(self.eval(item, scope)?);
-                }
-                Ok(Value::List(List::new(values)))
-            }
-            K::Object(entries) => self.object_literal(entries, scope),
-            K::Member {
-                target,
-                name,
-                null_safe,
-                name_range,
-            } => {
-                let this_target = matches!(target.kind, K::This);
-                let target = self.eval(target, scope)?;
-                let location = self.loc(name_range.or(e.range));
-                Ok(self
-                    .member(&target, name, *null_safe, true, this_target, location)?
-                    .value)
-            }
-            K::Lookup { target, index } => self.lookup_expr(e, target, index, scope),
-            K::Invocation { function, args, .. } => self.invocation(e, function, args, scope),
-            K::Minus(inner) => match self.eval(inner, scope)? {
-                Value::Number(n, tag) => Ok(Value::Number((-n.as_f64()).into(), tag)),
-                other => Err(MashError::at(
-                    format!("Could not negate a value of type {}", other.type_name()),
-                    self.loc(inner.range),
-                )),
-            },
-            K::BinOp {
-                op: BinOp::And,
-                lhs,
-                rhs,
-            } => {
-                let left = self.eval(lhs, scope)?;
-                if left.is_truthy() {
-                    self.eval(rhs, scope)
-                } else {
-                    Ok(left)
-                }
-            }
-            K::BinOp {
-                op: BinOp::Or,
-                lhs,
-                rhs,
-            } => {
-                let left = self.eval(lhs, scope)?;
-                if left.is_truthy() {
-                    Ok(left)
-                } else {
-                    self.eval(rhs, scope)
-                }
-            }
-            K::BinOp { op, lhs, rhs } => {
-                let left = self.eval(lhs, scope)?;
-                let right = self.eval(rhs, scope)?;
-                self.binary_op(*op, &left, &right, e.range)
-            }
-            K::ChainedOp { first, rest } => {
-                let mut previous = self.eval(first, scope)?;
-                let mut success = true;
-                for (op, rhs) in rest {
-                    let value = self.eval(rhs, scope)?;
-                    let this_success = self.binary_op(*op, &previous, &value, e.range)?.is_truthy();
-                    if success {
-                        previous = value;
-                    }
-                    success &= this_success;
-                }
-                Ok(Value::Bool(success))
-            }
-            K::If { cond, then, else_ } => {
-                if self.eval(cond, scope)?.is_truthy() {
-                    self.eval(then, scope)
-                } else {
-                    match else_ {
-                        Some(else_) => self.eval(else_, scope),
-                        None => Ok(Value::Unit),
+                K::Interpolated { parts, tilde } => self.interpolated_string(parts, *tilde, scope),
+                K::Identifier(name) => {
+                    let binding = self.lookup_identifier(name, e.range, scope)?;
+                    if call_nullary && !binding.safe {
+                        self.invoke_nullary(binding.value, self.loc(e.range))
+                    } else {
+                        Ok(binding.value)
                     }
                 }
-            }
-            K::Assignment { lhs, op, rhs } => self.assignment(e, lhs, *op, rhs, scope),
-            K::PatternAssignment { pattern, rhs } => {
-                let value = self.eval(rhs, scope)?;
-                self.bind_pattern(pattern, &value, &mut |name, v| scope.assign(name, v), self.loc(e.range))?;
-                Ok(value)
-            }
-            K::Lambda(def) => self.lambda(def, scope),
-            K::FunctionDecl(def) => self.function_decl(def, scope),
-            K::ClassDecl(def) => self.class_decl(def, scope),
-            K::MishFunction(command) => Ok(Value::Function(crate::value::Function::new(
-                crate::value::FunctionKind::SystemCommand(command.clone()),
-            ))),
-            K::Mish {
-                command,
-                args,
-                redirects,
-                capture_output,
-            } => self.mish(e, command, args, redirects, *capture_output, None, scope),
-            K::MishInterpolation(inner) => self.eval(inner, scope),
-            K::Help(inner) => self.help(inner, scope),
-            K::Import { expr, name, .. } => self.import(e, expr, name.as_deref(), scope),
-            K::Missing => Err(MashError::at("Incomplete expression", self.loc(e.range))),
-            K::Hole(_) | K::HeadlessMember { .. } | K::Pipe { .. } => Err(MashError::at(
-                "Internal error: unexpected syntax after desugaring",
-                self.loc(e.range),
+                K::This => self.this(e, scope),
+                K::Paren(inner) | K::MishInterpolation(inner) => {
+                    (e, call_nullary) = (inner, true);
+                    continue;
+                }
+                K::Block(body) => {
+                    block_scope = scope.child(ScopeKind::Leaky, Object::new(), vec![]);
+                    scope = &block_scope;
+                    (e, call_nullary) = (body, true);
+                    continue;
+                }
+                K::StatementSeq(statements) => {
+                    let Some((last, init)) = statements.split_last() else {
+                        return Ok(Value::Unit);
+                    };
+                    for statement in init {
+                        self.eval(statement, scope)?;
+                    }
+                    (e, call_nullary) = (last, true);
+                    continue;
+                }
+                K::List(items) => {
+                    let mut values = Vec::with_capacity(items.len());
+                    for item in items {
+                        values.push(self.eval(item, scope)?);
+                    }
+                    Ok(Value::List(List::new(values)))
+                }
+                K::Object(entries) => self.object_literal(entries, scope),
+                K::Member {
+                    target,
+                    name,
+                    null_safe,
+                    name_range,
+                } => {
+                    let this_target = matches!(target.kind, K::This);
+                    let target = self.eval(target, scope)?;
+                    let location = self.loc(name_range.or(e.range));
+                    let value = self
+                        .member(&target, name, *null_safe, true, this_target, location)?
+                        .value;
+                    if call_nullary {
+                        self.invoke_nullary(value, self.loc(e.range))
+                    } else {
+                        Ok(value)
+                    }
+                }
+                K::Lookup { target, index } => self.lookup_expr(e, target, index, scope),
+                K::Invocation { function, args, .. } => self.invocation(e, function, args, scope),
+                K::Minus(inner) => self.minus(inner, scope),
+                K::BinOp { op, lhs, rhs } => {
+                    let left = self.eval(lhs, scope)?;
+                    match op {
+                        BinOp::And if !left.is_truthy() => Ok(left),
+                        BinOp::Or if left.is_truthy() => Ok(left),
+                        BinOp::And | BinOp::Or => self.eval(rhs, scope),
+                        _ => {
+                            let right = self.eval(rhs, scope)?;
+                            self.binary_op(*op, &left, &right, e.range)
+                        }
+                    }
+                }
+                K::ChainedOp { first, rest } => self.chained_op(e, first, rest, scope),
+                K::If { cond, then, else_ } => {
+                    let branch = if self.eval(cond, scope)?.is_truthy() {
+                        then
+                    } else {
+                        match else_ {
+                            Some(else_) => else_,
+                            None => return Ok(Value::Unit),
+                        }
+                    };
+                    (e, call_nullary) = (branch, true);
+                    continue;
+                }
+                K::Assignment { lhs, op, rhs } => self.assignment(e, lhs, *op, rhs, scope),
+                K::PatternAssignment { pattern, rhs } => self.pattern_assignment(e, pattern, rhs, scope),
+                K::Lambda(def) => self.lambda(def, scope),
+                K::FunctionDecl(def) => self.function_decl(def, scope),
+                K::ClassDecl(def) => self.class_decl(def, scope),
+                K::MishFunction(command) => Ok(Value::Function(crate::value::Function::new(
+                    crate::value::FunctionKind::SystemCommand(command.clone()),
+                ))),
+                K::Mish {
+                    command,
+                    args,
+                    redirects,
+                    capture_output,
+                } => self.mish(e, command, args, redirects, *capture_output, None, scope),
+                K::Help(inner) => self.help(inner, scope),
+                K::Import { expr, name, .. } => self.import(e, expr, name.as_deref(), scope),
+                K::Missing | K::Hole(_) | K::HeadlessMember { .. } | K::Pipe { .. } => self.unexpected(e),
+            };
+        }
+    }
+
+    #[inline(never)]
+    fn this(&self, e: &E, scope: &Scope) -> R<Value> {
+        scope
+            .this()
+            .ok_or_else(|| MashError::at("No binding for 'this'", self.loc(e.range)))
+    }
+
+    #[inline(never)]
+    fn minus(&mut self, inner: &E, scope: &Scope) -> R<Value> {
+        match self.eval(inner, scope)? {
+            Value::Number(n, tag) => Ok(Value::Number((-n.as_f64()).into(), tag)),
+            other => Err(MashError::at(
+                format!("Could not negate a value of type {}", other.type_name()),
+                self.loc(inner.range),
             )),
         }
     }
 
+    #[inline(never)]
+    fn chained_op(&mut self, e: &E, first: &E, rest: &[(BinOp, E)], scope: &Scope) -> R<Value> {
+        let mut previous = self.eval(first, scope)?;
+        let mut success = true;
+        for (op, rhs) in rest {
+            let value = self.eval(rhs, scope)?;
+            let this_success = self.binary_op(*op, &previous, &value, e.range)?.is_truthy();
+            if success {
+                previous = value;
+            }
+            success &= this_success;
+        }
+        Ok(Value::Bool(success))
+    }
+
+    #[inline(never)]
+    fn pattern_assignment(&mut self, e: &E, pattern: &crate::ast::Pattern, rhs: &E, scope: &Scope) -> R<Value> {
+        let value = self.eval(rhs, scope)?;
+        self.bind_pattern(pattern, &value, &mut |name, v| scope.assign(name, v), self.loc(e.range))?;
+        Ok(value)
+    }
+
+    #[inline(never)]
+    fn unexpected(&self, e: &E) -> R<Value> {
+        let message = if matches!(e.kind, ExprKind::Missing) {
+            "Incomplete expression"
+        } else {
+            "Internal error: unexpected syntax after desugaring"
+        };
+        Err(MashError::at(message, self.loc(e.range)))
+    }
+
+    #[inline(never)]
     fn lookup_identifier(&self, name: &str, range: Option<TextRange>, scope: &Scope) -> R<crate::value::Binding> {
         let binding = scope.lookup_with(name, |this, name| {
             self.lookup_member(
@@ -466,6 +501,7 @@ impl Ctx {
         })
     }
 
+    #[inline(never)]
     fn string_literal(&self, value: &str, double_quoted: bool, tilde: bool) -> Value {
         let text: Rc<str> = if tilde {
             format!("{}{value}", self.home_dir()).into()
@@ -485,6 +521,7 @@ impl Ctx {
 
     /// Text parts are path-tagged, so the result is a path (as in Scala, where the result keeps the tag of the
     /// first part)
+    #[inline(never)]
     fn interpolated_string(&mut self, parts: &[InterpolationPart], tilde: bool, scope: &Scope) -> R<Value> {
         let mut text = if tilde { self.home_dir() } else { String::new() };
         for part in parts {
@@ -502,6 +539,7 @@ impl Ctx {
         Ok(Value::Str(Str::tagged(text, &builtins::os::PATH_CLASS)))
     }
 
+    #[inline(never)]
     fn object_literal(&mut self, entries: &[ObjectEntry], scope: &Scope) -> R<Value> {
         let object = Object::new();
         for entry in entries {
@@ -524,6 +562,7 @@ impl Ctx {
         Ok(Value::Object(object))
     }
 
+    #[inline(never)]
     fn lookup_expr(&mut self, e: &E, target: &E, index: &E, scope: &Scope) -> R<Value> {
         let this_target = matches!(target.kind, ExprKind::This);
         let target = self.eval(target, scope)?;
@@ -580,6 +619,7 @@ impl Ctx {
         }
     }
 
+    #[inline(never)]
     fn import(&mut self, e: &E, expr: &E, name: Option<&str>, scope: &Scope) -> R<Value> {
         let target = self.eval(expr, scope)?;
         match name {
@@ -613,6 +653,7 @@ impl Ctx {
 
     /// `expr?` (Scala `HelpEvaluator`): for `target.name`, help for the field or method if there is one (or for
     /// that member of a list's first element), else help for the member's value
+    #[inline(never)]
     fn help(&mut self, inner: &E, scope: &Scope) -> R<Value> {
         use builtins::core::help::{help_for, help_for_member};
         let value = match &inner.kind {
