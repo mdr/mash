@@ -1,8 +1,9 @@
 # Mash → Rust: port plan
 
-Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09:
-planning and design spikes complete, no production code yet. Spikes live locally in `rust/spikes/`
-(not committed); each has a `FINDINGS.md`.
+Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0, M1 and M2
+done (syntax, values, evaluator, core and collections builtins, `mash -e`/script runner); next is M3. Spikes live
+locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
+ported.
 
 ## Guiding principles
 
@@ -212,6 +213,24 @@ During the port (no language change):
 | M4 | Interactive shell | Line editor, screen, keys, history, completion UI, `!{…}`, `cd`, minimal os (ls, read, write, run) — daily-usable |
 | M5 | Remaining OS | Rest of os, users/groups, http, git, object browser |
 | M6 | Browser | `mash-web` with xterm.js |
+
+## Deliberate differences from Scala Mash (so far)
+
+Small behaviour changes made during the port, each checked against the Scala implementation:
+
+| Area | Scala Mash | Rust port |
+|---|---|---|
+| Selection expansion (M-Up) | Cursor just after a word selects the enclosing expression | Selects the word |
+| `"~/$x"` (interpolated string starting with `~`) | Tilde silently dropped (`/a1`) | Expanded to the home directory |
+| Argument evaluation order | Hash-map order of parameters | Parameter order |
+| `max`/`min` of all-null items | Crashes (`empty.max`) | The `--default` value |
+| `naturalJoin` result order | Undefined (Scala `Set`) | Groups by first appearance in the target |
+| `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
+| `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
+| `mash FILE`, `mash -e EXPR` | Not supported | Run a script / evaluate an expression (`mash -c` still runs via `sh`, as in Scala) |
+
+Not yet ported, pending later milestones: `grep -r` (regex, M3), `timeTaken` durations are untagged until the time
+namespace exists (M3).
 
 ## Post-port backlog (language changes, deferred)
 

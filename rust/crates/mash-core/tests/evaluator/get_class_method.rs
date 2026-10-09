@@ -23,4 +23,11 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // No binding for 'now'
+    r#"now.getClass"#,
+    // No binding for 'now'
+    r#"now.date.getClass"#,
+    // Cannot find member 'startsWith' in value of type String
+    r#"'foo'.startsWith.getClass"#,
+];

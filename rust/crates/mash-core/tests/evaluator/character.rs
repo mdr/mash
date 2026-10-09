@@ -16,4 +16,13 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'all' in value of type String
+    r#"'1234'.all (.isDigit)"#,
+    // Cannot find member 'all' in value of type String
+    r#"'12b34'.all (.isDigit)"#,
+    // Cannot find member 'tag' in value of type String
+    r#"'abc'[0].tag"#,
+    // Cannot find member 'toCharacter' in value of type String
+    r#"'1'.toCharacter.isDigit"#,
+];

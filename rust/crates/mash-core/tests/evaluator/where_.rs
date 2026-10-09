@@ -60,5 +60,32 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'toPath' in value of type String
+    r#"'foobar'.toPath | where (_ > 'm') | .tag"#,
+    // Cannot find member 'where' in value of type String
+    r#"'foobar'.where (_ > 'm')"#,
+    // Cannot find member 'where' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.where (.startsWith 'a')"#,
+    // Cannot find member 'where' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.where (f v => f.startsWith 'b' or v == 3)"#,
+    // Cannot find member 'startsWith' in value of type String
+    r#"{ apple: 1, bob: 2, aardvark: 3 } | where (.startsWith 'a')"#,
+    // Cannot find member 'startsWith' in value of type String
+    r#"{ apple: 1, bob: 2, aardvark: 3 } | where (f v => f.startsWith 'b' or v == 3)"#,
+    // Cannot find member 'where' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.where (f v i => i == 1)"#,
+    // Cannot find member 'whereNot' in value of type String
+    r#"'foobar'.whereNot (_ > 'm')"#,
+    // Cannot find member 'whereNot' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.whereNot (.startsWith 'a')"#,
+    // Cannot find member 'whereNot' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v => f.startsWith 'b' or v == 3)"#,
+    // Cannot find member 'startsWith' in value of type String
+    r#"{ apple: 1, bob: 2, aardvark: 3 } | whereNot (.startsWith 'a')"#,
+    // Cannot find member 'startsWith' in value of type String
+    r#"{ apple: 1, bob: 2, aardvark: 3 } | whereNot (f v => f.startsWith 'b' or v == 3)"#,
+    // Cannot find member 'whereNot' in value of type Object
+    r#"{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v i => i == 1)"#,
+];

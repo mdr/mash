@@ -96,4 +96,83 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'transformValues' in value of type Object
+    r#"{ foo: 3, bar: 4 }.transformValues (n => n * n)"#,
+    // Cannot find member 'transformValues' in value of type Object
+    r#"{ foo: 3, bar: 4 }.transformValues (f v => "$f$v")"#,
+    // Cannot find member 'transformFields' in value of type Object
+    r#"{ foo: 3, bar: 4 }.transformFields (.toUpper)"#,
+    // Cannot find member 'transformFields' in value of type Object
+    r#"{ foo: 3, bar: 4 }.transformFields (f v => f.toUpper + v)"#,
+    // Cannot find member 'transformFields' in value of type Object
+    r#"{ a: 10, bb: 20, ccc: 30 }.transformFields (.length)"#,
+    // Cannot find member 'hoist' in value of type Object
+    r#"{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar'"#,
+    // Cannot find member 'hoist' in value of type Object
+    r#"{ foo: 42, (42): { baz1: 100, baz2: 200 } }.hoist 42"#,
+    // Cannot find member 'hoist' in value of type Object
+    r#"{ foo: 42, bar: [{ baz1: 100, baz2: 200 }, { baz1: 300, baz2: 400 }] }.hoist 'bar'"#,
+    // Cannot find member 'hoist' in value of type Object
+    r#"{ foo: 42, bar: { baz1: 100, baz2: 200 } }.hoist 'bar' --prefix='bar_'"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"Object.merge []"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"Object.merge { foo: 42 }"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"Object.merge { foo: 42 } { bar: 128 }"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"Object.merge { foo: 42 } { foo: 128 }"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"Object.merge { foo: 42 } { (42): 'foo' }"#,
+    // Cannot find member 'merge' in value of type Class
+    r#"class A a; class B b; class C c; Object.merge [A 1, B 2, C 3] | .getClass.name"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[['a', 1], ['b', 2]] | Object.fromPairs"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[['a', 1], [2, 'b']] | Object.fromPairs"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[['a', 1, 100], ['b', 2, 200]] | Object.fromPairs 0 2"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[] | Object.fromPairs"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[{ name: 'a', value: 1 }, { name: 'b', value: 2 }] | Object.fromPairs"#,
+    // Cannot find member 'fromPairs' in value of type Class
+    r#"[{ name: 'a', value: 1, anotherValue: 100 }, { name: 'b', value: 2, anotherValue: 200 }] | Object.fromPairs 'name' 'anotherValue'"#,
+    // Cannot find member 'withField' in value of type Object
+    r#"{}.withField 'foo' 42"#,
+    // Cannot find member 'withField' in value of type Object
+    r#"{ foo: 42 }.withField 'bar' 256"#,
+    // Cannot find member 'withField' in value of type Object
+    r#"{ foo: 42 }.withField 'foo' 256"#,
+    // Cannot find member 'withField' in value of type Object
+    r#"{ foo: 42 }.withField 256 'foo'"#,
+    // Cannot find member 'withField' in value of type Object
+    r#"{ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }.withField 'c' 100 | .fields[2].name"#,
+    // Cannot find member 'get' in value of type Object
+    r#"{ foo: 42 }.get 'foo'"#,
+    // Cannot find member 'get' in value of type Object
+    r#"{ (42): 'foo'}.get 42"#,
+    // Cannot find member 'get' in value of type Object
+    r#"{}.get 'nope'"#,
+    // Cannot find member 'get' in value of type Object
+    r#"{}.get 42"#,
+    // Cannot find member 'get' in value of type Object
+    r#"{}.get 'nope' --default=42"#,
+    // Cannot find member 'hasField' in value of type Object
+    r#"{ foo: 42 }.hasField 'foo'"#,
+    // Cannot find member 'hasField' in value of type Object
+    r#"{ (42): 'foo'}.hasField 42"#,
+    // Cannot find member 'hasField' in value of type Object
+    r#"{ foo: 42 }.hasField 'bar'"#,
+    // Cannot find member 'unbless' in value of type Thing
+    r#"class Thing; Thing.new.unbless.getClass"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ foo: 42 }.fields.name"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ (42): 'foo'}.fields.name"#,
+    // Cannot find member 'values' in value of type Object
+    r#"{ foo: 42, bar: true }.values"#,
+    // Cannot find member 'values' in value of type Object
+    r#"{}.values"#,
+];

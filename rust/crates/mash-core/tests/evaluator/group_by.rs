@@ -59,4 +59,9 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'unbless' in value of type Group
+    r#"[{ a: 1, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 3 }, { a: 1, b: 4 }] | groupBy (.a) --groups | map (.unbless)"#,
+    // Cannot find member 'groupBy' in value of type String
+    r#"'foo'.groupBy (x => x) --groups | select 'key' 'count' | sortBy 'key'"#,
+];

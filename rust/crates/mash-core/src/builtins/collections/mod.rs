@@ -2,6 +2,14 @@
 //! of which are also `List` methods.
 
 mod functions;
+mod grouping;
+mod list_methods;
+mod ordering;
+mod select;
+mod seq_like;
+mod sequences;
+mod transpose;
+mod wrappers;
 
 use std::sync::OnceLock;
 
@@ -12,13 +20,64 @@ use crate::value::{BuiltinClass, Value};
 use super::core::ANY_CLASS;
 
 pub use functions::*;
+pub use grouping::GROUP_CLASS;
+pub use sequences::*;
+pub(crate) use wrappers::{LIST_STATIC_METHODS, ORDERING_FUNCTIONS};
 
-/// Functions in `collections` that are also in the global scope
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LengthFunction];
 
 pub static LIST_CLASS: BuiltinClass = BuiltinClass {
     summary: "A sequence of objects",
-    methods: &[&LENGTH_METHOD],
+    // In the order of Scala's ListClass: methodised collection functions, then List's own methods
+    methods: &[
+        &sequences::ALL_METHOD,
+        &sequences::ALL_BUT_LAST_METHOD,
+        &sequences::ANY_METHOD,
+        &sequences::CHUNKED_METHOD,
+        &sequences::CONTAINS_METHOD,
+        &sequences::COUNT_MATCHES_METHOD,
+        &sequences::EACH_METHOD,
+        &sequences::FLATTEN_METHOD,
+        &sequences::FLAT_MAP_METHOD,
+        &sequences::FIND_METHOD,
+        &sequences::FIRST_METHOD,
+        &sequences::GREP_METHOD,
+        &wrappers::GROUP_BY_METHOD,
+        &sequences::INDEX_OF_METHOD,
+        &sequences::IS_EMPTY_METHOD,
+        &sequences::JOIN_METHOD,
+        &sequences::LAST_METHOD,
+        &LENGTH_METHOD,
+        &sequences::MAP_METHOD,
+        &wrappers::MAX_BY_METHOD,
+        &wrappers::MAX_METHOD,
+        &wrappers::MIN_BY_METHOD,
+        &wrappers::MIN_METHOD,
+        &sequences::NON_EMPTY_METHOD,
+        &sequences::REDUCE_METHOD,
+        &sequences::REVERSE_METHOD,
+        &sequences::SKIP_METHOD,
+        &sequences::SKIP_UNTIL_METHOD,
+        &sequences::SKIP_WHILE_METHOD,
+        &sequences::SLIDING_METHOD,
+        &wrappers::SORT_BY_METHOD,
+        &wrappers::SORT_METHOD,
+        &sequences::SUM_BY_METHOD,
+        &sequences::SUM_METHOD,
+        &sequences::TAKE_WHILE_METHOD,
+        &wrappers::TRANSPOSE_METHOD,
+        &sequences::UNIQUE_METHOD,
+        &sequences::WHERE_METHOD,
+        &sequences::WHERE_NOT_METHOD,
+        &list_methods::AppendMethod,
+        &list_methods::CartesianProductMethod,
+        &list_methods::InnerJoinMethod,
+        &list_methods::IntersectMethod,
+        &list_methods::NaturalJoinMethod,
+        &list_methods::PrependMethod,
+        &select::SelectOnListMethod,
+    ],
+    static_methods: LIST_STATIC_METHODS,
     ..BuiltinClass::new("collections", "List", Some(&ANY_CLASS))
 };
 

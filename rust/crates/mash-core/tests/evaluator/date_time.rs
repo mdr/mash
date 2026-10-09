@@ -20,4 +20,11 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'toDateTime' in value of type String
+    r#"'29th June 2017, 18:36:44'.toDateTime | select --hour --minute --second"#,
+    // No binding for 'now'
+    r#"now.date"#,
+    // No binding for 'now'
+    r#"t = now; t0 = t.format.toDateTime; t0 == t0.format.toDateTime"#,
+];

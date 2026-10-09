@@ -60,5 +60,22 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'first' in value of type String
+    r#"'abc'.first"#,
+    // Cannot find member 'first' in value of type String
+    r#"'abc'.first 2"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 } | first 2 | select --add --order=(.fields.name.join)"#,
+    // Cannot find member 'first' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 }.first 2"#,
+    // Cannot find member 'last' in value of type String
+    r#"'xyz'.last"#,
+    // Cannot find member 'last' in value of type String
+    r#"'xyz'.last 2"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 } | last 2 | select --add --order=(.fields.name.join)"#,
+    // Cannot find member 'last' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 }.last 2"#,
+];

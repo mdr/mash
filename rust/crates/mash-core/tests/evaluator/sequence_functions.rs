@@ -146,5 +146,76 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'all' in value of type String
+    r#"'aaa'.all (_ == 'a')"#,
+    // Cannot find member 'any' in value of type String
+    r#"'abc'.any (_ == 'a')"#,
+    // Cannot find member 'untagged' in value of type String
+    r#"'abc'.untagged | contains 'b'"#,
+    // Cannot find member 'untagged' in value of type String
+    r#"'abc' | contains 'b'.untagged"#,
+    // Cannot find member 'count' in value of type String
+    r#"'abc'.count"#,
+    // Cannot find member 'countMatches' in value of type String
+    r#"'foo'.countMatches (_ == 'o')"#,
+    // Cannot find member 'each' in value of type String
+    r#"a = ''; 'foo'.each (a = _ + a); a"#,
+    // Cannot find member 'each' in value of type String
+    r#"a = ''; 'abc'.each (c i => a += "$c$i"); a"#,
+    // Cannot find member 'find' in value of type String
+    r#"'xxxaxxx'.find (_ != 'x')"#,
+    // Regular expressions are not supported yet
+    r#"['apple', 'ball', 'cup'] | grep -r '(a|b)'"#,
+    // Regular expressions are not supported yet
+    r#"['APPLE', 'ball', 'cup'] | grep -r -i '(a|B)'"#,
+    // Cannot find member 'grep' in value of type String
+    r#"'foo`nbar`nbaz'.grep 'b'"#,
+    // Cannot find member 'grep' in value of type Object
+    r#"{ foo: 'wibble', bar: 'wobble', wibble: 'baz' }.grep 'wibble'"#,
+    // Cannot find member 'grep' in value of type Object
+    r#"{ foo: 'wibble', bar: 'wobble', baz: 'wibble' }.grep --first 'wibble'"#,
+    // Cannot find member 'grep' in value of type Object
+    r#"{ foo: 'wibble', bar: 'wobble', baz: 'wibble' }.grep --first 'NOT FOUND'"#,
+    // Cannot find member 'indexOf' in value of type String
+    r#"'abcba'.indexOf 'b'"#,
+    // Cannot find member 'indexOf' in value of type String
+    r#"'abcba'.indexOf 'ba'"#,
+    // Cannot find member 'indexOf' in value of type String
+    r#"'abcba'.indexOf 'z'"#,
+    // Cannot find member 'isEmpty' in value of type String
+    r#"''.isEmpty"#,
+    // Cannot find member 'isEmpty' in value of type String
+    r#"'abc'.isEmpty"#,
+    // Cannot find member 'length' in value of type String
+    r#" ''.length "#,
+    // Cannot find member 'length' in value of type String
+    r#" 'abc'.length "#,
+    // Cannot find member 'nonEmpty' in value of type String
+    r#"''.nonEmpty"#,
+    // Cannot find member 'nonEmpty' in value of type String
+    r#"'abc'.nonEmpty"#,
+    // Cannot find member 'reverse' in value of type String
+    r#"'trebor'.reverse"#,
+    // Cannot find member 'reverse' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 }.reverse.fields.name.join"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 } | reverse | .fields.name.join"#,
+    // Cannot find member 'skipWhile' in value of type String
+    r#"'abcdef'.skipWhile (_ < 'd')"#,
+    // Cannot find member 'skipUntil' in value of type String
+    r#"'abcdef'.skipUntil (_ > 'd')"#,
+    // Cannot find member 'sliding' in value of type String
+    r#"'abc'.sliding 2"#,
+    // Cannot find member 'bytes' in value of type Number
+    r#" [1.bytes].sum.tag "#,
+    // Cannot find member 'bytes' in value of type Number
+    r#" [1.bytes].sumBy (_) | _.tag "#,
+    // Cannot find member 'toNumber' in value of type String
+    r#"sumBy (_.toNumber) '123'"#,
+    // Cannot find member 'takeWhile' in value of type String
+    r#"'abcded'.takeWhile (_ <= 'c')"#,
+    // Cannot find member 'unique' in value of type String
+    r#"'abcba'.unique"#,
+];

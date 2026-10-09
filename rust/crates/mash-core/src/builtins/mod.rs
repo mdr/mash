@@ -16,6 +16,8 @@ use crate::value::{Builtin, BuiltinClass, ClassRef, Object, Str, Value};
 pub fn standard_functions() -> Vec<&'static dyn BuiltinFunction> {
     let mut functions = core::FUNCTIONS.to_vec();
     functions.extend_from_slice(collections::FUNCTIONS);
+    functions.extend_from_slice(collections::SEQUENCE_FUNCTIONS);
+    functions.extend_from_slice(collections::ORDERING_FUNCTIONS);
     functions
 }
 
@@ -45,13 +47,19 @@ pub fn standard_classes() -> Vec<&'static BuiltinClass> {
 /// Every builtin class, reachable by its full name under the namespace objects
 pub fn all_classes() -> Vec<&'static BuiltinClass> {
     let mut classes = standard_classes();
-    classes.extend([&os::PATH_CLASS, &time::DATE_CLASS, &time::DATE_TIME_CLASS]);
+    classes.extend([
+        &collections::GROUP_CLASS,
+        &os::PATH_CLASS,
+        &time::DATE_CLASS,
+        &time::DATE_TIME_CLASS,
+    ]);
+    classes.extend_from_slice(core::OTHER_CLASSES);
     classes
 }
 
 /// Short names for standard functions (e.g. `count` for `length`)
 fn aliases() -> Vec<(&'static str, &'static dyn BuiltinFunction)> {
-    vec![("count", &collections::LengthFunction)]
+    vec![("count", &collections::LengthFunction), ("man", &core::HelpFunction)]
 }
 
 /// The global variables of a new interpreter (Scala `StandardEnvironment.createGlobalVariables`): standard

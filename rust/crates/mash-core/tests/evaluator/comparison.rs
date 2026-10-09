@@ -62,4 +62,17 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // No binding for 'now'
+    r#"now > 3.days.ago"#,
+    // No binding for 'now'
+    r#"now < 3.days.ago"#,
+    // No binding for 'now'
+    r#"now.date > 3.days.ago.date"#,
+    // No binding for 'now'
+    r#"now.date < 3.days.ago.date"#,
+    // No binding for 'now'
+    r#"() < true < 1 < 'foo' < now < reverse < [].sortBy < [] < {} < String"#,
+    // No binding for 'now'
+    r#"now > 1.day.ago"#,
+];

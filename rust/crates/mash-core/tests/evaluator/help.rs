@@ -24,4 +24,15 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // No binding for 'listFiles'
+    r#"listFiles?"#,
+    // No binding for 'pwd'
+    r#"pwd.info.permissions? .name"#,
+    // No binding for 'pwd'
+    r#"[pwd].info.permissions? .name"#,
+    // No binding for 'git'
+    r#"git.log?"#,
+    // No binding for 'pwd'
+    r#"help pwd"#,
+];

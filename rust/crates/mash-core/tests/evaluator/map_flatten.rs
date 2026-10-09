@@ -67,5 +67,32 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'toNumber' in value of type String
+    r#"'123' | map (_.toNumber)"#,
+    // Cannot find member 'toUpper' in value of type String
+    r#"'foo' | map (.toUpper)"#,
+    // Cannot find member 'map' in value of type String
+    r#"'foo'.map (.toUpper)"#,
+    // Cannot find member 'map' in value of type String
+    r#"'abc'.map (c => c + c)"#,
+    // Cannot find member 'map' in value of type String
+    r#"'a1b2'.map (.isDigit)"#,
+    // Cannot find member 'map' in value of type String
+    r#"''.map (.isDigit)"#,
+    // Cannot find member 'map' in value of type Object
+    r#"{ apple: 1, bob: 2, cat: 3 }.map (f v => { (f.toUpper): v * v })"#,
+    // Cannot find member 'toUpper' in value of type String
+    r#"{ apple: 1, bob: 2, cat: 3 } | map (f v => { (f.toUpper): v * v })"#,
+    // Cannot find member 'map' in value of type Object
+    r#"{ apple: 1 }.map (f v => { (f): v, (f.reverse): v })"#,
+    // Cannot find member 'reverse' in value of type String
+    r#"{ apple: 1 } | map (f v => { (f): v, (f.reverse): v })"#,
+    // Cannot find member 'flatMap' in value of type String
+    r#"'abc'.flatMap (c => [c]) "#,
+    // Cannot find member 'flatMap' in value of type Object
+    r#"{ apple: 1 }.flatMap (f v => { (f): v, (f.reverse): v })"#,
+    // Cannot find member 'reverse' in value of type String
+    r#"{ apple: 1 } | flatMap (f v => { (f): v, (f.reverse): v })"#,
+];

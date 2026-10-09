@@ -1,48 +1,50 @@
 //! Golden evaluator tests ported from `src/test/scala/com/github/mdr/mash/evaluator`: each case evaluates an
-//! expression and compares the result with evaluating the expected expression.
+//! expression and compares the result with evaluating the expected expression. Cases needing builtins from
+//! later milestones are listed in each module's DEFERRED.
 
 mod harness;
 
 mod and_or;
-// mod any_methods; // needs builtins not yet ported
-// mod arithmetic; // needs builtins not yet ported
+mod any_methods;
+mod arithmetic;
 mod assignment;
-// mod character; // needs builtins not yet ported
-// mod classes; // needs builtins not yet ported
-// mod comparison; // needs builtins not yet ported
-// mod date_time; // needs builtins not yet ported
+mod character;
+mod classes;
+mod comparison;
+mod core_builtins;
+mod date_time;
 mod default_arguments;
-// mod doc_comments; // needs builtins not yet ported
+mod doc_comments;
 mod equality;
-// mod evaluator; // needs builtins not yet ported
-// mod first_last; // needs builtins not yet ported
+mod evaluator;
+mod first_last;
 mod flag_param;
-// mod get_class_method; // needs builtins not yet ported
-// mod group_by; // needs builtins not yet ported
-// mod help; // needs builtins not yet ported
-// mod import; // needs builtins not yet ported
-// mod join; // needs builtins not yet ported
+mod get_class_method;
+mod group_by;
+mod help;
+mod import;
+mod join;
 mod last_param;
-// mod list_methods; // needs builtins not yet ported
+mod list_methods;
 mod lookup;
-// mod map_flatten; // needs builtins not yet ported
-// mod min_max; // needs builtins not yet ported
+mod map_flatten;
+mod min_max;
 mod named_args;
-// mod natural_join; // needs builtins not yet ported
-// mod number_methods; // needs builtins not yet ported
-// mod object_arithmetic; // needs builtins not yet ported
-// mod object_literal; // needs builtins not yet ported
-// mod object_methods; // needs builtins not yet ported
+mod natural_join;
+mod number_methods;
+mod object_arithmetic;
+mod object_literal;
+mod object_methods;
 mod patterns;
-// mod private_methods; // needs builtins not yet ported
-// mod safe_member; // needs builtins not yet ported
-// mod select; // needs builtins not yet ported
-// mod semicolon_inference; // needs builtins not yet ported
-// mod sequence_functions; // needs builtins not yet ported
-// mod skip_all_but_last; // needs builtins not yet ported
-// mod sort; // needs builtins not yet ported
-// mod string_interpolation; // needs builtins not yet ported
-// mod string_methods; // needs builtins not yet ported
-// mod transpose; // needs builtins not yet ported
-// mod variadic_parameter; // needs builtins not yet ported
-// mod where_; // needs builtins not yet ported
+mod private_methods;
+mod safe_member;
+mod select;
+mod semicolon_inference;
+mod sequence_functions;
+mod skip_all_but_last;
+mod sort;
+mod string_interpolation;
+mod string_methods;
+mod transpose;
+mod variadic_parameter;
+mod where_;

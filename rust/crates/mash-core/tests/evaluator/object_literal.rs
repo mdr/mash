@@ -20,4 +20,11 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'values' in value of type Object
+    r#"{ (def foo = 42): 42 }.values"#,
+    // Cannot find member 'values' in value of type Object
+    r#"{ (.foo): 42 }.values"#,
+    // Cannot find member 'values' in value of type Object
+    r#"{ (class A): 42 }.values"#,
+];

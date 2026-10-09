@@ -74,4 +74,7 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'transpose' in value of type Object
+    r#"{ foo: [1, 2, 3], bar: [4, 5, 6] }.transpose"#,
+];

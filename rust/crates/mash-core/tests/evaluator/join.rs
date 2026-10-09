@@ -22,5 +22,8 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'join' in value of type String
+    r#" 'abc'.join ':'"#,
+];

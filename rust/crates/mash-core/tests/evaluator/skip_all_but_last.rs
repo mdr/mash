@@ -36,5 +36,20 @@ fn cases() {
     run(CASES, DEFERRED);
 }
 
-/// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+/// Cases that need builtins from later milestones (or other modules)
+const DEFERRED: &[&str] = &[
+    // Cannot find member 'allButLast' in value of type String
+    r#"'abcde'.allButLast"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 } | allButLast | select --add --order=(.fields.name.join)"#,
+    // Cannot find member 'allButLast' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 }.allButLast"#,
+    // Cannot find member 'skip' in value of type String
+    r#"'abcde'.skip 3"#,
+    // Cannot find member 'skip' in value of type String
+    r#"'abcde'.skip"#,
+    // Cannot find member 'fields' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 } | skip | select --add --order=(.fields.name.join)"#,
+    // Cannot find member 'skip' in value of type Object
+    r#"{ a: 1, b: 2, c: 3 }.skip"#,
+];

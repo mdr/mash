@@ -25,13 +25,18 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `parser/AbstractifierTest` | `mash-core/tests/compile.rs` | ported | Plus lowering of each kind of syntax |
 | `compiler/BareStringifyTest`, `DesugarHolesTest`, `DesugarPipesTest`, `ParenRemoverTest` | `mash-core/tests/compile.rs` | ported | |
 | — | `mash-core/tests/value_{leaks,keys,reentrancy}.rs` | new | From the values spike: cycles are collected, key semantics, no `RefCell` re-entrancy panics |
+| `evaluator/*Test` (44 files) | `mash-core/tests/evaluator/<name>.rs` | partial | 921 cases converted mechanically (counts checked per file). 676 pass; 245 are listed in each module's `DEFERRED` with the error they hit, all missing M3 builtins (String/Number/Object methods, time, json, regex, maths, net) or M5 (`pwd`, `git`). A deferred case that starts passing fails the test, so the lists stay honest. `SemicolonInferenceTest` is a Scala `object` that ScalaTest never ran |
+| — | `mash-core/tests/evaluator/core_builtins.rs` | new | 32 cases for core builtins the Scala tests don't cover (expected values checked against Scala Mash) |
+| — | `mash-core/tests/eval.rs` | new | Error locations and stack traces, depth limit, interrupts, GC under evaluation |
+| — | `mash-cli/tests/cli.rs` | new | `mash -e`, scripts, `mash -c` via sh |
 
 | Scala test | Status |
 |---|---|
-| `evaluator/*` (49 files incl. `EvaluatorTest`, `SimpleEvaluatorTest`) | pending (M2); cases needing M3 namespaces deferred |
-| `functions/BindTypesTest` | pending (M2/M3) |
-| `language/ValueToExpressionTest` | pending (M2) |
-| `WorkingDirectoryStackTest` | pending (M2/M4) |
+| `evaluator/SimpleEvaluatorTest` | pending (M3): it tests the inferencer's constant folding |
+| `evaluator/TildeExpanderTest` | pending (M4): retilde-ing is only used by the REPL |
+| `functions/BindTypesTest` | pending (M3): type binding for inference |
+| `language/ValueToExpressionTest` | pending (M3): `mash.expressionFor` |
+| `WorkingDirectoryStackTest` | pending (M4) |
 | `utils/*` (`LineInfoTest`, `PrefixTreeTest`, `RaggedGridNavigatorTest`, `RegionTest`, `StringUtilsTest`, `UtilsTest`) | pending; ported alongside the code that uses them |
 
 ## M3 — IDE logic

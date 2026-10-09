@@ -22,4 +22,11 @@ fn cases() {
 }
 
 /// Cases that need builtins from later milestones
-const DEFERRED: &[&str] = &[];
+const DEFERRED: &[&str] = &[
+    // No binding for 'hash'
+    r#"import hash.sha256; sha256"#,
+    // No binding for 'hash'
+    r#"import hash._; sha256"#,
+    // Cannot find member 'where' in value of type Object
+    r#"x = {}; import x.where; where.getClass"#,
+];

@@ -503,25 +503,28 @@ impl Ctx {
         }
     }
 
+    /// `expr?` (Scala `HelpEvaluator`): for `target.name`, help for the field or method if there is one (or for
+    /// that member of a list's first element), else help for the member's value
     fn help(&mut self, inner: &E, scope: &Scope) -> R<Value> {
+        use builtins::core::help::{help_for, help_for_member};
         let value = match &inner.kind {
             ExprKind::Member { target, name, .. } => {
                 let target = self.eval(target, scope)?;
-                let lookup = MemberLookup {
-                    include_private: false,
-                    include_shy: true,
-                };
-                match self.lookup_member(&target, name, lookup) {
-                    Some(value) => value,
-                    None => {
-                        self.member(&target, name, false, true, false, self.loc(inner.range))?
-                            .value
-                    }
+                if let Some(help) = help_for_member(self, &target, name) {
+                    return Ok(help);
                 }
+                if let Value::List(xs) = &target
+                    && let Some(first) = xs.first()
+                    && let Some(help) = help_for_member(self, &first, name)
+                {
+                    return Ok(help);
+                }
+                self.member(&target, name, false, true, false, self.loc(inner.range))?
+                    .value
             }
             _ => self.simple_eval(inner, scope)?,
         };
-        builtins::core::help::help_for(self, &value)
+        help_for(self, &value)
     }
 
     /// Convert to a string as Mash does for interpolation and `+` (Scala `ToStringifier.stringify`): strings
