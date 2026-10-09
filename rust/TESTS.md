@@ -36,10 +36,10 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `evaluator/SimpleEvaluatorTest` | `mash-core/tests/infer_misc.rs` | ported | Constant folding agrees with evaluation |
 | `functions/BindTypesTest` | `mash-core/tests/infer_misc.rs` | ported | |
 | `language/ValueToExpressionTest` | `mash-core/tests/value_to_expression.rs` | ported | |
-| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 252 of 257 pass; 5 need users/git (M5), listed in `DEFERRED` |
+| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 255 of 257 pass; 2 need git (M5), listed in `DEFERRED` |
 | `inference/ValueTypeDetectorTest` | `mash-core/tests/infer_misc.rs` | ported | The class-instance case uses `maths.Stats` instead of the os class `PermissionsSection` |
 | — | `mash-core/tests/infer_{collections,core,namespaces}.rs` | new | Inference rules and completion specs per builtin area (`infer_namespaces.rs` includes http, dns, csv and the json/xml file and HTTP functions) |
-| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 146 pass, 3 need `kill`/`user` (M5) and are listed in `DEFERRED`. Plus 10 new cases: file completion for `json.read`/`write`, `xml.read`, `csv.write`, `mash.source`; members of `http.Response`, `net.Host`; `--insecure` |
+| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | ported | 149 cases. Plus 10 new cases: file completion for `json.read`/`write`, `xml.read`, `csv.write`, `mash.source`; members of `http.Response`, `net.Host`; `--insecure` |
 | `completions/ContiguousRegionFinderTest`, `InvocationFinderTest`, `PathCompleterTest` | `mash-core/tests/complete.rs` | ported | |
 | `assist/InvocationAssistanceTest` | `mash-core/tests/complete.rs` | ported (adapted) | Same cursor positions, with core functions in place of `ls`/`home` (M5) |
 | `evaluator/TildeExpanderTest` | | pending (M4) | Expansion is ported with path completion; retilde-ing for display comes with the REPL |
@@ -50,6 +50,9 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | — | `mash-core/tests/net.rs` | new | http (requests sent: headers, cookies, basic auth, bodies, forms, files, query parameters; responses and their methods; argument errors), `json.get` etc., dns, `Url.open`, and the data file functions (`json.read`/`write`, `xml.read`, `csv.write`, `hash.sha256` of a file, `mash.source`, `mash.reload`) — against `TestPlatform`'s canned responses and in-memory files; checked against Scala Mash with a local HTTP server |
 | — | `mash-os/tests/native_net.rs` | new | The native HTTP client against local servers: headers, cookies, basic auth, bodies, status codes, redirects (and POST not redirected by 302), connection refused, an HTTPS server with a self-signed certificate (refused unless `--insecure`), `localhost` DNS. `mash-os/src/net.rs` unit tests: TLS configuration, redirect locations, `Set-Cookie` parsing |
 | — | `mash-cli/src/startup.rs` (unit tests) | new | `mash.reload` with the shell's hook: builtins reset, libraries and `init.mash` run again |
+| — | `mash-core/tests/os_system.rs` | new | Users and groups, processes and `kill`, clipboard, `open`, disk space, terminal, `history`, `jump`, their completion and inference, and failing cleanly without platform support — against `TestPlatform`'s `FakeSystem` and a recorded history |
+| — | `mash-os/tests/native_system.rs` | new | The current user, groups, the test's own process in `ps`, disk space for `/`, and `kill` of a child the test starts (read-only otherwise: no clipboard, `open` or terminal) |
+| — | `mash-repl/tests/history_access.rs` | new | `history` and `jump` see the REPL's history, with this session's results |
 | `utils/*` (`LineInfoTest`, `PrefixTreeTest`, `RaggedGridNavigatorTest`, `RegionTest`, `StringUtilsTest`, `UtilsTest`) | | pending | Ported alongside the code that uses them |
 
 ## M4/M5 — REPL and OS

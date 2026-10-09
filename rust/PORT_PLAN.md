@@ -239,13 +239,30 @@ During the port (no language change):
   cookies, insecure }) -> io::Result<HttpResponse { status, headers, cookies, body }>` (any status is a response;
   errors carry user-facing messages; `HttpRequest::all_headers` turns cookies and basic auth into headers for
   every implementation), `lookup_host(host) -> io::Result<Vec<String>>`, and `open_with_default_application(target)`
-  (`open`/`xdg-open`; also for `os.open` when that's ported). `TestPlatform` answers canned responses by method
+  (`open`/`xdg-open`; also used by `os.open` and `Path.open`). `TestPlatform` answers canned responses by method
   and URL (`with_http_response`), records requests (`http_requests()`), resolves `hosts`, and records `opened`.
 - **`mash.reload`** resets the standard globals in `mash-core`, then runs a hook the host installs on the `Ctx`
   (`Ctx::set_reload_hook`): the shell's (`mash-cli` `startup::reload_hook`) loads `~/.mash/lib` and runs
   `~/.mash/init.mash` again. Scripts and `mash -e` have no hook. `mash.source` runs a file in the global scope.
 - Users, groups, processes, disk space and the clipboard are `Platform` methods as well; the REPL gives
   `mash-core` access to its history (for `history` and `jump`) through a small trait.
+- **System `Platform` API** (defaults fail as unsupported; `terminal_size` defaults to None): `users()` / `groups()`
+  (whole password/group databases: `UserEntry { name, uid, gid, gecos, home, shell }`, `GroupEntry { name, gid,
+  members }`), `current_user()`, `processes()` / `process(pid)` (`ProcessInfo { pid, parent_pid, name, command,
+  owner: Option, resident_size, virtual_size }`), `kill(pid, &Signal)` (`Signal::Named` from the POSIX
+  `SIGNAL_NAMES`, or `Signal::Number`), `clipboard()` / `set_clipboard(text)`, `disk_space()` (`DiskSpace {
+  filesystem, total, used, available, mount_point }`), `terminal_size()`. `TestPlatform::system` is a `FakeSystem`
+  (users `root`/`alice`/`bob`, groups, five processes that signals remove, a clipboard, two disks, an 80×24
+  terminal; records signals). `open` and `Path.open` use `open_with_default_application` (above). Natively
+  (`mash-os`): `uzers` walks `getpwent`/`getgrent` (one `unsafe` call each, serialised by a mutex) on Linux and
+  macOS; `sysinfo` lists processes; `nix` sends signals; `df -kP` gives disk space; `pbcopy`/`pbpaste` or
+  `wl-copy`/`xclip`/`xsel`; crossterm reads the terminal size when one of the standard streams is a terminal.
+- **History access:** `mash_core::history::{CommandHistory, HistoryEntry, RecordedHistory}`;
+  `Ctx::set_command_history`. The REPL keeps a `RecordedHistory` (loaded entries with null results, then each
+  command with its result) alongside its own `History`. Without a REPL, `history` is empty.
+- Tag classes whose values come from the system (`Username`, `Group`, `Pid`) compute them for completion with
+  `BuiltinClass::enumerate`; `CompletionSpec::Computed` completes arguments from the interpreter's state
+  (`jump` from the history).
 - **REPL API** (`mash-repl::repl`): `Repl::new(ctx, Box<dyn HistoryStorage>, session_id)`; the host calls
   `start(&mut host)` (startup tip, first prompt), then `handle_event(InputEvent, &mut host) -> ReplStatus` for
   each key press, paste or resize, until it returns `Exit` (Ctrl-D on an empty line). The REPL draws through
@@ -332,14 +349,27 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `dns.lookup`, `Host.ipAddresses` | IPv6 as `0:0:0:0:0:0:0:1` | `::1` (RFC 5952); IPv4 addresses still listed first, as Java does |
 | `mash.source` errors | Printed; returns unit | Propagate (as `mash.eval`) |
 | File errors in `json.read`, `xml.read`, `mash.source` | "Unexpected error … FileNotFoundException" | "Could not read 'x': No such file or directory" |
+| Users and groups on macOS | Not available (`user`, `users`, `groups` missing; `Username` has no methods) | Available on Linux and macOS, from `getpwent`/`getgrent` (so on Linux, NSS users too, not just `/etc/passwd`), as planned |
+| `Group.users`, `GroupInfo.users`, `UserSummary.groups` | A user can be listed twice (primary group that also lists them as a member) | Each listed once |
+| `Gid.name` inferred type | `[core.Number tagged os.Username]` | `core.String tagged os.Group` (its value) |
+| `UserSummary.uid` declared type | `core.String tagged os.Uid` (the value is a number) | `core.Number tagged os.Uid` |
+| `Username`/`Uid`/`Pid` methods for an unknown user or process | `NoSuchElementException` (users) | "Could not find user 'x'", "Cannot find process with pid N" |
+| `kill` given a list (`ps \| grep "java" \| kill`, its own documented example) | "Invalid process ID: [...]" | The list's processes are killed |
+| `kill` errors | "Unable to kill process with pid N, error code -1" | "Unable to kill process with pid N: No such process" (the reason) |
+| Signal names | jnr's per-OS list (e.g. `PWR`, `INFO`, `STKFLT` where defined) | The POSIX signals common to Linux and macOS (`os.Signal`, `kill --signal` completion); any number is accepted |
+| `process.kill "…"` | No completion | Signal names complete, as for `kill` |
+| `ps` on macOS | Only processes it can read (oshi) | All processes; the owner is null (and sizes 0) where the OS won't say |
+| `terminal` | `NullPointerException` outside the REPL | "Not running in a terminal" when no standard stream is a terminal |
+| `diskSpace` | Parses `df -k` with a regex (spaces in mount points and macOS's inode columns could confuse it) | Parses `df -kP` (POSIX format) by columns; same values |
+| Clipboard on Linux | `xclip` only | `wl-copy`/`wl-paste` under Wayland, else `xclip`, else `xsel`; an error if none is installed |
+| `clipboard`, `open` when the program fails | Ignored | An error |
+| `history` without a REPL (`mash -e`, scripts) | `NullPointerException` | Empty |
+| `jump` with equally used matches | Unspecified order | The last in path order |
+| `os.DiskSpaceEntry` | Not a registered class | Registered, like the other os classes |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
 object browser is M5); git commit tables and `git.Status` printing arrive with the git classes (M5); help has no
 links yet (they're for the browser).
-
-Not yet ported, pending later milestones: in `os`: users/groups (`user`, `Username`/`Group` methods), processes
-(`ps`, `kill`), `clipboard`, `open`/`Path.open` (`Platform::open_with_default_application` is ready for them),
-`diskSpace`, `terminal`, `jump` (M5).
 
 ## Post-port backlog (language changes, deferred)
 
