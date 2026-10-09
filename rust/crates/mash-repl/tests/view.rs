@@ -972,7 +972,10 @@ fn fuzzy_times() {
 fn absolute_times() {
     let mut ctx = Ctx::new(Rc::new(TestPlatform::default()));
     let value = ctx.run("test", "{when: now - 1.hours}").unwrap();
-    let config = ViewConfig { fuzzy_time: false };
+    let config = ViewConfig {
+        fuzzy_time: false,
+        ..ViewConfig::default()
+    };
     let lines = view_value(&mut ctx, &value, Dimensions::new(24, 80), &config).unwrap();
     assert_eq!(lines[1].forget_styling(), "║when│2026-10-09 11:00:00║");
 }

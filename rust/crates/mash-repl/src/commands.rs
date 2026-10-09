@@ -9,12 +9,13 @@ use mash_core::eval::{Ctx, MashError, StackFrame};
 use mash_core::value::Value;
 use mash_syntax::{Mode, TextRange};
 
+use crate::browser::model::DisplayModel;
 use crate::draw::styled_to_ansi;
 use crate::host::Host;
 use crate::render::highlight::{Highlight, highlight};
 use crate::render::retilde;
 use crate::screen::{Style, StyledString, default_colours as colours};
-use crate::view::{ViewConfig, view_value};
+use crate::view::{ViewConfig, Viewed, view_or_browse};
 
 /// A line starting with `!` (but not `!{…}` or `!!{…}`) is mish: the length of the prefix up to and including
 /// the `!`, and the rest (Scala `MishCommand`)
@@ -45,8 +46,9 @@ fn debug_command(text: &str) -> Option<(&str, &str)> {
 pub(crate) enum Outcome {
     /// The command was `!` alone: toggle mish mode
     ToggleMish,
-    /// The command ran; its result, unless it failed
-    Ran(Option<Value>),
+    /// The command ran; its result, unless it failed, and what to show in the object browser if the result
+    /// is to be browsed rather than printed
+    Ran(Option<Value>, Option<DisplayModel>),
 }
 
 /// Runs commands, writing results and errors to the host.
@@ -64,7 +66,7 @@ impl CommandRunner<'_> {
     pub(crate) fn run(&mut self, command: &str, unit_name: &str, mish: bool) -> Outcome {
         if let Some((keyword, args)) = debug_command(command) {
             self.run_debug_command(keyword, args);
-            return Outcome::Ran(None);
+            return Outcome::Ran(None, None);
         }
         let (code, mish) = if let Some((_, rest)) = mish_command(command) {
             if rest.is_empty() {
@@ -77,10 +79,8 @@ impl CommandRunner<'_> {
             (command, mish)
         };
         let result = self.run_unit(unit_name, code, mish);
-        if let Some(value) = &result {
-            self.view(value);
-        }
-        Outcome::Ran(result)
+        let browse = result.as_ref().and_then(|value| self.view(value));
+        Outcome::Ran(result, browse)
     }
 
     /// Compile and evaluate some code, printing any error (if `print_errors`); its value, unless it failed
@@ -131,16 +131,19 @@ impl CommandRunner<'_> {
         self.write_lines(&lines);
     }
 
-    fn view(&mut self, value: &Value) {
+    /// Print the result, or return the model to browse it with
+    fn view(&mut self, value: &Value) -> Option<DisplayModel> {
         let size = self.host.size();
-        match view_value(self.ctx, value, size, &self.view_config) {
-            Ok(lines) => self.write_lines(&lines),
+        match view_or_browse(self.ctx, value, size, &self.view_config) {
+            Ok(Viewed::Print(lines)) => self.write_lines(&lines),
+            Ok(Viewed::Browse(model)) => return Some(model),
             Err(error) if error.is_interrupted() => {}
             Err(error) => {
                 let unit = SourceUnit::new("<view>", "");
                 self.print_error(&error, &unit);
             }
         }
+        None
     }
 
     fn home(&self) -> Option<String> {

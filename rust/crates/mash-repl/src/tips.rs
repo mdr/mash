@@ -22,10 +22,12 @@ pub const TIPS: &[&str] = &[
     "Strings can be interpolated: <mash>\"Hello $user.name\"</mash>",
     "Suppress tips by setting <mash>config.cli.showStartupTips = false</mash>.",
     "Set <mash>config.view.fuzzyTime = true</mash> to view date/times as '3 hours ago', etc.",
+    "Set <mash>config.view.browseLargeOutput = false</mash> to avoid starting the browser on long output.",
     "Alt-Up expands the current selection to the nearest enclosing piece of syntax; Alt-Down unexpands.",
     "Shift-left/right/up/down expands the selection.",
     "Ctrl-_ undoes the previous edit",
     "Ctrl-w cuts the current selection, Alt-w copies, and Ctrl-y pastes.",
+    "In the object browser, 'e' lets you edit the expression that generates the current data.",
 ];
 
 /// The box for tip number `index` (modulo the number of tips)

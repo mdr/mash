@@ -11,6 +11,7 @@
 //!   how actions change it
 //! - [`commands`]: running a line and printing its result or error
 //! - [`render`]: the state as a [`screen::Screen`]; [`draw`]: a screen as ANSI, drawing only what changed
+//! - [`browser`]: the object browser, a full-screen view of a command's result
 //!
 //! [`InputEvent`]: input::InputEvent
 //! [`Host`]: host::Host
@@ -18,6 +19,7 @@
 //! [`Host::end_command`]: host::Host::end_command
 
 pub mod actions;
+pub mod browser;
 pub mod commands;
 pub mod config;
 pub mod draw;

@@ -25,13 +25,56 @@ fn name_style() -> Style {
     Style::DEFAULT.with_bold()
 }
 
+/// What a name in help links to, for the object browser (Scala `Link`).
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum DocLink {
+    /// The class a method or field belongs to
+    Class,
+    /// A class's parent
+    Parent,
+    /// The class of a field's values
+    FieldType,
+    /// Help for a field of the class
+    Field(String),
+    /// Help for a method of the class
+    Method(String),
+    /// A static method of the class
+    StaticMethod(String),
+}
+
+/// A link: where it is in the lines of help (a range of characters on a line), and what it links to.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct LinkSpan {
+    pub line: usize,
+    pub start: usize,
+    pub len: usize,
+    pub link: DocLink,
+}
+
+/// Lines of help, and the links in them.
+#[derive(Clone, Debug, Default)]
+pub struct HelpLines {
+    pub lines: Vec<StyledString>,
+    pub links: Vec<LinkSpan>,
+}
+
 /// Accumulates the lines of help.
 #[derive(Default)]
-struct Lines(Vec<StyledString>);
+struct Lines(HelpLines);
 
 impl Lines {
     fn push(&mut self, line: StyledString) {
-        self.0.push(line);
+        self.0.lines.push(line);
+    }
+
+    /// Link the name just after the indent on the last line
+    fn link(&mut self, name: &str, link: DocLink) {
+        self.0.links.push(LinkSpan {
+            line: self.0.lines.len() - 1,
+            start: INDENT.len(),
+            len: name.chars().count(),
+            link,
+        });
     }
 
     fn blank(&mut self) {
@@ -90,6 +133,7 @@ impl Lines {
     fn class_section(&mut self, class_name: &str) {
         self.section("CLASS");
         self.push(StyledString::plain(&format!("{INDENT}{class_name}")));
+        self.link(class_name, DocLink::Class);
     }
 
     fn calling_syntax_section(&mut self, calling_syntax: StyledString) {
@@ -141,13 +185,14 @@ impl Lines {
         }
     }
 
-    fn members_section(&mut self, title: &str, members: &[MemberDoc]) {
+    fn members_section(&mut self, title: &str, members: &[MemberDoc], link: fn(String) -> DocLink) {
         if members.is_empty() {
             return;
         }
         self.section(title);
         for member in members {
             self.summarised(member_style().apply(&member.name), member.summary.as_deref());
+            self.link(&member.name, link(member.name.clone()));
         }
     }
 }
@@ -180,11 +225,16 @@ pub fn function_help(doc: &FunctionDoc) -> Vec<StyledString> {
     lines.parameters_section(&doc.params);
     lines.description_section(doc.description.as_deref());
     lines.source_section(doc.source.as_deref());
-    lines.0
+    lines.0.lines
 }
 
 /// Help for a method: names and summary, class, calling syntax, parameters, description and source
 pub fn method_help(doc: &MethodDoc) -> Vec<StyledString> {
+    method_help_with_links(doc).lines
+}
+
+/// Help for a method, and its link to its class
+pub fn method_help_with_links(doc: &MethodDoc) -> HelpLines {
     let mut lines = Lines::default();
     let mut names = vec![doc.name.clone()];
     names.extend(doc.aliases.iter().cloned());
@@ -201,6 +251,11 @@ pub fn method_help(doc: &MethodDoc) -> Vec<StyledString> {
 
 /// Help for a class: name and summary, description, parent, fields, static methods and methods
 pub fn class_help(doc: &ClassDoc) -> Vec<StyledString> {
+    class_help_with_links(doc).lines
+}
+
+/// Help for a class, and its links to its parent and members
+pub fn class_help_with_links(doc: &ClassDoc) -> HelpLines {
     let mut lines = Lines::default();
     lines.title("CLASS");
     lines.summarised(name_style().apply(&doc.full_name), doc.summary.as_deref());
@@ -208,21 +263,28 @@ pub fn class_help(doc: &ClassDoc) -> Vec<StyledString> {
     if let Some(parent) = &doc.parent {
         lines.section("PARENT");
         lines.push(StyledString::plain(&format!("{INDENT}{parent}")));
+        lines.link(parent, DocLink::Parent);
     }
-    lines.members_section("FIELDS", &doc.fields);
-    lines.members_section("STATIC METHODS", &doc.static_methods);
-    lines.members_section("METHODS", &doc.methods);
+    lines.members_section("FIELDS", &doc.fields, DocLink::Field);
+    lines.members_section("STATIC METHODS", &doc.static_methods, DocLink::StaticMethod);
+    lines.members_section("METHODS", &doc.methods, DocLink::Method);
     lines.0
 }
 
 /// Help for a field: name and summary, class, type and description
 pub fn field_help(doc: &FieldDoc) -> Vec<StyledString> {
+    field_help_with_links(doc).lines
+}
+
+/// Help for a field, and its links to its class and type
+pub fn field_help_with_links(doc: &FieldDoc) -> HelpLines {
     let mut lines = Lines::default();
     lines.name_section("FIELD", std::slice::from_ref(&doc.name), doc.summary.as_deref());
     lines.class_section(&doc.class_name);
     if let Some(type_name) = &doc.type_name {
         lines.section("TYPE");
         lines.push(StyledString::plain(&format!("{INDENT}{type_name}")));
+        lines.link(type_name, DocLink::FieldType);
     }
     lines.description_section(doc.description.as_deref());
     lines.0

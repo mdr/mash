@@ -227,7 +227,7 @@ During the port (no language change):
   a virtual file system. `mash-os` provides `NativePlatform` (and later the native-only namespaces).
 - Commands run with the terminal in its normal (cooked) mode; the editor uses raw mode only while editing.
   Ctrl-C during a command is SIGINT, which sets the interpreter's interrupt flag.
-- Output too large for the screen is printed for now; the object browser arrives in M5.
+- Output too large for the screen opens the object browser (M5; see below).
 
 **M5 design:**
 - **git runs the `git` command** (porcelain/plumbing output formats, through `Platform::run_process`) rather than
@@ -276,7 +276,17 @@ During the port (no language change):
   each key press, paste or resize, until it returns `Exit` (Ctrl-D on an empty line). The REPL draws through
   `Host::write` (ANSI from `draw::ScreenDrawer`, which writes only what changed), and runs each command between
   `Host::begin_command` and `Host::end_command`. `handle_action`, `render` and `draw` are public for tests and
-  other front ends; `run_script` runs an init file. Ctrl-V (object browser) is a no-op until M5.
+  other front ends; `run_script` runs an init file. Ctrl-V browses the last result.
+- **Object browser** (`mash-repl::browser`, M5): a port of Scala's browser states, handlers and renderers. The
+  browser's state is a stack of `BrowserState`s (one variant per kind of view: 2D table, object fields, tree,
+  text lines, help, value) in `ReplState::object_browser`; its actions are `Action::Browser(BrowserAction)`,
+  with key maps for the browser, its incremental search and its expression line. The printers in
+  `mash-repl::view` were split into a model and a renderer, so the browser draws the same tables and trees,
+  decorated with the cursor, marks and search hits. `view::view_or_browse` decides between printing and
+  browsing (`config.view.browseLargeOutput`, `view.browse`, `view.print`), and help records its links. The
+  expression line reuses the REPL's completion and assistance; expressions run with `it` bound to the value
+  and the globals restored afterwards (Scala used a copy of them). The browser is drawn on the alternate
+  screen, which `draw::ScreenDrawer` already supported.
 
 ## Milestones
 
@@ -334,7 +344,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Keys with no binding during history search | Became no-ops (and ended the search) | End the search and act as usual (e.g. Ctrl-A moves to the start) |
 | Pasting | Typed key by key (newlines could run the line) | Bracketed paste inserts the text literally, newlines included |
 | Status indicator for a `!` mish line | The whole line parsed as Mash (shown red) | The command after `!` parsed as mish |
-| Startup tips | Include object browser and disco-border tips | Those tips omitted until the features exist; `config.view.discoBorders`/`browseLargeOutput` ignored for now |
+| Startup tips | Include a disco-border tip | That tip omitted until disco borders exist; `config.view.discoBorders` ignored for now |
 | REPL error printing | `ErrorPrinter` | Same format (kept over `MashError::report()`, which suits scripts: the REPL shows the highlighted source line with `^---` under it and no file name for the line just typed) |
 | `"/".name` | NullPointerException | `null` |
 | A failed `cd` | Still pushes the (unchanged) directory onto the history, so `back` stays put | History unchanged |
@@ -384,9 +394,16 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `git.branch.current` with a detached HEAD | Crashes | "Not on a branch" |
 | Printing a `git.Status` behind its upstream | "by 1 commits": pluralised by the ahead count | By the behind count |
 | `RemoteBranchName.info` type | Inferred as `Branch` | `RemoteBranch` (what it returns) |
+| Object browser: the expression for a field with a non-string key (`{ (1): … }`) | The key's expression with no brackets (`r01`) | `r0[1]` |
+| Object browser: one marked field of an object, the cursor elsewhere | The marked field's expression with the current field's value (so focusing shows the wrong value) | The marked field's value |
+| Object browser: hidden columns after the terminal is resized | Shown again (the table is rebuilt without them) | Stay hidden |
+| Object browser: `t` on an empty list or object, `view.browse (view.tree x)` of an empty or non-container value | Crashes (a tree browser needs a first item) | Ignored; the usual view |
+| Object browser search | Java regex, ASCII case folding | `fancy-regex`, Unicode case folding (as for `matches -i`) |
+| Object browser: `o` (open) and `c` (copy) errors | Printed over the browser | Not printed |
+| Object browser: Alt-E in the expression line | Evaluated with the real globals | Like other browser expressions, without changing the globals |
 
-Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
-object browser is M5); help has no links yet (they're for the browser).
+Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, open the object
+browser.
 
 ## Post-port backlog (language changes, deferred)
 

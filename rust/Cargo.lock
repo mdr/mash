@@ -679,6 +679,7 @@ dependencies = [
 name = "mash-repl"
 version = "0.1.0"
 dependencies = [
+ "fancy-regex",
  "jiff",
  "mash-core",
  "mash-syntax",

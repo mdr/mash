@@ -40,7 +40,10 @@ fn platform(status: &'static str) -> TestPlatform {
 fn view_lines(status: &'static str, columns: usize, source: &str) -> Vec<mash_repl::screen::StyledString> {
     let mut ctx = Ctx::new(Rc::new(platform(status)));
     let value = ctx.run("test", source).unwrap_or_else(|e| panic!("{source}: {e}"));
-    let config = ViewConfig { fuzzy_time: false };
+    let config = ViewConfig {
+        fuzzy_time: false,
+        ..ViewConfig::default()
+    };
     view_value(&mut ctx, &value, Dimensions::new(1000, columns), &config).unwrap_or_else(|e| panic!("{source}: {e}"))
 }
 

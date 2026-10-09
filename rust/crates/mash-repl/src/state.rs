@@ -1,5 +1,6 @@
 //! The editor's state (Scala `ReplState` and the states of its modes): plain data, updated by the action
-//! handlers in [`crate::repl`] and drawn by [`crate::render`].
+//! handlers in [`crate::repl`] and drawn by [`crate::render`]. The object browser's state is in
+//! [`crate::browser`].
 
 use std::ops::Range;
 use std::rc::Rc;
@@ -7,6 +8,7 @@ use std::rc::Rc;
 use jiff::Timestamp;
 use mash_core::complete::{Assistable, Completion};
 
+use crate::browser::BrowserStack;
 use crate::line_buffer::LineBuffer;
 
 /// Everything about the REPL that changes as the user types.
@@ -27,6 +29,8 @@ pub struct ReplState {
     /// The function whose calling syntax is shown, if invocation assistance is on
     pub assistance: Option<AssistanceState>,
     pub insert_last_arg: Option<InsertLastArgState>,
+    /// The object browser, if it's open
+    pub object_browser: Option<BrowserStack>,
 }
 
 impl ReplState {

@@ -11,6 +11,7 @@ publish.workspace = true
 mash-core.workspace = true
 mash-syntax.workspace = true
 jiff.workspace = true
+fancy-regex.workspace = true
 unicode-width.workspace = true
 unicode-segmentation.workspace = true
 

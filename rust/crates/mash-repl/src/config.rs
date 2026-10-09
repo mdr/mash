@@ -12,6 +12,8 @@ pub struct ReplConfig {
     pub show_startup_tips: bool,
     /// `view.fuzzyTime`: show times as "3 hours ago"
     pub fuzzy_time: bool,
+    /// `view.browseLargeOutput`: show output too large for the screen in the object browser
+    pub browse_large_output: bool,
 }
 
 impl Default for ReplConfig {
@@ -20,6 +22,7 @@ impl Default for ReplConfig {
             bare_words: false,
             show_startup_tips: true,
             fuzzy_time: true,
+            browse_large_output: true,
         }
     }
 }
@@ -43,6 +46,7 @@ impl ReplConfig {
             bare_words: get("language.bareWords", defaults.bare_words),
             show_startup_tips: get("cli.showStartupTips", defaults.show_startup_tips),
             fuzzy_time: get("view.fuzzyTime", defaults.fuzzy_time),
+            browse_large_output: get("view.browseLargeOutput", defaults.browse_large_output),
         }
     }
 }

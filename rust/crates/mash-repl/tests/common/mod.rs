@@ -9,12 +9,17 @@ use mash_core::eval::Ctx;
 use mash_core::platform::{MemoryFiles, TestPlatform};
 use mash_core::value::Value;
 use mash_repl::actions::Action;
+use mash_repl::browser::actions::BrowserAction;
+use mash_repl::browser::{BrowserState, SingleObjectState, TwoDTableState};
 use mash_repl::history::MemoryHistoryStorage;
 use mash_repl::host::Host;
 use mash_repl::line_buffer::LineBuffer;
 use mash_repl::screen::{BasicColour, Colour, Dimensions, Line, Point, Screen, Style, StyledChar, StyledString};
 use mash_repl::state::{CompletionState, IncrementalCompletionState};
 use mash_repl::{Repl, ReplStatus};
+
+/// The rows of cells, which rows wrap, and the cursor
+type SavedScreen = (Vec<Vec<Option<StyledChar>>>, Vec<bool>, Point);
 
 /// A display-only terminal emulator, enough to check what the screen drawer's output looks like
 #[derive(Debug)]
@@ -27,6 +32,8 @@ pub struct InMemoryTerminal {
     cursor_visible: bool,
     style: Style,
     title: String,
+    /// The normal screen (its rows, wrapping and cursor) while the alternate screen is in use
+    saved: Option<SavedScreen>,
 }
 
 impl InMemoryTerminal {
@@ -39,6 +46,7 @@ impl InMemoryTerminal {
             cursor_visible: true,
             style: Style::DEFAULT,
             title: String::new(),
+            saved: None,
         }
     }
 
@@ -91,6 +99,15 @@ impl InMemoryTerminal {
                 }
             }
             'l' | 'h' if params == "?25" => self.cursor_visible = command == 'h',
+            'h' if params == "?1049" => {
+                let rows = std::mem::take(&mut self.rows);
+                let wrapped = std::mem::take(&mut self.wrapped);
+                self.saved = Some((rows, wrapped, self.cursor));
+            }
+            'l' if params == "?1049" => {
+                let (rows, wrapped, cursor) = self.saved.take().expect("not on the alternate screen");
+                (self.rows, self.wrapped, self.cursor) = (rows, wrapped, cursor);
+            }
             'm' => self.sgr(params),
             _ => panic!("unknown escape sequence {params:?}{command}"),
         }
@@ -177,7 +194,7 @@ impl InMemoryTerminal {
                 .collect(),
             cursor: self.cursor_visible.then_some(self.cursor),
             title: self.title.clone(),
-            alternate: false,
+            alternate: self.saved.is_some(),
         }
     }
 }
@@ -342,6 +359,48 @@ impl TestRepl {
             Some(CompletionState::Incremental(state)) => state,
             other => panic!("not in incremental completion mode: {other:?}"),
         }
+    }
+
+    /// Act in the object browser
+    pub fn browse_act(&mut self, action: BrowserAction) -> &mut Self {
+        self.act(Action::Browser(action))
+    }
+
+    /// The object browser's current state
+    #[track_caller]
+    pub fn browser(&self) -> &BrowserState {
+        self.repl
+            .state()
+            .object_browser
+            .as_ref()
+            .expect("expected the browser, but no browser is active")
+            .current()
+    }
+
+    #[track_caller]
+    pub fn two_d(&self) -> &TwoDTableState {
+        match self.browser() {
+            BrowserState::TwoDTable(state) => state,
+            other => panic!("not a 2D browser: {other:?}"),
+        }
+    }
+
+    #[track_caller]
+    pub fn single_object(&self) -> &SingleObjectState {
+        match self.browser() {
+            BrowserState::SingleObject(state) => state,
+            other => panic!("not a single object browser: {other:?}"),
+        }
+    }
+
+    /// The rows of the 2D browser's table, as text
+    pub fn two_d_rows(&self) -> Vec<Vec<String>> {
+        self.two_d().model.rendered_rows()
+    }
+
+    /// The fields of the single object browser's table, as text
+    pub fn single_object_rows(&self) -> Vec<(String, String)> {
+        self.single_object().model.rendered_fields().to_vec()
     }
 
     pub fn render(&mut self) -> Screen {

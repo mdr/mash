@@ -14,7 +14,8 @@
 //! ```
 //!
 //! Each event is mapped to an [`Action`] by the key map of the current mode (normal editing, incremental
-//! completion, browsing completions, history search) and handled; then the screen is redrawn. Accepting a
+//! completion, browsing completions, history search, or the object browser and its search and expression
+//! line) and handled; then the screen is redrawn. Accepting a
 //! line runs it as a command between [`Host::begin_command`] and [`Host::end_command`]: its result (or
 //! error) is written to the host, `it` and `r0`, `r1`, … are set, and the command is recorded in the history.
 //! An interrupted command (the host sets [`Ctx::interrupt_flag`] on Ctrl-C) prints a message and returns to
@@ -24,6 +25,7 @@ use std::ops::Range;
 use std::rc::Rc;
 
 use mash_core::builtins::meta::value_to_expression;
+use mash_core::builtins::view::unpack_view;
 use mash_core::complete::{Completion, complete};
 use mash_core::eval::Ctx;
 use mash_core::history::RecordedHistory;
@@ -31,6 +33,7 @@ use mash_core::value::{List, Str, Value, gc};
 use mash_syntax::SyntaxKind;
 
 use crate::actions::{Action, KeyMap};
+use crate::browser::render::{BrowserRenderOptions, render_browser};
 use crate::commands::{CommandRunner, Outcome, mish_command};
 use crate::config::ReplConfig;
 use crate::draw::{ScreenDrawer, accept_screen, escapes};
@@ -64,13 +67,13 @@ pub enum ReplStatus {
 /// An interactive Mash session: the interpreter, the editor's state and the history.
 #[derive(Debug)]
 pub struct Repl {
-    ctx: Ctx,
-    state: ReplState,
+    pub(crate) ctx: Ctx,
+    pub(crate) state: ReplState,
     history: History,
     /// The history as the interpreter sees it (for `os.history` and `jump`), with this session's results
     recorded_history: Rc<RecordedHistory>,
     /// What's on the terminal, for drawing only what changes
-    previous_screen: Option<Screen>,
+    pub(crate) previous_screen: Option<Screen>,
     swapped_out_screen: Option<Screen>,
 }
 
@@ -136,6 +139,10 @@ impl Repl {
                 let action = self.key_map().action(key, self.is_line_empty());
                 self.handle_action(action, host)
             }
+            InputEvent::Paste(text) if self.state.object_browser.is_some() => {
+                self.browser_paste(&text, host);
+                ReplStatus::Continue
+            }
             InputEvent::Paste(text) => {
                 // Pasted text is inserted as is: it ends completion or search, and is never a key binding
                 self.state.completion = None;
@@ -144,6 +151,9 @@ impl Repl {
                 self.history.commit_to_entry();
                 self.update_assistance();
                 ReplStatus::Continue
+            }
+            InputEvent::Resize(_) if self.state.object_browser.is_some() => {
+                self.handle_action(Action::Browser(crate::browser::actions::BrowserAction::Rerender), host)
             }
             InputEvent::Resize(_) => ReplStatus::Continue,
         };
@@ -157,6 +167,17 @@ impl Repl {
 
     /// The key map for the current mode
     pub fn key_map(&self) -> KeyMap {
+        if let Some(stack) = &self.state.object_browser {
+            let state = stack.current();
+            return match state.expression() {
+                Some(expression) if matches!(expression.completion, Some(CompletionState::Browse(_))) => {
+                    KeyMap::BrowseCompletions
+                }
+                Some(_) => KeyMap::ObjectBrowserExpression,
+                None if state.search().is_some() => KeyMap::ObjectBrowserSearch,
+                None => KeyMap::ObjectBrowser,
+            };
+        }
         match (&self.state.completion, &self.state.history_search) {
             (Some(CompletionState::Browse(_)), _) => KeyMap::BrowseCompletions,
             (Some(CompletionState::Incremental(_)), _) => KeyMap::Normal,
@@ -166,11 +187,18 @@ impl Repl {
     }
 
     fn is_line_empty(&self) -> bool {
-        self.state.completion.is_none() && self.state.history_search.is_none() && self.state.line_buffer.is_empty()
+        self.state.object_browser.is_none()
+            && self.state.completion.is_none()
+            && self.state.history_search.is_none()
+            && self.state.line_buffer.is_empty()
     }
 
     /// Handle an action (without redrawing, unless the action itself draws, as accepting a line does)
     pub fn handle_action(&mut self, action: Action, host: &mut dyn Host) -> ReplStatus {
+        if self.state.object_browser.is_some() {
+            self.handle_browser_action(action, host);
+            return ReplStatus::Continue;
+        }
         let status = match self.state.completion.clone() {
             Some(CompletionState::Incremental(completion)) => {
                 self.handle_incremental_completion(action, completion, host)
@@ -208,6 +236,13 @@ impl Repl {
     }
 
     fn render_with(&mut self, size: Dimensions, completed: bool) -> Screen {
+        if let Some(stack) = &self.state.object_browser {
+            let options = BrowserRenderOptions {
+                size,
+                bare_words: self.config().bare_words,
+            };
+            return render_browser(stack, &mut self.ctx, options);
+        }
         let options = RenderOptions {
             size,
             bare_words: self.config().bare_words,
@@ -225,7 +260,7 @@ impl Repl {
         result
     }
 
-    fn runner<'a>(&'a mut self, host: &'a mut dyn Host, print_errors: bool) -> CommandRunner<'a> {
+    pub(crate) fn runner<'a>(&'a mut self, host: &'a mut dyn Host, print_errors: bool) -> CommandRunner<'a> {
         let config = self.config();
         CommandRunner {
             ctx: &mut self.ctx,
@@ -233,6 +268,7 @@ impl Repl {
             bare_words: config.bare_words,
             view_config: ViewConfig {
                 fuzzy_time: config.fuzzy_time,
+                browse_large_output: config.browse_large_output,
             },
             print_errors,
         }
@@ -296,8 +332,7 @@ impl Repl {
             IncrementalHistorySearch => {
                 self.text_change(|repl| handlers::begin_search(&mut repl.state, &mut repl.history))
             }
-            // The object browser arrives in a later milestone
-            BrowseLastResult => {}
+            BrowseLastResult => self.browse_last_result(host),
             Inline => self.text_change(|repl| repl.handle_inline(host)),
             ExpandSelection => {
                 if let Some(range) = editor::expand_selection(&self.state.line_buffer, self.state.mish) {
@@ -346,7 +381,7 @@ impl Repl {
     }
 
     /// Run `f`, then if it changed the text, record the old buffer for undo and stop stepping through history
-    fn text_change(&mut self, f: impl FnOnce(&mut Repl)) {
+    pub(crate) fn text_change(&mut self, f: impl FnOnce(&mut Repl)) {
         let old = self.state.line_buffer.clone();
         f(self);
         if old.text() != self.state.line_buffer.text() {
@@ -464,7 +499,7 @@ impl Repl {
         host.end_command();
         match outcome {
             Outcome::ToggleMish => self.state.mish = !mish,
-            Outcome::Ran(result) => {
+            Outcome::Ran(result, browse) => {
                 let cwd = self.cwd().unwrap_or_default();
                 let now = self.ctx.platform().now();
                 let entry = self.history.record(command, number as u64, &cwd, mish, now);
@@ -472,7 +507,11 @@ impl Repl {
                 self.recorded_history.record(entry.for_interpreter(result_or_null));
                 self.state.command_number += 1;
                 if let Some(result) = result {
-                    self.save_result(number, result);
+                    // `it` is the data, not its `view.View` wrapper
+                    self.save_result(number, unpack_view(&result));
+                }
+                if let Some(model) = browse {
+                    self.browse_model(model, format!("{RESULTS}{number}"));
                 }
             }
         }
@@ -515,8 +554,13 @@ impl Repl {
 
     /// The function to show assistance for at the cursor
     fn assistance(&mut self) -> Option<AssistanceState> {
-        let buffer = &self.state.line_buffer;
-        let (text, pos, mish) = (buffer.text().to_string(), buffer.cursor(), self.state.mish);
+        let buffer = self.state.line_buffer.clone();
+        self.assistance_for(&buffer, self.state.mish)
+    }
+
+    /// The function to show assistance for at the cursor of `buffer`
+    pub(crate) fn assistance_for(&mut self, buffer: &LineBuffer, mish: bool) -> Option<AssistanceState> {
+        let (text, pos) = (buffer.text().to_string(), buffer.cursor());
         let assistable = match mish_command(&text) {
             Some((prefix, code)) => {
                 let code = code.to_string();
@@ -541,7 +585,7 @@ impl Repl {
     // ------------------------------------------------------------------------------------------- completion
 
     /// Completions at the cursor of `buffer`, and the byte range they replace
-    fn complete(&mut self, buffer: &LineBuffer, mish: bool) -> Option<(Vec<Completion>, Range<usize>)> {
+    pub(crate) fn complete(&mut self, buffer: &LineBuffer, mish: bool) -> Option<(Vec<Completion>, Range<usize>)> {
         let text = buffer.text();
         let pos = buffer.cursor();
         let (shift, result) = match mish_command(text) {
@@ -554,15 +598,30 @@ impl Repl {
 
     fn handle_complete(&mut self) {
         let buffer = self.state.line_buffer.clone();
-        let Some((completions, range)) = self.complete(&buffer, self.state.mish) else {
+        let Some((new_buffer, completion)) = self.start_completion(&buffer, self.state.mish) else {
             return;
         };
         self.history.reset_position();
+        self.state.line_buffer = new_buffer;
+        if completion.is_some() {
+            self.state.assistance = None;
+            self.state.completion = completion;
+        }
+    }
+
+    /// Complete at the cursor of `buffer` (Tab): the buffer with a single completion inserted; or with the
+    /// completions' common text inserted, and incremental completion begun
+    pub(crate) fn start_completion(
+        &mut self,
+        buffer: &LineBuffer,
+        mish: bool,
+    ) -> Option<(LineBuffer, Option<CompletionState>)> {
+        let (completions, range) = self.complete(buffer, mish)?;
         if let [completion] = completions.as_slice() {
             let replacement = completion.replacement();
             let cursor = range.start + replacement.len();
             let text = buffer.replace(range, &replacement).text().to_string();
-            self.state.line_buffer = LineBuffer::with_cursor(text, cursor);
+            Some((LineBuffer::with_cursor(text, cursor), None))
         } else {
             let result = mash_core::complete::CompletionResult {
                 completions,
@@ -573,15 +632,49 @@ impl Repl {
             let new_range = range.start..range.start + common.len();
             let text = buffer.replace(range, &common).text().to_string();
             let cursor = new_range.end - usize::from(all_quoted);
-            self.state.line_buffer = LineBuffer::with_cursor(text, cursor);
-            self.state.assistance = None;
-            self.state.completion = Some(CompletionState::Incremental(IncrementalCompletionState {
+            let completion = CompletionState::Incremental(IncrementalCompletionState {
                 completions: result.completions,
                 replace: new_range,
                 immediately_after_completion: true,
                 memento: None,
-            }));
+            });
+            Some((LineBuffer::with_cursor(text, cursor), Some(completion)))
         }
+    }
+
+    /// Type `s` during incremental completion: the new buffer, and the completions that still match (None if
+    /// there are none, or the text typed is an exact match)
+    pub(crate) fn incremental_completion_insert(
+        &mut self,
+        buffer: &LineBuffer,
+        completion: &IncrementalCompletionState,
+        s: &str,
+        mish: bool,
+    ) -> (LineBuffer, Option<CompletionState>) {
+        let memento = (
+            buffer.clone(),
+            IncrementalCompletionState {
+                immediately_after_completion: false,
+                ..completion.clone()
+            },
+        );
+        let new_buffer = buffer.insert_at_cursor(s);
+        let mut new_state = None;
+        if let Some((completions, range)) = self.complete(&new_buffer, mish)
+            && range.start == completion.replace.start
+        {
+            let replaced = &new_buffer.text()[range.clone()];
+            let exact_match = matches!(completions.as_slice(), [c] if c.replacement() == replaced);
+            if !exact_match {
+                new_state = Some(CompletionState::Incremental(IncrementalCompletionState {
+                    completions,
+                    replace: range,
+                    immediately_after_completion: false,
+                    memento: Some(Box::new(memento)),
+                }));
+            }
+        }
+        (new_buffer, new_state)
     }
 
     fn handle_incremental_completion(
@@ -593,29 +686,8 @@ impl Repl {
         match action {
             Action::SelfInsert(s) => {
                 let buffer = self.state.line_buffer.clone();
-                let memento = (
-                    buffer.clone(),
-                    IncrementalCompletionState {
-                        immediately_after_completion: false,
-                        ..completion.clone()
-                    },
-                );
-                let new_buffer = buffer.insert_at_cursor(&s);
-                let mut new_state = None;
-                if let Some((completions, range)) = self.complete(&new_buffer, self.state.mish)
-                    && range.start == completion.replace.start
-                {
-                    let replaced = &new_buffer.text()[range.clone()];
-                    let exact_match = matches!(completions.as_slice(), [c] if c.replacement() == replaced);
-                    if !exact_match {
-                        new_state = Some(CompletionState::Incremental(IncrementalCompletionState {
-                            completions,
-                            replace: range,
-                            immediately_after_completion: false,
-                            memento: Some(Box::new(memento)),
-                        }));
-                    }
-                }
+                let (new_buffer, new_state) =
+                    self.incremental_completion_insert(&buffer, &completion, &s, self.state.mish);
                 self.state.line_buffer = new_buffer;
                 self.state.completion = new_state;
                 ReplStatus::Continue
@@ -645,15 +717,9 @@ impl Repl {
 
     /// Browse completions, with option `active` in place of the region being completed
     fn browse_completions(&mut self, completions: Vec<Completion>, replace: Range<usize>, active: usize) {
-        let replacement = completions[active].replacement();
-        let buffer = self.state.line_buffer.replace(replace.clone(), &replacement);
-        let new_range = replace.start..replace.start + replacement.len();
-        self.state.line_buffer = LineBuffer::with_cursor(buffer.text(), new_range.end);
-        self.state.completion = Some(CompletionState::Browse(BrowseCompletionState {
-            completions,
-            replace: new_range,
-            active,
-        }));
+        let (buffer, completion) = browse_completions(&self.state.line_buffer, completions, replace, active);
+        self.state.line_buffer = buffer;
+        self.state.completion = Some(completion);
     }
 
     fn handle_browse_completion(
@@ -662,25 +728,13 @@ impl Repl {
         completion: BrowseCompletionState,
         host: &mut dyn Host,
     ) -> ReplStatus {
-        let total = completion.completions.len();
-        let columns = number_of_columns(&completion.completions, host.size());
-        let grid = Grid {
-            total,
-            columns,
-            pos: completion.active,
-        };
-        let target = match action {
-            Action::NextCompletion => grid.next(),
-            Action::PreviousCompletion => grid.previous(),
-            Action::NavigateRight => grid.right(),
-            Action::NavigateLeft => grid.left(),
-            Action::NavigateDown => grid.down(),
-            Action::NavigateUp => grid.up(),
-            Action::AcceptCompletion | Action::Quit => {
+        let target = match browse_target(&action, &completion, host.size()) {
+            Some(target) => target,
+            None if matches!(action, Action::AcceptCompletion | Action::Quit) => {
                 self.state.completion = None;
                 return ReplStatus::Continue;
             }
-            action => {
+            None => {
                 self.state.completion = None;
                 return self.handle_normal(action, host);
             }
@@ -705,6 +759,43 @@ impl Repl {
             }
         }
     }
+}
+
+/// The buffer with option `active` in place of the region being completed, and the state of browsing the
+/// completions
+pub(crate) fn browse_completions(
+    buffer: &LineBuffer,
+    completions: Vec<Completion>,
+    replace: Range<usize>,
+    active: usize,
+) -> (LineBuffer, CompletionState) {
+    let replacement = completions[active].replacement();
+    let buffer = buffer.replace(replace.clone(), &replacement);
+    let new_range = replace.start..replace.start + replacement.len();
+    let completion = CompletionState::Browse(BrowseCompletionState {
+        completions,
+        replace: new_range.clone(),
+        active,
+    });
+    (LineBuffer::with_cursor(buffer.text(), new_range.end), completion)
+}
+
+/// The completion to move to when browsing completions, if `action` moves
+pub(crate) fn browse_target(action: &Action, completion: &BrowseCompletionState, size: Dimensions) -> Option<usize> {
+    let grid = Grid {
+        total: completion.completions.len(),
+        columns: number_of_columns(&completion.completions, size),
+        pos: completion.active,
+    };
+    Some(match action {
+        Action::NextCompletion => grid.next(),
+        Action::PreviousCompletion => grid.previous(),
+        Action::NavigateRight => grid.right(),
+        Action::NavigateLeft => grid.left(),
+        Action::NavigateDown => grid.down(),
+        Action::NavigateUp => grid.up(),
+        _ => return None,
+    })
 }
 
 /// Moving around a grid of `total` items, `columns` wide, whose last row may be short, wrapping at the edges
@@ -766,7 +857,7 @@ impl Grid {
 }
 
 /// The line buffer after a simple editing action (Scala `LineBufferActionHandler`)
-fn line_buffer_edit(action: &Action, b: &LineBuffer) -> Option<LineBuffer> {
+pub(crate) fn line_buffer_edit(action: &Action, b: &LineBuffer) -> Option<LineBuffer> {
     use Action::*;
     Some(match action {
         SelfInsert(s) => b.insert_at_cursor(s),

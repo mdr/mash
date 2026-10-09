@@ -1,6 +1,7 @@
 //! Editor actions, and the key maps that bind keys to them in each mode (Scala `NormalActions`,
 //! `IncrementalHistorySearchActions`, `BrowseCompletionActions` and the `input` key maps).
 
+use crate::browser::actions::{BrowserAction, browser_action, expression_action, search_action};
 use crate::input::{Key, KeyPress};
 
 /// Something the user asked the editor to do.
@@ -63,7 +64,7 @@ pub enum Action {
     UnexpandSelection,
     /// Toggle the `!` that runs a line as mish (Alt-,)
     ToggleMish,
-    /// Browse the last result in the object browser (Ctrl-V; not yet available)
+    /// Browse the last result in the object browser (Ctrl-V)
     BrowseLastResult,
     /// Evaluate the line (or selection) and replace it with the result (Alt-E)
     Inline,
@@ -83,6 +84,9 @@ pub enum Action {
     NavigateLeft,
     NavigateRight,
     AcceptCompletion,
+
+    /// In the object browser
+    Browser(BrowserAction),
 }
 
 /// Which key map applies.
@@ -91,6 +95,12 @@ pub enum KeyMap {
     Normal,
     IncrementalHistorySearch,
     BrowseCompletions,
+    /// The object browser
+    ObjectBrowser,
+    /// Incremental search in the object browser
+    ObjectBrowserSearch,
+    /// Typing an expression in the object browser
+    ObjectBrowserExpression,
 }
 
 impl KeyMap {
@@ -101,6 +111,9 @@ impl KeyMap {
             return Action::EndOfFile;
         }
         let specific = match self {
+            KeyMap::ObjectBrowser => return browser_action(key),
+            KeyMap::ObjectBrowserSearch => return search_action(key),
+            KeyMap::ObjectBrowserExpression => return expression_action(KeyMap::Normal.action(key, false)),
             KeyMap::Normal => None,
             KeyMap::IncrementalHistorySearch => history_search_action(key),
             KeyMap::BrowseCompletions => browse_completions_action(key),

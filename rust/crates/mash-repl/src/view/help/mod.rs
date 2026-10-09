@@ -2,7 +2,7 @@
 //!
 //! The renderers work on plain descriptions ([`FunctionDoc`], [`MethodDoc`], [`ClassDoc`], [`FieldDoc`]),
 //! which are gathered from builtin and user-defined functions and classes by the `*_doc` functions here.
-//! (Scala's help also records links from names to their help, for the object browser; they'll come with it.)
+//! [`help_with_links`] also finds the links from names to their help (or class), for the object browser.
 
 mod markup;
 mod render;
@@ -11,13 +11,16 @@ use std::rc::Rc;
 
 use mash_core::ast::FnDef;
 use mash_core::builtins::core::{ANY_CLASS, help::FIELD_HELP_CLASS, help::METHOD_HELP_CLASS};
-use mash_core::eval::parent_of;
+use mash_core::eval::{Ctx, MemberLookup, parent_of};
 use mash_core::function::Param;
 use mash_core::infer::Type;
-use mash_core::value::{BoundMethod, Class, ClassRef, FunctionKind, MethodRef, Value};
+use mash_core::value::{BoundMethod, Class, ClassRef, FunctionKind, MethodRef, Object, Value};
 
 pub use markup::render_markup;
-pub use render::{class_help, field_help, function_help, method_help};
+pub use render::{
+    DocLink, HelpLines, LinkSpan, class_help, class_help_with_links, field_help, field_help_with_links, function_help,
+    method_help, method_help_with_links,
+};
 
 use super::calling_syntax::example_target_name;
 use crate::screen::StyledString;
@@ -118,6 +121,117 @@ pub fn help_lines(value: &Value) -> Option<Vec<StyledString>> {
         }
         _ => None,
     }
+}
+
+/// A link in help to another value, for the object browser (Scala `Link`).
+#[derive(Clone, PartialEq, Debug)]
+pub struct HelpLink {
+    /// Where it is: a line, and a range of characters on it
+    pub line: usize,
+    pub start: usize,
+    pub len: usize,
+    /// What it links to
+    pub target: Value,
+    /// An expression for the target
+    pub path: LinkPath,
+}
+
+/// An expression for what a link links to.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum LinkPath {
+    /// To follow the expression for the value whose help it is (e.g. `.helpForField "name"`)
+    Relative(String),
+    /// On its own (e.g. a class's full name)
+    Absolute(String),
+}
+
+/// The help lines for a value that has help (as [`help_lines`]), and the links in them to other help:
+/// from a class to its parent and members, and from a method or field to its class (and a field's type)
+pub fn help_with_links(ctx: &Ctx, value: &Value) -> Option<(Vec<StyledString>, Vec<HelpLink>)> {
+    let (help, class) = match value {
+        Value::BoundMethod(_) => return help_with_links(ctx, &help_value(value)),
+        Value::Function(_) | Value::Builtin(_) => return Some((help_lines(value)?, vec![])),
+        Value::Class(class) => (class_help_with_links(&class_doc(class)), class.clone()),
+        Value::Object(o) => {
+            let help_class = o.class()?;
+            let name = o.get_str("name")?;
+            let Value::Class(owner) = o.get_str("owningClass")? else {
+                return None;
+            };
+            let help = if help_class.is_builtin(&METHOD_HELP_CLASS) {
+                method_help_with_links(&method_doc(name.as_str()?, &owner)?)
+            } else if help_class.is_builtin(&FIELD_HELP_CLASS) {
+                field_help_with_links(&field_doc(name.as_str()?, &owner)?)
+            } else {
+                return None;
+            };
+            (help, owner)
+        }
+        _ => return None,
+    };
+    let links = help
+        .links
+        .iter()
+        .filter_map(|span| {
+            let absolute = |class: ClassRef| (LinkPath::Absolute(class.full_name()), Value::Class(class));
+            let (path, target) = match &span.link {
+                DocLink::Class => absolute(class.clone()),
+                DocLink::Parent => absolute(parent_of(&class)?),
+                DocLink::FieldType => {
+                    let Value::Object(o) = value else { return None };
+                    absolute(field_type_class(o.get_str("name")?.as_str()?, &class)?)
+                }
+                DocLink::Field(name) => (
+                    LinkPath::Relative(format!(".helpForField \"{name}\"")),
+                    help_object(&FIELD_HELP_CLASS, name, &class),
+                ),
+                DocLink::Method(name) => (
+                    LinkPath::Relative(format!(".helpForMethod \"{name}\"")),
+                    help_object(&METHOD_HELP_CLASS, name, &class),
+                ),
+                DocLink::StaticMethod(name) => {
+                    let method = ctx.lookup_member(&Value::Class(class.clone()), name, MemberLookup::DEFAULT)?;
+                    let nullary = ctx.params_of(&method).is_some_and(|p| p.allows_nullary());
+                    let fragment = if nullary {
+                        format!("[\"{name}\"]")
+                    } else {
+                        format!(".{name}")
+                    };
+                    (LinkPath::Relative(fragment), method)
+                }
+            };
+            Some(HelpLink {
+                line: span.line,
+                start: span.start,
+                len: span.len,
+                target,
+                path,
+            })
+        })
+        .collect();
+    Some((help.lines, links))
+}
+
+/// What help shows for a value: a bound method's `MethodHelp` object, or the value itself
+pub fn help_value(value: &Value) -> Value {
+    match value {
+        Value::BoundMethod(m) => {
+            let class = match m.method() {
+                MethodRef::Builtin { class, .. } => ClassRef::Builtin(class),
+                MethodRef::User { class, .. } => ClassRef::User(class.clone()),
+            };
+            help_object(&METHOD_HELP_CLASS, m.name(), &class)
+        }
+        _ => value.clone(),
+    }
+}
+
+/// A `MethodHelp` or `FieldHelp` object for a member of `class`
+fn help_object(help_class: &'static mash_core::value::BuiltinClass, name: &str, class: &ClassRef) -> Value {
+    let object = Object::with_class(Some(ClassRef::Builtin(help_class)));
+    object.set_str("name", Value::str(name));
+    object.set_str("owningClass", Value::Class(class.clone()));
+    Value::Object(object)
 }
 
 /// Whether `value` is a `MethodHelp` or `FieldHelp` object
@@ -323,11 +437,7 @@ pub fn field_doc(name: &str, class: &ClassRef) -> Option<FieldDoc> {
     match class {
         ClassRef::Builtin(c) => {
             let field = c.fields.iter().find(|f| f.name == name)?;
-            let type_name = match (field.ty)() {
-                Type::Instance(c) if !std::ptr::eq(c, &ANY_CLASS) => Some(c.full_name()),
-                Type::Tagged { tag, .. } => Some(tag.full_name()),
-                _ => None,
-            };
+            let type_name = field_type_class(name, class).map(|c| c.full_name());
             Some(FieldDoc {
                 name: field.name.to_string(),
                 summary: non_empty(field.summary),
@@ -346,6 +456,19 @@ pub fn field_doc(name: &str, class: &ClassRef) -> Option<FieldDoc> {
                 type_name: None,
             })
         }
+    }
+}
+
+/// The class of a builtin class's field's values, if more specific than `Any`
+fn field_type_class(name: &str, class: &ClassRef) -> Option<ClassRef> {
+    let ClassRef::Builtin(c) = class else {
+        return None;
+    };
+    let field = c.fields.iter().find(|f| f.name == name)?;
+    match (field.ty)() {
+        Type::Instance(c) if !std::ptr::eq(c, &ANY_CLASS) => Some(ClassRef::Builtin(c)),
+        Type::Tagged { tag, .. } => Some(ClassRef::Builtin(tag)),
+        _ => None,
     }
 }
 

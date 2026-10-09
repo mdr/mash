@@ -11,18 +11,21 @@
 //! ```
 
 use std::collections::HashSet;
+use std::ops::Range;
 
 use mash_core::builtins::collections::GROUP_CLASS;
 use mash_core::builtins::git::COMMIT_CLASS;
 use mash_core::eval::{Ctx, MemberLookup, R, is_a};
 use mash_core::value::{ClassRef, Value};
+use mash_syntax::expression_combiner::combine_safely;
 
-use super::ViewConfig;
 use super::boxes::BoxChars;
 use super::columns::{ColumnRequest, allocate_columns};
 use super::field::render_field;
 use super::text::{self, ELLIPSIS, ellipsisise_styled, fit_to_width};
-use crate::screen::{Dimensions, Style, StyledChar, StyledString, default_colours};
+use super::{Decorations, ViewConfig};
+use crate::browser::safe_property;
+use crate::screen::{Colour, Dimensions, Style, StyledChar, StyledString, default_colours};
 
 /// The header of the row label column
 const ROW_LABEL_COLUMN_NAME: &str = "#";
@@ -68,9 +71,9 @@ fn schemas_are_similar(values: &[Value]) -> bool {
     !all_fields.is_empty() && shared_count as f64 / all_fields.len() as f64 > 0.75
 }
 
-/// How a column gets its value from a row.
-#[derive(Clone, Debug)]
-enum Fetch {
+/// How a column gets its value from a row (or a row from the table's value).
+#[derive(Clone, PartialEq, Debug)]
+pub(crate) enum Fetch {
     /// A member (a field, or a method bound to the row, which is called if `invoke` is set)
     Member { member: Value, invoke: bool },
     /// An element of a list
@@ -89,6 +92,22 @@ impl Fetch {
         match self {
             Fetch::Member { member, .. } => ctx.stringify(member),
             Fetch::Index(i) => Ok(i.to_string()),
+        }
+    }
+
+    /// The member name or index, as a value
+    pub(crate) fn value(&self) -> Value {
+        match self {
+            Fetch::Member { member, .. } => member.clone(),
+            Fetch::Index(i) => Value::num(*i as f64),
+        }
+    }
+
+    /// An expression for the value fetched from the value of `parent` (Scala `ValueFetch.fetchPath`)
+    pub(crate) fn path(&self, parent: &str) -> String {
+        match self {
+            Fetch::Member { member, invoke } => safe_property(parent, member, *invoke),
+            Fetch::Index(i) => combine_safely(parent, &format!("[{i}]")),
         }
     }
 
@@ -125,74 +144,195 @@ impl ColumnSpec {
     }
 }
 
-/// A table ready to draw: the first column is the row labels.
-#[derive(Debug)]
-struct TableModel {
-    names: Vec<String>,
-    widths: Vec<usize>,
-    /// The rendered cells of each row, starting with its label
-    rows: Vec<Vec<String>>,
+/// A table ready to draw (Scala `TwoDTableModel`): the first column is the row labels.
+#[derive(Clone, PartialEq, Debug)]
+pub struct TwoDTableModel {
+    pub(crate) columns: Vec<Column>,
+    pub(crate) rows: Vec<Row>,
+    /// The list or object the table shows
+    pub(crate) raw_value: Value,
+}
+
+/// A column of a table.
+#[derive(Clone, PartialEq, Debug)]
+pub(crate) struct Column {
+    pub(crate) name: String,
+    pub(crate) width: usize,
+    /// Which of the table's column specs this is (None for the row labels), for hiding columns
+    pub(crate) id: Option<usize>,
+    /// How cells get their values from rows (None for the row labels)
+    pub(crate) fetch: Option<Fetch>,
+}
+
+/// A row of a table: a cell for each column.
+#[derive(Clone, PartialEq, Debug)]
+pub(crate) struct Row {
+    pub(crate) cells: Vec<Cell>,
+    pub(crate) raw_value: Value,
+    /// How the row is found in the table's value
+    pub(crate) fetch: Fetch,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub(crate) struct Cell {
+    pub(crate) rendered: String,
+    /// The value shown (the field name or index for a row label), if the row has one for this column
+    pub(crate) raw_value: Option<Value>,
+}
+
+impl TwoDTableModel {
+    /// The text of each row's cells, starting with its label
+    pub fn rendered_rows(&self) -> Vec<Vec<String>> {
+        self.rows
+            .iter()
+            .map(|row| row.cells.iter().map(|cell| cell.rendered.clone()).collect())
+            .collect()
+    }
+
+    /// The columns' names, starting with the row labels'
+    pub fn column_names(&self) -> Vec<String> {
+        self.columns.iter().map(|column| column.name.clone()).collect()
+    }
+
+    pub fn number_of_rows(&self) -> usize {
+        self.rows.len()
+    }
+
+    /// The columns' widths, starting with the row labels'
+    pub fn column_widths(&self) -> Vec<usize> {
+        self.columns.iter().map(|column| column.width).collect()
+    }
+
+    /// Including the row label column
+    pub(crate) fn number_of_columns(&self) -> usize {
+        self.columns.len()
+    }
 }
 
 /// The lines of a 2D table of `value` (which must be [`is_suitable`])
 pub(crate) fn table_lines(ctx: &mut Ctx, value: &Value, size: Dimensions, config: &ViewConfig) -> R<Vec<StyledString>> {
-    let model = create_model(ctx, value, size, config)?;
-    Ok(render(&model, size))
+    let model = create_model(ctx, value, size, config, false, &[])?;
+    Ok(render_table(
+        &model,
+        size,
+        &Decorations::default(),
+        0,
+        model.number_of_rows(),
+    ))
 }
 
-fn create_model(ctx: &mut Ctx, value: &Value, size: Dimensions, config: &ViewConfig) -> R<TableModel> {
-    // Each row's label and value
-    let row_infos: Vec<(String, Value)> = match value {
+/// The model of a 2D table of `value` (which must be [`is_suitable`]). `support_marking` leaves room for the
+/// object browser's mark column; `hidden` lists the ids of columns not to show.
+pub(crate) fn create_model(
+    ctx: &mut Ctx,
+    value: &Value,
+    size: Dimensions,
+    config: &ViewConfig,
+    support_marking: bool,
+    hidden: &[usize],
+) -> R<TwoDTableModel> {
+    // Each row's label, value, and how it's found
+    let row_infos: Vec<(String, Value, Fetch)> = match value {
         Value::List(xs) => xs
             .snapshot()
             .into_iter()
             .enumerate()
-            .map(|(i, x)| (i.to_string(), x))
+            .map(|(i, x)| (i.to_string(), x, Fetch::Index(i)))
             .collect(),
         Value::Object(o) => o
             .entries()
             .into_iter()
-            .map(|(k, v)| Ok((render_field(ctx, &k, true, config)?, v)))
+            .map(|(k, v)| {
+                let label = render_field(ctx, &k, true, config)?;
+                Ok((
+                    label,
+                    v,
+                    Fetch::Member {
+                        member: k,
+                        invoke: false,
+                    },
+                ))
+            })
             .collect::<R<_>>()?,
         _ => vec![],
     };
-    let row_values: Vec<Value> = row_infos.iter().map(|(_, v)| v.clone()).collect();
-    let specs = column_specs(&row_values);
+    let row_values: Vec<Value> = row_infos.iter().map(|(_, v, _)| v.clone()).collect();
+    let all_specs = column_specs(&row_values);
+    let specs: Vec<(usize, &ColumnSpec)> = all_specs
+        .iter()
+        .enumerate()
+        .filter(|(id, _)| !hidden.contains(id))
+        .collect();
 
     let mut rows = vec![];
-    for (label, row) in &row_infos {
-        let mut cells = vec![label.clone()];
-        for spec in &specs {
-            cells.push(match spec.fetch.lookup(ctx, row)? {
-                Some(cell) => render_field(ctx, &cell, true, config)?,
+    for (label, row, fetch) in row_infos {
+        let mut cells = vec![Cell {
+            rendered: label,
+            raw_value: Some(fetch.value()),
+        }];
+        for (_, spec) in &specs {
+            let raw_value = spec.fetch.lookup(ctx, &row)?;
+            let rendered = match &raw_value {
+                Some(cell) => render_field(ctx, cell, true, config)?,
                 None => String::new(),
-            });
+            };
+            cells.push(Cell { rendered, raw_value });
         }
-        rows.push(cells);
+        rows.push(Row {
+            cells,
+            raw_value: row,
+            fetch,
+        });
     }
 
-    let mut names = vec![ROW_LABEL_COLUMN_NAME.to_string()];
-    for spec in &specs {
+    let mut names = vec![];
+    for (_, spec) in &specs {
         names.push(spec.fetch.name(ctx)?);
     }
     let requests: Vec<ColumnRequest> = specs
         .iter()
         .enumerate()
-        .map(|(i, spec)| {
-            let widest_cell = rows.iter().map(|cells| text::width(&cells[i + 1])).max().unwrap_or(0);
+        .map(|(i, (_, spec))| {
+            let widest_cell = rows
+                .iter()
+                .map(|row| text::width(&row.cells[i + 1].rendered))
+                .max()
+                .unwrap_or(0);
             ColumnRequest {
                 weight: spec.weight,
-                requested: widest_cell.max(text::width(&names[i + 1])),
+                requested: widest_cell.max(text::width(&names[i])),
             }
         })
         .collect();
-    let row_label_width = rows.iter().map(|cells| text::width(&cells[0])).max().unwrap_or(0);
-    // The table's sides and the borders between columns
-    let borders = 1 + specs.len() + 1;
+    let row_label_width = rows
+        .iter()
+        .map(|row| text::width(&row.cells[0].rendered))
+        .max()
+        .unwrap_or(0);
+    // The table's sides and the borders between columns (counting hidden columns, as Scala Mash does), and
+    // the mark column
+    let borders = 1 + all_specs.len() + 1 + if support_marking { 2 } else { 0 };
     let available = size.columns.saturating_sub(row_label_width + borders);
-    let mut widths = vec![row_label_width];
-    widths.extend(allocate_columns(&requests, available));
-    Ok(TableModel { names, widths, rows })
+    let widths = allocate_columns(&requests, available);
+    let mut columns = vec![Column {
+        name: ROW_LABEL_COLUMN_NAME.to_string(),
+        width: row_label_width,
+        id: None,
+        fetch: None,
+    }];
+    for (((id, spec), name), width) in specs.iter().zip(names).zip(widths) {
+        columns.push(Column {
+            name,
+            width,
+            id: Some(*id),
+            fetch: Some(spec.fetch.clone()),
+        });
+    }
+    Ok(TwoDTableModel {
+        columns,
+        rows,
+        raw_value: value.clone(),
+    })
 }
 
 fn column_specs(rows: &[Value]) -> Vec<ColumnSpec> {
@@ -250,85 +390,188 @@ fn column_specs(rows: &[Value]) -> Vec<ColumnSpec> {
         .collect()
 }
 
-fn label_style() -> Style {
-    Style::fg(default_colours::YELLOW)
-}
-
-fn render(model: &TableModel, size: Dimensions) -> Vec<StyledString> {
-    let b = BoxChars::UNICODE;
-    let mut lines = vec![
-        border_row(
-            model,
-            size,
-            b.double_top_left,
-            b.double_horizontal,
-            b.double_horizontal_single_down,
-            b.double_top_right,
-        ),
-        header_row(model, size),
-        border_row(
-            model,
-            size,
-            b.double_vertical_single_right,
-            b.single_horizontal,
-            b.single_intersect,
-            b.double_vertical_single_left,
-        ),
-    ];
-    for cells in &model.rows {
-        lines.push(data_row(model, cells, size));
-    }
-    lines.push(border_row(
+/// The lines of a table showing `row_count` rows from `first_row`, with arrows on the borders if there are
+/// more rows above or below (Scala `TwoDTableCommonRenderer`)
+pub(crate) fn render_table(
+    model: &TwoDTableModel,
+    size: Dimensions,
+    decorations: &Decorations,
+    first_row: usize,
+    row_count: usize,
+) -> Vec<StyledString> {
+    let renderer = Renderer {
         model,
         size,
-        b.double_bottom_left,
-        b.double_horizontal,
-        b.double_horizontal_single_up,
-        b.double_bottom_right,
+        decorations,
+    };
+    let b = BoxChars::UNICODE;
+    let mut lines = vec![
+        renderer.border_row(
+            [
+                b.double_top_left,
+                b.double_horizontal,
+                b.double_horizontal_single_down,
+                b.double_top_right,
+            ],
+            None,
+        ),
+        renderer.header_row(),
+        renderer.border_row(
+            [
+                b.double_vertical_single_right,
+                b.single_horizontal,
+                b.single_intersect,
+                b.double_vertical_single_left,
+            ],
+            (first_row > 0).then_some(UP_ARROW),
+        ),
+    ];
+    let end = model.rows.len().min(first_row + row_count);
+    for index in first_row.min(end)..end {
+        lines.push(renderer.data_row(index));
+    }
+    lines.push(renderer.border_row(
+        [
+            b.double_bottom_left,
+            b.double_horizontal,
+            b.double_horizontal_single_up,
+            b.double_bottom_right,
+        ],
+        (first_row + row_count < model.rows.len()).then_some(DOWN_ARROW),
     ));
     lines
 }
 
-fn border_row(
-    model: &TableModel,
+/// Draws a table, decorated for the object browser.
+struct Renderer<'a> {
+    model: &'a TwoDTableModel,
     size: Dimensions,
-    first: char,
-    internal: char,
-    divider: char,
-    last: char,
-) -> StyledString {
-    let segments: Vec<String> = model.widths.iter().map(|&w| internal.to_string().repeat(w)).collect();
-    let line = format!("{first}{}{last}", segments.join(&divider.to_string()));
-    truncate_if_required(
-        StyledString::plain(&line),
-        size,
-        StyledChar::new(internal, Style::DEFAULT),
-    )
+    decorations: &'a Decorations<'a>,
 }
 
-fn header_row(model: &TableModel, size: Dimensions) -> StyledString {
-    let cells = model
-        .names
-        .iter()
-        .zip(&model.widths)
-        .map(|(name, &width)| label_style().apply(&fit_to_width(name, width)));
-    row_line(cells, size)
+impl Renderer<'_> {
+    fn shows_marks(&self) -> bool {
+        self.decorations.marked.is_some()
+    }
+
+    /// A border: its first, internal, divider and last characters, and any arrow for its middle
+    fn border_row(&self, [first, internal, divider, last]: [char; 4], arrow: Option<char>) -> StyledString {
+        let mut line = String::from(first);
+        if self.shows_marks() {
+            line.push(internal);
+            line.push(divider);
+        }
+        let segments: Vec<String> = self
+            .model
+            .columns
+            .iter()
+            .map(|c| internal.to_string().repeat(c.width))
+            .collect();
+        line.push_str(&segments.join(&divider.to_string()));
+        line.push(last);
+        if let Some(arrow) = arrow {
+            line = set_middle_char(&line, arrow);
+        }
+        truncate_if_required(
+            StyledString::plain(&line),
+            self.size,
+            StyledChar::new(internal, Style::DEFAULT),
+        )
+    }
+
+    fn header_row(&self) -> StyledString {
+        let b = BoxChars::UNICODE;
+        let mut line = StyledString::plain(&b.double_vertical.to_string());
+        if self.shows_marks() {
+            line.push_str(&format!(" {}", b.single_vertical), Style::DEFAULT);
+        }
+        let cells = self
+            .model
+            .columns
+            .iter()
+            .map(|column| label_style().apply(&fit_to_width(&column.name, column.width)));
+        line.append(&StyledString::join(
+            cells,
+            &StyledString::plain(&b.single_vertical.to_string()),
+        ));
+        line.push_str(&b.double_vertical.to_string(), Style::DEFAULT);
+        truncate_if_required(line, self.size, StyledChar::new(ELLIPSIS, Style::DEFAULT))
+    }
+
+    fn data_row(&self, index: usize) -> StyledString {
+        let b = BoxChars::UNICODE;
+        let decorations = self.decorations;
+        let is_cursor_row = decorations.current_row == Some(index);
+        let row_style = cell_style(is_cursor_row && decorations.current_column.is_none(), false, false);
+        let mut line = StyledString::plain(&b.double_vertical.to_string());
+        if let Some(marked) = decorations.marked {
+            let mark = if marked.contains(&index) { '◈' } else { ' ' };
+            line.push_str(&format!("{mark}{}", b.single_vertical), row_style);
+        }
+        let row = &self.model.rows[index];
+        let cells = self.model.columns.iter().enumerate().map(|(column_index, column)| {
+            let highlight = is_cursor_row && decorations.current_column.is_none_or(|c| c == column_index);
+            let matches = decorations
+                .search
+                .map_or(&[][..], |s| s.cell_matches(index, column_index));
+            styled_cell(
+                &fit_to_width(&row.cells[column_index].rendered, column.width),
+                matches,
+                |is_match| cell_style(highlight, is_match, column.id.is_none()),
+            )
+        });
+        line.append(&StyledString::join(
+            cells,
+            &row_style.apply(&b.single_vertical.to_string()),
+        ));
+        line.push_str(&b.double_vertical.to_string(), Style::DEFAULT);
+        truncate_if_required(line, self.size, StyledChar::new(ELLIPSIS, Style::DEFAULT))
+    }
 }
 
-fn data_row(model: &TableModel, cells: &[String], size: Dimensions) -> StyledString {
-    let cells = cells.iter().zip(&model.widths).enumerate().map(|(i, (cell, &width))| {
-        let style = if i == 0 { label_style() } else { Style::DEFAULT };
-        style.apply(&fit_to_width(cell, width))
-    });
-    row_line(cells, size)
+/// The style of a table cell: inverse if highlighted (by the cursor), cyan and bold in a search hit, yellow
+/// for a label
+pub(crate) fn cell_style(highlight: bool, search_match: bool, label: bool) -> Style {
+    let foreground = if search_match {
+        default_colours::CYAN
+    } else if label {
+        default_colours::YELLOW
+    } else {
+        Colour::Default
+    };
+    Style {
+        foreground,
+        inverse: highlight,
+        bold: search_match,
+        ..Style::DEFAULT
+    }
 }
 
-/// Cells between the table's sides, separated by single lines
-fn row_line(cells: impl Iterator<Item = StyledString>, size: Dimensions) -> StyledString {
-    let b = BoxChars::UNICODE;
-    let side = StyledString::plain(&b.double_vertical.to_string());
-    let line = side.clone() + &StyledString::join(cells, &StyledString::plain(&b.single_vertical.to_string())) + &side;
-    truncate_if_required(line, size, StyledChar::new(ELLIPSIS, Style::DEFAULT))
+/// Cell text, each character styled by whether it's in a search hit (`matches` are character ranges)
+pub(crate) fn styled_cell(text: &str, matches: &[Range<usize>], style: impl Fn(bool) -> Style) -> StyledString {
+    text.chars()
+        .enumerate()
+        .map(|(i, c)| StyledChar::new(c, style(matches.iter().any(|m| m.contains(&i)))))
+        .collect()
+}
+
+/// Shown in a border when there are more rows above
+pub(crate) const UP_ARROW: char = '↑';
+/// Shown in a border when there are more rows below
+pub(crate) const DOWN_ARROW: char = '↓';
+
+/// `s` with its middle character replaced (Scala `ArrowHelper`)
+pub(crate) fn set_middle_char(s: &str, c: char) -> String {
+    let mut chars: Vec<char> = s.chars().collect();
+    if !chars.is_empty() {
+        let middle = chars.len() / 2;
+        chars[middle] = c;
+    }
+    chars.into_iter().collect()
+}
+
+fn label_style() -> Style {
+    Style::fg(default_colours::YELLOW)
 }
 
 /// A line wider than the terminal is cut short, keeping its last character (the table's side)
