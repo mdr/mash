@@ -123,11 +123,9 @@ fn complete_directory(_: &Params, _: usize, _: &TypedArgs) -> Vec<CompletionSpec
 pub(crate) fn change_directory(
     ctx: &mut Ctx,
     args: &Args,
-    #[param(
-        "Directory to change into; defaults to the current user's home directory.",
-        optional
-    )]
-    directory: Option<PathArg>,
+    #[param("Directory to change into; defaults to the current user's home directory.", optional)] directory: Option<
+        PathArg,
+    >,
 ) -> R<()> {
     let path = match directory {
         Some(path) => path.0,

@@ -1,11 +1,17 @@
 //! Native-only Mash builtins (filesystem, processes, users, git, http) and the native
 //! [`Platform`](mash_core::platform::Platform) implementation.
 
+mod fs;
+mod process;
+
+use std::io;
+
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
-use mash_core::platform::{DirEntry, FileKind, Platform};
+use mash_core::platform::{DirEntry, FileKind, Metadata, Platform, ProcessOutcome, ProcessRequest};
 
-/// The [`Platform`] for a native process: real environment, working directory, clock and time zone.
+/// The [`Platform`] for a native process: real environment, working directory, file system, processes, clock
+/// and time zone.
 #[derive(Debug, Default)]
 pub struct NativePlatform;
 
@@ -81,5 +87,69 @@ impl Platform for NativePlatform {
                 hasher.finish()
             }
         }
+    }
+
+    fn set_current_dir(&self, path: &str) -> io::Result<()> {
+        std::env::set_current_dir(path)
+    }
+
+    fn metadata(&self, path: &str) -> io::Result<Metadata> {
+        Ok(fs::metadata(&std::fs::metadata(path)?))
+    }
+
+    fn symlink_metadata(&self, path: &str) -> io::Result<Metadata> {
+        Ok(fs::metadata(&std::fs::symlink_metadata(path)?))
+    }
+
+    fn read_link(&self, path: &str) -> io::Result<String> {
+        Ok(fs::path_string(&std::fs::read_link(path)?))
+    }
+
+    fn canonicalize(&self, path: &str) -> io::Result<String> {
+        Ok(fs::path_string(&std::fs::canonicalize(path)?))
+    }
+
+    fn read_file(&self, path: &str) -> io::Result<Vec<u8>> {
+        std::fs::read(path)
+    }
+
+    fn write_file(&self, path: &str, contents: &[u8], append: bool) -> io::Result<()> {
+        fs::write_file(path, contents, append)
+    }
+
+    fn create_dir(&self, path: &str, intermediates: bool) -> io::Result<()> {
+        if intermediates {
+            std::fs::create_dir_all(path)
+        } else {
+            std::fs::create_dir(path)
+        }
+    }
+
+    fn remove(&self, path: &str) -> io::Result<()> {
+        fs::remove(path)
+    }
+
+    fn copy_file(&self, from: &str, to: &str) -> io::Result<()> {
+        std::fs::copy(from, to).map(drop)
+    }
+
+    fn rename(&self, from: &str, to: &str) -> io::Result<()> {
+        std::fs::rename(from, to)
+    }
+
+    fn set_permissions(&self, path: &str, permissions: u32) -> io::Result<()> {
+        fs::set_permissions(path, permissions)
+    }
+
+    fn create_temp_file(&self) -> io::Result<String> {
+        fs::create_temp(false, || self.random_u64())
+    }
+
+    fn create_temp_dir(&self) -> io::Result<String> {
+        fs::create_temp(true, || self.random_u64())
+    }
+
+    fn run_process(&self, request: &ProcessRequest<'_>) -> io::Result<ProcessOutcome> {
+        process::run_process(request)
     }
 }

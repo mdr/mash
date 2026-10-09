@@ -201,7 +201,10 @@ fn stdout(target: &Value) -> R<String> {
 
 /// The first line of standard output, or empty
 fn first_line(target: &Value) -> R<String> {
-    Ok(split_into_lines(&stdout(target)?).into_iter().next().unwrap_or_default())
+    Ok(split_into_lines(&stdout(target)?)
+        .into_iter()
+        .next()
+        .unwrap_or_default())
 }
 
 /// True if the status had a zero exit code
@@ -220,7 +223,10 @@ pub(crate) fn failed(target: &Value) -> R<bool> {
 #[builtin_method(aliases = ["toList"], returns = Type::seq(Type::STRING))]
 pub(crate) fn lines(target: &Value) -> R<List> {
     Ok(List::new(
-        split_into_lines(&stdout(target)?).into_iter().map(Value::from).collect(),
+        split_into_lines(&stdout(target)?)
+            .into_iter()
+            .map(Value::from)
+            .collect(),
     ))
 }
 

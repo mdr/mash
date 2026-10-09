@@ -115,7 +115,13 @@ fn default_commands() -> BTreeMap<String, FakeCommand> {
             for file in p.args {
                 match p.files.read_file(p.cwd, file) {
                     Ok(bytes) => out.push_str(&String::from_utf8_lossy(&bytes)),
-                    Err(_) => return FakeOutcome { exit_status: 1, stdout: out, interrupted: false },
+                    Err(_) => {
+                        return FakeOutcome {
+                            exit_status: 1,
+                            stdout: out,
+                            interrupted: false,
+                        };
+                    }
                 }
             }
             FakeOutcome::output(out)
@@ -211,7 +217,10 @@ impl Platform for TestPlatform {
     fn set_current_dir(&self, path: &str) -> io::Result<()> {
         let real = self.files.canonicalize(&self.cwd(), path)?;
         if !self.files.metadata("/", &real, true)?.is_dir() {
-            return Err(io::Error::new(io::ErrorKind::NotADirectory, format!("Not a directory: {path}")));
+            return Err(io::Error::new(
+                io::ErrorKind::NotADirectory,
+                format!("Not a directory: {path}"),
+            ));
         }
         *self.changed_dir.borrow_mut() = Some(real);
         Ok(())

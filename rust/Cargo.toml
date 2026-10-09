@@ -30,6 +30,9 @@ unicode-width = "0.2"
 unicode-segmentation = "1.12"
 crossterm = "0.29"
 signal-hook = "0.3"
+# Native only (mash-os): process groups, terminal control, signals, users and groups
+nix = { version = "0.31", features = ["fs", "process", "signal", "term", "user"] }
+tempfile = "3.27"
 
 [workspace.lints.rust]
 unsafe_code = "deny"

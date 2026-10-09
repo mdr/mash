@@ -14,7 +14,9 @@ use crate::platform::{FileKind, Metadata};
 use crate::value::{ClassRef, DateTime, List, Number, Object, Str, Value};
 
 use super::paths::{self, PathArg, fs, io_error, join, path_value};
-use super::{FILE_TYPE_CLASS, GROUP_CLASS, PATH_SUMMARY_CLASS, PERMISSIONS_CLASS, PERMISSIONS_SECTION_CLASS, USERNAME_CLASS};
+use super::{
+    FILE_TYPE_CLASS, GROUP_CLASS, PATH_SUMMARY_CLASS, PERMISSIONS_CLASS, PERMISSIONS_SECTION_CLASS, USERNAME_CLASS,
+};
 
 pub(crate) fn path_summaries() -> Type {
     Type::seq(Type::Instance(&PATH_SUMMARY_CLASS))
@@ -69,7 +71,10 @@ fn summary_object(path: &str, metadata: &Metadata) -> Value {
     let object = Object::with_class(Some(ClassRef::Builtin(&PATH_SUMMARY_CLASS)));
     object.set_str("path", path_value(path));
     object.set_str("type", tagged(file_type_name(metadata.kind), &FILE_TYPE_CLASS));
-    object.set_str("size", Value::Number(Number::new(metadata.size as f64), Some(&BYTES_CLASS)));
+    object.set_str(
+        "size",
+        Value::Number(Number::new(metadata.size as f64), Some(&BYTES_CLASS)),
+    );
     object.set_str("owner", tagged(&metadata.owner, &USERNAME_CLASS));
     object.set_str("group", tagged(&metadata.group, &GROUP_CLASS));
     object.set_str("permissions", permissions_object(metadata.permissions));
@@ -107,8 +112,19 @@ pub(crate) fn list_children(ctx: &mut Ctx, dir: &str, ignore_dot_files: bool, re
     if let Ok(real) = ctx.platform().canonicalize(fs(dir)) {
         ancestors.insert(real);
     }
-    let entries = ctx.platform().read_dir(fs(dir)).map_err(|e| io_error("list", dir, &e))?;
-    walk(ctx, dir, entries, ignore_dot_files, recursive, &mut ancestors, &mut results)?;
+    let entries = ctx
+        .platform()
+        .read_dir(fs(dir))
+        .map_err(|e| io_error("list", dir, &e))?;
+    walk(
+        ctx,
+        dir,
+        entries,
+        ignore_dot_files,
+        recursive,
+        &mut ancestors,
+        &mut results,
+    )?;
     Ok(results)
 }
 
@@ -259,7 +275,10 @@ pub(crate) fn recursive_param() -> crate::function::Param {
 
 /// The contents of a file as text (lossily decoded as UTF-8)
 pub(crate) fn read_text(ctx: &Ctx, path: &str) -> R<String> {
-    let bytes = ctx.platform().read_file(fs(path)).map_err(|e| io_error("read", path, &e))?;
+    let bytes = ctx
+        .platform()
+        .read_file(fs(path))
+        .map_err(|e| io_error("read", path, &e))?;
     Ok(match String::from_utf8(bytes) {
         Ok(text) => text,
         Err(e) => String::from_utf8_lossy(e.as_bytes()).into_owned(),
@@ -390,10 +409,12 @@ pub(crate) fn create_directory(
 /// Create a new temporary directory
 #[builtin(namespace = "os", returns = Type::PATH)]
 pub(crate) fn create_temp_directory(ctx: &mut Ctx) -> R<Value> {
-    let path = ctx
-        .platform()
-        .create_temp_dir()
-        .map_err(|e| MashError::new(format!("Could not create a temporary directory: {}", paths::describe(&e))))?;
+    let path = ctx.platform().create_temp_dir().map_err(|e| {
+        MashError::new(format!(
+            "Could not create a temporary directory: {}",
+            paths::describe(&e)
+        ))
+    })?;
     Ok(path_value(path))
 }
 
@@ -411,7 +432,9 @@ pub(crate) fn create_temp_file(ctx: &mut Ctx) -> R<Value> {
 
 /// Delete a path: a file, a link, or a directory with everything in it
 pub(crate) fn delete_path(ctx: &Ctx, path: &str) -> R<()> {
-    ctx.platform().remove(fs(path)).map_err(|e| io_error("delete", path, &e))
+    ctx.platform()
+        .remove(fs(path))
+        .map_err(|e| io_error("delete", path, &e))
 }
 
 /// Delete files and directories
@@ -440,7 +463,10 @@ pub(crate) fn delete(
 /// destination directory)
 pub(crate) fn copy_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
     if is_dir(ctx, from) {
-        let entries = ctx.platform().read_dir(fs(from)).map_err(|e| io_error("copy", from, &e))?;
+        let entries = ctx
+            .platform()
+            .read_dir(fs(from))
+            .map_err(|e| io_error("copy", from, &e))?;
         ctx.platform()
             .create_dir(to, true)
             .map_err(|e| io_error("create directory", to, &e))?;

@@ -2,7 +2,7 @@
 //!
 //! Patterns are matched one path segment at a time: `*` matches any run of characters within a segment, `?`
 //! one character, `[abc]`/`[a-z]`/`[!a]` a character class, `{a,b}` alternatives, and a segment `**` any
-//! number of directories (including none). `\` escapes the next character. A name starting with `.` is only
+//! number of directories (including none), or as the last segment, anything below. `\` escapes the next character. A name starting with `.` is only
 //! matched by a segment pattern that also starts with `.` (so `*` and `**` skip dotfiles). Symbolic links to
 //! directories are followed, but not round in circles.
 
@@ -170,8 +170,15 @@ impl Search<'_> {
                 return Ok(());
             }
             for entry in self.entries(dir) {
-                if entry.kind == FileKind::Directory && !entry.name.starts_with('.') {
-                    self.walk(&join(dir, &entry.name), segments)?;
+                if entry.name.starts_with('.') {
+                    continue;
+                }
+                let path = join(dir, &entry.name);
+                if entry.kind == FileKind::Directory {
+                    self.walk(&path, segments)?;
+                } else if rest.is_empty() {
+                    // A final `**` matches files too
+                    self.found(path);
                 }
             }
             self.ancestors.remove(&real);

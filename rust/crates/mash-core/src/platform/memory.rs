@@ -107,7 +107,9 @@ impl MemoryFiles {
         let mut ancestor = parent_of(&path);
         while let Some(dir) = ancestor {
             if dir != "/" {
-                nodes.entry(dir.to_string()).or_insert_with(|| Node::new(NodeKind::Directory));
+                nodes
+                    .entry(dir.to_string())
+                    .or_insert_with(|| Node::new(NodeKind::Directory));
             }
             ancestor = parent_of(dir);
         }

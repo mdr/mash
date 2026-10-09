@@ -12,8 +12,8 @@ use crate::value::{List, Number, Str, Value};
 use super::dirs::enter_directory;
 use super::files::{
     self, append_param, check_directory, copy_path, create_directory_at, create_intermediates_param, data_param,
-    delete_path, file_type_name, ignore_dot_files_param, is_dir, list_children, move_path, path_in,
-    path_metadata, path_summaries, permissions_object, read_text, recursive_param, split_lines, write_data,
+    delete_path, file_type_name, ignore_dot_files_param, is_dir, list_children, move_path, path_in, path_metadata,
+    path_summaries, permissions_object, read_text, recursive_param, split_lines, write_data,
 };
 use super::paths::{self, PathArg, fs, io_error, join, path_value, target_path};
 use super::{FILE_TYPE_CLASS, GROUP_CLASS, PATH_SUMMARY_CLASS, PERMISSIONS_CLASS, USERNAME_CLASS};
@@ -245,7 +245,11 @@ fn is_file(ctx: &mut Ctx, target: &Value) -> R<bool> {
 #[builtin_method(returns = Type::BOOLEAN)]
 fn is_empty_dir(ctx: &mut Ctx, target: &Value) -> R<bool> {
     let path = target_path(target)?;
-    Ok(is_dir(ctx, &path) && ctx.platform().read_dir(fs(&path)).is_ok_and(|entries| entries.is_empty()))
+    Ok(is_dir(ctx, &path)
+        && ctx
+            .platform()
+            .read_dir(fs(&path))
+            .is_ok_and(|entries| entries.is_empty()))
 }
 
 /// Follow this symbolic link
@@ -375,7 +379,9 @@ fn validate_name(name: &str) -> Result<(), &'static str> {
 fn rename_within(ctx: &mut Ctx, path: &str, name: &str) -> R<Value> {
     let new_path = join(&paths::parent(path).unwrap_or_default(), name);
     if ctx.platform().symlink_metadata(&new_path).is_ok() {
-        return Err(MashError::new(format!("Could not rename '{path}': '{new_path}' already exists")));
+        return Err(MashError::new(format!(
+            "Could not rename '{path}': '{new_path}' already exists"
+        )));
     }
     move_path(ctx, path, &new_path)?;
     Ok(path_value(new_path))
@@ -405,7 +411,12 @@ fn rename_to(
     rename_within(ctx, &path, &paths::normalise(&new_name.0))
 }
 
-fn rename_by_infer(inferencer: &mut Inferencer<'_>, target: Option<&Type>, params: &Params, args: &TypedArgs) -> Option<Type> {
+fn rename_by_infer(
+    inferencer: &mut Inferencer<'_>,
+    target: Option<&Type>,
+    params: &Params,
+    args: &TypedArgs,
+) -> Option<Type> {
     if let (Some(f), Some(target)) = (args.bind(params).ty(params, "f"), target) {
         inferencer.apply_function(&f, target, None);
     }

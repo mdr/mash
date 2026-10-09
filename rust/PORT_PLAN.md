@@ -207,6 +207,17 @@ During the port (no language change):
 - Object browser: port Mash's own renderers (not ratatui) initially.
 
 **M4 design (decided while starting M4):**
+- `Platform` file and process API (all with defaults that fail as unsupported): `set_current_dir`, `metadata` /
+  `symlink_metadata` (kind, size, permission bits, owner/group names, modified/accessed), `read_link`,
+  `canonicalize`, `read_file`, `write_file` (append), `create_dir` (intermediates), `remove` (recursive, never
+  follows links), `copy_file`, `rename`, `set_permissions`, `create_temp_file` / `create_temp_dir`, and
+  `run_process(ProcessRequest { argv, env, stdin: Inherit | Text | File, stdout: Inherit | Capture | File })` →
+  `ProcessOutcome { exit_status, stdout, started, finished, interrupted }`. Directory copies, cross-device moves,
+  globbing and recursive listing are built on these in `mash-core`. `TestPlatform` has `MemoryFiles` (contents,
+  permissions, links) and scriptable fake commands (`echo`, `cat`, `true`, `false`; add with `with_command`).
+- The child's environment is the `env` global's contents (as in Scala), not the host's.
+- The interpreter keeps the working-directory history (`Ctx::working_directories`); `cd` changes the host's
+  current directory.
 - `mash-repl` modules: `screen` (styled text, `Screen`), `input` (`KeyPress`/`InputEvent`, translated by the
   host), `host` (the `Host` trait: size, output, and switching terminal modes around commands), `history`
   (entries and a `HistoryStorage` trait), `view` (printing command results), plus the editor/REPL itself.
@@ -281,13 +292,25 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Status indicator for a `!` mish line | The whole line parsed as Mash (shown red) | The command after `!` parsed as mish |
 | Startup tips | Include object browser and disco-border tips | Those tips omitted until the features exist; `config.view.discoBorders`/`browseLargeOutput` ignored for now |
 | REPL error printing | `ErrorPrinter` | Same format (kept over `MashError::report()`, which suits scripts: the REPL shows the highlighted source line with `^---` under it and no file name for the line just typed) |
+| `"/".name` | NullPointerException | `null` |
+| A failed `cd` | Still pushes the (unchanged) directory onto the history, so `back` stays put | History unchanged |
+| `ls -r` order | File-system order | Sorted by name at each level (children follow their directory) |
+| `glob` | Java `PathMatcher`, walked only one level unless the pattern has `**` (so `"a/*/b"` found nothing); `*` matches dotfiles | Per-segment matching at any depth; `*`, `**` skip dotfiles unless the segment starts with `.`; a final `**` matches everything below; symlink cycles are skipped |
+| File errors (`cat "nope"`, `mkdir "x/y"`, …) | "Unexpected error … NoSuchFileException" | "Could not read 'nope': No such file or directory" |
+| `"x".absolute` of a missing path | NoSuchFileException | "Could not resolve 'x': …" |
+| `"x".withTilde` | String prefix (`/home/alicex` → `~x`) | Only at a path boundary |
+| `"a".renameTo "b"` / `.copy` when the destination exists | Java exception | Clean error |
+| `readLines`, `read`, `write` | Platform default charset | UTF-8 (invalid input decoded lossily) |
+| Child processes | Same process group as Mash; stdin written before stdout read (deadlock risk) | Own process group with the terminal (`tcsetpgrp`), concurrent stdin/stdout, Ctrl-C in a child interrupts evaluation, Ctrl-Z resumes the child with a message (as planned) |
+| `which` | `Files.isExecutable` (directories count) | Executable regular files only |
 
 Printing results (`mash_repl::view`): output too large for the screen, and `view.browse`, print for now (the
 object browser is M5); permissions (`rwxr-x---`), git commit tables and `git.Status` printing arrive with the os and
 git classes (M5); help has no links yet (they're for the browser).
 
-Not yet ported, pending later milestones (they need the OS): `hash.sha256` of a file's contents, `json.read`/`write`/
-http, `xml.read`, `String.glob`, `mash.source`/`reload`, `Url.open`, `Host.ipAddresses` (M5).
+Not yet ported, pending later milestones: `hash.sha256` of a file's contents, `json.read`/`write`/http, `xml.read`,
+`mash.source`/`reload`, `Url.open`, `Host.ipAddresses`; in `os`: users/groups (`user`, `Username`/`Group` methods),
+processes (`ps`, `kill`), `clipboard`, `open`/`Path.open`, `diskSpace`, `terminal`, `jump` (M5).
 
 ## Post-port backlog (language changes, deferred)
 

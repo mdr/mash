@@ -25,7 +25,7 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `parser/AbstractifierTest` | `mash-core/tests/compile.rs` | ported | Plus lowering of each kind of syntax |
 | `compiler/BareStringifyTest`, `DesugarHolesTest`, `DesugarPipesTest`, `ParenRemoverTest` | `mash-core/tests/compile.rs` | ported | |
 | — | `mash-core/tests/value_{leaks,keys,reentrancy}.rs` | new | From the values spike: cycles are collected, key semantics, no `RefCell` re-entrancy panics |
-| `evaluator/*Test` (44 files) | `mash-core/tests/evaluator/<name>.rs` | partial | 921 cases converted mechanically (counts checked per file). 912 pass; the other 9 need os/git (M5) and are listed in their module's `DEFERRED` with the error they hit. A deferred case that starts passing fails the test, so the lists stay honest. `SemicolonInferenceTest` is a Scala `object` that ScalaTest never ran |
+| `evaluator/*Test` (44 files) | `mash-core/tests/evaluator/<name>.rs` | partial | 921 cases converted mechanically (counts checked per file). 920 pass; the other 1 needs git (M5) and are listed in their module's `DEFERRED` with the error they hit. A deferred case that starts passing fails the test, so the lists stay honest. `SemicolonInferenceTest` is a Scala `object` that ScalaTest never ran |
 | — | `mash-core/tests/evaluator/{strings_m3,time,namespaces,strings}.rs` | new | Regex and string semantics, time arithmetic/parsing/formatting, json/xml/maths/net, tilde expansion; checked against Scala Mash except where a comment marks a deliberate difference |
 | — | `mash-core/tests/evaluator/core_builtins.rs` | new | 32 cases for core builtins the Scala tests don't cover (expected values checked against Scala Mash) |
 | — | `mash-core/tests/eval.rs` | new | Error locations and stack traces, depth limit, interrupts, GC under evaluation |
@@ -36,14 +36,17 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `evaluator/SimpleEvaluatorTest` | `mash-core/tests/infer_misc.rs` | ported | Constant folding agrees with evaluation |
 | `functions/BindTypesTest` | `mash-core/tests/infer_misc.rs` | ported | |
 | `language/ValueToExpressionTest` | `mash-core/tests/value_to_expression.rs` | ported | |
-| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 234 of 257 pass; 23 need os/git/http (M4/M5), listed in `DEFERRED` |
+| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 251 of 257 pass; 6 need users/git/http (M5), listed in `DEFERRED` |
 | `inference/ValueTypeDetectorTest` | `mash-core/tests/infer_misc.rs` | ported | The class-instance case uses `maths.Stats` instead of the os class `PermissionsSection` |
 | — | `mash-core/tests/infer_{collections,core,namespaces}.rs` | new | Inference rules and completion specs per builtin area |
-| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 117 pass, 32 need os builtins (cd, ls, readLines, pwd, kill, user) and are listed in `DEFERRED` |
+| `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 146 pass, 3 need `kill`/`user` (M5) and are listed in `DEFERRED` |
 | `completions/ContiguousRegionFinderTest`, `InvocationFinderTest`, `PathCompleterTest` | `mash-core/tests/complete.rs` | ported | |
 | `assist/InvocationAssistanceTest` | `mash-core/tests/complete.rs` | ported (adapted) | Same cursor positions, with core functions in place of `ls`/`home` (M5) |
 | `evaluator/TildeExpanderTest` | | pending (M4) | Expansion is ported with path completion; retilde-ing for display comes with the REPL |
-| `WorkingDirectoryStackTest` | | pending (M4) | |
+| `WorkingDirectoryStackTest` | `mash-core/src/builtins/os/dirs.rs` | ported | |
+| `os/GlobHelperTest` | `mash-core/src/builtins/os/glob.rs` | ported | Plus segment-matching tests; glob semantics changed (see PORT_PLAN.md) |
+| — | `mash-core/tests/os.rs` | new | os builtins, path methods, `!{…}`/`!!{…}`/`!cmd`/mish lines, `run`, `env` as the child environment, Ctrl-C in a child — against `MemoryFiles` and fake commands |
+| — | `mash-os/tests/native.rs`, `native_cd.rs` | new | Native processes (capture, exit status, SIGINT, stdin, 4 MB through `cat` without deadlock, redirects, environment) and file operations in temp directories |
 | `utils/*` (`LineInfoTest`, `PrefixTreeTest`, `RaggedGridNavigatorTest`, `RegionTest`, `StringUtilsTest`, `UtilsTest`) | | pending | Ported alongside the code that uses them |
 
 ## M4/M5 — REPL and OS
@@ -63,4 +66,3 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | — | `mash-repl/tests/view.rs` | new | 74 golden cases for `view_value` (tables, objects, trees, help, `view.*`); expected output from Scala Mash's `Viewer` except where a comment marks a deliberate difference; styles checked too |
 | `repl/browser/TwoDTableBrowserStateTest` | | pending (M5) | |
 | `integration/*` (object browser) | | pending (M5) | |
-| `os/GlobHelperTest` | | pending (M5) | Glob semantics change (see PORT_PLAN.md) |
