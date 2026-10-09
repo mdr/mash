@@ -88,5 +88,5 @@ No Scala tests (Scala Mash had no browser build).
 | — | `mash-web/src/keys.rs` (unit tests) | new | Browser keyboard events as key presses: named keys, Shift, Ctrl, Option on macOS, AltGr, keys left to the browser |
 | — | `mash-web/www/test/wasm.mjs` | new | The wasm build in Node: evaluation, printing, the bundled time zone database, interrupts, HTTP errors, deep recursion stopping cleanly (and Mash usable afterwards) |
 | — | `mash-web/www/test/browser.mjs` | new | Deep recursion (`recursion.mjs`: plain, `map`, methods, `sortBy`, blocks) stops cleanly in headless Chromium, Firefox and WebKit, and how deep each allows |
-| — | `mash-web/www/test/page.mjs` | new | The page in headless Chromium, Firefox and WebKit: commands, Ctrl-C (variables kept), Ctrl-C without cross-origin isolation (a new session), history across reloads, the object browser, Ctrl-D and starting again |
+| — | `mash-web/www/test/page.mjs` | new | The page in headless Chromium, Firefox and WebKit: commands, Ctrl-C (variables kept), Ctrl-C without cross-origin isolation (a new session), isolation by the service worker where there are no headers (Ctrl-C keeps variables), history across reloads, the object browser, Ctrl-D and starting again |
 | — | `mash-core/tests/eval.rs` | new | `the_platform_can_interrupt_evaluation`: interrupts asked of the platform, while evaluating and sleeping |

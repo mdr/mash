@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 const www = fileURLToPath(new URL('..', import.meta.url));
 
-/** Start the server on `port`, once it's listening. PYTHON (default python3) runs it. */
-export async function serve(port, { isolated = true } = {}) {
-  const args = [`${www}/serve.py`, String(port), www, ...(isolated ? [] : ['--not-isolated'])];
+/** Start the server on `port` for `directory` (default www/), once it's listening. PYTHON (default python3) runs it. */
+export async function serve(port, { isolated = true, directory = www } = {}) {
+  const args = [`${www}/serve.py`, String(port), directory, ...(isolated ? [] : ['--not-isolated'])];
   const server = spawn(process.env.PYTHON ?? 'python3', args, {
     stdio: ['ignore', 'pipe', 'pipe'],
     // Its own process group, so that stopping it stops any process it starts (macOS's python3 is a launcher)

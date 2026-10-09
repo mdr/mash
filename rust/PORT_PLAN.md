@@ -312,8 +312,8 @@ During the port (no language change):
   the browser". There are no `~/.mash` library or init files.
 - **History** is kept in the page's local storage (the last 2,000 entries), in the same JSON format as
   `~/.mash/history` (`HistoryEntry::to_json`, now in `mash-repl`).
-- **Ctrl-C** while a command runs: if the page is cross-origin isolated (`www/serve.py` sends the headers), it
-  sets a flag in a `SharedArrayBuffer` that Mash polls, and `sleep` waits on it with `Atomics.wait`. Otherwise
+- **Ctrl-C** while a command runs: if the page is cross-origin isolated (`www/serve.py` sends the headers;
+  where a host can't, as on GitHub Pages, `www/coi-serviceworker.js` adds them, over HTTPS only), it sets a flag in a `SharedArrayBuffer` that Mash polls, and `sleep` waits on it with `Atomics.wait`. Otherwise
   the page can't reach the busy worker, so it stops the worker and starts a new session, saying so.
 - **The stack.** wasm runs on the browser's native stack (Chromium gives a worker ~460 KB; WebKit less) at a
   couple of hundred bytes per wasm frame, whatever the function; overflowing it throws through Mash's frames,
@@ -329,6 +329,10 @@ During the port (no language change):
   the wasm in Node; `www/test/browser.mjs` (recursion) and `www/test/page.mjs` (typing commands, Ctrl-C with and
   without isolation, history across reloads, the object browser, Ctrl-D) run in headless Chromium, Firefox and
   WebKit via Playwright (not in the flake: put `playwright-core` on `NODE_PATH`; xterm.js comes from a CDN).
+- **Publishing:** the `Publish web version` workflow (`.github/workflows/publish-web.yml`, run by hand: `gh
+  workflow run publish-web.yml`) builds with Determinate Nix, checks the wasm in Node, collects the page with
+  `site.sh` and commits it to `try/` on the `gh-pages` branch, next to the docs site. `MASH_WWW=dir
+  www/test/page.mjs` tests a collected site.
 - **Not done:** persistent files (e.g. IndexedDB), reading the clipboard, uploading or downloading files, and
   more depth in WebKit (fewer frames per builtin call, or eventually an evaluator with its own stack).
 

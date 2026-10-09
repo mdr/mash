@@ -1,0 +1,46 @@
+# Builds Mash for the browser (rust/crates/mash-web) and publishes it to GitHub Pages, at try/ on the gh-pages
+# branch (which also holds the docs site). Run by hand: from the Actions tab, or `gh workflow run publish-web.yml`.
+name: Publish web version
+
+on: workflow_dispatch
+
+permissions:
+  contents: write # to push to gh-pages
+
+concurrency:
+  group: publish-web
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: DeterminateSystems/determinate-nix-action@v3.23.1
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
+
+      - name: Build
+        run: nix develop --command rust/crates/mash-web/build.sh
+
+      - name: Check the wasm build under Node
+        run: nix develop --command node rust/crates/mash-web/www/test/wasm.mjs
+
+      - name: Assemble the site
+        run: rust/crates/mash-web/site.sh "$RUNNER_TEMP/site"
+
+      - name: Publish to gh-pages under try/
+        run: |
+          git fetch --depth 1 origin gh-pages
+          git worktree add "$RUNNER_TEMP/pages" FETCH_HEAD
+          cd "$RUNNER_TEMP/pages"
+          rm -rf try
+          cp -R "$RUNNER_TEMP/site" try
+          git add -A try
+          if git diff --cached --quiet; then
+            echo "The published page is already up to date"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Publish the web version from ${GITHUB_SHA::8}"
+          git push origin HEAD:gh-pages

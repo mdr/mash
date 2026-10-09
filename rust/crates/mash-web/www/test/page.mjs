@@ -3,6 +3,8 @@
 // (playwright-core and its browsers) on NODE_PATH, and network access (xterm.js comes from a CDN):
 //
 //   NODE_PATH=/path/to/node_modules node rust/crates/mash-web/www/test/page.mjs [chromium|firefox|webkit …]
+//
+// MASH_WWW=dir tests the page in dir instead of www/ (e.g. the site assembled by site.sh).
 
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -49,13 +51,37 @@ async function command(page, text, n) {
   return waitFor(page, prompt(n), `prompt ${n} after ${text}`);
 }
 
+/** Open the page in `browser` (or a browser context) */
 async function open(browser, port = PORT) {
   const page = await browser.newPage();
   page.on('pageerror', (error) => console.log(`    page error: ${error}`));
   await page.goto(`http://localhost:${port}/`);
+  await startTerminal(page);
+  return page;
+}
+
+async function startTerminal(page) {
   await page.waitForFunction(() => window.mashTerminal, null, { timeout: TIMEOUT_MS });
   await waitFor(page, prompt(0), 'the first prompt');
-  return page;
+}
+
+/** Interrupt a computation and a sleep with Ctrl-C, and check that the session (and its variables) survived */
+async function interruptKeepingVariables(page) {
+  await command(page, 'kept = 42', 1);
+  await page.keyboard.type('1.to 100000 | map (i => 1.to 1000 | map (j => i * j) | sum) | sum');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Control+c');
+  let text = await waitFor(page, prompt(2), 'the prompt after interrupting');
+  assert.match(text, /nterrupted/);
+  // And sleeping
+  await page.keyboard.type('time.sleep 60.seconds');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await page.keyboard.press('Control+c');
+  await waitFor(page, prompt(3), 'the prompt after interrupting sleep');
+  text = await command(page, 'kept', 4);
+  assert.match(text, /^42$/m);
 }
 
 const tests = {
@@ -71,23 +97,26 @@ const tests = {
   },
 
   async ctrlCInterruptsACommand(browser) {
-    const page = await open(browser);
-    await command(page, 'kept = 42', 1);
-    await page.keyboard.type('1.to 100000 | map (i => 1.to 1000 | map (j => i * j) | sum) | sum');
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(500);
-    await page.keyboard.press('Control+c');
-    let text = await waitFor(page, prompt(2), 'the prompt after interrupting');
-    assert.match(text, /nterrupted/);
-    // And sleeping
-    await page.keyboard.type('time.sleep 60.seconds');
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(300);
-    await page.keyboard.press('Control+c');
-    text = await waitFor(page, prompt(3), 'the prompt after interrupting sleep');
-    // Variables survive (the session wasn't restarted)
-    text = await command(page, 'kept', 4);
-    assert.match(text, /^42$/m);
+    await interruptKeepingVariables(await open(browser));
+  },
+
+  // Hosts like GitHub Pages can't send the isolation headers; coi-serviceworker.js adds them, after a reload
+  async withoutHeadersTheServiceWorkerIsolatesThePage(browser) {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    page.on('pageerror', (error) => console.log(`    page error: ${error}`));
+    await page.goto(`http://localhost:${PLAIN_PORT}/`);
+    const deadline = Date.now() + TIMEOUT_MS;
+    let isolated = false;
+    while (!isolated && Date.now() < deadline) {
+      // The page reloads itself once the service worker is ready, which can interrupt evaluating
+      isolated = await page.evaluate(() => self.crossOriginIsolated).catch(() => false);
+      if (!isolated) await page.waitForTimeout(100);
+    }
+    assert.equal(isolated, true, 'cross-origin isolated by the service worker');
+    await startTerminal(page);
+    await interruptKeepingVariables(page);
+    await context.close();
   },
 
   async historyIsKeptAcrossReloads(browser) {
@@ -116,7 +145,10 @@ const tests = {
   },
 
   async withoutIsolationCtrlCRestartsMash(browser) {
-    const page = await open(browser, PLAIN_PORT);
+    // Without service workers, as over plain HTTP (where the browser doesn't allow them). (Blocked, register()
+    // gives coi-serviceworker.js no registration, so it logs a page error; over HTTP it doesn't try.)
+    const context = await browser.newContext({ serviceWorkers: 'block' });
+    const page = await open(context, PLAIN_PORT);
     assert.equal(await page.evaluate(() => self.crossOriginIsolated), false, 'not cross-origin isolated');
     await command(page, 'kept = 42', 1);
     await page.keyboard.type('1.to 100000 | map (i => 1.to 1000 | map (j => i * j) | sum) | sum');
@@ -127,6 +159,7 @@ const tests = {
     await waitFor(page, prompt(0), 'the first prompt of the new session');
     const text = await command(page, 'global.get "kept"', 1);
     assert.match(text, /^null$/m);
+    await context.close();
   },
 
   async ctrlDLeavesAndAKeyStartsAgain(browser) {
@@ -140,8 +173,9 @@ const tests = {
 
 let failures = 0;
 const engines = process.argv.slice(2).length ? process.argv.slice(2) : ['chromium', 'firefox', 'webkit'];
-const server = await serve(PORT);
-const plainServer = await serve(PLAIN_PORT, { isolated: false });
+const directory = process.env.MASH_WWW;
+const server = await serve(PORT, { directory });
+const plainServer = await serve(PLAIN_PORT, { isolated: false, directory });
 try {
   for (const engine of engines) {
     const browser = await playwright[engine].launch();
