@@ -15,12 +15,13 @@ fn is_selectable_token(kind: SyntaxKind) -> bool {
         )
 }
 
-/// Region containment as the editor sees it: ranges are half-open, so a cursor (empty range) at the very
-/// end of a token is *not* inside it.
+/// Whether a candidate range contains the current selection. A cursor (empty selection) touching either
+/// end of a range counts as inside it, so a cursor just after a word selects that word. (Scala Mash didn't
+/// count the end; this is a deliberate change.)
 fn contains(outer: TextRange, inner: TextRange) -> bool {
     let contains_pos = |pos: TextSize| outer.start() <= pos && pos < outer.end();
     if inner.is_empty() {
-        contains_pos(inner.start())
+        outer.start() <= inner.start() && inner.start() <= outer.end()
     } else {
         contains_pos(inner.start()) && contains_pos(inner.end() - TextSize::from(1))
     }

@@ -1,4 +1,5 @@
-//! Syntax-tree selection expansion (M-Up in the REPL). Cases from SyntaxSelectionTest.scala.
+//! Syntax-tree selection expansion (M-Up in the REPL). Cases from SyntaxSelectionTest.scala, except that
+//! a cursor just after a word selects that word.
 //!
 //! In the test strings, `▶` is the cursor and `▷` the other end of the selection (if any).
 
@@ -41,15 +42,20 @@ fn tokens_and_expressions() {
     expands("iden▶tifier", "▷identifier▶");
     expands("foo + ba▶r", "foo + ▷bar▶");
     expands("foo + ▶bar", "foo + ▷bar▶");
-    expands("foo + bar▶", "▷foo + bar▶");
+    // Scala Mash selected the whole expression here; selecting the word just before the cursor is nicer
+    expands("foo + bar▶", "foo + ▷bar▶");
+    expands("foo + ▷bar▶", "▷foo + bar▶");
+    expands("foo▶.bar", "▷foo▶.bar");
     expands("foo.ba▶r", "foo.▷bar▶");
     expands("foo --ba▶r=baz", "foo ▷--bar▶=baz");
 }
 
 #[test]
 fn operator_precedence() {
-    expands("1 + 2▶ * 3", "1 + ▷2 * 3▶");
-    expands("1 + 2▶ * 3 * 4", "1 + ▷2 * 3▶ * 4");
+    // (Scala Mash went straight to `2 * 3`; the cursor just after `2` now selects `2` first)
+    expands("1 + 2▶ * 3", "1 + ▷2▶ * 3");
+    expands("1 + ▷2▶ * 3", "1 + ▷2 * 3▶");
+    expands("1 + ▷2▶ * 3 * 4", "1 + ▷2 * 3▶ * 4");
     expands("1 + ▷2 * 3▶ * 4", "1 + ▷2 * 3 * 4▶");
     expands("1 + ▷2 * 3 * 4▶", "▷1 + 2 * 3 * 4▶");
 }
