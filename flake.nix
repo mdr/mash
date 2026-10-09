@@ -34,6 +34,10 @@
               (pkgs.sbt.override { jre = jdk; })
               pkgs.git
               rust
+              # The browser build (rust/crates/mash-web): the CLI must match the wasm-bindgen crate's version
+              pkgs.wasm-bindgen-cli_0_2_126
+              pkgs.binaryen
+              pkgs.nodejs
             ];
 
             JAVA_HOME = jdk.home;

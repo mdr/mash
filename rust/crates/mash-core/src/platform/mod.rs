@@ -57,6 +57,13 @@ pub trait Platform: Debug {
     /// Write Mash's own output (`print`): standard output natively
     fn write_output(&self, text: &str);
 
+    /// Whether the user has asked to interrupt evaluation, for hosts that can't set
+    /// [`Ctx::interrupt_flag`](crate::eval::Ctx::interrupt_flag) directly (in the browser, Ctrl-C is seen by
+    /// another thread). Asked every so many evaluation steps, and while sleeping; asking consumes the request.
+    fn interrupt_requested(&self) -> bool {
+        false
+    }
+
     // ------------------------------------------------------------------------------------------ file system
 
     /// Change the current working directory

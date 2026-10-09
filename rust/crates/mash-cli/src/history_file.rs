@@ -6,7 +6,6 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
 
 use mash_repl::history::{HistoryEntry, HistoryStorage};
-use serde_json::{Value as Json, json};
 
 /// Only this much of the end of the file is read: older history is never needed in one session.
 const TAIL_BYTES: u64 = 4 << 20;
@@ -60,31 +59,12 @@ impl HistoryStorage for FileHistoryStorage {
 
     fn save(&mut self, entry: &HistoryEntry) {
         // Losing a history entry isn't worth interrupting the user for
-        let _ = self.append(&to_json(entry).to_string());
+        let _ = self.append(&entry.to_json().to_string());
     }
 }
 
-fn to_json(entry: &HistoryEntry) -> Json {
-    json!({
-        "sessionId": entry.session_id,
-        "commandNumber": entry.command_number,
-        "timestamp": entry.timestamp.to_string(),
-        "command": entry.command,
-        "mish": entry.mish,
-        "workingDirectory": entry.working_directory,
-    })
-}
-
 fn parse_entry(line: &str) -> Option<HistoryEntry> {
-    let json: Json = serde_json::from_str(line).ok()?;
-    Some(HistoryEntry {
-        session_id: json.get("sessionId")?.as_str()?.to_string(),
-        command_number: json.get("commandNumber")?.as_u64()?,
-        timestamp: json.get("timestamp")?.as_str()?.parse().ok()?,
-        command: json.get("command")?.as_str()?.to_string(),
-        mish: json.get("mish").and_then(Json::as_bool).unwrap_or(false),
-        working_directory: json.get("workingDirectory")?.as_str()?.to_string(),
-    })
+    HistoryEntry::from_json(&serde_json::from_str(line).ok()?)
 }
 
 #[cfg(test)]
@@ -152,7 +132,9 @@ mod tests {
     fn only_the_tail_of_a_large_file_is_read() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("history");
-        let line = to_json(&entry(1, "2026-10-09T11:39:04Z", &"x".repeat(1000))).to_string();
+        let line = entry(1, "2026-10-09T11:39:04Z", &"x".repeat(1000))
+            .to_json()
+            .to_string();
         let count = (TAIL_BYTES as usize / line.len()) * 2;
         std::fs::write(&path, format!("{line}\n").repeat(count)).unwrap();
         let loaded = FileHistoryStorage::new(path).load();

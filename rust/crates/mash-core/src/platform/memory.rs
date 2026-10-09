@@ -11,11 +11,12 @@ use super::{DirEntry, FileKind, Metadata, resolve};
 /// An in-memory file tree, keyed by absolute path; the root directory always exists. Interior mutability lets
 /// a platform write through `&self`.
 ///
-/// Files have permissions `rw-r--r--` and directories `rwxr-xr-x`, owner and group `alice`, and a fixed
-/// modification time unless written.
+/// Files have permissions `rw-r--r--` and directories `rwxr-xr-x`, owner and group `alice` (unless set with
+/// [`MemoryFiles::with_owner`]), and a fixed modification time unless written.
 #[derive(Debug, Clone, Default)]
 pub struct MemoryFiles {
     nodes: RefCell<BTreeMap<String, Node>>,
+    owner: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +83,12 @@ impl MemoryFiles {
     }
 
     /// Add a file with the given contents (and any missing parent directories)
+    /// Every file and directory owned by `owner` (user and group)
+    pub fn with_owner(mut self, owner: &str) -> MemoryFiles {
+        self.owner = Some(owner.into());
+        self
+    }
+
     pub fn with_file(self, path: &str, contents: &str) -> MemoryFiles {
         self.add(path, NodeKind::File(contents.as_bytes().to_vec()));
         self
@@ -241,8 +248,8 @@ impl MemoryFiles {
                 NodeKind::Symlink(target) => target.len() as u64,
             },
             permissions: node.permissions,
-            owner: OWNER.into(),
-            group: OWNER.into(),
+            owner: self.owner.as_deref().unwrap_or(OWNER).into(),
+            group: self.owner.as_deref().unwrap_or(OWNER).into(),
             modified: node.modified,
             accessed: node.modified,
         })

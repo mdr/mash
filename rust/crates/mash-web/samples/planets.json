@@ -1,0 +1,10 @@
+[
+  { "name": "Mercury", "moons": 0, "radius": 2440, "rings": false },
+  { "name": "Venus", "moons": 0, "radius": 6052, "rings": false },
+  { "name": "Earth", "moons": 1, "radius": 6371, "rings": false },
+  { "name": "Mars", "moons": 2, "radius": 3390, "rings": false },
+  { "name": "Jupiter", "moons": 95, "radius": 69911, "rings": true },
+  { "name": "Saturn", "moons": 146, "radius": 58232, "rings": true },
+  { "name": "Uranus", "moons": 28, "radius": 25362, "rings": true },
+  { "name": "Neptune", "moons": 16, "radius": 24622, "rings": true }
+]

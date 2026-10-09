@@ -97,6 +97,72 @@ fn runaway_recursion_is_an_error() {
     });
 }
 
+/// A platform whose user asks to interrupt evaluation the `nth` time it's asked (as Ctrl-C in the browser)
+#[derive(Debug)]
+struct InterruptingPlatform {
+    inner: TestPlatform,
+    polls: std::cell::Cell<u32>,
+    nth: u32,
+}
+
+impl mash_core::platform::Platform for InterruptingPlatform {
+    fn env_var(&self, name: &str) -> Option<String> {
+        self.inner.env_var(name)
+    }
+    fn env_vars(&self) -> Vec<(String, String)> {
+        self.inner.env_vars()
+    }
+    fn current_dir(&self) -> Option<String> {
+        self.inner.current_dir()
+    }
+    fn home_dir(&self) -> Option<String> {
+        self.inner.home_dir()
+    }
+    fn time_zone(&self) -> jiff::tz::TimeZone {
+        self.inner.time_zone()
+    }
+    fn now(&self) -> jiff::Timestamp {
+        self.inner.now()
+    }
+    fn read_dir(&self, path: &str) -> std::io::Result<Vec<mash_core::platform::DirEntry>> {
+        self.inner.read_dir(path)
+    }
+    fn sleep(&self, duration: std::time::Duration) {
+        self.inner.sleep(duration)
+    }
+    fn random_u64(&self) -> u64 {
+        self.inner.random_u64()
+    }
+    fn write_output(&self, text: &str) {
+        self.inner.write_output(text)
+    }
+    fn interrupt_requested(&self) -> bool {
+        self.polls.set(self.polls.get() + 1);
+        self.polls.get() == self.nth
+    }
+}
+
+#[test]
+fn the_platform_can_interrupt_evaluation() {
+    with_big_stack(|| {
+        let platform = Rc::new(InterruptingPlatform {
+            inner: TestPlatform::default(),
+            polls: Default::default(),
+            nth: 3,
+        });
+        let mut ctx = Ctx::new(platform.clone());
+        let error = eval_error(&mut ctx, "1.to 1000000 | map (n => n + 1) | sum");
+        assert!(error.is_interrupted(), "{}", error.message);
+        assert_eq!(platform.polls.get(), 3);
+        // Asked while sleeping, too
+        platform.polls.set(0);
+        let error = eval_error(&mut ctx, "time.sleep 10.seconds");
+        assert!(error.is_interrupted(), "{}", error.message);
+        // A new run starts uninterrupted
+        assert_eq!(format!("{:?}", ctx.run("test", "1 + 1").unwrap()), "2");
+    });
+}
+
 #[test]
 fn evaluation_can_be_interrupted() {
     with_big_stack(|| {

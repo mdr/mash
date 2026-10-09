@@ -92,7 +92,7 @@ fn run_mash(name: String, text: String, print_result: bool) -> ExitCode {
 fn run_repl() -> ExitCode {
     with_big_stack(|| {
         let platform = Rc::new(NativePlatform);
-        let session_id = uuid(platform.as_ref());
+        let session_id = mash_repl::history::new_session_id(platform.as_ref());
         let mash_dir = platform
             .home_dir()
             .map_or_else(|| PathBuf::from(".mash"), |home| PathBuf::from(home).join(".mash"));
@@ -134,22 +134,6 @@ fn run_repl() -> ExitCode {
     })
 }
 
-/// A random (version 4) UUID, identifying this session in the history
-fn uuid(platform: &dyn Platform) -> String {
-    let bits = (u128::from(platform.random_u64()) << 64 | u128::from(platform.random_u64()))
-        & !(0xf000 << 64 | 0xc000 << 48)
-        | (0x4000 << 64 | 0x8000 << 48);
-    let hex = format!("{bits:032x}");
-    format!(
-        "{}-{}-{}-{}-{}",
-        &hex[..8],
-        &hex[8..12],
-        &hex[12..16],
-        &hex[16..20],
-        &hex[20..]
-    )
-}
-
 fn run_via_sh(command: &str) -> ExitCode {
     match std::process::Command::new("sh").arg("-c").arg(command).status() {
         Ok(status) => ExitCode::from(status.code().unwrap_or(1).clamp(0, 255) as u8),
@@ -157,19 +141,5 @@ fn run_via_sh(command: &str) -> ExitCode {
             eprintln!("mash: could not run sh: {e}");
             ExitCode::FAILURE
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use mash_core::platform::TestPlatform;
-
-    #[test]
-    fn uuids_are_version_4() {
-        let id = super::uuid(&TestPlatform::default());
-        assert_eq!(id.len(), 36);
-        assert_eq!(&id[14..15], "4");
-        assert!("89ab".contains(&id[19..20]), "{id}");
-        assert_eq!(id.matches('-').count(), 4);
     }
 }

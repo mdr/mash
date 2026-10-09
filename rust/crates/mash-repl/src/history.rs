@@ -1,11 +1,14 @@
-//! Command history entries and where they are kept. The file-backed store (`~/.mash/history`, one JSON object
-//! per line, compatible with Scala Mash) lives in `mash-cli`; tests use [`MemoryHistoryStorage`].
+//! Command history entries and where they are kept. Entries are stored as JSON objects in the same format as
+//! Scala Mash ([`HistoryEntry::to_json`]). The file-backed store (`~/.mash/history`, one object per line) lives
+//! in `mash-cli`, and the browser's in `mash-web`; tests use [`MemoryHistoryStorage`].
 
 use std::fmt;
 use std::ops::Range;
 
 use jiff::Timestamp;
+use mash_core::platform::Platform;
 use mash_core::value::Value;
+use serde_json::{Value as Json, json};
 
 /// One command run at the REPL (Scala `HistoryEntry`, without the result).
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -33,6 +36,46 @@ impl HistoryEntry {
             working_directory: self.working_directory.clone(),
         }
     }
+
+    /// The entry as stored, in Scala Mash's format
+    pub fn to_json(&self) -> Json {
+        json!({
+            "sessionId": self.session_id,
+            "commandNumber": self.command_number,
+            "timestamp": self.timestamp.to_string(),
+            "command": self.command,
+            "mish": self.mish,
+            "workingDirectory": self.working_directory,
+        })
+    }
+
+    /// An entry from its stored form (see [`HistoryEntry::to_json`]), if it is one
+    pub fn from_json(json: &Json) -> Option<HistoryEntry> {
+        Some(HistoryEntry {
+            session_id: json.get("sessionId")?.as_str()?.to_string(),
+            command_number: json.get("commandNumber")?.as_u64()?,
+            timestamp: json.get("timestamp")?.as_str()?.parse().ok()?,
+            command: json.get("command")?.as_str()?.to_string(),
+            mish: json.get("mish").and_then(Json::as_bool).unwrap_or(false),
+            working_directory: json.get("workingDirectory")?.as_str()?.to_string(),
+        })
+    }
+}
+
+/// A new session id: a random (version 4) UUID
+pub fn new_session_id(platform: &dyn Platform) -> String {
+    let bits = (u128::from(platform.random_u64()) << 64 | u128::from(platform.random_u64()))
+        & !(0xf000 << 64 | 0xc000 << 48)
+        | (0x4000 << 64 | 0x8000 << 48);
+    let hex = format!("{bits:032x}");
+    format!(
+        "{}-{}-{}-{}-{}",
+        &hex[..8],
+        &hex[8..12],
+        &hex[12..16],
+        &hex[16..20],
+        &hex[20..]
+    )
 }
 
 pub trait HistoryStorage {
@@ -255,5 +298,14 @@ mod tests {
         assert_eq!(find_ignoring_case("foo", ""), Some(0..0));
         assert_eq!(find_ignoring_case("foo", "x"), None);
         assert_eq!(find_ignoring_case("ÉCOLE", "école"), Some(0..6));
+    }
+
+    #[test]
+    fn session_ids_are_version_4_uuids() {
+        let id = new_session_id(&mash_core::platform::TestPlatform::default());
+        assert_eq!(id.len(), 36);
+        assert_eq!(&id[14..15], "4");
+        assert!("89ab".contains(&id[19..20]), "{id}");
+        assert_eq!(id.matches('-').count(), 4);
     }
 }

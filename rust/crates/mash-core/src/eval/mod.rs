@@ -53,9 +53,11 @@ pub struct Ctx {
     depth: usize,
     pub max_depth: usize,
     interrupt: Arc<AtomicBool>,
-    /// If set, evaluation stops after this many steps (for the browser, which has no Ctrl-C)
+    /// If set, evaluation stops after this many steps
     pub step_budget: Option<u64>,
     steps: u64,
+    /// Evaluation steps, for deciding when to ask the platform about interrupts
+    ticks: u32,
     pub settings: Settings,
     /// Directories visited with `cd` (for `back`, `forward` and `oldDirs`)
     working_directories: builtins::os::WorkingDirectoryStack,
@@ -111,6 +113,7 @@ impl Ctx {
             interrupt: Arc::new(AtomicBool::new(false)),
             step_budget: None,
             steps: 0,
+            ticks: 0,
             settings: Settings::default(),
             working_directories,
             reload_hook: None,
@@ -253,8 +256,25 @@ impl Ctx {
         })
     }
 
+    /// Whether evaluation has been interrupted, asking the platform too (for hosts that can't set
+    /// [`Ctx::interrupt_flag`] themselves, as in the browser)
+    pub fn poll_interrupt(&self) -> bool {
+        if self.platform.interrupt_requested() {
+            self.interrupt.store(true, Ordering::Relaxed);
+        }
+        self.interrupt.load(Ordering::Relaxed)
+    }
+
     pub(crate) fn check_interrupted(&mut self) -> R<()> {
-        if self.interrupt.load(Ordering::Relaxed) {
+        /// Steps between asking the platform
+        const POLL_INTERVAL: u32 = 1024;
+        self.ticks = self.ticks.wrapping_add(1);
+        let interrupted = if self.ticks.is_multiple_of(POLL_INTERVAL) {
+            self.poll_interrupt()
+        } else {
+            self.interrupt.load(Ordering::Relaxed)
+        };
+        if interrupted {
             return Err(MashError::interrupted());
         }
         if let Some(budget) = self.step_budget {

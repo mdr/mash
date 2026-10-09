@@ -1,0 +1,6 @@
+# Fibonacci numbers, the slow way. Load with: mash.source "examples/fib.mash"
+
+def fib n =
+  if n < 2 then n else fib (n - 1) + fib (n - 2)
+
+def fibs n = 0.until n | map fib

@@ -196,10 +196,9 @@ fn now_zoned(ctx: &Ctx) -> Zoned {
 /// Sleep for `duration`, in slices so that an interrupt (Ctrl-C) is noticed promptly
 fn sleep_for(ctx: &Ctx, duration: Duration) -> R<()> {
     const SLICE: Duration = Duration::from_millis(100);
-    let interrupt = ctx.interrupt_flag();
     let mut remaining = duration;
     while !remaining.is_zero() {
-        if interrupt.load(std::sync::atomic::Ordering::Relaxed) {
+        if ctx.poll_interrupt() {
             return Err(MashError::interrupted());
         }
         let slice = remaining.min(SLICE);
