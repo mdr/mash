@@ -12,10 +12,11 @@ use mash_core::eval::Ctx;
 use mash_core::function::{DefaultValue, Param, Params};
 use mash_core::platform::{Platform, TestPlatform};
 use mash_core::value::Value;
-use mash_repl::render::assistance::{render_assistance, render_params};
+use mash_repl::render::assistance::render_assistance;
 use mash_repl::render::history_search::render_history_search;
 use mash_repl::screen::{Dimensions, Line, Point};
 use mash_repl::state::{HistorySearchState, Hit, HitStatus};
+use mash_repl::view::calling_syntax;
 
 fn texts(lines: &[Line]) -> Vec<String> {
     lines.iter().map(|l| l.string.to_string()).collect()
@@ -100,7 +101,7 @@ fn param(name: &'static str, f: impl FnOnce(&mut Param)) -> Param {
 }
 
 fn syntax(params: Vec<Param>) -> String {
-    render_params(&Params::new(params)).to_string()
+    calling_syntax::parameters(&Params::new(params).params).to_string()
 }
 
 #[test]

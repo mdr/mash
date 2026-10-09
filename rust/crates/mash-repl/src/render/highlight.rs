@@ -15,25 +15,7 @@ use crate::commands::{mish_command, suffix_mish_command};
 use crate::editor::matching_bracket;
 use crate::screen::{Style, StyledChar, StyledString, default_colours as colours};
 
-/// The colour of a kind of token (Scala `MashRenderer.getTokenStyle`)
-pub fn token_style(kind: SyntaxKind) -> Style {
-    use SyntaxKind::*;
-    match kind {
-        COMMENT => Style::fg(colours::COMMENT),
-        NUMBER_LITERAL => Style::fg(colours::PURPLE),
-        IDENTIFIER | MISH_WORD => Style::fg(colours::FOREGROUND),
-        ERROR_TOKEN => Style::fg(colours::RED),
-        LONG_FLAG | SHORT_FLAG => Style::fg(colours::CYAN),
-        k if k.is_keyword() => Style::fg(colours::PINK),
-        STRING_LITERAL | STRING_START | STRING_END | STRING_MIDDLE => Style::fg(colours::YELLOW),
-        PIPE | PLUS | TIMES | SHORT_EQUALS | PLUS_EQUALS | MINUS_EQUALS | TIMES_EQUALS | DIVIDE_EQUALS
-        | LONG_EQUALS | NOT_EQUALS | GREATER_THAN | GREATER_THAN_EQUALS | LESS_THAN_EQUALS | LESS_THAN | SEMI => {
-            Style::fg(colours::ORANGE)
-        }
-        AT => Style::fg(colours::GREEN),
-        _ => Style::DEFAULT,
-    }
-}
+pub use crate::view::highlight::token_style;
 
 /// Options for highlighting.
 #[derive(Clone, Copy, Debug, Default)]
