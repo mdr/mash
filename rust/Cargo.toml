@@ -28,6 +28,8 @@ serde_json = { version = "1.0", features = ["preserve_order"] }
 sha2 = "0.10"
 unicode-width = "0.2"
 unicode-segmentation = "1.12"
+crossterm = "0.29"
+signal-hook = "0.3"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
