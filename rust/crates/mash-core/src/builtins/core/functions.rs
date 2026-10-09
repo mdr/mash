@@ -45,6 +45,15 @@ pub fn is_null(#[param("Value to test for nullness")] value: Value) -> R<bool> {
     Ok(value.is_null())
 }
 
+/// Print the given argument to standard output
+#[builtin(namespace = "core", returns = crate::infer::Type::UNIT)]
+pub fn print(ctx: &mut Ctx, #[param("Item to print")] item: Value) -> R<()> {
+    let mut text = ctx.stringify(&item)?;
+    text.push('\n');
+    ctx.platform().write_output(&text);
+    Ok(())
+}
+
 /// Throw an exception with the given message
 #[builtin(namespace = "core")]
 pub fn error(#[param("Error message to produce")] message: Str) -> R<Value> {

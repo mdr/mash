@@ -1,6 +1,6 @@
 //! The boundary between the interpreter and its host (native OS, browser, or a test fixture).
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::time::Duration;
@@ -38,6 +38,9 @@ pub trait Platform: Debug {
 
     /// 64 random bits (for `random.*`). Deterministic in tests.
     fn random_u64(&self) -> u64;
+
+    /// Write Mash's own output (`print`): standard output natively
+    fn write_output(&self, text: &str);
 }
 
 /// An entry in a directory listing.
@@ -144,6 +147,8 @@ pub struct TestPlatform {
     pub now: Cell<Timestamp>,
     /// State of the deterministic random number generator
     pub random_state: Cell<u64>,
+    /// Everything written with `write_output`
+    pub output: RefCell<String>,
 }
 
 impl Default for TestPlatform {
@@ -156,6 +161,7 @@ impl Default for TestPlatform {
             files: MemoryFiles::default(),
             now: Cell::new("2026-10-09T12:00:00Z".parse().expect("valid timestamp")),
             random_state: Cell::new(0x853c_49e6_748f_ea9b),
+            output: RefCell::new(String::new()),
         }
     }
 }
@@ -202,5 +208,9 @@ impl Platform for TestPlatform {
         z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
         z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
         z ^ (z >> 31)
+    }
+
+    fn write_output(&self, text: &str) {
+        self.output.borrow_mut().push_str(text);
     }
 }

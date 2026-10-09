@@ -61,6 +61,13 @@ impl Platform for NativePlatform {
         std::thread::sleep(duration);
     }
 
+    fn write_output(&self, text: &str) {
+        use std::io::Write;
+        let mut stdout = std::io::stdout().lock();
+        let _ = stdout.write_all(text.as_bytes());
+        let _ = stdout.flush();
+    }
+
     fn random_u64(&self) -> u64 {
         use std::io::Read;
         let mut bytes = [0u8; 8];

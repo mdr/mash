@@ -459,8 +459,6 @@ const DEFERRED: &[&str] = &[
     r#"ls.first.get 'size'"#,
     // M5: http
     r#"json.get 'http://example.com' | .get 'foo' --default=42'"#,
-    // M4: print
-    r#"5.times { print 'Hi' }"#,
     // M5: os (ls, pwd, readLines)
     r#"timeTaken ls"#,
     // M5: os (ls, pwd, readLines)

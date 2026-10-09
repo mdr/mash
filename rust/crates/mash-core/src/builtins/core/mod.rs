@@ -34,6 +34,7 @@ pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &NotFunction,
     &ParallelMapFunction,
     &ParseNumberFunction,
+    &PrintFunction,
     &SafeFunction,
     &SplitFunction,
     &TapFunction,

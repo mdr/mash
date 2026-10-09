@@ -36,7 +36,7 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | `evaluator/SimpleEvaluatorTest` | `mash-core/tests/infer_misc.rs` | ported | Constant folding agrees with evaluation |
 | `functions/BindTypesTest` | `mash-core/tests/infer_misc.rs` | ported | |
 | `language/ValueToExpressionTest` | `mash-core/tests/value_to_expression.rs` | ported | |
-| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 233 of 257 pass; 24 need os/git/http/print (M4/M5), listed in `DEFERRED` |
+| `inference/TypeInferencerTest` | `mash-core/tests/infer.rs` | partial | 234 of 257 pass; 23 need os/git/http (M4/M5), listed in `DEFERRED` |
 | `inference/ValueTypeDetectorTest` | `mash-core/tests/infer_misc.rs` | ported | The class-instance case uses `maths.Stats` instead of the os class `PermissionsSection` |
 | — | `mash-core/tests/infer_{collections,core,namespaces}.rs` | new | Inference rules and completion specs per builtin area |
 | `completions/CompletionsTest` | `mash-core/tests/complete.rs` | partial | 149 cases; 117 pass, 32 need os builtins (cd, ls, readLines, pwd, kill, user) and are listed in `DEFERRED` |
