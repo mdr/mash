@@ -6,10 +6,11 @@ mod bind;
 mod params;
 
 pub use args::{Args, Callable, FromValue, Sequence};
-pub use bind::{Argument, Bound, Suspended, bind};
+pub use bind::{ArgShape, Argument, AssignError, Bound, Suspended, assign, bind};
 pub use params::{DefaultValue, Param, Params};
 
 use crate::eval::{Ctx, R};
+use crate::infer::{Inferencer, Type, TypedArgs};
 use crate::value::Value;
 
 /// A function implemented in Rust. Builtins are `'static` (usually unit structs), so values can refer to
@@ -29,6 +30,11 @@ pub trait BuiltinFunction: Sync + 'static {
     fn params(&self) -> &Params;
 
     fn call(&self, ctx: &mut Ctx, args: &Args) -> R<Value>;
+
+    /// The type of the result, given what's known about the arguments (Scala `typeInferenceStrategy`)
+    fn infer(&self, _inferencer: &mut Inferencer<'_>, _args: &TypedArgs) -> Option<Type> {
+        None
+    }
 
     /// One-line description
     fn summary(&self) -> &'static str;
@@ -59,6 +65,11 @@ pub trait BuiltinMethod: Sync + 'static {
     fn params(&self) -> &Params;
 
     fn call(&self, ctx: &mut Ctx, target: &Value, args: &Args) -> R<Value>;
+
+    /// The type of the result, given the target's type and what's known about the arguments
+    fn infer(&self, _inferencer: &mut Inferencer<'_>, _target: Option<&Type>, _args: &TypedArgs) -> Option<Type> {
+        None
+    }
 
     fn summary(&self) -> &'static str;
 

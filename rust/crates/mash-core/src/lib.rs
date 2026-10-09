@@ -11,5 +11,6 @@ pub mod builtins;
 pub mod compile;
 pub mod eval;
 pub mod function;
+pub mod infer;
 pub mod platform;
 pub mod value;

@@ -130,6 +130,12 @@ impl Ctx {
         compile::compile(unit, self.settings, &bindings, &mut self.ids)
     }
 
+    /// Compile whatever can be made of the source, even if it doesn't parse (for IDE features)
+    pub fn compile_forgiving(&mut self, unit: Rc<SourceUnit>) -> Compiled {
+        let bindings = self.global_names();
+        compile::compile_forgiving(unit, self.settings, &bindings, &mut self.ids)
+    }
+
     fn global_names(&self) -> HashSet<Rc<str>> {
         self.globals()
             .keys()

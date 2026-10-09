@@ -3,7 +3,7 @@
 
 use jiff::Timestamp;
 use jiff::tz::TimeZone;
-use mash_core::platform::Platform;
+use mash_core::platform::{DirEntry, FileKind, Platform};
 
 /// The [`Platform`] for a native process: real environment, working directory, clock and time zone.
 #[derive(Debug, Default)]
@@ -36,5 +36,24 @@ impl Platform for NativePlatform {
 
     fn now(&self) -> Timestamp {
         Timestamp::now()
+    }
+
+    fn read_dir(&self, path: &str) -> std::io::Result<Vec<DirEntry>> {
+        let path = if path.is_empty() { "." } else { path };
+        let mut entries = vec![];
+        for entry in std::fs::read_dir(path)? {
+            let entry = entry?;
+            // Follow symbolic links to decide what an entry is
+            let kind = match std::fs::metadata(entry.path()) {
+                Ok(m) if m.is_dir() => FileKind::Directory,
+                Ok(m) if m.is_file() => FileKind::File,
+                _ => FileKind::Other,
+            };
+            entries.push(DirEntry {
+                name: entry.file_name().to_string_lossy().into_owned(),
+                kind,
+            });
+        }
+        Ok(entries)
     }
 }

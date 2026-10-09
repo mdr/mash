@@ -83,10 +83,6 @@ impl Argument {
             | Argument::LongFlag { location, .. } => location.as_ref(),
         }
     }
-
-    fn is_positional(&self) -> bool {
-        matches!(self, Argument::Positional { .. })
-    }
 }
 
 /// The result of binding: a value for each parameter, in order.
@@ -108,7 +104,9 @@ pub fn bind(
     args: &[Argument],
     default: &mut dyn FnMut(&mut Ctx, usize) -> R<Value>,
 ) -> R<Bound> {
-    let assignment = assign(params, args)?;
+    let shapes: Vec<ArgShape> = args.iter().map(ArgShape::of).collect();
+    let assignment = assign(params, &shapes, false)
+        .map_err(|e| MashError::argument(e.message, e.arg.and_then(|a| args[a].location().cloned())))?;
     let mut values = Vec::with_capacity(params.params.len());
     let mut locations = Vec::with_capacity(params.params.len());
     let mut all_args = vec![];
@@ -263,8 +261,36 @@ fn merge_locations<'a>(locations: impl Iterator<Item = &'a Location>) -> Option<
 
 // ------------------------------------------------------------------------------------------------ assignment
 
-/// Which arguments go to which parameter (by index): Scala `GeneralArgBinder`.
-fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
+/// The shape of an argument, as far as deciding which parameter it goes to is concerned.
+#[derive(Debug, Clone, Copy)]
+pub enum ArgShape<'a> {
+    Positional,
+    ShortFlags(&'a [char]),
+    LongFlag(&'a str),
+}
+
+impl<'a> ArgShape<'a> {
+    fn of(arg: &'a Argument) -> Self {
+        match arg {
+            Argument::Positional { .. } => ArgShape::Positional,
+            Argument::ShortFlags { flags, .. } => ArgShape::ShortFlags(flags),
+            Argument::LongFlag { name, .. } => ArgShape::LongFlag(name),
+        }
+    }
+}
+
+/// A problem binding arguments: a message, and the index of the argument at fault if known.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AssignError {
+    pub message: String,
+    pub arg: Option<usize>,
+}
+
+/// Which arguments go to which parameter (by index) — Scala `GeneralArgBinder`. If `forgiving` (for type
+/// inference and completion, on code that may be incomplete or wrong) problems are skipped rather than
+/// reported, binding as much as possible.
+pub fn assign(params: &Params, args: &[ArgShape], forgiving: bool) -> Result<Vec<Vec<usize>>, AssignError> {
+    let error = |message: String, arg: Option<usize>| Err(AssignError { message, arg });
     let ps = &params.params;
     let mut assigned: Vec<Option<Vec<usize>>> = vec![None; ps.len()];
     // Which parameter each argument went to
@@ -273,13 +299,14 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
         assigned[p].get_or_insert_with(Vec::new).push(a);
         arg_param[a] = Some(p);
     };
+    let is_positional = |a: usize| matches!(args[a], ArgShape::Positional);
 
     // Positional arguments
     let provided_as_flag = |p: &Param| {
         args.iter().any(|arg| match arg {
-            Argument::LongFlag { name, .. } => p.name.as_deref() == Some(&**name),
-            Argument::ShortFlags { flags, .. } => p.short_flag.is_some_and(|c| flags.contains(&c)),
-            Argument::Positional { .. } => false,
+            ArgShape::LongFlag(name) => p.name.as_deref() == Some(*name),
+            ArgShape::ShortFlags(flags) => p.short_flag.is_some_and(|c| flags.contains(&c)),
+            ArgShape::Positional => false,
         })
     };
     let positional_params: Vec<usize> = (0..ps.len())
@@ -296,10 +323,11 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
     let variadic_or_all_args = match rest {
         [p] => Some(*p),
         [] => None,
-        _ => return Err(MashError::new("Bad parameters")),
+        _ if forgiving => None,
+        _ => return error("Bad parameters".into(), None),
     };
 
-    let positional_args: Vec<usize> = (0..args.len()).filter(|&a| args[a].is_positional()).collect();
+    let positional_args: Vec<usize> = (0..args.len()).filter(|&a| is_positional(a)).collect();
     let mut remaining = positional_args.as_slice();
     for &p in initial_mandatory {
         let Some((&a, rest)) = remaining.split_first() else {
@@ -337,6 +365,7 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
                 }
             }
             Some(_) => {} // all_args parameters get everything left over, below
+            None if forgiving => {}
             None => {
                 let max =
                     initial_mandatory.len() + final_mandatory.len() + initial_optional.len() + final_optional.len();
@@ -346,10 +375,7 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
                     if provided == 1 { "was" } else { "were" },
                     if max == 1 { "is" } else { "are" },
                 );
-                return Err(MashError::argument(
-                    message,
-                    args[positional_args[max]].location().cloned(),
-                ));
+                return error(message, Some(positional_args[max]));
             }
         }
     }
@@ -359,27 +385,30 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
     let has_all_args = ps.iter().any(|p| p.all_args);
     for (a, arg) in args.iter().enumerate() {
         let names: Vec<String> = match arg {
-            Argument::ShortFlags { flags, .. } => flags.iter().map(char::to_string).collect(),
-            Argument::LongFlag { name, .. } => vec![name.to_string()],
-            Argument::Positional { .. } => continue,
+            ArgShape::ShortFlags(flags) => flags.iter().map(char::to_string).collect(),
+            ArgShape::LongFlag(name) => vec![name.to_string()],
+            ArgShape::Positional => continue,
         };
         for name in names {
             match params.index_by_flag(&name) {
                 Some(p) if ps[p].named_args => {}
                 Some(p) => {
                     if assigned[p].is_some() {
-                        let message = format!("{} is provided multiple times", capitalise(&describe(&ps[p])));
-                        return Err(MashError::argument(message, arg.location().cloned()));
+                        if !forgiving {
+                            let message = format!("{} is provided multiple times", capitalise(&describe(&ps[p])));
+                            return error(message, Some(a));
+                        }
+                    } else {
+                        add(&mut assigned, &mut arg_param, p, a);
                     }
-                    add(&mut assigned, &mut arg_param, p, a);
                 }
-                None if has_named_args || has_all_args => {}
+                None if has_named_args || has_all_args || forgiving => {}
                 None => {
                     let message = format!(
                         "Unexpected named argument '{name}'{}",
                         suggestion_suffix(&params.flag_names(), &name)
                     );
-                    return Err(MashError::argument(message, arg.location().cloned()));
+                    return error(message, Some(a));
                 }
             }
         }
@@ -392,11 +421,8 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
         }
         if param.has_default() || (param.variadic && !param.variadic_at_least_one) {
             assigned[p] = Some(vec![]);
-        } else if !param.named_args && !param.all_args {
-            return Err(MashError::argument(
-                format!("Missing mandatory {}", describe(param)),
-                None,
-            ));
+        } else if !param.named_args && !param.all_args && !forgiving {
+            return error(format!("Missing mandatory {}", describe(param)), None);
         }
     }
 
@@ -404,7 +430,7 @@ fn assign(params: &Params, args: &[Argument]) -> R<Vec<Vec<usize>>> {
     for (p, param) in ps.iter().enumerate() {
         if param.named_args || param.all_args {
             let leftover: Vec<usize> = (0..args.len())
-                .filter(|&a| arg_param[a].is_none() && (param.all_args || !args[a].is_positional()))
+                .filter(|&a| arg_param[a].is_none() && (param.all_args || !is_positional(a)))
                 .collect();
             for &a in &leftover {
                 arg_param[a] = Some(p);

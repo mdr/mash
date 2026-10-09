@@ -26,15 +26,113 @@ pub trait Platform: Debug {
 
     /// The current time. Never call `Timestamp::now()` directly: tests use a fixed clock.
     fn now(&self) -> Timestamp;
+
+    /// The entries of a directory (relative paths are relative to the current directory), not including `.`
+    /// and `..`. Symbolic links are followed to decide whether an entry is a directory.
+    fn read_dir(&self, path: &str) -> std::io::Result<Vec<DirEntry>>;
 }
 
-/// A deterministic platform for tests: fixed environment, home `/home/alice`, UTC, and a fixed clock.
+/// An entry in a directory listing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirEntry {
+    pub name: String,
+    pub kind: FileKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FileKind {
+    File,
+    Directory,
+    Other,
+}
+
+/// An in-memory file tree: absolute paths of files and directories (parents are implied).
+#[derive(Debug, Clone, Default)]
+pub struct MemoryFiles {
+    entries: BTreeMap<String, FileKind>,
+}
+
+impl MemoryFiles {
+    /// A file tree containing the given paths; those ending in `/` are directories, the rest files
+    pub fn of(paths: &[&str]) -> MemoryFiles {
+        let mut files = MemoryFiles::default();
+        for path in paths {
+            match path.strip_suffix('/') {
+                Some(dir) => files.add(dir, FileKind::Directory),
+                None => files.add(path, FileKind::File),
+            }
+        }
+        files
+    }
+
+    fn add(&mut self, path: &str, kind: FileKind) {
+        let mut ancestor = String::new();
+        let segments: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+        for (i, segment) in segments.iter().enumerate() {
+            ancestor.push('/');
+            ancestor.push_str(segment);
+            let segment_kind = if i + 1 == segments.len() {
+                kind
+            } else {
+                FileKind::Directory
+            };
+            self.entries.entry(ancestor.clone()).or_insert(segment_kind);
+        }
+    }
+
+    pub fn read_dir(&self, cwd: &str, path: &str) -> std::io::Result<Vec<DirEntry>> {
+        let absolute = resolve(cwd, path);
+        let prefix = if absolute == "/" {
+            "/".to_string()
+        } else {
+            format!("{absolute}/")
+        };
+        if absolute != "/" && self.entries.get(&absolute) != Some(&FileKind::Directory) {
+            return Err(std::io::Error::new(std::io::ErrorKind::NotFound, absolute));
+        }
+        Ok(self
+            .entries
+            .iter()
+            .filter_map(|(p, kind)| {
+                let rest = p.strip_prefix(&prefix)?;
+                (!rest.is_empty() && !rest.contains('/')).then(|| DirEntry {
+                    name: rest.to_string(),
+                    kind: *kind,
+                })
+            })
+            .collect())
+    }
+}
+
+/// `path` made absolute (relative to `cwd`) and normalised (`.` and `..` resolved)
+fn resolve(cwd: &str, path: &str) -> String {
+    let joined = if path.starts_with('/') {
+        path.to_string()
+    } else {
+        format!("{cwd}/{path}")
+    };
+    let mut segments: Vec<&str> = vec![];
+    for segment in joined.split('/') {
+        match segment {
+            "" | "." => {}
+            ".." => {
+                segments.pop();
+            }
+            s => segments.push(s),
+        }
+    }
+    format!("/{}", segments.join("/"))
+}
+
+/// A deterministic platform for tests: fixed environment, home `/home/alice`, UTC, a fixed clock, and an
+/// in-memory file tree (empty by default).
 #[derive(Debug, Clone)]
 pub struct TestPlatform {
     pub env: BTreeMap<String, String>,
     pub home: String,
     pub cwd: String,
     pub time_zone: TimeZone,
+    pub files: MemoryFiles,
     pub now: Timestamp,
 }
 
@@ -45,6 +143,7 @@ impl Default for TestPlatform {
             home: "/home/alice".into(),
             cwd: "/home/alice".into(),
             time_zone: TimeZone::UTC,
+            files: MemoryFiles::default(),
             now: "2026-10-09T12:00:00Z".parse().expect("valid timestamp"),
         }
     }
@@ -73,5 +172,9 @@ impl Platform for TestPlatform {
 
     fn now(&self) -> Timestamp {
         self.now
+    }
+
+    fn read_dir(&self, path: &str) -> std::io::Result<Vec<DirEntry>> {
+        self.files.read_dir(&self.cwd, path)
     }
 }

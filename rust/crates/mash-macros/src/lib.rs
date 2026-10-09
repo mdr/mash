@@ -32,6 +32,11 @@
 //! object the method is called on (as `&Value`, or converted like other parameters), and the struct is named
 //! `…Method`. It also takes `aliases = ["…"]`, `shy` and `private`. `#[builtin]` takes `aliases = ["ns.name"]`
 //! (alternative full names).
+//!
+//! For type inference, either `returns = <expr>` (an expression of type `Type`, for a fixed result type) or
+//! `infer = path`: for a function, `fn(&mut Inferencer, &Params, &TypedArgs) -> Option<Type>`; for a method,
+//! `fn(&mut Inferencer, Option<&Type>, &Params, &TypedArgs) -> Option<Type>` (the `Option<&Type>` is the
+//! target's type).
 
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
@@ -76,6 +81,10 @@ struct Options {
     aliases: Vec<LitStr>,
     shy: bool,
     private: bool,
+    /// The result type, as an expression of type `Type`
+    returns: Option<Expr>,
+    /// A function inferring the result type
+    infer: Option<Expr>,
 }
 
 impl Parse for Options {
@@ -87,6 +96,8 @@ impl Parse for Options {
                 ("name", Meta::NameValue(nv)) => options.name = Some(lit_str(&nv.value)?),
                 ("namespace", Meta::NameValue(nv)) => options.namespace = Some(lit_str(&nv.value)?),
                 ("aliases", Meta::NameValue(nv)) => options.aliases = lit_strs(&nv.value)?,
+                ("returns", Meta::NameValue(nv)) => options.returns = Some(nv.value.clone()),
+                ("infer", Meta::NameValue(nv)) => options.infer = Some(nv.value.clone()),
                 ("shy", Meta::Path(_)) => options.shy = true,
                 ("private", Meta::Path(_)) => options.private = true,
                 _ => return Err(syn::Error::new(meta.span(), "unknown builtin option")),
@@ -219,6 +230,33 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
             &PARAMS
         }
     };
+    if options.returns.is_some() && options.infer.is_some() {
+        return Err(syn::Error::new(
+            Span::call_site(),
+            "use either returns or infer, not both",
+        ));
+    }
+    let infer = match (&options.returns, &options.infer, kind) {
+        (Some(ty), _, Kind::Function) => quote! {
+            fn infer(&self, _: &mut ::mash_core::infer::Inferencer<'_>, _: &::mash_core::infer::TypedArgs)
+                -> Option<::mash_core::infer::Type> { Some(#ty) }
+        },
+        (Some(ty), _, Kind::Method) => quote! {
+            fn infer(&self, _: &mut ::mash_core::infer::Inferencer<'_>, _: Option<&::mash_core::infer::Type>,
+                _: &::mash_core::infer::TypedArgs) -> Option<::mash_core::infer::Type> { Some(#ty) }
+        },
+        (None, Some(f), Kind::Function) => quote! {
+            fn infer(&self, inferencer: &mut ::mash_core::infer::Inferencer<'_>, args: &::mash_core::infer::TypedArgs)
+                -> Option<::mash_core::infer::Type> { (#f)(inferencer, self.params(), args) }
+        },
+        (None, Some(f), Kind::Method) => quote! {
+            fn infer(&self, inferencer: &mut ::mash_core::infer::Inferencer<'_>, target: Option<&::mash_core::infer::Type>,
+                args: &::mash_core::infer::TypedArgs) -> Option<::mash_core::infer::Type> {
+                (#f)(inferencer, target, self.params(), args)
+            }
+        },
+        (None, None, _) => quote!(),
+    };
     let aliases = &options.aliases;
     let vis = &function.vis;
     let doc = format!("The builtin `{mash_name}`.");
@@ -247,6 +285,7 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
                     }
                     fn summary(&self) -> &'static str { #summary }
                     fn description(&self) -> Option<&'static str> { #description }
+                    #infer
                 }
             }
         }
@@ -277,6 +316,7 @@ fn expand(options: Options, mut function: ItemFn, kind: Kind) -> syn::Result<Tok
                     fn description(&self) -> Option<&'static str> { #description }
                     fn shy(&self) -> bool { #shy }
                     fn private(&self) -> bool { #private }
+                    #infer
                 }
             }
         }
