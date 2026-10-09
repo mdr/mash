@@ -5,8 +5,8 @@ use dumpster::{Trace, TraceWith, Visitor, unsync::Gc};
 
 use super::gc::Tracked;
 use super::{BuiltinClass, Class, Scope, Value};
-use crate::ast::{E, FnDef};
-use crate::function::{BuiltinFunction, BuiltinMethod, Params};
+use crate::ast::FnDef;
+use crate::function::{BuiltinFunction, BuiltinMethod, Params, Suspended};
 
 /// A function value that isn't a builtin: a user-defined function or lambda, or one of a few function
 /// values that carry data.
@@ -31,17 +31,18 @@ pub enum FunctionKind {
     SystemCommand(Rc<str>),
     /// `Point.new` for a user-defined class
     Constructor(Class),
-    /// An argument to a `@lazy` parameter: evaluates `expr` in `scope` each time it's called
-    Suspended { expr: E, scope: Scope },
+    /// An argument to a `@lazy` parameter: evaluated each time it's called
+    Suspended(Suspended),
 }
 
-// SAFETY: visits every `Gc` (scopes and classes); `def`, `params` and `expr` are plain data (the AST
-// invariant: no Values).
+// SAFETY: visits every `Gc` (in scopes, classes and suspended values); `def` and `params` are plain data (the
+// AST invariant: no Values).
 #[allow(unsafe_code)]
 unsafe impl<V: Visitor> TraceWith<V> for FunctionData {
     fn accept(&self, visitor: &mut V) -> Result<(), ()> {
         match &self.kind {
-            FunctionKind::Closure { scope, .. } | FunctionKind::Suspended { scope, .. } => scope.accept(visitor),
+            FunctionKind::Closure { scope, .. } => scope.accept(visitor),
+            FunctionKind::Suspended(suspended) => suspended.accept(visitor),
             FunctionKind::Constructor(class) => class.accept(visitor),
             FunctionKind::SystemCommand(_) => Ok(()),
         }
@@ -69,7 +70,7 @@ impl Function {
         match &self.0.kind {
             FunctionKind::Closure { def, .. } => def.name.as_deref(),
             FunctionKind::Constructor(_) => Some("new"),
-            FunctionKind::SystemCommand(_) | FunctionKind::Suspended { .. } => None,
+            FunctionKind::SystemCommand(_) | FunctionKind::Suspended(_) => None,
         }
     }
 
@@ -91,7 +92,7 @@ impl fmt::Debug for Function {
             },
             FunctionKind::SystemCommand(command) => write!(f, "<system command {command}>"),
             FunctionKind::Constructor(class) => write!(f, "<constructor {}>", class.full_name()),
-            FunctionKind::Suspended { .. } => f.write_str("<suspended value>"),
+            FunctionKind::Suspended(_) => f.write_str("<suspended value>"),
         }
     }
 }

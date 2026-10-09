@@ -16,6 +16,7 @@ mash-syntax = { path = "crates/mash-syntax" }
 mash-core = { path = "crates/mash-core" }
 mash-os = { path = "crates/mash-os" }
 mash-repl = { path = "crates/mash-repl" }
+mash-macros = { path = "crates/mash-macros" }
 rowan = "0.16"
 dumpster = "2.1"
 indexmap = "2.14"

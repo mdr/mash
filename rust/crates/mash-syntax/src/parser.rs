@@ -1021,6 +1021,15 @@ impl<'t> Parser<'t> {
             p.builder.start_node_at(cp, CLASS_DECL.into());
             p.expect(CLASS_KW, "class");
             p.expect(IDENTIFIER, "class");
+            // As in Scala, a newline after the name ends the declaration
+            p.with_semis(true, |p| p.class_params_and_body());
+            p.finish_node();
+        })
+    }
+
+    fn class_params_and_body(&mut self) {
+        let p = self;
+        {
             if p.at_any(&[IDENTIFIER, LPAREN, LSQUARE, HOLE]) {
                 p.start(PARAM_LIST);
                 while p.at_any(&[IDENTIFIER, LPAREN, LSQUARE, HOLE]) {
@@ -1046,8 +1055,7 @@ impl<'t> Parser<'t> {
                 p.expect(RBRACE, "class");
                 p.finish_node();
             }
-            p.finish_node();
-        })
+        }
     }
 
     fn param_list(&mut self) {

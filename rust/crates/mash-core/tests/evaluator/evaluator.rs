@@ -1,0 +1,227 @@
+//! Port of `evaluator/EvaluatorTest.scala`.
+
+use crate::harness::*;
+
+pub(crate) const CASES: &[Case] = &[
+    Case::eq(r#"42 | _ < 100"#, r#"true"#),
+    Case::eq(r#"(x => x) | (f => f 42)"#, r#"42"#),
+    Case::eq(r#"if 1 < 2 then 100 else 200"#, r#"100"#),
+    Case::eq(r#"if 1 > 2 then 100 else 200"#, r#"200"#),
+    Case::eq(r#"if 1 == 1 then 100"#, r#"100"#),
+    Case::eq(
+        r#"((h => (x => x x) (g => h (args => (g g) args))) (f => n => if n == 1 then 1 else n * f (n - 1))) 5"#,
+        r#"120"#,
+    ),
+    Case::eq(r#"[1, 2, 3, 4, 5] | where (_ >= 3)"#, r#"[3, 4, 5]"#),
+    Case::eq(r#"{ foo: 42, bar: 24 } | [_.foo, _.bar]"#, r#"[42, 24]"#),
+    Case::eq(r#"{ foo: 42, bar: 1 } | deselect 'foo'"#, r#"{ bar: 1 }"#),
+    Case::eq(
+        r#"[{ foo: 42, bar: 1 }, { foo: 12, bar: 34 }] | deselect 'foo'"#,
+        r#"[{ bar: 1 }, { bar: 34 }]"#,
+    ),
+    Case::eq(r#"identity 1"#, r#"1"#),
+    Case::eq(r#"isNull null"#, r#"true"#),
+    Case::eq(r#"isNull 0"#, r#"false"#),
+    Case::eq(r#"not true"#, r#"false"#),
+    Case::eq(r#"not false"#, r#"true"#),
+    Case::eq(r#"not 0"#, r#"true"#),
+    Case::eq(r#"not []"#, r#"true"#),
+    Case::eq(r#"not {}"#, r#"true"#),
+    Case::eq(r#"not 1"#, r#"false"#),
+    Case::eq(r#"['foo', 'bar', 'baz'].startsWith 'ba'"#, r#"[false, true, true]"#),
+    Case::throws(r#"['foo'].noSuchMember"#),
+    Case::eq(r#"['foo bar', 'baz'].split"#, r#"[['foo', 'bar'], ['baz']]"#),
+    Case::eq(r#"['foo:bar', 'baz'].split ':'"#, r#"[['foo', 'bar'], ['baz']]"#),
+    Case::eq(r#"[].noSuchMember"#, r#"[]"#),
+    Case::eq(
+        r#"['foo', 'bar', 'baz'].startsWith | map (_ 'b')"#,
+        r#"[false, true, true]"#,
+    ),
+    Case::eq(r#" 'foo' { foo: 42 } "#, r#"42"#),
+    Case::eq(r#" 'toString' 42 "#, r#" '42' "#),
+    Case::eq(r#" 'foo' [{ foo: 42 }] "#, r#"[42]"#),
+    Case::eq(r#"'reverse' [1, 2, 3]"#, r#"[3, 2, 1]"#),
+    Case::eq(
+        r#"'startsWith' ['foo', 'bar', 'baz'] | map (_ 'b')"#,
+        r#"[false, true, true]"#,
+    ),
+    Case::eq(r#"true 1 2"#, r#"1"#),
+    Case::eq(r#"false 1 2"#, r#"2"#),
+    Case::eq(r#"a = 0; true (a += 1); a"#, r#"1"#),
+    Case::eq(r#"a = 0; false (a += 1); a"#, r#"0"#),
+    Case::eq(r#"a = 0; true (a += 1) (a -= 1); a"#, r#"1"#),
+    Case::eq(r#"a = 0; false (a += 1) (a -= 1); a"#, r#"-1"#),
+    Case::eq(r#" "`$" "#, r#" '$' "#),
+    Case::eq(r#" "`"" "#, r#" '"' "#),
+    Case::eq(r#" '`'' "#, r#" "'" "#),
+    Case::eq(r#" "foo`nbar".length "#, r#"7"#),
+    Case::eq(r#"true and true and true"#, r#"true"#),
+    Case::eq(r#"true or true or true"#, r#"true"#),
+    Case::eq(r#"1; 2; 3"#, r#"3"#),
+    Case::eq(r#"a = 1; a = 2; a"#, r#"2"#),
+    Case::eq(r#"if true then if false then 24 else 42 else 1024"#, r#"42"#),
+    Case::eq(r#"(if true then a = 42 else a = 24); a"#, r#"42"#),
+    Case::eq(r#"a = 0; (100 | (a = _); a)"#, r#"100"#),
+    Case::eq(r#"(a = true | not); a"#, r#"false"#),
+    Case::eq(r#"square = x => x * x; square 3"#, r#"9"#),
+    Case::eq(r#"a = 0; (x => a = x) 42; a"#, r#"42"#),
+    Case::eq(r#"a = 0; ((100 | a = _); a)"#, r#"100"#),
+    Case::eq(r#"(a = x => true | not); a 42"#, r#"false"#),
+    Case::eq(r#"(a = 42 | x => true); a"#, r#"true"#),
+    Case::eq(r#"['foo', 'bar', 'baz'] | map reverse"#, r#"['oof', 'rab', 'zab']"#),
+    Case::eq(r#"['foo', 'bar', 'baz'] | map 'reverse'"#, r#"['oof', 'rab', 'zab']"#),
+    Case::eq(r#"[{foo: 42}] | map 'foo'"#, r#"[42]"#),
+    Case::eq(r#"['f', 'x'] | map 'foo'.startsWith"#, r#"[true, false]"#),
+    Case::eq(r#"def square n = n * n; square 8"#, r#"64"#),
+    Case::eq(r#"def square n = n * n; square --n=8"#, r#"64"#),
+    Case::eq(r#"def add a b = a + b; add 1 2"#, r#"3"#),
+    Case::eq(r#"def pipeFunc s = s.toUpper | reverse; pipeFunc 'foo'"#, r#"'OOF'"#),
+    Case::eq(r#"a = ['aa', 'bbb', 'c'].sortBy; a length"#, r#"['c', 'aa', 'bbb']"#),
+    Case::eq(r#"[].sumBy.target"#, r#"[]"#),
+    Case::ok(r#"now.date.toString"#),
+    Case::eq(r#"[].toString"#, r#"'[]'"#),
+    Case::eq(r#"[1].toString"#, r#"'[1]'"#),
+    Case::eq(r#"[1, 2].toString"#, r#"'[1, 2]'"#),
+    Case::eq(r#"[pwd].toString"#, r#"'[' + pwd + ']'"#),
+    Case::eq(r#"3.14.toInt"#, r#"3"#),
+    Case::eq(r#"(-3.14).toInt"#, r#"-3"#),
+    Case::eq(r#"1485187640884.6155.toInt"#, r#"1485187640884"#),
+    Case::throws(r#" "foo" { foo: 42 } { foo: 42 }  "#),
+    Case::eq(r#"{ foo: 42 } | .foo"#, r#"42"#),
+    Case::eq(r#"[1, 2, 3] | .last 2"#, r#"[2, 3]"#),
+    Case::eq(r#"[{ foo: 42 }] | .foo"#, r#"[42]"#),
+    Case::eq(r#"null | ?.foo"#, r#"null"#),
+    Case::eq(r#"'(.*)bar'.r.match 'wibblebar' | .groups.first"#, r#"'wibble'"#),
+    Case::eq(r#"{ a = 0; a = a + 1; a }"#, r#"1"#),
+    Case::eq(r#"{ a = 42 }; a"#, r#"42"#),
+    Case::eq(r#"[1, 2, 3, 4] - [2, 4]"#, r#"[1, 3]"#),
+    Case::eq(r#"[1, 2, 3, 4] - []"#, r#"[1, 2, 3, 4]"#),
+    Case::eq(r#"[] - [1, 2, 3]"#, r#"[]"#),
+    Case::eq(r#"[1, 2, 3, 2, 1] - [2, 1]"#, r#"[3, 2, 1]"#),
+    Case::eq_bare(r#"foo"#, r#"'foo'"#),
+    Case::eq_bare(r#"def foo x = if x == 0 then 1 else foo (x - 1); foo 5"#, r#"1"#),
+    Case::eq_bare(r#"a = 10; a"#, r#"10"#),
+    Case::eq(r#"(x y => x * y) 2 3"#, r#"6"#),
+    Case::eq(r#"f = => 42; f"#, r#"42"#),
+    Case::eq(r#"def baz = 128 + _; (baz) 72"#, r#"200"#),
+    Case::eq(r#"def foo (x = _) = 42; foo"#, r#"42"#),
+    Case::eq(r#"((x = _) => 42) | x => x"#, r#"42"#),
+    Case::eq(r#"1.to 5 | reduce (_1 * _2)"#, r#"120"#),
+    Case::eq(r#"[{foo: 42}].map(_.foo)"#, r#"[42]"#),
+    Case::eq(r#"'foo' | { _: 42 }"#, r#"{ foo: 42 }"#),
+    Case::eq(r#"a = [0]; { x => a[0] += x; a[0] += x } 21; a[0]"#, r#"42"#),
+    Case::eq(r#"a = 0; (x => a += x; a += x) 21; a"#, r#"42"#),
+    Case::eq(
+        r#"a = 0; def twice (@lazy block) = { block; block }; twice (a += 1); a"#,
+        r#"2"#,
+    ),
+    Case::eq(
+        r#"a = 0; def twice (@lazy block) = { block; block }; twice --block=(a += 1); a"#,
+        r#"2"#,
+    ),
+    Case::eq(r#"a = 0; ((@lazy block) => { block; block }) (a += 1); a"#, r#"2"#),
+    Case::eq(r#"def foo n = n += _; f = foo 1; f 2; f 3"#, r#"6"#),
+    Case::eq(r#"[1, 2, 3] | maths.stats | .mean"#, r#"2"#),
+    Case::eq(r#"maths.log 1000 --base=10"#, r#"3"#),
+    Case::eq(r#"x = 0; 42 | tap (x = _) | [x, _]"#, r#"[42, 42]"#),
+    Case::eq(r#"def foo (n = 0) = n * 2; foo -2"#, r#"-4"#),
+    Case::eq(r#"a = 0; while (a < 10) { a = a + 1 }; a"#, r#"10"#),
+    Case::eq(r#"42 | a = _; a"#, r#"42"#),
+    Case::eq(r#"type.hint [String] 42"#, r#"42"#),
+    Case::eq(r#"(def foo = 42) | x => x"#, r#"42"#),
+    Case::eq(r#"(_ => b = 100) 42; b"#, r#"100"#),
+    Case::eq(
+        r#"@attribute
+def foo = 42
+foo
+  "#,
+        r#"42"#,
+    ),
+    Case::eq(
+        r#"def makeFact = { def fact n = if (n <= 1) then n else n * fact (n - 1) }; (makeFact) 5"#,
+        r#"120"#,
+    ),
+    Case::eq(
+        r#"def mutu m = {
+    |  def foo n = if n == 0 then 0 else bar (n - 1)
+    |  def bar n = if n == 0 then 1 else foo (n - 1)
+    |  foo m
+    |}
+    |mutu 3"#,
+        r#"1"#,
+    ),
+    Case::eq(
+        r#"class Point x y { def diff = x - y }; { y: 4, x: 10 }.bless Point | .diff"#,
+        r#"6"#,
+    ),
+    Case::eq(
+        r#"class Point x y { def diff = x - y }; Point.bless { y: 4, x: 10 } | .diff"#,
+        r#"6"#,
+    ),
+    Case::eq(r#"class A { @(alias 'a') def aardvark = 42 }; A.new.a"#, r#"42"#),
+    Case::eq(r#"[def foo = 42].first.invoke"#, r#"42"#),
+    Case::eq(r#"{ foo: def foo = 42 }.foo"#, r#"42"#),
+    Case::eq(r#"[@attribute def foo = 42].first.invoke"#, r#"42"#),
+    Case::eq(r#"[class Bob].first.new.getClass.name"#, r#"'Bob'"#),
+    Case::eq(r#"xml.fromString '<foo>bar</foo>'"#, r#"{ foo: 'bar' }"#),
+    Case::eq(r#"123456789 | json.prettyPrint"#, r#"'123456789'"#),
+    Case::eq(
+        r#"{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint"#,
+        r#"'{
+  "foo": 1,
+  "bar": [
+    2,
+    3,
+    4
+  ]
+}'"#,
+    ),
+    Case::eq(
+        r#"{ foo: 1, bar: [2, 3, 4] } | json.prettyPrint --compact"#,
+        r#"'{"foo":1,"bar":[2,3,4]}'"#,
+    ),
+    Case::eq(r#"List 1 2 3"#, r#"[1, 2, 3]"#),
+    Case::eq(r#"List.new"#, r#"[]"#),
+    Case::eq(r#"net.urlEncode 'user@example.com'"#, r#"'user%40example.com'"#),
+    Case::eq(
+        r#"{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"#,
+        r#"{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}"#,
+    ),
+    Case::eq(
+        r#"class A { def foo = [1, 2, 3] | where (_ > 1) }; A.new.foo"#,
+        r#"[2, 3]"#,
+    ),
+    Case::eq(
+        r#"net.url 'http://example.com' | .withQueryParams { param: 42 }"#,
+        r#"'http://example.com?param=42'"#,
+    ),
+    Case::eq(
+        r#"net.url 'http://example.com' | .withQueryParams --param=42"#,
+        r#"'http://example.com?param=42'"#,
+    ),
+    Case::eq(r#"net.url 'http://example.com' | .host"#, r#"'example.com'"#),
+    Case::eq(r#"try (error 'bang')"#, r#"()"#),
+    Case::eq(r#"try (error 'bang') --catch='recovered'"#, r#"'recovered'"#),
+    Case::eq(r#"a = 0; try 'no probs' --catch=(a += 1); a"#, r#"0"#),
+    Case::eq(
+        r#"a = 0; try (error 'bang') --catch=(a += 1) --finally=(a += 1); a"#,
+        r#"2"#,
+    ),
+    Case::eq(r#"a = 0; try (error 'bang') --finally=(a += 1); a"#, r#"1"#),
+    Case::eq(r#"a = 0; try 'no probs' --finally=(a += 1); a"#, r#"1"#),
+    Case::eq(r#"try 'no probs' --finally=100"#, r#"'no probs'"#),
+    Case::eq(r#"(safe pwd).getClass"#, r#"core.Function"#),
+    Case::eq(r#"(safe 3.negate).getClass"#, r#"core.BoundMethod"#),
+    Case::eq(r#"def f (@safe x) = x; f pwd"#, r#"safe pwd"#),
+    Case::eq(r#"class A { def f (@safe x) = x}; A.new.f pwd"#, r#"safe pwd"#),
+    Case::eq(r#"mash.expressionFor 42"#, r#"'42'"#),
+    Case::eq(r#"mash.expressionFor [1, 2, 3]"#, r#"'[1, 2, 3]'"#),
+];
+
+#[test]
+fn cases() {
+    run(CASES, DEFERRED);
+}
+
+/// Cases that need builtins from later milestones
+const DEFERRED: &[&str] = &[];

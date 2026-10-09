@@ -6,7 +6,7 @@
 use std::rc::Rc;
 
 use mash_core::ast::{Expr, ExprKind, FnDef, NodeIdGen, SourceUnit};
-use mash_core::function::Params;
+use mash_core::function::{Params, Suspended};
 use mash_core::value::gc::{self, Policy, live_heap_objects};
 use mash_core::value::{Class, ClassRef, Function, List, Object, Scope, ScopeKind, UserMethod, Value};
 
@@ -197,11 +197,16 @@ fn bound_methods_and_suspended_values_are_traced() {
         let global = Scope::global(Object::new());
         let mut ids = NodeIdGen::default();
         // A lazy argument thunk capturing the scope that holds it
-        let thunk = Function::new(FunctionKind::Suspended {
+        let thunk = Function::new(FunctionKind::Suspended(Suspended::Expr {
             expr: Expr::new(&mut ids, None, ExprKind::Missing),
             scope: global.clone(),
-        });
+            unit: SourceUnit::new("test", ""),
+        }));
         global.vars().set_str("thunk", Value::Function(thunk));
+        // A suspended value holding the object it's stored in
+        let holder = Object::new();
+        let value_thunk = Function::new(FunctionKind::Suspended(Suspended::Value(Value::Object(holder.clone()))));
+        holder.set_str("thunk", Value::Function(value_thunk));
         // A user method bound to an object that holds the bound method
         let class_def = Rc::new(mash_core::ast::ClassDef {
             name: "C".into(),

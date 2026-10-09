@@ -31,7 +31,7 @@ use dumpster::{Trace, TraceWith, Visitor};
 use jiff::Timestamp;
 use jiff::civil::Date;
 
-pub use class::{BuiltinClass, Class, ClassRef, UserMethod};
+pub use class::{BuiltinClass, Class, ClassRef, Field, UserMethod};
 pub use function::{BoundMethod, Builtin, Function, FunctionKind, MethodRef};
 pub use list::List;
 pub use number::Number;
@@ -158,6 +158,24 @@ impl Value {
         }
     }
 
+    /// The name of the value's class (Scala `typeName`), e.g. `Number`
+    pub fn type_name(&self) -> String {
+        match self {
+            Value::Null => "Null".into(),
+            Value::Unit => "Unit".into(),
+            Value::Bool(_) => "Boolean".into(),
+            Value::Number(..) => "Number".into(),
+            Value::Str(_) => "String".into(),
+            Value::List(_) => "List".into(),
+            Value::Object(o) => o.class().map_or_else(|| "Object".into(), |c| c.name()),
+            Value::Function(_) | Value::Builtin(_) => "Function".into(),
+            Value::BoundMethod(_) => "BoundMethod".into(),
+            Value::Class(_) => "Class".into(),
+            Value::DateTime(_) => "DateTime".into(),
+            Value::Date(_) => "Date".into(),
+        }
+    }
+
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Value::Str(s) => Some(s.as_str()),
@@ -209,6 +227,54 @@ impl From<Str> for Value {
 impl From<f64> for Value {
     fn from(n: f64) -> Self {
         Value::num(n)
+    }
+}
+
+impl From<Number> for Value {
+    fn from(n: Number) -> Self {
+        Value::Number(n, None)
+    }
+}
+
+impl From<i64> for Value {
+    fn from(n: i64) -> Self {
+        Value::num(n)
+    }
+}
+
+impl From<usize> for Value {
+    fn from(n: usize) -> Self {
+        Value::num(n)
+    }
+}
+
+impl From<List> for Value {
+    fn from(xs: List) -> Self {
+        Value::List(xs)
+    }
+}
+
+impl From<Vec<Value>> for Value {
+    fn from(items: Vec<Value>) -> Self {
+        Value::list(items)
+    }
+}
+
+impl From<Object> for Value {
+    fn from(o: Object) -> Self {
+        Value::Object(o)
+    }
+}
+
+impl From<ClassRef> for Value {
+    fn from(c: ClassRef) -> Self {
+        Value::Class(c)
+    }
+}
+
+impl From<()> for Value {
+    fn from(_: ()) -> Self {
+        Value::Unit
     }
 }
 

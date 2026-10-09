@@ -252,7 +252,7 @@ fn function_header_does_not_infer_semis_but_body_does() {
 
 #[test]
 fn class_body_methods_separated_by_newlines() {
-    let file = parse("class Box n\n{\n  def increment = n += 1\n  def get = n\n}", Mode::Mash).source_file();
+    let file = parse("class Box n {\n  def increment = n += 1\n  def get = n\n}", Mode::Mash).source_file();
     let Expr::ClassDecl(class) = &file.exprs()[0] else {
         panic!()
     };
@@ -263,6 +263,24 @@ fn class_body_methods_separated_by_newlines() {
         .map(|m| m.name_token().unwrap().text().to_string())
         .collect();
     assert_eq!(names, ["increment", "get"]);
+}
+
+/// As in Scala, a newline after a class's name or parameters ends the declaration (so a `{` on the next line
+/// starts a block, not the class body)
+#[test]
+fn newline_ends_a_class_declaration() {
+    for s in ["class A\nA.new", "class A x (y = 1)\nA.new", "class A x\n{ def f = 1 }"] {
+        let exprs = parse(s, Mode::Mash).source_file().exprs();
+        let [Expr::StatementSeq(seq)] = exprs.as_slice() else {
+            panic!("{s:?}: {}", parse(s, Mode::Mash).debug_tree())
+        };
+        let statements = seq.statements();
+        assert_eq!(statements.len(), 2, "{s:?}");
+        let Expr::ClassDecl(class) = &statements[0] else {
+            panic!("{s:?}")
+        };
+        assert!(class.methods().is_empty(), "{s:?}");
+    }
 }
 
 // ---------------------------------------------------------------- invocation, flags, parens

@@ -30,11 +30,7 @@ fn structural_keys() {
     assert!(obj.get(&Value::Object(k2)).is_some());
 }
 
-static PATH: BuiltinClass = BuiltinClass {
-    name: "Path",
-    namespace: "os",
-    parent: None,
-};
+static PATH: BuiltinClass = BuiltinClass::new("os", "Path", None);
 
 #[test]
 fn tags_are_ignored_by_equality() {

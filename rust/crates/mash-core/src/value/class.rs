@@ -6,7 +6,7 @@ use dumpster::{Trace, TraceWith, Visitor, unsync::Gc};
 use super::gc::Tracked;
 use super::{Scope, Tag};
 use crate::ast::{ClassDef, FnDef};
-use crate::function::Params;
+use crate::function::{BuiltinFunction, BuiltinMethod, Params};
 
 /// A class defined in Rust. Static data, never collected.
 pub struct BuiltinClass {
@@ -14,7 +14,20 @@ pub struct BuiltinClass {
     pub name: &'static str,
     /// e.g. `os`
     pub namespace: &'static str,
+    /// None only for `core.Any`
     pub parent: Option<&'static BuiltinClass>,
+    pub summary: &'static str,
+    pub description: Option<&'static str>,
+    pub fields: &'static [Field],
+    pub methods: &'static [&'static dyn BuiltinMethod],
+    pub static_methods: &'static [&'static dyn BuiltinFunction],
+}
+
+/// A field that instances of a builtin class have.
+#[derive(Debug)]
+pub struct Field {
+    pub name: &'static str,
+    pub summary: &'static str,
 }
 
 impl BuiltinClass {
@@ -25,6 +38,32 @@ impl BuiltinClass {
         } else {
             format!("{}.{}", self.namespace, self.name)
         }
+    }
+
+    /// An empty class (fill in with struct update syntax)
+    pub const fn new(namespace: &'static str, name: &'static str, parent: Option<&'static BuiltinClass>) -> Self {
+        BuiltinClass {
+            name,
+            namespace,
+            parent,
+            summary: "",
+            description: None,
+            fields: &[],
+            methods: &[],
+            static_methods: &[],
+        }
+    }
+
+    /// A method of this class (not its parents), by name or alias
+    pub fn method(&self, name: &str) -> Option<&'static dyn BuiltinMethod> {
+        self.methods
+            .iter()
+            .copied()
+            .find(|m| m.name() == name || m.aliases().contains(&name))
+    }
+
+    pub fn static_method(&self, name: &str) -> Option<&'static dyn BuiltinFunction> {
+        self.static_methods.iter().copied().find(|m| m.name() == name)
     }
 
     pub fn is_subclass_of(&'static self, other: &'static BuiltinClass) -> bool {

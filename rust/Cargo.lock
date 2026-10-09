@@ -257,13 +257,24 @@ dependencies = [
  "dumpster",
  "indexmap",
  "jiff",
+ "mash-macros",
  "mash-syntax",
+]
+
+[[package]]
+name = "mash-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]
 name = "mash-os"
 version = "0.1.0"
 dependencies = [
+ "jiff",
  "mash-core",
 ]
 
