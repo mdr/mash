@@ -9,6 +9,9 @@ publish.workspace = true
 
 [dependencies]
 mash-syntax.workspace = true
+dumpster.workspace = true
+indexmap.workspace = true
+jiff.workspace = true
 
 [lints]
 workspace = true

@@ -3,4 +3,7 @@
 //! This crate must build for `wasm32-unknown-unknown`: it never touches the OS directly. Everything
 //! platform-specific goes through [`platform::Platform`].
 
+pub mod ast;
+pub mod function;
 pub mod platform;
+pub mod value;
