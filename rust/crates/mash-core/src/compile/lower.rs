@@ -377,6 +377,15 @@ impl<'a> Lowerer<'a> {
     /// `import a.b.c` imports `c` from `a.b`; `import a.b._` imports everything from `a.b`
     fn import(&mut self, i: &ast::ImportStmt) -> ExprKind {
         let mut segments = i.segment_tokens();
+        if let [only] = segments.as_slice() {
+            // Incomplete (`import foo`): keep the name as an expression, for completion
+            let expr = self.node(Some(only.text_range()), ExprKind::Identifier(only.text().into()));
+            return ExprKind::Import {
+                expr,
+                name: None,
+                name_range: None,
+            };
+        }
         let Some(last) = segments.pop() else {
             return ExprKind::Missing;
         };

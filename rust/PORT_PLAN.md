@@ -1,7 +1,8 @@
 # Mash → Rust: port plan
 
-Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0, M1 and M2
-done (syntax, values, evaluator, core and collections builtins, `mash -e`/script runner); next is M3. Spikes live
+Decisions agreed so far for porting Mash (Scala 2.12, ~37k lines) to Rust. Status as of 2026-10-09: M0–M3
+done (syntax, values, evaluator, the pure standard library, type inference, completion and invocation assistance,
+`mash -e`/script runner); next is the GC swap, then M4. Spikes live
 locally in `rust/spikes/` (not committed); each has a `FINDINGS.md`. `rust/TESTS.md` tracks which Scala tests are
 ported.
 
@@ -228,9 +229,27 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
 | `mash FILE`, `mash -e EXPR` | Not supported | Run a script / evaluate an expression (`mash -c` still runs via `sh`, as in Scala) |
+| String indexes and lengths | UTF-16 units (`'😀'.length` is 2) | Characters (1), as agreed |
+| `replace --regex` replacement | Java syntax (`$1x` is group 1 then `x`) | Rust syntax (`${1}x`; `$1x` is a group named `1x`), as agreed |
+| `matches -i`, `grep -i` | ASCII-only case folding | Unicode case folding, as agreed |
+| `'abc'.split ''` | `[a, b, c, ]` | `['', 'a', 'b', 'c', '']` (Rust semantics, as agreed) |
+| `trim` | Java `trim` (chars ≤ U+0020) | Unicode whitespace |
+| `now + 1.months` | Throws (unsupported unit) | Calendar arithmetic in the local zone, as agreed |
+| `1.5.hours.fromNow` | Truncates to 1 hour | Exact; fractional days/weeks/months are errors |
+| `now.format` | Locale long style (`9 October 2026 at 16:28:45 BST`) | Fixed English with zone abbreviation (`Fri 9 Oct 2026 12:00:00 UTC`), round-trips via `toDateTime` |
+| `fuzzy` | Rounds (`47.hours` ago is "2 days ago") | Largest whole unit, truncated ("1 day ago"), as agreed |
+| `toDateTime` | natty (garbage on partial matches) | Strict formats → normaliser → `parse_datetime`; never panics, null on failure |
+| `json.fromString` | Lenient (Gson accepts `{a: 1}`) | Strict JSON; clean error messages |
+| `json.prettyPrint` of NaN/Infinity | Writes `NaN` (invalid JSON) | Error, as agreed; cyclic values are errors too |
+| `xml.fromString` | Coerces numbers/booleans, hash field order | Text kept as strings, document order, as agreed |
+| `html.escape` | HTML 4 named entities for non-ASCII | Only `& < > "` |
+| Errors from Java exceptions (`parseIso8601`, `base64.decode`, `1.to 5 --step=0`, bad regex, …) | "Unexpected error … SomeJavaException" | A clean Mash error message |
+| `random.int` bounds | 32-bit | 64-bit (no 32-bit limit, as agreed) |
+| `mash.eval` errors | Printed; returns unit | Propagate |
+| Path completion under `/` | Common-prefix length off by one | Correct (affects only highlighting/common insertion) |
 
-Not yet ported, pending later milestones: `grep -r` (regex, M3), `timeTaken` durations are untagged until the time
-namespace exists (M3).
+Not yet ported, pending later milestones (they need the OS): `hash.sha256` of a file's contents, `json.read`/`write`/
+http, `xml.read`, `String.glob`, `mash.source`/`reload`, `Url.open`, `Host.ipAddresses` (M5).
 
 ## Post-port backlog (language changes, deferred)
 
