@@ -1,6 +1,7 @@
 //! Help for functions, methods, classes and fields (`foo?`, `help foo`): Scala `HelpCreator` and the help
 //! classes.
 
+use crate::builtins::constructor::FieldsConstructor;
 use crate::infer::Type;
 use mash_macros::builtin;
 
@@ -9,7 +10,14 @@ use crate::value::{BoundMethod, BuiltinClass, ClassRef, Field, MethodRef, Object
 
 use super::OBJECT_CLASS;
 
+static METHOD_HELP_NEW: FieldsConstructor = FieldsConstructor::new(
+    "core.help.MethodHelp",
+    &METHOD_HELP_CLASS,
+    "Construct a new MethodHelp object",
+);
+
 pub static METHOD_HELP_CLASS: BuiltinClass = BuiltinClass {
+    static_methods: &[&METHOD_HELP_NEW],
     summary: "Help documentation for a method",
     fields: &[
         Field {
@@ -26,7 +34,14 @@ pub static METHOD_HELP_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("core.help", "MethodHelp", Some(&OBJECT_CLASS))
 };
 
+static FIELD_HELP_NEW: FieldsConstructor = FieldsConstructor::new(
+    "core.help.FieldHelp",
+    &FIELD_HELP_CLASS,
+    "Construct a new FieldHelp object",
+);
+
 pub static FIELD_HELP_CLASS: BuiltinClass = BuiltinClass {
+    static_methods: &[&FIELD_HELP_NEW],
     summary: "Help documentation for a field",
     fields: &[
         Field {
@@ -43,7 +58,14 @@ pub static FIELD_HELP_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("core.help", "FieldHelp", Some(&OBJECT_CLASS))
 };
 
+static PARAMETER_HELP_NEW: FieldsConstructor = FieldsConstructor::new(
+    "core.help.ParameterHelp",
+    &PARAMETER_HELP_CLASS,
+    "Construct a new ParameterHelp object",
+);
+
 pub static PARAMETER_HELP_CLASS: BuiltinClass = BuiltinClass {
+    static_methods: &[&PARAMETER_HELP_NEW],
     summary: "Help documentation for parameters",
     fields: &[
         Field {

@@ -1,5 +1,6 @@
 //! The `maths` namespace.
 
+use crate::builtins::constructor::FieldsConstructor;
 use crate::infer::Type;
 use mash_macros::builtin;
 
@@ -10,7 +11,11 @@ use crate::value::{BuiltinClass, ClassRef, Field, Number, Object, Value};
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LogFunction, &SquareRootFunction, &StatsFunction];
 
+static STATS_NEW: FieldsConstructor =
+    FieldsConstructor::new("maths.Stats", &STATS_CLASS, "Construct a new Stats object");
+
 pub static STATS_CLASS: BuiltinClass = BuiltinClass {
+    static_methods: &[&STATS_NEW],
     summary: "Statistics for a data set",
     fields: &[
         Field {

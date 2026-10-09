@@ -2,6 +2,7 @@
 //! `StandardEnvironment`, `NamespaceCreator`).
 
 pub mod collections;
+mod constructor;
 pub mod core;
 pub mod encoding;
 pub mod json;

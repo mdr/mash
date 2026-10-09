@@ -9,13 +9,11 @@ mod path_methods;
 pub(crate) mod paths;
 pub(crate) mod process;
 
-use std::sync::OnceLock;
+use crate::function::BuiltinFunction;
+use crate::infer::Type;
+use crate::value::{BuiltinClass, Field};
 
-use crate::eval::{Ctx, R};
-use crate::function::{Args, BuiltinFunction, Param, Params};
-use crate::infer::{Inferencer, Type, TypedArgs};
-use crate::value::{BuiltinClass, ClassRef, Field, Object, Value};
-
+use super::constructor::FieldsConstructor;
 use super::core::{ANY_CLASS, OBJECT_CLASS};
 
 pub use dirs::WorkingDirectoryStack;
@@ -227,69 +225,23 @@ pub static PROCESS_RESULT_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("os", "ProcessResult", Some(&OBJECT_CLASS))
 };
 
-static PATH_SUMMARY_NEW: FieldsConstructor = FieldsConstructor::new("os.PathSummary", &PATH_SUMMARY_CLASS);
-static PERMISSIONS_NEW: FieldsConstructor = FieldsConstructor::new("os.Permissions", &PERMISSIONS_CLASS);
-static PERMISSIONS_SECTION_NEW: FieldsConstructor =
-    FieldsConstructor::new("os.PermissionsSection", &PERMISSIONS_SECTION_CLASS);
-static PROCESS_RESULT_NEW: FieldsConstructor = FieldsConstructor::new("os.ProcessResult", &PROCESS_RESULT_CLASS);
-
-/// A builtin class's `new` static method, with a parameter for each field (Scala `NewStaticMethod`).
-pub(crate) struct FieldsConstructor {
-    namespace: &'static str,
-    class: &'static BuiltinClass,
-    params: OnceLock<Params>,
-}
-
-impl FieldsConstructor {
-    pub(crate) const fn new(namespace: &'static str, class: &'static BuiltinClass) -> Self {
-        FieldsConstructor {
-            namespace,
-            class,
-            params: OnceLock::new(),
-        }
-    }
-}
-
-impl std::fmt::Debug for FieldsConstructor {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}.new", self.namespace)
-    }
-}
-
-impl BuiltinFunction for FieldsConstructor {
-    fn name(&self) -> &'static str {
-        "new"
-    }
-
-    fn namespace(&self) -> &'static str {
-        self.namespace
-    }
-
-    fn params(&self) -> &Params {
-        self.params.get_or_init(|| {
-            Params::new(
-                self.class
-                    .fields
-                    .iter()
-                    .map(|field| Param::named(field.name).summary(field.summary))
-                    .collect(),
-            )
-        })
-    }
-
-    fn call(&self, _ctx: &mut Ctx, args: &Args) -> R<Value> {
-        let object = Object::with_class(Some(ClassRef::Builtin(self.class)));
-        for field in self.class.fields {
-            object.set_str(field.name, args.value(field.name).clone());
-        }
-        Ok(Value::Object(object))
-    }
-
-    fn infer(&self, _: &mut Inferencer<'_>, _: &TypedArgs) -> Option<Type> {
-        Some(Type::Instance(self.class))
-    }
-
-    fn summary(&self) -> &'static str {
-        "Construct a new object of this class"
-    }
-}
+static PATH_SUMMARY_NEW: FieldsConstructor = FieldsConstructor::new(
+    "os.PathSummary",
+    &PATH_SUMMARY_CLASS,
+    "Construct a new PathSummary object",
+);
+static PERMISSIONS_NEW: FieldsConstructor = FieldsConstructor::new(
+    "os.Permissions",
+    &PERMISSIONS_CLASS,
+    "Construct a new Permissions object",
+);
+static PERMISSIONS_SECTION_NEW: FieldsConstructor = FieldsConstructor::new(
+    "os.PermissionsSection",
+    &PERMISSIONS_SECTION_CLASS,
+    "Construct a new PermissionsSection object",
+);
+static PROCESS_RESULT_NEW: FieldsConstructor = FieldsConstructor::new(
+    "os.ProcessResult",
+    &PROCESS_RESULT_CLASS,
+    "Construct a new ProcessResult object",
+);

@@ -482,7 +482,6 @@ PARAMETERS
     );
 }
 
-/// Scala also lists the static method `new`, which the Rust port's `maths.Stats` doesn't have (yet)
 #[test]
 fn class_help() {
     check(
@@ -500,7 +499,10 @@ FIELDS
     mean - Average value in the data set
     standardDeviation - Standard deviation
     median - Median value of the data set
-    count - Number of elements in the data set"#,
+    count - Number of elements in the data set
+
+STATIC METHODS
+    new - Construct a new Stats object"#,
     );
 }
 

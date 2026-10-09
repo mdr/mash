@@ -11,6 +11,7 @@ mod regex;
 mod string;
 mod thread;
 
+use crate::builtins::constructor::FieldsConstructor;
 use crate::function::{BuiltinFunction, BuiltinMethod};
 use crate::infer::Type;
 use crate::value::{BuiltinClass, Field};
@@ -121,7 +122,14 @@ pub static NO_ARG_CLASS: BuiltinClass = BuiltinClass {
     ..BuiltinClass::new("core", "NoArg", Some(&OBJECT_CLASS))
 };
 
+static TIMED_RESULT_NEW: FieldsConstructor = FieldsConstructor::new(
+    "core.TimedResult",
+    &TIMED_RESULT_CLASS,
+    "Construct a new TimedResult object",
+);
+
 pub static TIMED_RESULT_CLASS: BuiltinClass = BuiltinClass {
+    static_methods: &[&TIMED_RESULT_NEW],
     summary: "The result of a timed execution",
     fields: &[
         Field {
