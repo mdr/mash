@@ -12,6 +12,7 @@ mod character;
 mod classes;
 mod comparison;
 mod core_builtins;
+mod count_by;
 mod date_time;
 mod default_arguments;
 mod doc_comments;

@@ -19,6 +19,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
     &collections::ALL_BUT_LAST_METHOD,
     &collections::ANY_METHOD,
     &collections::CHUNKED_METHOD,
+    &collections::COUNT_BY_METHOD,
     &collections::COUNT_MATCHES_METHOD,
     &collections::EACH_METHOD,
     &collections::FLAT_MAP_METHOD,

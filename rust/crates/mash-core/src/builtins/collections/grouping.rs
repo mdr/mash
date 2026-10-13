@@ -1,4 +1,4 @@
-//! `groupBy` and the `Group` class.
+//! `groupBy`, `countBy` and the `Group` class.
 
 use crate::infer::Type;
 use indexmap::IndexMap;
@@ -123,36 +123,13 @@ pub(crate) fn group_by(
     )]
     select: Option<Callable>,
 ) -> R<Value> {
-    let items = sequence.items();
-    let mut by_key: IndexMap<Value, Vec<Value>> = IndexMap::new();
-    for item in &items {
-        let key = discriminator.call1(ctx, item.clone())?;
-        by_key.entry(key).or_default().push(item.clone());
-    }
-    let null_key = match &include_null {
-        Value::Bool(true) => Value::Null,
-        other => other.clone(),
-    };
-    let all_key = match &all {
-        Value::Bool(true) => Value::str(DEFAULT_ALL_KEY),
-        other => other.clone(),
-    };
-    let select_all = |ctx: &mut Ctx, values: Vec<Value>| -> R<Vec<Value>> {
-        match &select {
-            Some(f) => values.into_iter().map(|v| f.call1(ctx, v)).collect(),
-            None => Ok(values),
-        }
-    };
-    let mut result: Vec<(Value, Vec<Value>)> = vec![];
-    for (key, values) in by_key {
-        if key.is_null() && !include_null.is_truthy() {
-            continue;
-        }
-        let key = if key.is_null() { null_key.clone() } else { key };
-        result.push((key, select_all(ctx, values)?));
-    }
-    if all.is_truthy() {
-        result.push((all_key, select_all(ctx, items)?));
+    let mut result = vec![];
+    for (key, values) in keyed_groups(ctx, &discriminator, sequence.items(), &include_null, &all)? {
+        let values = match &select {
+            Some(f) => values.into_iter().map(|v| f.call1(ctx, v)).collect::<R<Vec<_>>>()?,
+            None => values,
+        };
+        result.push((key, values));
     }
     Ok(if groups {
         Value::List(result.into_iter().map(|(k, vs)| group(k, vs)).collect::<List>())
@@ -160,6 +137,112 @@ pub(crate) fn group_by(
         let obj = Object::new();
         for (k, vs) in result {
             obj.set(k, Value::list(vs));
+        }
+        Value::Object(obj)
+    })
+}
+
+/// The elements of `items` grouped by key, in the order each key is first seen: null keys are left out unless
+/// `include_null` is truthy (when a non-boolean replaces the null key), and a truthy `all` adds a group of
+/// everything (keyed "All", or by `all` if it isn't a boolean). Shared by `groupBy` and `countBy`.
+fn keyed_groups(
+    ctx: &mut Ctx,
+    discriminator: &Callable,
+    items: Vec<Value>,
+    include_null: &Value,
+    all: &Value,
+) -> R<Vec<(Value, Vec<Value>)>> {
+    let mut by_key: IndexMap<Value, Vec<Value>> = IndexMap::new();
+    for item in &items {
+        let key = discriminator.call1(ctx, item.clone())?;
+        by_key.entry(key).or_default().push(item.clone());
+    }
+    let null_key = match include_null {
+        Value::Bool(true) => Value::Null,
+        other => other.clone(),
+    };
+    let mut result = vec![];
+    for (key, values) in by_key {
+        if key.is_null() && !include_null.is_truthy() {
+            continue;
+        }
+        let key = if key.is_null() { null_key.clone() } else { key };
+        result.push((key, values));
+    }
+    if all.is_truthy() {
+        let all_key = match all {
+            Value::Bool(true) => Value::str(DEFAULT_ALL_KEY),
+            other => other.clone(),
+        };
+        result.push((all_key, items));
+    }
+    Ok(result)
+}
+
+/// Count the elements of a sequence sharing a common key
+///
+/// Counts the elements of the input sequence by key, as determined by the given discriminator function. The
+/// counts are returned, by default, as an Object, with a field per key (in the order each key is first seen),
+/// with the number of elements as its value.
+///
+/// If the --groups flag is true, a list of objects with fields key and count is returned instead, one for each
+/// key: a table, ready to sort or filter.
+///
+/// Examples:
+/// <mash>
+///   countBy identity ["a", "b", "a", "c", "a"]                    # { a: 3, b: 1, c: 1 }
+///   "mississippi".countBy identity                                # { m: 1, i: 4, s: 4, p: 2 }
+///   ls | countBy (.extension) --groups | sortBy (.count) --descending
+/// </mash>
+#[builtin(namespace = "collections", infer = super::inference::infer_count_by, completion = super::inference::complete_map_function)]
+pub(crate) fn count_by(
+    ctx: &mut Ctx,
+    #[param(
+        "Output a List of objects with key and count fields (default false)",
+        short = 'g',
+        boolean_flag,
+        description = "If true, output a list of objects, one for each key, with fields key and count. If false,\n  output a single object with a field for each key."
+    )]
+    groups: bool,
+    #[param(
+        "Include a count of all the elements (default false)",
+        short = 't',
+        flag,
+        default = false,
+        flag_value_name = "key",
+        description = "If true, include an additional count of all the elements.\nIf false, this count is not included.\nIf a non-boolean argument is given, that is used as its key.\nOtherwise, a default key of \"All\" is used. "
+    )]
+    all: Value,
+    #[param(
+        "Count elements that have null keys (default false)",
+        short = 'n',
+        flag,
+        default = false,
+        flag_value_name = "key",
+        description = "If true, count the elements with null keys, if there are any.\nIf false, leave them out.\nIf a non-boolean argument is given, that will be used as their key instead of null."
+    )]
+    include_null: Value,
+    #[param("Function to apply to elements of the sequence to determine a key")] discriminator: Callable,
+    #[param("Sequence whose elements to count")] sequence: Sequence,
+) -> R<Value> {
+    let counts = keyed_groups(ctx, &discriminator, sequence.items(), &include_null, &all)?
+        .into_iter()
+        .map(|(key, values)| (key, Value::from(values.len())));
+    Ok(if groups {
+        Value::List(
+            counts
+                .map(|(key, count)| {
+                    let row = Object::new();
+                    row.set_str("key", key);
+                    row.set_str("count", count);
+                    Value::Object(row)
+                })
+                .collect::<List>(),
+        )
+    } else {
+        let obj = Object::new();
+        for (key, count) in counts {
+            obj.set(key, count);
         }
         Value::Object(obj)
     })

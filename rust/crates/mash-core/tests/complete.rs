@@ -346,6 +346,8 @@ const CASES: &[Case] = &[
     Case::contains(r#"'1234'.all (.isD▶"#, r#"isDigit"#),
     Case::contains(r#"'1234'[0].isD▶"#, r#"isDigit"#),
     Case::contains(r#"ls | groupBy (.perm▶"#, r#"permissions"#),
+    Case::contains(r#"ls | countBy (.perm▶"#, r#"permissions"#),
+    Case::contains(r#"ls | countBy --groups (.extension) | sortBy (.co▶"#, r#"count"#),
     // New: the file functions of the data namespaces complete files; members of http responses and hosts
     Case::files(
         &[r#"/file.txt"#],

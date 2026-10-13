@@ -6,6 +6,29 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#" ['c', 'a', 'b'].sort "#, r#"['a', 'b', 'c']"#),
     Case::eq(r#"[1, null, 2].sort"#, r#"[null, 1, 2]"#),
     Case::eq(r#"sort [1, 3, 2] --descending"#, r#"[3, 2, 1]"#),
+    // New: descending sorts are stable, keeping equal elements in their original order (Scala reversed them)
+    Case::eq(
+        r#"[{ k: 'a', n: 1 }, { k: 'b', n: 1 }, { k: 'c', n: 2 }] | sortBy (.n) --descending | map (.k)"#,
+        r#"['c', 'a', 'b']"#,
+    ),
+    Case::eq(
+        r#"[{ k: 'a', n: 1 }, { k: 'b', n: 2 }, { k: 'c', n: 1 }].sortBy (.n) --descending | map (.k)"#,
+        r#"['b', 'a', 'c']"#,
+    ),
+    Case::eq(
+        r#"['a10', 'b2', 'a2', 'c1'] | sortBy first --naturalOrder --descending"#,
+        r#"['c1', 'b2', 'a10', 'a2']"#,
+    ),
+    Case::eq(r#"'abcb' | sortBy (c => c == 'b') --descending"#, r#"'bbac'"#),
+    Case::eq(
+        r#"{ a: 1, b: 2, c: 1 }.sortBy (f v => v) --descending | .fields.name.join"#,
+        r#"'bac'"#,
+    ),
+    // Two passes sort by a second key, as the first pass's order survives ties in the second
+    Case::eq(
+        r#"[{ k: 'b', n: 1 }, { k: 'c', n: 2 }, { k: 'a', n: 1 }] | sortBy (.k) | sortBy (.n) --descending | map (.k)"#,
+        r#"['c', 'a', 'b']"#,
+    ),
     Case::eq(
         r#"sort ['a1.txt', 'a10.txt', 'a2.txt'] --naturalOrder"#,
         r#"['a1.txt', 'a2.txt', 'a10.txt']"#,

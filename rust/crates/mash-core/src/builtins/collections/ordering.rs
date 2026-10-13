@@ -54,8 +54,13 @@ pub(crate) fn sort(
         SequenceLike::Object(obj) => {
             let entries = obj.entries();
             let keys: Vec<Value> = entries.iter().map(|(k, _)| k.clone()).collect();
-            let order = sort_order(ctx, keys.iter().map(|k| vec![k.clone()]).collect(), natural_order)?;
-            Value::Object(object_from(arrange(&entries, order, descending)))
+            let order = sort_order(
+                ctx,
+                keys.iter().map(|k| vec![k.clone()]).collect(),
+                descending,
+                natural_order,
+            )?;
+            Value::Object(object_from(arrange(&entries, order)))
         }
     })
 }
@@ -128,8 +133,8 @@ fn sort_by_attributes(
         }
         keys.push(key);
     }
-    let order = sort_order(ctx, keys, natural_order)?;
-    Ok(arrange(&items, order, descending))
+    let order = sort_order(ctx, keys, descending, natural_order)?;
+    Ok(arrange(&items, order))
 }
 
 /// Sort an object's fields by attributes of each field. An attribute function taking two arguments is given
@@ -155,19 +160,22 @@ pub(crate) fn sort_object_by(
         }
         keys.push(key);
     }
-    let order = sort_order(ctx, keys, natural_order)?;
-    Ok(object_from(arrange(&entries, order, descending)))
+    let order = sort_order(ctx, keys, descending, natural_order)?;
+    Ok(object_from(arrange(&entries, order)))
 }
 
 /// Sort values with the standard (or natural) ordering
 pub(crate) fn sort_values(ctx: &mut Ctx, items: Vec<Value>, descending: bool, natural_order: bool) -> R<Vec<Value>> {
     let keys = items.iter().map(|v| vec![v.clone()]).collect();
-    let order = sort_order(ctx, keys, natural_order)?;
-    Ok(arrange(&items, order, descending))
+    let order = sort_order(ctx, keys, descending, natural_order)?;
+    Ok(arrange(&items, order))
 }
 
-/// The indexes of `keys` in sorted order (a stable sort). Natural ordering compares the keys' string forms.
-fn sort_order(ctx: &mut Ctx, keys: Vec<Vec<Value>>, natural_order: bool) -> R<Vec<usize>> {
+/// The indexes of `keys` in sorted order. The sort is stable either way: descending flips the comparison, so
+/// that equal keys stay in their original order (Scala reversed an ascending sort, which reversed them too).
+/// Natural ordering compares the keys' string forms.
+fn sort_order(ctx: &mut Ctx, keys: Vec<Vec<Value>>, descending: bool, natural_order: bool) -> R<Vec<usize>> {
+    let direction = |o: Ordering| if descending { o.reverse() } else { o };
     let mut order: Vec<usize> = (0..keys.len()).collect();
     if natural_order {
         let mut strings = Vec::with_capacity(keys.len());
@@ -180,26 +188,24 @@ fn sort_order(ctx: &mut Ctx, keys: Vec<Vec<Value>>, natural_order: bool) -> R<Ve
         }
         order.sort_by(|&a, &b| {
             let (xs, ys) = (&strings[a], &strings[b]);
-            xs.iter()
-                .zip(ys)
-                .map(|(x, y)| natural_cmp(x, y))
-                .find(|o| o.is_ne())
-                .unwrap_or_else(|| xs.len().cmp(&ys.len()))
+            direction(
+                xs.iter()
+                    .zip(ys)
+                    .map(|(x, y)| natural_cmp(x, y))
+                    .find(|o| o.is_ne())
+                    .unwrap_or_else(|| xs.len().cmp(&ys.len())),
+            )
         });
     } else {
         let tz = ctx.time_zone();
-        order.sort_by(|&a, &b| compare_lists(&keys[a], &keys[b], &tz));
+        order.sort_by(|&a, &b| direction(compare_lists(&keys[a], &keys[b], &tz)));
     }
     Ok(order)
 }
 
-/// The items in `order`, reversed if `descending` (Scala sorts, then reverses)
-fn arrange<T: Clone>(items: &[T], order: Vec<usize>, descending: bool) -> Vec<T> {
-    let mut sorted: Vec<T> = order.into_iter().map(|i| items[i].clone()).collect();
-    if descending {
-        sorted.reverse();
-    }
-    sorted
+/// The items in `order`
+fn arrange<T: Clone>(items: &[T], order: Vec<usize>) -> Vec<T> {
+    order.into_iter().map(|i| items[i].clone()).collect()
 }
 
 fn object_from(entries: Vec<(Value, Value)>) -> Object {

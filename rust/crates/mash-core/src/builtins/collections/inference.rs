@@ -283,6 +283,22 @@ pub(crate) fn infer_group_by(inferencer: &mut Inferencer<'_>, params: &Params, a
     }
 }
 
+/// An object of counts, or with `--groups`, a list of `{ key, count }` rows (the key typed by the discriminator)
+pub(crate) fn infer_count_by(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    let bound = args.bind(params);
+    let sequence = bound.ty(params, "sequence");
+    let groups = bound.value(params, "groups").is_some_and(|v| v.is_truthy());
+    let key = mapped_type(inferencer, info(&bound, params, "discriminator"), sequence.as_ref());
+    if groups {
+        Some(Type::seq(Type::object([
+            (Rc::from("key"), key.unwrap_or(Type::ANY)),
+            (Rc::from("count"), Type::NUMBER),
+        ])))
+    } else {
+        Some(Type::OBJECT)
+    }
+}
+
 pub(crate) fn infer_transpose(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
     match args.bind(params).ty(params, "sequence")? {
         Type::Seq(element) => Some(match &*element {

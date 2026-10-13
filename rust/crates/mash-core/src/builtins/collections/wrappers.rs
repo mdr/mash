@@ -1,7 +1,7 @@
 //! List-method wrappers and registration lists for the ordering, grouping, selection and List-specific builtins.
 
 use super::Methodised;
-use super::grouping::GroupByFunction;
+use super::grouping::{CountByFunction, GroupByFunction};
 use super::list_methods::ListNewFunction;
 use super::ordering::{MaxByFunction, MaxFunction, MinByFunction, MinFunction, SortByFunction, SortFunction};
 use super::select::{DeselectFunction, SelectFunction};
@@ -9,6 +9,7 @@ use super::transpose::TransposeFunction;
 use crate::function::BuiltinFunction;
 
 pub(crate) const ORDERING_FUNCTIONS: &[&dyn BuiltinFunction] = &[
+    &CountByFunction,
     &DeselectFunction,
     &GroupByFunction,
     &MaxByFunction,
@@ -21,6 +22,7 @@ pub(crate) const ORDERING_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &TransposeFunction,
 ];
 
+pub(crate) static COUNT_BY_METHOD: Methodised = Methodised::new(&CountByFunction, "sequence", &[], false);
 pub(crate) static GROUP_BY_METHOD: Methodised = Methodised::new(&GroupByFunction, "sequence", &[], false);
 pub(crate) static MAX_BY_METHOD: Methodised = Methodised::new(&MaxByFunction, "sequence", &[], false);
 pub(crate) static MAX_METHOD: Methodised = Methodised::new(&MaxFunction, "items", &[], false);

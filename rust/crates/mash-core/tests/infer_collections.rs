@@ -110,6 +110,13 @@ fn inference() {
             "[{a: core.Number}]",
         ),
         ("[{ a: 1 }] | groupBy (_.a) --groups | first | .count", "core.Number"),
+        ("[{ a: 1 }] | countBy (_.a)", "core.Object"),
+        (
+            "[{ a: 1 }] | countBy (_.a) --groups",
+            "[{key: core.Number, count: core.Number}]",
+        ),
+        ("[{ a: 1 }] | countBy (_.a) --groups | first | .key", "core.Number"),
+        ("'abc'.countBy (c => c) --groups | first | .count", "core.Number"),
         ("[1, 2] | grep 1", "[core.Number]"),
         ("'a`nb' | grep 'a'", "[core.String]"),
         ("{ a: 1 } | grep 'a'", "core.Object"),
