@@ -108,7 +108,11 @@ fn bless(target: Object, args: &Args, #[param("Class to associate with this obje
     let Value::Class(class) = class else {
         return Err(args.invalid("class", &format!("Must be a class, but was a {}", class.type_name())));
     };
-    if is_subclass_of(&class, &ClassRef::Builtin(&OBJECT_CLASS)) {
+    // As Class.bless: an object can't become a String or Number (Scala allowed it, making broken values)
+    if !is_subclass_of(&class, &ClassRef::Builtin(&OBJECT_CLASS)) {
+        return Err(MashError::new("Only object classes can be used to bless values"));
+    }
+    {
         let missing: Vec<String> = class_field_names(&class)
             .into_iter()
             .filter(|name| !target.contains_str(name))

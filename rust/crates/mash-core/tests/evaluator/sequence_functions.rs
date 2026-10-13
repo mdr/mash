@@ -139,6 +139,9 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"'abcba' | unique"#, r#"'abc'"#),
     Case::eq(r#"'abcba'.unique"#, r#"'abc'"#),
     Case::eq(r#"zip [1, 2, 3] [4, 5]"#, r#"[[1, 4], [2, 5]]"#),
+    // New: reduce takes any function value, as other higher-order functions do (Scala: only functions)
+    Case::eq(r#"reduce 'x'.contains [1]"#, r#"1"#),
+    Case::eq(r#"reduce (a b => [a, b].max) [3, 7, 2]"#, r#"7"#),
 ];
 
 #[test]

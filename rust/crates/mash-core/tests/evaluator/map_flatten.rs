@@ -60,6 +60,10 @@ pub(crate) const CASES: &[Case] = &[
         r#"{ apple: 1 } | flatMap (f v => { (f): v, (f.reverse): v })"#,
         r#"{ apple: 1, elppa: 1 }"#,
     ),
+    // New: flatMap of an object flattens the results for its fields (Scala didn't: it was map)
+    Case::eq(r#"flatMap (k v => [k, v]) { a: 1, b: 2 }"#, r#"['a', 1, 'b', 2]"#),
+    Case::eq(r#"{ a: 1, b: 2 }.flatMap (k v => [v])"#, r#"[1, 2]"#),
+    Case::eq(r#"flatMap (k v => [k]) {}"#, r#"{}"#),
 ];
 
 #[test]

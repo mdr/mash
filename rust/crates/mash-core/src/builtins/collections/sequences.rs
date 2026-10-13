@@ -465,7 +465,14 @@ pub fn flat_map(
     #[param("Sequence to map over")] sequence: Value,
 ) -> R<Value> {
     let items = match sequence_like(ctx, args, "sequence")? {
-        SequenceLike::Object(obj) => return map_object(ctx, args, "f", &f, &obj),
+        // The results for each field, flattened (Scala didn't flatten them, so it was `map`)
+        SequenceLike::Object(obj) => {
+            let mapped: Vec<Value> = map_fields(ctx, args, "f", &f, &obj)?
+                .into_iter()
+                .map(|(_, _, result)| result)
+                .collect();
+            return flatten_values(mapped, &sequence);
+        }
         SequenceLike::List(items) => items,
         SequenceLike::Str(ref s) => characters(s),
     };
@@ -586,7 +593,11 @@ pub fn join(
 pub fn reduce(
     ctx: &mut Ctx,
     args: &Args,
-    #[param("Function to accumulate values. Must have two arguments, first the ")] accumulator: Value,
+    #[param(
+        "Function to accumulate values",
+        description = "Called with two arguments: the value accumulated so far, and the next element."
+    )]
+    accumulator: Callable,
     #[param("Initial value")] initial: Option<Value>,
     #[param("Sequence of items to reduce")] sequence: Sequence,
 ) -> R<Value> {
@@ -597,14 +608,8 @@ pub fn reduce(
             .next()
             .ok_or_else(|| args.invalid("sequence", "Empty sequence and no initial value provided"))?,
     };
-    if !matches!(accumulator, Value::Function(_) | Value::Builtin(_)) {
-        return Err(args.invalid(
-            "accumulator",
-            &format!("Invalid accumulator function of type {}", accumulator.type_name()),
-        ));
-    }
     for item in items {
-        acc = ctx.call_values(&accumulator, vec![acc, item])?;
+        acc = accumulator.call(ctx, vec![acc, item])?;
     }
     Ok(acc)
 }

@@ -173,25 +173,22 @@ pub(crate) fn sort_values(ctx: &mut Ctx, items: Vec<Value>, descending: bool, na
 
 /// The indexes of `keys` in sorted order. The sort is stable either way: descending flips the comparison, so
 /// that equal keys stay in their original order (Scala reversed an ascending sort, which reversed them too).
-/// Natural ordering compares the keys' string forms.
+/// Natural ordering compares strings naturally ([`natural_cmp`]), and other values (numbers, null) as usual.
 fn sort_order(ctx: &mut Ctx, keys: Vec<Vec<Value>>, descending: bool, natural_order: bool) -> R<Vec<usize>> {
     let direction = |o: Ordering| if descending { o.reverse() } else { o };
     let mut order: Vec<usize> = (0..keys.len()).collect();
     if natural_order {
-        let mut strings = Vec::with_capacity(keys.len());
-        for key in &keys {
-            let mut parts = Vec::with_capacity(key.len());
-            for v in key {
-                parts.push(ctx.stringify(v)?);
-            }
-            strings.push(parts);
-        }
+        let tz = ctx.time_zone();
+        let compare_key = |x: &Value, y: &Value| match (x, y) {
+            (Value::Str(x), Value::Str(y)) => natural_cmp(x.as_str(), y.as_str()),
+            _ => compare(x, y, &tz),
+        };
         order.sort_by(|&a, &b| {
-            let (xs, ys) = (&strings[a], &strings[b]);
+            let (xs, ys) = (&keys[a], &keys[b]);
             direction(
                 xs.iter()
                     .zip(ys)
-                    .map(|(x, y)| natural_cmp(x, y))
+                    .map(|(x, y)| compare_key(x, y))
                     .find(|o| o.is_ne())
                     .unwrap_or_else(|| xs.len().cmp(&ys.len())),
             )
@@ -216,43 +213,51 @@ fn object_from(entries: Vec<(Value, Value)>) -> Object {
     obj
 }
 
-/// Natural ("alphanum") string ordering: runs of digits compare numerically, everything else character by
-/// character.
+/// Natural ("alphanum") string ordering: runs of digits compare as numbers, and before any other character in
+/// the same place (as Scala Mash's comparator and GNU `sort -V`: `x1` < `x-1`, `photo09` < `photo 9`); other
+/// characters compare as themselves. Numbers differing only in leading zeros are equal, unless nothing else
+/// differs: then more zeros come first (`x001` < `x01` < `x1`, as GNU `sort -V` and the natord crate).
 pub(crate) fn natural_cmp(a: &str, b: &str) -> Ordering {
     let (a, b): (Vec<char>, Vec<char>) = (a.chars().collect(), b.chars().collect());
     let (mut i, mut j) = (0, 0);
+    let mut zeros_tie = Ordering::Equal;
     while i < a.len() && j < b.len() {
-        if a[i].is_ascii_digit() && b[j].is_ascii_digit() {
-            let start_a = i;
-            while i < a.len() && a[i].is_ascii_digit() {
-                i += 1;
+        match (a[i].is_ascii_digit(), b[j].is_ascii_digit()) {
+            (true, true) => {
+                let start_a = i;
+                while i < a.len() && a[i].is_ascii_digit() {
+                    i += 1;
+                }
+                let start_b = j;
+                while j < b.len() && b[j].is_ascii_digit() {
+                    j += 1;
+                }
+                let digits_a: String = a[start_a..i].iter().collect();
+                let digits_b: String = b[start_b..j].iter().collect();
+                let (trimmed_a, trimmed_b) = (digits_a.trim_start_matches('0'), digits_b.trim_start_matches('0'));
+                let ordering = trimmed_a
+                    .len()
+                    .cmp(&trimmed_b.len())
+                    .then_with(|| trimmed_a.cmp(trimmed_b));
+                if ordering.is_ne() {
+                    return ordering;
+                }
+                if zeros_tie.is_eq() {
+                    zeros_tie = digits_b.len().cmp(&digits_a.len());
+                }
             }
-            let start_b = j;
-            while j < b.len() && b[j].is_ascii_digit() {
-                j += 1;
-            }
-            let digits_a: String = a[start_a..i].iter().collect();
-            let digits_b: String = b[start_b..j].iter().collect();
-            let (trimmed_a, trimmed_b) = (digits_a.trim_start_matches('0'), digits_b.trim_start_matches('0'));
-            // Numbers differing only in leading zeros are equal (as in Scala Mash's comparator)
-            let ordering = trimmed_a
-                .len()
-                .cmp(&trimmed_b.len())
-                .then_with(|| trimmed_a.cmp(trimmed_b));
-            if ordering.is_ne() {
-                return ordering;
-            }
-        } else {
-            match a[i].cmp(&b[j]) {
+            (true, false) => return Ordering::Less,
+            (false, true) => return Ordering::Greater,
+            (false, false) => match a[i].cmp(&b[j]) {
                 Ordering::Equal => {
                     i += 1;
                     j += 1;
                 }
                 other => return other,
-            }
+            },
         }
     }
-    (a.len() - i).cmp(&(b.len() - j))
+    (a.len() - i).cmp(&(b.len() - j)).then(zeros_tie)
 }
 
 fn items_param() -> Param {
@@ -388,7 +393,16 @@ mod tests {
     fn natural_ordering() {
         assert_eq!(natural_cmp("a2.txt", "a10.txt"), Less);
         assert_eq!(natural_cmp("a10", "a2"), Greater);
-        assert_eq!(natural_cmp("a01", "a1"), Equal);
+        // Leading zeros: equal numbers, so only a tie-break (more zeros first)
+        assert_eq!(natural_cmp("a01", "a1"), Less);
+        assert_eq!(natural_cmp("a001", "a01"), Less);
+        assert_eq!(natural_cmp("a01b", "a1c"), Less);
+        assert_eq!(natural_cmp("a1c", "a01b"), Greater);
+        // A number before any other character in the same place (as Scala Mash, and GNU sort -V)
+        assert_eq!(natural_cmp("x1", "x-1"), Less);
+        assert_eq!(natural_cmp("x.5", "x1"), Greater);
+        assert_eq!(natural_cmp("photo09", "photo 9"), Less);
+        assert_eq!(natural_cmp("1", "-"), Less);
         assert_eq!(natural_cmp("a10b2", "a10b10"), Less);
         assert_eq!(natural_cmp("", "1"), Less);
         assert_eq!(natural_cmp("abc", "abd"), Less);

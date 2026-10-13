@@ -88,6 +88,9 @@ pub(crate) const CASES: &[Case] = &[
     Case::throws(r#"42.fields"#),
     Case::eq(r#"{ foo: 42, bar: true }.values"#, r#"[42, true]"#),
     Case::eq(r#"{}.values"#, r#"[]"#),
+    // New: only object classes can bless an object, as Class.bless (Scala made broken values)
+    Case::throws(r#"{ a: 1 }.bless String"#),
+    Case::throws(r#"{ a: 1 }.bless Number"#),
 ];
 
 #[test]

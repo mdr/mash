@@ -33,6 +33,9 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"minBy 'foo' [{ foo: null }, { foo: 42 }]"#, r#"{ foo: 42 }"#),
     Case::eq(r#"minBy length [] --default=0"#, r#"0"#),
     Case::eq(r#"[].minBy length --default=0"#, r#"0"#),
+    // New: a flag that needs a value is an error without one (Scala bound it to true)
+    Case::throws(r#"max [] --default"#),
+    Case::eq(r#"max [] --default=0"#, r#"0"#),
 ];
 
 #[test]

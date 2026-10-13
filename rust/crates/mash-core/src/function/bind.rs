@@ -224,6 +224,14 @@ fn arg_value(ctx: &mut Ctx, param: &Param, arg: &Argument) -> R<Value> {
     match arg {
         Argument::Positional { value, .. } => resolve(ctx, param, value),
         Argument::LongFlag { value: Some(value), .. } => resolve(ctx, param, value),
+        Argument::LongFlag { value: None, .. } | Argument::ShortFlags { .. } if param.flag_value_mandatory => {
+            let name = param.name();
+            let value_name = param.flag_value_name.as_deref().unwrap_or("value");
+            Err(MashError::argument(
+                format!("Flag --{name} needs a value: --{name}=<{value_name}>"),
+                arg.location().cloned(),
+            ))
+        }
         Argument::LongFlag { value: None, .. } | Argument::ShortFlags { .. } => Ok(Value::Bool(true)),
     }
 }

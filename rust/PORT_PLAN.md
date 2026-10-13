@@ -189,7 +189,7 @@ access can't creep into the core.
 | xml | Reimplement org.json's shape rules on `quick-xml`, but keep text as strings (no number/boolean coercion). |
 | users/groups | `getpwent` / `getgrent` / `getpwuid` (via `nix` or `uzers`) on both Linux and macOS. |
 | glob | Per-segment `globset`; `*` skips dotfiles unless the pattern starts with `.`; follow symlinks with loop detection (`walkdir`). |
-| other deps | oshi → `sysinfo`; jnr-posix → `std`/`nix`; gson → `serde_json` (`preserve_order`); commons-csv → `csv`; prettytime → hand-written; commons-math → hand-rolled; natural-comparator → `natord`; lanterna and ant dropped (unused). |
+| other deps | oshi → `sysinfo`; jnr-posix → `std`/`nix`; gson → `serde_json` (`preserve_order`); commons-csv → `csv`; prettytime → hand-written; commons-math → hand-rolled; natural-comparator → hand-written (`natural_cmp`: Scala's order, plus a leading-zeros tie-break; `natord` ignores spaces and orders punctuation before digits); lanterna and ant dropped (unused). |
 
 ## Subprocesses
 
@@ -367,6 +367,11 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `naturalJoin` result order | Undefined (Scala `Set`) | Groups by first appearance in the target |
 | `sort`/`sortBy --descending` with equal keys | Reverses an ascending sort, so equal elements come out in reverse order | Stable: equal elements keep their original order, as in Python (`reverse=True`), .NET `OrderByDescending`, Kotlin `sortedByDescending` and GNU `sort -s -r`; sorting twice then sorts by a second key |
 | `groupBy --all`, `--includeNull` keys | A key that is also a key of the data silently replaces that group; falsy keys (`--all=''`, `--includeNull=0`) ignored | The clash is an error; any key but `false` is used |
+| `sort`/`sortBy --naturalOrder` | Compares string forms of everything (`-10` after `-1`, null as "null"); numbers differing in leading zeros (`x01`, `x1`) tie | Strings compare naturally (a number before other characters, as Scala and GNU `sort -V`), other values as usual; leading-zero ties broken, more zeros first (as GNU `sort -V`) |
+| `flatMap` on an object | Not flattened (the same as `map`) | The results for its fields are flattened |
+| A flag that needs a value, given none (`max [] --default`, `groupBy --select`, `git.push --remote`) | Bound to `true` | Error: "Flag --default needs a value" |
+| `reduce`'s accumulator | Only functions (not bound methods or member names) | Any function value, as other higher-order functions |
+| `Object.bless` with a class that isn't an object class (`String`, `Number`) | Allowed, making broken values | Error, as `Class.bless` |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |

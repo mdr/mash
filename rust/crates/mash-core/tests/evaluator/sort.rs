@@ -68,6 +68,21 @@ pub(crate) const CASES: &[Case] = &[
         r#"{ a: 3, b: 2, d: 1, c: 1 }.sortBy (f v => [v, f]) | .fields.name.join"#,
         r#"'cdba'"#,
     ),
+    // New: natural order puts a number before any other character in the same place (as Scala Mash and GNU
+    // sort -V), breaks ties between numbers differing in leading zeros (more zeros first), and compares values
+    // that aren't strings (numbers, null) as usual (Scala compared their string forms)
+    Case::eq(r#"sort -n ['x-1', 'x1', 'x.5']"#, r#"['x1', 'x-1', 'x.5']"#),
+    Case::eq(
+        r#"sort -n ['photo 9', 'photo 10', 'photo09']"#,
+        r#"['photo09', 'photo 9', 'photo 10']"#,
+    ),
+    Case::eq(
+        r#"sort -n ['x1', 'x01', 'x001', 'x2']"#,
+        r#"['x001', 'x01', 'x1', 'x2']"#,
+    ),
+    Case::eq(r#"sort -n [-1, -10, 2, 1.5, 1.25]"#, r#"[-10, -1, 1.25, 1.5, 2]"#),
+    Case::eq(r#"sort -n ['b', null, 'a10', 'a2']"#, r#"[null, 'a2', 'a10', 'b']"#),
+    Case::eq(r#"sort -n --descending ['a1', 'a10', 'a2']"#, r#"['a10', 'a2', 'a1']"#),
 ];
 
 #[test]

@@ -119,7 +119,8 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"net.urlEncode 'a b~é*'"#, r#"'a+b%7E%C3%A9*'"#),
     // Object methods
     Case::throws(r#"{ a: 1 }.bless 3"#),
-    Case::eq(r#"{ a: 1 }.bless Number | .getClass"#, r#"Number"#),
+    // DIFFERENT: Scala let an object be blessed as a Number, making a value that's neither
+    Case::throws(r#"{ a: 1 }.bless Number | .getClass"#),
     Case::throws(r#"[[1]] | Object.fromPairs"#),
     Case::throws(r#"[1] | Object.fromPairs"#),
     Case::throws(r#"[[1, 2, 3]] | Object.fromPairs 0 5"#),
