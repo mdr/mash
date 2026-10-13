@@ -129,7 +129,20 @@ impl TimeUnit {
         }
     }
 
-    fn plural_name(self) -> &'static str {
+    /// The length of one of this unit in milliseconds: None for months, which vary (a day is taken as 24 hours)
+    pub(crate) fn fixed_millis(self) -> Option<f64> {
+        match self {
+            TimeUnit::Milliseconds => Some(1.0),
+            TimeUnit::Seconds => Some(1_000.0),
+            TimeUnit::Minutes => Some(60_000.0),
+            TimeUnit::Hours => Some(3_600_000.0),
+            TimeUnit::Days => Some(86_400_000.0),
+            TimeUnit::Weeks => Some(604_800_000.0),
+            TimeUnit::Months => None,
+        }
+    }
+
+    pub(crate) fn plural_name(self) -> &'static str {
         match self {
             TimeUnit::Milliseconds => "milliseconds",
             TimeUnit::Seconds => "seconds",

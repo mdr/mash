@@ -376,6 +376,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `'abc'.split ''` | `[a, b, c, ]` | `['', 'a', 'b', 'c', '']` (Rust semantics, as agreed) |
 | `trim` | Java `trim` (chars ≤ U+0020) | Unicode whitespace |
 | `now + 1.months` | Throws (unsupported unit) | Calendar arithmetic in the local zone, as agreed |
+| Arithmetic and comparison of different units of time | Use the numbers, keeping the left unit: `1.days + 3.hours` is `4.days`, `3.days < 2.hours` is true | In the smaller unit: `27.hours`; compared (`<`, `==`, …) by length; months with another unit are an error (`==`: false), as they vary in length |
 | `1.5.hours.fromNow` | Truncates to 1 hour | Exact; fractional days/weeks/months are errors |
 | `now.format` | Locale long style (`9 October 2026 at 16:28:45 BST`) | Fixed English with zone abbreviation (`Fri 9 Oct 2026 12:00:00 UTC`), round-trips via `toDateTime` |
 | `fuzzy` | Rounds (`47.hours` ago is "2 days ago") | Largest whole unit, truncated ("1 day ago"), as agreed |

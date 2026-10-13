@@ -44,6 +44,28 @@ pub(crate) const CASES: &[Case] = &[
     Case::throws(r#"now + 3"#),
     Case::eq(r#"(now + 2.hours) - now"#, r#"7200000"#),
     Case::eq(r#"((now + 2.hours) - now).tag"#, r#"time.Milliseconds"#),
+    // New: amounts in different units of time combine in the smaller unit, and compare by length (Scala kept
+    // the left operand's unit, so 1.days + 3.hours was 4 days)
+    Case::eq(r#"1.days + 3.hours"#, r#"27.hours"#),
+    Case::eq(r#"(1.days + 3.hours).tag"#, r#"time.Hours"#),
+    Case::eq(r#"30.minutes + 1.hours"#, r#"90.minutes"#),
+    Case::eq(r#"1.weeks - 1.days"#, r#"6.days"#),
+    Case::eq(r#"(2.seconds + 500.milliseconds).tag"#, r#"time.Milliseconds"#),
+    Case::eq(r#"now + (1.days + 3.hours) == now + 27.hours"#, r#"true"#),
+    Case::eq(
+        r#"[3.days < 2.hours, 2.hours < 3.days, 90.minutes >= 1.hours]"#,
+        r#"[false, true, true]"#,
+    ),
+    Case::eq(
+        r#"[1.days == 24.hours, 1.days != 25.hours, 1.months == 30.days]"#,
+        r#"[true, true, false]"#,
+    ),
+    // The same unit, or an untagged number, as before
+    Case::eq(r#"(1.months + 2.months).tag"#, r#"time.Months"#),
+    Case::eq(r#"(2.hours + 30).tag"#, r#"time.Hours"#),
+    Case::eq(r#"2.hours + 30"#, r#"32"#),
+    Case::throws(r#"1.months + 1.days"#),
+    Case::throws(r#"1.months < 40.days"#),
     Case::eq(r#"now - 1.day < now"#, r#"true"#),
     Case::eq(r#"today < now"#, r#"true"#),
     // format, fuzzy and parsing

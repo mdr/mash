@@ -26,18 +26,20 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
             right.type_name()
         ))
     };
-    let compare_with = |ctx: &Ctx, accept: fn(Ordering) -> bool| {
-        if left.is_null() || right.is_null() {
+    let compare_with = |ctx: &Ctx, accept: fn(Ordering) -> bool| -> R<Value> {
+        Ok(if left.is_null() || right.is_null() {
             Value::Bool(false)
+        } else if let Some((a, b, _)) = in_common_unit(left, right)? {
+            Value::Bool(accept(a.total_cmp(&b)))
         } else {
             Value::Bool(accept(compare(left, right, &ctx.time_zone())))
-        }
+        })
     };
     Ok(match op {
-        BinOp::LessThan => compare_with(ctx, Ordering::is_lt),
-        BinOp::LessThanEquals => compare_with(ctx, Ordering::is_le),
-        BinOp::GreaterThan => compare_with(ctx, Ordering::is_gt),
-        BinOp::GreaterThanEquals => compare_with(ctx, Ordering::is_ge),
+        BinOp::LessThan => compare_with(ctx, Ordering::is_lt)?,
+        BinOp::LessThanEquals => compare_with(ctx, Ordering::is_le)?,
+        BinOp::GreaterThan => compare_with(ctx, Ordering::is_gt)?,
+        BinOp::GreaterThanEquals => compare_with(ctx, Ordering::is_ge)?,
         BinOp::And => {
             if left.is_truthy() {
                 right.clone()
@@ -52,8 +54,8 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
                 right.clone()
             }
         }
-        BinOp::Equals => Value::Bool(left.mash_equals(right)),
-        BinOp::NotEquals => Value::Bool(!left.mash_equals(right)),
+        BinOp::Equals => Value::Bool(equal(left, right)?),
+        BinOp::NotEquals => Value::Bool(!equal(left, right)?),
         BinOp::Plus => match (left, right) {
             // A date-time plus or minus a number of a unit of time, e.g. `now + 3.days`
             (Value::DateTime(t), amount) | (amount, Value::DateTime(t)) if TimeUnit::of(amount).is_some() => {
@@ -68,9 +70,10 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
             // A string plus anything is a string, keeping the string's tag
             (Value::Str(s), _) => Value::Str(s.with_text(format!("{}{}", s.as_str(), ctx.stringify(right)?))),
             (_, Value::Str(s)) => Value::Str(s.with_text(format!("{}{}", ctx.stringify(left)?, s.as_str()))),
-            (Value::Number(a, tag_a), Value::Number(b, tag_b)) => {
-                Value::Number((a.as_f64() + b.as_f64()).into(), tag_a.or(*tag_b))
-            }
+            (Value::Number(a, tag_a), Value::Number(b, tag_b)) => match in_common_unit(left, right)? {
+                Some((a, b, unit)) => Value::Number((a + b).into(), Some(unit.class())),
+                None => Value::Number((a.as_f64() + b.as_f64()).into(), tag_a.or(*tag_b)),
+            },
             (Value::Object(a), Value::Object(b)) => {
                 let merged = Object::with_class(b.class().or_else(|| a.class()));
                 for (k, v) in a.entries().into_iter().chain(b.entries()) {
@@ -87,9 +90,10 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
             }
             // The difference between two date-times, in milliseconds
             (Value::DateTime(a), Value::DateTime(b)) => time::difference(a.0, b.0),
-            (Value::Number(a, tag_a), Value::Number(b, tag_b)) => {
-                Value::Number((a.as_f64() - b.as_f64()).into(), tag_a.or(*tag_b))
-            }
+            (Value::Number(a, tag_a), Value::Number(b, tag_b)) => match in_common_unit(left, right)? {
+                Some((a, b, unit)) => Value::Number((a - b).into(), Some(unit.class())),
+                None => Value::Number((a.as_f64() - b.as_f64()).into(), tag_a.or(*tag_b)),
+            },
             (Value::List(xs), Value::List(ys)) => Value::List(list_difference(xs, ys)),
             (Value::Object(o), Value::List(fields)) => Value::Object(without_fields(o, &fields.snapshot())),
             (Value::Object(o), field) => Value::Object(without_fields(o, std::slice::from_ref(field))),
@@ -116,6 +120,40 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
             _ => return Err(incompatible("divide")),
         },
     })
+}
+
+/// `==`: as values are equal, but amounts of time in different units by their lengths (`1.days == 24.hours`), as
+/// they are ordered. Months are never equal to amounts of another unit.
+fn equal(left: &Value, right: &Value) -> R<bool> {
+    Ok(match in_common_unit(left, right) {
+        Ok(Some((a, b, _))) => a == b,
+        Ok(None) => left.mash_equals(right),
+        Err(_) => false,
+    })
+}
+
+/// Two amounts of different units of time, in the smaller unit (so that `1.days + 3.hours` is `27.hours`, and
+/// `3.days < 2.hours` compares lengths): None unless both are times, in different units. Months vary in length,
+/// so they don't combine with other units.
+fn in_common_unit(left: &Value, right: &Value) -> R<Option<(f64, f64, TimeUnit)>> {
+    let (Some((a, unit_a)), Some((b, unit_b))) = (TimeUnit::of(left), TimeUnit::of(right)) else {
+        return Ok(None);
+    };
+    if unit_a == unit_b {
+        return Ok(None);
+    }
+    let (Some(millis_a), Some(millis_b)) = (unit_a.fixed_millis(), unit_b.fixed_millis()) else {
+        return Err(MashError::new(format!(
+            "Cannot combine {} with {}: months vary in length",
+            unit_a.plural_name(),
+            unit_b.plural_name()
+        )));
+    };
+    Ok(Some(if millis_a < millis_b {
+        (a, b * (millis_b / millis_a), unit_a)
+    } else {
+        (a * (millis_a / millis_b), b, unit_b)
+    }))
 }
 
 /// A whole number in the 32-bit range (Scala `isValidInt`)
