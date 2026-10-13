@@ -38,7 +38,9 @@ fn parse_strict(s: &str, tz: &TimeZone) -> Option<Timestamp> {
     if let Ok(t) = s.parse::<Timestamp>() {
         return Some(t);
     }
-    if let Ok(z) = jiff::fmt::rfc2822::parse(s) {
+    if rfc2822_zone(s)
+        && let Ok(z) = jiff::fmt::rfc2822::parse(s)
+    {
         return Some(z.timestamp());
     }
     if let Some(t) = parse_mash_format(s, tz) {
@@ -56,6 +58,16 @@ fn parse_strict(s: &str, tz: &TimeZone) -> Option<Timestamp> {
             .map(|z| z.timestamp());
     }
     None
+}
+
+/// Whether a date-time ends with a zone RFC 2822 gives a meaning: a numeric offset, or one of its names. The
+/// parser reads any other name (`JST`, `CEST`) as an unknown zone, so as UTC; such names are left to the parsers
+/// that resolve abbreviations.
+fn rfc2822_zone(s: &str) -> bool {
+    const NAMES: &[&str] = &["UT", "GMT", "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT"];
+    let zone = s.split_whitespace().last().unwrap_or_default();
+    let numeric = zone.len() == 5 && zone.starts_with(['+', '-']) && zone[1..].bytes().all(|b| b.is_ascii_digit());
+    numeric || NAMES.iter().any(|name| zone.eq_ignore_ascii_case(name))
 }
 
 /// Parse `format`'s output. Zone abbreviations are ambiguous in general (BST is British Summer Time or
@@ -207,6 +219,37 @@ mod tests {
 
     fn parse(s: &str) -> Option<String> {
         to_date_time(s, &reference_now()).map(|t| t.to_zoned(london()).strftime("%Y-%m-%dT%H:%M:%S%:z").to_string())
+    }
+
+    #[test]
+    fn rfc2822_zones() {
+        // Numeric offsets and RFC 2822's own zone names
+        assert_eq!(
+            parse("Fri, 9 Oct 2026 10:00:00 +0200").as_deref(),
+            Some("2026-10-09T09:00:00+01:00")
+        );
+        assert_eq!(
+            parse("Fri, 9 Oct 2026 10:00:00 GMT").as_deref(),
+            Some("2026-10-09T11:00:00+01:00")
+        );
+        assert_eq!(
+            parse("Fri, 9 Oct 2026 10:00:00 EST").as_deref(),
+            Some("2026-10-09T16:00:00+01:00")
+        );
+        // Other zone names aren't UTC (as RFC 2822's parser reads them): they're resolved, with or without a
+        // weekday, or not parsed at all
+        for s in ["9 Oct 2026 10:00:00 JST", "Fri 9 Oct 2026 10:00:00 JST"] {
+            assert_eq!(parse(s).as_deref(), Some("2026-10-09T02:00:00+01:00"), "{s}");
+        }
+        assert_eq!(
+            parse("Fri, 9 Oct 2026 10:00:00 CEST").as_deref(),
+            Some("2026-10-09T09:00:00+01:00")
+        );
+        assert_eq!(
+            parse("9 Oct 2026 10:00:00 BST").as_deref(),
+            Some("2026-10-09T10:00:00+01:00")
+        );
+        assert_eq!(parse("9 Oct 2026 10:00:00 XYZ"), None);
     }
 
     #[test]
