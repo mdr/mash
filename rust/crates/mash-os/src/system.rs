@@ -131,8 +131,10 @@ pub(crate) fn kill(pid: u32, signal: &Signal) -> io::Result<()> {
     let invalid = || io::Error::new(io::ErrorKind::InvalidInput, "Invalid signal");
     let pid = i32::try_from(pid).map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid pid"))?;
     let signal = match signal {
-        Signal::Named(name) => signal::Signal::from_str(&format!("SIG{name}")).map_err(|_| invalid())?,
-        Signal::Number(n) => signal::Signal::try_from(*n).map_err(|_| invalid())?,
+        Signal::Named(name) => Some(signal::Signal::from_str(&format!("SIG{name}")).map_err(|_| invalid())?),
+        // Signal 0 sends nothing: it checks that the process exists and may be signalled, as kill(2)
+        Signal::Number(0) => None,
+        Signal::Number(n) => Some(signal::Signal::try_from(*n).map_err(|_| invalid())?),
     };
     signal::kill(Pid::from_raw(pid), signal)?;
     Ok(())

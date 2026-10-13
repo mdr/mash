@@ -247,6 +247,15 @@ fn creating_copying_moving_and_deleting() {
             "[/tmp, /tmp/sub, /tmp/sub/b]",
         ),
         (r#"cp "sub" "a.txt""#, "error: Destination already exists"),
+        // A copy into the directory being copied doesn't copy itself (as `cp -R` and Commons IO)
+        (
+            r#"cp "sub" "sub/inner"; ls -r "sub" | map (.path)"#,
+            "[sub/b, sub/inner, sub/inner/b]",
+        ),
+        (
+            r#"mkdir "sub/d"; cp "sub" "sub/d"; ls -r "sub" | map (.path)"#,
+            "[sub/b, sub/d, sub/d/sub, sub/d/sub/b, sub/d/sub/d]",
+        ),
         (
             r#"cp "a.txt" "sub/b" "nope""#,
             "error: Multiple source paths were provided, but the destination was not a directory",
@@ -263,8 +272,8 @@ fn creating_copying_moving_and_deleting() {
         ),
         (r#"mv "a.txt" "c.txt"; ls | map (.path)"#, "[c.txt, sub]"),
         (r#"mv "a.txt" "sub"; ls -r | map (.path)"#, "[sub, sub/a.txt, sub/b]"),
-        // The destination is relative to the source's directory (Java `resolveSibling`)
-        (r#"mv "sub/b" "c"; ls "sub" | map (.path)"#, "[sub/c]"),
+        // The destination is relative to the current directory, as `mv`'s (Scala: the source's directory)
+        (r#"mv "sub/b" "c"; [ls "sub" | map (.path), "c".exists]"#, "[[], true]"),
         (
             r#"mv "a.txt" "sub/b" "nope""#,
             "error: Multiple files can only be moved into a directory",

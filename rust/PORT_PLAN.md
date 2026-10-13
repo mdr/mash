@@ -412,6 +412,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | File errors (`cat "nope"`, `mkdir "x/y"`, …) | "Unexpected error … NoSuchFileException" | "Could not read 'nope': No such file or directory" |
 | `"x".absolute` of a missing path | NoSuchFileException | "Could not resolve 'x': …" |
 | `"x".withTilde` | String prefix (`/home/alicex` → `~x`) | Only at a path boundary |
+| `mv "a/x" "y"` (one source, a destination that isn't a directory) | `y` relative to the source's directory: `a/y` | Relative to the current directory, as every path argument (and `mv`); `renameTo` renames in place |
 | `"a".renameTo "b"` / `.copy` when the destination exists | Java exception | Clean error |
 | `readLines`, `read`, `write` | Platform default charset | UTF-8 (invalid input decoded lossily) |
 | Child processes | Same process group as Mash; stdin written before stdout read (deadlock risk) | Own process group with the terminal (`tcsetpgrp`), concurrent stdin/stdout, Ctrl-C in a child interrupts evaluation, Ctrl-Z resumes the child with a message (as planned) |

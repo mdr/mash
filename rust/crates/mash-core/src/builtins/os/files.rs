@@ -460,8 +460,34 @@ pub(crate) fn delete(
 // ------------------------------------------------------------------------------------------------ copying
 
 /// Copy a file, or a directory and its contents (Commons IO `copyDirectory`: merging into an existing
-/// destination directory)
+/// destination directory). A destination inside the source directory isn't itself copied, as Commons IO and
+/// `cp -R` do: otherwise the copy would copy itself until paths were too long.
 pub(crate) fn copy_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
+    let (source, destination) = (absolute(ctx, from), absolute(ctx, to));
+    let inside = destination
+        .strip_prefix(&source)
+        .is_some_and(|rest| rest.starts_with('/'));
+    copy_tree(ctx, from, to, inside.then_some(destination.as_str()))
+}
+
+/// `path` from the root, with `.` and `..` resolved by name (not following links)
+fn absolute(ctx: &Ctx, path: &str) -> String {
+    let cwd = ctx.platform().current_dir().unwrap_or_default();
+    let mut resolved: Vec<&str> = vec![];
+    let full = join(&cwd, path);
+    for segment in paths::segments(&full) {
+        match segment {
+            "." => {}
+            ".." => {
+                resolved.pop();
+            }
+            name => resolved.push(name),
+        }
+    }
+    format!("/{}", resolved.join("/"))
+}
+
+fn copy_tree(ctx: &mut Ctx, from: &str, to: &str, exclude: Option<&str>) -> R<()> {
     if is_dir(ctx, from) {
         let entries = ctx
             .platform()
@@ -472,7 +498,11 @@ pub(crate) fn copy_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
             .map_err(|e| io_error("create directory", to, &e))?;
         for entry in entries {
             ctx.check_interrupted()?;
-            copy_path(ctx, &join(from, &entry.name), &join(to, &entry.name))?;
+            let child = join(from, &entry.name);
+            if exclude.is_some_and(|excluded| absolute(ctx, &child) == excluded) {
+                continue;
+            }
+            copy_tree(ctx, &child, &join(to, &entry.name), exclude)?;
         }
         Ok(())
     } else {
@@ -584,10 +614,9 @@ pub(crate) fn move_(
         if sources.len() > 1 {
             return Err(MashError::new("Multiple files can only be moved into a directory"));
         }
-        // Relative to the source's directory (Java `resolveSibling`)
-        let source = &sources[0];
-        let target = join(&paths::parent(source).unwrap_or_default(), &destination);
-        move_path(ctx, source, &target)?;
+        // Relative to the current directory, as every path argument is, and as `mv` does (Scala resolved it
+        // against the source's directory, so `mv "a/x" "y"` made `a/y`; `renameTo` renames in place)
+        move_path(ctx, &sources[0], &destination)?;
     }
     Ok(())
 }

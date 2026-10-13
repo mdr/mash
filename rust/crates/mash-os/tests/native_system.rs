@@ -97,6 +97,9 @@ fn kill_by_number_and_errors() {
     // Invalid signals are rejected (while the child is still ours, so no other process can be signalled)
     assert!(NativePlatform.kill(pid, &Signal::Number(12345)).is_err());
     assert!(NativePlatform.kill(pid, &Signal::Named("NOPE".into())).is_err());
+    // Signal 0 checks the process exists, sending nothing
+    NativePlatform.kill(pid, &Signal::Number(0)).expect("signal 0");
+    assert!(child.try_wait().expect("child").is_none(), "still running");
     NativePlatform
         .kill(pid, &Signal::Number(nix::sys::signal::Signal::SIGTERM as i32))
         .expect("kill");

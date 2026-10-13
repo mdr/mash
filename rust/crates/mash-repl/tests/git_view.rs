@@ -33,6 +33,8 @@ fn platform(status: &'static str) -> TestPlatform {
     .with_command("git", move |p| match p.args.first().map(String::as_str) {
         Some("status") => FakeOutcome::output(status),
         Some("log") => FakeOutcome::output(LOG),
+        // At the top of the working tree
+        Some("rev-parse") if p.args.iter().any(|a| a == "--show-prefix") => FakeOutcome::output("\n"),
         _ => FakeOutcome::status(1),
     })
 }
