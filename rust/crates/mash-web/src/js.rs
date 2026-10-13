@@ -206,6 +206,29 @@ impl WebShell {
         self.0.paste(text)
     }
 
+    /// The page's address, for links to this session (`share`)
+    #[wasm_bindgen(js_name = setPageUrl)]
+    pub fn set_page_url(&mut self, url: &str) {
+        self.0.set_page_url(url);
+    }
+
+    /// Run a command as if typed and entered. Returns false once the user has left the shell.
+    #[wasm_bindgen(js_name = runCommand)]
+    pub fn run_command(&mut self, command: &str) -> bool {
+        self.0.run_command(command)
+    }
+
+    /// Whether the REPL is waiting for a command (nothing typed, no object browser)
+    #[wasm_bindgen(js_name = atPrompt)]
+    pub fn at_prompt(&mut self) -> bool {
+        self.0.at_prompt()
+    }
+
+    #[wasm_bindgen(js_name = inObjectBrowser)]
+    pub fn in_object_browser(&mut self) -> bool {
+        self.0.in_object_browser()
+    }
+
     pub fn resize(&mut self, rows: u16, columns: u16) -> bool {
         self.0.resize(rows, columns)
     }

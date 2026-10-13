@@ -1,5 +1,5 @@
 // Checks the page itself in real browsers (headless, via Playwright): typing commands, Ctrl-C, history kept
-// across reloads, the object browser, leaving and restarting. Run after build.sh, with Playwright
+// across reloads, the object browser, leaving and restarting, and links that run commands. Run after build.sh, with Playwright
 // (playwright-core and its browsers) on NODE_PATH, and network access (xterm.js comes from a CDN):
 //
 //   NODE_PATH=/path/to/node_modules node rust/crates/mash-web/www/test/page.mjs [chromium|firefox|webkit …]
@@ -27,6 +27,31 @@ function screen(page) {
     for (let i = 0; i < term.rows; i++) lines.push(buffer.getLine(buffer.viewportY + i)?.translateToString(true) ?? '');
     return lines.join('\n').trimEnd();
   });
+}
+
+/** The screen's text with lines the terminal wrapped joined up again */
+function unwrappedScreen(page) {
+  return page.evaluate(() => {
+    const term = window.mashTerminal;
+    const buffer = term.buffer.active;
+    let text = '';
+    for (let i = 0; i < term.rows; i++) {
+      const line = buffer.getLine(buffer.viewportY + i);
+      if (!line) break;
+      text += (i > 0 && !line.isWrapped ? '\n' : '') + line.translateToString(true);
+    }
+    return text;
+  });
+}
+
+/** Open the page at a link carrying commands, and wait for it to offer them */
+async function openLink(browser, hash) {
+  const page = await browser.newPage();
+  page.on('pageerror', (error) => console.log(`    page error: ${error}`));
+  await page.goto(`http://localhost:${PORT}/${hash}`);
+  await page.waitForFunction(() => window.mashTerminal, null, { timeout: TIMEOUT_MS });
+  await waitFor(page, /Press Enter to run/, 'the offer to run the commands');
+  return page;
 }
 
 /** Wait until the screen matches `pattern` */
@@ -160,6 +185,62 @@ const tests = {
     const text = await command(page, 'global.get "kept"', 1);
     assert.match(text, /^null$/m);
     await context.close();
+  },
+
+  async aLinkRunsItsCommandsIfAsked(browser) {
+    const page = await openLink(browser, '#run=kept%20%3D%2042&run=%7B%0A%20%20double:%20kept%20*%202%0A%7D.double');
+    let text = await screen(page);
+    assert.match(text, /This link runs 2 commands in Mash:\n\n  kept = 42\n  \{\n      double: kept \* 2\n    \}\.double/);
+    await page.keyboard.press('Enter');
+    text = await waitFor(page, prompt(2), 'the prompt after the linked commands');
+    assert.match(text, /^84$/m);
+    // And runs nothing unless asked
+    const declined = await openLink(browser, '#run=kept%20%3D%2042');
+    await declined.keyboard.press('Escape');
+    await waitFor(declined, prompt(0), 'the first prompt');
+    text = await command(declined, 'global.get "kept"', 1);
+    assert.match(text, /^null$/m);
+  },
+
+  async aLinkedCommandOpeningTheObjectBrowserWaitsForIt(browser) {
+    const page = await openLink(browser, '#run=1.to%20200%20%7C%20map%20(n%20%3D%3E%20%7B%20n:%20n%20%7D)&run=it.length');
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(() => window.mashTerminal.buffer.active.type === 'alternate', null, {
+      timeout: TIMEOUT_MS,
+    });
+    await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => window.mashTerminal.buffer.active.type), 'alternate', 'still browsing');
+    await page.keyboard.press('q');
+    const text = await waitFor(page, prompt(2), 'the prompt after the second command');
+    assert.match(text, /^200$/m);
+  },
+
+  async ctrlCStopsALinksCommands(browser) {
+    const page = await openLink(browser, '#run=time.sleep%2060.seconds&run=after%20%3D%201');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(800);
+    await page.keyboard.press('Control+c');
+    await waitFor(page, prompt(1), 'the prompt after interrupting');
+    await page.waitForTimeout(500);
+    const text = await command(page, 'global.get "after"', 2);
+    assert.match(text, /^null$/m);
+  },
+
+  async shareMakesALinkThatRunsTheSession(browser) {
+    const page = await open(browser);
+    await command(page, 'greeting = "hello & welcome"', 1);
+    await command(page, 'greeting.toUpper', 2);
+    await command(page, 'share', 3);
+    const link = (await unwrappedScreen(page)).match(/^(http:\/\/localhost:\d+\/#run=\S+)$/m)?.[1];
+    assert.ok(link, `a link on the screen:\n${await unwrappedScreen(page)}`);
+    const shared = await browser.newPage();
+    await shared.goto(link);
+    await shared.waitForFunction(() => window.mashTerminal, null, { timeout: TIMEOUT_MS });
+    await waitFor(shared, /Press Enter to run/, 'the offer');
+    assert.match(await screen(shared), /  greeting = "hello & welcome"\n  greeting\.toUpper\n/);
+    await shared.keyboard.press('Enter');
+    const text = await waitFor(shared, prompt(2), 'the prompt after the shared commands');
+    assert.match(text, /^HELLO & WELCOME$/m);
   },
 
   async ctrlDLeavesAndAKeyStartsAgain(browser) {

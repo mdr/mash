@@ -5,15 +5,17 @@ use std::cell::Cell;
 use std::rc::Rc;
 
 use mash_core::eval::Ctx;
+use mash_core::value::{Builtin, Value};
 use mash_repl::history::{HistoryEntry, HistoryStorage, new_session_id};
 use mash_repl::host::Host;
-use mash_repl::input::InputEvent;
+use mash_repl::input::{InputEvent, Key, KeyPress};
 use mash_repl::screen::Dimensions;
 use mash_repl::{Repl, ReplStatus};
 
 use crate::bridge::Bridge;
 use crate::keys::translate_key;
 use crate::platform::WebPlatform;
+use crate::share;
 
 /// The REPL's [`Host`]: output goes to the bridge.
 #[derive(Debug)]
@@ -85,6 +87,7 @@ impl HistoryStorage for WebHistoryStorage {
 pub struct Shell {
     repl: Repl,
     host: WebHost,
+    session_id: String,
     exited: bool,
 }
 
@@ -104,7 +107,11 @@ impl Shell {
             entries,
             bridge: bridge.clone(),
         };
-        let repl = Repl::new(Ctx::new(platform), Box::new(storage), session_id);
+        let ctx = Ctx::new(platform);
+        for f in share::FUNCTIONS {
+            ctx.globals().set_str(f.name(), Value::Builtin(Builtin(*f)));
+        }
+        let repl = Repl::new(ctx, Box::new(storage), session_id.clone());
         let host = WebHost {
             bridge,
             size,
@@ -114,8 +121,14 @@ impl Shell {
         Shell {
             repl,
             host,
+            session_id,
             exited: false,
         }
+    }
+
+    /// The page's address, for links to this session (`share`)
+    pub fn set_page_url(&mut self, url: &str) {
+        share::set_session(url, &self.session_id);
     }
 
     /// Show the startup tip and the first prompt
@@ -135,6 +148,28 @@ impl Shell {
     /// Handle pasted (or composed) text
     pub fn paste(&mut self, text: &str) -> bool {
         self.event(InputEvent::Paste(text.into()))
+    }
+
+    /// Run `command` as if typed and entered (waiting for it to finish). Returns false once the user has left
+    /// the shell.
+    pub fn run_command(&mut self, command: &str) -> bool {
+        self.paste(command) && self.event(InputEvent::Key(KeyPress::plain(Key::Enter)))
+    }
+
+    /// Whether the REPL is waiting for a command: not in the object browser, completing or searching, and with
+    /// nothing typed
+    pub fn at_prompt(&mut self) -> bool {
+        let state = self.repl.state();
+        !self.exited
+            && state.object_browser.is_none()
+            && state.completion.is_none()
+            && state.history_search.is_none()
+            && state.line_buffer.is_empty()
+    }
+
+    /// Whether the object browser is showing
+    pub fn in_object_browser(&mut self) -> bool {
+        self.repl.state().object_browser.is_some()
     }
 
     /// The terminal has changed size

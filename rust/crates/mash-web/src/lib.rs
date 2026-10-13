@@ -14,11 +14,13 @@
 //! - [`platform`]: the browser's `Platform`: files in memory, one user, HTTP via the browser
 //! - [`shell`]: the session and its terminal host
 //! - [`keys`]: browser keyboard events as the REPL's key presses
+//! - [`share`]: links that run a session's commands
 //! - `js` (wasm only): the wasm-bindgen interface
 
 pub mod bridge;
 pub mod keys;
 pub mod platform;
+pub mod share;
 pub mod shell;
 
 #[cfg(target_arch = "wasm32")]

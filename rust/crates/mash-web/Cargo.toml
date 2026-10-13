@@ -14,6 +14,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 mash-core.workspace = true
 mash-repl.workspace = true
+mash-macros.workspace = true
 jiff.workspace = true
 serde_json.workspace = true
 

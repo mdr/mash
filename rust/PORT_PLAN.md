@@ -323,6 +323,11 @@ During the port (no language change):
   a call with 8,192 arguments needs 64 KB; if it doesn't fit, the RangeError is caught in JavaScript). It
   probes only on getting 8 KB (of wasm stack) deeper than at the last probe. Plain recursion stops at about 400
   levels in Chromium, 1,130 in Firefox and 115 in WebKit; through `map` and a lambda, 165, 360 and 40.
+- **Shared sessions:** `share` (browser only, `share.rs`; `share 3` for the last three) makes a link to the page
+  carrying this session's commands in the fragment, `#run=<command>&run=<command>…`, each percent-encoded, and
+  copies it to the clipboard. Opening a link lists its commands and runs them only on Enter (Esc starts without
+  them): the worker types each in turn (`WebShell.runCommand`), waiting while the object browser is open;
+  Ctrl-C, or typing, stops the rest.
 - **Panics and overflows** that do happen stop the worker; the page starts a new session and says why.
 - **Building and testing:** `nix develop -c rust/crates/mash-web/build.sh [--dev]` (wasm-bindgen and wasm-opt
   from the flake) writes `www/pkg/`; `python3 www/serve.py 8000 www` serves the page. `www/test/wasm.mjs` checks

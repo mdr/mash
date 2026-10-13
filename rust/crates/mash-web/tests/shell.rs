@@ -204,3 +204,64 @@ fn output_while_a_command_runs_gets_carriage_returns() {
         );
     });
 }
+
+fn quiet_shell(bridge: &Rc<FakeBridge>, history: &[String]) -> Shell {
+    let mut shell = Shell::new(bridge.clone(), 24, 80, history);
+    shell
+        .repl()
+        .ctx()
+        .run("test", "config.cli.showStartupTips = false")
+        .unwrap();
+    shell.set_page_url("https://mash-shell.org/try/#run=old");
+    shell.start();
+    shell
+}
+
+#[test]
+fn share_makes_a_link_to_this_sessions_commands() {
+    with_big_stack(|| {
+        let bridge = bridge();
+        let earlier = r#"{"sessionId":"e5a6c37d-6bd9-489e-a1f9-4cc6b52a2644","commandNumber":1,"timestamp":"2026-10-08T11:39:04Z","command":"earlier","mish":false,"workingDirectory":"/home/guest"}"#;
+        let mut shell = quiet_shell(&bridge, &[earlier.to_string()]);
+        assert!(shell.run_command("x = 6 * 7"));
+        assert!(shell.run_command("json.read \"examples/planets.json\" | where (_.rings) | map (_.name)"));
+        assert!(shell.run_command("{\n  a: 1 & 2\n}"));
+        bridge.output.borrow_mut().clear();
+        assert!(shell.run_command("share"));
+        let all = "https://mash-shell.org/try/#run=x%20%3D%206%20*%207\
+                   &run=json.read%20%22examples/planets.json%22%20%7C%20where%20(_.rings)%20%7C%20map%20(_.name)\
+                   &run=%7B%0A%20%20a:%201%20%26%202%0A%7D";
+        assert!(bridge.output.borrow().contains(all), "{:?}", bridge.output.borrow());
+        assert_eq!(bridge.clipboard.borrow().as_deref(), Some(all));
+        // The last n (the earlier `share` is a command of the session too)
+        let ctx = shell.repl().ctx();
+        let link = ctx.run("test", "share 2").unwrap();
+        assert_eq!(
+            ctx.stringify(&link).unwrap(),
+            "https://mash-shell.org/try/#run=%7B%0A%20%20a:%201%20%26%202%0A%7D&run=share"
+        );
+    });
+}
+
+#[test]
+fn run_command_runs_as_if_typed_and_waits_for_the_object_browser() {
+    with_big_stack(|| {
+        let bridge = bridge();
+        let mut shell = quiet_shell(&bridge, &[]);
+        assert!(shell.at_prompt());
+        bridge.output.borrow_mut().clear();
+        assert!(shell.run_command("40 + 2"));
+        assert!(bridge.output.borrow().contains("42"), "{:?}", bridge.output.borrow());
+        assert_eq!(bridge.history.borrow().len(), 1);
+        assert!(shell.at_prompt());
+        // Output too big for the screen opens the object browser; the REPL waits until it's closed
+        assert!(shell.run_command("1.to 200 | map (n => { n: n, square: n * n })"));
+        assert!(shell.in_object_browser());
+        assert!(!shell.at_prompt());
+        shell.key("q", "KeyQ", false, false, false, false);
+        assert!(shell.at_prompt());
+        // Something typed means it isn't waiting for a command
+        shell.key("x", "KeyX", false, false, false, false);
+        assert!(!shell.at_prompt());
+    });
+}

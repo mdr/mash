@@ -743,6 +743,7 @@ dependencies = [
  "jiff",
  "js-sys",
  "mash-core",
+ "mash-macros",
  "mash-repl",
  "serde_json",
  "wasm-bindgen",
