@@ -33,7 +33,7 @@ fn the_home_directory_has_the_sample_files() {
         assert_eq!(eval(&bridge, "ls | map (_.path)").unwrap(), "[README.md, examples]");
         assert_eq!(
             eval(&bridge, "ls 'examples' | map (p => [p.name, p.owner, p.group])").unwrap(),
-            "[[fib.mash, guest, guest], [planets.json, guest, guest], [sales.csv, guest, guest]]"
+            "[[bookshop.json, guest, guest], [fib.mash, guest, guest], [planets.json, guest, guest], [sales.csv, guest, guest]]"
         );
         assert_eq!(
             eval(&bridge, "mash.source 'examples/fib.mash'; fibs 10").unwrap(),
@@ -46,6 +46,19 @@ fn the_home_directory_has_the_sample_files() {
             )
             .unwrap(),
             "[Jupiter, Saturn, Uranus, Neptune]"
+        );
+        // The bookshop's nested data, as the README explores it
+        assert_eq!(
+            eval(
+                &bridge,
+                "shop = json.read 'examples/bookshop.json'; \
+                 sold = shop.orders | flatMap (o => o.items | map (i => i + { order: o.id })); \
+                 totals = (sold.innerJoin shop.books (s b => s.book == b.id) | groupBy (_.order)) \
+                   .transformValues (_.sumBy (x => x.quantity * x.pricePence)); \
+                 [shop.books | where (_.stock.Edinburgh == 0) | map (_.title), totals.values | max]"
+            )
+            .unwrap(),
+            "[[Emma, Moby-Dick, The Picture of Dorian Gray], 3097]"
         );
         // Files can be written (in memory), and are timestamped by the bridge's clock
         assert_eq!(

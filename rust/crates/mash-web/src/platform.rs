@@ -45,6 +45,7 @@ const UID: u32 = 1000;
 /// Files the browser's file system starts with, in the home directory
 const SAMPLE_FILES: &[(&str, &str)] = &[
     ("README.md", include_str!("../samples/README.md")),
+    ("examples/bookshop.json", include_str!("../samples/bookshop.json")),
     ("examples/fib.mash", include_str!("../samples/fib.mash")),
     ("examples/planets.json", include_str!("../samples/planets.json")),
     ("examples/sales.csv", include_str!("../samples/sales.csv")),
