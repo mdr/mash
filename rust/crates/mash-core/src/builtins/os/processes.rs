@@ -187,7 +187,15 @@ impl FromValue for Signal {
                 .and_then(|n| i32::try_from(n).ok())
                 .map(Signal::Number)
                 .ok_or_else(invalid),
-            Value::Str(s) if SIGNAL_NAMES.contains(&s.as_str()) => Ok(Signal::Named(s.as_str().to_string())),
+            // With or without SIG, as `kill -s` takes them
+            Value::Str(s) => {
+                let name = s.as_str().strip_prefix("SIG").unwrap_or(s.as_str());
+                if SIGNAL_NAMES.contains(&name) {
+                    Ok(Signal::Named(name.to_string()))
+                } else {
+                    Err(invalid())
+                }
+            }
             _ => Err(invalid()),
         }
     }

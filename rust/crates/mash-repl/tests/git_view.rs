@@ -35,6 +35,8 @@ fn platform(status: &'static str) -> TestPlatform {
         Some("log") => FakeOutcome::output(LOG),
         // At the top of the working tree
         Some("rev-parse") if p.args.iter().any(|a| a == "--show-prefix") => FakeOutcome::output("\n"),
+        // HEAD is the second commit
+        Some("rev-parse") => FakeOutcome::output("3b434f696c848140d2137675bf2dc7b174f0e8ff\n"),
         _ => FakeOutcome::status(1),
     })
 }

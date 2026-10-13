@@ -110,6 +110,10 @@ impl Platform for NativePlatform {
         Ok(fs::path_string(&std::fs::read_link(path)?))
     }
 
+    fn create_symlink(&self, target: &str, path: &str) -> io::Result<()> {
+        std::os::unix::fs::symlink(target, path)
+    }
+
     fn canonicalize(&self, path: &str) -> io::Result<String> {
         Ok(fs::path_string(&std::fs::canonicalize(path)?))
     }

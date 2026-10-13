@@ -159,6 +159,11 @@ pub(crate) fn up(
     ctx: &mut Ctx,
     #[param("Number of parent directories to move up (default 1)", default = 1i64)] n: i64,
 ) -> R<()> {
+    if n < 1 {
+        return Err(MashError::new(format!(
+            "Invalid argument 'n'. Must be at least 1, but was {n}"
+        )));
+    }
     for _ in 0..n {
         set_dir(ctx, "..")?;
     }

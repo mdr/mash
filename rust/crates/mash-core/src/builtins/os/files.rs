@@ -69,7 +69,7 @@ fn tagged(text: &str, tag: &'static crate::value::BuiltinClass) -> Value {
 /// The `os.PathSummary` object for a path and its metadata
 fn summary_object(path: &str, metadata: &Metadata) -> Value {
     let object = Object::with_class(Some(ClassRef::Builtin(&PATH_SUMMARY_CLASS)));
-    object.set_str("path", path_value(path));
+    object.set_str("path", path_value(paths::normalise(path)));
     object.set_str("type", tagged(file_type_name(metadata.kind), &FILE_TYPE_CLASS));
     object.set_str(
         "size",
@@ -384,7 +384,8 @@ pub(crate) fn create_directory_at(ctx: &Ctx, path: &str, intermediates: bool) ->
     ctx.platform()
         .create_dir(fs(path), intermediates)
         .map_err(|e| io_error("create directory", path, &e))?;
-    Ok(path_value(path))
+    // As given, but without a trailing slash (`mkdir "m/"` is `m`), as Java's Path printed it
+    Ok(path_value(paths::normalise(path)))
 }
 
 /// Create a new directory
@@ -488,6 +489,25 @@ fn absolute(ctx: &Ctx, path: &str) -> String {
 }
 
 fn copy_tree(ctx: &mut Ctx, from: &str, to: &str, exclude: Option<&str>) -> R<()> {
+    // A symbolic link is copied as a link, as `cp -R` does (Scala followed links, so a link to a directory
+    // above was copied until paths were too long)
+    if ctx
+        .platform()
+        .symlink_metadata(fs(from))
+        .is_ok_and(|m| m.kind == FileKind::Symlink)
+    {
+        let target = ctx
+            .platform()
+            .read_link(fs(from))
+            .map_err(|e| io_error("copy", from, &e))?;
+        if ctx.platform().symlink_metadata(to).is_ok() {
+            ctx.platform().remove(to).map_err(|e| io_error("copy", from, &e))?;
+        }
+        return ctx
+            .platform()
+            .create_symlink(&target, to)
+            .map_err(|e| io_error("copy", from, &e));
+    }
     if is_dir(ctx, from) {
         let entries = ctx
             .platform()

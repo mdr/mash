@@ -421,6 +421,11 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `"x".absolute` of a missing path | NoSuchFileException | "Could not resolve 'x': …" |
 | `"x".withTilde` | String prefix (`/home/alicex` → `~x`) | Only at a path boundary |
 | `mv "a/x" "y"` (one source, a destination that isn't a directory) | `y` relative to the source's directory: `a/y` | Relative to the current directory, as every path argument (and `mv`); `renameTo` renames in place |
+| `cp` of a symbolic link | Followed: a link became a copy of its target, and a link to a directory above was copied until paths were too long | Copied as a link, as `cp -R` |
+| `renameTo`/`renameBy` changing only case (`g` → `G`) on a case-insensitive file system | Nothing renamed, but the new path returned | Renamed |
+| `Path.run` with one argument | Split on whitespace (`"./s".run "two words"` passed two arguments) | Each argument as it is, as `run` |
+| `up n` with n below 1 | Stayed put, adding a directory history entry | Error |
+| `kill --signal='SIGTERM'` | Only names without `SIG` | Either, as `kill -s` |
 | `"a".renameTo "b"` / `.copy` when the destination exists | Java exception | Clean error |
 | `readLines`, `read`, `write` | Platform default charset | UTF-8 (invalid input decoded lossily) |
 | Child processes | Same process group as Mash; stdin written before stdout read (deadlock risk) | Own process group with the terminal (`tcsetpgrp`), concurrent stdin/stdout, Ctrl-C in a child interrupts evaluation, Ctrl-Z resumes the child with a message (as planned) |

@@ -178,6 +178,44 @@ fn symbolic_links() {
 }
 
 #[test]
+fn copying_keeps_symbolic_links_as_links() {
+    // As `cp -R` (Scala followed them: a link to a directory above was copied until paths were too long)
+    let result = eval_in_temp_dir(
+        r#"cp "$dir/d" "$dir/copy"; ["$dir/copy/up".info.type, "$dir/copy/up".followLink == "$dir/d/up".followLink, "$dir/copy/f".info.type].toString"#,
+        |dir| {
+            std::fs::create_dir(dir.join("d")).unwrap();
+            std::fs::write(dir.join("d/f"), "f").unwrap();
+            std::os::unix::fs::symlink("..", dir.join("d/up")).unwrap();
+        },
+    );
+    assert_eq!(result, "[link, true, file]");
+}
+
+#[test]
+fn renaming_can_change_only_case() {
+    // On a case-insensitive file system (as macOS's default), "G" exists because "g" does
+    let result = eval_in_temp_dir(r#""$dir/g".renameTo "G"; ls "$dir" | map (.name) | join ",""#, |dir| {
+        std::fs::write(dir.join("g"), "g").unwrap();
+    });
+    assert_eq!(result, "G");
+    let result = eval_in_temp_dir(r#""$dir/g".renameTo "h""#, |dir| {
+        std::fs::write(dir.join("g"), "g").unwrap();
+        std::fs::write(dir.join("h"), "h").unwrap();
+    });
+    assert!(result.ends_with("already exists"), "{result}");
+}
+
+#[test]
+fn path_run_passes_each_argument_as_it_is() {
+    let result = eval_in_temp_dir(r#"("$dir/args.sh".run "two words").stdout"#, |dir| {
+        let script = dir.join("args.sh");
+        std::fs::write(&script, "#!/bin/sh\necho $#\n").unwrap();
+        std::fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
+    });
+    assert_eq!(result, "1\n");
+}
+
+#[test]
 fn recursive_listing_survives_link_cycles() {
     let result = eval_in_temp_dir(r#"ls -r "$dir" | map (.name) | join ",""#, |dir| {
         std::fs::create_dir(dir.join("d")).unwrap();

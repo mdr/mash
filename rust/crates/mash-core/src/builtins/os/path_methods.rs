@@ -376,10 +376,23 @@ fn validate_name(name: &str) -> Result<(), &'static str> {
     }
 }
 
+/// Whether `name` exists only because the file system ignores case, and is `path` itself: the names differ only
+/// in case, and the directory has no entry spelled exactly `name` (renaming `g` to `G` on macOS)
+fn same_file_by_case(ctx: &Ctx, path: &str, directory: &str, name: &str) -> bool {
+    let old_name = paths::file_name(path).unwrap_or_default();
+    old_name != name
+        && old_name.to_lowercase() == name.to_lowercase()
+        && ctx
+            .platform()
+            .read_dir(fs(directory))
+            .is_ok_and(|entries| entries.iter().all(|entry| entry.name != name))
+}
+
 /// Rename a path within its directory, returning the new path
 fn rename_within(ctx: &mut Ctx, path: &str, name: &str) -> R<Value> {
-    let new_path = join(&paths::parent(path).unwrap_or_default(), name);
-    if ctx.platform().symlink_metadata(&new_path).is_ok() {
+    let directory = paths::parent(path).unwrap_or_default();
+    let new_path = join(&directory, name);
+    if ctx.platform().symlink_metadata(&new_path).is_ok() && !same_file_by_case(ctx, path, &directory, name) {
         return Err(MashError::new(format!(
             "Could not rename '{path}': '{new_path}' already exists"
         )));

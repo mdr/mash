@@ -230,6 +230,11 @@ fn creating_copying_moving_and_deleting() {
             "error: Could not create directory 'x/y': No such file or directory: x/y",
         ),
         (r#"mkdir -c "x/y"; "x/y".isDirectory"#, "true"),
+        // Without a trailing slash, as other paths are shown
+        (r#"mkdir "m/""#, "m"),
+        (r#"ls -d "sub/" | map (.path)"#, "[sub]"),
+        // Up at least one level
+        (r#"up 0"#, "error: Invalid argument 'n'. Must be at least 1, but was 0"),
         (r#""x/y".createDirectory -c"#, "x/y"),
         (r#"rm "a.txt"; ls | map (.path)"#, "[sub]"),
         (r#"rm "sub"; ls | map (.path)"#, "[a.txt]"),

@@ -94,6 +94,11 @@ pub trait Platform: Debug {
         Err(unsupported())
     }
 
+    /// Create a symbolic link at `path` to `target` (stored as given)
+    fn create_symlink(&self, _target: &str, _path: &str) -> io::Result<()> {
+        Err(unsupported())
+    }
+
     /// The absolute path with all symbolic links, `.` and `..` resolved (the path must exist)
     fn canonicalize(&self, _path: &str) -> io::Result<String> {
         Err(unsupported())

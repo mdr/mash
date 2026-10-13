@@ -152,6 +152,8 @@ pub(crate) fn run(
 }
 
 /// Execute the command at the given path, with the given arguments
+///
+/// Each argument is passed as it is (`"./script".run "two words"` passes one argument).
 #[builtin_method(name = "run", returns = process_result_type())]
 pub(crate) fn path_run(
     ctx: &mut Ctx,
@@ -159,11 +161,9 @@ pub(crate) fn path_run(
     #[param("Arguments to command", variadic)] args: List,
     #[param(def = standard_in_param)] standard_in: Option<Value>,
 ) -> R<Value> {
+    // Scala split a lone argument on whitespace, so its meaning depended on how many there were
     let mut command = vec![target.clone()];
-    command.extend(match args.snapshot().as_slice() {
-        [Value::Str(s)] => s.as_str().split_whitespace().map(Value::str).collect(),
-        items => items.to_vec(),
-    });
+    command.extend(args.snapshot());
     let input = match standard_in {
         Some(value) => Input::Text(stdin_text(ctx, &value)?),
         None => Input::Inherit,
