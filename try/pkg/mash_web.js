@@ -13,6 +13,21 @@ export class WebShell {
         wasm.__wbg_webshell_free(ptr, 0);
     }
     /**
+     * Whether the REPL is waiting for a command (nothing typed, no object browser)
+     * @returns {boolean}
+     */
+    atPrompt() {
+        const ret = wasm.webshell_atPrompt(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {boolean}
+     */
+    inObjectBrowser() {
+        const ret = wasm.webshell_inObjectBrowser(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
      * Handle a `keydown` event. Returns false once the user has left the shell.
      * @param {string} key
      * @param {string} code
@@ -63,6 +78,26 @@ export class WebShell {
     resize(rows, columns) {
         const ret = wasm.webshell_resize(this.__wbg_ptr, rows, columns);
         return ret !== 0;
+    }
+    /**
+     * Run a command as if typed and entered. Returns false once the user has left the shell.
+     * @param {string} command
+     * @returns {boolean}
+     */
+    runCommand(command) {
+        const ptr0 = passStringToWasm0(command, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.webshell_runCommand(this.__wbg_ptr, ptr0, len0);
+        return ret !== 0;
+    }
+    /**
+     * The page's address, for links to this session (`share`)
+     * @param {string} url
+     */
+    setPageUrl(url) {
+        const ptr0 = passStringToWasm0(url, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.webshell_setPageUrl(this.__wbg_ptr, ptr0, len0);
     }
     start() {
         wasm.webshell_start(this.__wbg_ptr);

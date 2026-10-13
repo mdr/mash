@@ -1,5 +1,8 @@
 // The page: an xterm.js terminal, with Mash running in a worker (worker.js). Key presses, pastes and resizes go
 // to the worker; what it writes goes to the terminal.
+//
+// A link can carry commands to run, made by Mash's `share`: #run=<command>&run=<command>…, each percent-encoded.
+// The page lists them and runs them (in turn, as if typed) only if the user presses Enter.
 
 /* global Terminal, FitAddon, Unicode11Addon */
 
@@ -36,6 +39,8 @@ let ready = false;
 let pending = [];
 let running = false;
 let exited = false;
+// Commands from the link, shown and waiting for the user to accept (Enter) or decline (Esc)
+let offered = null;
 
 function loadHistory() {
   try {
@@ -64,7 +69,33 @@ function send(message) {
   else pending.push(message);
 }
 
-function start() {
+/** The commands in the page's link, if any */
+function linkedCommands() {
+  try {
+    return new URLSearchParams(location.hash.slice(1)).getAll('run').filter((command) => command.trim());
+  } catch {
+    return [];
+  }
+}
+
+/** `text` with control characters visible, so that it shows as it is (a link can't move the cursor or recolour) */
+function visible(text) {
+  return text.replace(/[\x00-\x09\x0b-\x1f\x7f-\x9f]/g, (c) => `\\u{${c.codePointAt(0).toString(16)}}`);
+}
+
+function offer(commands) {
+  offered = commands;
+  const count = commands.length === 1 ? 'one command' : `${commands.length} commands`;
+  term.write(`\x1b[33mThis link runs ${count} in Mash:\x1b[0m\r\n\r\n`);
+  for (const command of commands) {
+    term.write(`  ${visible(command).split('\n').join('\r\n    ')}\r\n`);
+  }
+  const them = commands.length === 1 ? 'it' : 'them';
+  term.write(`\r\n\x1b[33mPress Enter to run ${them}, or Esc to start without ${them}.\x1b[0m\r\n\r\n`);
+}
+
+/** Start a session, running `replay` (commands) once it's ready */
+function start(replay = []) {
   worker?.terminate();
   ready = false;
   pending = [];
@@ -106,13 +137,23 @@ function start() {
   worker.onerror = (event) => {
     notice(`Mash could not start: ${event.message ?? 'the worker failed to load'}`);
   };
-  worker.postMessage({ type: 'init', rows: term.rows, columns: term.cols, history: loadHistory(), interrupt });
+  worker.postMessage({
+    type: 'init',
+    rows: term.rows,
+    columns: term.cols,
+    history: loadHistory(),
+    interrupt,
+    pageUrl: location.href,
+    replay,
+  });
 }
 
 function interruptCommand() {
   if (interrupt) {
     Atomics.store(interrupt, 0, 1);
     Atomics.notify(interrupt, 0);
+    // And don't go on to any more commands from a link
+    send({ type: 'cancelReplay' });
   } else {
     // Without shared memory, the only way to stop a busy worker is to replace it
     term.write('^C');
@@ -132,6 +173,14 @@ term.attachCustomKeyEventHandler((event) => {
   if (event.isComposing || event.key === 'Dead' || event.keyCode === 229) return true;
   if (event.type !== 'keydown' || MODIFIER_KEYS.has(event.key)) return false;
   event.preventDefault();
+  if (offered) {
+    if (event.key === 'Enter' || event.key === 'Escape') {
+      const commands = event.key === 'Enter' ? offered : [];
+      offered = null;
+      start(commands);
+    }
+    return false;
+  }
   if (exited) {
     start();
     return false;
@@ -154,11 +203,13 @@ term.attachCustomKeyEventHandler((event) => {
 
 // Pastes and composed text. xterm.js sends a line break in a paste as a carriage return.
 term.onData((data) => {
-  if (exited || data.startsWith('\x1b')) return;
+  if (offered || exited || data.startsWith('\x1b')) return;
   send({ type: 'paste', text: data.replace(/\r\n?/g, '\n') });
 });
 
 term.onResize(({ rows, cols }) => send({ type: 'resize', rows, columns: cols }));
 new ResizeObserver(() => fit.fit()).observe(document.getElementById('terminal'));
 
-start();
+const commands = linkedCommands();
+if (commands.length) offer(commands);
+else start();

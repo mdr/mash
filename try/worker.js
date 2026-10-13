@@ -1,6 +1,8 @@
 // Runs Mash in a Web Worker, so that a long command doesn't freeze the page. Messages from the page (main.js):
-//   { type: 'init', rows, columns, history: [json, …], interrupt: Int32Array over a SharedArrayBuffer, or null }
-//   { type: 'key', key, code, ctrl, alt, shift, meta }, { type: 'paste', text }, { type: 'resize', rows, columns }
+//   { type: 'init', rows, columns, history: [json, …], interrupt: Int32Array over a SharedArrayBuffer, or null,
+//     pageUrl, replay: [command, …] (from a shared link, to run in turn) }
+//   { type: 'key', key, code, ctrl, alt, shift, meta }, { type: 'paste', text }, { type: 'resize', rows, columns },
+//   { type: 'cancelReplay' }
 // Messages to the page:
 //   { type: 'ready' }, { type: 'output', text }, { type: 'running', running }, { type: 'history', entry },
 //   { type: 'clipboard', text }, { type: 'open', url }, { type: 'exit' }, { type: 'crash', message }
@@ -13,6 +15,11 @@ let shell = null;
 let interrupt = null;
 let output = '';
 let lastFlush = 0;
+// Commands from a shared link still to run, and the timer that runs the next
+let replay = [];
+let replayTimer = null;
+// A pause between replayed commands, so that each can be seen
+const REPLAY_PAUSE_MS = 150;
 
 function flush() {
   if (output) {
@@ -105,33 +112,56 @@ const bridge = {
   },
 };
 
+/** Handle a message from the page. Returns false once the user has left the shell. */
 function handle(message) {
   switch (message.type) {
     case 'key':
-      return shell.key(message.key, message.code, message.ctrl, message.alt, message.shift, message.meta);
-    case 'paste':
-      return shell.paste(message.text);
+    case 'paste': {
+      const browsing = shell.inObjectBrowser();
+      const alive =
+        message.type === 'key'
+          ? shell.key(message.key, message.code, message.ctrl, message.alt, message.shift, message.meta)
+          : shell.paste(message.text);
+      // While replaying, keys may be for the object browser (closing it continues the replay); anything else
+      // means the user has taken over
+      if (replay.length && !shell.inObjectBrowser()) {
+        if (browsing && shell.atPrompt()) scheduleReplay();
+        else replay = [];
+      }
+      return alive;
+    }
     case 'resize':
       return shell.resize(message.rows, message.columns);
+    case 'cancelReplay':
+      replay = [];
+      return true;
   }
   return true;
 }
 
-onmessage = async (event) => {
-  const message = event.data;
+function scheduleReplay() {
+  if (replay.length && replayTimer === null) replayTimer = setTimeout(replayNext, REPLAY_PAUSE_MS);
+}
+
+/** Run the next replayed command, if Mash is waiting for one (after the object browser, it waits for a key) */
+function replayNext() {
+  replayTimer = null;
+  if (!replay.length || !shell.atPrompt()) return;
+  guarded(() => shell.runCommand(replay.shift()));
+  scheduleReplay();
+}
+
+/** Do something with the shell (returning false once the user has left), reporting the end of the session */
+function guarded(action) {
   try {
-    if (message.type === 'init') {
-      await init({ module_or_path: new URL('./pkg/mash_web_bg.wasm', import.meta.url) });
-      interrupt = message.interrupt;
-      shell = new WebShell(bridge, message.rows, message.columns, message.history);
-      postMessage({ type: 'ready' });
-      shell.start();
-    } else if (!handle(message)) {
+    if (!action()) {
+      replay = [];
       flush();
       postMessage({ type: 'exit' });
     }
     flush();
   } catch (error) {
+    replay = [];
     flush();
     let reason = String(error);
     try {
@@ -140,5 +170,29 @@ onmessage = async (event) => {
       // Mash is in no state to answer
     }
     postMessage({ type: 'crash', message: reason });
+  }
+}
+
+onmessage = async (event) => {
+  const message = event.data;
+  if (message.type === 'init') {
+    try {
+      await init({ module_or_path: new URL('./pkg/mash_web_bg.wasm', import.meta.url) });
+    } catch (error) {
+      postMessage({ type: 'crash', message: String(error) });
+      return;
+    }
+    interrupt = message.interrupt;
+    guarded(() => {
+      shell = new WebShell(bridge, message.rows, message.columns, message.history);
+      shell.setPageUrl(message.pageUrl);
+      postMessage({ type: 'ready' });
+      shell.start();
+      return true;
+    });
+    replay = message.replay ?? [];
+    scheduleReplay();
+  } else {
+    guarded(() => handle(message));
   }
 };
