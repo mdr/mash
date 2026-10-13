@@ -371,7 +371,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
 | `mash FILE`, `mash -e EXPR` | Not supported | Run a script / evaluate an expression (`mash -c` still runs via `sh`, as in Scala) |
 | String indexes and lengths | UTF-16 units (`'😀'.length` is 2) | Characters (1), as agreed |
-| `replace --regex` replacement | Java syntax (`$1x` is group 1 then `x`) | Rust syntax (`${1}x`; `$1x` is a group named `1x`), as agreed |
+| `replace --regex` replacement | Java syntax (`$1x` is group 1 then `x`) | Rust syntax (`${1}x`; `$1x` is a group named `1x`), as agreed; a group the regex doesn't have is an error (as in Java), not replaced by nothing |
 | `matches -i`, `grep -i` | ASCII-only case folding | Unicode case folding, as agreed |
 | `'abc'.split ''` | `[a, b, c, ]` | `['', 'a', 'b', 'c', '']` (Rust semantics, as agreed) |
 | `trim` | Java `trim` (chars ≤ U+0020) | Unicode whitespace |

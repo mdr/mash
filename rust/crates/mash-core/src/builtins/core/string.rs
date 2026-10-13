@@ -250,7 +250,55 @@ fn replace(
     Ok(target.with_text(result))
 }
 
+/// Check that a replacement refers only to groups the regex has: an unknown one would be replaced by nothing,
+/// quietly losing text (`$1x` is the group named `1x`, not group 1 then `x`)
+fn check_group_references(regex: &fancy_regex::Regex, replacement: &str) -> R<()> {
+    let is_name_char = |c: char| c.is_ascii_alphanumeric() || c == '_';
+    let mut rest = replacement;
+    while let Some(dollar) = rest.find('$') {
+        rest = &rest[dollar + 1..];
+        let name = if let Some(braced) = rest.strip_prefix('{') {
+            match braced.find('}') {
+                Some(end) => {
+                    rest = &braced[end + 1..];
+                    &braced[..end]
+                }
+                // As the regex crate, an unclosed brace is literal text
+                None => continue,
+            }
+        } else if let Some(after) = rest.strip_prefix('$') {
+            // `$$`: a literal `$`
+            rest = after;
+            continue;
+        } else {
+            let end = rest.find(|c: char| !is_name_char(c)).unwrap_or(rest.len());
+            let name = &rest[..end];
+            rest = &rest[end..];
+            name
+        };
+        if name.is_empty() {
+            continue;
+        }
+        let known = match name.parse::<usize>() {
+            Ok(index) => index < regex.captures_len(),
+            Err(_) => regex.capture_names().flatten().any(|n| n == name),
+        };
+        if !known {
+            let hint = if name.starts_with(|c: char| c.is_ascii_digit()) {
+                " (to follow a group with text, use ${1}x)"
+            } else {
+                ""
+            };
+            return Err(MashError::new(format!(
+                "No group '{name}' in the regular expression{hint}"
+            )));
+        }
+    }
+    Ok(())
+}
+
 fn replace_all(regex: &fancy_regex::Regex, s: &str, replacement: &str) -> R<String> {
+    check_group_references(regex, replacement)?;
     let mut out = String::new();
     let mut last = 0;
     for captures in regex.captures_iter(s) {

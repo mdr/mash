@@ -8,8 +8,14 @@ pub(crate) const CASES: &[Case] = &[
     // Regex replacement
     Case::eq(r#"'a1b2'.replace --regex '([a-z])([0-9])' '$2$1'"#, r#"'1a2b'"#),
     Case::eq(r#"'a1'.replace --regex '([a-z])' '${1}x'"#, r#"'ax1'"#),
-    // DIFFERENT: in Rust syntax `$1x` names a group `1x` (Java: group 1 then `x`, giving 'ax1')
-    Case::eq(r#"'a1'.replace --regex '([a-z])' '$1x'"#, r#"'1'"#),
+    // DIFFERENT: in Rust syntax `$1x` names a group `1x` (Java: group 1 then `x`, giving 'ax1'); a group the
+    // regex doesn't have is an error (as in Java), rather than quietly replaced by nothing
+    Case::throws(r#"'a1'.replace --regex '([a-z])' '$1x'"#),
+    Case::throws(r#"'ab'.replace --regex '(a)' '$9'"#),
+    Case::throws(r#"'ab'.replace --regex '(a)' '${foo}'"#),
+    Case::eq(r#"'ab'.replace --regex '(?<n>a)' '[$n][${n}]'"#, r#"'[a][a]b'"#),
+    Case::eq(r#"'ab'.replace --regex 'a' '$$$0'"#, r#"'$ab'"#),
+    Case::eq(r#"'ab'.replace --regex 'a' 'cost $'"#, r#"'cost $b'"#),
     Case::eq(r#"'a.c'.replace '.' 'x'"#, r#"'axc'"#),
     Case::eq(r#"'a.c.'.replace '.' ''"#, r#"'ac'"#),
     // Lookaround and backreferences
