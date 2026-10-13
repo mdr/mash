@@ -148,7 +148,13 @@ pub(super) fn create(
     }
     let local_name = match (&branch, &from_remote) {
         (Some(branch), _) => branch.clone(),
-        (None, Some(remote)) => remote.strip_prefix("origin/").unwrap_or(remote).to_string(),
+        // As `git checkout --track`: without the remote's name, whichever remote it is (Scala: only origin/)
+        (None, Some(remote)) => run::remote_names(ctx)
+            .iter()
+            .filter_map(|r| remote.strip_prefix(&format!("{r}/")))
+            .min_by_key(|rest| rest.len())
+            .unwrap_or(remote)
+            .to_string(),
         (None, None) => return Err(MashError::new("Must provide at least one of 'branch' and 'fromRemote'")),
     };
     create_branch(ctx, &local_name, from_remote.as_deref(), switch)

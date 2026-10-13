@@ -186,7 +186,13 @@ fn staged(status: &parse::Status) -> Vec<&String> {
         .collect()
 }
 
+/// Changes in the working tree, not staged
 fn restorable(status: &parse::Status) -> Vec<&String> {
+    status.modified.iter().chain(&status.missing).collect()
+}
+
+/// Changes staged or not, except new files (restoring those would delete them)
+fn restorable_staged(status: &parse::Status) -> Vec<&String> {
     status
         .modified
         .iter()
@@ -329,6 +335,9 @@ fn complete_restorable(params: &Params, arg_pos: usize, args: &TypedArgs) -> Vec
 }
 
 /// Restore modified or deleted files in the working directory
+///
+/// As `git restore`: files are restored from the index, so staged changes are kept. With --staged, staged
+/// changes are discarded too, restoring files from the last commit (`git restore --staged --worktree`).
 #[builtin(namespace = "git", returns = Type::UNIT, completion = complete_restorable)]
 pub(super) fn restore(
     ctx: &mut Ctx,
@@ -339,12 +348,24 @@ pub(super) fn restore(
         boolean_flag
     )]
     all: bool,
+    #[param(
+        "Also discard staged changes, restoring from the last commit (default false)",
+        name = "staged",
+        short = 's',
+        boolean_flag
+    )]
+    staged: bool,
     #[param("Restore the given paths", variadic, flatten)] paths: List,
 ) -> R<()> {
     let paths = self::paths(&paths)?;
     require_paths_or_all(&paths, all)?;
-    let files = status_pathspecs(ctx, paths, all, restorable)?;
-    on_paths(ctx, &["checkout", "--quiet", "HEAD"], &files)
+    if staged {
+        let files = status_pathspecs(ctx, paths, all, restorable_staged)?;
+        on_paths(ctx, &["restore", "--quiet", "--staged", "--worktree"], &files)
+    } else {
+        let files = status_pathspecs(ctx, paths, all, restorable)?;
+        on_paths(ctx, &["restore", "--quiet", "--worktree"], &files)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------ committing
@@ -419,12 +440,19 @@ pub(super) fn log(ctx: &mut Ctx, args: &Args, #[param("Commit to find the log of
         Some(commit) => Some(validate_commit(ctx, args, "commit", &commit)?),
         None => None,
     };
+    // Before the first commit, there's no history (rather than git's error)
+    if start.is_none() && run::resolve_commit(ctx, "HEAD")?.is_none() {
+        return Ok(List::new(vec![]));
+    }
     Ok(objects::commits(&run::log(ctx, start.as_deref())?))
 }
 
 /// The Git reference log
 #[builtin(namespace = "git", returns = Type::seq(Type::Instance(&REFLOG_ENTRY_CLASS)))]
 pub(super) fn reflog(ctx: &mut Ctx) -> R<List> {
+    if run::resolve_commit(ctx, "HEAD")?.is_none() {
+        return Ok(List::new(vec![]));
+    }
     let output = git(ctx, Mode::Query, &["reflog", "-z", parse::REFLOG_FORMAT])?;
     let mut entries = parse::reflog(&output);
     entries.reverse();

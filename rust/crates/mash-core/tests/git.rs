@@ -362,9 +362,14 @@ fn commands_run_for_changes() {
             ),
             ("git.unstage 'new.txt'", &["reset --quiet HEAD -- new.txt"]),
             ("git.unstage --all", &["reset --quiet HEAD -- :(top,literal)new.txt"]),
+            // As `git restore`: from the index, unless --staged
             (
                 "git.restore -a",
-                &["checkout --quiet HEAD -- :(top,literal)keep.txt :(top,literal)del.txt"],
+                &["restore --quiet --worktree -- :(top,literal)keep.txt :(top,literal)del.txt"],
+            ),
+            (
+                "git.restore --staged 'keep.txt'",
+                &["restore --quiet --staged --worktree -- keep.txt"],
             ),
             (
                 "git.commit 'Fix it'",

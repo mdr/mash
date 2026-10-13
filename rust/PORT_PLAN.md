@@ -430,6 +430,9 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Files added with intent to add (`git add -N`) | Not in `git.status` (so `isClean` was true) | Listed as `modified` (not yet staged) |
 | `git.branch.delete`, `Branch.delete` | Always forced: unmerged commits silently lost | As `git branch -d`: an unmerged branch isn't deleted unless `--force` (`-f`) |
 | `git.branch.setCommit` on the checked-out branch | Moves it, leaving the index and working tree as a reverting change | Error, as `git branch -f` refuses |
+| `git.restore` | Restored from the last commit, discarding staged changes too (despite "in the working directory") | As `git restore`: from the index, keeping staged changes; `--staged` (`-s`) also discards those |
+| `git.branch.create --fromRemote` from a remote other than origin | Named with the remote (`upstream/other`) | Without it (`other`), as `git checkout --track` and `createLocal` |
+| `git.log`, `git.reflog` before the first commit | Error | Empty |
 | `git.push` when the remote rejects a ref | A result with status `REJECTED_…`, and `--setUpstream` set tracking anyway | Error ("Push rejected: refs/heads/main"), and no tracking set |
 | Credentials on a redirect to another origin | `--basicAuth`, `Authorization` and `Cookie` headers sent on to any host a redirect names | Not sent once a redirect leaves the original scheme, host and port (as curl and Python's requests); other headers still are |
 | `--headers` / `--basicAuth` strings | Exactly one `:` (a header value or password with another was an error) | Split at the first `:`; header names and values trimmed |

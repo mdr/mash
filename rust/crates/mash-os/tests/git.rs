@@ -78,6 +78,9 @@ fn git_in_temporary_repositories() {
         s.eval(&format!("mkdir {0}; cd {0}", quoted(&origin)));
         s.eval("git.init");
         s.check("git.isRepo '.'", "true");
+        // No history yet
+        s.check("git.log", "[]");
+        s.check("git.reflog", "[]");
         s.eval("write 'a.txt' 'one'; write 'keep.txt' 'keep'; write 'del.txt' 'del'");
         s.check("git.status.untracked", "[a.txt, del.txt, keep.txt]");
         s.eval("git.stage --all");
@@ -159,7 +162,18 @@ fn git_in_temporary_repositories() {
             "git.status | select 'added' 'changed' 'removed' 'modified' 'untracked'",
             "{ added: [new.txt, sub/y.txt], changed: [keep.txt], removed: [del.txt], modified: [], untracked: [] }",
         );
-        s.eval("git.unstage 'keep.txt'; git.restore 'keep.txt'");
+        // As `git restore`, restoring keeps staged changes, unless --staged
+        s.eval("write --append 'keep.txt' 'unstaged'");
+        s.check(
+            "git.status | select 'changed' 'modified'",
+            "{ changed: [keep.txt], modified: [keep.txt] }",
+        );
+        s.eval("git.restore 'keep.txt'");
+        s.check(
+            "git.status | select 'changed' 'modified'",
+            "{ changed: [keep.txt], modified: [] }",
+        );
+        s.eval("git.restore --staged 'keep.txt'");
         s.check("git.status.changed + git.status.modified", "[]");
 
         // Stashing
@@ -243,6 +257,22 @@ fn git_in_temporary_repositories() {
         );
         s.eval("git.tag.delete 'v1'");
         s.check("git.tags", "[]");
+
+        // A branch from a remote other than origin is named without its remote, as `git checkout --track`
+        s.eval(&format!(
+            "cd {}; git.branch.create 'side'; cd {}",
+            quoted(&origin),
+            quoted(&work)
+        ));
+        s.eval(&format!(
+            "run 'git' 'remote' 'add' 'upstream' {}; run 'git' 'fetch' '--quiet' 'upstream'",
+            quoted(&origin)
+        ));
+        s.check("git.branch.create --fromRemote='upstream/side' | .name", "side");
+        // An upstream that's a local branch is named the same way by status and by branches
+        s.eval("git.switch 'side'; run 'git' 'branch' '--quiet' '-u' 'main'");
+        s.check("git.status.upstreamBranch", "main");
+        s.check("git.branch.current.upstreamBranch", "main");
         assert!(s.error("git.switch 'nope'").contains("Must be a local branch"));
     });
 }

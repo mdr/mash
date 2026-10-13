@@ -158,6 +158,13 @@ pub(crate) fn trim_remote_prefix(ref_name: &str) -> &str {
     ref_name.strip_prefix("refs/remotes/").unwrap_or(ref_name)
 }
 
+/// An upstream branch as `git status` names it: `origin/master`, or a local branch's name (`refs/heads/b` →
+/// `b`)
+fn upstream_name(ref_name: &str) -> &str {
+    let name = trim_remote_prefix(ref_name);
+    name.strip_prefix("refs/heads/").unwrap_or(name)
+}
+
 /// Ahead/behind counts from `%(upstream:track,nobracket)` (`ahead 1, behind 2`); None if the upstream is gone.
 /// (Needs the C locale: the words are translated.)
 fn track_counts(track: &str) -> Option<(u64, u64)> {
@@ -189,7 +196,7 @@ pub(crate) fn branches(output: &str) -> Vec<Branch> {
                 None
             } else {
                 track_counts(track).map(|(ahead, behind)| Tracking {
-                    upstream: trim_remote_prefix(upstream).to_string(),
+                    upstream: upstream_name(upstream).to_string(),
                     ahead,
                     behind,
                 })
