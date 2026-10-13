@@ -64,6 +64,10 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"'abc'.count"#, r#"3"#),
     Case::eq(r#"'abc'.contains 'b'"#, r#"true"#),
     Case::eq(r#"'abc'.endsWith 'bc'"#, r#"true"#),
+    // New: a Character tag is kept only for a single character (Scala kept it, making 'Characters' of any length)
+    Case::eq(r#"('ß'.c.toUpper).tag"#, r#"null"#),
+    Case::eq(r#"('a'.c.replace 'a' 'xyz').tag"#, r#"null"#),
+    Case::eq(r#"('a'.c.toUpper).tag"#, r#"core.Character"#),
 ];
 
 #[test]

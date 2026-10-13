@@ -45,10 +45,16 @@ impl Str {
     }
 
     /// Different text, same tag
+    /// Other text with this string's tag, except that a Character tag is kept only for a single character
+    /// (`'ß'.c.toUpper` is `SS`, a String)
     pub fn with_text(&self, text: impl Into<Rc<str>>) -> Str {
+        let text = Str::new(text);
+        let character = self
+            .tag
+            .is_some_and(|tag| std::ptr::eq(tag, &crate::builtins::core::CHARACTER_CLASS));
         Str {
-            tag: self.tag,
-            ..Str::new(text)
+            tag: if character && text.len() != 1 { None } else { self.tag },
+            ..text
         }
     }
 

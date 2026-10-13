@@ -16,6 +16,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::rc::Rc;
 
+use mash_core::builtins::view::unpack_view;
 use mash_core::eval::{Ctx, RunError, with_big_stack};
 use mash_core::platform::Platform;
 use mash_core::value::Value;
@@ -61,6 +62,8 @@ fn run_mash(name: String, text: String, print_result: bool) -> ExitCode {
         let mut ctx = Ctx::new(Rc::new(NativePlatform));
         match ctx.run(&name, &text) {
             Ok(value) => {
+                // The data, not the view.View wrapper that view functions return (as the REPL shows)
+                let value = unpack_view(&value);
                 if print_result && !matches!(value, Value::Unit) {
                     match ctx.stringify(&value) {
                         Ok(s) => println!("{s}"),

@@ -45,6 +45,10 @@ pub(crate) const CASES: &[Case] = &[
         r#"'&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;'"#,
     ),
     Case::eq(r#"base64.encode 'é'"#, r#"'w6k='"#),
+    // New: padding is optional, and whitespace (as the base64 command's line breaks) ignored
+    Case::eq(r#"base64.decode 'aGk'"#, r#"'hi'"#),
+    Case::eq(r#"base64.decode 'aGVsbG8g`ndGhlcmUK`n'"#, r#"'hello there`n'"#),
+    Case::throws(r#"base64.decode 'a'"#),
     Case::eq(r#"base64.decode 'w6k='"#, r#"'é'"#),
     Case::throws(r#"base64.decode '!!'"#),
     Case::eq(

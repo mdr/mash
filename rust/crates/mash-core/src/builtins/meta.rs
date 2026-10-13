@@ -114,17 +114,44 @@ pub fn reload(ctx: &mut Ctx) -> R<()> {
 }
 
 /// Mash source that evaluates to `value`, if there is any (Scala `ValueToExpression`): for null, booleans,
-/// numbers, strings, date-times, and lists and objects of those. None for functions, classes and cyclic
-/// values.
+/// numbers (with their unit, as `3.days`), strings, dates and date-times (exactly), and lists and objects of
+/// those. None for functions, classes and cyclic values.
 pub fn value_to_expression(value: &Value) -> Option<String> {
     to_expression(value, &mut vec![])
 }
 
+/// A number as an expression: the special values as divisions (there are no literals for them), and a unit of
+/// time or bytes kept, as the method that gives it (`3.days`, `(-2).hours`)
+fn number_expression(value: &Value, n: f64) -> String {
+    let (number, simple) = if n.is_nan() {
+        ("(0 / 0)".to_string(), false)
+    } else if n.is_infinite() {
+        (if n > 0.0 { "(1 / 0)" } else { "(-1 / 0)" }.to_string(), false)
+    } else {
+        (render(&Value::num(n)), n >= 0.0)
+    };
+    let unit = match value {
+        Value::Number(_, Some(tag)) if std::ptr::eq(*tag, &super::core::BYTES_CLASS) => Some("bytes"),
+        _ => super::time::TimeUnit::of(value).map(|(_, unit)| unit.plural_name()),
+    };
+    match unit {
+        Some(unit) if simple => format!("{number}.{unit}"),
+        Some(unit) => format!("({number}).{unit}"),
+        None => number,
+    }
+}
+
 fn to_expression(value: &Value, visiting: &mut Vec<usize>) -> Option<String> {
     match value {
-        Value::Null | Value::Bool(_) | Value::Number(..) => Some(render(value)),
-        Value::Str(s) => Some(format!("\"{}\"", escape_chars(s.as_str()))),
-        Value::DateTime(t) => Some(format!("time.fromMillisSinceEpoch {}", t.0.as_millisecond())),
+        Value::Null | Value::Bool(_) => Some(render(value)),
+        Value::Number(n, _) => Some(number_expression(value, n.as_f64())),
+        Value::Str(s) => {
+            // A leading `~` in a literal is the home directory, unless escaped
+            let tilde = if s.as_str().starts_with('~') { "`" } else { "" };
+            Some(format!("\"{tilde}{}\"", escape_chars(s.as_str())))
+        }
+        Value::DateTime(t) => Some(format!("\"{}\".toDateTime", t.0)),
+        Value::Date(d) => Some(format!("\"{}\".toDate", d.0)),
         Value::List(xs) => {
             if visiting.contains(&xs.addr()) {
                 return None;

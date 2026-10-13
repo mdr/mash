@@ -1,7 +1,9 @@
 //! Small text-encoding namespaces: `html` (escaping), `base64` and `hash`.
 
 use base64::Engine;
-use base64::engine::general_purpose::STANDARD;
+use base64::alphabet;
+use base64::engine::DecodePaddingMode;
+use base64::engine::general_purpose::{GeneralPurpose, GeneralPurposeConfig, STANDARD};
 use mash_macros::builtin;
 use sha2::{Digest, Sha256};
 
@@ -41,10 +43,20 @@ pub fn encode(ctx: &mut Ctx, #[param("String to encode in base 64")] string: Val
 }
 
 /// Base 64 decode the given value
+///
+/// Padding (`=`) is optional, and whitespace (such as the line breaks the `base64` command writes) is ignored.
 #[builtin(namespace = "base64", returns = crate::infer::Type::STRING)]
 pub fn decode(ctx: &mut Ctx, #[param("String to decode")] string: Value) -> R<String> {
-    let s = ctx.stringify(&string)?;
-    let bytes = STANDARD
+    const LENIENT: GeneralPurpose = GeneralPurpose::new(
+        &alphabet::STANDARD,
+        GeneralPurposeConfig::new().with_decode_padding_mode(DecodePaddingMode::Indifferent),
+    );
+    let s: String = ctx
+        .stringify(&string)?
+        .chars()
+        .filter(|c| !c.is_ascii_whitespace())
+        .collect();
+    let bytes = LENIENT
         .decode(s.as_bytes())
         .map_err(|e| MashError::new(format!("Invalid base 64: {e}")))?;
     Ok(String::from_utf8_lossy(&bytes).into_owned())

@@ -37,3 +37,36 @@ fn strings_are_escaped_and_cyclic_values_have_no_expression() {
     assert_eq!(expression("x = [1]; x[0] = x; x"), None);
     assert_eq!(expression("x => x"), None);
 }
+
+/// New: each evaluates back to the same value (Scala's expanded a leading `~`, had no expression for the
+/// special numbers, dropped units, and kept only milliseconds of a date-time)
+#[test]
+fn expressions_evaluate_to_the_same_value() {
+    assert_eq!(expression("'~/x'").as_deref(), Some("\"`~/x\""));
+    assert_eq!(
+        expression("[1/0, 0 - 1/0, 0/0]").as_deref(),
+        Some("[(1 / 0), (-1 / 0), (0 / 0)]")
+    );
+    assert_eq!(
+        expression("[3.days, (0 - 2).hours, 1.5.hours, 1.kb]").as_deref(),
+        Some("[3.days, (-2).hours, 1.5.hours, 1024.bytes]")
+    );
+    assert_eq!(
+        expression("'2026-10-13T18:20:01.123456789Z'.toDateTime").as_deref(),
+        Some("\"2026-10-13T18:20:01.123456789Z\".toDateTime")
+    );
+    assert_eq!(
+        expression("'2026-10-13'.toDate").as_deref(),
+        Some("\"2026-10-13\".toDate")
+    );
+    let round_trips = with_big_stack(|| {
+        let mut ctx = Ctx::new(Rc::new(TestPlatform::default()));
+        ctx.run(
+            "test",
+            "[now, today, '~/x', 1/0, 3.days, [{ a: 2.weeks }]] | all (v => (mash.eval (mash.expressionFor v)) == v)",
+        )
+        .expect("evaluates")
+        .is_truthy()
+    });
+    assert!(round_trips);
+}

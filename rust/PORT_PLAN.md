@@ -395,6 +395,9 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Errors from Java exceptions (`parseIso8601`, `base64.decode`, `1.to 5 --step=0`, bad regex, …) | "Unexpected error … SomeJavaException" | A clean Mash error message |
 | `random.int` bounds | 32-bit | 64-bit (no 32-bit limit, as agreed) |
 | `random.int` results | Rounded towards zero (`random.int -5 -1` never gave -5, but gave -1); an empty or backward range returned a number | Uniform over the range; an empty range is an error |
+| `mash.expressionFor` | A leading `~` expanded when evaluated; no expression for `Infinity`/`NaN`; units dropped (`3.days` → `3`); date-times to the millisecond | Evaluates to the same value: `` "`~/x" ``, `(1 / 0)`, `3.days`, `"…".toDateTime` (exact), `"…".toDate` |
+| `base64.decode` | Padding optional (Java), whitespace an error | Padding optional; whitespace (the `base64` command's line breaks) ignored |
+| String methods on a Character (`'ß'.c.toUpper`, `.replace`) | Kept the Character tag whatever the length | Only for a single character |
 | `mash.eval` errors | Printed; returns unit | Propagate |
 | Path completion under `/` | Common-prefix length off by one | Correct (affects only highlighting/common insertion) |
 | Table and tree cell widths | UTF-16 units (wide characters misalign columns) | Display columns |

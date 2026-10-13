@@ -4,12 +4,24 @@
 //! largest non-zero unit, and truncates. Under a minute is "moments". (Scala Mash used prettytime, whose
 //! rounding is inconsistent: 36 hours is "1 day" but 47 hours is "2 days"; 364 days is "12 months".)
 
-use jiff::{Unit, Zoned};
+use jiff::{SignedDuration, Unit, Zoned};
 
 pub(crate) fn fuzzy(t: &Zoned, now: &Zoned) -> String {
     let past = t <= now;
     let (earlier, later) = if past { (t, now) } else { (now, t) };
-    let Ok(span) = earlier.until((Unit::Year, later)) else {
+    // The gap to the nearest second: `now` is read a moment after a time like `2.days.fromNow` was, which
+    // would otherwise make it 1 day, 23 hours and 59.99 seconds away ("1 day from now")
+    let millis = later.timestamp().as_millisecond() - earlier.timestamp().as_millisecond();
+    let rounded = SignedDuration::from_millis((millis + 500) / 1000 * 1000);
+    let Ok(later) = earlier.checked_add(rounded) else {
+        return if past {
+            "a long time ago"
+        } else {
+            "a long time from now"
+        }
+        .to_string();
+    };
+    let Ok(span) = earlier.until((Unit::Year, &later)) else {
         return if past {
             "a long time ago"
         } else {
@@ -86,6 +98,10 @@ mod tests {
         assert_eq!(ahead(SignedDuration::from_secs(5)), "moments from now");
         assert_eq!(ahead(SignedDuration::from_hours(2)), "2 hours from now");
         assert_eq!(ahead(SignedDuration::from_hours(24 * 3)), "3 days from now");
+        // `now` is read a moment after a time like `2.days.fromNow` was made, which mustn't lose a unit
+        let just_under = |d: SignedDuration| ahead(d - SignedDuration::from_millis(3));
+        assert_eq!(just_under(SignedDuration::from_hours(24 * 2)), "2 days from now");
+        assert_eq!(just_under(SignedDuration::from_hours(1)), "1 hour from now");
     }
 
     /// One calendar month back from 9 Oct is 9 Sep, whatever the day count; a calendar day across the

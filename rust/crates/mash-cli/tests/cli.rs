@@ -25,6 +25,13 @@ fn evaluates_an_expression() {
 }
 
 #[test]
+fn prints_the_data_of_a_view() {
+    // Not the view.View object that view functions return
+    let output = mash(&["-e", "view.print [1, 2]"]);
+    assert_eq!(stdout(&output), "[1, 2]\n");
+}
+
+#[test]
 fn reports_errors_with_their_location() {
     let output = mash(&["-e", "1 +\n  nosuch"]);
     assert_eq!(output.status.code(), Some(1));
