@@ -237,7 +237,14 @@ pub(crate) fn send(
             }
             cookies
         }
-        _ => vec![],
+        None | Some(Value::Null) => vec![],
+        // Scala ignored anything else, silently sending no cookies
+        Some(other) => {
+            return Err(args.invalid(
+                "cookies",
+                &format!("Must be an object of cookies, but was a {}", other.type_name()),
+            ));
+        }
     };
     let basic_auth = match &target.basic_auth {
         Some(value) => Some(credentials(ctx, args, value)?),
@@ -302,15 +309,6 @@ fn values_of(value: &Value) -> Vec<Value> {
     }
 }
 
-/// Java's `s.split(":")`: trailing empty strings are dropped
-fn split_colons(s: &str) -> Vec<&str> {
-    let mut chunks: Vec<&str> = s.split(':').collect();
-    while chunks.len() > 1 && chunks.last() == Some(&"") {
-        chunks.pop();
-    }
-    if chunks == [""] { vec![] } else { chunks }
-}
-
 /// A field of an object argument, as a string
 fn string_field(ctx: &mut Ctx, args: &Args, param: &str, what: &str, object: &Object, field: &str) -> R<String> {
     match object.get_str(field) {
@@ -319,19 +317,26 @@ fn string_field(ctx: &mut Ctx, args: &Args, param: &str, what: &str, object: &Ob
     }
 }
 
-/// The headers given as an object (a field per header, with a list for several values) or a list of
-/// `"name:value"` strings or `{ name, value }` objects (Scala `Header.getHeaders`). Other values give no
-/// headers.
+/// A `"name: value"` header: split at the first colon, as the value may contain more (a URL, a time)
+fn header_string(args: &Args, s: &str) -> R<(String, String)> {
+    match s.split_once(':') {
+        Some((name, value)) if !name.trim().is_empty() => Ok((name.trim().to_string(), value.trim().to_string())),
+        _ => Err(args.invalid("headers", "Header string must be 'name:value'")),
+    }
+}
+
+/// The headers given as an object (a field per header, with a list for several values), a list of
+/// `"name:value"` strings or `{ name, value }` objects (Scala `Header.getHeaders`), or one `"name:value"`
+/// string. Anything else is an error (Scala ignored it, sending no headers).
 fn headers_of(ctx: &mut Ctx, args: &Args, value: &Value) -> R<Vec<(String, String)>> {
     let mut headers = vec![];
     match value {
+        Value::Null => {}
+        Value::Str(s) => headers.push(header_string(args, s.as_str())?),
         Value::List(items) => {
             for item in items.snapshot() {
                 headers.push(match &item {
-                    Value::Str(s) => match split_colons(s.as_str())[..] {
-                        [name, value] => (name.to_string(), value.to_string()),
-                        _ => return Err(args.invalid("headers", "Header string must contain a single ':'")),
-                    },
+                    Value::Str(s) => header_string(args, s.as_str())?,
                     Value::Object(object) => (
                         string_field(ctx, args, "headers", "Header", object, "name")?,
                         string_field(ctx, args, "headers", "Header", object, "value")?,
@@ -350,7 +355,15 @@ fn headers_of(ctx: &mut Ctx, args: &Args, value: &Value) -> R<Vec<(String, Strin
                 }
             }
         }
-        _ => {}
+        other => {
+            return Err(args.invalid(
+                "headers",
+                &format!(
+                    "Must be an object, a list or a string of headers, but was a {}",
+                    other.type_name()
+                ),
+            ));
+        }
     }
     Ok(headers)
 }
@@ -359,9 +372,10 @@ fn headers_of(ctx: &mut Ctx, args: &Args, value: &Value) -> R<Vec<(String, Strin
 /// `BasicCredentials.getBasicCredentials`)
 fn credentials(ctx: &mut Ctx, args: &Args, value: &Value) -> R<(String, String)> {
     match value {
-        Value::Str(s) => match split_colons(s.as_str())[..] {
-            [username, password] => Ok((username.to_string(), password.to_string())),
-            _ => Err(args.invalid("basicAuth", "Auth string must contain a single ':'")),
+        // The username can't contain a colon, but the password can (RFC 7617)
+        Value::Str(s) => match s.as_str().split_once(':') {
+            Some((username, password)) => Ok((username.to_string(), password.to_string())),
+            None => Err(args.invalid("basicAuth", "Auth string must be 'username:password'")),
         },
         Value::Object(object) => Ok((
             string_field(ctx, args, "basicAuth", "Auth", object, "username")?,

@@ -432,6 +432,8 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `git.branch.setCommit` on the checked-out branch | Moves it, leaving the index and working tree as a reverting change | Error, as `git branch -f` refuses |
 | `git.push` when the remote rejects a ref | A result with status `REJECTED_…`, and `--setUpstream` set tracking anyway | Error ("Push rejected: refs/heads/main"), and no tracking set |
 | Credentials on a redirect to another origin | `--basicAuth`, `Authorization` and `Cookie` headers sent on to any host a redirect names | Not sent once a redirect leaves the original scheme, host and port (as curl and Python's requests); other headers still are |
+| `--headers` / `--basicAuth` strings | Exactly one `:` (a header value or password with another was an error) | Split at the first `:`; header names and values trimmed |
+| `--headers` / `--cookies` of another type (e.g. a string of cookies) | Silently ignored: nothing sent | A single `"name:value"` string is a header; other types are errors |
 | Repeated request headers (`--headers=['A:1', 'A:2']`, `--headers={ A: [1, 2] }`) | Only the last is sent (`setHeader` replaces), defeating the support for several values | All are sent |
 | Request errors | "Unexpected error … URISyntaxException" / "… ClientProtocolException" for bad or relative URLs | "Invalid URL: Illegal character …", "Invalid URL 'foo': must be an absolute http or https URL"; unknown host and connection errors keep Scala's wording ("Unknown host: …", "Couldn't connect to …") |
 | `http.Response` field types | `headers` declared as `Object` and `headersObject`'s result as `[http.Header]` (swapped) | `headers: [http.Header]`, `headersObject: Object` (inference and completion only) |

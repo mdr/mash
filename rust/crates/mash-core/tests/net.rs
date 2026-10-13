@@ -160,11 +160,20 @@ fn request_errors() {
         ),
         (
             "http.get 'http://example.com/echo' --headers=['bad']",
-            "error: Invalid argument 'headers'. Header string must contain a single ':'",
+            "error: Invalid argument 'headers'. Header string must be 'name:value'",
         ),
         (
-            "http.get 'http://example.com/echo' --headers=['a:b:c']",
-            "error: Invalid argument 'headers'. Header string must contain a single ':'",
+            "http.get 'http://example.com/echo' --headers=[':x']",
+            "error: Invalid argument 'headers'. Header string must be 'name:value'",
+        ),
+        // New: other values are errors, not silently no headers or cookies
+        (
+            "http.get 'http://example.com/echo' --headers=42",
+            "error: Invalid argument 'headers'. Must be an object, a list or a string of headers, but was a Number",
+        ),
+        (
+            "http.get 'http://example.com/echo' --cookies='a=1'",
+            "error: Invalid argument 'cookies'. Must be an object of cookies, but was a String",
         ),
         (
             "http.get 'http://example.com/echo' --headers=[42]",
@@ -176,7 +185,7 @@ fn request_errors() {
         ),
         (
             "http.get 'http://example.com/echo' --basicAuth='bad'",
-            "error: Invalid argument 'basicAuth'. Auth string must contain a single ':'",
+            "error: Invalid argument 'basicAuth'. Auth string must be 'username:password'",
         ),
         (
             "http.get 'http://example.com/echo' --basicAuth=42",
@@ -235,9 +244,15 @@ fn request_headers_cookies_and_auth() {
         requests("http.get 'http://example.com/echo' --headers=[{ name: 'Accept', value: 'text/plain' }] --json");
     assert_eq!(sent[0].headers, headers(&[("Accept", "text/plain")]));
 
-    // Anything other than a list or object gives no headers, as in Scala
-    let sent = requests("http.get 'http://example.com/echo' --headers='ignored' --cookies='ignored'");
-    assert_eq!(sent[0].headers, vec![]);
+    // New: a single "name:value" string is a header; split at the first colon (values can contain more), and
+    // trimmed (Scala ignored strings, and rejected values with colons)
+    let sent = requests("http.get 'http://example.com/echo' --headers='X-Url: http://a/b'");
+    assert_eq!(sent[0].headers, headers(&[("X-Url", "http://a/b")]));
+    let sent = requests("http.get 'http://example.com/echo' --headers=['At: 10:30', 'B:1'] --basicAuth='u:p:q'");
+    assert_eq!(
+        sent[0].headers,
+        headers(&[("At", "10:30"), ("B", "1"), ("Authorization", "Basic dTpwOnE=")])
+    );
 }
 
 #[test]
