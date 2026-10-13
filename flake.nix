@@ -1,5 +1,5 @@
 {
-  description = "Mash object shell - development environment";
+  description = "Mash object shell: the Rust port's `mash` (nix run github:mdr/mash), and a development environment";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
@@ -17,6 +17,39 @@
       }));
     in
     {
+      # The Rust port's shell, so that `nix run github:mdr/mash` runs it
+      packages = forAllSystems (pkgs:
+        let
+          # The workspace needs a newer Rust than nixpkgs has, so build with rust-overlay's
+          toolchain = pkgs.rust-bin.stable.latest.minimal;
+          rustPlatform = pkgs.makeRustPlatform { cargo = toolchain; rustc = toolchain; };
+          workspace = (builtins.fromTOML (builtins.readFile ./rust/Cargo.toml)).workspace.package;
+          mash = rustPlatform.buildRustPackage {
+            pname = "mash";
+            version = workspace.version;
+            src = ./rust;
+            cargoLock.lockFile = ./rust/Cargo.lock;
+            cargoBuildFlags = [ "-p" "mash-cli" ];
+            # The tests need a home directory, git and the network, which the build sandbox doesn't have
+            doCheck = false;
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            # Mash's git functions run `git`: fall back to Nix's when there's none on the PATH
+            postInstall = ''
+              wrapProgram $out/bin/mash --suffix PATH : ${pkgs.lib.makeBinPath [ pkgs.git ]}
+            '';
+            meta = {
+              description = "An object shell";
+              homepage = "https://mash-shell.org";
+              license = pkgs.lib.licenses.mit;
+              mainProgram = "mash";
+            };
+          };
+        in
+        {
+          inherit mash;
+          default = mash;
+        });
+
       devShells = forAllSystems (pkgs:
         let
           # JDK 17: newer JDKs work but warn about native access from jnr/jffi

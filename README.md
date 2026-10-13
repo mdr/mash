@@ -2,6 +2,16 @@ Mash is an experimental object shell for Unix.
 
 Website: http://mash-shell.org
 
+## Try it
+
+In the browser: https://mash-shell.org/try/
+
+With [Nix](https://nixos.org/) (flakes enabled), run the Rust port of Mash, built from this repo:
+
+    nix run github:mdr/mash
+
+The first run compiles it, which takes a few minutes. Use `nix profile install github:mdr/mash` to keep it.
+
 [![Mash chat room on Gitter](https://badges.gitter.im/mdr/mash.svg)](https://gitter.im/mdr/mash?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Development
