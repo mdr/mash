@@ -173,17 +173,21 @@ fn complete_local_branches(params: &Params, arg_pos: usize, args: &TypedArgs) ->
 }
 
 /// Delete a local branch
+///
+/// As `git branch -d`, a branch whose commits aren't merged (into its upstream, or the current branch) isn't
+/// deleted, unless --force is given.
 #[builtin(namespace = "git.branch", returns = Type::UNIT, completion = complete_local_branches)]
 pub(super) fn delete(
     ctx: &mut Ctx,
     args: &Args,
+    #[param(def = force_delete_param)] force: bool,
     #[param("Local branches to delete", variadic, at_least_one)] branches: List,
 ) -> R<()> {
     let mut names = vec![];
     for branch in branches.snapshot() {
         names.push(local_branch_name(ctx, args, "branches", &branch)?);
     }
-    let mut git_args = vec!["branch", "--quiet", "-D", "--"];
+    let mut git_args = vec!["branch", "--quiet", delete_flag(force), "--"];
     git_args.extend(names.iter().map(String::as_str));
     git(ctx, Mode::Quiet, &git_args).map(drop)
 }
@@ -224,8 +228,28 @@ fn complete_set_commit(params: &Params, arg_pos: usize, args: &TypedArgs) -> Vec
 }
 
 /// Point a local branch at a commit (as JGit's forced ref update: the working tree isn't touched)
+fn force_delete_param() -> Param {
+    Param::named("force")
+        .summary("Delete even if not merged (default false)")
+        .short('f')
+        .boolean_flag()
+}
+
+/// As `git branch`: `-d` refuses to delete a branch whose commits aren't in its upstream or HEAD
+fn delete_flag(force: bool) -> &'static str {
+    if force { "-D" } else { "-d" }
+}
+
+/// Point a branch at a commit. Not the checked-out branch, as `git branch -f` refuses: that would leave the
+/// working tree and index describing a different commit.
 fn set_commit_of(ctx: &mut Ctx, branch: &str, commit: &str) -> R<()> {
     let ref_name = format!("refs/heads/{branch}");
+    let current = run::run(ctx, Mode::Query, &["symbolic-ref", "--quiet", "HEAD"])?;
+    if current.exit_status == 0 && current.stdout.trim_end() == ref_name {
+        return Err(MashError::new(format!(
+            "Cannot set the commit of '{branch}': it is the current branch"
+        )));
+    }
     git(ctx, Mode::Quiet, &["update-ref", &ref_name, commit]).map(drop)
 }
 
@@ -263,11 +287,16 @@ fn name(target: &Value) -> R<String> {
     string_field(target, "name")
 }
 
-/// Delete this branch
+/// Delete this branch (if merged, unless --force is given)
 #[builtin_method(name = "delete", returns = Type::UNIT)]
-pub(super) fn branch_delete(ctx: &mut Ctx, target: &Value) -> R<()> {
+pub(super) fn branch_delete(ctx: &mut Ctx, target: &Value, #[param(def = force_delete_param)] force: bool) -> R<()> {
     let name = name(target)?;
-    git(ctx, Mode::Quiet, &["branch", "--quiet", "-D", "--", &name]).map(drop)
+    git(
+        ctx,
+        Mode::Quiet,
+        &["branch", "--quiet", delete_flag(force), "--", &name],
+    )
+    .map(drop)
 }
 
 /// Return a list of commits from this branch

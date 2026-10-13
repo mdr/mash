@@ -60,6 +60,8 @@ fn fake_git(p: &FakeProcess<'_>) -> FakeOutcome {
             "refs/tags" => TAGS,
             _ => "",
         }),
+        // At the top of the working tree
+        "rev-parse" if args.contains(&"--show-prefix") => FakeOutcome::output("\n"),
         "rev-parse" => {
             let name = last.trim_end_matches("^{commit}");
             match name {
@@ -290,6 +292,15 @@ fn errors() {
             "git.branch.setCommit 'master' 'nope'",
             "error: Invalid argument 'commit'. Must be the name of a commit",
         ),
+        // As `git branch -f`, not the checked-out branch
+        (
+            "git.branch.setCommit 'master' 'origin/master'",
+            "error: Cannot set the commit of 'master': it is the current branch",
+        ),
+        (
+            "git.branch.current.setCommit 'origin/master'",
+            "error: Cannot set the commit of 'master': it is the current branch",
+        ),
     ]);
 }
 
@@ -398,9 +409,11 @@ fn commands_run_for_changes() {
             ),
             (
                 "git.branch.delete 'feature' (git.branch.get 'master')",
-                &["branch --quiet -D -- feature master"],
+                &["branch --quiet -d -- feature master"],
             ),
-            ("git.branches.first.delete", &["branch --quiet -D -- feature"]),
+            ("git.branches.first.delete", &["branch --quiet -d -- feature"]),
+            ("git.branch.delete --force 'feature'", &["branch --quiet -D -- feature"]),
+            ("git.branches.first.delete -f", &["branch --quiet -D -- feature"]),
             (
                 "git.branch.setCommit 'feature' 'origin/master'",
                 &["update-ref refs/heads/feature 24de7ab09e55b75957048e988b4411467cfa5278"],

@@ -292,7 +292,8 @@ pub(crate) fn status(output: &str) -> Status {
                     _ => {}
                 }
                 match y {
-                    'M' | 'T' => status.modified.push(path),
+                    // `A`: added with intent to add (`git add -N`), so not yet staged
+                    'M' | 'T' | 'A' => status.modified.push(path),
                     'D' => status.missing.push(path),
                     _ => {}
                 }
@@ -449,6 +450,7 @@ mod tests {
         1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 19d9cc8584ac2c7dcf57d2680375e80f099dc481 new file.txt\0\
         1 MM N... 100644 100644 100644 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 both.txt\0\
         1 D. N... 100644 000000 000000 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 0000000000000000000000000000000000000000 gone.txt\0\
+        1 .A N... 000000 000000 100644 0000000000000000000000000000000000000000 0000000000000000000000000000000000000000 intent.txt\0\
         u UU N... 100644 100644 100644 100644 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 2fa992c0b8b5c6acd2bdd4fa31de29d29799bdd5 conflict.txt\0\
         ? sub/y.txt\0? u.txt\0";
 
@@ -468,7 +470,7 @@ mod tests {
         assert_eq!(status.changed, ["both.txt"]);
         assert_eq!(status.removed, ["gone.txt"]);
         assert_eq!(status.missing, ["del.txt"]);
-        assert_eq!(status.modified, ["both.txt", "keep.txt"]);
+        assert_eq!(status.modified, ["both.txt", "intent.txt", "keep.txt"]);
         assert_eq!(status.untracked, ["sub/y.txt", "u.txt"]);
         assert_eq!(status.conflicting, ["conflict.txt"]);
     }

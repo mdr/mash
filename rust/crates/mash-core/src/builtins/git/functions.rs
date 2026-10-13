@@ -85,6 +85,51 @@ fn on_paths(ctx: &mut Ctx, command: &[&str], paths: &[String]) -> R<()> {
     git(ctx, Mode::Quiet, &args).map(drop)
 }
 
+/// The current directory's path within the working tree (`sub/dir/`, or empty at the top)
+fn tree_prefix(ctx: &mut Ctx) -> R<String> {
+    Ok(git(ctx, Mode::Query, &["rev-parse", "--show-prefix"])?
+        .trim_end()
+        .to_string())
+}
+
+/// A path relative to the top of the working tree, relative to the directory at `prefix` instead (as
+/// `git status` shows paths)
+fn relative_to(prefix: &str, path: &str) -> String {
+    let directory: Vec<&str> = prefix.split('/').filter(|part| !part.is_empty()).collect();
+    let parts: Vec<&str> = path.split('/').collect();
+    let common = directory
+        .iter()
+        .zip(&parts[..parts.len().saturating_sub(1)])
+        .take_while(|(a, b)| a == b)
+        .count();
+    let mut relative = vec![".."; directory.len() - common];
+    relative.extend(&parts[common..]);
+    relative.join("/")
+}
+
+/// The working tree status, with paths relative to the current directory: so that they are paths from here,
+/// as other git functions take
+fn status_here(ctx: &mut Ctx) -> R<parse::Status> {
+    let mut status = status(ctx)?;
+    let prefix = tree_prefix(ctx)?;
+    if !prefix.is_empty() {
+        for paths in [
+            &mut status.added,
+            &mut status.changed,
+            &mut status.missing,
+            &mut status.modified,
+            &mut status.removed,
+            &mut status.untracked,
+            &mut status.conflicting,
+        ] {
+            for path in paths.iter_mut() {
+                *path = relative_to(&prefix, path);
+            }
+        }
+    }
+    Ok(status)
+}
+
 fn status(ctx: &mut Ctx) -> R<parse::Status> {
     let output = git(
         ctx,
@@ -153,7 +198,7 @@ fn restorable(status: &parse::Status) -> Vec<&String> {
 
 /// Paths from `git status`, or None outside a repository
 fn status_paths(ctx: &mut Ctx, lists: fn(&parse::Status) -> Vec<&String>) -> Option<Vec<String>> {
-    let status = status(ctx).ok()?;
+    let status = status_here(ctx).ok()?;
     let mut paths: Vec<String> = vec![];
     for path in lists(&status) {
         if !paths.contains(path) {
@@ -193,9 +238,11 @@ fn require_paths_or_all(paths: &[String], all: bool) -> R<()> {
 // ------------------------------------------------------------------------------------------------ status
 
 /// Return the working tree status
+///
+/// Paths are relative to the current directory, as `git status` shows them.
 #[builtin(namespace = "git", returns = Type::Instance(&STATUS_CLASS))]
 pub(super) fn status_(ctx: &mut Ctx) -> R<Value> {
-    Ok(objects::status(&status(ctx)?))
+    Ok(objects::status(&status_here(ctx)?))
 }
 
 /// Return true if a directory is within a Git repository
@@ -509,6 +556,15 @@ pub(super) fn push_branches(
             outcome.exit_status
         )));
     }
+    // A rejected ref is a failure (and isn't tracked): git's explanation has been shown
+    let rejected: Vec<&str> = updates
+        .iter()
+        .filter(|u| u.status.starts_with("REJECTED"))
+        .map(|u| u.remote_ref.as_str())
+        .collect();
+    if !rejected.is_empty() {
+        return Err(MashError::new(format!("Push rejected: {}", rejected.join(", "))));
+    }
     if set_upstream {
         set_upstream_config(ctx, branches, remote)?;
     }
@@ -528,7 +584,9 @@ fn complete_push(params: &Params, arg_pos: usize, args: &TypedArgs) -> Vec<Compl
 }
 
 /// Update remote refs along with associated objects
-#[builtin(namespace = "git", returns = Type::UNIT, completion = complete_push)]
+///
+/// Returns the result for each ref pushed. If the remote rejects any, it is an error.
+#[builtin(namespace = "git", returns = Type::seq(Type::OBJECT), completion = complete_push)]
 pub(super) fn push(
     ctx: &mut Ctx,
     args: &Args,

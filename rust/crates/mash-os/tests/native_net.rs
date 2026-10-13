@@ -334,7 +334,10 @@ fn credentials_are_not_sent_on_to_another_origin() {
         assert!(echoed.contains("x-api: k\n"), "{echoed}");
     }
     // Nor are they sent back if a later redirect returns to the original origin
-    let echoed = send(format!("{base}/redirect-to/{other}/redirect-to/{base}/echo"), Some(("u", "p")));
+    let echoed = send(
+        format!("{base}/redirect-to/{other}/redirect-to/{base}/echo"),
+        Some(("u", "p")),
+    );
     assert!(!echoed.contains("authorization:"), "{echoed}");
 }
 

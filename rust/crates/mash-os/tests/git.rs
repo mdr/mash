@@ -144,6 +144,15 @@ fn git_in_temporary_repositories() {
             "git.status | select 'added' 'missing' 'untracked'",
             "{ added: [], missing: [del.txt], untracked: [new.txt, sub/y.txt] }",
         );
+        // From a subdirectory, paths are relative to it (as `git status` shows them), so they can be staged
+        s.check(
+            "cd 'sub'; git.status | select 'modified' 'untracked'",
+            "{ modified: [../keep.txt], untracked: [../new.txt, y.txt] }",
+        );
+        s.check("git.status.untracked | map (.exists)", "[true, true]");
+        s.eval("git.stage git.status.untracked; cd '..'");
+        s.check("git.status.added", "[new.txt, sub/y.txt]");
+        s.eval("git.unstage --all");
         // From a subdirectory, --all still means the whole working tree
         s.eval("cd 'sub'; git.stage --all; cd '..'");
         s.check(
@@ -161,6 +170,18 @@ fn git_in_temporary_repositories() {
         s.eval("git.restore --all; git.unstage --all; rm 'new.txt'; rm 'sub'");
         s.check("git.status.isClean", "true");
 
+        // A file added with intent to add (`git add -N`) is a change not yet staged
+        s.eval("write 'ita.txt' 'i'; run 'git' 'add' '-N' 'ita.txt'");
+        s.check(
+            "git.status | select 'added' 'modified'",
+            "{ added: [], modified: [ita.txt] }",
+        );
+        s.check("git.status.isClean", "false");
+        s.eval("git.stage --all");
+        s.check("git.status.added", "[ita.txt]");
+        s.eval("git.unstage --all; rm 'ita.txt'");
+        s.check("git.status.isClean", "true");
+
         // Branches
         s.check("git.branch.create 'feature' | .name", "feature");
         s.eval("git.switch 'feature'");
@@ -170,10 +191,21 @@ fn git_in_temporary_repositories() {
         s.check("git.status.branch.log | length", "3");
         s.eval("git.status.branch.info.switch");
         s.eval("git.switch 'main'");
+        // As `git branch -d`, an unmerged branch isn't deleted (without --force)
+        assert!(s.error("git.branch.delete 'feature'").contains("git branch failed"));
+        assert!(
+            s.error("git.branch.get 'feature' | .delete")
+                .contains("git branch failed")
+        );
         s.check("git.branches | (.name)", "[feature, main]");
         s.check("git.branches.last.isAncestorOf 'feature'", "true");
         s.eval("git.merge 'feature'");
         s.check("git.log.last.summary", "Feature commit");
+        // As `git branch -f`, not the checked-out branch
+        assert!(
+            s.error("git.branch.setCommit 'main' 'v1'")
+                .contains("it is the current branch")
+        );
         s.eval("git.branch.setCommit 'feature' 'v1'");
         s.check("git.branch.get 'feature' | .commit | .summary", "First commit");
         s.eval("git.branch.delete 'feature'");
@@ -202,6 +234,8 @@ fn git_in_temporary_repositories() {
         ));
         s.check("git.fetch | (.branch) | (.toString)", "[origin/main]");
         s.check("git.fetch", "[]");
+        // main and origin/main have diverged, so pushing main is rejected: an error
+        assert_eq!(s.error("git.push 'main'"), "Push rejected: refs/heads/main");
         s.check("git.branch.remoteBranches | (.name)", "[main, topic]");
         s.check(
             "git.branch.remoteBranches.last.delete; git.branch.remoteBranches | (.name)",
