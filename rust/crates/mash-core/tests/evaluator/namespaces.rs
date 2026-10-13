@@ -74,6 +74,23 @@ pub(crate) const CASES: &[Case] = &[
         r#"[1, 2, 3] | map (_ => random.int 2 3 --inclusive) | all (n => n == 2 or n == 3)"#,
         r#"true"#,
     ),
+    // New: negative ranges are right (Scala rounded towards zero, giving -1 but never -5 here), and an empty
+    // range is an error (Scala returned `from`)
+    Case::eq(
+        r#"1.to 200 | map (_ => random.int (0 - 5) (0 - 1)) | unique | sort"#,
+        r#"[-5, -4, -3, -2]"#,
+    ),
+    Case::eq(
+        r#"1.to 100 | map (_ => random.int 1 3 --inclusive) | unique | sort"#,
+        r#"[1, 2, 3]"#,
+    ),
+    Case::eq(r#"random.int 3 3 --inclusive"#, r#"3"#),
+    Case::throws(r#"random.int 3 3"#),
+    Case::throws(r#"random.int 5 1"#),
+    Case::eq(
+        r#"r = random.int (0 - 9000000000000000000) 9000000000000000000; r >= (0 - 9000000000000000000)"#,
+        r#"true"#,
+    ),
     Case::eq(r#"x = random.number; x >= 0 and x < 1"#, r#"true"#),
     Case::eq(
         r#"u = random.uuid; [u[8], u[13], u[14], u[18], u[23]]"#,

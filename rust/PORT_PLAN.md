@@ -388,6 +388,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `html.escape` | HTML 4 named entities for non-ASCII | Only `& < > "` |
 | Errors from Java exceptions (`parseIso8601`, `base64.decode`, `1.to 5 --step=0`, bad regex, …) | "Unexpected error … SomeJavaException" | A clean Mash error message |
 | `random.int` bounds | 32-bit | 64-bit (no 32-bit limit, as agreed) |
+| `random.int` results | Rounded towards zero (`random.int -5 -1` never gave -5, but gave -1); an empty or backward range returned a number | Uniform over the range; an empty range is an error |
 | `mash.eval` errors | Printed; returns unit | Propagate |
 | Path completion under `/` | Common-prefix length off by one | Correct (affects only highlighting/common insertion) |
 | Table and tree cell widths | UTF-16 units (wide characters misalign columns) | Display columns |
