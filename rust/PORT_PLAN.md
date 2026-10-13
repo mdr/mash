@@ -384,6 +384,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `toDateTime` | natty (garbage on partial matches) | Strict formats → normaliser → `parse_datetime`; never panics, null on failure |
 | `json.fromString` | Lenient (Gson accepts `{a: 1}`) | Strict JSON; clean error messages |
 | `json.prettyPrint` of NaN/Infinity | Writes `NaN` (invalid JSON) | Error, as agreed; cyclic values are errors too |
+| `csv.write` of null | The text `null` | No value (empty), as for a missing field, as Python's `csv` and jq's `@csv` |
 | `xml.fromString` | Coerces numbers/booleans, hash field order | Text kept as strings, document order, as agreed |
 | `html.escape` | HTML 4 named entities for non-ASCII | Only `& < > "` |
 | Errors from Java exceptions (`parseIso8601`, `base64.decode`, `1.to 5 --step=0`, bad regex, …) | "Unexpected error … SomeJavaException" | A clean Mash error message |

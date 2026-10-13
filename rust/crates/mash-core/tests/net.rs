@@ -339,6 +339,12 @@ fn data_files() {
             "csv.write 'out.csv' [{ a: 1, b: 'x,y' }, { c: '', a: '\"q\"' }, { a: ' lead', b: '#c' }]; read 'out.csv'",
             "a,b,c\r\n1,\"x,y\",\r\n\"\"\"q\"\"\",,\r\n\" lead\",\"#c\",\r\n",
         ),
+        // New: null is written as no value, as a missing field is (Scala wrote `null`)
+        (
+            "csv.write 'out.csv' [{ a: 1, b: null }, { a: null, b: 2 }]; read 'out.csv'",
+            // (an empty first value is quoted, as Commons CSV does, so that the line isn't empty)
+            "a,b\r\n1,\r\n\"\",2\r\n",
+        ),
         ("csv.write 'out.csv' []; read 'out.csv'", "\r\n"),
         (
             "csv.write 'out.csv' ['x']",

@@ -15,7 +15,7 @@ pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&WriteFunction];
 /// Write the given values as a CSV file
 ///
 /// The first line is a header naming every field of the objects, in order of first appearance; each object is
-/// then a line, with an empty value for a field it doesn't have.
+/// then a line, with an empty value for a field it doesn't have, or that is null.
 #[builtin(namespace = "csv", returns = Type::UNIT, completion = complete_files)]
 pub fn write(
     ctx: &mut Ctx,
@@ -44,7 +44,13 @@ pub fn write(
             if !fields.contains(&name) {
                 fields.push(name.clone());
             }
-            record.push((name, ctx.stringify(&value)?));
+            // Null is no value, as a missing field is (as Python's csv module and jq's @csv write it)
+            let text = if value.is_null() {
+                String::new()
+            } else {
+                ctx.stringify(&value)?
+            };
+            record.push((name, text));
         }
         records.push(record);
     }
