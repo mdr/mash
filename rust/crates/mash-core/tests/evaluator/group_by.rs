@@ -51,6 +51,14 @@ pub(crate) const CASES: &[Case] = &[
         r#"[{ path: 'file.txt', type: 'file' }, { path: 'src', type: 'dir' }] | groupBy 'type' --select='path' --groups | select 'key' 'values' | sortBy 'key'"#,
         r#"[{ key: 'dir', values: ['src'] }, { key: 'file', values: ['file.txt'] }]"#,
     ),
+    // New: a key for --all or --includeNull that is also a key of the data is an error (Scala replaced that
+    // group), and falsy keys are keys (Scala ignored them)
+    Case::throws(r#"['All', 'x'] | groupBy (x => x) --all"#),
+    Case::throws(r#"[null, 'x'] | groupBy (x => x) --includeNull='x'"#),
+    Case::eq(
+        r#"[null, 1] | groupBy (x => x) --includeNull=0"#,
+        r#"{ 0: [null], 1: [1] }"#,
+    ),
 ];
 
 #[test]

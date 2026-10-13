@@ -44,6 +44,17 @@ pub(crate) const CASES: &[Case] = &[
     ),
     // The total counts null keys, as groupBy's all group holds them
     Case::eq(r#"[1, null] | countBy --all (x => x)"#, r#"{ 1: 1, All: 2 }"#),
+    // A key for --all or --includeNull that is also a key of the data is an error, not a lost count
+    Case::throws(r#"['All', 'x'] | countBy (x => x) --all"#),
+    Case::throws(r#"[null, 1] | countBy (x => x) --includeNull=1"#),
+    Case::eq(
+        r#"['All', 'x'] | countBy (x => x) --all='Total'"#,
+        r#"{ All: 1, x: 1, Total: 2 }"#,
+    ),
+    // Any key but false is a key, falsy ones too
+    Case::eq(r#"[null, 1] | countBy (x => x) --includeNull=0"#, r#"{ 0: 1, 1: 1 }"#),
+    Case::eq(r#"[1, 2] | countBy (x => x) --all=''"#, r#"{ 1: 1, 2: 1, '': 2 }"#),
+    Case::eq(r#"[1, 2] | countBy (x => x) --all=false"#, r#"{ 1: 1, 2: 1 }"#),
     Case::eq(r#"[] | countBy (x => x)"#, r#"{}"#),
     Case::eq(r#"[] | countBy (x => x) --groups"#, r#"[]"#),
     // Keys can be any value, such as objects for counting by two things at once

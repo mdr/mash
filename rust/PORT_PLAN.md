@@ -366,6 +366,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `max`/`min` of all-null items | Crashes (`empty.max`) | The `--default` value |
 | `naturalJoin` result order | Undefined (Scala `Set`) | Groups by first appearance in the target |
 | `sort`/`sortBy --descending` with equal keys | Reverses an ascending sort, so equal elements come out in reverse order | Stable: equal elements keep their original order, as in Python (`reverse=True`), .NET `OrderByDescending`, Kotlin `sortedByDescending` and GNU `sort -s -r`; sorting twice then sorts by a second key |
+| `groupBy --all`, `--includeNull` keys | A key that is also a key of the data silently replaces that group; falsy keys (`--all=''`, `--includeNull=0`) ignored | The clash is an error; any key but `false` is used |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |

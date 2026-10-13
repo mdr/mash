@@ -142,9 +142,10 @@ pub(crate) fn group_by(
     })
 }
 
-/// The elements of `items` grouped by key, in the order each key is first seen: null keys are left out unless
-/// `include_null` is truthy (when a non-boolean replaces the null key), and a truthy `all` adds a group of
-/// everything (keyed "All", or by `all` if it isn't a boolean). Shared by `groupBy` and `countBy`.
+/// The elements of `items` grouped by key, in the order each key is first seen. Null keys are left out unless
+/// `include_null` is given: true, or another value to use as their key. `all` (true for the key "All", or another
+/// value as the key) adds a group of everything. A key given for either that is also a key of the data is an
+/// error, rather than one group silently replacing another. Shared by `groupBy` and `countBy`.
 fn keyed_groups(
     ctx: &mut Ctx,
     discriminator: &Callable,
@@ -157,23 +158,39 @@ fn keyed_groups(
         let key = discriminator.call1(ctx, item.clone())?;
         by_key.entry(key).or_default().push(item.clone());
     }
+    // A flag is off only when false: a falsy key (0, '') is still a key
+    let given = |flag: &Value| !matches!(flag, Value::Bool(false));
+    let clash = |flag: &str, key: &Value, ctx: &mut Ctx| -> R<MashError> {
+        Ok(MashError::new(format!(
+            "The {flag} key '{}' is also the key of a group: give another with {flag}=<key>",
+            ctx.stringify(key)?
+        )))
+    };
+    let mut result: Vec<(Value, Vec<Value>)> = vec![];
     let null_key = match include_null {
-        Value::Bool(true) => Value::Null,
+        Value::Bool(_) => Value::Null,
         other => other.clone(),
     };
-    let mut result = vec![];
     for (key, values) in by_key {
-        if key.is_null() && !include_null.is_truthy() {
-            continue;
+        if key.is_null() {
+            if given(include_null) {
+                result.push((null_key.clone(), values));
+            }
+        } else {
+            result.push((key, values));
         }
-        let key = if key.is_null() { null_key.clone() } else { key };
-        result.push((key, values));
     }
-    if all.is_truthy() {
+    if !null_key.is_null() && result.iter().filter(|(k, _)| k.mash_equals(&null_key)).count() > 1 {
+        return Err(clash("--includeNull", &null_key, ctx)?);
+    }
+    if given(all) {
         let all_key = match all {
-            Value::Bool(true) => Value::str(DEFAULT_ALL_KEY),
+            Value::Bool(_) => Value::str(DEFAULT_ALL_KEY),
             other => other.clone(),
         };
+        if result.iter().any(|(k, _)| k.mash_equals(&all_key)) {
+            return Err(clash("--all", &all_key, ctx)?);
+        }
         result.push((all_key, items));
     }
     Ok(result)
