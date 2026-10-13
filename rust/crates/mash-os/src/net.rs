@@ -32,7 +32,9 @@ type Cookie = (String, String, String);
 
 /// Make a request, following redirects as Apache's HTTP client (which Scala Mash used) does: a `GET` or `HEAD`
 /// is redirected by 301, 302, 303, 307 and 308; any method by 303, as a `GET`. Cookies set along the way are
-/// sent on to the same host, and are the response's cookies.
+/// sent on to the same host, and are the response's cookies. Once a redirect leaves the original origin (scheme,
+/// host and port), the credentials given with the request (`Authorization`, `Proxy-Authorization` and `Cookie`
+/// headers, including basic authentication) aren't sent any more, as curl and Python's requests do.
 pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
     let agent = agent(request.insecure);
     let headers = request.all_headers();
@@ -40,16 +42,23 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
     let mut url = request.url.to_string();
     let mut body = request.body;
     let mut cookies: Vec<Cookie> = vec![];
+    let mut first_origin = None;
+    let mut left_origin = false;
     for _ in 0..=MAX_REDIRECTS {
         let uri: Uri = url
             .parse()
             .map_err(|e| invalid_input(format!("Invalid URL '{url}': {e}")))?;
         let host = uri.host().unwrap_or_default().to_string();
+        let first_origin = first_origin.get_or_insert_with(|| origin(&uri));
+        left_origin |= origin(&uri) != *first_origin;
         let mut builder = http::Request::builder().method(method.as_str()).uri(uri.clone());
         let sending_body = body.is_some();
         for (name, value) in &headers {
             let about_body = name.eq_ignore_ascii_case("content-type") || name.eq_ignore_ascii_case("content-length");
-            if sending_body || !about_body {
+            let credential = ["authorization", "proxy-authorization", "cookie"]
+                .iter()
+                .any(|c| name.eq_ignore_ascii_case(c));
+            if (sending_body || !about_body) && !(left_origin && credential) {
                 builder = builder.header(name, value);
             }
         }
@@ -133,6 +142,17 @@ fn parse_set_cookie(header: &str) -> Option<(String, String)> {
 }
 
 /// A redirect's `Location` relative to the URL that gave it
+/// A URL's origin: its scheme, host and port (the scheme's default if none is given)
+fn origin(uri: &Uri) -> (String, String, Option<u16>) {
+    let scheme = uri.scheme_str().unwrap_or("http").to_ascii_lowercase();
+    let port = uri.port_u16().or(match scheme.as_str() {
+        "http" => Some(80),
+        "https" => Some(443),
+        _ => None,
+    });
+    (scheme, uri.host().unwrap_or_default().to_ascii_lowercase(), port)
+}
+
 fn resolve_location(base: &Uri, location: &str) -> String {
     let scheme = base.scheme_str().unwrap_or("http");
     let authority = base.authority().map_or("", |a| a.as_str());

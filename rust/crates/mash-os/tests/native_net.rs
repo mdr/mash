@@ -70,6 +70,10 @@ impl Received {
         if let Some(code) = self.path.strip_prefix("/status/") {
             return respond(&format!("{code} Whatever"), &[], "oops!");
         }
+        if let Some(target) = self.path.strip_prefix("/redirect-to/") {
+            let location = format!("Location: {target}");
+            return respond("302 Found", &[&location], "");
+        }
         match self.path.as_str() {
             "/redirect" => respond(
                 "302 Found",
@@ -291,6 +295,47 @@ fn redirects_are_followed_keeping_cookies() {
         .unwrap();
     assert_eq!(response.status, 302);
     assert_eq!(response.cookies, vec![("r".to_string(), "1".to_string())]);
+}
+
+#[test]
+fn credentials_are_not_sent_on_to_another_origin() {
+    let base = http_server();
+    let other = http_server();
+    let headers = vec![
+        ("Authorization".to_string(), "Bearer t".to_string()),
+        ("X-Api".into(), "k".into()),
+    ];
+    let cookies = vec![("a".to_string(), "1".to_string())];
+    let send = |url: String, basic_auth| {
+        let response = NativePlatform
+            .http_request(&HttpRequest {
+                method: "GET",
+                url: &url,
+                headers: &headers,
+                body: None,
+                basic_auth,
+                cookies: &cookies,
+                insecure: false,
+            })
+            .unwrap();
+        text(&response)
+    };
+    // Within the origin, they're kept
+    let echoed = send(format!("{base}/redirect-to/{base}/echo"), Some(("u", "p")));
+    for expected in ["authorization: Basic dTpw\n", "cookie: a=1\n", "x-api: k\n"] {
+        assert!(echoed.contains(expected), "{expected:?} not in {echoed}");
+    }
+    // Once a redirect leaves it (another port is another origin), they aren't sent; other headers still are
+    for basic_auth in [Some(("u", "p")), None] {
+        let echoed = send(format!("{base}/redirect-to/{other}/echo"), basic_auth);
+        assert!(echoed.starts_with("GET /echo\n"), "{echoed}");
+        assert!(!echoed.contains("authorization:"), "{echoed}");
+        assert!(!echoed.contains("cookie:"), "{echoed}");
+        assert!(echoed.contains("x-api: k\n"), "{echoed}");
+    }
+    // Nor are they sent back if a later redirect returns to the original origin
+    let echoed = send(format!("{base}/redirect-to/{other}/redirect-to/{base}/echo"), Some(("u", "p")));
+    assert!(!echoed.contains("authorization:"), "{echoed}");
 }
 
 #[test]
