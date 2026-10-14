@@ -33,8 +33,9 @@ pub(crate) const CASES: &[Case] = &[
     // New: a member selected by name that an object doesn't have is null (Scala: an error), as in jq
     Case::eq(r#"select "a" [{ a: 1 }, { b: 2 }]"#, r#"[{ a: 1 }, { a: null }]"#),
     Case::eq(
-        r#"[{ a: 1 }, { b: 2 }] | select --a --b"#,
-        r#"[{ a: 1, b: null }, { a: null, b: 2 }]"#,
+        // (not --a: that's --add)
+        r#"[{ x: 1 }, { y: 2 }] | select --x --y"#,
+        r#"[{ x: 1, y: null }, { x: null, y: 2 }]"#,
     ),
     Case::eq(r#"select "a" { b: 2 }"#, r#"{ a: null }"#),
     // A computed field is evaluated as written, so a missing member there is still an error
