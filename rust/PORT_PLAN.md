@@ -376,6 +376,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `select` of a member an object doesn't have (`select "coupon"` on rows where only some have one) | Error | null, as jq; computed fields (`--x=(…)`) as written |
 | `isEmpty`, `nonEmpty`, `length`, `any`, `all` and `find` on objects | Error (only lists and strings), though `where`, `map` and `skip` took objects | Field by field, the function taking (name, value) as in `where`; `find` gives the matching field as a one-field object. Also (shy) Object methods, as `where` is |
 | `year`, `month`, `day`, `weekday` on Date and DateTime | Missing (Date had no methods) | Numbers, with `month` 1–12; `weekday` an English name such as `Friday`; a DateTime's in the local zone, as `hour` |
+| Date arithmetic (`today + 1.days`, `date - date`) | Error | A Date plus or minus days, weeks or months is a Date (smaller units are errors); a Date minus a Date is a number of days |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
@@ -500,7 +501,7 @@ browser.
 - Streaming process output (needs lazy sequences).
 - Integer/float number split.
 - Isolate-based `parallelMap` / `inBackground`.
-- `.graphemes`, more Date methods (arithmetic, pattern formatting), paths carrying `OsString`, localised date formatting.
+- `.graphemes`, Date pattern formatting, paths carrying `OsString`, localised date formatting.
 
 ## Spike results (summary)
 

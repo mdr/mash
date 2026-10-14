@@ -11,6 +11,7 @@ use super::{field_type, static_params};
 use crate::ast::*;
 use crate::builtins::collections::{GROUP_CLASS, LIST_CLASS};
 use crate::builtins::core::*;
+use crate::builtins::time::{DATE_CLASS, DATE_TIME_CLASS, DAYS_CLASS, MILLISECONDS_CLASS};
 use crate::function::{Param, Params};
 use crate::value::{BuiltinClass, ClassRef, Value};
 
@@ -591,6 +592,14 @@ impl TypeInferencer {
     }
 
     fn infer_subtract(&mut self, left: Option<Type>, right: Option<Type>, right_expr: &E) -> Option<Type> {
+        // Dates and date-times: their difference, or the date moved by an amount of time
+        if let Some(l) = left.as_ref().and_then(date_type) {
+            return Some(match right.as_ref().and_then(date_type) {
+                Some(_) if l.is_instance_of(&DATE_CLASS) => Type::tagged_number(&DAYS_CLASS),
+                Some(_) => Type::tagged_number(&MILLISECONDS_CLASS),
+                None => l,
+            });
+        }
         let tagged_number = |t: &Option<Type>| matches!(t, Some(t @ Type::Tagged { .. }) if t.is_number());
         if tagged_number(&left) {
             return left;
@@ -705,7 +714,20 @@ fn is_object_class(ty: &Type) -> bool {
 }
 
 /// The type of `left + right` (Scala `BinaryOperatorTypeInferencer.inferTypeAdd`)
+/// `t` if it is a Date or DateTime
+fn date_type(t: &Type) -> Option<Type> {
+    (t.is_instance_of(&DATE_CLASS) || t.is_instance_of(&DATE_TIME_CLASS)).then(|| t.clone())
+}
+
 pub fn infer_add(left: Option<Type>, right: Option<Type>) -> Option<Type> {
+    // A date or date-time plus an amount of time
+    if let Some(date) = left
+        .as_ref()
+        .and_then(date_type)
+        .or_else(|| right.as_ref().and_then(date_type))
+    {
+        return Some(date);
+    }
     match (&left, &right) {
         (Some(Type::Seq(l)), Some(Type::Seq(_))) => {
             if l.is_any() {

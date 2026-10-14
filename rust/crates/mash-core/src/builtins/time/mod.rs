@@ -3,7 +3,8 @@
 //! The clock and time zone always come from the platform. Arithmetic with units (`now - 3.days`,
 //! `3.days.ago`) is calendar arithmetic in the local zone: adding a day across a daylight-saving change keeps
 //! the time of day, and a month is a calendar month. Fractional milliseconds to hours are exact; fractional
-//! days, weeks and months are errors.
+//! days, weeks and months are errors. A Date takes only days, weeks and months, and a Date minus a Date is a
+//! number of days.
 
 pub(crate) mod fuzzy;
 pub(crate) mod parse;
@@ -175,23 +176,38 @@ impl TimeUnit {
                 let duration = SignedDuration::try_from_secs_f64(n * seconds).map_err(|_| out_of_range())?;
                 t.checked_add(duration).map_err(|_| out_of_range())
             }
-            None => {
-                if n.fract() != 0.0 {
-                    return Err(MashError::new(format!(
-                        "Cannot use a fractional number of {} ({n}) in date arithmetic",
-                        self.plural_name()
-                    )));
-                }
-                let whole = Number::new(n).as_i64().ok_or_else(out_of_range)?;
-                let span = match self {
-                    TimeUnit::Days => Span::new().try_days(whole),
-                    TimeUnit::Weeks => Span::new().try_weeks(whole),
-                    _ => Span::new().try_months(whole),
-                }
-                .map_err(|_| out_of_range())?;
-                t.checked_add(span).map_err(|_| out_of_range())
-            }
+            None => t.checked_add(self.calendar_span(n)?).map_err(|_| out_of_range()),
         }
+    }
+
+    /// `d` plus `n` of this unit, which must be days, weeks or months: a date has no time of day
+    pub(crate) fn add_to_date(self, d: jiff::civil::Date, n: f64) -> R<jiff::civil::Date> {
+        if !matches!(self, TimeUnit::Days | TimeUnit::Weeks | TimeUnit::Months) {
+            return Err(MashError::new(format!(
+                "Cannot add {} to a Date, only days, weeks or months (a Date has no time of day)",
+                self.plural_name()
+            )));
+        }
+        d.checked_add(self.calendar_span(n)?)
+            .map_err(|_| MashError::new(format!("Date out of range adding {n} {}", self.plural_name())))
+    }
+
+    /// `n` days, weeks or months as a span; `n` must be whole
+    fn calendar_span(self, n: f64) -> R<Span> {
+        let out_of_range = || MashError::new(format!("Date-time out of range adding {n} {}", self.plural_name()));
+        if n.fract() != 0.0 {
+            return Err(MashError::new(format!(
+                "Cannot use a fractional number of {} ({n}) in date arithmetic",
+                self.plural_name()
+            )));
+        }
+        let whole = Number::new(n).as_i64().ok_or_else(out_of_range)?;
+        match self {
+            TimeUnit::Days => Span::new().try_days(whole),
+            TimeUnit::Weeks => Span::new().try_weeks(whole),
+            _ => Span::new().try_months(whole),
+        }
+        .map_err(|_| out_of_range())
     }
 }
 
@@ -199,6 +215,18 @@ impl TimeUnit {
 pub(crate) fn add_to_date_time(ctx: &Ctx, t: Timestamp, n: f64, unit: TimeUnit) -> R<Value> {
     let zoned = t.to_zoned(ctx.time_zone());
     Ok(Value::DateTime(DateTime(unit.add(&zoned, n)?.timestamp())))
+}
+
+/// `d ± n` of a unit, as a Date value
+pub(crate) fn add_to_date(d: jiff::civil::Date, n: f64, unit: TimeUnit) -> R<Value> {
+    Ok(Value::Date(LocalDate(unit.add_to_date(d, n)?)))
+}
+
+/// The number of days from `earlier` to `later` (a `time.Days`-tagged number)
+pub(crate) fn days_between(later: jiff::civil::Date, earlier: jiff::civil::Date) -> Value {
+    // A span between dates is in days unless larger units are asked for, and always fits
+    let days = later.since(earlier).map_or(0, |span| span.get_days());
+    Value::Number(Number::new(f64::from(days)), Some(&DAYS_CLASS))
 }
 
 /// The difference between two date-times, in milliseconds (a `time.Milliseconds`-tagged number)

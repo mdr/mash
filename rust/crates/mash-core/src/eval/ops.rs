@@ -62,6 +62,11 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
                 let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
                 time::add_to_date_time(ctx, t.0, n, unit)?
             }
+            // A date plus or minus a number of days, weeks or months, e.g. `today + 1.days`
+            (Value::Date(d), amount) | (amount, Value::Date(d)) if TimeUnit::of(amount).is_some() => {
+                let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
+                time::add_to_date(d.0, n, unit)?
+            }
             (Value::List(xs), Value::List(ys)) => {
                 let mut items = xs.snapshot();
                 items.extend(ys.snapshot());
@@ -88,6 +93,12 @@ pub fn binary_op(ctx: &mut Ctx, op: BinOp, left: &Value, right: &Value) -> R<Val
                 let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
                 time::add_to_date_time(ctx, t.0, -n, unit)?
             }
+            (Value::Date(d), amount) if TimeUnit::of(amount).is_some() => {
+                let (n, unit) = TimeUnit::of(amount).expect("checked by the guard");
+                time::add_to_date(d.0, -n, unit)?
+            }
+            // The difference between two dates, in days
+            (Value::Date(a), Value::Date(b)) => time::days_between(a.0, b.0),
             // The difference between two date-times, in milliseconds
             (Value::DateTime(a), Value::DateTime(b)) => time::difference(a.0, b.0),
             (Value::Number(a, tag_a), Value::Number(b, tag_b)) => match in_common_unit(left, right)? {
