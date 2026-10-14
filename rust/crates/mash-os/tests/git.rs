@@ -179,8 +179,17 @@ fn git_in_temporary_repositories() {
         // Stashing
         s.eval("git.stash.create");
         s.check("git.status.isClean", "true");
+        s.check("git.stash.list | map (.name)", "[stash@{0}]");
         s.eval("git.stash.apply");
         s.check("git.status.isClean", "false");
+        // Applying keeps the stash; popping drops it
+        s.check("git.stash.list | length", "1");
+        s.eval("git.stash.drop");
+        s.check("git.stash.list", "[]");
+        s.eval("git.stash.create");
+        s.check("git.status.isClean", "true");
+        s.eval("git.stash.pop");
+        s.check("[git.status.isClean, git.stash.list]", "[false, []]");
         s.eval("git.restore --all; git.unstage --all; rm 'new.txt'; rm 'sub'");
         s.check("git.status.isClean", "true");
 

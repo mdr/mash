@@ -41,6 +41,8 @@ const TAGS: &str = "refs/tags/v1\x0024de7ab09e55b75957048e988b4411467cfa5278\0\n
 
 const REFLOG: &str = "3b434f696c848140d2137675bf2dc7b174f0e8ff\0commit: Second commit\0\
     24de7ab09e55b75957048e988b4411467cfa5278\0clone: from /tmp/origin\0";
+const STASH_LIST: &str = "stash@{0}\0On master: try c\x001792000000\0stash@{1}\0WIP on master: 3b434f6 Second\x00\
+    1791990000\0";
 
 /// What the fake git prints for read-only queries; any other command succeeds silently
 fn fake_git(p: &FakeProcess<'_>) -> FakeOutcome {
@@ -73,6 +75,7 @@ fn fake_git(p: &FakeProcess<'_>) -> FakeOutcome {
         "symbolic-ref" => FakeOutcome::output("refs/heads/master\n"),
         "merge-base" => FakeOutcome::status(if args[2] == H1 || args[2] == args[3] { 0 } else { 1 }),
         "reflog" => FakeOutcome::output(REFLOG),
+        "stash" if args.get(1) == Some(&"list") => FakeOutcome::output(STASH_LIST),
         "diff-tree" => FakeOutcome::output(if args.contains(&"--root") {
             "A\0a.txt\0A\0del.txt\0A\0keep.txt\0"
         } else {
@@ -203,6 +206,12 @@ fn log_and_commits() {
             "[{ commit: 24de7ab09e55b75957048e988b4411467cfa5278, comment: clone: from /tmp/origin }, { commit: \
              3b434f696c848140d2137675bf2dc7b174f0e8ff, comment: commit: Second commit }]",
         ),
+        (
+            "git.stash.list",
+            "[{ name: stash@{0}, message: On master: try c, time: 2026-10-14T17:46:40+00:00 }, { name: stash@{1}, \
+             message: WIP on master: 3b434f6 Second, time: 2026-10-14T15:00:00+00:00 }]",
+        ),
+        ("git.stash.list.first.time.getClass.name", "DateTime"),
         (
             "git.Identity.new 'Ann' 'ann@example.com' | .toString",
             "Ann <ann@example.com>",
@@ -436,6 +445,8 @@ fn commands_run_for_changes() {
             ("git.tags.first.delete", &["tag --delete -- v1"]),
             ("git.stash.create", &["stash push --quiet"]),
             ("git.stash.apply", &["stash apply --quiet"]),
+            ("git.stash.pop", &["stash pop --quiet"]),
+            ("git.stash.drop", &["stash drop --quiet"]),
             ("git.init", &["init --quiet"]),
             (
                 "git.clone 'https://example.com/x/repo.git'",

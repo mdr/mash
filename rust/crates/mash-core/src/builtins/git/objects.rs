@@ -6,7 +6,7 @@ use super::run;
 use super::{
     BRANCH_CLASS, COMMIT_CLASS, COMMIT_HASH_CLASS, FETCH_BRANCH_UPDATE_CLASS, FILE_DIFF_CLASS, IDENTITY_CLASS,
     LOCAL_BRANCH_NAME_CLASS, REFLOG_ENTRY_CLASS, REMOTE_BRANCH_CLASS, REMOTE_BRANCH_NAME_CLASS, REMOTE_CLASS,
-    REMOTE_NAME_CLASS, STATUS_CLASS, TAG_CLASS, TAG_NAME_CLASS,
+    REMOTE_NAME_CLASS, STASH_ENTRY_CLASS, STATUS_CLASS, TAG_CLASS, TAG_NAME_CLASS,
 };
 use crate::builtins::os::paths::path_value;
 use crate::eval::{Ctx, MashError, R};
@@ -145,6 +145,19 @@ pub(crate) fn reflog_entry(entry: &parse::ReflogEntry) -> Value {
         vec![
             ("commit", commit_hash(entry.commit.as_str())),
             ("comment", Value::str(&entry.comment)),
+        ],
+    )
+}
+
+/// A `git.StashEntry`
+pub(crate) fn stash_entry(entry: &parse::StashEntry) -> Value {
+    let time = jiff::Timestamp::from_second(entry.time).unwrap_or(jiff::Timestamp::UNIX_EPOCH);
+    object(
+        &STASH_ENTRY_CLASS,
+        vec![
+            ("name", Value::str(&entry.name)),
+            ("message", Value::str(&entry.message)),
+            ("time", Value::DateTime(DateTime(time))),
         ],
     )
 }

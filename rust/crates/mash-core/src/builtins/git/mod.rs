@@ -57,6 +57,9 @@ pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &remote::ListFunction,
     &stash::ApplyFunction,
     &stash::CreateFunction,
+    &stash::DropFunction,
+    &stash::ListFunction,
+    &stash::PopFunction,
     &tag::CreateFunction,
     &tag::DeleteFunction,
     &tag::ListFunction,
@@ -72,6 +75,7 @@ pub(crate) const CLASSES: &[&BuiltinClass] = &[
     &BRANCH_CLASS,
     &LOCAL_BRANCH_NAME_CLASS,
     &REFLOG_ENTRY_CLASS,
+    &STASH_ENTRY_CLASS,
     &STATUS_CLASS,
     &REMOTE_BRANCH_CLASS,
     &REMOTE_BRANCH_NAME_CLASS,
@@ -229,6 +233,28 @@ pub static REFLOG_ENTRY_CLASS: BuiltinClass = BuiltinClass {
         },
     ],
     ..BuiltinClass::new("git", "ReflogEntry", Some(&OBJECT_CLASS))
+};
+
+pub static STASH_ENTRY_CLASS: BuiltinClass = BuiltinClass {
+    summary: "A stash: changes set aside by git.stash.create",
+    fields: &[
+        Field {
+            name: "name",
+            summary: "Name, as git gives it: stash@{0} is the newest",
+            ty: || Type::STRING,
+        },
+        Field {
+            name: "message",
+            summary: "Message, as git gives it: the branch, and the commit or message it was stashed with",
+            ty: || Type::STRING,
+        },
+        Field {
+            name: "time",
+            summary: "When it was stashed",
+            ty: || Type::Instance(&DATE_TIME_CLASS),
+        },
+    ],
+    ..BuiltinClass::new("git", "StashEntry", Some(&OBJECT_CLASS))
 };
 
 pub static FETCH_BRANCH_UPDATE_CLASS: BuiltinClass = BuiltinClass {

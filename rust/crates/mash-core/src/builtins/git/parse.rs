@@ -21,6 +21,9 @@ pub(crate) const REF_FORMAT: &str = "--format=%(refname)%00%(objectname)";
 /// The `--format` for `git reflog` (with `-z`) that [`reflog`] parses
 pub(crate) const REFLOG_FORMAT: &str = "--format=%H%x00%gs";
 
+/// The `--format` for `git stash list` (with `-z`) that [`stash_list`] parses
+pub(crate) const STASH_LIST_FORMAT: &str = "--format=%gd%x00%gs%x00%ct";
+
 /// A person and their email address.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Identity {
@@ -96,6 +99,16 @@ pub(crate) struct FileDiff {
 pub(crate) struct ReflogEntry {
     pub commit: String,
     pub comment: String,
+}
+
+/// A stash, from `git stash list`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct StashEntry {
+    /// As git names it: `stash@{0}` is the newest
+    pub name: String,
+    pub message: String,
+    /// Seconds since the epoch
+    pub time: i64,
 }
 
 /// The result of pushing one ref, from `git push --porcelain` (named as JGit's `RemoteRefUpdate`).
@@ -370,6 +383,20 @@ pub(crate) fn reflog(output: &str) -> Vec<ReflogEntry> {
         .map(|pair| ReflogEntry {
             commit: pair[0].to_string(),
             comment: pair[1].to_string(),
+        })
+        .collect()
+}
+
+/// Stashes from `git stash list -z` with [`STASH_LIST_FORMAT`], newest first
+pub(crate) fn stash_list(output: &str) -> Vec<StashEntry> {
+    nul_items(output)
+        .as_chunks::<3>()
+        .0
+        .iter()
+        .map(|item| StashEntry {
+            name: item[0].to_string(),
+            message: item[1].to_string(),
+            time: item[2].parse().unwrap_or(0),
         })
         .collect()
 }
