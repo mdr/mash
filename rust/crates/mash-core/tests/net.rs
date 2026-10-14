@@ -15,6 +15,8 @@ fn platform() -> TestPlatform {
         files: MemoryFiles::of(&["/home/alice/"])
             .with_file("/home/alice/data.json", r#"{ "a": [1, 2], "b": { "c": null } }"#)
             .with_file("/home/alice/data.xml", "<a><b x='1'>text</b><b>more</b></a>")
+            .with_file("/home/alice/data.csv", "name,age,city\nAda,36,\"London, UK\"\nBob,,Paris\n")
+            .with_file("/home/alice/ragged.csv", "a,b\n1,2\n3\n")
             .with_file("/home/alice/body.txt", "from a file")
             .with_file("/home/alice/script.mash", "def triple n = n * 3\nsourced = triple 14")
             .with_file("/home/alice/bad.mash", "1 +"),
@@ -361,6 +363,24 @@ fn data_files() {
             "a,b\r\n1,\r\n\"\",2\r\n",
         ),
         ("csv.write 'out.csv' []; read 'out.csv'", "\r\n"),
+        // New: reading CSV, a header line then one object per line, every value a string
+        (
+            "csv.read 'data.csv'",
+            "[{ name: Ada, age: 36, city: London, UK }, { name: Bob, age: , city: Paris }]",
+        ),
+        ("csv.read 'data.csv' | map (.age.getClass.name)", "[String, String]"),
+        ("'x,y\n1,\"a\nb\"' | csv.fromString | map (.y)", "[a\nb]"),
+        ("'' | csv.fromString", "[]"),
+        (
+            "csv.write 'out.csv' [{ a: 1, b: 'x,y' }, { a: null, b: '\"q\"' }]; csv.read 'out.csv'",
+            "[{ a: 1, b: x,y }, { a: , b: \"q\" }]",
+        ),
+        ("csv.write 'out.csv' []; csv.read 'out.csv'", "[]"),
+        ("csv.read 'ragged.csv'", "error: Invalid CSV: line 3 has 1 value, but the header has 2"),
+        (
+            "csv.read 'nope.csv'",
+            "error: Could not read 'nope.csv': No such file or directory: nope.csv",
+        ),
         (
             "csv.write 'out.csv' ['x']",
             "error: Invalid argument 'values'. Values to write must be objects, but found: String",

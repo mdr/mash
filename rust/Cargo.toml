@@ -24,6 +24,7 @@ fancy-regex = "0.19"
 parse_datetime = "0.16"
 base64 = "0.22"
 quick-xml = "0.37"
+csv = "1.4"
 serde_json = { version = "1.0", features = ["preserve_order"] }
 sha2 = "0.10"
 unicode-width = "0.2"

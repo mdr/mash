@@ -16,6 +16,7 @@ fancy-regex.workspace = true
 parse_datetime.workspace = true
 base64.workspace = true
 quick-xml.workspace = true
+csv.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 

@@ -1,16 +1,65 @@
-//! The `csv` namespace: writing objects as CSV files, in the format of Apache Commons CSV 1.4's
-//! `CSVFormat.DEFAULT` (which Scala Mash used).
+//! The `csv` namespace: reading CSV as objects, and writing objects as CSV files, in the format of Apache
+//! Commons CSV 1.4's `CSVFormat.DEFAULT` (which Scala Mash used).
 
 use mash_macros::builtin;
 
-use super::os::complete_files;
 use super::os::paths::{PathArg, fs, io_error};
-use crate::eval::{Ctx, R};
+use super::os::{complete_files, read_text};
+use crate::eval::{Ctx, MashError, R};
 use crate::function::{Args, BuiltinFunction};
 use crate::infer::Type;
-use crate::value::Value;
+use crate::value::{Object, Str, Value};
 
-pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&WriteFunction];
+pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&FromStringFunction, &ReadFunction, &WriteFunction];
+
+/// Parse the given string as CSV
+///
+/// The first line is a header naming the fields; each line after it becomes an object with those fields, in
+/// order. Every value is a string, as written (an empty value is the empty string): use `toNumber` to convert.
+/// Values may be quoted, to contain commas, quotes (doubled) or line breaks.
+#[builtin(namespace = "csv", returns = Type::seq(Type::OBJECT))]
+pub fn from_string(#[param("String to parse as CSV")] string: Str) -> R<Value> {
+    parse_csv(string.as_str())
+}
+
+/// Read the given CSV file
+///
+/// The first line is a header naming the fields; each line after it becomes an object with those fields, in
+/// order. Every value is a string, as written (an empty value is the empty string): use `toNumber` to convert.
+/// Values may be quoted, to contain commas, quotes (doubled) or line breaks.
+#[builtin(namespace = "csv", returns = Type::seq(Type::OBJECT), completion = complete_files)]
+pub fn read(ctx: &mut Ctx, #[param("File from which to read CSV records")] file: PathArg) -> R<Value> {
+    parse_csv(&read_text(ctx, &file.0)?)
+}
+
+/// Objects from CSV with a header line, every value a string (as Python's `csv.DictReader` and PowerShell's
+/// `Import-Csv`); a line with a different number of values from the header is an error
+fn parse_csv(text: &str) -> R<Value> {
+    let invalid = |e: csv::Error| {
+        MashError::new(match e.kind() {
+            csv::ErrorKind::UnequalLengths {
+                pos, expected_len, len, ..
+            } => format!(
+                "Invalid CSV: line {} has {len} value{}, but the header has {expected_len}",
+                pos.as_ref().map_or(0, csv::Position::line),
+                if *len == 1 { "" } else { "s" }
+            ),
+            _ => format!("Invalid CSV: {e}"),
+        })
+    };
+    let mut reader = csv::ReaderBuilder::new().from_reader(text.as_bytes());
+    let headers = reader.headers().map_err(invalid)?.clone();
+    let mut rows = vec![];
+    for record in reader.records() {
+        let record = record.map_err(invalid)?;
+        let object = Object::new();
+        for (name, value) in headers.iter().zip(record.iter()) {
+            object.set_str(name, Value::str(value));
+        }
+        rows.push(Value::Object(object));
+    }
+    Ok(Value::list(rows))
+}
 
 /// Write the given values as a CSV file
 ///
