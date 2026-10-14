@@ -373,6 +373,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `reduce`'s accumulator | Only functions (not bound methods or member names) | Any function value, as other higher-order functions |
 | `Object.bless` with a class that isn't an object class (`String`, `Number`) | Allowed, making broken values | Error, as `Class.bless` |
 | `contains`, `indexOf` (functions) and `in` on strings | The string as a single element (character), so `contains "bc" "abc"` was false while `"abc".contains "bc"` was true | A substring, as the String methods (and Python's `in`); lists unchanged |
+| `select` of a member an object doesn't have (`select "coupon"` on rows where only some have one) | Error | null, as jq; computed fields (`--x=(…)`) as written |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |

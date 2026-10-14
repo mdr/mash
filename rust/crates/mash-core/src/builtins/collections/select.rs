@@ -2,7 +2,7 @@
 
 use mash_macros::{builtin, builtin_method};
 
-use crate::eval::{Ctx, MashError, R};
+use crate::eval::{Ctx, MashError, MemberLookup, R};
 use crate::function::{Args, Argument, Suspended};
 use crate::value::{List, Object, Value};
 
@@ -20,6 +20,8 @@ use crate::value::{List, Object, Value};
 ///   3) A flag with an argument -- the flag argument is applied as a function to the input object, and the result
 ///     is copied to an output field with the flag name.
 ///
+/// A member selected by name that an object doesn't have is null (as rows of JSON often lack fields).
+///
 /// The order of fields in the argument list is retained in the new output objects.
 ///
 /// Examples:
@@ -30,6 +32,7 @@ use crate::value::{List, Object, Value};
 ///   select "bar" "foo" { foo: 42, bar: 24 }        # { bar: 24, foo: 42 }
 ///   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
 ///   select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]
+///   select "foo" [{ foo: 42 }, { bar: 24 }]        # [{ foo: 42 }, { foo: null }]
 /// </mash>
 #[builtin(namespace = "collections", infer = super::inference::infer_select, completion = super::inference::complete_select)]
 pub(crate) fn select(
@@ -62,6 +65,8 @@ pub(crate) fn select(
 ///   3) A flag with an argument -- the flag argument is applied as a function to the input object, and the result
 ///     is copied to an output field with the flag name.
 ///
+/// A member selected by name that an object doesn't have is null (as rows of JSON often lack fields).
+///
 /// The order of fields in the argument list is retained in the new output objects.
 ///
 /// Examples:
@@ -72,6 +77,7 @@ pub(crate) fn select(
 ///   select "bar" "foo" { foo: 42, bar: 24 }        # { bar: 24, foo: 42 }
 ///   select --add --baz=(_.foo * 2) { foo: 42 }     # { foo: 42, baz: 84 }
 ///   select "foo" [{ foo: 42, bar: 24 }, { foo: 12, bar: 18 }] # [{ foo: 42 }, { foo: 12 }]
+///   select "foo" [{ foo: 42 }, { bar: 24 }]        # [{ foo: 42 }, { foo: null }]
 /// </mash>
 #[builtin_method(name = "select", infer = super::inference::infer_select_method, completion = super::inference::complete_select_method)]
 pub(crate) fn select_on_list(
@@ -91,7 +97,7 @@ pub(crate) fn select_on_list(
 }
 
 fn do_select(ctx: &mut Ctx, args: &Args, target: &Value, add: bool) -> R<Value> {
-    let mut selections: Vec<(String, Value)> = vec![];
+    let mut selections: Vec<Selection> = vec![];
     for argument in args.all_args() {
         let value = |v: &Suspended| match v {
             Suspended::Value(v) => v.clone(),
@@ -99,7 +105,7 @@ fn do_select(ctx: &mut Ctx, args: &Args, target: &Value, add: bool) -> R<Value> 
         };
         match argument {
             Argument::Positional { value: v, location } => match value(v) {
-                Value::Str(s) => selections.push((s.as_str().to_string(), Value::Str(s))),
+                Value::Str(s) => selections.push(Selection::Member(s.as_str().to_string())),
                 other => {
                     let message = format!("Positional arguments must be a String, but was a {}", other.type_name());
                     return Err(MashError::argument(message, location.clone()));
@@ -114,12 +120,12 @@ fn do_select(ctx: &mut Ctx, args: &Args, target: &Value, add: bool) -> R<Value> 
             }
             Argument::LongFlag { name, value: None, .. } => {
                 if &**name != "add" {
-                    selections.push((name.to_string(), Value::str(name)));
+                    selections.push(Selection::Member(name.to_string()));
                 }
             }
             Argument::LongFlag {
                 name, value: Some(v), ..
-            } => selections.push((name.to_string(), value(v))),
+            } => selections.push(Selection::Computed(name.to_string(), value(v))),
         }
     }
     match target {
@@ -134,13 +140,29 @@ fn do_select(ctx: &mut Ctx, args: &Args, target: &Value, add: bool) -> R<Value> 
     }
 }
 
-fn select_from(ctx: &mut Ctx, target: &Value, selections: &[(String, Value)], add: bool) -> R<Value> {
+/// An output field of `select`: a member of the input by name, or a function's result
+enum Selection {
+    Member(String),
+    Computed(String, Value),
+}
+
+fn select_from(ctx: &mut Ctx, target: &Value, selections: &[Selection], add: bool) -> R<Value> {
     let result = match (add, target) {
         (true, Value::Object(obj)) => obj.copy_with_class(obj.class()),
         _ => Object::new(),
     };
-    for (field, f) in selections {
-        let value = ctx.call_values(f, vec![target.clone()])?;
+    for selection in selections {
+        let (field, value) = match selection {
+            // A member an object doesn't have is null (Scala: an error, so one row without it failed the lot)
+            Selection::Member(name)
+                if matches!(target, Value::Object(_))
+                    && ctx.lookup_member(target, name, MemberLookup::DEFAULT).is_none() =>
+            {
+                (name, Value::Null)
+            }
+            Selection::Member(name) => (name, ctx.call_values(&Value::str(name), vec![target.clone()])?),
+            Selection::Computed(name, f) => (name, ctx.call_values(f, vec![target.clone()])?),
+        };
         result.set_str(field, value);
     }
     Ok(Value::Object(result))
