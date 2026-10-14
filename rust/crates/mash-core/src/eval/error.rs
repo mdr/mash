@@ -145,28 +145,42 @@ impl fmt::Display for MashError {
 
 impl std::error::Error for MashError {}
 
-/// ". Did you mean 'x'?" for the name closest to `requested`, if any (Scala `Suggestor`)
+/// ". Did you mean 'x'?" for the name closest to `requested`, if any is close enough: at most one edit per
+/// three characters of `requested`, and at least one, ignoring case (as rustc's suggestions)
 pub fn suggestion_suffix(names: &[String], requested: &str) -> String {
     let requested = requested.to_lowercase();
+    let max_distance = requested.chars().count().max(3) / 3;
     names
         .iter()
-        .min_by_key(|name| levenshtein(&requested, &name.to_lowercase()))
-        .map(|name| format!(". Did you mean '{name}'?"))
+        .map(|name| (edit_distance(&requested, &name.to_lowercase()), name))
+        .filter(|(distance, _)| *distance <= max_distance)
+        .min_by_key(|(distance, _)| *distance)
+        .map(|(_, name)| format!(". Did you mean '{name}'?"))
         .unwrap_or_default()
 }
 
-fn levenshtein(a: &str, b: &str) -> usize {
+/// Optimal string alignment distance: inserting, deleting or changing a character, or swapping two
+/// neighbouring characters, each count as one edit
+fn edit_distance(a: &str, b: &str) -> usize {
+    let a: Vec<char> = a.chars().collect();
     let b: Vec<char> = b.chars().collect();
-    let mut previous: Vec<usize> = (0..=b.len()).collect();
-    for (i, ca) in a.chars().enumerate() {
-        let mut current = vec![i + 1];
-        for (j, cb) in b.iter().enumerate() {
-            let cost = usize::from(ca != *cb);
-            current.push((previous[j] + cost).min(previous[j + 1] + 1).min(current[j] + 1));
-        }
-        previous = current;
+    let mut d = vec![vec![0; b.len() + 1]; a.len() + 1];
+    for (i, row) in d.iter_mut().enumerate() {
+        row[0] = i;
     }
-    previous[b.len()]
+    for (j, cell) in d[0].iter_mut().enumerate() {
+        *cell = j;
+    }
+    for i in 1..=a.len() {
+        for j in 1..=b.len() {
+            let cost = usize::from(a[i - 1] != b[j - 1]);
+            d[i][j] = (d[i - 1][j] + 1).min(d[i][j - 1] + 1).min(d[i - 1][j - 1] + cost);
+            if i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1] {
+                d[i][j] = d[i][j].min(d[i - 2][j - 2] + 1);
+            }
+        }
+    }
+    d[a.len()][b.len()]
 }
 
 impl Location {
@@ -236,6 +250,12 @@ mod tests {
         assert_eq!(suggestion_suffix(&names, "lenght"), ". Did you mean 'length'?");
         assert_eq!(suggestion_suffix(&names, "Fo"), ". Did you mean 'foo'?");
         assert_eq!(suggestion_suffix(&[], "x"), "");
-        assert_eq!(levenshtein("kitten", "sitting"), 3);
+        // Too far from anything
+        assert_eq!(suggestion_suffix(&names, "keys"), "");
+        assert_eq!(suggestion_suffix(&names, "zzz"), "");
+        // A swap of neighbouring letters is one edit
+        assert_eq!(suggestion_suffix(&names, "lnegth"), ". Did you mean 'length'?");
+        assert_eq!(edit_distance("kitten", "sitting"), 3);
+        assert_eq!(edit_distance("yaer", "year"), 1);
     }
 }

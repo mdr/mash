@@ -141,7 +141,7 @@ fn status() {
         ("git.status.isClean", "false"),
         (
             "git.Status.new",
-            "error: Cannot find member 'new' in value of type Class. Did you mean 'name'?",
+            "error: Cannot find member 'new' in value of type Class",
         ),
         ("git.status.branch.isA git.branch.LocalBranchName", "true"),
         ("git.status.added.first.isA os.Path", "true"),

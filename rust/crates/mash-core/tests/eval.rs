@@ -47,15 +47,15 @@ fn errors_have_a_location_and_a_mash_stack_trace() {
 fn member_errors_point_at_the_member_name() {
     with_big_stack(|| {
         let mut ctx = ctx();
-        let error = eval_error(&mut ctx, "x = 42; x.nosuch");
+        let error = eval_error(&mut ctx, "x = 42; x.toint");
         assert!(
             error
                 .message
-                .starts_with("Cannot find member 'nosuch' in value of type Number. Did you mean"),
+                .starts_with("Cannot find member 'toint' in value of type Number. Did you mean"),
             "{}",
             error.message
         );
-        assert_eq!(error.location().map(|l| l.snippet()), Some("nosuch"));
+        assert_eq!(error.location().map(|l| l.snippet()), Some("toint"));
     });
 }
 
