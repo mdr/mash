@@ -280,7 +280,10 @@ pub(crate) fn send(
     };
     let timeout = match &target.timeout {
         Some(value) => Some(crate::builtins::time::duration_of(ctx, value)?.ok_or_else(|| {
-            args.invalid("timeout", &format!("Must be a duration, but was a {}", value.type_name()))
+            args.invalid(
+                "timeout",
+                &format!("Must be a duration, but was a {}", value.type_name()),
+            )
         })?),
         None => None,
     };

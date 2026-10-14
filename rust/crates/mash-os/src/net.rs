@@ -50,11 +50,9 @@ pub(crate) fn interruptible_http_request(request: &HttpRequest<'_>) -> io::Resul
     };
     let owned = OwnedRequest::of(request);
     let (sender, receiver) = mpsc::channel();
-    thread::Builder::new()
-        .name("http".into())
-        .spawn(move || {
-            let _ = sender.send(http_request(&owned.request()));
-        })?;
+    thread::Builder::new().name("http".into()).spawn(move || {
+        let _ = sender.send(http_request(&owned.request()));
+    })?;
     loop {
         match receiver.recv_timeout(POLL_INTERVAL) {
             Ok(result) => return result,
@@ -86,7 +84,9 @@ impl OwnedRequest {
             url: request.url.into(),
             headers: request.headers.to_vec(),
             body: request.body.map(<[u8]>::to_vec),
-            basic_auth: request.basic_auth.map(|(user, password)| (user.into(), password.into())),
+            basic_auth: request
+                .basic_auth
+                .map(|(user, password)| (user.into(), password.into())),
             cookies: request.cookies.to_vec(),
             insecure: request.insecure,
             timeout: request.timeout,
@@ -99,7 +99,10 @@ impl OwnedRequest {
             url: &self.url,
             headers: &self.headers,
             body: self.body.as_deref(),
-            basic_auth: self.basic_auth.as_ref().map(|(user, password)| (user.as_str(), password.as_str())),
+            basic_auth: self
+                .basic_auth
+                .as_ref()
+                .map(|(user, password)| (user.as_str(), password.as_str())),
             cookies: &self.cookies,
             insecure: self.insecure,
             timeout: self.timeout,
@@ -113,7 +116,11 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
     let timed_out = || {
         io::Error::new(
             io::ErrorKind::TimedOut,
-            format!("Timed out after {}: {}", describe_duration(request.timeout.unwrap_or_default()), request.url),
+            format!(
+                "Timed out after {}: {}",
+                describe_duration(request.timeout.unwrap_or_default()),
+                request.url
+            ),
         )
     };
     let headers = request.all_headers();

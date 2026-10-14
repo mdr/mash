@@ -175,11 +175,7 @@ fn complete_directory(_: &Params, _: usize, _: Option<&Type>, _: &TypedArgs) -> 
 /// directory's contents are added to it, overwriting files of the same name. A file never replaces a
 /// directory, or a directory a file. Copying a file onto itself is an error.
 #[builtin_method(returns = Type::UNIT)]
-fn copy(
-    ctx: &mut Ctx,
-    target: &Value,
-    #[param("Location to copy file to")] destination: PathArg,
-) -> R<()> {
+fn copy(ctx: &mut Ctx, target: &Value, #[param("Location to copy file to")] destination: PathArg) -> R<()> {
     copy_path(ctx, &target_path(target)?, &destination.0)
 }
 

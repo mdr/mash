@@ -208,10 +208,9 @@ fn renaming_can_change_only_case() {
 #[test]
 fn copying_a_file_onto_itself_leaves_it_alone() {
     // Copying a file onto itself once emptied it
-    let result = eval_in_temp_dir(
-        r#"[try (cp "$dir/f" "$dir") "failed", "$dir/f".read]"#,
-        |dir| std::fs::write(dir.join("f"), "f").unwrap(),
-    );
+    let result = eval_in_temp_dir(r#"[try (cp "$dir/f" "$dir") "failed", "$dir/f".read]"#, |dir| {
+        std::fs::write(dir.join("f"), "f").unwrap()
+    });
     assert_eq!(result, "[failed, f]");
 }
 

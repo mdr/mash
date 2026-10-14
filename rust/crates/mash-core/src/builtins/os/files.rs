@@ -490,11 +490,17 @@ fn check_destination(ctx: &Ctx, from: &str, to: &str, moving: bool) -> R<()> {
         };
     }
     match (is_dir(ctx, from), is_dir(ctx, to)) {
-        (true, false) => Err(MashError::new(format!("Cannot overwrite the file '{to}' with a directory"))),
-        (false, true) => Err(MashError::new(format!("Cannot overwrite the directory '{to}' with a file"))),
-        (true, true) if moving && !platform.read_dir(fs(to)).is_ok_and(|entries| entries.is_empty()) => Err(
-            MashError::new(format!("Cannot move '{from}' to '{to}': a directory that isn't empty is there")),
-        ),
+        (true, false) => Err(MashError::new(format!(
+            "Cannot overwrite the file '{to}' with a directory"
+        ))),
+        (false, true) => Err(MashError::new(format!(
+            "Cannot overwrite the directory '{to}' with a file"
+        ))),
+        (true, true) if moving && !platform.read_dir(fs(to)).is_ok_and(|entries| entries.is_empty()) => {
+            Err(MashError::new(format!(
+                "Cannot move '{from}' to '{to}': a directory that isn't empty is there"
+            )))
+        }
         _ => Ok(()),
     }
 }

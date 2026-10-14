@@ -43,5 +43,7 @@ pub(super) fn drop_(ctx: &mut Ctx) -> R<()> {
 #[builtin(namespace = "git.stash", returns = Type::seq(Type::Instance(&STASH_ENTRY_CLASS)))]
 pub(super) fn list(ctx: &mut Ctx) -> R<List> {
     let output = git(ctx, Mode::Query, &["stash", "list", "-z", parse::STASH_LIST_FORMAT])?;
-    Ok(List::new(parse::stash_list(&output).iter().map(objects::stash_entry).collect()))
+    Ok(List::new(
+        parse::stash_list(&output).iter().map(objects::stash_entry).collect(),
+    ))
 }

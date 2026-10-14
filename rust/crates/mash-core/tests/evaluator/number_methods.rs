@@ -14,12 +14,21 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"2.power 8"#, r#"256"#),
     // New: rounding, halves away from zero
     Case::eq(r#"[2.5.round, (-2.5).round, 2.4.round, 3.round]"#, r#"[3, -3, 2, 3]"#),
-    Case::eq(r#"[3.14159.round 2, 1234.round -2, 2.675.round 0]"#, r#"[3.14, 1200, 3]"#),
+    Case::eq(
+        r#"[3.14159.round 2, 1234.round -2, 2.675.round 0]"#,
+        r#"[3.14, 1200, 3]"#,
+    ),
     Case::throws(r#"3.14.round 1.5"#),
-    Case::eq(r#"[2.7.floor, (-2.5).floor, 2.1.ceil, (-2.5).ceil]"#, r#"[2, -3, 3, -2]"#),
+    Case::eq(
+        r#"[2.7.floor, (-2.5).floor, 2.1.ceil, (-2.5).ceil]"#,
+        r#"[2, -3, 3, -2]"#,
+    ),
     Case::eq(r#"[(-3).abs, 3.abs, (-2.5).abs]"#, r#"[3, 3, 2.5]"#),
     // The remainder has the divisor's sign
-    Case::eq(r#"[7.mod 3, (-7).mod 3, 7.mod -3, 7.5.mod 2, 6.mod 3]"#, r#"[1, 2, -2, 1.5, 0]"#),
+    Case::eq(
+        r#"[7.mod 3, (-7).mod 3, 7.mod -3, 7.5.mod 2, 6.mod 3]"#,
+        r#"[1, 2, -2, 1.5, 0]"#,
+    ),
     Case::throws(r#"7.mod 0"#),
     // Tags are kept
     Case::eq(r#"2.6.seconds.round"#, r#"3.seconds"#),

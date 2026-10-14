@@ -172,10 +172,7 @@ fn round(
 ) -> R<Value> {
     let places = match places {
         Some(p) if p.fract() != 0.0 || !p.is_finite() => {
-            return Err(args.invalid(
-                "places",
-                &format!("Must be an integer, but was {}", Number::new(p)),
-            ));
+            return Err(args.invalid("places", &format!("Must be an integer, but was {}", Number::new(p))));
         }
         Some(p) => p.clamp(-308.0, 308.0) as i32,
         None => 0,

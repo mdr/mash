@@ -15,7 +15,10 @@ fn platform() -> TestPlatform {
         files: MemoryFiles::of(&["/home/alice/"])
             .with_file("/home/alice/data.json", r#"{ "a": [1, 2], "b": { "c": null } }"#)
             .with_file("/home/alice/data.xml", "<a><b x='1'>text</b><b>more</b></a>")
-            .with_file("/home/alice/data.csv", "name,age,city\nAda,36,\"London, UK\"\nBob,,Paris\n")
+            .with_file(
+                "/home/alice/data.csv",
+                "name,age,city\nAda,36,\"London, UK\"\nBob,,Paris\n",
+            )
             .with_file("/home/alice/ragged.csv", "a,b\n1,2\n3\n")
             .with_file("/home/alice/body.txt", "from a file")
             .with_file("/home/alice/script.mash", "def triple n = n * 3\nsourced = triple 14")
@@ -122,7 +125,10 @@ fn responses() {
         ),
         ("(http.get 'http://example.com/echo').json.n", "[1, 2.5]"),
         ("(http.post 'http://example.com/echo').status", "201"),
-        ("(http.delete 'http://example.com/echo') | [.status, .body]", "[204, \"\"]"),
+        (
+            "(http.delete 'http://example.com/echo') | [.status, .body]",
+            "[204, \"\"]",
+        ),
         ("http.Header.new 'a' 'b'", "{ name: a, value: b }"),
         ("http.Response.new 299 '' [] [] | .succeeded", "true"),
         (
@@ -376,7 +382,10 @@ fn data_files() {
             "[{ a: 1, b: \"x,y\" }, { a: \"\", b: \"\\\"q\\\"\" }]",
         ),
         ("csv.write 'out.csv' []; csv.read 'out.csv'", "[]"),
-        ("csv.read 'ragged.csv'", "error: Invalid CSV: line 3 has 1 value, but the header has 2"),
+        (
+            "csv.read 'ragged.csv'",
+            "error: Invalid CSV: line 3 has 1 value, but the header has 2",
+        ),
         (
             "csv.read 'nope.csv'",
             "error: Could not read 'nope.csv': No such file or directory: nope.csv",
