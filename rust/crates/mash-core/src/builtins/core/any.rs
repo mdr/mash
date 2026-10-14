@@ -77,13 +77,19 @@ fn to_string(target: &Value) -> R<Value> {
 
 /// Check whether this element is contained in a sequence
 ///
+/// A string is in a string if it is a substring.
+///
 /// Examples:
 /// <mash>
-///   2.in [1, 2, 3] # true
-///   4.in [1, 2, 3] # false
-///   "i".in "team"  # false
+///   2.in [1, 2, 3]   # true
+///   4.in [1, 2, 3]   # false
+///   "ea".in "team"   # true
+///   "i".in "team"    # false
 /// </mash>
 #[builtin_method(shy, returns = crate::infer::Type::BOOLEAN)]
 fn in_(target: &Value, #[param("Sequence to check if element is contained in")] sequence: Sequence) -> R<bool> {
+    if let (Value::Str(needle), Sequence::Str(s)) = (target, &sequence) {
+        return Ok(s.as_str().contains(needle.as_str()));
+    }
     Ok(sequence.items().iter().any(|item| item == target))
 }

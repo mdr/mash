@@ -347,33 +347,60 @@ pub fn find(
     Ok(Value::Null)
 }
 
+/// The index (in characters) of `needle` in `s` as a substring: in a string, the elements are characters, so
+/// looking for a longer string as an element would always fail (Python's `in` and Kotlin's `contains` search
+/// strings this way too)
+pub(crate) fn substring_index(s: &str, needle: &str) -> Option<usize> {
+    s.find(needle).map(|i| s[..i].chars().count())
+}
+
+/// The string in a string, if both are strings
+fn string_and_needle<'a>(element: &'a Value, sequence: &'a Sequence) -> Option<(&'a str, &'a str)> {
+    match (element, sequence) {
+        (Value::Str(needle), Sequence::Str(s)) => Some((s.as_str(), needle.as_str())),
+        _ => None,
+    }
+}
+
 /// Check whether a sequence contains an element
+///
+/// In a string, the element can be any string: whether it is a substring.
 ///
 /// Examples:
 /// <mash>
 ///   contains 2 [1, 2, 3] # true
 ///   contains 9 [1, 2, 3] # false
+///   contains "bc" "abc"  # true
 /// </mash>
 #[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
 pub fn contains(
     #[param("Element to test for membership")] element: Value,
     #[param("Sequence to check whether it contains the given element")] sequence: Sequence,
 ) -> R<bool> {
+    if let Some((s, needle)) = string_and_needle(&element, &sequence) {
+        return Ok(s.contains(needle));
+    }
     Ok(sequence.items().contains(&element))
 }
 
 /// Return the index of the first occurrence of the given element, if any, else null
 ///
+/// In a string, the element can be any string: the index of the substring.
+///
 /// Examples:
 /// <mash>
-///   indexOf 2 [1, 2, 3] # 1
-///   indexOf 9 [1, 2, 3] # null
+///   indexOf 2 [1, 2, 3]    # 1
+///   indexOf 9 [1, 2, 3]    # null
+///   indexOf "bc" "abcbc"   # 1
 /// </mash>
 #[builtin(namespace = "collections", returns = crate::infer::Type::NUMBER)]
 pub fn index_of(
     #[param("Element to test for membership")] element: Value,
     #[param("Sequence to check whether it contains the given element")] sequence: Sequence,
 ) -> R<Value> {
+    if let Some((s, needle)) = string_and_needle(&element, &sequence) {
+        return Ok(substring_index(s, needle).map_or(Value::Null, Value::num));
+    }
     Ok(sequence
         .items()
         .iter()

@@ -142,6 +142,17 @@ pub(crate) const CASES: &[Case] = &[
     // New: reduce takes any function value, as other higher-order functions do (Scala: only functions)
     Case::eq(r#"reduce 'x'.contains [1]"#, r#"1"#),
     Case::eq(r#"reduce (a b => [a, b].max) [3, 7, 2]"#, r#"7"#),
+    // New: in a string, contains, indexOf and in look for a substring, as the String methods do (Scala looked
+    // for the string as a single character, so a longer one was never found)
+    Case::eq(r#"contains "bc" "abc""#, r#"true"#),
+    Case::eq(r#""abc" | contains "bc""#, r#"true"#),
+    Case::eq(r#"contains "x" "abc""#, r#"false"#),
+    Case::eq(r#"indexOf "bc" "abcbc""#, r#"1"#),
+    Case::eq(r#"indexOf "é" "café""#, r#"3"#),
+    Case::eq(r#"["ea".in "team", "i".in "team"]"#, r#"[true, false]"#),
+    // Lists are unchanged: elements
+    Case::eq(r#"contains [2, 3] [1, 2, 3]"#, r#"false"#),
+    Case::eq(r#"[[2, 3]].contains [2, 3]"#, r#"true"#),
 ];
 
 #[test]

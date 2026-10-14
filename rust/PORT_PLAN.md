@@ -372,6 +372,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | A flag that needs a value, given none (`max [] --default`, `groupBy --select`, `git.push --remote`) | Bound to `true` | Error: "Flag --default needs a value" |
 | `reduce`'s accumulator | Only functions (not bound methods or member names) | Any function value, as other higher-order functions |
 | `Object.bless` with a class that isn't an object class (`String`, `Number`) | Allowed, making broken values | Error, as `Class.bless` |
+| `contains`, `indexOf` (functions) and `in` on strings | The string as a single element (character), so `contains "bc" "abc"` was false while `"abc".contains "bc"` was true | A substring, as the String methods (and Python's `in`); lists unchanged |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
