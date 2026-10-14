@@ -560,6 +560,30 @@ pub(super) fn remote_param() -> Param {
         .optional()
 }
 
+fn current_branch_name(ctx: &mut Ctx) -> R<String> {
+    let current = run::current_branch_ref(ctx)?.ok_or_else(|| MashError::new("Not on a branch"))?;
+    Ok(current.trim_start_matches("refs/heads/").to_string())
+}
+
+/// The remote git pushes `branch` to: its `pushRemote`, then `remote.pushDefault`, then
+/// the remote it tracks, then origin
+fn push_remote(ctx: &mut Ctx, branch: &str) -> R<String> {
+    let keys = [
+        format!("branch.{branch}.pushRemote"),
+        "remote.pushDefault".to_string(),
+        format!("branch.{branch}.remote"),
+    ];
+    for key in keys {
+        // An unset key: git config exits with 1
+        let value = run::git(ctx, Mode::Query, &["config", "--get", &key]).unwrap_or_default();
+        let value = value.trim();
+        if !value.is_empty() {
+            return Ok(value.to_string());
+        }
+    }
+    Ok("origin".to_string())
+}
+
 /// Push branches (none: git's default) to a remote, returning the result for each ref (Scala `PushFunction`)
 pub(super) fn push_branches(
     ctx: &mut Ctx,
@@ -572,9 +596,24 @@ pub(super) fn push_branches(
     if force {
         args.push("--force");
     }
-    // As JGit, branches without a remote go to origin
-    let remote_arg = remote.or((!branches.is_empty()).then_some("origin"));
-    args.extend(remote_arg);
+    // Tracking needs a branch: the current one, if none is named
+    let current;
+    let branches = if set_upstream && branches.is_empty() {
+        current = [current_branch_name(ctx)?];
+        &current[..]
+    } else {
+        branches
+    };
+    // Named branches need a remote: the first one's, as git would choose for it
+    let resolved;
+    let remote = match (remote, branches.first()) {
+        (None, Some(branch)) => {
+            resolved = push_remote(ctx, branch)?;
+            Some(resolved.as_str())
+        }
+        _ => remote,
+    };
+    args.extend(remote);
     args.extend(branches.iter().map(String::as_str));
     let outcome = run::run(ctx, Mode::Quiet, &args)?;
     let updates = parse::push_updates(&outcome.stdout);
@@ -613,7 +652,9 @@ fn complete_push(params: &Params, arg_pos: usize, args: &TypedArgs) -> Vec<Compl
 
 /// Update remote refs along with associated objects
 ///
-/// Returns the result for each ref pushed. If the remote rejects any, it is an error.
+/// Returns the result for each ref pushed. If the remote rejects any, it is an error. Without `--remote`, the
+/// branches go where git would push the first of them: its `pushRemote`, `remote.pushDefault`, the remote it
+/// tracks, or else origin.
 #[builtin(namespace = "git", returns = Type::seq(Type::OBJECT), completion = complete_push)]
 pub(super) fn push(
     ctx: &mut Ctx,

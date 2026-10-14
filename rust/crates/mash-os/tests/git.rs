@@ -269,6 +269,14 @@ fn git_in_temporary_repositories() {
             quoted(&origin)
         ));
         s.check("git.branch.create --fromRemote='upstream/side' | .name", "side");
+        // A named branch is pushed to the remote it tracks, not origin
+        s.eval("git.switch 'side'; write 'side.txt' 's'; git.stage 'side.txt'; git.commit 'Side commit'");
+        s.check("git.push 'side' | first | .status", "OK");
+        s.check("git.log 'upstream/side' | last | .summary", "Side commit");
+        assert!(
+            s.error("git.log 'origin/side'")
+                .contains("Must be the name of a commit")
+        );
         // An upstream that's a local branch is named the same way by status and by branches
         s.eval("git.switch 'side'; run 'git' 'branch' '--quiet' '-u' 'main'");
         s.check("git.status.upstreamBranch", "main");

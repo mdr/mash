@@ -447,6 +447,9 @@ fn commands_run_for_changes() {
             (
                 "git.push --setUpstream --force 'feature'",
                 &[
+                    "config --get branch.feature.pushRemote",
+                    "config --get remote.pushDefault",
+                    "config --get branch.feature.remote",
                     "push --porcelain --force origin feature",
                     "config branch.feature.remote origin",
                     "config branch.feature.merge refs/heads/feature",
@@ -456,6 +459,9 @@ fn commands_run_for_changes() {
             (
                 "git.branches.first.push -u",
                 &[
+                    "config --get branch.feature.pushRemote",
+                    "config --get remote.pushDefault",
+                    "config --get branch.feature.remote",
                     "push --porcelain origin feature",
                     "config branch.feature.remote origin",
                     "config branch.feature.merge refs/heads/feature",
