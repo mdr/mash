@@ -44,6 +44,7 @@ pub(crate) const CLASSES: &[&BuiltinClass] = &[
 
 pub static DATE_CLASS: BuiltinClass = BuiltinClass {
     summary: "A date",
+    methods: &[&DayMethod, &MonthMethod, &WeekdayMethod, &YearMethod],
     ..BuiltinClass::new("time", "Date", Some(&ANY_CLASS))
 };
 
@@ -51,12 +52,16 @@ pub static DATE_TIME_CLASS: BuiltinClass = BuiltinClass {
     summary: "An instant in time",
     methods: &[
         &DateMethod,
+        &DayMethod,
         &FormatMethod,
         &FuzzyMethod,
         &HourMethod,
         &MillisSinceEpochMethod,
         &MinuteMethod,
+        &MonthMethod,
         &SecondMethod,
+        &WeekdayMethod,
+        &YearMethod,
     ],
     ..BuiltinClass::new("time", "DateTime", Some(&ANY_CLASS))
 };
@@ -395,6 +400,38 @@ fn minute(ctx: &mut Ctx, target: &Value) -> R<i64> {
 #[builtin_method(returns = crate::infer::Type::NUMBER)]
 fn second(ctx: &mut Ctx, target: &Value) -> R<i64> {
     Ok(i64::from(local(ctx, target)?.second()))
+}
+
+/// The calendar date of a Date, or of a DateTime in the current time zone
+fn calendar_date(ctx: &Ctx, target: &Value) -> R<jiff::civil::Date> {
+    match target {
+        Value::Date(LocalDate(d)) => Ok(*d),
+        _ => Ok(local(ctx, target)?.date()),
+    }
+}
+
+/// Year, e.g. 2026 (for a DateTime, in the current time zone)
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
+fn year(ctx: &mut Ctx, target: &Value) -> R<i64> {
+    Ok(i64::from(calendar_date(ctx, target)?.year()))
+}
+
+/// Month of the year, from 1 (January) to 12 (for a DateTime, in the current time zone)
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
+fn month(ctx: &mut Ctx, target: &Value) -> R<i64> {
+    Ok(i64::from(calendar_date(ctx, target)?.month()))
+}
+
+/// Day of the month, from 1 (for a DateTime, in the current time zone)
+#[builtin_method(returns = crate::infer::Type::NUMBER)]
+fn day(ctx: &mut Ctx, target: &Value) -> R<i64> {
+    Ok(i64::from(calendar_date(ctx, target)?.day()))
+}
+
+/// Day of the week, in English, e.g. Wednesday (for a DateTime, in the current time zone)
+#[builtin_method(returns = crate::infer::Type::STRING)]
+fn weekday(ctx: &mut Ctx, target: &Value) -> R<String> {
+    Ok(calendar_date(ctx, target)?.strftime("%A").to_string())
 }
 
 // ------------------------------------------------------------------------------------------------ String methods

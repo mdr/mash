@@ -150,7 +150,7 @@ access can't creep into the core.
 - JSON: whole numbers written as integers; writing NaN or Infinity is an error.
 
 **Dates and times** (`jiff`)
-- DateTime = `Timestamp` read in the system zone; Date = `civil::Date`. No new Date methods for now.
+- DateTime = `Timestamp` read in the system zone; Date = `civil::Date`. Both have `year`, `month`, `day` and `weekday` (added after the port).
 - Clock and time zone come from the `Platform` trait (fixed clock in tests). Never call `Timestamp::now()`
   directly.
 - Durations stay tagged numbers; `dt1 - dt2` is a Milliseconds-tagged number.
@@ -375,6 +375,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `contains`, `indexOf` (functions) and `in` on strings | The string as a single element (character), so `contains "bc" "abc"` was false while `"abc".contains "bc"` was true | A substring, as the String methods (and Python's `in`); lists unchanged |
 | `select` of a member an object doesn't have (`select "coupon"` on rows where only some have one) | Error | null, as jq; computed fields (`--x=(…)`) as written |
 | `isEmpty`, `nonEmpty`, `length`, `any`, `all` and `find` on objects | Error (only lists and strings), though `where`, `map` and `skip` took objects | Field by field, the function taking (name, value) as in `where`; `find` gives the matching field as a one-field object. Also (shy) Object methods, as `where` is |
+| `year`, `month`, `day`, `weekday` on Date and DateTime | Missing (Date had no methods) | Numbers, with `month` 1–12; `weekday` an English name such as `Friday`; a DateTime's in the local zone, as `hour` |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
@@ -499,7 +500,7 @@ browser.
 - Streaming process output (needs lazy sequences).
 - Integer/float number split.
 - Isolate-based `parallelMap` / `inBackground`.
-- `.graphemes`, Date methods, paths carrying `OsString`, localised date formatting.
+- `.graphemes`, more Date methods (arithmetic, pattern formatting), paths carrying `OsString`, localised date formatting.
 
 ## Spike results (summary)
 

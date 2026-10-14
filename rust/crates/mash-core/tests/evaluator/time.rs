@@ -15,6 +15,16 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"now.date == today"#, r#"true"#),
     Case::eq(r#"now.millisSinceEpoch"#, r#"1791547200000"#),
     Case::eq(r#"[now.hour, now.minute, now.second]"#, r#"[12, 0, 0]"#),
+    Case::eq(
+        r#"[now.year, now.month, now.day, now.weekday]"#,
+        r#"[2026, 10, 9, 'Friday']"#,
+    ),
+    Case::eq(
+        r#"[today.year, today.month, today.day, today.weekday]"#,
+        r#"[2026, 10, 9, 'Friday']"#,
+    ),
+    Case::eq(r#"'2026-09-01T23:30:00-05:00'.toDateTime.day"#, r#"2"#),
+    Case::eq(r#"'2024-02-29'.toDate.weekday"#, r#"'Thursday'"#),
     Case::eq(r#"time.fromMillisSinceEpoch 0"#, r#"'1970-01-01T00:00:00Z'.toDateTime"#),
     Case::eq(r#"time.fromMillisSinceEpoch 1791547200000"#, r#"now"#),
     Case::eq(
