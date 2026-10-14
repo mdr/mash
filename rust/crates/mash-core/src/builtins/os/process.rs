@@ -82,15 +82,17 @@ pub(crate) fn run_command(ctx: &mut Ctx, args: &[Value], input: Input, output: O
     Ok(outcome)
 }
 
-/// Text to send to a process's standard input: a list's items as lines, or a value as a string
+/// Text to send to a process's standard input: a list's items as lines, each ending in a newline (as POSIX
+/// tools such as `wc -l` expect), or any other value as a string, as it is
 pub(crate) fn stdin_text(ctx: &mut Ctx, value: &Value) -> R<String> {
     match value {
         Value::List(xs) => {
-            let mut lines = vec![];
+            let mut text = String::new();
             for x in xs.snapshot() {
-                lines.push(ctx.stringify(&x)?);
+                text.push_str(&ctx.stringify(&x)?);
+                text.push('\n');
             }
-            Ok(lines.join("\n"))
+            Ok(text)
         }
         x => ctx.stringify(x),
     }
@@ -106,9 +108,14 @@ pub(crate) fn process_result(outcome: ProcessOutcome) -> Value {
     Value::Object(object)
 }
 
+/// How `--standardIn` is sent
+pub(crate) const STANDARD_IN_DESCRIPTION: &str = "A list is sent one item per line, each line ending in a newline \
+    (so [\"a\", \"b\"] sends \"a\\nb\\n\"; an empty list sends nothing). Anything else is sent as a string, as it is.";
+
 pub(crate) fn standard_in_param() -> Param {
     Param::named("standardIn")
         .summary("What to send to the standard input of the process (default nothing)")
+        .description(STANDARD_IN_DESCRIPTION)
         .flag()
         .mandatory_flag_value()
         .optional()
@@ -129,13 +136,15 @@ fn process_result_type() -> Type {
 
 /// Run a system command
 ///
-/// The command's output is captured.
+/// The command's output is captured. A list given as `--standardIn` is sent as lines, each ending in a
+/// newline.
 ///
 /// Examples:
 /// <mash>
-///   run "ls -l"                         # a string is split into words
-///   run "echo" "two words"              # one argument per word
-///   run --standardIn="text" "wc" "-c"   # send text to the command
+///   run "ls -l"                            # a string is split into words
+///   run "echo" "two words"                 # one argument per word
+///   run --standardIn="text" "wc" "-c"      # send text to the command
+///   run --standardIn=["a", "b"] "wc" "-l"  # send lines, "a\nb\n": wc counts 2
 /// </mash>
 #[builtin(namespace = "os", returns = process_result_type(), completion = complete_files)]
 pub(crate) fn run(
@@ -153,7 +162,8 @@ pub(crate) fn run(
 
 /// Execute the command at the given path, with the given arguments
 ///
-/// Each argument is passed as it is (`"./script".run "two words"` passes one argument).
+/// Each argument is passed as it is (`"./script".run "two words"` passes one argument). A list given as
+/// `--standardIn` is sent as lines, each ending in a newline.
 #[builtin_method(name = "run", returns = process_result_type())]
 pub(crate) fn path_run(
     ctx: &mut Ctx,

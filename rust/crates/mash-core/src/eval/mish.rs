@@ -18,7 +18,9 @@ use super::{Ctx, Location, MashError, R};
 /// Parameters of a `!{…}` expression called as a function: `!{cat} "text"`
 pub(crate) static MISH_PARAMS: LazyLock<Params> = LazyLock::new(|| {
     Params::new(vec![
-        Param::named("standardIn").summary("What to send to standard input"),
+        Param::named("standardIn")
+            .summary("What to send to standard input")
+            .description(crate::builtins::os::process::STANDARD_IN_DESCRIPTION),
     ])
 });
 

@@ -381,6 +381,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | How a DateTime shows (`toString`, the REPL, JSON) | UTC, to the nanosecond: `2026-10-14T14:37:35.489155Z` | The local zone with its offset, to the millisecond: `2026-10-14T15:37:35.489+01:00` (still ISO 8601; `toDateTime` reads it back) |
 | "Did you mean" suggestions | Always the closest name, however far (`.keys` → `bless`) | Only a name within one edit per three characters (at least one; a swap counts as one edit), as rustc |
 | `git.push 'branch'` (or `--setUpstream`) without `--remote` | origin, as JGit | Where git would push the (first) branch: its `pushRemote`, `remote.pushDefault`, the remote it tracks, then origin |
+| A list as standard input (`--standardIn`, `!{cat} [...]`) | Items joined by newlines, no newline after the last, so `wc -l` counts one fewer | Each line ends in a newline, as POSIX defines a line; strings are sent as they are |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
