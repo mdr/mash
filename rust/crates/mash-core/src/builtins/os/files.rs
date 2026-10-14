@@ -439,6 +439,9 @@ pub(crate) fn delete_path(ctx: &Ctx, path: &str) -> R<()> {
 }
 
 /// Delete files and directories
+///
+/// A directory is deleted with everything in it. If a path can't be deleted, the rest are still deleted (as
+/// `rm`), and then an error names each path that couldn't be, one per line.
 #[builtin(namespace = "os", returns = Type::UNIT, completion = complete_files)]
 pub(crate) fn delete(
     ctx: &mut Ctx,
@@ -452,10 +455,18 @@ pub(crate) fn delete(
     // Children before their parents
     let cwd = ctx.platform().current_dir().unwrap_or_default();
     paths.sort_by_cached_key(|p| crate::platform::resolve(&cwd, p));
+    let mut failures = vec![];
     for path in paths.iter().rev() {
-        delete_path(ctx, path)?;
+        ctx.check_interrupted()?;
+        if let Err(e) = delete_path(ctx, path) {
+            failures.push(e.message);
+        }
     }
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(MashError::new(failures.join("\n")))
+    }
 }
 
 // ------------------------------------------------------------------------------------------------ copying

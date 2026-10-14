@@ -244,6 +244,16 @@ fn creating_copying_moving_and_deleting() {
             r#"rm "nope""#,
             "error: Could not delete 'nope': No such file or directory: nope",
         ),
+        // Every path that can be deleted is, then each failure is reported (as `rm`)
+        (
+            r#"rm "sub" "nope" "a.txt""#,
+            "error: Could not delete 'nope': No such file or directory: nope",
+        ),
+        (r#"try (rm "sub" "nope" "a.txt") 0; ls"#, "[]"),
+        (
+            r#"rm "x" "a.txt" "nope""#,
+            "error: Could not delete 'x': No such file or directory: x\nCould not delete 'nope': No such file or directory: nope",
+        ),
         (r#"cp "a.txt" "c.txt"; read "c.txt""#, "hi\n"),
         (r#"cp "a.txt" "sub"; ls "sub" | map (.path)"#, "[sub/a.txt, sub/b]"),
         (r#"cp "sub" "copy"; ls -r "copy" | map (.path)"#, "[copy/b]"),
