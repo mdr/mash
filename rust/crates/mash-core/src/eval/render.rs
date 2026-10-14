@@ -31,13 +31,17 @@ pub(crate) fn date_time_string(t: Timestamp, tz: &TimeZone) -> String {
 }
 
 /// Whether a string inside a container must be quoted to be read unambiguously: it's empty, has whitespace at
-/// either end, or contains a character that separates or delimits values (or a control character)
+/// either end, contains a character that separates or delimits values (or a control character), or a colon
+/// that could be taken for a field's (followed by a space, or at the end). Other colons are left bare, as in
+/// `::1`, `http://…` or `12:30`.
 fn needs_quotes(s: &str) -> bool {
     s.is_empty()
         || s.starts_with(char::is_whitespace)
         || s.ends_with(char::is_whitespace)
+        || s.ends_with(':')
+        || s.contains(": ")
         || s.chars()
-            .any(|c| matches!(c, ',' | '[' | ']' | '{' | '}' | ':' | '"' | '\'') || c.is_control())
+            .any(|c| matches!(c, ',' | '[' | ']' | '{' | '}' | '"' | '\'') || c.is_control())
 }
 
 /// A string inside a container: as it is, or quoted (with JSON's escapes) if [`needs_quotes`]

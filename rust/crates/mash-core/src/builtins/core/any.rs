@@ -63,8 +63,9 @@ fn get_class(target: &Value) -> R<ClassRef> {
 /// Represent this object as a string
 ///
 /// A string is itself. In a list or object, a string is shown as it is, unless it would be ambiguous: an empty
-/// string, one with whitespace at either end, or one containing a comma, bracket, brace, colon, quote or line
-/// break is shown in double quotes (with `\"` and `\n` escapes).
+/// string, one with whitespace at either end, one containing a comma, bracket, brace, quote or line break, or
+/// one with a colon followed by a space (`a: b`) or at its end, is shown in double quotes (with `\"` and `\n`
+/// escapes). Other colons are fine: `['::1', '12:30']` shows as `[::1, 12:30]`.
 ///
 /// Examples:
 /// <mash>

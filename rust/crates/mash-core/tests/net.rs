@@ -314,10 +314,10 @@ fn query_parameters() {
 #[test]
 fn dns_and_urls() {
     check(&[
-        ("dns.lookup 'localhost'", "[127.0.0.1, \"::1\"]"),
+        ("dns.lookup 'localhost'", "[127.0.0.1, ::1]"),
         (
             "(net.url 'http://localhost:8080/x').host.ipAddresses",
-            "[127.0.0.1, \"::1\"]",
+            "[127.0.0.1, ::1]",
         ),
         ("dns.lookup 'nowhere.example'", "error: Unknown host: nowhere.example"),
     ]);
