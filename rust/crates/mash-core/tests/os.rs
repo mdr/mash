@@ -251,7 +251,15 @@ fn creating_copying_moving_and_deleting() {
             r#"cp "sub" "/tmp"; glob "/tmp/**" | map (.path)"#,
             "[/tmp, /tmp/sub, /tmp/sub/b]",
         ),
-        (r#"cp "sub" "a.txt""#, "error: Destination already exists"),
+        // A file is overwritten and a directory merged into (as `cp -R`), but they never replace each other
+        (r#"cp "sub" "a.txt""#, "error: Cannot overwrite the file 'a.txt' with a directory"),
+        (r#"write "c.txt" "old"; cp "a.txt" "c.txt"; read "c.txt""#, "hi\n"),
+        (
+            r#"mkdir -c "copy/sub"; write "copy/sub/c" ""; cp "sub" "copy"; ls -r "copy" | map (.path)"#,
+            "[copy/sub, copy/sub/b, copy/sub/c]",
+        ),
+        (r#"cp "a.txt" "a.txt""#, "error: Cannot copy 'a.txt' onto itself"),
+        (r#"cp "a.txt" "."; read "a.txt""#, "error: Cannot copy 'a.txt' onto itself"),
         // A copy into the directory being copied doesn't copy itself (as `cp -R` and Commons IO)
         (
             r#"cp "sub" "sub/inner"; ls -r "sub" | map (.path)"#,
@@ -268,8 +276,10 @@ fn creating_copying_moving_and_deleting() {
         (r#""a.txt".copy "c.txt"; "c.txt".read"#, "hi\n"),
         (
             r#""a.txt".copy "sub""#,
-            "error: Invalid argument 'destination'. Destination already exists, and is a directory",
+            "error: Cannot overwrite the directory 'sub' with a file",
         ),
+        (r#"write "c.txt" "old"; "a.txt".copy "c.txt"; "c.txt".read"#, "hi\n"),
+        (r#"mkdir "c"; "sub".copy "c"; ls "c" | map (.path)"#, "[c/b]"),
         (r#""a.txt".copyInto "sub""#, "sub/a.txt"),
         (
             r#""a.txt".copyInto "a.txt""#,
@@ -284,6 +294,24 @@ fn creating_copying_moving_and_deleting() {
             "error: Multiple files can only be moved into a directory",
         ),
         (r#""a.txt".moveInto "sub""#, "sub/a.txt"),
+        // A file is overwritten, and an empty directory replaced (as `mv`)
+        (r#"write "sub/a.txt" "old"; mv "a.txt" "sub"; read "sub/a.txt""#, "hi\n"),
+        (r#"write "sub/a.txt" "old"; "a.txt".moveInto "sub"; read "sub/a.txt""#, "hi\n"),
+        (r#"write "c.txt" "old"; mv "a.txt" "c.txt"; read "c.txt""#, "hi\n"),
+        (r#"mkdir -c "d/sub"; mv "sub" "d"; ls -r "d" | map (.path)"#, "[d/sub, d/sub/b]"),
+        (
+            r#"mkdir -c "d/sub"; write "d/sub/c" ""; mv "sub" "d""#,
+            "error: Cannot move 'sub' to 'd/sub': a directory that isn't empty is there",
+        ),
+        (
+            r#"mkdir -c "d/sub"; write "d/sub/c" ""; "sub".moveInto "d""#,
+            "error: Cannot move 'sub' to 'd/sub': a directory that isn't empty is there",
+        ),
+        (
+            r#"mkdir -c "d/a.txt"; mv "a.txt" "d""#,
+            "error: Cannot overwrite the directory 'd/a.txt' with a file",
+        ),
+        (r#"mv "a.txt" "a.txt"; read "a.txt""#, "hi\n"),
         (
             r#""a.txt".moveInto "nope""#,
             "error: Invalid argument 'destination'. 'nope' does not exist",

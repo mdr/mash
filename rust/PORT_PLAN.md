@@ -382,6 +382,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | "Did you mean" suggestions | Always the closest name, however far (`.keys` → `bless`) | Only a name within one edit per three characters (at least one; a swap counts as one edit), as rustc |
 | `git.push 'branch'` (or `--setUpstream`) without `--remote` | origin, as JGit | Where git would push the (first) branch: its `pushRemote`, `remote.pushDefault`, the remote it tracks, then origin |
 | A list as standard input (`--standardIn`, `!{cat} [...]`) | Items joined by newlines, no newline after the last, so `wc -l` counts one fewer | Each line ends in a newline, as POSIX defines a line; strings are sent as they are |
+| Copying or moving onto something that exists (`cp`, `mv`, `.copy`, `.copyInto`, `.moveInto`) | Depended on the spelling: `.copy` and `mv` into a directory refused to overwrite a file (Java exceptions) where `cp`, `.copyInto` and `.moveInto` overwrote; `cp "a" "a"` did nothing | One rule, as `cp -R`/`mv` (and Nushell): a file is overwritten; a directory is merged into by a copy, and replaced by a move only if empty; a file and a directory never replace each other; copying a file onto itself is an error |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
@@ -436,7 +437,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `Path.run` with one argument | Split on whitespace (`"./s".run "two words"` passed two arguments) | Each argument as it is, as `run` |
 | `up n` with n below 1 | Stayed put, adding a directory history entry | Error |
 | `kill --signal='SIGTERM'` | Only names without `SIG` | Either, as `kill -s` |
-| `"a".renameTo "b"` / `.copy` when the destination exists | Java exception | Clean error |
+| `"a".renameTo "b"` when the destination exists | Java exception | Clean error |
 | `readLines`, `read`, `write` | Platform default charset | UTF-8 (invalid input decoded lossily) |
 | Child processes | Same process group as Mash; stdin written before stdout read (deadlock risk) | Own process group with the terminal (`tcsetpgrp`), concurrent stdin/stdout, Ctrl-C in a child interrupts evaluation, Ctrl-Z resumes the child with a message (as planned) |
 | `which` | `Files.isExecutable` (directories count) | Executable regular files only |

@@ -460,10 +460,39 @@ pub(crate) fn delete(
 
 // ------------------------------------------------------------------------------------------------ copying
 
-/// Copy a file, or a directory and its contents (Commons IO `copyDirectory`: merging into an existing
-/// destination directory). A destination inside the source directory isn't itself copied, as Commons IO and
-/// `cp -R` do: otherwise the copy would copy itself until paths were too long.
+/// Check `from` may be copied or moved onto `to`, as `cp -R` and `mv` allow: a file there is overwritten, a
+/// directory there is merged into by a copy and replaced by a move only if empty, and a file and a directory
+/// never replace each other
+fn check_destination(ctx: &Ctx, from: &str, to: &str, moving: bool) -> R<()> {
+    if ctx.platform().symlink_metadata(fs(to)).is_err() {
+        return Ok(());
+    }
+    let platform = ctx.platform();
+    if let (Ok(a), Ok(b)) = (platform.canonicalize(fs(from)), platform.canonicalize(fs(to)))
+        && a == b
+    {
+        // Moving a path to itself does nothing (or changes only the case of its name)
+        return if moving {
+            Ok(())
+        } else {
+            Err(MashError::new(format!("Cannot copy '{from}' onto itself")))
+        };
+    }
+    match (is_dir(ctx, from), is_dir(ctx, to)) {
+        (true, false) => Err(MashError::new(format!("Cannot overwrite the file '{to}' with a directory"))),
+        (false, true) => Err(MashError::new(format!("Cannot overwrite the directory '{to}' with a file"))),
+        (true, true) if moving && !platform.read_dir(fs(to)).is_ok_and(|entries| entries.is_empty()) => Err(
+            MashError::new(format!("Cannot move '{from}' to '{to}': a directory that isn't empty is there")),
+        ),
+        _ => Ok(()),
+    }
+}
+
+/// Copy a file, or a directory and its contents, onto whatever is at `to` as [`check_destination`] allows. A
+/// destination inside the source directory isn't itself copied, as Commons IO and `cp -R` do: otherwise the
+/// copy would copy itself until paths were too long.
 pub(crate) fn copy_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
+    check_destination(ctx, from, to, false)?;
     let (source, destination) = (absolute(ctx, from), absolute(ctx, to));
     let inside = destination
         .strip_prefix(&source)
@@ -538,6 +567,10 @@ pub(crate) fn path_in(dir: &str, path: &str) -> String {
 }
 
 /// Copy files and directories
+///
+/// A file already at the destination is overwritten, and a directory already there is merged into: the
+/// copied directory's contents are added to it, overwriting files of the same name. A file never replaces a
+/// directory, or a directory a file. Copying a file onto itself is an error.
 #[builtin(namespace = "os", returns = Type::UNIT, completion = complete_files)]
 pub(crate) fn copy(
     ctx: &mut Ctx,
@@ -571,19 +604,16 @@ pub(crate) fn copy(
                 "Multiple source paths were provided, but the destination was not a directory",
             ));
         }
-        let source = &sources[0];
-        if is_dir(ctx, source) && exists(ctx, &destination) {
-            return Err(MashError::new("Destination already exists"));
-        }
-        copy_path(ctx, source, &destination)?;
+        copy_path(ctx, &sources[0], &destination)?;
     }
     Ok(())
 }
 
 // ------------------------------------------------------------------------------------------------ moving
 
-/// Move a path to a new location, copying then deleting if it's on another file system
+/// Move a path to a new location, onto whatever is there as [`check_destination`] allows, copying then deleting if it's on another file system
 pub(crate) fn move_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
+    check_destination(ctx, from, to, true)?;
     match ctx.platform().rename(fs(from), to) {
         Ok(()) => Ok(()),
         Err(e) if e.kind() == std::io::ErrorKind::CrossesDevices => {
@@ -594,12 +624,9 @@ pub(crate) fn move_path(ctx: &mut Ctx, from: &str, to: &str) -> R<()> {
     }
 }
 
-/// Move a path into a directory, which must not already contain something of the same name
+/// Move a path into a directory
 pub(crate) fn move_into(ctx: &mut Ctx, from: &str, dir: &str) -> R<String> {
     let destination = path_in(dir, from);
-    if ctx.platform().symlink_metadata(&destination).is_ok() {
-        return Err(MashError::new(format!("Destination '{destination}' already exists")));
-    }
     move_path(ctx, from, &destination)?;
     Ok(destination)
 }
@@ -607,6 +634,9 @@ pub(crate) fn move_into(ctx: &mut Ctx, from: &str, dir: &str) -> R<String> {
 /// Move files or directories to a new location
 ///
 /// If multiple paths are provided, the destination must be a directory.
+///
+/// A file already at the destination is overwritten, and an empty directory already there is replaced. A
+/// directory that isn't empty is never replaced, and a file never replaces a directory, or a directory a file.
 #[builtin(name = "move", namespace = "os", returns = Type::UNIT, completion = complete_files)]
 pub(crate) fn move_(
     ctx: &mut Ctx,

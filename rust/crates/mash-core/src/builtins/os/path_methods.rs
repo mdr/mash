@@ -159,28 +159,24 @@ fn complete_directory(_: &Params, _: usize, _: Option<&Type>, _: &TypedArgs) -> 
 }
 
 /// Copy this file or directory to another location
+///
+/// A file already at the destination is overwritten, and a directory already there is merged into: this
+/// directory's contents are added to it, overwriting files of the same name. A file never replaces a
+/// directory, or a directory a file. Copying a file onto itself is an error.
 #[builtin_method(returns = Type::UNIT)]
 fn copy(
     ctx: &mut Ctx,
     target: &Value,
-    args: &Args,
     #[param("Location to copy file to")] destination: PathArg,
 ) -> R<()> {
-    let source = target_path(target)?;
-    let destination = destination.0;
-    if is_dir(ctx, &source) {
-        if files::exists(ctx, &destination) {
-            return Err(args.invalid("destination", "Destination already exists"));
-        }
-    } else if is_dir(ctx, &destination) {
-        return Err(args.invalid("destination", "Destination already exists, and is a directory"));
-    } else if files::exists(ctx, &destination) {
-        return Err(args.invalid("destination", "Destination already exists"));
-    }
-    copy_path(ctx, &source, &destination)
+    copy_path(ctx, &target_path(target)?, &destination.0)
 }
 
 /// Copy this path into another location
+///
+/// A file of the same name already in the directory is overwritten, and a directory of the same name is merged
+/// into: this directory's contents are added to it, overwriting files of the same name. A file never replaces a
+/// directory, or a directory a file.
 #[builtin_method(returns = Type::PATH, completion = complete_directory)]
 fn copy_into(ctx: &mut Ctx, target: &Value, #[param("Location to copy file to")] destination: PathArg) -> R<Value> {
     let source = target_path(target)?;
@@ -195,7 +191,9 @@ fn copy_into(ctx: &mut Ctx, target: &Value, #[param("Location to copy file to")]
 
 /// Move this path into the given directory
 ///
-/// Returns the new path.
+/// Returns the new path. A file of the same name already in the directory is overwritten, and an empty
+/// directory of the same name is replaced. A directory that isn't empty is never replaced, and a file never
+/// replaces a directory, or a directory a file.
 #[builtin_method(returns = Type::PATH, completion = complete_directory)]
 fn move_into(
     ctx: &mut Ctx,
@@ -210,9 +208,6 @@ fn move_into(
     }
     check_directory(ctx, &dir).map_err(|message| args.invalid("destination", &message))?;
     let new_path = path_in(&dir, &source);
-    if is_dir(ctx, &source) && files::exists(ctx, &new_path) {
-        return Err(MashError::new(format!("Destination '{new_path}' already exists")));
-    }
     move_path(ctx, &source, &new_path)?;
     Ok(path_value(new_path))
 }
