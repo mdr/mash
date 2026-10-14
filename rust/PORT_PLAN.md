@@ -514,6 +514,7 @@ browser.
 - Date vs DateTime: `<`/`>` treat a Date as its local midnight, but `==` is never true between them (`d <= t`, `d >= t`, `d != t`). Either make `==` agree, or make comparing them an error (as Python). Undecided.
 - `toDateTime` on a bare number reads it as a time today (`"2026"` → today at 20:26, `"5"` → 05:00), as Scala's natty did. Perhaps null for digits only. Undecided.
 - `toDateTime` with an ambiguous zone abbreviation: `BST` means Bangladesh outside the UK, so `format` output from the UK reads 5 hours out elsewhere. Perhaps null unless the local zone uses it, and `format` with a numeric offset. Undecided.
+- `xml.write`: not needed yet. `xml.read`'s shape loses whether a field was an attribute or an element, and element order, so a writer would have to guess; doing it properly needs an exact representation too (as Nushell's `{tag, attributes, content}`).
 
 ## Spike results (summary)
 
