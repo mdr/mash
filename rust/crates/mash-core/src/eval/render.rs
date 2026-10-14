@@ -7,8 +7,9 @@ use jiff::tz::TimeZone;
 use crate::value::{FunctionKind, Value};
 
 /// The default string form of a value: strings as they are, numbers without a trailing `.0`, containers as
-/// `[1, 2]` and `{ a: 1 }` (with their contents rendered the same way, so strings inside are unquoted).
-/// Date-times are in UTC; `render_in` gives them in a time zone. Terminates on cyclic values.
+/// `[1, 2]` and `{ a: 1 }`. Inside a container, a string is quoted only where it would otherwise be ambiguous
+/// (as Nushell does): `["", a, "London, UK"]`. Date-times are in UTC; `render_in` gives them in a time zone.
+/// Terminates on cyclic values.
 pub fn render(value: &Value) -> String {
     render_in(value, &TimeZone::UTC)
 }
@@ -29,6 +30,26 @@ pub(crate) fn date_time_string(t: Timestamp, tz: &TimeZone) -> String {
         .to_string()
 }
 
+/// Whether a string inside a container must be quoted to be read unambiguously: it's empty, has whitespace at
+/// either end, or contains a character that separates or delimits values (or a control character)
+fn needs_quotes(s: &str) -> bool {
+    s.is_empty()
+        || s.starts_with(char::is_whitespace)
+        || s.ends_with(char::is_whitespace)
+        || s.chars()
+            .any(|c| matches!(c, ',' | '[' | ']' | '{' | '}' | ':' | '"' | '\'') || c.is_control())
+}
+
+/// A string inside a container: as it is, or quoted (with JSON's escapes) if [`needs_quotes`]
+fn write_contained(out: &mut String, value: &Value, tz: &TimeZone, stack: &mut Vec<usize>) {
+    match value {
+        Value::Str(s) if needs_quotes(s.as_str()) => {
+            out.push_str(&serde_json::Value::String(s.as_str().to_string()).to_string())
+        }
+        _ => write(out, value, tz, stack),
+    }
+}
+
 fn write(out: &mut String, value: &Value, tz: &TimeZone, stack: &mut Vec<usize>) {
     match value {
         Value::Null => out.push_str("null"),
@@ -47,7 +68,7 @@ fn write(out: &mut String, value: &Value, tz: &TimeZone, stack: &mut Vec<usize>)
                 if i > 0 {
                     out.push_str(", ");
                 }
-                write(out, item, tz, stack);
+                write_contained(out, item, tz, stack);
             }
             out.push(']');
             stack.pop();
@@ -67,9 +88,9 @@ fn write(out: &mut String, value: &Value, tz: &TimeZone, stack: &mut Vec<usize>)
                 if i > 0 {
                     out.push_str(", ");
                 }
-                write(out, k, tz, stack);
+                write_contained(out, k, tz, stack);
                 out.push_str(": ");
-                write(out, v, tz, stack);
+                write_contained(out, v, tz, stack);
             }
             out.push_str(" }");
             stack.pop();

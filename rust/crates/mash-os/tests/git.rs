@@ -179,7 +179,7 @@ fn git_in_temporary_repositories() {
         // Stashing
         s.eval("git.stash.create");
         s.check("git.status.isClean", "true");
-        s.check("git.stash.list | map (.name)", "[stash@{0}]");
+        s.check("git.stash.list | map (.name)", "[\"stash@{0}\"]");
         s.eval("git.stash.apply");
         s.check("git.status.isClean", "false");
         // Applying keeps the stash; popping drops it

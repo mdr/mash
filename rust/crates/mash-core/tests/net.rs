@@ -122,7 +122,7 @@ fn responses() {
         ),
         ("(http.get 'http://example.com/echo').json.n", "[1, 2.5]"),
         ("(http.post 'http://example.com/echo').status", "201"),
-        ("(http.delete 'http://example.com/echo') | [.status, .body]", "[204, ]"),
+        ("(http.delete 'http://example.com/echo') | [.status, .body]", "[204, \"\"]"),
         ("http.Header.new 'a' 'b'", "{ name: a, value: b }"),
         ("http.Response.new 299 '' [] [] | .succeeded", "true"),
         (
@@ -314,10 +314,10 @@ fn query_parameters() {
 #[test]
 fn dns_and_urls() {
     check(&[
-        ("dns.lookup 'localhost'", "[127.0.0.1, ::1]"),
+        ("dns.lookup 'localhost'", "[127.0.0.1, \"::1\"]"),
         (
             "(net.url 'http://localhost:8080/x').host.ipAddresses",
-            "[127.0.0.1, ::1]",
+            "[127.0.0.1, \"::1\"]",
         ),
         ("dns.lookup 'nowhere.example'", "error: Unknown host: nowhere.example"),
     ]);
@@ -366,14 +366,14 @@ fn data_files() {
         // New: reading CSV, a header line then one object per line, every value a string
         (
             "csv.read 'data.csv'",
-            "[{ name: Ada, age: 36, city: London, UK }, { name: Bob, age: , city: Paris }]",
+            "[{ name: Ada, age: 36, city: \"London, UK\" }, { name: Bob, age: \"\", city: Paris }]",
         ),
         ("csv.read 'data.csv' | map (.age.getClass.name)", "[String, String]"),
-        ("'x,y\n1,\"a\nb\"' | csv.fromString | map (.y)", "[a\nb]"),
+        ("'x,y\n1,\"a\nb\"' | csv.fromString | map (.y)", "[\"a\\nb\"]"),
         ("'' | csv.fromString", "[]"),
         (
             "csv.write 'out.csv' [{ a: 1, b: 'x,y' }, { a: null, b: '\"q\"' }]; csv.read 'out.csv'",
-            "[{ a: 1, b: x,y }, { a: , b: \"q\" }]",
+            "[{ a: 1, b: \"x,y\" }, { a: \"\", b: \"\\\"q\\\"\" }]",
         ),
         ("csv.write 'out.csv' []; csv.read 'out.csv'", "[]"),
         ("csv.read 'ragged.csv'", "error: Invalid CSV: line 3 has 1 value, but the header has 2"),

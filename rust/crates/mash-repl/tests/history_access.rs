@@ -19,10 +19,10 @@ fn history_lists_commands_with_their_results() {
         t.input("[1, 2].length").enter();
         // A command is recorded once it has run
         t.input("history.command").enter();
-        assert_eq!(render(&t.last_value()), "[40 + 2, [1, 2].length]");
+        assert_eq!(render(&t.last_value()), "[40 + 2, \"[1, 2].length\"]");
         t.input("history.result").enter();
         let results = t.last_value();
-        assert_eq!(render(&results), "[42, 2, [40 + 2, [1, 2].length]]");
+        assert_eq!(render(&results), "[42, 2, [40 + 2, \"[1, 2].length\"]]");
         t.input("history.first.session").enter();
         assert_eq!(t.last_value_string(), "test-session");
         t.input("history.first.reexecute").enter();

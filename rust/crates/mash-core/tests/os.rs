@@ -134,7 +134,7 @@ fn listing_files() {
         (r#"glob "*" | map (.path)"#, "[a.txt, sub]"),
         (r#"glob ".*" | map (.path)"#, "[.hidden]"),
         (r#"glob "s*/*" | map (.path)"#, "[sub/b]"),
-        (r#"glob "**" | map (.path)"#, "[, a.txt, sub, sub/b]"),
+        (r#"glob "**" | map (.path)"#, "[\"\", a.txt, sub, sub/b]"),
         (r#"glob "/home/*/sub" | map (.path)"#, "[/home/alice/sub]"),
         (r#"glob "{a.txt,sub}" | map (.path)"#, "[a.txt, sub]"),
         (r#"glob "nope*""#, "[]"),

@@ -170,7 +170,7 @@ fn log_and_commits() {
             "git.log.last",
             "{ hash: 3b434f696c848140d2137675bf2dc7b174f0e8ff, commitTime: 2026-01-02T03:04:05+00:00, author: { author: \
              Alice Example, email: alice@example.com }, committer: { author: Bob Committer, email: bob@example.com }, \
-             summary: Second commit, message: Second commit\n, parents: [24de7ab09e55b75957048e988b4411467cfa5278] }",
+             summary: Second commit, message: \"Second commit\\n\", parents: [24de7ab09e55b75957048e988b4411467cfa5278] }",
         ),
         ("git.log.first.message", "First commit\n\nWith a body\nover two lines\n"),
         ("git.log.first.summary", "First commit"),
@@ -203,13 +203,13 @@ fn log_and_commits() {
         ),
         (
             "git.reflog",
-            "[{ commit: 24de7ab09e55b75957048e988b4411467cfa5278, comment: clone: from /tmp/origin }, { commit: \
-             3b434f696c848140d2137675bf2dc7b174f0e8ff, comment: commit: Second commit }]",
+            "[{ commit: 24de7ab09e55b75957048e988b4411467cfa5278, comment: \"clone: from /tmp/origin\" }, { commit: \
+             3b434f696c848140d2137675bf2dc7b174f0e8ff, comment: \"commit: Second commit\" }]",
         ),
         (
             "git.stash.list",
-            "[{ name: stash@{0}, message: On master: try c, time: 2026-10-14T17:46:40+00:00 }, { name: stash@{1}, \
-             message: WIP on master: 3b434f6 Second, time: 2026-10-14T15:00:00+00:00 }]",
+            "[{ name: \"stash@{0}\", message: \"On master: try c\", time: 2026-10-14T17:46:40+00:00 }, { name: \"stash@{1}\", \
+             message: \"WIP on master: 3b434f6 Second\", time: 2026-10-14T15:00:00+00:00 }]",
         ),
         ("git.stash.list.first.time.getClass.name", "DateTime"),
         (

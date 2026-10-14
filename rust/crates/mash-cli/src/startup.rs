@@ -137,7 +137,7 @@ mod tests {
                 .unwrap();
             ctx.stringify(&value).unwrap()
         });
-        assert_eq!(result, "[Hello, lib, 42, Hello, x, null]");
+        assert_eq!(result, "[\"Hello, lib\", 42, \"Hello, x\", null]");
     }
 
     #[test]

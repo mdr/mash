@@ -62,10 +62,16 @@ fn get_class(target: &Value) -> R<ClassRef> {
 
 /// Represent this object as a string
 ///
+/// A string is itself. In a list or object, a string is shown as it is, unless it would be ambiguous: an empty
+/// string, one with whitespace at either end, or one containing a comma, bracket, brace, colon, quote or line
+/// break is shown in double quotes (with `\"` and `\n` escapes).
+///
 /// Examples:
 /// <mash>
-///   42.toString   # "42"
-///   null.toString # "null"
+///   42.toString                       # "42"
+///   null.toString                     # "null"
+///   ['a', 'b c'].toString             # "[a, b c]"
+///   ['', 'London, UK'].toString       # "[\"\", \"London, UK\"]"
 /// </mash>
 #[builtin_method(shy, returns = crate::infer::Type::STRING)]
 fn to_string(ctx: &mut Ctx, target: &Value) -> R<Value> {
