@@ -38,7 +38,14 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"'x`ny`nxy'.grep -r 'y$'"#, r#"['y', 'xy']"#),
     // Splitting
     Case::eq(r#"'a,b,,c,'.split ','"#, r#"['a', 'b', '', 'c', '']"#),
-    Case::eq(r#"' a b'.split"#, r#"['', 'a', 'b']"#),
+    // DIFFERENT: splitting into words drops whitespace at the ends (Scala gave ['', 'a', 'b', ''])
+    Case::eq(r#"' a b '.split"#, r#"['a', 'b']"#),
+    Case::eq(r#"'   '.split.length"#, r#"0"#),
+    Case::eq(r#"''.split.length"#, r#"0"#),
+    Case::eq(r#"' a b ' | split"#, r#"['a', 'b']"#),
+    // ... but an explicit separator keeps every piece
+    Case::eq(r#"' a b '.split ' '"#, r#"['', 'a', 'b', '']"#),
+    Case::eq(r#"(''.split ',').length"#, r#"1"#),
     Case::eq(r#"'xay'.split --regex '(?=a)'"#, r#"['x', 'ay']"#),
     // DIFFERENT: Rust's split on an empty separator (Java gives ['a', 'b', 'c', ''])
     Case::eq(r#"'abc'.split ''"#, r#"['', 'a', 'b', 'c', '']"#),

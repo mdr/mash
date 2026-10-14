@@ -314,9 +314,14 @@ fn replace_all(regex: &fancy_regex::Regex, s: &str, replacement: &str) -> R<Stri
 
 /// Split this string into a sequence of substrings using a separator
 ///
+/// Without a separator, the string is split into words: runs of whitespace separate them, and whitespace at
+/// the start or end is ignored, so there are no empty words. With a separator, every piece is kept, even an
+/// empty one (two separators together, or one at the start or end).
+///
 /// Examples:
 /// <mash>
-///   'foo bar  baz'.split            # ['foo', 'bar', 'baz']
+///   ' foo bar  baz '.split          # ['foo', 'bar', 'baz']
+///   '   '.split                     # []
 ///   'a:b:'.split ':'                # ['a', 'b', '']
 ///   'a1b22c'.split --regex '[0-9]+' # ['a', 'b', 'c']
 /// </mash>
@@ -330,7 +335,7 @@ fn split_(
     )]
     regex: bool,
     #[param(
-        "Separator to split string on; if not provided, the default is to split on whitespace",
+        "Separator to split string on; if not provided, the string is split into words, separated by whitespace",
         optional
     )]
     separator: Option<Value>,
@@ -339,6 +344,9 @@ fn split_(
 }
 
 /// Split this string into a sequence of substrings using a separator
+///
+/// Without a separator, the string is split into words: runs of whitespace separate them, and whitespace at
+/// the start or end is ignored. With a separator, every piece is kept, even an empty one.
 #[builtin(namespace = "core", infer = super::infer_rules::split)]
 pub(crate) fn split(
     #[param(
@@ -348,7 +356,7 @@ pub(crate) fn split(
     )]
     regex: bool,
     #[param(
-        "Separator to split string on; if not provided, the default is to split on whitespace",
+        "Separator to split string on; if not provided, the string is split into words, separated by whitespace",
         optional
     )]
     separator: Option<Value>,
@@ -359,10 +367,12 @@ pub(crate) fn split(
 
 /// Split as Scala's `SplitMethod.split` does with Java's `split(…, -1)`: empty pieces are kept, including a
 /// trailing one. Edge cases (an empty separator, a match at the start) follow Rust's `split`, as agreed.
+/// Without a separator, the words: no empty pieces at the ends (as Python's `split()`, Nushell's `split words`
+/// and awk; Scala kept them).
 fn split_string(target: &Str, regex: bool, separator: Option<&Value>) -> R<Vec<Value>> {
     let s = target.as_str();
     let pieces: Vec<String> = match separator {
-        None => regex_split(r"\s+", s)?,
+        None => s.split_whitespace().map(str::to_string).collect(),
         Some(Value::Str(sep)) if regex => regex_split(sep.as_str(), s)?,
         Some(Value::Str(sep)) => s.split(sep.as_str()).map(str::to_string).collect(),
         Some(other) => {
