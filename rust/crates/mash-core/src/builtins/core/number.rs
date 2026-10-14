@@ -4,23 +4,28 @@ use mash_macros::builtin_method;
 
 use crate::builtins::time::TimeUnit;
 use crate::eval::{Ctx, MashError, R};
-use crate::function::BuiltinMethod;
+use crate::function::{Args, BuiltinMethod};
 use crate::value::{BuiltinClass, ClassRef, Number, Tag, Value};
 
 use super::ANY_CLASS;
 
 pub(super) const METHODS: &[&dyn BuiltinMethod] = &[
+    &AbsMethod,
     &BytesMethod,
+    &CeilMethod,
     &DaysMethod,
+    &FloorMethod,
     &GbMethod,
     &HoursMethod,
     &KbMethod,
     &MbMethod,
     &MillisecondsMethod,
     &MinutesMethod,
+    &ModMethod,
     &MonthsMethod,
     &NegateMethod,
     &PowerMethod,
+    &RoundMethod,
     &SecondsMethod,
     &TagMethod,
     &TimesMethod,
@@ -136,6 +141,110 @@ fn times(ctx: &mut Ctx, target: &Value, #[param("Code to execute", lazy)] block:
 fn to_int(target: &Value) -> R<Value> {
     let (n, tag) = number(target)?;
     Ok(Value::Number(Number::new(n.as_f64().trunc()), tag))
+}
+
+/// This number with `f` applied, keeping its tag (so `2.6.seconds.round` is still seconds)
+fn map_number(target: &Value, f: impl FnOnce(f64) -> f64) -> R<Value> {
+    let (n, tag) = number(target)?;
+    Ok(Value::Number(Number::new(f(n.as_f64())), tag))
+}
+
+/// Round this number to the nearest integer, or to a number of decimal places
+///
+/// A half rounds away from zero: 2.5 rounds to 3, and -2.5 to -3.
+///
+/// Examples:
+/// <mash>
+///   2.5.round        # 3
+///   3.14159.round 2  # 3.14
+///   1234.round -2    # 1200
+/// </mash>
+#[builtin_method(infer = super::infer_rules::same_as_target)]
+fn round(
+    target: &Value,
+    args: &Args,
+    #[param(
+        "Number of decimal places to keep (default 0)",
+        optional,
+        description = "Must be an integer. A negative number rounds to tens, hundreds, …"
+    )]
+    places: Option<f64>,
+) -> R<Value> {
+    let places = match places {
+        Some(p) if p.fract() != 0.0 || !p.is_finite() => {
+            return Err(args.invalid(
+                "places",
+                &format!("Must be an integer, but was {}", Number::new(p)),
+            ));
+        }
+        Some(p) => p.clamp(-308.0, 308.0) as i32,
+        None => 0,
+    };
+    map_number(target, |n| {
+        if places == 0 {
+            n.round()
+        } else {
+            let scale = 10f64.powi(places);
+            let rounded = (n * scale).round() / scale;
+            if rounded.is_finite() { rounded } else { n }
+        }
+    })
+}
+
+/// The largest integer no greater than this number
+///
+/// Examples:
+/// <mash>
+///   2.7.floor     # 2
+///   (-2.5).floor  # -3
+/// </mash>
+#[builtin_method(infer = super::infer_rules::same_as_target)]
+fn floor(target: &Value) -> R<Value> {
+    map_number(target, f64::floor)
+}
+
+/// The smallest integer no less than this number
+///
+/// Examples:
+/// <mash>
+///   2.1.ceil     # 3
+///   (-2.5).ceil  # -2
+/// </mash>
+#[builtin_method(infer = super::infer_rules::same_as_target)]
+fn ceil(target: &Value) -> R<Value> {
+    map_number(target, f64::ceil)
+}
+
+/// The absolute value of this number: without its sign
+#[builtin_method(infer = super::infer_rules::same_as_target)]
+fn abs(target: &Value) -> R<Value> {
+    map_number(target, f64::abs)
+}
+
+/// The remainder of dividing this number by another
+///
+/// The result has the sign of the divisor (as Python's `%` and Nushell's `mod`), so it wraps around: `(-1).mod 7`
+/// is 6. Dividing by zero is an error.
+///
+/// Examples:
+/// <mash>
+///   7.mod 3       # 1
+///   (-7).mod 3    # 2
+///   7.5.mod 2     # 1.5
+/// </mash>
+#[builtin_method(name = "mod", infer = super::infer_rules::same_as_target)]
+fn mod_(target: &Value, args: &Args, #[param("Number to divide by")] divisor: f64) -> R<Value> {
+    if divisor == 0.0 {
+        return Err(args.invalid("divisor", "Cannot divide by zero"));
+    }
+    map_number(target, |n| {
+        let remainder = n % divisor;
+        if remainder != 0.0 && (remainder < 0.0) != (divisor < 0.0) {
+            remainder + divisor
+        } else {
+            remainder
+        }
+    })
 }
 
 /// Negate this number
