@@ -77,20 +77,31 @@ fn name_of(target: &Value) -> R<Option<String>> {
     Ok(paths::file_name(&target_path(target)?))
 }
 
+/// Where the extension of a file name starts (its last dot), if it has one. A leading dot starts no extension:
+/// it is part of the name, as in `.bashrc`.
+fn extension_dot(name: &str) -> Option<usize> {
+    name.rfind('.').filter(|&i| i > 0 && name != "..")
+}
+
 /// Name without extension
+///
+/// A leading dot is part of the name, not the start of an extension: `".bashrc".baseName` is `.bashrc`.
 #[builtin_method(returns = Type::STRING)]
 fn base_name(target: &Value) -> R<Value> {
     Ok(match name_of(target)? {
-        Some(name) => Value::str(name.rfind('.').map_or(name.as_str(), |i| &name[..i])),
+        Some(name) => Value::str(extension_dot(&name).map_or(name.as_str(), |i| &name[..i])),
         None => Value::Null,
     })
 }
 
 /// File extension, if any, else null
+///
+/// The extension is what follows the last dot in the name. A leading dot doesn't start one:
+/// `".bashrc".extension` is null, and `".config.json".extension` is `json`.
 #[builtin_method(returns = Type::STRING)]
 fn extension(target: &Value) -> R<Value> {
     Ok(match name_of(target)? {
-        Some(name) => match name.rfind('.') {
+        Some(name) => match extension_dot(&name) {
             Some(i) => Value::str(&name[i + 1..]),
             None => Value::Null,
         },
