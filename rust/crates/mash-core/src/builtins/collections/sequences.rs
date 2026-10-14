@@ -136,23 +136,59 @@ fn takes_index(ctx: &Ctx, f: &Callable) -> bool {
 /// Call `f` on each field of an object with as many of (name, value, index) as it takes (Scala
 /// `validateFunction1Or2Or3`)
 fn map_fields(ctx: &mut Ctx, args: &Args, name: &str, f: &Callable, obj: &Object) -> R<Vec<(Value, Value, Value)>> {
+    let arity = field_arity(ctx, args, name, f)?;
+    let mut results = vec![];
+    for (i, (field, value)) in obj.entries().into_iter().enumerate() {
+        let result = call_on_field(ctx, f, arity, &field, &value, i)?;
+        results.push((field, value, result));
+    }
+    Ok(results)
+}
+
+/// How many of (name, value, index) `f` takes when called on an object's fields
+fn field_arity(ctx: &Ctx, args: &Args, name: &str, f: &Callable) -> R<usize> {
     if !is_function_or_method(f) {
         return Err(args.invalid(name, &format!("Must be a function, but was a {}", f.0.type_name())));
     }
-    let arity = if f.accepts_positional(ctx, 3) {
+    Ok(if f.accepts_positional(ctx, 3) {
         3
     } else if f.accepts_positional(ctx, 2) {
         2
     } else {
         1
-    };
-    let mut results = vec![];
+    })
+}
+
+fn call_on_field(ctx: &mut Ctx, f: &Callable, arity: usize, field: &Value, value: &Value, index: usize) -> R<Value> {
+    let mut call_args = vec![field.clone(), value.clone(), Value::num(index)];
+    call_args.truncate(arity);
+    f.call(ctx, call_args)
+}
+
+/// The first field of an object for which `predicate` is truthy (or, if not `truthy`, falsy), stopping there
+fn find_field(
+    ctx: &mut Ctx,
+    args: &Args,
+    predicate: &Callable,
+    obj: &Object,
+    truthy: bool,
+) -> R<Option<(Value, Value)>> {
+    let arity = field_arity(ctx, args, "predicate", predicate)?;
     for (i, (field, value)) in obj.entries().into_iter().enumerate() {
-        let mut call_args = vec![field.clone(), value.clone(), Value::num(i)];
-        call_args.truncate(arity);
-        results.push((field, value, f.call(ctx, call_args)?));
+        if call_on_field(ctx, predicate, arity, &field, &value, i)?.is_truthy() == truthy {
+            return Ok(Some((field, value)));
+        }
     }
-    Ok(results)
+    Ok(None)
+}
+
+/// The items of a list or string argument, or the fields of an object
+fn items_or_object(ctx: &mut Ctx, args: &Args) -> R<Result<Vec<Value>, Object>> {
+    Ok(match sequence_like(ctx, args, "sequence")? {
+        SequenceLike::List(items) => Ok(items),
+        SequenceLike::Str(ref s) => Ok(characters(s)),
+        SequenceLike::Object(obj) => Err(obj),
+    })
 }
 
 /// `map` over an object (Scala `ObjectClass.MapMethod.doMap`): results that are all objects are merged,
@@ -255,21 +291,29 @@ fn flatten_values(values: Vec<Value>, input: &Value) -> R<Value> {
 /// Check whether a predicate holds for every element in a sequence
 ///
 /// Returns true if the given predicate returns a truthy result for every element in the given sequence;
-/// false otherwise.
+/// false otherwise. For an object, the predicate is called with each field's name and value (and index, if it
+/// takes three arguments), as with `where`.
 ///
 /// Examples:
 /// <mash>
-///   all (_ > 0) [1, 2, 3]  # true
-///   all (_ > 0) [1, -2, 3] # false
-///   all (_ > 0) []         # true
+///   all (_ > 0) [1, 2, 3]               # true
+///   all (_ > 0) [1, -2, 3]              # false
+///   all (_ > 0) []                      # true
+///   all (k v => v > 0) { a: 1, b: 2 }   # true
 /// </mash>
 #[builtin(namespace = "collections", infer = super::inference::infer_all, completion = super::inference::complete_map_function)]
 pub fn all(
     ctx: &mut Ctx,
+    args: &Args,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
-    #[param("Sequence of elements to test")] sequence: Sequence,
+    #[param("Sequence of elements to test", description = "Can be a List, String or Object")] sequence: Value,
 ) -> R<bool> {
-    for item in sequence.items() {
+    let _ = sequence;
+    let items = match items_or_object(ctx, args)? {
+        Ok(items) => items,
+        Err(obj) => return Ok(find_field(ctx, args, &predicate, &obj, false)?.is_none()),
+    };
+    for item in items {
         if !predicate.call1(ctx, item)?.is_truthy() {
             return Ok(false);
         }
@@ -280,21 +324,29 @@ pub fn all(
 /// Check whether a predicate holds for any element in a sequence
 ///
 /// Returns true if the given predicate returns a truthy result for at least one element in the given
-/// sequence; false otherwise.
+/// sequence; false otherwise. For an object, the predicate is called with each field's name and value (and
+/// index, if it takes three arguments), as with `where`.
 ///
-/// <mash>
 /// Examples:
-///   any (_ > 0) [1, -2, 3]   # true
-///   any (_ > 0) [-1, -2, -3] # false
-///   any (_ > 0) []           # false
+/// <mash>
+///   any (_ > 0) [1, -2, 3]              # true
+///   any (_ > 0) [-1, -2, -3]            # false
+///   any (_ > 0) []                      # false
+///   any (k v => v > 1) { a: 1, b: 2 }   # true
 /// </mash>
 #[builtin(namespace = "collections", infer = super::inference::infer_all, completion = super::inference::complete_map_function)]
 pub fn any(
     ctx: &mut Ctx,
+    args: &Args,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
-    #[param("Sequence of elements to test")] sequence: Sequence,
+    #[param("Sequence of elements to test", description = "Can be a List, String or Object")] sequence: Value,
 ) -> R<bool> {
-    for item in sequence.items() {
+    let _ = sequence;
+    let items = match items_or_object(ctx, args)? {
+        Ok(items) => items,
+        Err(obj) => return Ok(find_field(ctx, args, &predicate, &obj, true)?.is_some()),
+    };
+    for item in items {
         if predicate.call1(ctx, item)?.is_truthy() {
             return Ok(true);
         }
@@ -326,20 +378,32 @@ pub fn count_matches(
 /// Find an element in the sequence for which a predicate holds
 ///
 /// Returns the first element of the sequence for which the predicate returns a truthy value.
-/// null is returned if no matching element is found.
+/// null is returned if no matching element is found. For an object, the predicate is called with each
+/// field's name and value (and index, if it takes three arguments), and the result is the first matching
+/// field as an object with just that field.
 ///
 /// Examples:
 /// <mash>
-///   find (_ > 10) [1, 20, 3]  # 20
-///   find (_ > 100) [1, 2, 3]  # null
+///   find (_ > 10) [1, 20, 3]             # 20
+///   find (_ > 100) [1, 2, 3]             # null
+///   find (k v => v > 1) { a: 1, b: 2 }   # { b: 2 }
 /// </mash>
 #[builtin(namespace = "collections", infer = super::inference::infer_find, completion = super::inference::complete_map_function)]
 pub fn find(
     ctx: &mut Ctx,
+    args: &Args,
     #[param("Predicate used to test elements of the sequence")] predicate: Callable,
-    #[param("Sequence to search")] sequence: Sequence,
+    #[param("Sequence to search", description = "Can be a List, String or Object")] sequence: Value,
 ) -> R<Value> {
-    for item in sequence.items() {
+    let _ = sequence;
+    let items = match items_or_object(ctx, args)? {
+        Ok(items) => items,
+        Err(obj) => {
+            return Ok(find_field(ctx, args, &predicate, &obj, true)?
+                .map_or(Value::Null, |field| Value::Object(object_of([field]))));
+        }
+    };
+    for item in items {
         if predicate.call1(ctx, item.clone())?.is_truthy() {
             return Ok(item);
         }
@@ -410,26 +474,42 @@ pub fn index_of(
 
 /// Check whether a given sequence is empty
 ///
+/// An object is empty if it has no fields.
+///
 /// Examples:
 /// <mash>
 ///   isEmpty []        # true
 ///   isEmpty [1, 2, 3] # false
+///   isEmpty {}        # true
 /// </mash>
 #[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
-pub fn is_empty(#[param("Sequence of elements to test")] sequence: Sequence) -> R<bool> {
-    Ok(sequence.items().is_empty())
+pub fn is_empty(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param("Sequence of elements to test", description = "Can be a List, String or Object")] sequence: Value,
+) -> R<bool> {
+    let _ = sequence;
+    Ok(super::functions::sequence_length(ctx, args)? == 0)
 }
 
 /// Check whether a given sequence is non-empty
+///
+/// An object is non-empty if it has any fields.
 ///
 /// Examples:
 /// <mash>
 ///   nonEmpty []        # false
 ///   nonEmpty [1, 2, 3] # true
+///   nonEmpty { a: 1 }  # true
 /// </mash>
 #[builtin(namespace = "collections", returns = crate::infer::Type::BOOLEAN)]
-pub fn non_empty(#[param("Sequence of elements to test")] sequence: Sequence) -> R<bool> {
-    Ok(!sequence.items().is_empty())
+pub fn non_empty(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param("Sequence of elements to test", description = "Can be a List, String or Object")] sequence: Value,
+) -> R<bool> {
+    let _ = sequence;
+    Ok(super::functions::sequence_length(ctx, args)? != 0)
 }
 
 // ------------------------------------------------------------------------------------------------ transforming

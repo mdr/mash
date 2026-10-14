@@ -6,9 +6,10 @@ use mash_macros::{builtin, builtin_method};
 
 use super::classes::class_field_names;
 use crate::builtins::collections::{
-    AllButLastFunction, FirstFunction, FlatMapFunction, GrepOptions, LastFunction, Methodised, ReverseFunction,
-    SkipFunction, SortFunction, TransposeFunction, attribute_functions, descending_param, filter_object, grep_object,
-    map_object, merge_objects, natural_order_param, sort_object_by,
+    AllButLastFunction, AllFunction, AnyFunction, FindFunction, FirstFunction, FlatMapFunction, GrepOptions,
+    IsEmptyFunction, LastFunction, LengthFunction, Methodised, NonEmptyFunction, ReverseFunction, SkipFunction,
+    SortFunction, TransposeFunction, attribute_functions, descending_param, filter_object, grep_object, map_object,
+    merge_objects, natural_order_param, sort_object_by,
 };
 use crate::eval::{Ctx, MashError, R, is_subclass_of};
 use crate::function::{Args, BuiltinFunction, BuiltinMethod, Callable};
@@ -32,10 +33,16 @@ pub(crate) const OBJECT_METHODS: &[&dyn BuiltinMethod] = &[
     &WithFieldMethod,
     &WhereMethod,
     &WhereNotMethod,
+    &ALL_METHOD,
     &ALL_BUT_LAST_METHOD,
+    &ANY_METHOD,
+    &FIND_METHOD,
     &FIRST_METHOD,
     &FLAT_MAP_METHOD,
+    &IS_EMPTY_METHOD,
     &LAST_METHOD,
+    &LENGTH_METHOD,
+    &NON_EMPTY_METHOD,
     &REVERSE_METHOD,
     &SKIP_METHOD,
     &SORT_METHOD,
@@ -45,10 +52,16 @@ pub(crate) const OBJECT_METHODS: &[&dyn BuiltinMethod] = &[
 pub(crate) const OBJECT_STATIC_METHODS: &[&dyn BuiltinFunction] = &[&FromPairsFunction, &MergeFunction];
 
 // Collection functions as (shy) Object methods, as in Scala's ObjectClass
+static ALL_METHOD: Methodised = Methodised::new(&AllFunction, "sequence", &[], true);
 static ALL_BUT_LAST_METHOD: Methodised = Methodised::new(&AllButLastFunction, "sequence", &[], true);
+static ANY_METHOD: Methodised = Methodised::new(&AnyFunction, "sequence", &[], true);
+static FIND_METHOD: Methodised = Methodised::new(&FindFunction, "sequence", &[], true);
 static FIRST_METHOD: Methodised = Methodised::new(&FirstFunction, "sequence", &[], true);
 static FLAT_MAP_METHOD: Methodised = Methodised::new(&FlatMapFunction, "sequence", &[], true);
+static IS_EMPTY_METHOD: Methodised = Methodised::new(&IsEmptyFunction, "sequence", &[], true);
 static LAST_METHOD: Methodised = Methodised::new(&LastFunction, "sequence", &[], true);
+static LENGTH_METHOD: Methodised = Methodised::new(&LengthFunction, "sequence", &["count"], true);
+static NON_EMPTY_METHOD: Methodised = Methodised::new(&NonEmptyFunction, "sequence", &[], true);
 static REVERSE_METHOD: Methodised = Methodised::new(&ReverseFunction, "sequence", &[], true);
 static SKIP_METHOD: Methodised = Methodised::new(&SkipFunction, "sequence", &[], true);
 static SORT_METHOD: Methodised = Methodised::new(&SortFunction, "sequence", &[], true);

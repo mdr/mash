@@ -374,6 +374,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `Object.bless` with a class that isn't an object class (`String`, `Number`) | Allowed, making broken values | Error, as `Class.bless` |
 | `contains`, `indexOf` (functions) and `in` on strings | The string as a single element (character), so `contains "bc" "abc"` was false while `"abc".contains "bc"` was true | A substring, as the String methods (and Python's `in`); lists unchanged |
 | `select` of a member an object doesn't have (`select "coupon"` on rows where only some have one) | Error | null, as jq; computed fields (`--x=(…)`) as written |
+| `isEmpty`, `nonEmpty`, `length`, `any`, `all` and `find` on objects | Error (only lists and strings), though `where`, `map` and `skip` took objects | Field by field, the function taking (name, value) as in `where`; `find` gives the matching field as a one-field object. Also (shy) Object methods, as `where` is |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |

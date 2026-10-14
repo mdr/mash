@@ -3,6 +3,26 @@
 use crate::harness::*;
 
 pub(crate) const CASES: &[Case] = &[
+    // Objects, field by field (a deliberate difference from Scala Mash)
+    Case::eq(r#"{} | isEmpty"#, r#"true"#),
+    Case::eq(r#"{ a: 1 }.isEmpty"#, r#"false"#),
+    Case::eq(r#"{ a: 1 } | nonEmpty"#, r#"true"#),
+    Case::eq(r#"{}.nonEmpty"#, r#"false"#),
+    Case::eq(r#"{ a: 1, b: 2 } | length"#, r#"2"#),
+    Case::eq(r#"{ a: 1, b: 2 }.length"#, r#"2"#),
+    Case::eq(r#"{ a: 1, b: 2 }.count"#, r#"2"#),
+    Case::eq(r#"{ length: 5 }.length"#, r#"5"#),
+    Case::eq(r#"{ a: 1, b: 2 } | any (k v => v > 1)"#, r#"true"#),
+    Case::eq(r#"{ a: 1, b: 2 }.any (k v => v > 2)"#, r#"false"#),
+    Case::eq(r#"{} | any (k v => true)"#, r#"false"#),
+    Case::eq(r#"{ a: 1, b: 2 } | all (k v => v > 0)"#, r#"true"#),
+    Case::eq(r#"{ a: 1, b: 2 }.all (k => k == 'a')"#, r#"false"#),
+    Case::eq(r#"{} | all (k v => false)"#, r#"true"#),
+    Case::eq(r#"{ a: 1, b: 2, c: 3 } | find (k v => v > 1)"#, r#"{ b: 2 }"#),
+    Case::eq(r#"{ a: 1, b: 2 }.find (k v i => i == 1)"#, r#"{ b: 2 }"#),
+    Case::eq(r#"{ a: 1 } | find (k v => v > 5)"#, r#"null"#),
+    Case::eq(r#"n = 0; { a: 1, b: 2 } | any (k v => (n += 1; true)); n"#, r#"1"#),
+    Case::throws(r#"3 | length"#),
     Case::eq(r#"[2, 4, 6] | all (_ < 10)"#, r#"true"#),
     Case::eq(r#"[2, 4, 6] | all (_ < 5)"#, r#"false"#),
     Case::eq(r#"[] | all (_ < 10)"#, r#"true"#),
