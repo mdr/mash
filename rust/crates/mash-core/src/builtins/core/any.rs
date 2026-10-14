@@ -2,7 +2,7 @@
 
 use mash_macros::builtin_method;
 
-use crate::eval::{R, is_a, primary_class, render};
+use crate::eval::{Ctx, R, is_a, primary_class, render_in};
 use crate::function::{BuiltinMethod, Sequence};
 use crate::value::{ClassRef, Str, Value};
 
@@ -68,10 +68,10 @@ fn get_class(target: &Value) -> R<ClassRef> {
 ///   null.toString # "null"
 /// </mash>
 #[builtin_method(shy, returns = crate::infer::Type::STRING)]
-fn to_string(target: &Value) -> R<Value> {
+fn to_string(ctx: &mut Ctx, target: &Value) -> R<Value> {
     Ok(match target {
         Value::Str(_) => target.clone(),
-        _ => Value::Str(Str::new(render(target))),
+        _ => Value::Str(Str::new(render_in(target, &ctx.time_zone()))),
     })
 }
 

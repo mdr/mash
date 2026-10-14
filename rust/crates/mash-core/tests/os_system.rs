@@ -351,7 +351,7 @@ fn history() {
         ("os.history.commandNumber", "[0, 1, 2, 3, 4, 5, 6, 7]"),
         (
             "history.last",
-            "{ session: s1, commandNumber: 7, timestamp: 2023-11-14T22:13:27Z, command: echo hi, mish: true, result: \
+            "{ session: s1, commandNumber: 7, timestamp: 2023-11-14T22:13:27+00:00, command: echo hi, mish: true, result: \
              7, workingDirectory: /home/alice/Projects2 }",
         ),
         ("history.first.getClass", "core.HistoryEntry"),

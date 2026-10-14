@@ -33,7 +33,7 @@ use crate::value::{List, Object, Scope, ScopeKind, Str, Value};
 pub use error::{ErrorKind, Location, MashError, R, StackFrame, suggestion_suffix};
 pub use member::{MemberLookup, is_a, is_subclass_of, parent_of, primary_class};
 pub use ops::binary_op;
-pub use render::render;
+pub use render::{render, render_in};
 
 /// Default limit on nested Mash function calls. In the browser, the stack usually runs out first (see
 /// [`Platform::stack_nearly_full`](crate::platform::Platform::stack_nearly_full)).

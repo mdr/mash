@@ -109,7 +109,7 @@ fn listing_files() {
             "{ path: a.txt, type: file, size: 3, owner: alice, group: alice, permissions: { owner: { canRead: \
              true, canWrite: true, canExecute: false }, group: { canRead: true, canWrite: false, canExecute: \
              false }, others: { canRead: true, canWrite: false, canExecute: false } }, lastModified: \
-             2026-10-01T09:00:00Z }",
+             2026-10-01T09:00:00+00:00 }",
         ),
         ("ls.last.type", "dir"),
         ("ls.first.size.getClass", "core.Number"),
@@ -168,7 +168,7 @@ fn path_methods() {
         (r#""a.txt".type"#, "file"),
         (r#""a.txt".owner"#, "alice"),
         (r#""a.txt".group"#, "alice"),
-        (r#""a.txt".lastModified"#, "2026-10-01T09:00:00Z"),
+        (r#""a.txt".lastModified"#, "2026-10-01T09:00:00+00:00"),
         (r#""a.txt".permissions.owner.canWrite"#, "true"),
         (r#""a.txt".info.path"#, "a.txt"),
         (r#""sub/../a.txt".absolute"#, "/home/alice/a.txt"),

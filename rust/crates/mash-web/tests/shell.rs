@@ -67,7 +67,7 @@ fn the_home_directory_has_the_sample_files() {
                 "write 'new.txt' 'hi'; [read 'new.txt', (ls | where (_.path == 'new.txt') | first).lastModified]"
             )
             .unwrap(),
-            "[hi, 2026-10-09T12:00:00Z]"
+            "[hi, 2026-10-09T12:00:00+00:00]"
         );
     });
 }

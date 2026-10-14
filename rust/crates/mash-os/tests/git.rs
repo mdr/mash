@@ -111,7 +111,7 @@ fn git_in_temporary_repositories() {
         );
         s.check("git.log.last.author.toString", "Alice Example <alice@example.com>");
         s.check("git.log.last.committer.author", "Bob Committer");
-        s.check("git.log.last.commitTime", "2026-01-02T03:04:05Z");
+        s.check("git.log.last.commitTime", "2026-01-02T03:04:05+00:00");
         s.check("git.log.last.message", "Second commit\n");
         s.check("git.log 'v1' | length", "1");
         s.check(

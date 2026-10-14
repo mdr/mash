@@ -165,7 +165,7 @@ fn log_and_commits() {
         ("git.log | length", "2"),
         (
             "git.log.last",
-            "{ hash: 3b434f696c848140d2137675bf2dc7b174f0e8ff, commitTime: 2026-01-02T03:04:05Z, author: { author: \
+            "{ hash: 3b434f696c848140d2137675bf2dc7b174f0e8ff, commitTime: 2026-01-02T03:04:05+00:00, author: { author: \
              Alice Example, email: alice@example.com }, committer: { author: Bob Committer, email: bob@example.com }, \
              summary: Second commit, message: Second commit\n, parents: [24de7ab09e55b75957048e988b4411467cfa5278] }",
         ),

@@ -1,18 +1,35 @@
 //! Mash's default string representation of values (Scala's `toString` on values, used by the `toString`
 //! method).
 
+use jiff::Timestamp;
+use jiff::tz::TimeZone;
+
 use crate::value::{FunctionKind, Value};
 
 /// The default string form of a value: strings as they are, numbers without a trailing `.0`, containers as
 /// `[1, 2]` and `{ a: 1 }` (with their contents rendered the same way, so strings inside are unquoted).
-/// Terminates on cyclic values.
+/// Date-times are in UTC; `render_in` gives them in a time zone. Terminates on cyclic values.
 pub fn render(value: &Value) -> String {
+    render_in(value, &TimeZone::UTC)
+}
+
+/// `render`, with date-times in time zone `tz`, e.g. 2026-10-09T13:00:00.25+01:00
+pub fn render_in(value: &Value, tz: &TimeZone) -> String {
     let mut out = String::new();
-    write(&mut out, value, &mut vec![]);
+    write(&mut out, value, tz, &mut vec![]);
     out
 }
 
-fn write(out: &mut String, value: &Value, stack: &mut Vec<usize>) {
+/// A date-time in ISO 8601 form, in `tz` with its offset, to the millisecond (trailing zeros dropped)
+pub(crate) fn date_time_string(t: Timestamp, tz: &TimeZone) -> String {
+    let millis = Timestamp::from_millisecond(t.as_millisecond()).unwrap_or(t);
+    millis
+        .to_zoned(tz.clone())
+        .strftime("%Y-%m-%dT%H:%M:%S%.f%:z")
+        .to_string()
+}
+
+fn write(out: &mut String, value: &Value, tz: &TimeZone, stack: &mut Vec<usize>) {
     match value {
         Value::Null => out.push_str("null"),
         Value::Unit => {}
@@ -30,7 +47,7 @@ fn write(out: &mut String, value: &Value, stack: &mut Vec<usize>) {
                 if i > 0 {
                     out.push_str(", ");
                 }
-                write(out, item, stack);
+                write(out, item, tz, stack);
             }
             out.push(']');
             stack.pop();
@@ -50,9 +67,9 @@ fn write(out: &mut String, value: &Value, stack: &mut Vec<usize>) {
                 if i > 0 {
                     out.push_str(", ");
                 }
-                write(out, k, stack);
+                write(out, k, tz, stack);
                 out.push_str(": ");
-                write(out, v, stack);
+                write(out, v, tz, stack);
             }
             out.push_str(" }");
             stack.pop();
@@ -71,7 +88,7 @@ fn write(out: &mut String, value: &Value, stack: &mut Vec<usize>) {
         Value::Builtin(b) => out.push_str(&b.0.full_name()),
         Value::BoundMethod(m) => out.push_str(&m.full_name()),
         Value::Class(c) => out.push_str(&c.full_name()),
-        Value::DateTime(t) => out.push_str(&t.0.to_string()),
+        Value::DateTime(t) => out.push_str(&date_time_string(t.0, tz)),
         Value::Date(d) => out.push_str(&d.0.to_string()),
     }
 }

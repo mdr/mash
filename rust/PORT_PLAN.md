@@ -378,6 +378,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `year`, `month`, `day`, `weekday` on Date and DateTime | Missing (Date had no methods) | Numbers, with `month` 1–12; `weekday` an English name such as `Friday`; a DateTime's in the local zone, as `hour` |
 | Date arithmetic (`today + 1.days`, `date - date`) | Error | A Date plus or minus days, weeks or months is a Date (smaller units are errors); a Date minus a Date is a number of days |
 | `format` with a pattern, and on a Date | Fixed format only, DateTime only | An optional strftime pattern (`now.format "%Y-%m-%d"`), as Unix `date +…`; a Date's default is `Fri 9 Oct 2026`; a pattern a Date can't fill (`%H`) is an error |
+| How a DateTime shows (`toString`, the REPL, JSON) | UTC, to the nanosecond: `2026-10-14T14:37:35.489155Z` | The local zone with its offset, to the millisecond: `2026-10-14T15:37:35.489+01:00` (still ISO 8601; `toDateTime` reads it back) |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
@@ -503,6 +504,7 @@ browser.
 - Integer/float number split.
 - Isolate-based `parallelMap` / `inBackground`.
 - `.graphemes`, paths carrying `OsString`, localised date formatting.
+- Date vs DateTime: `<`/`>` treat a Date as its local midnight, but `==` is never true between them (`d <= t`, `d >= t`, `d != t`). Either make `==` agree, or make comparing them an error (as Python). Undecided.
 
 ## Spike results (summary)
 
