@@ -27,6 +27,8 @@ const CASES: &[(&str, &str, &str)] = &[
     ("", "now.year", "core.Number"),
     ("", "today.month", "core.Number"),
     ("", "today.weekday", "core.String"),
+    ("", "today.format", "core.String"),
+    ("", "now.format '%Y'", "core.String"),
     ("", "now + 1.days", "time.DateTime"),
     ("", "1.days + now", "time.DateTime"),
     ("", "now - 1.days", "time.DateTime"),

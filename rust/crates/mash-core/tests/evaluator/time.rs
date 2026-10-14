@@ -25,6 +25,11 @@ pub(crate) const CASES: &[Case] = &[
     ),
     Case::eq(r#"'2026-09-01T23:30:00-05:00'.toDateTime.day"#, r#"2"#),
     Case::eq(r#"'2024-02-29'.toDate.weekday"#, r#"'Thursday'"#),
+    Case::eq(r#"now.format '%Y-%m-%d %H:%M'"#, r#"'2026-10-09 12:00'"#),
+    Case::eq(r#"today.format '%B %Y'"#, r#"'October 2026'"#),
+    Case::eq(r#"today.format"#, r#"'Fri 9 Oct 2026'"#),
+    Case::eq(r#"today.format '100%%'"#, r#"'100%'"#),
+    Case::throws(r#"today.format '%H:%M'"#),
     Case::eq(r#"time.fromMillisSinceEpoch 0"#, r#"'1970-01-01T00:00:00Z'.toDateTime"#),
     Case::eq(r#"time.fromMillisSinceEpoch 1791547200000"#, r#"now"#),
     Case::eq(

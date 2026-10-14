@@ -45,7 +45,7 @@ pub(crate) const CLASSES: &[&BuiltinClass] = &[
 
 pub static DATE_CLASS: BuiltinClass = BuiltinClass {
     summary: "A date",
-    methods: &[&DayMethod, &MonthMethod, &WeekdayMethod, &YearMethod],
+    methods: &[&DayMethod, &FormatMethod, &MonthMethod, &WeekdayMethod, &YearMethod],
     ..BuiltinClass::new("time", "Date", Some(&ANY_CLASS))
 };
 
@@ -392,12 +392,39 @@ fn millis_since_epoch(target: &Value) -> R<Value> {
     Ok(Value::num(instant(target)?.as_millisecond() as f64))
 }
 
-/// Format as a human-friendly absolute time, e.g. Fri 9 Oct 2026 10:00:00 BST
+/// Format as text, by default as a human-friendly absolute time, e.g. Fri 9 Oct 2026 10:00:00 BST
 ///
-/// The format is fixed and locale-independent, and `toDateTime` parses it back (in the same time zone).
+/// The default format is fixed and locale-independent, and `toDateTime` parses it back (in the same time
+/// zone). A Date's default is e.g. Fri 9 Oct 2026. A DateTime is formatted in the current time zone.
+///
+/// Examples:
+/// <mash>
+///   now.format "%Y-%m-%d %H:%M"   # 2026-10-09 10:00
+///   today.format "%B %Y"          # October 2026
+///   today.format                  # Fri 9 Oct 2026
+/// </mash>
 #[builtin_method(returns = crate::infer::Type::STRING)]
-fn format(ctx: &mut Ctx, target: &Value) -> R<String> {
-    Ok(parse::format(instant(target)?, &ctx.time_zone()))
+fn format(
+    ctx: &mut Ctx,
+    target: &Value,
+    #[param(
+        "strftime-style pattern, e.g. %Y-%m-%d",
+        description = "%Y year, %m month (01-12), %d day (01-31), %H hour (00-23), %M minute, %S second, \
+                       %a/%A weekday name, %b/%B month name, %Z time zone abbreviation, %% a literal %"
+    )]
+    pattern: Option<Str>,
+) -> R<String> {
+    let Some(pattern) = pattern else {
+        return Ok(match target {
+            Value::Date(LocalDate(d)) => d.strftime("%a %-d %b %Y").to_string(),
+            _ => parse::format(instant(target)?, &ctx.time_zone()),
+        });
+    };
+    let formatted = match target {
+        Value::Date(LocalDate(d)) => jiff::fmt::strtime::format(pattern.as_str(), *d),
+        _ => jiff::fmt::strtime::format(pattern.as_str(), &local(ctx, target)?),
+    };
+    formatted.map_err(|e| MashError::new(format!("Could not format with pattern '{}': {e}", pattern.as_str())))
 }
 
 /// Render as human-friendly relative time, e.g. 1 day ago, 3 months from now, etc
