@@ -192,6 +192,10 @@ fn a_request_that_takes_too_long_times_out() {
     let started = std::time::Instant::now();
     let result = eval(format!("http.get '{url}' --timeout=300"));
     assert_eq!(result, format!("error: Timed out after 300 milliseconds: {url}"));
+    assert_eq!(
+        eval(format!("json.get '{url}' --timeout=300")),
+        format!("error: Timed out after 300 milliseconds: {url}")
+    );
     assert!(started.elapsed() < std::time::Duration::from_secs(5));
     assert_eq!(
         eval(format!("http.get '{url}' --timeout='soon'")),

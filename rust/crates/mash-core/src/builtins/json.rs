@@ -5,7 +5,7 @@ use mash_macros::builtin;
 
 use super::http::{
     Body, Encoding, Target, basic_auth_param, body_param, body_text, cookies_param, file_param, headers_param,
-    insecure_param, query_params_param, send, url_param,
+    insecure_param, query_params_param, send, timeout_param, url_param,
 };
 use super::os::paths::{PathArg, fs, io_error};
 use super::os::{complete_files, read_text};
@@ -90,6 +90,7 @@ pub fn get(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Value> {
     let target = Target {
         url,
@@ -98,7 +99,7 @@ pub fn get(
         cookies,
         query_params,
         insecure,
-        timeout: None,
+        timeout,
     };
     json_request(ctx, args, "GET", target, None)
 }
@@ -117,6 +118,7 @@ pub fn post(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Value> {
     let target = Target {
         url,
@@ -125,7 +127,7 @@ pub fn post(
         cookies,
         query_params,
         insecure,
-        timeout: None,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -148,6 +150,7 @@ pub fn put(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Value> {
     let target = Target {
         url,
@@ -156,7 +159,7 @@ pub fn put(
         cookies,
         query_params,
         insecure,
-        timeout: None,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -179,6 +182,7 @@ pub fn patch(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Value> {
     let target = Target {
         url,
@@ -187,7 +191,7 @@ pub fn patch(
         cookies,
         query_params,
         insecure,
-        timeout: None,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -208,6 +212,7 @@ pub fn delete(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Value> {
     let target = Target {
         url,
@@ -216,7 +221,7 @@ pub fn delete(
         cookies,
         query_params,
         insecure,
-        timeout: None,
+        timeout,
     };
     json_request(ctx, args, "DELETE", target, None)
 }
