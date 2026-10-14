@@ -20,6 +20,10 @@ pub struct HttpRequest<'a> {
     pub cookies: &'a [(String, String)],
     /// Don't verify the server's TLS certificate or host name
     pub insecure: bool,
+    /// Give up after this long (the whole request, redirects included), if given
+    pub timeout: Option<std::time::Duration>,
+    /// Set when the user interrupts evaluation (Ctrl-C): a platform that can then abandons the request
+    pub interrupt: Option<&'a std::sync::atomic::AtomicBool>,
 }
 
 impl HttpRequest<'_> {
@@ -104,6 +108,8 @@ mod tests {
             basic_auth: Some(("aladdin", "opensesame")),
             cookies: &cookies,
             insecure: false,
+            timeout: None,
+            interrupt: None,
         };
         assert_eq!(
             request.all_headers(),

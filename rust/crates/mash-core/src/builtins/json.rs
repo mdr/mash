@@ -98,6 +98,7 @@ pub fn get(
         cookies,
         query_params,
         insecure,
+        timeout: None,
     };
     json_request(ctx, args, "GET", target, None)
 }
@@ -124,6 +125,7 @@ pub fn post(
         cookies,
         query_params,
         insecure,
+        timeout: None,
     };
     let body = Body {
         value: body,
@@ -154,6 +156,7 @@ pub fn put(
         cookies,
         query_params,
         insecure,
+        timeout: None,
     };
     let body = Body {
         value: body,
@@ -184,6 +187,7 @@ pub fn patch(
         cookies,
         query_params,
         insecure,
+        timeout: None,
     };
     let body = Body {
         value: body,
@@ -212,6 +216,7 @@ pub fn delete(
         cookies,
         query_params,
         insecure,
+        timeout: None,
     };
     json_request(ctx, args, "DELETE", target, None)
 }

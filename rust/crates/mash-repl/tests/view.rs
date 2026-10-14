@@ -599,7 +599,7 @@ fn http_function_help() {
     http.post - Make an HTTP POST request
 
 CALLING SYNTAX
-    post <url> [<body>] (--file | -f) (--json | -j) --form --basicAuth[=<value>] --headers[=<value>] --cookies[=<value>] --queryParams[=<value>] --insecure
+    post <url> [<body>] (--file | -f) (--json | -j) --form --basicAuth[=<value>] --headers[=<value>] --cookies[=<value>] --queryParams[=<value>] --insecure --timeout[=<value>]
 
 PARAMETERS
     url - URL to send request to
@@ -635,7 +635,11 @@ PARAMETERS
           --queryParams={ name: "value" }
 
     --insecure [optional] - Don't verify the server's TLS certificate (default false)
-        By default, HTTPS requests fail if the server's certificate isn't trusted, or doesn't match its host name."#,
+        By default, HTTPS requests fail if the server's certificate isn't trusted, or doesn't match its host name.
+
+    --timeout [optional] - Give up if the request takes longer than this (default: wait as long as it takes)
+        A duration, such as 10.seconds, or a number of milliseconds (as sleep). It covers the whole request: connecting, sending, receiving the response, and following redirects.
+        With or without a timeout, Ctrl-C interrupts a request."#,
     );
 }
 

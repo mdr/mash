@@ -3,6 +3,10 @@
 use std::io;
 use std::net::ToSocketAddrs;
 use std::process::{Command, Stdio};
+use std::sync::atomic::Ordering;
+use std::sync::mpsc::{self, RecvTimeoutError};
+use std::thread;
+use std::time::{Duration, Instant};
 
 use mash_core::platform::{HttpRequest, HttpResponse};
 use ureq::http::{self, Uri};
@@ -14,7 +18,7 @@ const MAX_REDIRECTS: usize = 50;
 
 /// The agent for a request: certificates checked against the system's trust store (unless `insecure`), and any
 /// status is a response. Redirects are followed by [`http_request`] itself, which also keeps the cookies.
-pub(crate) fn agent(insecure: bool) -> Agent {
+pub(crate) fn agent(insecure: bool, timeout: Option<Duration>) -> Agent {
     let tls = TlsConfig::builder()
         .root_certs(RootCerts::PlatformVerifier)
         .disable_verification(insecure)
@@ -23,6 +27,7 @@ pub(crate) fn agent(insecure: bool) -> Agent {
         .http_status_as_error(false)
         .max_redirects(0)
         .tls_config(tls)
+        .timeout_global(timeout)
         .build()
         .into()
 }
@@ -35,8 +40,82 @@ type Cookie = (String, String, String);
 /// sent on to the same host, and are the response's cookies. Once a redirect leaves the original origin (scheme,
 /// host and port), the credentials given with the request (`Authorization`, `Proxy-Authorization` and `Cookie`
 /// headers, including basic authentication) aren't sent any more, as curl and Python's requests do.
+/// Make a request (as [`http_request`]) on another thread, so that an interrupt needn't wait for it: the request
+/// is then abandoned, and finishes in the background (when the server answers or hangs up, or its timeout
+/// passes)
+pub(crate) fn interruptible_http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
+    const POLL_INTERVAL: Duration = Duration::from_millis(50);
+    let Some(interrupt) = request.interrupt else {
+        return http_request(request);
+    };
+    let owned = OwnedRequest::of(request);
+    let (sender, receiver) = mpsc::channel();
+    thread::Builder::new()
+        .name("http".into())
+        .spawn(move || {
+            let _ = sender.send(http_request(&owned.request()));
+        })?;
+    loop {
+        match receiver.recv_timeout(POLL_INTERVAL) {
+            Ok(result) => return result,
+            Err(RecvTimeoutError::Timeout) if interrupt.load(Ordering::Relaxed) => {
+                return Err(io::Error::new(io::ErrorKind::Interrupted, "Interrupted"));
+            }
+            Err(RecvTimeoutError::Timeout) => {}
+            Err(RecvTimeoutError::Disconnected) => return Err(io::Error::other("The HTTP request failed")),
+        }
+    }
+}
+
+/// An [`HttpRequest`] that can be sent to another thread
+struct OwnedRequest {
+    method: String,
+    url: String,
+    headers: Vec<(String, String)>,
+    body: Option<Vec<u8>>,
+    basic_auth: Option<(String, String)>,
+    cookies: Vec<(String, String)>,
+    insecure: bool,
+    timeout: Option<Duration>,
+}
+
+impl OwnedRequest {
+    fn of(request: &HttpRequest<'_>) -> Self {
+        OwnedRequest {
+            method: request.method.into(),
+            url: request.url.into(),
+            headers: request.headers.to_vec(),
+            body: request.body.map(<[u8]>::to_vec),
+            basic_auth: request.basic_auth.map(|(user, password)| (user.into(), password.into())),
+            cookies: request.cookies.to_vec(),
+            insecure: request.insecure,
+            timeout: request.timeout,
+        }
+    }
+
+    fn request(&self) -> HttpRequest<'_> {
+        HttpRequest {
+            method: &self.method,
+            url: &self.url,
+            headers: &self.headers,
+            body: self.body.as_deref(),
+            basic_auth: self.basic_auth.as_ref().map(|(user, password)| (user.as_str(), password.as_str())),
+            cookies: &self.cookies,
+            insecure: self.insecure,
+            timeout: self.timeout,
+            interrupt: None,
+        }
+    }
+}
+
 pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
-    let agent = agent(request.insecure);
+    let deadline = request.timeout.map(|timeout| Instant::now() + timeout);
+    let timed_out = || {
+        io::Error::new(
+            io::ErrorKind::TimedOut,
+            format!("Timed out after {}: {}", describe_duration(request.timeout.unwrap_or_default()), request.url),
+        )
+    };
     let headers = request.all_headers();
     let mut method = request.method.to_string();
     let mut url = request.url.to_string();
@@ -45,6 +124,15 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
     let mut first_origin = None;
     let mut left_origin = false;
     for _ in 0..=MAX_REDIRECTS {
+        // What's left of the timeout, for this step
+        let remaining = match deadline {
+            Some(deadline) => match deadline.checked_duration_since(Instant::now()) {
+                Some(remaining) if !remaining.is_zero() => Some(remaining),
+                _ => return Err(timed_out()),
+            },
+            None => None,
+        };
+        let agent = agent(request.insecure, remaining);
         let uri: Uri = url
             .parse()
             .map_err(|e| invalid_input(format!("Invalid URL '{url}': {e}")))?;
@@ -74,7 +162,10 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
             Some(body) => builder.body(body).map_err(Error::from).and_then(|r| agent.run(r)),
             None => builder.body(()).map_err(Error::from).and_then(|r| agent.run(r)),
         };
-        let mut response = result.map_err(|e| describe_error(e, &uri))?;
+        let mut response = match result {
+            Err(Error::Timeout(_)) if deadline.is_some() => return Err(timed_out()),
+            result => result.map_err(|e| describe_error(e, &uri))?,
+        };
         let status = response.status().as_u16();
         let headers: Vec<(String, String)> = response
             .headers()
@@ -116,7 +207,10 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
             .with_config()
             .limit(u64::MAX)
             .read_to_vec()
-            .map_err(|e| describe_error(e, &uri))?;
+            .map_err(|e| match e {
+                Error::Timeout(_) if deadline.is_some() => timed_out(),
+                e => describe_error(e, &uri),
+            })?;
         // Apache's cookie store kept cookies sorted by name
         let mut cookies: Vec<(String, String)> = cookies.into_iter().map(|(_, n, v)| (n, v)).collect();
         cookies.sort();
@@ -191,6 +285,16 @@ fn invalid_input(message: String) -> io::Error {
 
 /// A ureq error as a message for the user (in the style of Scala Mash's "Unknown host: …" and "Couldn't
 /// connect: …")
+/// A duration as a person would write it: `10 seconds`, `1.5 seconds`, `500 milliseconds`
+fn describe_duration(duration: Duration) -> String {
+    let plural = |n: f64, unit: &str| format!("{n} {unit}{}", if n == 1.0 { "" } else { "s" });
+    if duration < Duration::from_secs(1) {
+        plural(duration.as_millis() as f64, "millisecond")
+    } else {
+        plural(duration.as_secs_f64(), "second")
+    }
+}
+
 pub(crate) fn describe_error(error: Error, uri: &Uri) -> io::Error {
     let host = uri.host().unwrap_or_default();
     let authority = uri.authority().map_or(host, |a| a.as_str());
@@ -286,10 +390,10 @@ mod tests {
 
     #[test]
     fn tls_is_verified_unless_insecure() {
-        assert!(!agent(false).config().tls_config().disable_verification());
-        assert!(agent(true).config().tls_config().disable_verification());
+        assert!(!agent(false, None).config().tls_config().disable_verification());
+        assert!(agent(true, None).config().tls_config().disable_verification());
         assert!(matches!(
-            agent(false).config().tls_config().root_certs(),
+            agent(false, None).config().tls_config().root_certs(),
             RootCerts::PlatformVerifier
         ));
     }

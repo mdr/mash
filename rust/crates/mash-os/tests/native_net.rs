@@ -163,6 +163,8 @@ fn request(method: &str, url: &str) -> std::io::Result<HttpResponse> {
         basic_auth: None,
         cookies: &[],
         insecure: false,
+        timeout: None,
+        interrupt: None,
     })
 }
 
@@ -171,6 +173,59 @@ fn text(response: &HttpResponse) -> String {
 }
 
 /// Evaluate Mash code natively, rendering the result or the error
+/// A server that accepts connections but never answers
+fn silent_server() -> String {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let port = listener.local_addr().unwrap().port();
+    thread::spawn(move || {
+        let mut held = vec![];
+        for stream in listener.incoming() {
+            held.push(stream);
+        }
+    });
+    format!("http://127.0.0.1:{port}/")
+}
+
+#[test]
+fn a_request_that_takes_too_long_times_out() {
+    let url = silent_server();
+    let started = std::time::Instant::now();
+    let result = eval(format!("http.get '{url}' --timeout=300"));
+    assert_eq!(result, format!("error: Timed out after 300 milliseconds: {url}"));
+    assert!(started.elapsed() < std::time::Duration::from_secs(5));
+    assert_eq!(
+        eval(format!("http.get '{url}' --timeout='soon'")),
+        "error: Invalid argument 'timeout'. Must be a duration, but was a String"
+    );
+}
+
+#[test]
+fn an_interrupt_abandons_a_request() {
+    let url = silent_server();
+    let interrupt = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let setter = interrupt.clone();
+    thread::spawn(move || {
+        thread::sleep(std::time::Duration::from_millis(200));
+        setter.store(true, std::sync::atomic::Ordering::Relaxed);
+    });
+    let started = std::time::Instant::now();
+    let error = NativePlatform
+        .http_request(&HttpRequest {
+            method: "GET",
+            url: &url,
+            headers: &[],
+            body: None,
+            basic_auth: None,
+            cookies: &[],
+            insecure: false,
+            timeout: None,
+            interrupt: Some(&interrupt),
+        })
+        .unwrap_err();
+    assert_eq!(error.kind(), std::io::ErrorKind::Interrupted);
+    assert!(started.elapsed() < std::time::Duration::from_secs(5));
+}
+
 fn eval(code: String) -> String {
     with_big_stack(move || {
         let mut ctx = Ctx::new(Rc::new(NativePlatform));
@@ -195,6 +250,8 @@ fn get_sends_headers_cookies_and_basic_auth() {
             basic_auth: Some(("u", "p")),
             cookies: &cookies,
             insecure: false,
+            timeout: None,
+            interrupt: None,
         })
         .unwrap();
     assert_eq!(response.status, 200);
@@ -228,6 +285,8 @@ fn bodies_are_sent() {
                 basic_auth: None,
                 cookies: &[],
                 insecure: false,
+                timeout: None,
+                interrupt: None,
             })
             .unwrap();
         let echoed = text(&response);
@@ -291,6 +350,8 @@ fn redirects_are_followed_keeping_cookies() {
             basic_auth: None,
             cookies: &[],
             insecure: false,
+            timeout: None,
+            interrupt: None,
         })
         .unwrap();
     assert_eq!(response.status, 302);
@@ -316,6 +377,8 @@ fn credentials_are_not_sent_on_to_another_origin() {
                 basic_auth,
                 cookies: &cookies,
                 insecure: false,
+                timeout: None,
+                interrupt: None,
             })
             .unwrap();
         text(&response)
@@ -372,6 +435,8 @@ fn untrusted_certificates_are_refused_unless_insecure() {
             basic_auth: None,
             cookies: &[],
             insecure: true,
+            timeout: None,
+            interrupt: None,
         })
         .unwrap();
     assert!(text(&response).starts_with("GET /echo\n"));

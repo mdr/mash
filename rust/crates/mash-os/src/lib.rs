@@ -163,7 +163,7 @@ impl Platform for NativePlatform {
     }
 
     fn http_request(&self, request: &HttpRequest<'_>) -> io::Result<HttpResponse> {
-        net::http_request(request)
+        net::interruptible_http_request(request)
     }
 
     fn lookup_host(&self, host: &str) -> io::Result<Vec<String>> {

@@ -177,6 +177,16 @@ fn form_param() -> Param {
         .boolean_flag()
 }
 
+pub(crate) fn timeout_param() -> Param {
+    Param::named("timeout")
+        .summary("Give up if the request takes longer than this (default: wait as long as it takes)")
+        .description(
+            "A duration, such as 10.seconds, or a number of milliseconds (as sleep). It covers the whole request: \
+connecting, sending, receiving the response, and following redirects.\nWith or without a timeout, Ctrl-C interrupts a request.",
+        )
+        .flag()
+}
+
 pub(crate) fn insecure_param() -> Param {
     Param::named("insecure")
         .summary("Don't verify the server's TLS certificate (default false)")
@@ -196,6 +206,8 @@ pub(crate) struct Target {
     pub(crate) cookies: Option<Value>,
     pub(crate) query_params: Object,
     pub(crate) insecure: bool,
+    /// `--timeout`, if given
+    pub(crate) timeout: Option<Value>,
 }
 
 /// What a request carries as its body
@@ -266,6 +278,13 @@ pub(crate) fn send(
         }
         None => None,
     };
+    let timeout = match &target.timeout {
+        Some(value) => Some(crate::builtins::time::duration_of(ctx, value)?.ok_or_else(|| {
+            args.invalid("timeout", &format!("Must be a duration, but was a {}", value.type_name()))
+        })?),
+        None => None,
+    };
+    let interrupt = ctx.interrupt_flag();
     let request = HttpRequest {
         method,
         url: &url,
@@ -274,10 +293,16 @@ pub(crate) fn send(
         basic_auth: basic_auth.as_ref().map(|(u, p)| (u.as_str(), p.as_str())),
         cookies: &cookies,
         insecure: target.insecure,
+        timeout,
+        interrupt: Some(&interrupt),
     };
-    ctx.platform()
-        .http_request(&request)
-        .map_err(|e| MashError::new(describe(&e)))
+    ctx.platform().http_request(&request).map_err(|e| {
+        if e.kind() == std::io::ErrorKind::Interrupted && ctx.poll_interrupt() {
+            MashError::interrupted()
+        } else {
+            MashError::new(describe(&e))
+        }
+    })
 }
 
 /// The URL with the query parameters added (Scala `QueryParameters.getUrl`); an error unless it's an absolute
@@ -499,6 +524,7 @@ pub(crate) fn get(
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = json_param)] json: bool,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Object> {
     let target = Target {
         url,
@@ -507,6 +533,7 @@ pub(crate) fn get(
         cookies,
         query_params,
         insecure,
+        timeout,
     };
     respond(ctx, args, "GET", target, None, json, false)
 }
@@ -527,6 +554,7 @@ pub(crate) fn post(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Object> {
     let target = Target {
         url,
@@ -535,6 +563,7 @@ pub(crate) fn post(
         cookies,
         query_params,
         insecure,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -558,6 +587,7 @@ pub(crate) fn put(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Object> {
     let target = Target {
         url,
@@ -566,6 +596,7 @@ pub(crate) fn put(
         cookies,
         query_params,
         insecure,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -590,6 +621,7 @@ pub(crate) fn patch(
     #[param(def = cookies_param)] cookies: Option<Value>,
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Object> {
     let target = Target {
         url,
@@ -598,6 +630,7 @@ pub(crate) fn patch(
         cookies,
         query_params,
         insecure,
+        timeout,
     };
     let body = Body {
         value: body,
@@ -619,6 +652,7 @@ pub(crate) fn delete(
     #[param(def = query_params_param)] query_params: Object,
     #[param(def = json_param)] json: bool,
     #[param(def = insecure_param)] insecure: bool,
+    #[param(def = timeout_param)] timeout: Option<Value>,
 ) -> R<Object> {
     let target = Target {
         url,
@@ -627,6 +661,7 @@ pub(crate) fn delete(
         cookies,
         query_params,
         insecure,
+        timeout,
     };
     respond(ctx, args, "DELETE", target, None, json, false)
 }

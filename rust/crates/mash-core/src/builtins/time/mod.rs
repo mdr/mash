@@ -239,6 +239,16 @@ fn now_zoned(ctx: &Ctx) -> Zoned {
     ctx.platform().now().to_zoned(ctx.time_zone())
 }
 
+/// A duration argument: a tagged duration (`3.seconds`), or an untagged number of milliseconds (as `sleep`);
+/// None for anything else
+pub(crate) fn duration_of(ctx: &Ctx, value: &Value) -> R<Option<Duration>> {
+    Ok(match (value, TimeUnit::of(value)) {
+        (_, Some((n, unit))) => Some(duration_from_now(ctx, n, unit)?),
+        (Value::Number(n, _), None) => Some(Duration::try_from_secs_f64(n.as_f64() / 1000.0).unwrap_or(Duration::ZERO)),
+        _ => None,
+    })
+}
+
 /// Sleep for `duration`, in slices so that an interrupt (Ctrl-C) is noticed promptly
 fn sleep_for(ctx: &Ctx, duration: Duration) -> R<()> {
     const SLICE: Duration = Duration::from_millis(100);
@@ -343,15 +353,11 @@ pub fn sleep(
     )]
     duration: Value,
 ) -> R<()> {
-    let duration = match (&duration, TimeUnit::of(&duration)) {
-        (_, Some((n, unit))) => duration_from_now(ctx, n, unit)?,
-        (Value::Number(n, _), None) => Duration::try_from_secs_f64(n.as_f64() / 1000.0).unwrap_or(Duration::ZERO),
-        _ => {
-            return Err(MashError::new(format!(
-                "Invalid argument 'duration'. Invalid duration of type {}",
-                duration.type_name()
-            )));
-        }
+    let Some(duration) = duration_of(ctx, &duration)? else {
+        return Err(MashError::new(format!(
+            "Invalid argument 'duration'. Invalid duration of type {}",
+            duration.type_name()
+        )));
     };
     sleep_for(ctx, duration)
 }
