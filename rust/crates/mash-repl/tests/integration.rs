@@ -383,8 +383,18 @@ fn incremental_completion_stays_incremental_while_typing() {
 fn incremental_completion_ends_on_an_exact_match() {
     run(|| {
         let mut t = TestRepl::new();
-        t.input("where").complete().input("Not");
+        t.input("sort").complete().input("By");
         assert_eq!(t.repl.state().completion, None);
+    });
+}
+
+#[test]
+fn incremental_completion_continues_on_an_exact_match_that_others_extend() {
+    run(|| {
+        let mut t = TestRepl::new();
+        // whereNotNull extends whereNot
+        t.input("where").complete().input("Not");
+        assert!(displays(&t).contains(&"whereNotNull".into()));
     });
 }
 
@@ -412,8 +422,8 @@ fn incremental_completion_backspace_removes_added_characters() {
 fn incremental_completion_allows_further_tab_completions() {
     run(|| {
         let mut t = TestRepl::new();
-        t.input("where").complete().input("N").complete();
-        assert_eq!(t.text(), "whereNot");
+        t.input("sort").complete().input("B").complete();
+        assert_eq!(t.text(), "sortBy");
         assert_eq!(t.repl.state().completion, None);
     });
 }
