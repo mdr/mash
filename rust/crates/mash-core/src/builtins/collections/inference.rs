@@ -172,6 +172,11 @@ pub(crate) fn infer_where_not_null(_: &mut Inferencer<'_>, params: &Params, args
     }
 }
 
+/// `partition`: a list of two of what `where` gives
+pub(crate) fn infer_partition(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    filtered(inferencer, params, args, "predicate").map(Type::seq)
+}
+
 pub(crate) fn infer_where(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
     filtered(inferencer, params, args, "predicate")
 }

@@ -68,6 +68,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &wrappers::MIN_BY_METHOD,
         &wrappers::MIN_METHOD,
         &sequences::NON_EMPTY_METHOD,
+        &sequences::PARTITION_METHOD,
         &wrappers::PARSE_METHOD,
         &wrappers::PARSE_TABLE_METHOD,
         &rename::RENAME_METHOD,

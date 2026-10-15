@@ -37,6 +37,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
     &collections::MIN_BY_METHOD,
     &collections::MIN_METHOD,
     &collections::NON_EMPTY_METHOD,
+    &collections::PARTITION_METHOD,
     &collections::PARSE_METHOD,
     &collections::PARSE_TABLE_METHOD,
     &collections::REDUCE_METHOD,

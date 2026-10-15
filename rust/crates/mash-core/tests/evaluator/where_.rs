@@ -68,6 +68,21 @@ pub(crate) const CASES: &[Case] = &[
     Case::throws(r#"[{ x: 1 }] | whereNotNull (.e)"#),
     Case::throws(r#"'abc' | whereNotNull"#),
     Case::throws(r#"[1] | whereNotNull 5"#),
+    // New: partition gives [matching, rest], both always there
+    Case::eq(r#"partition (_ > 2) [1, 2, 3, 4]"#, r#"[[3, 4], [1, 2]]"#),
+    Case::eq(
+        r#"[a, b] = [3, 1, 4, 1, 5].partition (_ > 2); [a, b]"#,
+        r#"[[3, 4, 5], [1, 1]]"#,
+    ),
+    Case::eq(r#"[] | partition (_ > 1)"#, r#"[[], []]"#),
+    Case::eq(r#"[1, 2] | partition (_ > 5)"#, r#"[[], [1, 2]]"#),
+    Case::eq(
+        r#"[{ ok: true }, { ok: false }] | partition 'ok'"#,
+        r#"[[{ ok: true }], [{ ok: false }]]"#,
+    ),
+    // A string is split into two strings
+    Case::eq(r#"'a1b2'.partition (.isDigit)"#, r#"['12', 'ab']"#),
+    Case::eq(r#"'ab' | partition (.isDigit)"#, r#"['', 'ab']"#),
 ];
 
 #[test]

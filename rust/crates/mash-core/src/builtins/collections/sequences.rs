@@ -32,6 +32,7 @@ pub(crate) const SEQUENCE_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &LastFunction,
     &MapFunction,
     &NonEmptyFunction,
+    &PartitionFunction,
     &ReduceFunction,
     &ReverseFunction,
     &SkipFunction,
@@ -74,6 +75,7 @@ methodise! {
     LAST_METHOD = LastFunction("sequence");
     MAP_METHOD = MapFunction("sequence");
     NON_EMPTY_METHOD = NonEmptyFunction("sequence");
+    PARTITION_METHOD = PartitionFunction("sequence");
     REDUCE_METHOD = ReduceFunction("sequence");
     REVERSE_METHOD = ReverseFunction("sequence");
     SKIP_METHOD = SkipFunction("sequence");
@@ -649,6 +651,35 @@ pub fn where_not(
     #[param("Sequence to find values in")] sequence: Value,
 ) -> R<Value> {
     filter(ctx, args, &predicate, &sequence, false)
+}
+
+/// Split a sequence in two: the elements for which a predicate holds, and the rest
+///
+/// Returns a list of the two parts, [matching, rest], both always present (perhaps empty) and in that order,
+/// with elements in their original order within each; a string is split into two strings. Destructuring names
+/// the parts.
+///
+/// Examples:
+/// <mash>
+///   partition (_ > 2) [1, 2, 3, 4]               # [[3, 4], [1, 2]]
+///   [big, small] = ls | partition (_.size > 1.mb)
+///   'a1b2'.partition (.isDigit)                   # ['12', 'ab']
+/// </mash>
+#[builtin(namespace = "collections", infer = super::inference::infer_partition, completion = super::inference::complete_map_function)]
+pub fn partition(
+    ctx: &mut Ctx,
+    #[param("Predicate used to test elements of the sequence")] predicate: Callable,
+    #[param("Sequence to split")] sequence: Sequence,
+) -> R<Value> {
+    let (mut matching, mut rest) = (vec![], vec![]);
+    for item in sequence.items() {
+        if predicate.call1(ctx, item.clone())?.is_truthy() {
+            matching.push(item);
+        } else {
+            rest.push(item);
+        }
+    }
+    Ok(Value::list(vec![sequence.rebuild(matching), sequence.rebuild(rest)]))
 }
 
 /// Find all the elements in the sequence that aren't null, or whose given field or value isn't
