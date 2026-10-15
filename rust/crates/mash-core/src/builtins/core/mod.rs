@@ -27,6 +27,7 @@ pub use thread::*;
 /// Functions in `core` that are also in the global scope
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &ErrorFunction,
+    &ForeverFunction,
     &IdentityFunction,
     &InBackgroundFunction,
     &IsNullFunction,

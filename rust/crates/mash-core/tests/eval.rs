@@ -189,6 +189,32 @@ fn evaluation_can_be_interrupted() {
 }
 
 #[test]
+fn forever_runs_until_interrupted_or_an_error() {
+    with_big_stack(|| {
+        let mut ctx = ctx();
+        let error = eval_error(&mut ctx, r#"x = 0; forever (x += 1; if x == 3 then error "stop $x")"#);
+        assert_eq!(error.message, "stop 3");
+        assert_eq!(
+            format!(
+                "{:?}",
+                ctx.run("test", "x = 0; try (forever (x += 1; if x == 3 then error 'stop')); x")
+                    .unwrap()
+            ),
+            "3"
+        );
+        // A block too small to reach the evaluator's checks still stops
+        let flag = ctx.interrupt_flag();
+        let setter = std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            flag.store(true, Ordering::Relaxed);
+        });
+        let error = eval_error(&mut ctx, "1 | forever");
+        setter.join().unwrap();
+        assert!(error.is_interrupted(), "{}", error.message);
+    });
+}
+
+#[test]
 fn closures_created_in_a_loop_are_collected() {
     with_big_stack(|| {
         let mut ctx = ctx();

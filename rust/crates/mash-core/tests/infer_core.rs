@@ -24,6 +24,7 @@ const CASES: &[(&str, &str)] = &[
     ("not 1", "core.Boolean"),
     ("tap (x => x) 1", "core.Boolean"),
     ("while false 1", "core.Unit"),
+    ("print 1 | forever", "core.Unit"),
     ("split 'a b'", "[core.String]"),
     ("split \"a b\"", "[core.String tagged os.Path]"),
     ("parallelMap (_ * 2) [1, 2]", "[core.Number]"),

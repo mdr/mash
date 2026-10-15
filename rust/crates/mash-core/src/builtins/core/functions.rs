@@ -132,6 +132,15 @@ pub fn try_(
 }
 
 /// Loop executing the given block while the condition remains true
+///
+/// The block can come first, through a pipe. To run a block a fixed number of times, use times on a number;
+/// to run it until interrupted, use forever.
+///
+/// Examples:
+/// <mash>
+///   x = 0; while (x < 5) (x += 1); x    # 5
+///   (x += 1) | while (x < 10)
+/// </mash>
 #[builtin(namespace = "core", name = "while", returns = crate::infer::Type::UNIT)]
 pub fn while_(
     ctx: &mut Ctx,
@@ -142,6 +151,25 @@ pub fn while_(
         ctx.call_values(&block, vec![])?;
     }
     Ok(())
+}
+
+/// Run the given code over and over, until interrupted (Ctrl-C) or it throws an error
+///
+/// The code is typically given through a pipe. To loop while a condition holds, use while; to run code a
+/// fixed number of times, use times on a number.
+///
+/// Examples:
+/// <mash>
+///   print "y" | forever                            # As the shell's yes
+///   (print time.now; sleep 1.second) | forever     # A clock
+/// </mash>
+#[builtin(namespace = "core", returns = crate::infer::Type::UNIT)]
+pub fn forever(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value) -> R<()> {
+    loop {
+        // Checked here too, as a tiny block may not reach the evaluator's own checks
+        ctx.check_interrupted()?;
+        ctx.call_values(&block, vec![])?;
+    }
 }
 
 /// Measure how long it takes to execute a piece of code

@@ -125,7 +125,14 @@ fn until(
 
 /// Run the given argument this amount of times
 ///
-/// Returns the results of each run, as a list.
+/// Returns the results of each run, as a list. To run code until interrupted, use forever; to loop while a
+/// condition holds, use while.
+///
+/// Examples:
+/// <mash>
+///   3.times "hi"                 # [hi, hi, hi]
+///   print "hi" | 3.times         # Prints hi three times
+/// </mash>
 #[builtin_method(infer = super::infer_rules::times)]
 fn times(ctx: &mut Ctx, target: &Value, #[param("Code to execute", lazy)] block: Value) -> R<Value> {
     let iterations = integer(target)?;
