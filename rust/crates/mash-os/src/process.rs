@@ -117,35 +117,66 @@ const KILL_AFTER: Duration = Duration::from_secs(2);
 /// Signals a child (or its process group) once it has run for its time limit: SIGTERM, then SIGKILL if it's
 /// still running [`KILL_AFTER`] later. Stop it when the child has finished.
 struct Watchdog {
+    pid: Pid,
+    own_group: bool,
     finished: mpsc::Sender<()>,
-    thread: thread::JoinHandle<()>,
+    /// Whether it signalled the child
+    thread: thread::JoinHandle<bool>,
 }
 
 impl Watchdog {
     fn start(pid: Pid, own_group: bool, limit: Duration) -> Watchdog {
         let (finished, wait) = mpsc::channel();
         let thread = thread::spawn(move || {
-            let send = |signal| {
-                let _ = if own_group {
-                    killpg(pid, signal)
-                } else {
-                    kill(pid, signal)
-                };
-            };
-            if wait.recv_timeout(limit) == Err(RecvTimeoutError::Timeout) {
-                send(Signal::SIGTERM);
-                if wait.recv_timeout(KILL_AFTER) == Err(RecvTimeoutError::Timeout) {
-                    send(Signal::SIGKILL);
-                }
+            if wait.recv_timeout(limit) != Err(RecvTimeoutError::Timeout) {
+                return false;
             }
+            signal(pid, own_group, Signal::SIGTERM);
+            if wait.recv_timeout(KILL_AFTER) == Err(RecvTimeoutError::Timeout) {
+                signal(pid, own_group, Signal::SIGKILL);
+            }
+            true
         });
-        Watchdog { finished, thread }
+        Watchdog {
+            pid,
+            own_group,
+            finished,
+            thread,
+        }
     }
 
+    /// Stop watching, the child having finished. If it was timed out, anything left in its group is signalled
+    /// again: a process being started just as the group was signalled can miss it (as when macOS's /bin/sh,
+    /// which starts the real shell as a child, is signalled while doing so), and would otherwise run on.
     fn stop(self) {
         let _ = self.finished.send(());
-        let _ = self.thread.join();
+        let timed_out = self.thread.join().unwrap_or(false);
+        if !(timed_out && self.own_group) {
+            return;
+        }
+        let alive = || killpg(self.pid, None).is_ok();
+        if !alive() {
+            return;
+        }
+        signal(self.pid, true, Signal::SIGTERM);
+        let give_up = std::time::Instant::now() + KILL_AFTER;
+        while alive() && std::time::Instant::now() < give_up {
+            thread::sleep(Duration::from_millis(20));
+        }
+        // Only if something's still there: an emptied group's id may be reused
+        if alive() {
+            signal(self.pid, true, Signal::SIGKILL);
+        }
     }
+}
+
+/// Send `signal` to a child, or to its process group
+fn signal(pid: Pid, own_group: bool, signal: Signal) {
+    let _ = if own_group {
+        killpg(pid, signal)
+    } else {
+        kill(pid, signal)
+    };
 }
 
 /// Erase any partial last line of the child's output from the terminal, so that the prompt starts afresh
