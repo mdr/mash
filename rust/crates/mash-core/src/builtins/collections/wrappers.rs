@@ -5,6 +5,7 @@ use super::grouping::{CountByFunction, CountsFunction, GroupByFunction};
 use super::list_methods::ListNewFunction;
 use super::ordering::{MaxByFunction, MaxFunction, MinByFunction, MinFunction, SortByFunction, SortFunction};
 use super::parse::{ParseFunction, ParseTableFunction, ScanFunction};
+use super::rename::RenameFunction;
 use super::select::{DeselectFunction, SelectFunction};
 use super::transpose::TransposeFunction;
 use crate::function::BuiltinFunction;
@@ -20,6 +21,7 @@ pub(crate) const ORDERING_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &MinFunction,
     &ParseFunction,
     &ParseTableFunction,
+    &RenameFunction,
     &ScanFunction,
     &SelectFunction,
     &SortByFunction,

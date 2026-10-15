@@ -7,6 +7,7 @@ mod inference;
 mod list_methods;
 mod ordering;
 mod parse;
+mod rename;
 mod select;
 mod seq_like;
 mod sequences;
@@ -26,6 +27,7 @@ use super::core::ANY_CLASS;
 pub use functions::*;
 pub use grouping::GROUP_CLASS;
 pub(crate) use ordering::{SortFunction, attribute_functions, descending_param, natural_order_param, sort_object_by};
+pub(crate) use rename::RenameFunction;
 pub use sequences::*;
 pub(crate) use transpose::TransposeFunction;
 pub(crate) use wrappers::{
@@ -67,6 +69,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &sequences::NON_EMPTY_METHOD,
         &wrappers::PARSE_METHOD,
         &wrappers::PARSE_TABLE_METHOD,
+        &rename::RENAME_METHOD,
         &sequences::REDUCE_METHOD,
         &sequences::REVERSE_METHOD,
         &sequences::SKIP_METHOD,

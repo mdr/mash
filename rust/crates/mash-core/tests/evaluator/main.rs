@@ -40,6 +40,7 @@ mod object_methods;
 mod parse;
 mod patterns;
 mod private_methods;
+mod rename;
 mod safe_member;
 mod select;
 mod semicolon_inference;

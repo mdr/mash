@@ -352,6 +352,7 @@ const CASES: &[Case] = &[
         r#"!{git log --oneline} | parse '{hash} {subject}' | map (.sub▶"#,
         r#"subject"#,
     ),
+    Case::contains(r#"ls | rename { size: 'bytes' } | map (.by▶"#, r#"bytes"#),
     // New: the file functions of the data namespaces complete files; members of http responses and hosts
     Case::files(
         &[r#"/file.txt"#],

@@ -29,6 +29,7 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | — | `mash-core/tests/evaluator/{strings_m3,time,namespaces,strings}.rs` | new | Regex and string semantics, time arithmetic/parsing/formatting, json/xml/maths/net, tilde expansion; checked against Scala Mash except where a comment marks a deliberate difference |
 | — | `mash-core/tests/evaluator/count_by.rs` | new | `countBy` and `counts` (new in the port); stable descending sorts are in `sort.rs` |
 | — | `mash-core/tests/evaluator/parse.rs` | new | `parse`, `parseTable` and `scan` (new in the port): patterns, whitespace runs, lines left out, strings line by line, `--regex`; tables from `docker ps`, `df`, `ps aux` and `netstat` samples (two-word headers, right-aligned numbers, words in gaps, missing values, `--noHeaders`); what each match gives for 0, 1 and several groups |
+| — | `mash-core/tests/evaluator/rename.rs` | new | `rename` (new in the port): by names and by a function, order kept, missing fields, clashes |
 | — | `mash-core/tests/evaluator/core_builtins.rs` | new | 32 cases for core builtins the Scala tests don't cover (expected values checked against Scala Mash) |
 | — | `mash-core/tests/eval.rs` | new | Error locations and stack traces, depth limit, interrupts, `forever` and `watch` (plain output) until interrupted, `timeout` (sleeps, nesting, `try` inside and around, Ctrl-C), `retry` (pauses on the test clock, `--until`, with `timeout` inside and around), GC under evaluation |
 | — | `mash-cli/tests/cli.rs` | new | `mash -e`, scripts, `mash -c` via sh |
