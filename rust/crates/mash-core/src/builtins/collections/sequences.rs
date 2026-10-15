@@ -42,6 +42,7 @@ pub(crate) const SEQUENCE_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &SumByFunction,
     &TakeWhileFunction,
     &UniqueFunction,
+    &UniqueByFunction,
     &WhereFunction,
     &WhereNotFunction,
     &WhereNotNullFunction,
@@ -83,6 +84,7 @@ methodise! {
     SUM_METHOD = SumFunction("sequence");
     TAKE_WHILE_METHOD = TakeWhileFunction("sequence");
     UNIQUE_METHOD = UniqueFunction("sequence");
+    UNIQUE_BY_METHOD = UniqueByFunction("sequence");
     WHERE_METHOD = WhereFunction("sequence");
     WHERE_NOT_METHOD = WhereNotFunction("sequence");
     WHERE_NOT_NULL_METHOD = WhereNotNullFunction("sequence");
@@ -838,6 +840,34 @@ pub fn unique(#[param("Sequence to remove duplicates from")] sequence: Sequence)
         .into_iter()
         .filter(|item| seen.insert(item.clone()))
         .collect();
+    Ok(sequence.rebuild(items))
+}
+
+/// Find the elements in a sequence with distinct keys: the first with each key, in their original order
+///
+/// The key is a field name, or a function of an element. Keys are compared as unique compares elements.
+///
+/// Examples:
+/// <mash>
+///   uniqueBy 'n' [{ n: 'b', v: 1 }, { n: 'a', v: 2 }, { n: 'b', v: 3 }]  # [{ n: 'b', v: 1 }, { n: 'a', v: 2 }]
+///   ls | uniqueBy (.extension)
+///   'aAbB'.uniqueBy (.toLower)                                         # 'ab'
+/// </mash>
+#[builtin(namespace = "collections", name = "uniqueBy", infer = super::inference::infer_same_sequence, completion = super::inference::complete_map_function)]
+pub fn unique_by(
+    ctx: &mut Ctx,
+    #[param("Field name, or function of an element, giving the key that must be distinct")] key: Callable,
+    #[param("Sequence to remove duplicates from")] sequence: Sequence,
+) -> R<Value> {
+    // Nothing can mutate the keys while this runs, so their hashes stay valid
+    #[allow(clippy::mutable_key_type)]
+    let mut seen = HashSet::new();
+    let mut items = vec![];
+    for item in sequence.items() {
+        if seen.insert(key.call1(ctx, item.clone())?) {
+            items.push(item);
+        }
+    }
     Ok(sequence.rebuild(items))
 }
 

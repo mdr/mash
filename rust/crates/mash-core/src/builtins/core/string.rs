@@ -52,6 +52,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
     &collections::SUM_METHOD,
     &collections::TAKE_WHILE_METHOD,
     &collections::UNIQUE_METHOD,
+    &collections::UNIQUE_BY_METHOD,
     &collections::WHERE_METHOD,
     &collections::WHERE_NOT_METHOD,
     &ContainsMethod,

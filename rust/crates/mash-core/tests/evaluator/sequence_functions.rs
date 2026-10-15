@@ -156,6 +156,15 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"[1, 2, 3, 4, 3] | takeWhile (_ <= 3)"#, r#"[1, 2, 3]"#),
     Case::eq(r#"'abcded'.takeWhile (_ <= 'c')"#, r#"'abc'"#),
     Case::eq(r#"[1, 2, 3, 2, 1] | unique"#, r#"[1, 2, 3]"#),
+    // New: uniqueBy keeps the first element with each key, in their original order (jq's unique_by sorts)
+    Case::eq(
+        r#"uniqueBy 'n' [{ n: 'b', v: 1 }, { n: 'a', v: 2 }, { n: 'b', v: 3 }]"#,
+        r#"[{ n: 'b', v: 1 }, { n: 'a', v: 2 }]"#,
+    ),
+    Case::eq(r#"[1, 2, 3, 4, 5].uniqueBy (_.mod 2)"#, r#"[1, 2]"#),
+    Case::eq(r#"'aAbB'.uniqueBy (.toLower)"#, r#"'ab'"#),
+    Case::eq(r#"[] | uniqueBy 'x'"#, r#"[]"#),
+    Case::throws(r#"[{ a: 1 }, { b: 2 }] | uniqueBy 'a'"#),
     Case::eq(r#"'abcba' | unique"#, r#"'abc'"#),
     Case::eq(r#"'abcba'.unique"#, r#"'abc'"#),
     Case::eq(r#"zip [1, 2, 3] [4, 5]"#, r#"[[1, 4], [2, 5]]"#),

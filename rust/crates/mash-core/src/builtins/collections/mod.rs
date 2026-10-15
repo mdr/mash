@@ -84,6 +84,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &sequences::TAKE_WHILE_METHOD,
         &wrappers::TRANSPOSE_METHOD,
         &sequences::UNIQUE_METHOD,
+        &sequences::UNIQUE_BY_METHOD,
         &rename::UPDATE_METHOD,
         &sequences::WHERE_METHOD,
         &sequences::WHERE_NOT_METHOD,
