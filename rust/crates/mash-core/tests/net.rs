@@ -20,6 +20,10 @@ fn platform() -> TestPlatform {
                 "name,age,city\nAda,36,\"London, UK\"\nBob,,Paris\n",
             )
             .with_file("/home/alice/ragged.csv", "a,b\n1,2\n3\n")
+            .with_file(
+                "/home/alice/data.toml",
+                "[package]\nname = \"demo\"\nwhen = 2026-10-15T10:30:00+02:00\nlocal = 2026-10-15T10:30:00\nday = 2026-10-15\ntime = 10:30:00\nbig = 9007199254740993\nratio = inf\n\n[[bin]]\nname = \"a\"\n\n[[bin]]\nname = \"b\"\n",
+            )
             .with_file("/home/alice/multi.yaml", "name: a\n---\nname: b\n")
             .with_file(
                 "/home/alice/data.yaml",
@@ -465,6 +469,47 @@ fn yaml_files() {
         (
             "yaml.write 'out.yaml' { a: [1, 2] }; read 'out.yaml'",
             "a:\n  - 1\n  - 2\n",
+        ),
+    ]);
+}
+
+#[test]
+fn toml_files() {
+    check(&[
+        // Dates as DateTimes (without an offset, in the local time zone, here UTC), Dates and strings
+        (
+            "toml.read 'data.toml'",
+            "{ package: { name: demo, when: 2026-10-15T08:30:00+00:00, local: 2026-10-15T10:30:00+00:00, day: 2026-10-15, time: 10:30:00, big: 9007199254740992, ratio: Infinity }, bin: [{ name: a }, { name: b }] }",
+        ),
+        (
+            "toml.read 'data.toml' | .package | .fields | map (.value.getClass.name)",
+            "[String, DateTime, DateTime, Date, String, Number, Number]",
+        ),
+        ("toml.fromString ''", "{}"),
+        (
+            "toml.fromString 'a = '",
+            "error: Invalid TOML: string values must be quoted, expected literal string",
+        ),
+        (
+            "toml.read 'nope.toml'",
+            "error: Could not read 'nope.toml': No such file or directory: nope.toml",
+        ),
+        // Null fields are left out; lists of objects are arrays of tables; dates are written as dates
+        (
+            "toml.toString { name: 'x', gone: null, when: time.parseIso8601 '2026-10-15T10:30:00Z', day: '2026-10-15'.toDate, n: 1.5, mixed: [1, 'two'], bin: [{ name: 'a' }, { name: 'b' }] }",
+            "name = \"x\"\nwhen = 2026-10-15T10:30:00Z\nday = 2026-10-15\nn = 1.5\nmixed = [1, \"two\"]\n\n[[bin]]\nname = \"a\"\n\n[[bin]]\nname = \"b\"\n",
+        ),
+        (
+            "toml.toString [1]",
+            "error: Cannot write a List as TOML: a TOML document is a table, so must be an object",
+        ),
+        (
+            "toml.toString { a: [1, null] }",
+            "error: Cannot write null in a list as TOML, as TOML has no null",
+        ),
+        (
+            "toml.write 'out.toml' (toml.read 'data.toml'); toml.read 'out.toml' | .package | [.when, .day, .time]",
+            "[2026-10-15T08:30:00+00:00, 2026-10-15, 10:30:00]",
         ),
     ]);
 }

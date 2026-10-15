@@ -15,6 +15,7 @@ pub mod net;
 pub mod os;
 pub mod random;
 pub mod time;
+pub mod toml;
 pub mod view;
 pub mod xml;
 pub mod yaml;
@@ -49,6 +50,7 @@ pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
         meta::FUNCTIONS,
         net::FUNCTIONS,
         random::FUNCTIONS,
+        toml::FUNCTIONS,
         view::FUNCTIONS,
         xml::FUNCTIONS,
         yaml::FUNCTIONS,

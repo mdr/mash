@@ -361,6 +361,7 @@ const CASES: &[Case] = &[
             Case::gives(r#"json.write ▶"#, &[r#"file.txt"#]),
             Case::gives(r#"xml.read ▶"#, &[r#"file.txt"#]),
             Case::gives(r#"yaml.read ▶"#, &[r#"file.txt"#]),
+            Case::gives(r#"toml.read ▶"#, &[r#"file.txt"#]),
             Case::gives(r#"yaml.write ▶"#, &[r#"file.txt"#]),
             Case::gives(r#"csv.write ▶"#, &[r#"file.txt"#]),
             Case::gives(r#"mash.source ▶"#, &[r#"file.txt"#]),

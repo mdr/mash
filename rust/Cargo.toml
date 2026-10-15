@@ -26,6 +26,7 @@ base64 = "0.22"
 quick-xml = "0.37"
 csv = "1.4"
 serde_json = { version = "1.0", features = ["preserve_order"] }
+toml = { version = "1.1", features = ["preserve_order"] }
 yaml-rust2 = "0.13"
 sha2 = "0.10"
 unicode-width = "0.2"
