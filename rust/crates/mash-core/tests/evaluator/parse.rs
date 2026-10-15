@@ -67,6 +67,11 @@ pub(crate) const CASES: &[Case] = &[
         r#"'USER   PID  %CPU      VSZ COMMAND`nroot     1 129.8 435463808 /sbin/launchd -s' | parseTable | first | .COMMAND"#,
         r#"'/sbin/launchd -s'"#,
     ),
+    // A value too long for its column pushes the rest of its line along (as a long user name in ps aux)
+    Case::eq(
+        r#"'USER               PID  %CPU %MEM COMMAND`nroot                 1  12.5  0.1 /sbin/launchd`n_installcoordinationd 72199   0.0  0.0 /usr/libexec/icd' | parseTable | map (r => [r.USER, r.PID, r['%CPU'], r['%MEM'], r.COMMAND])"#,
+        r#"[['root', '1', '12.5', '0.1', '/sbin/launchd'], ['_installcoordinationd', '72199', '0.0', '0.0', '/usr/libexec/icd']]"#,
+    ),
     // A missing value is null; blank lines are skipped
     Case::eq(
         r#"'Destination  Gateway      Netif Expire`n`ndefault      192.168.1.1  en0`n127.0.0.1    127.0.0.1    lo0   30' | parseTable | map (.Expire)"#,

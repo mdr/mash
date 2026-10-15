@@ -79,7 +79,8 @@ pub(crate) fn parse(
 /// The first line is a header, whose words say where the columns are; each line after it becomes an object
 /// with a field for each column. Each word of a line goes to the column whose header it sits under (left- or
 /// right-aligned), or, if it's in the gap between two headers, to the column on its left; everything from the
-/// last header on is the last column. A header word with nothing under it in any line is part of the name on
+/// last header on is the last column. A value too long for its column, running under the next header, is
+/// taken to push the rest of its line along. A header word with nothing under it in any line is part of the name on
 /// its left, so names with spaces ("Mounted on") stay whole. Values are strings, with their inner spaces; a
 /// missing one is null. Blank lines are skipped.
 ///
@@ -130,8 +131,18 @@ pub(crate) fn parse_table(
         .iter()
         .map(|row| {
             let mut cells = vec![vec![]; columns.len()];
+            // A value too long for its column pushes the rest of the line right: words after it are placed
+            // as if that much further left (but their text is taken from where they are)
+            let mut shift = 0;
             for (start, end) in words(row) {
-                cells[column_of(&columns, last_start, start, end)].push((start, end));
+                let (placed_start, placed_end) = (start.saturating_sub(shift), end.saturating_sub(shift));
+                let k = column_of(&columns, last_start, placed_start, placed_end);
+                cells[k].push((start, end));
+                if let Some(&(next_start, _)) = columns.get(k + 1)
+                    && placed_end > next_start
+                {
+                    shift += placed_end - next_start + 1;
+                }
             }
             cells
         })
