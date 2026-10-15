@@ -26,6 +26,7 @@ const CASES: &[(&str, &str)] = &[
     ("while false 1", "core.Unit"),
     ("print 1 | forever", "core.Unit"),
     ("'a' | timeout 5", "core.String"),
+    ("'a' | retry", "core.String"),
     ("split 'a b'", "[core.String]"),
     ("split \"a b\"", "[core.String tagged os.Path]"),
     ("parallelMap (_ * 2) [1, 2]", "[core.Number]"),

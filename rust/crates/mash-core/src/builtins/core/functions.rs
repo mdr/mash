@@ -302,6 +302,93 @@ pub fn timeout(
     }
 }
 
+/// Run the given code, running it again after a pause if it throws an error, up to a number of times
+///
+/// Returns the result of the first attempt that succeeds. If every attempt fails, the last attempt's error is
+/// thrown, as it was. The pause before the first retry is 1 second, doubling for each retry after that (up to
+/// 10 minutes), unless --delay gives a fixed pause. Nothing is printed between attempts.
+///
+/// Errors are what's retried: an HTTP error status (a 503, say) is a response, not an error, so use --until to
+/// say which results are acceptable. Ctrl-C, and a timeout around the retry, stop it rather than being
+/// retried. With a timeout, the order decides what it limits: each attempt, or all of them.
+///
+/// Examples:
+/// <mash>
+///   !{git fetch} | retry
+///   http.get url | retry 5 --until=(.succeeded)
+///   !{git fetch} | timeout 10.seconds | retry 3       # Each attempt gets 10 seconds
+///   !{git fetch} | retry 5 | timeout 1.minute         # All the attempts get a minute
+/// </mash>
+#[builtin(namespace = "core", infer = super::infer_rules::time_limited)]
+pub fn retry(
+    ctx: &mut Ctx,
+    #[param(
+        "How many times to retry (default 3), so at most one more attempt than this",
+        default = 3.0
+    )]
+    times: Number,
+    #[param("Code to execute", lazy)] block: Value,
+    #[param(
+        "Pause between attempts (default: 1 second, doubling each time)",
+        flag,
+        mandatory_flag_value,
+        description = "Accepts tagged durations. If given an untagged Number, that number of milliseconds"
+    )]
+    delay: Option<Value>,
+    #[param(
+        "Test of whether a result is acceptable; one that isn't is retried",
+        flag,
+        mandatory_flag_value
+    )]
+    until: Option<Callable>,
+) -> R<Value> {
+    use std::time::Duration;
+    /// Where doubling pauses stop growing (as curl's --retry)
+    const LONGEST_PAUSE: Duration = Duration::from_secs(600);
+    let times = times.as_f64();
+    if times < 0.0 || times.fract() != 0.0 {
+        return Err(MashError::new(format!(
+            "Invalid argument 'times'. Must be a whole number of times, 0 or more, but was {times}"
+        )));
+    }
+    let times = times as u64;
+    let fixed = match &delay {
+        Some(value) => Some(crate::builtins::time::duration_of(ctx, value)?.ok_or_else(|| {
+            MashError::new(format!(
+                "Invalid argument 'delay'. Invalid duration of type {}",
+                value.type_name()
+            ))
+        })?),
+        None => None,
+    };
+    let mut pause = fixed.unwrap_or(Duration::from_secs(1));
+    let mut attempt = 0;
+    loop {
+        let failure = match ctx.call_values(&block, vec![]) {
+            Err(error) if error.is_interrupted() => return Err(error),
+            Err(error) => error,
+            Ok(value) => match &until {
+                Some(test) if !test.call1(ctx, value.clone())?.is_truthy() => {
+                    let attempts = attempt + 1;
+                    MashError::new(format!(
+                        "Still failing after {attempts} attempt{}",
+                        if attempts == 1 { "" } else { "s" }
+                    ))
+                }
+                _ => return Ok(value),
+            },
+        };
+        if attempt == times {
+            return Err(failure);
+        }
+        attempt += 1;
+        crate::builtins::time::sleep_for(ctx, pause)?;
+        if fixed.is_none() {
+            pause = (pause * 2).min(LONGEST_PAUSE);
+        }
+    }
+}
+
 /// Measure how long it takes to execute a piece of code
 ///
 /// Examples:

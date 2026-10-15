@@ -299,6 +299,72 @@ fn timeout_stops_code_that_takes_too_long() {
 }
 
 #[test]
+fn retry_runs_code_again_after_an_error() {
+    with_big_stack(|| {
+        let platform = Rc::new(TestPlatform::default());
+        let mut ctx = Ctx::new(platform.clone());
+        let mut run = |source: &str| match ctx.run("test", source) {
+            Ok(value) => format!("{value:?}"),
+            Err(RunError::Eval(e)) => format!("error: {}", e.message),
+            Err(e) => panic!("{source}: {e:?}"),
+        };
+        let start = platform.now.get();
+        let elapsed = || platform.now.get().duration_since(start).as_millis();
+        assert_eq!(
+            run(r#"n = 0; (n += 1; if n < 3 then error "flaky $n" else "ok after $n") | retry"#),
+            // (Double-quoted strings are paths)
+            "\"ok after 3\"<os.Path>"
+        );
+        // Pauses of 1 then 2 seconds
+        assert_eq!(elapsed(), 3000);
+        // The last attempt's error, as it was, after pauses of 1, 2, 4 and 8 seconds
+        assert_eq!(run(r#"n = 0; (n += 1; error "flaky $n") | retry 4"#), "error: flaky 5");
+        assert_eq!(elapsed(), 18_000);
+        assert_eq!(
+            run(r#"n = 0; (n += 1; error "flaky $n") | retry 2 --delay=100"#),
+            "error: flaky 3"
+        );
+        assert_eq!(elapsed(), 18_200);
+        assert_eq!(run(r#"n = 0; (n += 1; error "flaky $n") | retry 0"#), "error: flaky 1");
+        assert_eq!(run("42 | retry"), "42");
+        assert_eq!(elapsed(), 18_200);
+        // Results that aren't acceptable are retried
+        assert_eq!(run("n = 0; (n += 1) | retry 5 --until=(_ > 2) --delay=10"), "3");
+        assert_eq!(
+            run("n = 0; (n += 1) | retry 2 --until=(_ > 5) --delay=10"),
+            "error: Still failing after 3 attempts"
+        );
+        assert_eq!(
+            run("1 | retry 0 --until=(_ > 5)"),
+            "error: Still failing after 1 attempt"
+        );
+        // A timeout inside limits each attempt; one outside, all of them
+        assert_eq!(
+            run(r#"n = 0; try ((n += 1; sleep 10.seconds) | timeout 100 | retry 2 --delay=10) ""; n"#),
+            "3"
+        );
+        assert_eq!(
+            run(r#"n = 0; r = try ((n += 1; error "x") | retry 9 --delay=200 | timeout 500) 'caught'; [r, n]"#),
+            "[\"caught\", 3]"
+        );
+        assert_eq!(
+            run("1 | retry 1.5"),
+            "error: Invalid argument 'times'. Must be a whole number of times, 0 or more, but was 1.5"
+        );
+        assert_eq!(
+            run("1 | retry --delay='soon'"),
+            "error: Invalid argument 'delay'. Invalid duration of type String"
+        );
+        // Ctrl-C isn't retried
+        platform
+            .interrupt_at
+            .set(Some(platform.now.get() + jiff::SignedDuration::from_millis(500)));
+        let error = eval_error(&mut ctx, "sleep 10.seconds | retry");
+        assert!(error.is_interrupted(), "{}", error.message);
+    });
+}
+
+#[test]
 fn closures_created_in_a_loop_are_collected() {
     with_big_stack(|| {
         let mut ctx = ctx();
