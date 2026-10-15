@@ -30,6 +30,8 @@ pub struct TestPlatform {
     pub time_zone: TimeZone,
     pub files: MemoryFiles,
     pub now: Cell<Timestamp>,
+    /// If set, the user presses Ctrl-C once the clock reaches this time (as `sleep` advances it)
+    pub interrupt_at: Cell<Option<Timestamp>>,
     /// State of the deterministic random number generator
     pub random_state: Cell<u64>,
     /// Everything written with `write_output`, and the output of processes whose output isn't captured
@@ -169,6 +171,7 @@ impl Default for TestPlatform {
             time_zone: TimeZone::UTC,
             files: MemoryFiles::of(&["/home/alice/"]),
             now: Cell::new("2026-10-09T12:00:00Z".parse().expect("valid timestamp")),
+            interrupt_at: Cell::new(None),
             random_state: Cell::new(0x853c_49e6_748f_ea9b),
             output: RefCell::new(String::new()),
             commands: default_commands(),
@@ -255,6 +258,14 @@ impl Platform for TestPlatform {
 
     fn write_output(&self, text: &str) {
         self.output.borrow_mut().push_str(text);
+    }
+
+    fn interrupt_requested(&self) -> bool {
+        let due = self.interrupt_at.get().is_some_and(|at| self.now.get() >= at);
+        if due {
+            self.interrupt_at.set(None);
+        }
+        due
     }
 
     fn set_current_dir(&self, path: &str) -> io::Result<()> {

@@ -42,6 +42,7 @@ pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &TapFunction,
     &TimeTakenFunction,
     &TryFunction,
+    &WatchFunction,
     &WhileFunction,
 ];
 

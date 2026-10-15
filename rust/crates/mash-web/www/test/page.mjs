@@ -1,4 +1,4 @@
-// Checks the page itself in real browsers (headless, via Playwright): typing commands, Ctrl-C, history kept
+// Checks the page itself in real browsers (headless, via Playwright): typing commands, Ctrl-C, watch, history kept
 // across reloads, the object browser, leaving and restarting, and links that run commands. Run after build.sh, with Playwright
 // (playwright-core and its browsers) on NODE_PATH, and network access (xterm.js comes from a CDN):
 //
@@ -123,6 +123,19 @@ const tests = {
 
   async ctrlCInterruptsACommand(browser) {
     await interruptKeepingVariables(await open(browser));
+  },
+
+  // Each result is drawn over the last, and Ctrl-C leaves the last one on the screen
+  async watchRedrawsInPlace(browser) {
+    const page = await open(browser);
+    await page.keyboard.type('n = 0; (n += 1; [{ n }]) | watch 200');
+    await page.keyboard.press('Enter');
+    let text = await waitFor(page, /║0│3 *║/, 'the third result');
+    assert.equal(text.match(/Every 200ms/g).length, 1, `one frame on the screen:\n${text}`);
+    await page.keyboard.press('Control+c');
+    text = await waitFor(page, prompt(1), 'the prompt after interrupting');
+    assert.equal(text.match(/Every 200ms/g).length, 1, `one frame on the screen:\n${text}`);
+    assert.match(text, /nterrupted/);
   },
 
   // Hosts like GitHub Pages can't send the isolation headers; coi-serviceworker.js adds them, after a reload

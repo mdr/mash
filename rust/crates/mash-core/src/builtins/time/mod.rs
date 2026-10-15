@@ -250,7 +250,7 @@ pub(crate) fn duration_of(ctx: &Ctx, value: &Value) -> R<Option<Duration>> {
 }
 
 /// Sleep for `duration`, in slices so that an interrupt (Ctrl-C) is noticed promptly
-fn sleep_for(ctx: &Ctx, duration: Duration) -> R<()> {
+pub(crate) fn sleep_for(ctx: &Ctx, duration: Duration) -> R<()> {
     const SLICE: Duration = Duration::from_millis(100);
     let mut remaining = duration;
     while !remaining.is_zero() {

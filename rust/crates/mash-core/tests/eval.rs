@@ -215,6 +215,31 @@ fn forever_runs_until_interrupted_or_an_error() {
 }
 
 #[test]
+fn watch_prints_each_result_until_interrupted() {
+    with_big_stack(|| {
+        let platform = Rc::new(TestPlatform::default());
+        // Frames at 0, 0.5 and 1 seconds; Ctrl-C at 1.2
+        let start = platform.now.get();
+        platform
+            .interrupt_at
+            .set(Some(start + jiff::SignedDuration::from_millis(1200)));
+        let mut ctx = Ctx::new(platform.clone());
+        let source = r#"x = 0; (x += 1; if x == 2 then error "flaky" else [x, x]) | watch 500"#;
+        assert!(eval_error(&mut ctx, source).is_interrupted());
+        // Without a display (as in scripts), plain text, one result after another
+        assert_eq!(
+            *platform.output.borrow(),
+            "Every 500ms · 12:00:00\n[1, 1]\nEvery 500ms · 12:00:00\nError: flaky\nEvery 500ms · 12:00:01\n[3, 3]\n"
+        );
+        let error = eval_error(&mut ctx, r#"1 | watch "often""#);
+        assert_eq!(
+            error.message,
+            "Invalid argument 'interval'. Invalid duration of type String"
+        );
+    });
+}
+
+#[test]
 fn closures_created_in_a_loop_are_collected() {
     with_big_stack(|| {
         let mut ctx = ctx();

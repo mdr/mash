@@ -733,3 +733,52 @@ fn strip_escapes(s: &str) -> String {
     }
     out
 }
+
+// ------------------------------------------------------------------------------------------------------ watch
+
+/// Run `command` at a REPL of the given size, pressing Ctrl-C `after` seconds of the fake clock (each `watch`
+/// interval advances it); what `watch` drew, as a terminal shows it, and what the REPL wrote
+fn watch(size: Dimensions, command: &str, after: i64) -> (String, String) {
+    let mut t = TestRepl::with_size(size);
+    t.input(command);
+    // Entering the command advances the clock a second
+    let at = t.platform.now.get() + jiff::SignedDuration::from_secs(after + 1);
+    t.platform.interrupt_at.set(Some(at));
+    t.enter();
+    // A terminal in its normal mode starts a new line at each newline
+    let output = t.platform.output.borrow().replace('\n', "\r\n");
+    let screen = InMemoryTerminal::new(size).send(&output);
+    (screen_text(&screen), t.host.output.clone())
+}
+
+#[test]
+fn watch_redraws_each_result_in_place() {
+    run(|| {
+        // Frames at 0, 2 and 4 seconds; Ctrl-C at 5
+        let (screen, repl_output) = watch(
+            Dimensions::new(10, 40),
+            "x = 0; (x += 1; [{ n: x }, { n: x * 10 }]) | watch",
+            5,
+        );
+        assert_eq!(
+            screen,
+            "Every 2s · 12:00:06\n╔═╤══╗\n║#│n ║\n╟─┼──╢\n║0│3 ║\n║1│30║\n╚═╧══╝"
+        );
+        assert!(repl_output.contains("Interrupted"), "{repl_output}");
+    });
+}
+
+#[test]
+fn watch_cuts_frames_to_the_terminal_and_shows_errors() {
+    run(|| {
+        let command = r#"x = 0; (x += 1; if x == 2 then error "flaky" else ["a", "b", "c", "d"]) | watch 1.second"#;
+        // Room for the header and three lines, leaving a line for the cursor
+        let (screen, _) = watch(Dimensions::new(5, 40), command, 0);
+        assert_eq!(screen, "Every 1s · 12:00:02\na\nb\nc");
+        // An error replaces the result, and watching carries on
+        let (screen, _) = watch(Dimensions::new(5, 40), command, 1);
+        assert_eq!(screen, "Every 1s · 12:00:03\nError: flaky");
+        let (screen, _) = watch(Dimensions::new(5, 40), command, 2);
+        assert_eq!(screen, "Every 1s · 12:00:04\na\nb\nc");
+    });
+}

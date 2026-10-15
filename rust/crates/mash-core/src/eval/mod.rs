@@ -62,6 +62,28 @@ pub struct Ctx {
     reload_hook: Option<ReloadHook>,
     /// The REPL's command history, if there is one (for `os.history` and `jump`)
     command_history: Option<Rc<dyn CommandHistory>>,
+    /// How the host shows results, if it draws them itself (see [`Ctx::set_display`])
+    display: Option<Display>,
+}
+
+/// Renders a command's result (or its error) as lines of text, with ANSI styles
+pub type RenderResult = Rc<dyn Fn(&mut Ctx, &R<Value>) -> R<Vec<String>>>;
+
+/// How a host shows a command's result (or its error), for builtins that redraw results themselves (`watch`)
+#[derive(Clone)]
+pub struct Display {
+    /// The result as lines of text (with ANSI styles), each fitting the terminal's width
+    pub render: RenderResult,
+    /// The terminal's height
+    pub rows: usize,
+}
+
+impl std::fmt::Debug for Display {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Display")
+            .field("rows", &self.rows)
+            .finish_non_exhaustive()
+    }
 }
 
 /// A host's part of `mash.reload`: loading library files and running the init script again
@@ -115,6 +137,7 @@ impl Ctx {
             working_directories,
             reload_hook: None,
             command_history: None,
+            display: None,
         }
     }
 
@@ -122,6 +145,15 @@ impl Ctx {
     /// and runs its init script (the interactive shell does; scripts and `mash -e` don't)
     pub fn set_reload_hook(&mut self, hook: ReloadHook) {
         self.reload_hook = Some(hook);
+    }
+
+    /// Set how the host shows results (the REPL does, for each command); otherwise they're shown as plain text
+    pub fn set_display(&mut self, display: Option<Display>) {
+        self.display = display;
+    }
+
+    pub(crate) fn display(&self) -> Option<Display> {
+        self.display.clone()
     }
 
     /// Run the reload hook, if there is one

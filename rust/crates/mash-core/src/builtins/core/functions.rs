@@ -172,6 +172,90 @@ pub fn forever(ctx: &mut Ctx, #[param("Code to execute", lazy)] block: Value) ->
     }
 }
 
+/// Run the given code every so often, showing its latest result, until interrupted (Ctrl-C)
+///
+/// As the shell's watch: at the prompt, each result is drawn in place of the last, as the result of a command
+/// would be (a list of objects as a table), under a header with the time, and cut to fit the terminal. An
+/// error is shown in place of the result, and watching carries on. Elsewhere (in a script, or with mash -e),
+/// each result is printed as plain text after the last.
+///
+/// Examples:
+/// <mash>
+///   git.status | watch
+///   ls "build" | watch 5.seconds
+///   watch 1.minute (http.get "https://example.com").status
+/// </mash>
+#[builtin(namespace = "core", returns = crate::infer::Type::UNIT)]
+pub fn watch(
+    ctx: &mut Ctx,
+    #[param(
+        "How often to run the code (default 2 seconds)",
+        description = "Accepts tagged durations. If given an untagged Number, that number of milliseconds"
+    )]
+    interval: Option<Value>,
+    #[param("Code to execute", lazy)] block: Value,
+) -> R<()> {
+    let interval = match &interval {
+        None => std::time::Duration::from_secs(2),
+        Some(value) => crate::builtins::time::duration_of(ctx, value)?.ok_or_else(|| {
+            MashError::new(format!(
+                "Invalid argument 'interval'. Invalid duration of type {}",
+                value.type_name()
+            ))
+        })?,
+    };
+    let every = if interval.subsec_millis() == 0 {
+        format!("{}s", interval.as_secs())
+    } else {
+        format!("{}ms", interval.as_millis())
+    };
+    // Lines drawn by the last frame, to move back over
+    let mut drawn = 0;
+    loop {
+        ctx.check_interrupted()?;
+        let result = ctx.call_values(&block, vec![]);
+        if let Err(error) = &result
+            && error.is_interrupted()
+        {
+            return result.map(|_| ());
+        }
+        let time = ctx
+            .platform()
+            .now()
+            .to_zoned(ctx.platform().time_zone())
+            .strftime("%H:%M:%S");
+        let header = format!("Every {every} · {time}");
+        let text = match ctx.display() {
+            Some(display) => {
+                // Room for the header, and for the cursor below the frame
+                let room = display.rows.saturating_sub(2);
+                let mut lines = (display.render)(ctx, &result)?;
+                lines.truncate(room);
+                let up = if drawn > 0 {
+                    format!("\x1b[{drawn}A")
+                } else {
+                    String::new()
+                };
+                drawn = lines.len() + 1;
+                // Back to the start of the last frame, clear from there down, and draw
+                format!(
+                    "{up}\r\x1b[J\x1b[90m{header}\x1b[0m\n{}",
+                    lines.iter().map(|l| format!("{l}\n")).collect::<String>()
+                )
+            }
+            None => {
+                let shown = match &result {
+                    Ok(value) => ctx.stringify(value)?,
+                    Err(error) => format!("Error: {}", error.message),
+                };
+                format!("{header}\n{shown}\n")
+            }
+        };
+        ctx.platform().write_output(&text);
+        crate::builtins::time::sleep_for(ctx, interval)?;
+    }
+}
+
 /// Measure how long it takes to execute a piece of code
 ///
 /// Examples:

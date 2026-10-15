@@ -5,7 +5,7 @@ use std::rc::Rc;
 
 use mash_core::ast::SourceUnit;
 use mash_core::compile::Settings;
-use mash_core::eval::{Ctx, MashError, StackFrame};
+use mash_core::eval::{Ctx, Display, MashError, R, StackFrame};
 use mash_core::value::Value;
 use mash_syntax::{Mode, TextRange};
 
@@ -14,8 +14,8 @@ use crate::draw::styled_to_ansi;
 use crate::host::Host;
 use crate::render::highlight::{Highlight, highlight};
 use crate::render::retilde;
-use crate::screen::{Style, StyledString, default_colours as colours};
-use crate::view::{ViewConfig, Viewed, view_or_browse};
+use crate::screen::{Line, Style, StyledString, default_colours as colours};
+use crate::view::{ViewConfig, Viewed, view_or_browse, view_value};
 
 /// A line starting with `!` (but not `!{…}` or `!!{…}`) is mish: the length of the prefix up to and including
 /// the `!`, and the rest (Scala `MishCommand`)
@@ -109,6 +109,7 @@ impl CommandRunner<'_> {
                 return None;
             }
         };
+        self.ctx.set_display(Some(self.display()));
         match self.ctx.eval_program(&compiled.program) {
             Ok(value) => Some(value),
             Err(error) if error.is_interrupted() => {
@@ -144,6 +145,33 @@ impl CommandRunner<'_> {
             }
         }
         None
+    }
+
+    /// How `watch` draws results: as a command's result is printed (without the object browser), or as an
+    /// error's first line, each line cut to the terminal's width
+    fn display(&self) -> Display {
+        let size = self.host.size();
+        let config = ViewConfig {
+            browse_large_output: false,
+            ..self.view_config
+        };
+        let home = self.home();
+        Display {
+            render: Rc::new(move |ctx: &mut Ctx, result: &R<Value>| {
+                let lines = match result {
+                    Ok(value) => view_value(ctx, value, size, &config)?,
+                    Err(error) => {
+                        let unit = SourceUnit::new("<watch>", "");
+                        error_lines("Error", &error.message, &unit, &[], home.clone())
+                    }
+                };
+                Ok(lines
+                    .into_iter()
+                    .map(|line| styled_to_ansi(&Line::new(line).truncate(size.columns).string))
+                    .collect())
+            }),
+            rows: size.rows,
+        }
     }
 
     fn home(&self) -> Option<String> {

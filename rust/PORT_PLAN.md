@@ -395,6 +395,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
 | `counts` | Not available | New: `countBy identity`, how many times each value occurs (`'mississippi'.counts` → `{ m: 1, i: 4, s: 4, p: 2 }`), with `countBy`'s flags; as itertools' `counts`, Ruby's `tally`. No `groups` shorthand for `groupBy identity`: rarely useful, and the name is taken (the `--groups` flag, `User.groups`, regex matches' `groups`) |
 | `forever` | Not available | New: runs a lazy block until Ctrl-C or an error (`print "y" \| forever`), as Nushell's `loop`; Mash has no `break`, so conditional loops stay with `while` |
+| `watch` | Not available | New: as the shell's `watch`, runs a lazy block every interval (default 2 seconds; a duration, or milliseconds) until Ctrl-C (`git.status \| watch`). At the prompt each result is drawn in place of the last, as a command's result (tables …), under a `Every 2s · 10:41:07` header, cut to the terminal's height; errors are shown and watching carries on. Elsewhere, results are printed as plain text one after another. (Not Nushell's `watch`, which watches files) |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
 | `mash FILE`, `mash -e EXPR` | Not supported | Run a script / evaluate an expression (`mash -c` still runs via `sh`, as in Scala) |
@@ -523,6 +524,7 @@ browser.
 - `toDateTime` on a bare number reads it as a time today (`"2026"` → today at 20:26, `"5"` → 05:00), as Scala's natty did. Perhaps null for digits only. Undecided.
 - `toDateTime` with an ambiguous zone abbreviation: `BST` means Bangladesh outside the UK, so `format` output from the UK reads 5 hours out elsewhere. Perhaps null unless the local zone uses it, and `format` with a numeric offset. Undecided.
 - `xml.write`: not needed yet. `xml.read`'s shape loses whether a field was an attribute or an element, and element order, so a writer would have to guess; doing it properly needs an exact representation too (as Nushell's `{tag, attributes, content}`).
+- `watch`: highlight what changed since the last frame (`watch -d`), and stop when the result changes or meets a condition (`watch -g`; perhaps `--until (_ == "done")`). A redraw when the terminal is resized (the size is read when the command starts).
 
 ## Spike results (summary)
 
