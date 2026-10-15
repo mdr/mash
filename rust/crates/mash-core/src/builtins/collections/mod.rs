@@ -27,7 +27,7 @@ use super::core::ANY_CLASS;
 pub use functions::*;
 pub use grouping::GROUP_CLASS;
 pub(crate) use ordering::{SortFunction, attribute_functions, descending_param, natural_order_param, sort_object_by};
-pub(crate) use rename::RenameFunction;
+pub(crate) use rename::{RenameFunction, UpdateFunction};
 pub use sequences::*;
 pub(crate) use transpose::TransposeFunction;
 pub(crate) use wrappers::{
@@ -83,6 +83,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &sequences::TAKE_WHILE_METHOD,
         &wrappers::TRANSPOSE_METHOD,
         &sequences::UNIQUE_METHOD,
+        &rename::UPDATE_METHOD,
         &sequences::WHERE_METHOD,
         &sequences::WHERE_NOT_METHOD,
         &list_methods::AppendMethod,

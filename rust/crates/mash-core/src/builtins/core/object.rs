@@ -8,8 +8,8 @@ use super::classes::class_field_names;
 use crate::builtins::collections::{
     AllButLastFunction, AllFunction, AnyFunction, FindFunction, FirstFunction, FlatMapFunction, GrepOptions,
     IsEmptyFunction, LastFunction, LengthFunction, Methodised, NonEmptyFunction, RenameFunction, ReverseFunction,
-    SkipFunction, SortFunction, TransposeFunction, attribute_functions, descending_param, filter_object, grep_object,
-    map_object, merge_objects, natural_order_param, sort_object_by,
+    SkipFunction, SortFunction, TransposeFunction, UpdateFunction, attribute_functions, descending_param,
+    filter_object, grep_object, map_object, merge_objects, natural_order_param, sort_object_by,
 };
 use crate::eval::{Ctx, MashError, R, is_subclass_of};
 use crate::function::{Args, BuiltinFunction, BuiltinMethod, Callable};
@@ -48,6 +48,7 @@ pub(crate) const OBJECT_METHODS: &[&dyn BuiltinMethod] = &[
     &SKIP_METHOD,
     &SORT_METHOD,
     &TRANSPOSE_METHOD,
+    &UPDATE_METHOD,
 ];
 
 pub(crate) const OBJECT_STATIC_METHODS: &[&dyn BuiltinFunction] = &[&FromPairsFunction, &MergeFunction];
@@ -57,6 +58,7 @@ static ALL_METHOD: Methodised = Methodised::new(&AllFunction, "sequence", &[], t
 static ALL_BUT_LAST_METHOD: Methodised = Methodised::new(&AllButLastFunction, "sequence", &[], true);
 static ANY_METHOD: Methodised = Methodised::new(&AnyFunction, "sequence", &[], true);
 static FIND_METHOD: Methodised = Methodised::new(&FindFunction, "sequence", &[], true);
+static UPDATE_METHOD: Methodised = Methodised::new(&UpdateFunction, "target", &[], true);
 static RENAME_METHOD: Methodised = Methodised::new(&RenameFunction, "target", &[], true);
 static FIRST_METHOD: Methodised = Methodised::new(&FirstFunction, "sequence", &[], true);
 static FLAT_MAP_METHOD: Methodised = Methodised::new(&FlatMapFunction, "sequence", &[], true);
