@@ -1,4 +1,4 @@
-//! `countBy`, new in the Rust port: `groupBy`, keeping only the size of each group.
+//! `countBy`, new in the Rust port: `groupBy`, keeping only the size of each group; and `counts`, `countBy identity`.
 
 use crate::harness::*;
 
@@ -68,6 +68,19 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"'mississippi'.countBy (x => x)"#, r#"{ m: 1, i: 4, s: 4, p: 2 }"#),
     Case::eq(r#"'mississippi' | countBy (x => x)"#, r#"{ m: 1, i: 4, s: 4, p: 2 }"#),
     Case::throws(r#"countBy (x => x) 42"#),
+    // counts: countBy identity
+    Case::eq(r#"counts ['a', 'b', 'a', 'c', 'a']"#, r#"{ a: 3, b: 1, c: 1 }"#),
+    Case::eq(r#"[3, 1, 3] | counts | .fields.name"#, r#"[3, 1]"#),
+    Case::eq(r#"'mississippi'.counts"#, r#"{ m: 1, i: 4, s: 4, p: 2 }"#),
+    Case::eq(r#"[1, 2, 1].counts"#, r#"{ 1: 2, 2: 1 }"#),
+    Case::eq(r#"[1, 2, 1] | counts --groups | map (.count)"#, r#"[2, 1]"#),
+    Case::eq(r#"[1, 2, 1].counts -g | first | .key"#, r#"1"#),
+    Case::eq(r#"[1, null, null].counts"#, r#"{ 1: 1 }"#),
+    Case::eq(r#"[1, null, null].counts --includeNull='none'"#, r#"{ 1: 1, none: 2 }"#),
+    Case::eq(r#"[1, 2, 1].counts --all"#, r#"{ 1: 2, 2: 1, All: 3 }"#),
+    Case::eq(r#"[].counts"#, r#"{}"#),
+    Case::throws(r#"['All'].counts --all"#),
+    Case::throws(r#"counts 42"#),
 ];
 
 #[test]

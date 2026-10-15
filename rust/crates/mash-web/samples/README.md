@@ -24,7 +24,7 @@ addresses, and items. Read it into a variable, then explore:
     shop.books.author.name | unique
     shop.books | map (_.hoist "author") | select "title" "name" "country"
     shop.books | where (_.stock.Edinburgh == 0) | map (_.title)
-    shop.books | flatMap (_.genres) | countBy --groups identity | sortBy (_.count) --descending
+    shop.books | flatMap (_.genres) | counts --groups | sortBy (_.count) --descending
     shop.orders | countBy (_.customer.address.country)
     shop.orders | countBy (_.placed.toDateTime.weekday)
     (shop.orders | groupBy (_.customer.address.country)).transformValues (_.id)

@@ -1,4 +1,4 @@
-//! `groupBy`, `countBy` and the `Group` class.
+//! `groupBy`, `countBy`, `counts` and the `Group` class.
 
 use crate::infer::Type;
 use indexmap::IndexMap;
@@ -124,7 +124,7 @@ pub(crate) fn group_by(
     select: Option<Callable>,
 ) -> R<Value> {
     let mut result = vec![];
-    for (key, values) in keyed_groups(ctx, &discriminator, sequence.items(), &include_null, &all)? {
+    for (key, values) in keyed_groups(ctx, Some(&discriminator), sequence.items(), &include_null, &all)? {
         let values = match &select {
             Some(f) => values.into_iter().map(|v| f.call1(ctx, v)).collect::<R<Vec<_>>>()?,
             None => values,
@@ -145,17 +145,21 @@ pub(crate) fn group_by(
 /// The elements of `items` grouped by key, in the order each key is first seen. Null keys are left out unless
 /// `include_null` is given: true, or another value to use as their key. `all` (true for the key "All", or another
 /// value as the key) adds a group of everything. A key given for either that is also a key of the data is an
-/// error, rather than one group silently replacing another. Shared by `groupBy` and `countBy`.
+/// error, rather than one group silently replacing another. Shared by `groupBy`, `countBy` and `counts`
+/// (`discriminator` None: each element is its own key).
 fn keyed_groups(
     ctx: &mut Ctx,
-    discriminator: &Callable,
+    discriminator: Option<&Callable>,
     items: Vec<Value>,
     include_null: &Value,
     all: &Value,
 ) -> R<Vec<(Value, Vec<Value>)>> {
     let mut by_key: IndexMap<Value, Vec<Value>> = IndexMap::new();
     for item in &items {
-        let key = discriminator.call1(ctx, item.clone())?;
+        let key = match discriminator {
+            Some(f) => f.call1(ctx, item.clone())?,
+            None => item.clone(),
+        };
         by_key.entry(key).or_default().push(item.clone());
     }
     // A flag is off only when false: a falsy key (0, '') is still a key
@@ -203,12 +207,12 @@ fn keyed_groups(
 /// with the number of elements as its value.
 ///
 /// If the --groups flag is true, a list of objects with fields key and count is returned instead, one for each
-/// key: a table, ready to sort or filter.
+/// key: a table, ready to sort or filter. To count each value itself, use counts.
 ///
 /// Examples:
 /// <mash>
-///   countBy identity ["a", "b", "a", "c", "a"]                    # { a: 3, b: 1, c: 1 }
-///   "mississippi".countBy identity                                # { m: 1, i: 4, s: 4, p: 2 }
+///   countBy length ["a", "bb", "c", "ddd"]                        # { 1: 2, 2: 1, 3: 1 }
+///   ["apple", "bike", "book"].countBy first                       # { a: 1, b: 2 }
 ///   ls | countBy (.extension) --groups | sortBy (.count) --descending
 /// </mash>
 #[builtin(namespace = "collections", infer = super::inference::infer_count_by, completion = super::inference::complete_map_function)]
@@ -242,10 +246,14 @@ pub(crate) fn count_by(
     #[param("Function to apply to elements of the sequence to determine a key")] discriminator: Callable,
     #[param("Sequence whose elements to count")] sequence: Sequence,
 ) -> R<Value> {
-    let counts = keyed_groups(ctx, &discriminator, sequence.items(), &include_null, &all)?
-        .into_iter()
-        .map(|(key, values)| (key, Value::from(values.len())));
-    Ok(if groups {
+    let counts = keyed_groups(ctx, Some(&discriminator), sequence.items(), &include_null, &all)?;
+    Ok(count_groups(counts, groups))
+}
+
+/// Groups as counts: an object of key to count, or (`groups`) a list of `{ key, count }` rows
+fn count_groups(keyed: Vec<(Value, Vec<Value>)>, groups: bool) -> Value {
+    let counts = keyed.into_iter().map(|(key, values)| (key, Value::from(values.len())));
+    if groups {
         Value::List(
             counts
                 .map(|(key, count)| {
@@ -262,5 +270,54 @@ pub(crate) fn count_by(
             obj.set(key, count);
         }
         Value::Object(obj)
-    })
+    }
+}
+
+/// Count how many times each value occurs in a sequence
+///
+/// The same as `countBy identity`: the counts are returned, by default, as an Object, with a field per distinct
+/// value (in the order each is first seen), with the number of times it occurs as its value.
+///
+/// If the --groups flag is true, a list of objects with fields key and count is returned instead, one for each
+/// distinct value: a table, ready to sort or filter. To count by something other than the value itself, use
+/// countBy.
+///
+/// Examples:
+/// <mash>
+///   counts ["a", "b", "a", "c", "a"]                    # { a: 3, b: 1, c: 1 }
+///   "mississippi".counts                                # { m: 1, i: 4, s: 4, p: 2 }
+///   ls | map (.extension) | counts --groups | sortBy (.count) --descending
+/// </mash>
+#[builtin(namespace = "collections", infer = super::inference::infer_counts)]
+pub(crate) fn counts(
+    ctx: &mut Ctx,
+    #[param(
+        "Output a List of objects with key and count fields (default false)",
+        short = 'g',
+        boolean_flag,
+        description = "If true, output a list of objects, one for each distinct value, with fields key and count.\n  If false, output a single object with a field for each distinct value."
+    )]
+    groups: bool,
+    #[param(
+        "Include a count of all the elements (default false)",
+        short = 't',
+        flag,
+        default = false,
+        flag_value_name = "key",
+        description = "If true, include an additional count of all the elements.\nIf false, this count is not included.\nIf a non-boolean argument is given, that is used as its key.\nOtherwise, a default key of \"All\" is used. "
+    )]
+    all: Value,
+    #[param(
+        "Count null elements (default false)",
+        short = 'n',
+        flag,
+        default = false,
+        flag_value_name = "key",
+        description = "If true, count the null elements, if there are any.\nIf false, leave them out.\nIf a non-boolean argument is given, that will be used as their key instead of null."
+    )]
+    include_null: Value,
+    #[param("Sequence whose elements to count")] sequence: Sequence,
+) -> R<Value> {
+    let counts = keyed_groups(ctx, None, sequence.items(), &include_null, &all)?;
+    Ok(count_groups(counts, groups))
 }

@@ -28,8 +28,8 @@ pub(crate) use ordering::{SortFunction, attribute_functions, descending_param, n
 pub use sequences::*;
 pub(crate) use transpose::TransposeFunction;
 pub(crate) use wrappers::{
-    COUNT_BY_METHOD, GROUP_BY_METHOD, LIST_STATIC_METHODS, MAX_BY_METHOD, MAX_METHOD, MIN_BY_METHOD, MIN_METHOD,
-    ORDERING_FUNCTIONS, SORT_BY_METHOD, SORT_METHOD,
+    COUNT_BY_METHOD, COUNTS_METHOD, GROUP_BY_METHOD, LIST_STATIC_METHODS, MAX_BY_METHOD, MAX_METHOD, MIN_BY_METHOD,
+    MIN_METHOD, ORDERING_FUNCTIONS, SORT_BY_METHOD, SORT_METHOD,
 };
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LengthFunction];
@@ -44,6 +44,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &sequences::CHUNKED_METHOD,
         &sequences::CONTAINS_METHOD,
         &wrappers::COUNT_BY_METHOD,
+        &wrappers::COUNTS_METHOD,
         &sequences::COUNT_MATCHES_METHOD,
         &sequences::EACH_METHOD,
         &sequences::FLATTEN_METHOD,

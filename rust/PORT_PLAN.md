@@ -393,6 +393,7 @@ Small behaviour changes made during the port, each checked against the Scala imp
 | Ctrl-C during an HTTP request (`http.*`, `json.get` …) | Not noticed: a request to a server that never answered hung the session | Interrupts it, as for a command: the request runs on a worker thread, abandoned on Ctrl-C (native; the browser is unchanged) |
 | `http.get` … and `json.get` … `--timeout` | Not available: no timeout | New, optional: a duration (`10.seconds`) or milliseconds (as `sleep`), for the whole request including redirects; "Timed out after 10 seconds: <url>". The default is still no timeout, as curl, Nushell, PowerShell and Python |
 | `countBy` | Not available | New: counts by key, as `groupBy` groups (`countBy identity xs` → `{ key: count }`; `--groups` for `{ key, count }` rows; `--all`, `--includeNull` as in `groupBy`); also a List and String method |
+| `counts` | Not available | New: `countBy identity`, how many times each value occurs (`'mississippi'.counts` → `{ m: 1, i: 4, s: 4, p: 2 }`), with `countBy`'s flags; as itertools' `counts`, Ruby's `tally`. No `groups` shorthand for `groupBy identity`: rarely useful, and the name is taken (the `--groups` flag, `User.groups`, regex matches' `groups`) |
 | `parseNumber 'abc'` | "Unexpected error … NumberFormatException" | "Could not parse 'abc' as a number" |
 | `Character.isDigit` | Java `isDigit` | Unicode numeric (slightly broader) |
 | `mash FILE`, `mash -e EXPR` | Not supported | Run a script / evaluate an expression (`mash -c` still runs via `sh`, as in Scala) |

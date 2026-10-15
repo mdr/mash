@@ -299,6 +299,24 @@ pub(crate) fn infer_count_by(inferencer: &mut Inferencer<'_>, params: &Params, a
     }
 }
 
+/// `counts`: an object of counts, or with `--groups`, a list of `{ key, count }` rows (the key typed as an element)
+pub(crate) fn infer_counts(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    let bound = args.bind(params);
+    if bound.value(params, "groups").is_some_and(|v| v.is_truthy()) {
+        let key = match bound.ty(params, "sequence") {
+            Some(Type::Seq(element)) => (*element).clone(),
+            Some(t) if t.is_string() => Type::CHARACTER,
+            _ => Type::ANY,
+        };
+        Some(Type::seq(Type::object([
+            (Rc::from("key"), key),
+            (Rc::from("count"), Type::NUMBER),
+        ])))
+    } else {
+        Some(Type::OBJECT)
+    }
+}
+
 pub(crate) fn infer_transpose(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
     match args.bind(params).ty(params, "sequence")? {
         Type::Seq(element) => Some(match &*element {
