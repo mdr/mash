@@ -1,5 +1,5 @@
-//! Changing the fields of an object, or of each of a list of objects: `rename` (as Nushell's `rename`) and
-//! `update` (as Nushell's `update`).
+//! Changing the fields of an object, or of each of a list of objects: `rename`, `update` and `default` (as
+//! Nushell's commands of those names).
 
 use std::collections::HashSet;
 use std::rc::Rc;
@@ -149,6 +149,125 @@ pub(crate) fn update(
     Ok(match target {
         Value::Object(_) => updated.pop().unwrap_or(Value::Null),
         _ => Value::list(updated),
+    })
+}
+
+/// Fill in missing values of fields of an object, or of each of a list of objects
+///
+/// Give a field's name and its default value, or an object of names and default values to fill in several at
+/// once. A field that's null gets the default value, and so does one that's missing, which is added at the
+/// end. With --empty, empty strings, lists and objects are filled in too (as reading CSV gives an empty string
+/// for a blank value). The results are plain objects.
+///
+/// Examples:
+/// <mash>
+///   json.read "users.json" | default { role: 'user', active: true }
+///   !{df -h} | parseTable | default 'Mounted on' '-'
+///   csv.read "orders.csv" | default --empty 'country' 'unknown'
+/// </mash>
+#[builtin(namespace = "collections", infer = infer_default)]
+pub(crate) fn default(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param(
+        "Also fill in empty strings, lists and objects (default false)",
+        short = 'e',
+        boolean_flag
+    )]
+    empty: bool,
+    #[param("Name of the field to fill in, or an object of names and their default values")] field: Value,
+    #[param("The default value (with a field name)")] value: Option<Value>,
+    #[param("An object, or a sequence of objects, whose fields to fill in")] target: Value,
+) -> R<Value> {
+    let defaults: Vec<(String, Value)> = match (&field, value) {
+        (Value::Object(o), None) => {
+            let mut defaults = vec![];
+            for (name, value) in o.entries() {
+                defaults.push((ctx.stringify(&name)?, value));
+            }
+            defaults
+        }
+        (Value::Object(_), Some(_)) => {
+            return Err(args.invalid("value", "Not needed when the fields to fill in are given as an object"));
+        }
+        (Value::Str(name), Some(value)) => vec![(name.as_str().to_string(), value)],
+        (Value::Str(name), None) => {
+            return Err(args.invalid("value", &format!("Give a default value for '{}'", name.as_str())));
+        }
+        (other, _) => {
+            return Err(args.invalid(
+                "field",
+                &format!("Must be a String or an Object, but was a {}", other.type_name()),
+            ));
+        }
+    };
+    let missing = |value: &Value| match value {
+        Value::Null => true,
+        Value::Str(s) => empty && s.as_str().is_empty(),
+        Value::List(xs) => empty && xs.is_empty(),
+        Value::Object(o) => empty && o.is_empty(),
+        _ => false,
+    };
+    let objects = objects_of(args, &target)?;
+    let mut filled = vec![];
+    for object in &objects {
+        let result = Object::new();
+        for (key, value) in object.entries() {
+            let name = ctx.stringify(&key)?;
+            let value = match defaults.iter().find(|(n, _)| *n == name) {
+                Some((_, default)) if missing(&value) => default.clone(),
+                _ => value,
+            };
+            result.set(key, value);
+        }
+        for (name, default) in &defaults {
+            if result.get_str(name).is_none() {
+                result.set_str(name, default.clone());
+            }
+        }
+        filled.push(Value::Object(result));
+    }
+    Ok(match target {
+        Value::Object(_) => filled.pop().unwrap_or(Value::Null),
+        _ => Value::list(filled),
+    })
+}
+
+pub(crate) static DEFAULT_METHOD: Methodised = Methodised::new(&DefaultFunction, "target", &[], false);
+
+/// The target's type, with the fields filled in added (of unknown type)
+fn infer_default(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    let bound = args.bind(params);
+    let target = bound.ty(params, "target")?;
+    let added: Option<Vec<Rc<str>>> = match bound.value(params, "field") {
+        Some(Value::Str(name)) => Some(vec![Rc::from(name.as_str())]),
+        Some(Value::Object(o)) => o
+            .entries()
+            .into_iter()
+            .map(|(name, _)| match name {
+                Value::Str(name) => Some(Rc::from(name.as_str())),
+                _ => None,
+            })
+            .collect(),
+        _ => None,
+    };
+    let add_fields = |ty: &Type| -> Type {
+        match (object_fields(ty), &added) {
+            (Some(mut fields), Some(added)) => {
+                for name in added {
+                    match fields.iter_mut().find(|(n, _)| n == name) {
+                        Some(field) => field.1 = Type::ANY,
+                        None => fields.push((name.clone(), Type::ANY)),
+                    }
+                }
+                Type::object(fields)
+            }
+            _ => Type::OBJECT,
+        }
+    };
+    Some(match &target {
+        Type::Seq(element) => Type::seq(add_fields(element)),
+        other => add_fields(other),
     })
 }
 

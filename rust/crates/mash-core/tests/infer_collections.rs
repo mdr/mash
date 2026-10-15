@@ -130,6 +130,7 @@ fn inference() {
             "[{ a: 'x', b: 'y' }] | update 'a' (.length)",
             "[{a: core.Any, b: core.String}]",
         ),
+        ("[{ a: 'x' }] | default 'b' 0", "[{a: core.String, b: core.Any}]"),
         ("'a=1'.scan '(\\w)=(\\d)'", "[[core.String]]"),
         ("[1, 2].counts --groups", "[{key: core.Number, count: core.Number}]"),
         (

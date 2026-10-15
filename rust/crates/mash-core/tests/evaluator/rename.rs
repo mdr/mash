@@ -1,5 +1,5 @@
-//! `rename` and `update`, new in the Rust port: renaming fields of an object or a list of objects, and changing
-//! their values (as Nushell's `rename` and `update`).
+//! `rename`, `update` and `default`, new in the Rust port: renaming fields of an object or a list of objects,
+//! changing their values, and filling in missing ones (as Nushell's commands of those names).
 
 use crate::harness::*;
 
@@ -71,6 +71,30 @@ pub(crate) const CASES: &[Case] = &[
     Case::throws(r#"update 1 2 [{ a: 1 }]"#),
     Case::throws(r#"[1] | update 'a' 2"#),
     Case::eq(r#"{ update: 3 }.update"#, r#"3"#),
+    // default: null and missing fields are filled in (missing ones added at the end); 0 and false are values
+    Case::eq(
+        r#"[{ a: 1 }, { a: null }, { b: 2 }] | default 'a' 0"#,
+        r#"[{ a: 1 }, { a: 0 }, { b: 2, a: 0 }]"#,
+    ),
+    Case::eq(
+        r#"{ a: 0, b: false }.default { a: 9, b: true }"#,
+        r#"{ a: 0, b: false }"#,
+    ),
+    Case::eq(
+        r#"[{ n: 'x' }, { n: 'y', role: 'admin' }] | default { role: 'user', active: true }"#,
+        r#"[{ n: 'x', role: 'user', active: true }, { n: 'y', role: 'admin', active: true }]"#,
+    ),
+    Case::eq(r#"default 'a' 0 { b: 1 }"#, r#"{ b: 1, a: 0 }"#),
+    // Empty strings, lists and objects only with --empty
+    Case::eq(r#"[{ a: '' }] | default 'a' '-'"#, r#"[{ a: '' }]"#),
+    Case::eq(
+        r#"[{ a: '' }, { a: [] }, { a: {} }, { a: 'x' }] | default --empty 'a' '-' | map (.a)"#,
+        r#"['-', '-', '-', 'x']"#,
+    ),
+    Case::eq(r#"[{ a: '' }].default -e 'a' '-'"#, r#"[{ a: '-' }]"#),
+    Case::throws(r#"[{ a: 1 }] | default 'a'"#),
+    Case::throws(r#"[{ a: 1 }] | default { a: 1 } 2 [{ a: 1 }]"#),
+    Case::eq(r#"{ default: 1 }.default"#, r#"1"#),
 ];
 
 #[test]
