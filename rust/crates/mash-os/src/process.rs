@@ -8,12 +8,16 @@
 //!   background) and restores the terminal settings the child may have changed.
 //! * A child killed by Ctrl-C (SIGINT) is reported as interrupted, so evaluation stops.
 //! * There's no job control yet: a child stopped by Ctrl-Z is resumed straight away, with a message.
+//! * A child with a time limit (from `timeout`) runs in its own process group, which is sent SIGTERM at the
+//!   limit, then SIGKILL if it's still running 2 seconds later (as `timeout -k 2` does).
 
 use std::fs::File;
 use std::io::{self, IsTerminal, Read, Write};
 use std::os::unix::process::CommandExt;
 use std::process::{Command, Stdio};
+use std::sync::mpsc::{self, RecvTimeoutError};
 use std::thread;
+use std::time::Duration;
 
 use jiff::Timestamp;
 use mash_core::platform::{ProcessInput, ProcessOutcome, ProcessOutput, ProcessRequest};
@@ -107,6 +111,43 @@ fn wait_for(pid: Pid, own_group: bool, terminal: Option<&Terminal>, program: &st
     }
 }
 
+/// How long a timed-out child has to finish after SIGTERM, before SIGKILL
+const KILL_AFTER: Duration = Duration::from_secs(2);
+
+/// Signals a child (or its process group) once it has run for its time limit: SIGTERM, then SIGKILL if it's
+/// still running [`KILL_AFTER`] later. Stop it when the child has finished.
+struct Watchdog {
+    finished: mpsc::Sender<()>,
+    thread: thread::JoinHandle<()>,
+}
+
+impl Watchdog {
+    fn start(pid: Pid, own_group: bool, limit: Duration) -> Watchdog {
+        let (finished, wait) = mpsc::channel();
+        let thread = thread::spawn(move || {
+            let send = |signal| {
+                let _ = if own_group {
+                    killpg(pid, signal)
+                } else {
+                    kill(pid, signal)
+                };
+            };
+            if wait.recv_timeout(limit) == Err(RecvTimeoutError::Timeout) {
+                send(Signal::SIGTERM);
+                if wait.recv_timeout(KILL_AFTER) == Err(RecvTimeoutError::Timeout) {
+                    send(Signal::SIGKILL);
+                }
+            }
+        });
+        Watchdog { finished, thread }
+    }
+
+    fn stop(self) {
+        let _ = self.finished.send(());
+        let _ = self.thread.join();
+    }
+}
+
 /// Erase any partial last line of the child's output from the terminal, so that the prompt starts afresh
 /// (as Scala Mash's `clearPartialOutput`)
 fn clear_partial_output() {
@@ -139,7 +180,9 @@ pub(crate) fn run_process(request: &ProcessRequest<'_>) -> io::Result<ProcessOut
         ProcessOutput::File(path) => Stdio::from(File::create(path)?),
     });
     let terminal = Terminal::owned();
-    if terminal.is_some() {
+    // Its own group, so that a time limit stops anything it starts too
+    let own_group = terminal.is_some() || request.time_limit.is_some();
+    if own_group {
         command.process_group(0);
     }
 
@@ -167,7 +210,11 @@ pub(crate) fn run_process(request: &ProcessRequest<'_>) -> io::Result<ProcessOut
         })
     });
 
-    let waited = wait_for(pid, terminal.is_some(), terminal.as_ref(), program);
+    let watchdog = request.time_limit.map(|limit| Watchdog::start(pid, own_group, limit));
+    let waited = wait_for(pid, own_group, terminal.as_ref(), program);
+    if let Some(watchdog) = watchdog {
+        watchdog.stop();
+    }
     if let Some(terminal) = &terminal {
         terminal.take_back();
     }

@@ -16,6 +16,7 @@ mod mish;
 mod ops;
 mod render;
 
+use jiff::Timestamp;
 use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -64,6 +65,9 @@ pub struct Ctx {
     command_history: Option<Rc<dyn CommandHistory>>,
     /// How the host shows results, if it draws them itself (see [`Ctx::set_display`])
     display: Option<Display>,
+    /// Deadlines set by `timeout` (innermost last), each with its id
+    deadlines: Vec<(u64, Timestamp)>,
+    next_deadline_id: u64,
 }
 
 /// Renders a command's result (or its error) as lines of text, with ANSI styles
@@ -138,6 +142,8 @@ impl Ctx {
             reload_hook: None,
             command_history: None,
             display: None,
+            deadlines: vec![],
+            next_deadline_id: 0,
         }
     }
 
@@ -145,6 +151,50 @@ impl Ctx {
     /// and runs its init script (the interactive shell does; scripts and `mash -e` don't)
     pub fn set_reload_hook(&mut self, hook: ReloadHook) {
         self.reload_hook = Some(hook);
+    }
+
+    /// Start a deadline at `at` (for `timeout`): its id, to end it with [`Ctx::end_deadline`]
+    pub(crate) fn start_deadline(&mut self, at: Timestamp) -> u64 {
+        let id = self.next_deadline_id;
+        self.next_deadline_id += 1;
+        self.deadlines.push((id, at));
+        id
+    }
+
+    pub(crate) fn end_deadline(&mut self, id: u64) {
+        self.deadlines.retain(|(d, _)| *d != id);
+    }
+
+    /// An error if a deadline has passed: the earliest (or, of those at the same time, the outermost)
+    pub(crate) fn check_deadline(&self) -> R<()> {
+        if self.deadlines.is_empty() {
+            return Ok(());
+        }
+        let now = self.platform.now();
+        match self
+            .deadlines
+            .iter()
+            .filter(|(_, at)| *at <= now)
+            .min_by_key(|(_, at)| *at)
+        {
+            Some((id, _)) => Err(MashError::expired(*id)),
+            None => Ok(()),
+        }
+    }
+
+    /// How long until the nearest deadline, if there is one
+    pub(crate) fn time_left(&self) -> Option<std::time::Duration> {
+        let nearest = self.deadlines.iter().map(|(_, at)| *at).min()?;
+        let left = nearest.duration_since(self.platform.now());
+        Some(std::time::Duration::try_from(left).unwrap_or_default())
+    }
+
+    /// Run `f` free of deadlines (as `try`'s finally block, which runs even when a deadline has passed)
+    pub(crate) fn without_deadlines<T>(&mut self, f: impl FnOnce(&mut Ctx) -> T) -> T {
+        let deadlines = std::mem::take(&mut self.deadlines);
+        let result = f(self);
+        self.deadlines = deadlines;
+        result
     }
 
     /// Set how the host shows results (the REPL does, for each command); otherwise they're shown as plain text
@@ -300,6 +350,7 @@ impl Ctx {
         const POLL_INTERVAL: u32 = 1024;
         self.ticks = self.ticks.wrapping_add(1);
         let interrupted = if self.ticks.is_multiple_of(POLL_INTERVAL) {
+            self.check_deadline()?;
             self.poll_interrupt()
         } else {
             self.interrupt.load(Ordering::Relaxed)

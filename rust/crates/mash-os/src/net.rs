@@ -118,7 +118,7 @@ pub(crate) fn http_request(request: &HttpRequest<'_>) -> io::Result<HttpResponse
             io::ErrorKind::TimedOut,
             format!(
                 "Timed out after {}: {}",
-                describe_duration(request.timeout.unwrap_or_default()),
+                mash_core::builtins::time::describe_duration(request.timeout.unwrap_or_default()),
                 request.url
             ),
         )
@@ -292,16 +292,6 @@ fn invalid_input(message: String) -> io::Error {
 
 /// A ureq error as a message for the user (in the style of Scala Mash's "Unknown host: …" and "Couldn't
 /// connect: …")
-/// A duration as a person would write it: `10 seconds`, `1.5 seconds`, `500 milliseconds`
-fn describe_duration(duration: Duration) -> String {
-    let plural = |n: f64, unit: &str| format!("{n} {unit}{}", if n == 1.0 { "" } else { "s" });
-    if duration < Duration::from_secs(1) {
-        plural(duration.as_millis() as f64, "millisecond")
-    } else {
-        plural(duration.as_secs_f64(), "second")
-    }
-}
-
 pub(crate) fn describe_error(error: Error, uri: &Uri) -> io::Error {
     let host = uri.host().unwrap_or_default();
     let authority = uri.authority().map_or(host, |a| a.as_str());

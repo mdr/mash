@@ -240,6 +240,65 @@ fn watch_prints_each_result_until_interrupted() {
 }
 
 #[test]
+fn timeout_stops_code_that_takes_too_long() {
+    with_big_stack(|| {
+        let platform = Rc::new(TestPlatform::default());
+        let mut ctx = Ctx::new(platform.clone());
+        let mut run = |source: &str| match ctx.run("test", source) {
+            Ok(value) => format!("{value:?}"),
+            Err(RunError::Eval(e)) => format!("error: {}", e.message),
+            Err(e) => panic!("{source}: {e:?}"),
+        };
+        let start = platform.now.get();
+        assert_eq!(
+            run("sleep 10.seconds | timeout 1.second"),
+            "error: Timed out after 1 second"
+        );
+        // Stopped at the deadline (the test clock moves only when sleeping)
+        assert_eq!(platform.now.get(), start + jiff::SignedDuration::from_secs(1));
+        assert_eq!(run("42 | timeout 1.second"), "42");
+        assert_eq!(run("(sleep 100; 'done') | timeout 500"), "\"done\"");
+        assert_eq!(
+            run("(sleep 100) | forever | timeout 1500"),
+            "error: Timed out after 1.5 seconds"
+        );
+        // A try around the timeout catches it; one inside doesn't, though its finally block runs
+        assert_eq!(run("try (sleep 10.seconds | timeout 300) 'fallback'"), "\"fallback\"");
+        assert_eq!(
+            run("(try (sleep 10.seconds) 'inner') | timeout 300"),
+            "error: Timed out after 300 milliseconds"
+        );
+        assert_eq!(
+            run("finished = 0; try (try (sleep 10.seconds) 'c' (sleep 100; finished += 1) | timeout 300); finished"),
+            "1"
+        );
+        // Nested: whichever comes first
+        assert_eq!(
+            run("(sleep 2.seconds | timeout 5.seconds) | timeout 300"),
+            "error: Timed out after 300 milliseconds"
+        );
+        assert_eq!(
+            run("(sleep 2.seconds | timeout 300) | timeout 5.seconds"),
+            "error: Timed out after 300 milliseconds"
+        );
+        assert_eq!(
+            run("try (sleep 2.seconds | timeout 300) 'inner' | timeout 5.seconds"),
+            "\"inner\""
+        );
+        assert_eq!(
+            run("1 | timeout 'soon'"),
+            "error: Invalid argument 'duration'. Invalid duration of type String"
+        );
+        // Ctrl-C is still Ctrl-C
+        platform
+            .interrupt_at
+            .set(Some(platform.now.get() + jiff::SignedDuration::from_millis(500)));
+        let error = eval_error(&mut ctx, "sleep 10.seconds | timeout 5.seconds");
+        assert!(error.is_interrupted(), "{}", error.message);
+    });
+}
+
+#[test]
 fn closures_created_in_a_loop_are_collected() {
     with_big_stack(|| {
         let mut ctx = ctx();

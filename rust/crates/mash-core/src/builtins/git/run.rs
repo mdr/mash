@@ -99,6 +99,7 @@ pub(crate) fn run_anywhere(ctx: &mut Ctx, mode: Mode, args: &[&str]) -> R<Proces
         } else {
             ProcessOutput::Capture
         },
+        time_limit: ctx.time_left(),
     };
     let outcome = ctx.platform().run_process(&request).map_err(|e| {
         MashError::new(format!(
@@ -106,6 +107,7 @@ pub(crate) fn run_anywhere(ctx: &mut Ctx, mode: Mode, args: &[&str]) -> R<Proces
             crate::builtins::os::paths::describe(&e)
         ))
     })?;
+    ctx.check_deadline()?;
     if outcome.interrupted {
         return Err(MashError::interrupted());
     }

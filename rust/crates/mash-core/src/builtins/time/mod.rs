@@ -257,11 +257,23 @@ pub(crate) fn sleep_for(ctx: &Ctx, duration: Duration) -> R<()> {
         if ctx.poll_interrupt() {
             return Err(MashError::interrupted());
         }
-        let slice = remaining.min(SLICE);
+        ctx.check_deadline()?;
+        // Waking exactly at a deadline
+        let slice = remaining.min(SLICE).min(ctx.time_left().unwrap_or(SLICE));
         ctx.platform().sleep(slice);
         remaining -= slice;
     }
     Ok(())
+}
+
+/// A duration as a person would write it: `10 seconds`, `1.5 seconds`, `500 milliseconds`
+pub fn describe_duration(duration: Duration) -> String {
+    let plural = |n: f64, unit: &str| format!("{n} {unit}{}", if n == 1.0 { "" } else { "s" });
+    if duration < Duration::from_secs(1) {
+        plural(duration.as_millis() as f64, "millisecond")
+    } else {
+        plural(duration.as_secs_f64(), "second")
+    }
 }
 
 /// How long until now plus `n` of `unit` (zero if that's in the past)

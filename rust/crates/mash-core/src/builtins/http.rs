@@ -287,6 +287,11 @@ pub(crate) fn send(
         })?),
         None => None,
     };
+    // No longer than any `timeout` around this allows
+    let timeout = match (timeout, ctx.time_left()) {
+        (Some(t), Some(left)) => Some(t.min(left)),
+        (t, left) => t.or(left),
+    };
     let interrupt = ctx.interrupt_flag();
     let request = HttpRequest {
         method,
@@ -300,7 +305,9 @@ pub(crate) fn send(
         interrupt: Some(&interrupt),
     };
     ctx.platform().http_request(&request).map_err(|e| {
-        if e.kind() == std::io::ErrorKind::Interrupted && ctx.poll_interrupt() {
+        if let Err(expired) = ctx.check_deadline() {
+            expired
+        } else if e.kind() == std::io::ErrorKind::Interrupted && ctx.poll_interrupt() {
             MashError::interrupted()
         } else {
             MashError::new(describe(&e))

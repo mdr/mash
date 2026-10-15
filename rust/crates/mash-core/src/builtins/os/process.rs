@@ -58,6 +58,7 @@ pub(crate) fn run_command(ctx: &mut Ctx, args: &[Value], input: Input, output: O
         return Err(MashError::new("Must provide at least one argument for the command"));
     }
     let env = child_environment(ctx)?;
+    ctx.check_deadline()?;
     let request = ProcessRequest {
         argv: &argv,
         env: &env,
@@ -71,11 +72,13 @@ pub(crate) fn run_command(ctx: &mut Ctx, args: &[Value], input: Input, output: O
             Output::Capture => ProcessOutput::Capture,
             Output::File(path) => ProcessOutput::File(path),
         },
+        time_limit: ctx.time_left(),
     };
     let outcome = ctx
         .platform()
         .run_process(&request)
         .map_err(|e| MashError::new(format!("Could not run '{}': {}", argv[0], describe(&e))))?;
+    ctx.check_deadline()?;
     if outcome.interrupted {
         return Err(MashError::interrupted());
     }

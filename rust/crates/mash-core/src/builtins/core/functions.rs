@@ -2,7 +2,7 @@
 
 use mash_macros::{builtin, builtin_method};
 
-use crate::eval::{Ctx, MashError, R};
+use crate::eval::{Ctx, ErrorKind, MashError, R};
 use crate::function::Callable;
 use crate::value::{ClassRef, DateTime, Number, Object, Str, Value};
 
@@ -126,7 +126,8 @@ pub fn try_(
         other => other,
     };
     if let Some(finally) = &finally {
-        ctx.call_values(finally, vec![])?;
+        // Even when a `timeout`'s deadline has passed
+        ctx.without_deadlines(|ctx| ctx.call_values(finally, vec![]))?;
     }
     result
 }
@@ -253,6 +254,51 @@ pub fn watch(
         };
         ctx.platform().write_output(&text);
         crate::builtins::time::sleep_for(ctx, interval)?;
+    }
+}
+
+/// Run the given code, stopping it with an error if it hasn't finished in time
+///
+/// Returns the code's result if it finishes in time. Otherwise it's stopped, and this raises a "Timed out"
+/// error, which try (around the timeout) can catch, or retry can retry. A try within the code can't catch it,
+/// though its finally block still runs.
+///
+/// The code is stopped as Ctrl-C would stop it: Mash code, sleeps and HTTP requests at once; an external
+/// command is sent SIGTERM, then SIGKILL if it's still running 2 seconds later. Something else that blocks
+/// (looking up a host name, say) is stopped when it returns.
+///
+/// Examples:
+/// <mash>
+///   !{make test} | timeout 30.seconds
+///   http.get url | timeout 5.seconds | retry 3
+///   try (slowThing | timeout 2.seconds) "fallback"
+/// </mash>
+#[builtin(namespace = "core", infer = super::infer_rules::time_limited)]
+pub fn timeout(
+    ctx: &mut Ctx,
+    #[param(
+        "How long to allow",
+        description = "Accepts tagged durations. If given an untagged Number, that number of milliseconds"
+    )]
+    duration: Value,
+    #[param("Code to execute", lazy)] block: Value,
+) -> R<Value> {
+    let Some(duration) = crate::builtins::time::duration_of(ctx, &duration)? else {
+        return Err(MashError::new(format!(
+            "Invalid argument 'duration'. Invalid duration of type {}",
+            duration.type_name()
+        )));
+    };
+    let at = ctx.platform().now() + duration;
+    let id = ctx.start_deadline(at);
+    let result = ctx.call_values(&block, vec![]);
+    ctx.end_deadline(id);
+    match result {
+        Err(error) if error.kind == ErrorKind::Expired(id) => Err(MashError::new(format!(
+            "Timed out after {}",
+            crate::builtins::time::describe_duration(duration)
+        ))),
+        other => other,
     }
 }
 

@@ -34,6 +34,8 @@ pub enum ErrorKind {
     Argument,
     /// Evaluation was interrupted (Ctrl-C, or a step budget ran out)
     Interrupted,
+    /// The deadline with this id (set by `timeout`) passed: unwinds as an interruption does, to that `timeout`
+    Expired(u64),
 }
 
 /// An error raised while evaluating Mash code, with a Mash-level stack trace.
@@ -86,8 +88,18 @@ impl MashError {
         }
     }
 
+    /// The deadline with id `id` passed
+    pub(crate) fn expired(id: u64) -> Self {
+        MashError {
+            message: "Timed out".into(),
+            kind: ErrorKind::Expired(id),
+            stack: vec![],
+        }
+    }
+
+    /// Whether evaluation was interrupted (by Ctrl-C, or a deadline passing): `try` doesn't catch it
     pub fn is_interrupted(&self) -> bool {
-        self.kind == ErrorKind::Interrupted
+        matches!(self.kind, ErrorKind::Interrupted | ErrorKind::Expired(_))
     }
 
     /// Where the error happened (the innermost location known)
@@ -99,7 +111,7 @@ impl MashError {
     /// `addInvocationToStackOnException`)
     pub(crate) fn through_call(mut self, function: Option<String>, call_site: Option<Location>) -> Self {
         match self.kind {
-            ErrorKind::Interrupted => self,
+            ErrorKind::Interrupted | ErrorKind::Expired(_) => self,
             ErrorKind::Argument => {
                 // Reported at the argument if known, else at the call
                 if self.location().is_none() {
@@ -127,7 +139,7 @@ impl MashError {
 
     /// Give the error a location if it has none (e.g. one raised by a builtin)
     pub(crate) fn or_at(mut self, location: Option<Location>) -> Self {
-        if self.stack.is_empty() && self.kind != ErrorKind::Interrupted {
+        if self.stack.is_empty() && !self.is_interrupted() {
             self.stack.push(StackFrame {
                 location,
                 function: None,

@@ -21,6 +21,7 @@ fn run(argv: &[&str], stdin: ProcessInput<'_>, stdout: ProcessOutput<'_>) -> mas
             env: &env,
             stdin,
             stdout,
+            time_limit: None,
         })
         .expect("process runs")
 }
@@ -82,6 +83,7 @@ fn passes_the_given_environment_only() {
             env: &env,
             stdin: ProcessInput::Inherit,
             stdout: ProcessOutput::Capture,
+            time_limit: None,
         })
         .unwrap();
     assert_eq!(outcome.stdout, "value:\n");
@@ -110,6 +112,7 @@ fn missing_program_is_an_error() {
         env: &env(),
         stdin: ProcessInput::Inherit,
         stdout: ProcessOutput::Capture,
+        time_limit: None,
     });
     assert_eq!(result.unwrap_err().kind(), std::io::ErrorKind::NotFound);
 }
@@ -231,6 +234,41 @@ fn recursive_listing_survives_link_cycles() {
         std::os::unix::fs::symlink(dir, dir.join("d").join("loop")).unwrap();
     });
     assert_eq!(result, "d,loop");
+}
+
+#[test]
+fn timeout_stops_a_command_and_what_it_started() {
+    // Had the background child survived, it would have made the file by the time it's checked for
+    let code = r#"r = try (!{"$dir/spawner.sh"} | timeout 300) "timed out"; sleep 1500; [r, "$dir/survived".exists]"#;
+    let result = eval_in_temp_dir(code, |dir| {
+        let script = dir.join("spawner.sh");
+        // A background child that would keep running after the script
+        let marker = dir.join("survived");
+        std::fs::write(
+            &script,
+            format!("#!/bin/sh\n(sleep 1; touch '{}') &\nsleep 10\n", marker.display()),
+        )
+        .unwrap();
+        std::fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
+    });
+    assert_eq!(result, "[timed out, false]");
+}
+
+#[test]
+fn timeout_kills_a_command_that_ignores_sigterm() {
+    let started = std::time::Instant::now();
+    let result = eval_in_temp_dir(r#"!{"$dir/stubborn.sh"} | timeout 300"#, |dir| {
+        let script = dir.join("stubborn.sh");
+        std::fs::write(&script, "#!/bin/sh\ntrap '' TERM\nsleep 10\n").unwrap();
+        std::fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
+    });
+    assert_eq!(result, "error: Timed out after 300 milliseconds");
+    // SIGKILL 2 seconds after SIGTERM
+    let elapsed = started.elapsed();
+    assert!(
+        elapsed >= std::time::Duration::from_secs(2) && elapsed < std::time::Duration::from_secs(5),
+        "{elapsed:?}"
+    );
 }
 
 #[test]

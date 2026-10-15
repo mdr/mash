@@ -301,6 +301,9 @@ pub struct ProcessRequest<'a> {
     pub env: &'a [(String, String)],
     pub stdin: ProcessInput<'a>,
     pub stdout: ProcessOutput<'a>,
+    /// If set, the program (and anything it starts) is sent SIGTERM once it has run this long, then SIGKILL
+    /// if it's still running 2 seconds later (for `timeout`)
+    pub time_limit: Option<Duration>,
 }
 
 /// Where a child process's standard input comes from.

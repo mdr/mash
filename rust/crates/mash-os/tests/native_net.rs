@@ -204,6 +204,22 @@ fn a_request_that_takes_too_long_times_out() {
 }
 
 #[test]
+fn timeout_stops_a_request() {
+    let url = silent_server();
+    let started = std::time::Instant::now();
+    assert_eq!(
+        eval(format!("http.get '{url}' | timeout 300")),
+        "error: Timed out after 300 milliseconds"
+    );
+    // The sooner of the request's own timeout and timeout's
+    assert_eq!(
+        eval(format!("http.get '{url}' --timeout=200 | timeout 5000")),
+        format!("error: Timed out after 200 milliseconds: {url}")
+    );
+    assert!(started.elapsed() < std::time::Duration::from_secs(3));
+}
+
+#[test]
 fn an_interrupt_abandons_a_request() {
     let url = silent_server();
     let interrupt = Arc::new(std::sync::atomic::AtomicBool::new(false));

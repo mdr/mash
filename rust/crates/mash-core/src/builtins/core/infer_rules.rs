@@ -38,6 +38,11 @@ pub(crate) fn try_(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) ->
     arg_type(params, args, "body")
 }
 
+/// `timeout` (and `retry`): the type of the block
+pub(crate) fn time_limited(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    arg_type(params, args, "block")
+}
+
 /// `timeTaken`: a TimedResult of the block's type
 pub(crate) fn time_taken(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
     let result = arg_type(params, args, "block").unwrap_or(Type::ANY);

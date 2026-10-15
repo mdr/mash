@@ -1,4 +1,4 @@
-// Checks the page itself in real browsers (headless, via Playwright): typing commands, Ctrl-C, watch, history kept
+// Checks the page itself in real browsers (headless, via Playwright): typing commands, Ctrl-C, watch, timeout, history kept
 // across reloads, the object browser, leaving and restarting, and links that run commands. Run after build.sh, with Playwright
 // (playwright-core and its browsers) on NODE_PATH, and network access (xterm.js comes from a CDN):
 //
@@ -123,6 +123,12 @@ const tests = {
 
   async ctrlCInterruptsACommand(browser) {
     await interruptKeepingVariables(await open(browser));
+  },
+
+  async timeoutStopsASleep(browser) {
+    const page = await open(browser);
+    const text = await command(page, 'sleep 60.seconds | timeout 300', 1);
+    assert.match(text, /Timed out after 300 milliseconds/);
   },
 
   // Each result is drawn over the last, and Ctrl-C leaves the last one on the screen
