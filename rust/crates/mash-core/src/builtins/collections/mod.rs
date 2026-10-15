@@ -4,6 +4,7 @@
 mod functions;
 mod grouping;
 mod inference;
+mod join_by;
 mod list_methods;
 mod ordering;
 mod parse;
@@ -60,6 +61,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &sequences::INDEX_OF_METHOD,
         &sequences::IS_EMPTY_METHOD,
         &sequences::JOIN_METHOD,
+        &join_by::JOIN_BY_METHOD,
         &sequences::LAST_METHOD,
         &LENGTH_METHOD,
         &sequences::MAP_METHOD,

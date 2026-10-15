@@ -25,6 +25,7 @@ mod group_by;
 mod help;
 mod import;
 mod join;
+mod join_by;
 mod last_param;
 mod list_methods;
 mod lookup;

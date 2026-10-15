@@ -2,6 +2,7 @@
 
 use super::Methodised;
 use super::grouping::{CountByFunction, CountsFunction, GroupByFunction};
+use super::join_by::JoinByFunction;
 use super::list_methods::ListNewFunction;
 use super::ordering::{MaxByFunction, MaxFunction, MinByFunction, MinFunction, SortByFunction, SortFunction};
 use super::parse::{ParseFunction, ParseTableFunction, ScanFunction};
@@ -16,6 +17,7 @@ pub(crate) const ORDERING_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &DefaultFunction,
     &DeselectFunction,
     &GroupByFunction,
+    &JoinByFunction,
     &MaxByFunction,
     &MaxFunction,
     &MinByFunction,
