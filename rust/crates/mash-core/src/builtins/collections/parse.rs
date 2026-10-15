@@ -1,5 +1,6 @@
 //! Text into values: `parse`, lines into objects by a pattern with named holes (as Nushell's `parse`) or a
-//! regex with named groups; and `scan`, every match of a regex (as Python's `re.findall`).
+//! regex with named groups; `parseTable`, column-aligned text (as command output) into objects; and `scan`,
+//! every match of a regex (as Python's `re.findall`).
 
 use std::rc::Rc;
 
@@ -44,13 +45,7 @@ pub(crate) fn parse(
     #[param("Lines to parse: a sequence, or a string (treated as a sequence of lines)")] input: Value,
 ) -> R<Value> {
     let _ = input;
-    let lines: Vec<String> = match sequence_like(ctx, args, "input")? {
-        SequenceLike::List(items) => items.iter().map(|item| ctx.stringify(item)).collect::<R<_>>()?,
-        SequenceLike::Str(s) => split_into_lines(s.as_str()),
-        SequenceLike::Object(_) => {
-            return Err(args.invalid("input", "Must be a List or String, but was an Object"));
-        }
-    };
+    let lines = input_lines(ctx, args)?;
     let source = if regex {
         pattern.as_str().to_string()
     } else {
@@ -77,6 +72,149 @@ pub(crate) fn parse(
         }
     }
     Ok(Value::list(rows))
+}
+
+/// Turn column-aligned text, as many commands print, into objects
+///
+/// The first line is a header, whose words say where the columns are; each line after it becomes an object
+/// with a field for each column. Each word of a line goes to the column whose header it sits under (left- or
+/// right-aligned), or, if it's in the gap between two headers, to the column on its left; everything from the
+/// last header on is the last column. A header word with nothing under it in any line is part of the name on
+/// its left, so names with spaces ("Mounted on") stay whole. Values are strings, with their inner spaces; a
+/// missing one is null. Blank lines are skipped.
+///
+/// With --noHeaders, there is no header line: each line is split at whitespace into fields column1, column2, ….
+///
+/// Examples:
+/// <mash>
+///   !{df -h} | parseTable | map (_['Mounted on'])
+///   !{docker ps} | parseTable | where (_.STATUS.startsWith 'Exited') | map (.NAMES)
+///   !{netstat -rn} | skip 3 | parseTable
+/// </mash>
+#[builtin(namespace = "collections", name = "parseTable", returns = Type::seq(Type::OBJECT))]
+pub(crate) fn parse_table(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param(
+        "There is no header line: split lines at whitespace, into fields column1, column2, … (default false)",
+        short = 'n',
+        boolean_flag
+    )]
+    no_headers: bool,
+    #[param("Lines to parse: a sequence, or a string (treated as a sequence of lines)")] input: Value,
+) -> R<Value> {
+    let _ = input;
+    let lines: Vec<Vec<char>> = input_lines(ctx, args)?
+        .into_iter()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| line.trim_end().chars().collect())
+        .collect();
+    let text = |line: &[char], (start, end): (usize, usize)| Value::str(&line[start..end].iter().collect::<String>());
+    if no_headers {
+        let rows = lines.iter().map(|line| {
+            let row = Object::new();
+            for (i, word) in words(line).into_iter().enumerate() {
+                row.set_str(&format!("column{}", i + 1), text(line, word));
+            }
+            Value::Object(row)
+        });
+        return Ok(Value::list(rows.collect()));
+    }
+    let Some((header, rows)) = lines.split_first() else {
+        return Ok(Value::list(vec![]));
+    };
+    let columns = words(header);
+    let last_start = columns.last().map_or(0, |c| c.0);
+    // The words of each row, by column
+    let assigned: Vec<Vec<Vec<(usize, usize)>>> = rows
+        .iter()
+        .map(|row| {
+            let mut cells = vec![vec![]; columns.len()];
+            for (start, end) in words(row) {
+                cells[column_of(&columns, last_start, start, end)].push((start, end));
+            }
+            cells
+        })
+        .collect();
+    // Columns grouped by name: a header word with nothing under it joins the group on its left
+    let mut groups: Vec<Vec<usize>> = vec![];
+    for k in 0..columns.len() {
+        match groups.last_mut() {
+            Some(group) if assigned.iter().all(|cells| cells[k].is_empty()) => group.push(k),
+            _ => groups.push(vec![k]),
+        }
+    }
+    let names: Vec<String> = groups
+        .iter()
+        .map(|group| {
+            header[columns[group[0]].0..columns[group[group.len() - 1]].1]
+                .iter()
+                .collect()
+        })
+        .collect();
+    let objects = rows.iter().zip(&assigned).map(|(row, cells)| {
+        let object = Object::new();
+        for (name, group) in names.iter().zip(&groups) {
+            let spans = group.iter().flat_map(|&k| cells[k].iter());
+            let start = spans.clone().map(|s| s.0).min();
+            let end = spans.map(|s| s.1).max();
+            let value = match (start, end) {
+                (Some(start), Some(end)) => text(row, (start, end)),
+                _ => Value::Null,
+            };
+            object.set_str(name, value);
+        }
+        Value::Object(object)
+    });
+    Ok(Value::list(objects.collect()))
+}
+
+/// The lines of the input: a list's items as strings, or a string's lines
+fn input_lines(ctx: &mut Ctx, args: &Args) -> R<Vec<String>> {
+    match sequence_like(ctx, args, "input")? {
+        SequenceLike::List(items) => items.iter().map(|item| ctx.stringify(item)).collect(),
+        SequenceLike::Str(s) => Ok(split_into_lines(s.as_str())),
+        SequenceLike::Object(_) => Err(args.invalid("input", "Must be a List or String, but was an Object")),
+    }
+}
+
+/// The start and end (in characters) of each run of non-whitespace in a line
+fn words(line: &[char]) -> Vec<(usize, usize)> {
+    let mut words = vec![];
+    let mut start = None;
+    for (i, c) in line.iter().enumerate() {
+        match (c.is_whitespace(), start) {
+            (false, None) => start = Some(i),
+            (true, Some(s)) => {
+                words.push((s, i));
+                start = None;
+            }
+            _ => {}
+        }
+    }
+    if let Some(s) = start {
+        words.push((s, line.len()));
+    }
+    words
+}
+
+/// The column a word from `start` to `end` belongs to: the last if it's at or after the last header; else the
+/// one whose header it overlaps most; else (in a gap) the one on its left
+fn column_of(columns: &[(usize, usize)], last_start: usize, start: usize, end: usize) -> usize {
+    if start >= last_start {
+        return columns.len() - 1;
+    }
+    let overlap = |&(cs, ce): &(usize, usize)| end.min(ce).saturating_sub(start.max(cs));
+    let (best, most) = columns
+        .iter()
+        .map(overlap)
+        .enumerate()
+        .max_by_key(|&(i, o)| (o, std::cmp::Reverse(i)))
+        .unwrap_or((0, 0));
+    if most > 0 {
+        return best;
+    }
+    columns.iter().rposition(|&(_, ce)| ce <= start).unwrap_or(0)
 }
 
 /// Find every match of a regular expression in some text

@@ -1,5 +1,5 @@
-//! `parse` and `scan`, new in the Rust port: lines of text into objects, by a pattern (as Nushell's `parse`) or a
-//! regex; and every match of a regex (as Python's `re.findall`).
+//! `parse`, `parseTable` and `scan`, new in the Rust port: lines of text into objects, by a pattern (as Nushell's
+//! `parse`) or a regex; column-aligned text into objects; and every match of a regex (as Python's `re.findall`).
 
 use crate::harness::*;
 
@@ -48,6 +48,42 @@ pub(crate) const CASES: &[Case] = &[
     ),
     Case::throws(r#"'x' | parse --regex '\w'"#),
     Case::throws(r#"'x' | parse --regex '(?<x'"#),
+    // parseTable: headers say where columns are; words in a gap go left; the last column takes the rest
+    Case::eq(
+        r#"'CONTAINER ID   IMAGE    SIZE  STATUS          NAMES`nabc123         nginx    12MB  Up 2 hours      web`ndef456         redis   140MB  Exited (0) 3d   cache' | parseTable"#,
+        r#"[{ 'CONTAINER ID': 'abc123', IMAGE: 'nginx', SIZE: '12MB', STATUS: 'Up 2 hours', NAMES: 'web' },
+            { 'CONTAINER ID': 'def456', IMAGE: 'redis', SIZE: '140MB', STATUS: 'Exited (0) 3d', NAMES: 'cache' }]"#,
+    ),
+    Case::eq(
+        r#"'Filesystem      Size  Used Avail Use% Mounted on`n/dev/disk3s1s1  927G  757G  171G  82% /`n/dev/disk3s6    927G  757G  171G  82% /System/Volumes/VM' | parseTable | map (_['Mounted on'])"#,
+        r#"['/', '/System/Volumes/VM']"#,
+    ),
+    // Right-aligned numbers wider than their headers, and a last column with spaces
+    Case::eq(
+        r#"'USER   PID  %CPU      VSZ COMMAND`nroot     1 129.8 435463808 /sbin/launchd -s`nmatt 67975  38.3   1002 rustc --edition=2024' | parseTable | map (.VSZ)"#,
+        r#"['435463808', '1002']"#,
+    ),
+    Case::eq(
+        r#"'USER   PID  %CPU      VSZ COMMAND`nroot     1 129.8 435463808 /sbin/launchd -s' | parseTable | first | .COMMAND"#,
+        r#"'/sbin/launchd -s'"#,
+    ),
+    // A missing value is null; blank lines are skipped
+    Case::eq(
+        r#"'Destination  Gateway      Netif Expire`n`ndefault      192.168.1.1  en0`n127.0.0.1    127.0.0.1    lo0   30' | parseTable | map (.Expire)"#,
+        r#"[null, '30']"#,
+    ),
+    Case::eq(
+        r#"['NAME  SIZE', 'a     1', 'b     2'] | parseTable | map (.SIZE)"#,
+        r#"['1', '2']"#,
+    ),
+    Case::eq(r#"'NAME  SIZE`na     1'.parseTable"#, r#"[{ NAME: 'a', SIZE: '1' }]"#),
+    Case::eq(r#"'NAME  SIZE' | parseTable"#, r#"[]"#),
+    Case::eq(r#"'' | parseTable"#, r#"[]"#),
+    Case::eq(
+        r#"'matt  console  Oct 14 23:30`nmatt  ttys000  Oct 15 09:19' | parseTable --noHeaders | first"#,
+        r#"{ column1: 'matt', column2: 'console', column3: 'Oct', column4: '14', column5: '23:30' }"#,
+    ),
+    Case::throws(r#"{ a: 1 } | parseTable"#),
     // scan: the text matched, one group's value, or several groups' values
     Case::eq(r#"'disk 81%, swap 12%'.scan '\d+'"#, r#"['81', '12']"#),
     Case::eq(r#"'id=1 id=22'.scan 'id=(\d+)'"#, r#"['1', '22']"#),
