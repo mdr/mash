@@ -20,6 +20,11 @@ fn platform() -> TestPlatform {
                 "name,age,city\nAda,36,\"London, UK\"\nBob,,Paris\n",
             )
             .with_file("/home/alice/ragged.csv", "a,b\n1,2\n3\n")
+            .with_file("/home/alice/multi.yaml", "name: a\n---\nname: b\n")
+            .with_file(
+                "/home/alice/data.yaml",
+                "country: NO\nenabled: on\nversion: 1.10\nwhen: 2026-10-15\n1: one\nref: !Ref MyBucket\nbase: &b {x: 1, y: 1}\nderived:\n  <<: *b\n  y: 2\n# a comment\n",
+            )
             .with_file("/home/alice/body.txt", "from a file")
             .with_file("/home/alice/script.mash", "def triple n = n * 3\nsourced = triple 14")
             .with_file("/home/alice/bad.mash", "1 +"),
@@ -420,6 +425,50 @@ fn data_files() {
 
 /// (The Scala oracle can't run these: they need the REPL's singletons. Expected values follow Scala's
 /// `SourceFunction` and `ReloadFunction`.)
+#[test]
+fn yaml_files() {
+    check(&[
+        // YAML 1.2: no, on and yes are strings; keys become strings; custom tags are dropped; merge keys are
+        // resolved, in order, the mapping's own fields winning
+        (
+            "yaml.read 'data.yaml'",
+            "{ country: NO, enabled: on, version: 1.1, when: 2026-10-15, 1: one, ref: MyBucket, base: { x: 1, y: 1 }, derived: { x: 1, y: 2 } }",
+        ),
+        (
+            "yaml.read 'data.yaml' | .fields.name | map (.getClass.name)",
+            "[String, String, String, String, String, String, String, String]",
+        ),
+        // Several documents give a list of them; one that's a list is just that list
+        ("yaml.read 'multi.yaml'", "[{ name: a }, { name: b }]"),
+        ("yaml.fromString '- a`n- b'", "[a, b]"),
+        ("yaml.fromString ''", "null"),
+        ("yaml.fromString 'x: .inf'", "{ x: Infinity }"),
+        (
+            "yaml.fromString 'a: ['",
+            "error: Invalid YAML: while parsing a node, did not find expected node content at byte 4 line 2 column 1",
+        ),
+        (
+            "yaml.read 'nope.yaml'",
+            "error: Could not read 'nope.yaml': No such file or directory: nope.yaml",
+        ),
+        // Strings that would read back as something else are quoted
+        (
+            "yaml.toString { country: 'NO', n: 1.5, s: '123', list: [1, { a: null }], empty: {}, t: true }",
+            "country: \"NO\"\n\"n\": 1.5\ns: \"123\"\nlist:\n  - 1\n  - a: ~\nempty: {}\nt: true\n",
+        ),
+        ("yaml.toString [1, 2]", "- 1\n- 2\n"),
+        ("yaml.toString 'plain'", "plain\n"),
+        (
+            "yaml.write 'out.yaml' (yaml.read 'data.yaml'); yaml.read 'out.yaml' | .derived",
+            "{ x: 1, y: 2 }",
+        ),
+        (
+            "yaml.write 'out.yaml' { a: [1, 2] }; read 'out.yaml'",
+            "a:\n  - 1\n  - 2\n",
+        ),
+    ]);
+}
+
 #[test]
 fn source_and_reload() {
     check(&[

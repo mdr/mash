@@ -17,6 +17,7 @@ pub mod random;
 pub mod time;
 pub mod view;
 pub mod xml;
+pub mod yaml;
 
 use std::collections::BTreeMap;
 
@@ -50,6 +51,7 @@ pub fn all_functions() -> Vec<&'static dyn BuiltinFunction> {
         random::FUNCTIONS,
         view::FUNCTIONS,
         xml::FUNCTIONS,
+        yaml::FUNCTIONS,
     ] {
         functions.extend_from_slice(namespace);
     }
