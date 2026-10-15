@@ -40,6 +40,7 @@ pub(crate) const STRING_METHODS: &[&dyn BuiltinMethod] = &[
     &collections::PARSE_METHOD,
     &collections::REDUCE_METHOD,
     &collections::REVERSE_METHOD,
+    &collections::SCAN_METHOD,
     &collections::SKIP_METHOD,
     &collections::SKIP_UNTIL_METHOD,
     &collections::SKIP_WHILE_METHOD,

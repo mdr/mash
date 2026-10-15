@@ -30,7 +30,7 @@ pub use sequences::*;
 pub(crate) use transpose::TransposeFunction;
 pub(crate) use wrappers::{
     COUNT_BY_METHOD, COUNTS_METHOD, GROUP_BY_METHOD, LIST_STATIC_METHODS, MAX_BY_METHOD, MAX_METHOD, MIN_BY_METHOD,
-    MIN_METHOD, ORDERING_FUNCTIONS, PARSE_METHOD, SORT_BY_METHOD, SORT_METHOD,
+    MIN_METHOD, ORDERING_FUNCTIONS, PARSE_METHOD, SCAN_METHOD, SORT_BY_METHOD, SORT_METHOD,
 };
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LengthFunction];

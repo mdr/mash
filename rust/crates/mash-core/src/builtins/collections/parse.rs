@@ -1,5 +1,5 @@
-//! `parse`: lines of text into objects, by a pattern with named holes (as Nushell's `parse`) or a regex with
-//! named groups.
+//! Text into values: `parse`, lines into objects by a pattern with named holes (as Nushell's `parse`) or a
+//! regex with named groups; and `scan`, every match of a regex (as Python's `re.findall`).
 
 use std::rc::Rc;
 
@@ -79,6 +79,54 @@ pub(crate) fn parse(
     Ok(Value::list(rows))
 }
 
+/// Find every match of a regular expression in some text
+///
+/// What each match gives depends on the groups in the regex, as with Python's re.findall: with no groups, the
+/// text matched; with one group, that group's value; with several, a list of their values (null for a group
+/// that took no part). Named groups count as groups; to make objects with a field for each, use
+/// parse --regex. For a case-insensitive match, start the regex with (?i).
+///
+/// A list is scanned item by item, and a process result by its output.
+///
+/// Examples:
+/// <mash>
+///   'disk 81%, swap 12%'.scan '\d+'              # ['81', '12']
+///   'id=1 id=22'.scan 'id=(\d+)'                 # ['1', '22']
+///   'a=1 b=2'.scan '(\w)=(\d)'                   # [['a', '1'], ['b', '2']]
+///   !{curl -s https://example.com} | scan 'https?://[^"]+'
+/// </mash>
+#[builtin(namespace = "collections", infer = infer_scan)]
+pub(crate) fn scan(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param("Regular expression to find")] regex: Str,
+    #[param("Text to search: a string, or a sequence of them")] input: Value,
+) -> R<Value> {
+    let _ = input;
+    let texts: Vec<String> = match sequence_like(ctx, args, "input")? {
+        SequenceLike::List(items) => items.iter().map(|item| ctx.stringify(item)).collect::<R<_>>()?,
+        SequenceLike::Str(s) => vec![s.as_str().to_string()],
+        SequenceLike::Object(_) => {
+            return Err(args.invalid("input", "Must be a List or String, but was an Object"));
+        }
+    };
+    let compiled = compile_regex(regex.as_str(), false)?;
+    let groups = compiled.captures_len() - 1;
+    let text_of = |m: Option<fancy_regex::Match<'_>>| m.map_or(Value::Null, |m| Value::str(m.as_str()));
+    let mut found = vec![];
+    for text in &texts {
+        for captures in compiled.captures_iter(text) {
+            let captures = captures.map_err(regex_runtime_error)?;
+            found.push(match groups {
+                0 => text_of(captures.get(0)),
+                1 => text_of(captures.get(1)),
+                _ => Value::list((1..=groups).map(|i| text_of(captures.get(i))).collect()),
+            });
+        }
+    }
+    Ok(Value::list(found))
+}
+
 /// The regex for a pattern: anchored to the whole line, each `{name}` a lazy named group, `{_}` a lazy
 /// unnamed match, each run of whitespace `\s+`, and anything else literal
 fn pattern_regex(pattern: &str) -> R<String> {
@@ -119,6 +167,20 @@ fn field(s: &str) -> Option<&str> {
     let valid = name.chars().next().is_some_and(|c| c.is_alphabetic() || c == '_')
         && name.chars().all(|c| c.is_alphanumeric() || c == '_');
     valid.then_some(name)
+}
+
+/// A list of strings, or of lists of strings if the regex (if it's known) has more than one group
+fn infer_scan(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    let bound = args.bind(params);
+    let groups = match bound.value(params, "regex") {
+        Some(Value::Str(regex)) => compile_regex(regex.as_str(), false).ok().map(|r| r.captures_len() - 1),
+        _ => None,
+    };
+    Some(Type::seq(match groups {
+        Some(groups) if groups > 1 => Type::seq(Type::STRING),
+        Some(_) => Type::STRING,
+        None => Type::ANY,
+    }))
 }
 
 /// A list of objects with a string field for each name in the pattern, if it's known

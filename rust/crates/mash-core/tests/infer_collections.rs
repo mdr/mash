@@ -120,6 +120,8 @@ fn inference() {
         ("[1, 2] | counts", "core.Object"),
         ("['a=1'] | parse '{k}={v}'", "[{k: core.String, v: core.String}]"),
         ("'a=1' | parse -r '(?<k>\\w)='", "[{k: core.String}]"),
+        ("'a1'.scan '\\d'", "[core.String]"),
+        ("'a=1'.scan '(\\w)=(\\d)'", "[[core.String]]"),
         ("[1, 2].counts --groups", "[{key: core.Number, count: core.Number}]"),
         (
             "'abc'.counts --groups | first | .key",

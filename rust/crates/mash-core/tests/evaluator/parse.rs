@@ -1,4 +1,5 @@
-//! `parse`, new in the Rust port: lines of text into objects, by a pattern (as Nushell's `parse`) or a regex.
+//! `parse` and `scan`, new in the Rust port: lines of text into objects, by a pattern (as Nushell's `parse`) or a
+//! regex; and every match of a regex (as Python's `re.findall`).
 
 use crate::harness::*;
 
@@ -47,6 +48,20 @@ pub(crate) const CASES: &[Case] = &[
     ),
     Case::throws(r#"'x' | parse --regex '\w'"#),
     Case::throws(r#"'x' | parse --regex '(?<x'"#),
+    // scan: the text matched, one group's value, or several groups' values
+    Case::eq(r#"'disk 81%, swap 12%'.scan '\d+'"#, r#"['81', '12']"#),
+    Case::eq(r#"'id=1 id=22'.scan 'id=(\d+)'"#, r#"['1', '22']"#),
+    Case::eq(r#"'id=1 id=22'.scan 'id=(?<n>\d+)'"#, r#"['1', '22']"#),
+    Case::eq(r#"'a=1 b=2'.scan '(\w)=(\d)'"#, r#"[['a', '1'], ['b', '2']]"#),
+    Case::eq(r#"'a=1 b'.scan '(\w)(?:=(\d))?'"#, r#"[['a', '1'], ['b', null]]"#),
+    Case::eq(r#"'none'.scan '\d'"#, r#"[]"#),
+    Case::eq(r#"'AbC'.scan '(?i)[a-c]'"#, r#"['A', 'b', 'C']"#),
+    // As a function; a list item by item
+    Case::eq(r#"scan '\d+' 'a1 b22'"#, r#"['1', '22']"#),
+    Case::eq(r#"['a1', 'b22 c3'] | scan '\d+'"#, r#"['1', '22', '3']"#),
+    Case::eq(r#"'a1`nb2' | scan '^\w'"#, r#"['a']"#),
+    Case::throws(r#"'x'.scan '('"#),
+    Case::throws(r#"{ a: 1 } | scan 'a'"#),
 ];
 
 #[test]
