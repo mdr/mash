@@ -122,6 +122,21 @@ pub(crate) const CASES: &[Case] = &[
     Case::eq(r#"a = 0; ((@lazy block) => { block; block }) (a += 1); a"#, r#"2"#),
     Case::eq(r#"def foo n = n += _; f = foo 1; f 2; f 3"#, r#"6"#),
     Case::eq(r#"[1, 2, 3] | maths.stats | .mean"#, r#"2"#),
+    // New: maths.percentile, interpolating linearly (as numpy's default and Miller's stats1 -i)
+    Case::eq(
+        r#"maths.percentile [0, 25, 50, 100] [100, 3, 1, 4, 2]"#,
+        r#"[1, 2, 3, 100]"#,
+    ),
+    Case::eq(r#"maths.percentile 90 [1, 2, 3, 4, 100] | .round 1"#, r#"61.6"#),
+    Case::eq(
+        r#"maths.percentile 50 [4, 1, 3, 2] == (maths.stats [4, 1, 3, 2]).median"#,
+        r#"true"#,
+    ),
+    Case::eq(r#"maths.percentile 99 [7]"#, r#"7"#),
+    Case::eq(r#"maths.percentile 50 []"#, r#"null"#),
+    Case::throws(r#"maths.percentile 101 [1]"#),
+    Case::throws(r#"maths.percentile (0 - 1) [1]"#),
+    Case::throws(r#"maths.percentile 50 ['a']"#),
     Case::eq(r#"maths.log 1000 --base=10"#, r#"3"#),
     Case::eq(r#"x = 0; 42 | tap (x = _) | [x, _]"#, r#"[42, 42]"#),
     Case::eq(r#"def foo (n = 0) = n * 2; foo -2"#, r#"-4"#),

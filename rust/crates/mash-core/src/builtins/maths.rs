@@ -9,7 +9,8 @@ use crate::eval::R;
 use crate::function::{Args, BuiltinFunction};
 use crate::value::{BuiltinClass, ClassRef, Field, Number, Object, Value};
 
-pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LogFunction, &SquareRootFunction, &StatsFunction];
+pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] =
+    &[&LogFunction, &PercentileOfFunction, &SquareRootFunction, &StatsFunction];
 
 static STATS_NEW: FieldsConstructor =
     FieldsConstructor::new("maths.Stats", &STATS_CLASS, "Construct a new Stats object");
@@ -76,7 +77,66 @@ pub fn square_root(#[param("Number to take the square root of")] n: f64) -> R<f6
 /// Compute standard statistics (mean, standard deviation etc) on a collection of numbers
 #[builtin(namespace = "maths", returns = crate::infer::Type::Instance(&STATS_CLASS))]
 pub fn stats(args: &Args, #[param("Sequence of numbers on which to compute statistics")] sequence: Value) -> R<Object> {
-    let Value::List(xs) = &sequence else {
+    let numbers = numbers_of(args, &sequence)?;
+    let stats = Stats::of(&numbers);
+    let object = Object::with_class(Some(ClassRef::Builtin(&STATS_CLASS)));
+    let number = |n: f64| Value::Number(Number::new(n), None);
+    object.set_str("min", number(stats.min));
+    object.set_str("max", number(stats.max));
+    object.set_str("mean", number(stats.mean));
+    object.set_str("standardDeviation", number(stats.standard_deviation));
+    object.set_str("median", number(stats.median));
+    object.set_str("count", Value::num(numbers.len()));
+    Ok(object)
+}
+
+/// Calculate a percentile of a collection of numbers: the value below which that percentage of them lie
+///
+/// The percentile is from 0 to 100; given a list of them, a list of results is returned. Values between data
+/// points are interpolated linearly (as numpy's percentile does by default, and Excel's PERCENTILE.INC), so the
+/// 50th percentile is the median that stats gives. With no numbers, the result is null.
+///
+/// Examples:
+/// <mash>
+///   maths.percentile 90 [1, 2, 3, 4, 100]               # 61.6
+///   maths.percentile [50, 95, 99] (requests.map (.ms))
+/// </mash>
+#[builtin(namespace = "maths", name = "percentile", returns = Type::ANY)]
+pub fn percentile_of(
+    args: &Args,
+    #[param("Percentile to calculate, from 0 to 100, or a list of them")] percentile: Value,
+    #[param("Sequence of numbers")] sequence: Value,
+) -> R<Value> {
+    let mut numbers = numbers_of(args, &sequence)?;
+    numbers.sort_by(f64::total_cmp);
+    let at = |p: &Value| -> R<Value> {
+        let p = match p {
+            Value::Number(p, _) if (0.0..=100.0).contains(&p.as_f64()) => p.as_f64(),
+            other => {
+                return Err(args.invalid(
+                    "percentile",
+                    &format!("Must be a number from 0 to 100, but was {}", crate::eval::render(other)),
+                ));
+            }
+        };
+        Ok(match numbers.as_slice() {
+            [] => Value::Null,
+            numbers => {
+                let rank = p / 100.0 * (numbers.len() - 1) as f64;
+                let (below, above) = (numbers[rank.floor() as usize], numbers[rank.ceil() as usize]);
+                Value::num(below + (rank - rank.floor()) * (above - below))
+            }
+        })
+    };
+    match &percentile {
+        Value::List(ps) => Ok(Value::list(ps.snapshot().iter().map(at).collect::<R<_>>()?)),
+        p => at(p),
+    }
+}
+
+/// The numbers of a list (an error for anything else)
+fn numbers_of(args: &Args, sequence: &Value) -> R<Vec<f64>> {
+    let Value::List(xs) = sequence else {
         return Err(args.invalid(
             "sequence",
             &format!("Invalid sequence of type {}", sequence.type_name()),
@@ -89,16 +149,7 @@ pub fn stats(args: &Args, #[param("Sequence of numbers on which to compute stati
             other => return Err(args.invalid("sequence", &format!("Invalid item of type {}", other.type_name()))),
         }
     }
-    let stats = Stats::of(&numbers);
-    let object = Object::with_class(Some(ClassRef::Builtin(&STATS_CLASS)));
-    let number = |n: f64| Value::Number(Number::new(n), None);
-    object.set_str("min", number(stats.min));
-    object.set_str("max", number(stats.max));
-    object.set_str("mean", number(stats.mean));
-    object.set_str("standardDeviation", number(stats.standard_deviation));
-    object.set_str("median", number(stats.median));
-    object.set_str("count", Value::num(numbers.len()));
-    Ok(object)
+    Ok(numbers)
 }
 
 /// Descriptive statistics, as computed by Apache Commons Math's `DescriptiveStatistics` (which Scala Mash
