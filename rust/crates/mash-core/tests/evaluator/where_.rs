@@ -53,6 +53,21 @@ pub(crate) const CASES: &[Case] = &[
         r#"{ apple: 1, bob: 2, aardvark: 3 }.whereNot (f v i => i == 1)"#,
         r#"{ apple: 1, aardvark: 3 }"#,
     ),
+    // New: whereNotNull leaves out nulls (only nulls), or elements whose field or value is null or missing
+    Case::eq(r#"whereNotNull [1, null, 3, 0, false, '']"#, r#"[1, 3, 0, false, '']"#),
+    Case::eq(
+        r#"[{ e: 'a' }, { e: null }, { x: 1 }] | whereNotNull 'e'"#,
+        r#"[{ e: 'a' }]"#,
+    ),
+    Case::eq(
+        r#"[{ c: { a: 1 } }, { c: { a: null } }] | whereNotNull (.c.a)"#,
+        r#"[{ c: { a: 1 } }]"#,
+    ),
+    Case::eq(r#"[1, null].whereNotNull"#, r#"[1]"#),
+    Case::eq(r#"[] | whereNotNull 'e'"#, r#"[]"#),
+    Case::throws(r#"[{ x: 1 }] | whereNotNull (.e)"#),
+    Case::throws(r#"'abc' | whereNotNull"#),
+    Case::throws(r#"[1] | whereNotNull 5"#),
 ];
 
 #[test]

@@ -87,6 +87,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &rename::UPDATE_METHOD,
         &sequences::WHERE_METHOD,
         &sequences::WHERE_NOT_METHOD,
+        &sequences::WHERE_NOT_NULL_METHOD,
         &list_methods::AppendMethod,
         &list_methods::CartesianProductMethod,
         &list_methods::InnerJoinMethod,

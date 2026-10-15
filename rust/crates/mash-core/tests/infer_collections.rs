@@ -131,6 +131,7 @@ fn inference() {
             "[{a: core.Any, b: core.String}]",
         ),
         ("[{ a: 'x' }] | default 'b' 0", "[{a: core.String, b: core.Any}]"),
+        ("[{ a: 'x' }] | whereNotNull 'a'", "[{a: core.String}]"),
         ("'a=1'.scan '(\\w)=(\\d)'", "[[core.String]]"),
         ("[1, 2].counts --groups", "[{key: core.Number, count: core.Number}]"),
         (

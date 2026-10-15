@@ -44,6 +44,7 @@ pub(crate) const SEQUENCE_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &UniqueFunction,
     &WhereFunction,
     &WhereNotFunction,
+    &WhereNotNullFunction,
     &ZipFunction,
 ];
 
@@ -84,6 +85,7 @@ methodise! {
     UNIQUE_METHOD = UniqueFunction("sequence");
     WHERE_METHOD = WhereFunction("sequence");
     WHERE_NOT_METHOD = WhereNotFunction("sequence");
+    WHERE_NOT_NULL_METHOD = WhereNotNullFunction("sequence");
 }
 
 // ------------------------------------------------------------------------------------------------ helpers
@@ -645,6 +647,55 @@ pub fn where_not(
     #[param("Sequence to find values in")] sequence: Value,
 ) -> R<Value> {
     filter(ctx, args, &predicate, &sequence, false)
+}
+
+/// Find all the elements in the sequence that aren't null, or whose given field or value isn't
+///
+/// With no argument, null elements are left out. With a field name, elements whose field is null are left
+/// out, and so are elements without the field (as rows of JSON often lack fields). With a function, elements
+/// for which it returns null are left out (it's called as it is, so a field it reads that an element lacks is
+/// an error: write `?.` or `.get` for those). Only null is left out: 0, false and empty strings are values.
+///
+/// Examples:
+/// <mash>
+///   whereNotNull [1, null, 3]                  # [1, 3]
+///   users | whereNotNull 'email'
+///   orders | whereNotNull (.customer?.address)
+/// </mash>
+#[builtin(namespace = "collections", name = "whereNotNull", infer = super::inference::infer_where_not_null)]
+pub fn where_not_null(
+    ctx: &mut Ctx,
+    args: &Args,
+    #[param("A field name, or a function of an element, whose value mustn't be null (default: the element)")]
+    attribute: Option<Value>,
+    #[param("Sequence to find values in")] sequence: Value,
+) -> R<Value> {
+    let items = match &sequence {
+        Value::List(xs) => xs.snapshot(),
+        other => {
+            return Err(args.invalid("sequence", &format!("Must be a List, but was a {}", other.type_name())));
+        }
+    };
+    let mut kept = vec![];
+    for item in items {
+        let value = match (&attribute, &item) {
+            (None, _) => item.clone(),
+            (Some(Value::Str(name)), Value::Object(o)) => o.get_str(name.as_str()).unwrap_or(Value::Null),
+            (Some(f @ (Value::Str(_) | Value::Function(_) | Value::Builtin(_) | Value::BoundMethod(_))), _) => {
+                ctx.call_values(f, vec![item.clone()])?
+            }
+            (Some(other), _) => {
+                return Err(args.invalid(
+                    "attribute",
+                    &format!("Must be a String or a Function, but was a {}", other.type_name()),
+                ));
+            }
+        };
+        if !value.is_null() {
+            kept.push(item);
+        }
+    }
+    Ok(Value::list(kept))
 }
 
 fn filter(ctx: &mut Ctx, args: &Args, predicate: &Callable, sequence: &Value, keep: bool) -> R<Value> {

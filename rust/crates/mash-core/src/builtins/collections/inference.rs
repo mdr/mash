@@ -164,6 +164,14 @@ fn filtered(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs, 
     }
 }
 
+/// `whereNotNull`: the same kind of list
+pub(crate) fn infer_where_not_null(_: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
+    match args.bind(params).ty(params, "sequence")? {
+        t @ Type::Seq(_) => Some(t),
+        _ => None,
+    }
+}
+
 pub(crate) fn infer_where(inferencer: &mut Inferencer<'_>, params: &Params, args: &TypedArgs) -> Option<Type> {
     filtered(inferencer, params, args, "predicate")
 }
