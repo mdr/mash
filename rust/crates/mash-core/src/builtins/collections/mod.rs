@@ -6,6 +6,7 @@ mod grouping;
 mod inference;
 mod list_methods;
 mod ordering;
+mod parse;
 mod select;
 mod seq_like;
 mod sequences;
@@ -29,7 +30,7 @@ pub use sequences::*;
 pub(crate) use transpose::TransposeFunction;
 pub(crate) use wrappers::{
     COUNT_BY_METHOD, COUNTS_METHOD, GROUP_BY_METHOD, LIST_STATIC_METHODS, MAX_BY_METHOD, MAX_METHOD, MIN_BY_METHOD,
-    MIN_METHOD, ORDERING_FUNCTIONS, SORT_BY_METHOD, SORT_METHOD,
+    MIN_METHOD, ORDERING_FUNCTIONS, PARSE_METHOD, SORT_BY_METHOD, SORT_METHOD,
 };
 
 pub(crate) const FUNCTIONS: &[&dyn BuiltinFunction] = &[&LengthFunction];
@@ -64,6 +65,7 @@ pub static LIST_CLASS: BuiltinClass = BuiltinClass {
         &wrappers::MIN_BY_METHOD,
         &wrappers::MIN_METHOD,
         &sequences::NON_EMPTY_METHOD,
+        &wrappers::PARSE_METHOD,
         &sequences::REDUCE_METHOD,
         &sequences::REVERSE_METHOD,
         &sequences::SKIP_METHOD,

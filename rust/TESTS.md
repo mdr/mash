@@ -27,7 +27,8 @@ Maps each Scala test file (`src/test/scala/com/github/mdr/mash/…`) to its Rust
 | — | `mash-core/tests/value_{leaks,keys,reentrancy}.rs` | new | From the values spike: cycles are collected, key semantics, no `RefCell` re-entrancy panics |
 | `evaluator/*Test` (44 files) | `mash-core/tests/evaluator/<name>.rs` | partial | 921 cases converted mechanically (counts checked per file); all pass. Cases needing later milestones go in their module's `DEFERRED` with the error they hit; a deferred case that starts passing fails the test, so the lists stay honest. `SemicolonInferenceTest` is a Scala `object` that ScalaTest never ran |
 | — | `mash-core/tests/evaluator/{strings_m3,time,namespaces,strings}.rs` | new | Regex and string semantics, time arithmetic/parsing/formatting, json/xml/maths/net, tilde expansion; checked against Scala Mash except where a comment marks a deliberate difference |
-| — | `mash-core/tests/evaluator/count_by.rs` | new | `countBy` (new in the port); stable descending sorts are in `sort.rs` |
+| — | `mash-core/tests/evaluator/count_by.rs` | new | `countBy` and `counts` (new in the port); stable descending sorts are in `sort.rs` |
+| — | `mash-core/tests/evaluator/parse.rs` | new | `parse` (new in the port): patterns, whitespace runs, lines left out, strings line by line, `--regex` |
 | — | `mash-core/tests/evaluator/core_builtins.rs` | new | 32 cases for core builtins the Scala tests don't cover (expected values checked against Scala Mash) |
 | — | `mash-core/tests/eval.rs` | new | Error locations and stack traces, depth limit, interrupts, `forever` and `watch` (plain output) until interrupted, `timeout` (sleeps, nesting, `try` inside and around, Ctrl-C), `retry` (pauses on the test clock, `--until`, with `timeout` inside and around), GC under evaluation |
 | — | `mash-cli/tests/cli.rs` | new | `mash -e`, scripts, `mash -c` via sh |

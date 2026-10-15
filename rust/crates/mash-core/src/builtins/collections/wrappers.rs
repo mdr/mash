@@ -4,6 +4,7 @@ use super::Methodised;
 use super::grouping::{CountByFunction, CountsFunction, GroupByFunction};
 use super::list_methods::ListNewFunction;
 use super::ordering::{MaxByFunction, MaxFunction, MinByFunction, MinFunction, SortByFunction, SortFunction};
+use super::parse::ParseFunction;
 use super::select::{DeselectFunction, SelectFunction};
 use super::transpose::TransposeFunction;
 use crate::function::BuiltinFunction;
@@ -17,6 +18,7 @@ pub(crate) const ORDERING_FUNCTIONS: &[&dyn BuiltinFunction] = &[
     &MaxFunction,
     &MinByFunction,
     &MinFunction,
+    &ParseFunction,
     &SelectFunction,
     &SortByFunction,
     &SortFunction,
@@ -30,6 +32,7 @@ pub(crate) static MAX_BY_METHOD: Methodised = Methodised::new(&MaxByFunction, "s
 pub(crate) static MAX_METHOD: Methodised = Methodised::new(&MaxFunction, "items", &[], false);
 pub(crate) static MIN_BY_METHOD: Methodised = Methodised::new(&MinByFunction, "sequence", &[], false);
 pub(crate) static MIN_METHOD: Methodised = Methodised::new(&MinFunction, "items", &[], false);
+pub(crate) static PARSE_METHOD: Methodised = Methodised::new(&ParseFunction, "input", &[], false);
 pub(crate) static SORT_BY_METHOD: Methodised = Methodised::new(&SortByFunction, "sequence", &[], false);
 pub(crate) static SORT_METHOD: Methodised = Methodised::new(&SortFunction, "sequence", &[], false);
 pub(crate) static TRANSPOSE_METHOD: Methodised = Methodised::new(&TransposeFunction, "sequence", &[], false);

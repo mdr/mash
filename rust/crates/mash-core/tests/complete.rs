@@ -348,6 +348,10 @@ const CASES: &[Case] = &[
     Case::contains(r#"ls | groupBy (.perm▶"#, r#"permissions"#),
     Case::contains(r#"ls | countBy (.perm▶"#, r#"permissions"#),
     Case::contains(r#"ls | countBy --groups (.extension) | sortBy (.co▶"#, r#"count"#),
+    Case::contains(
+        r#"!{git log --oneline} | parse '{hash} {subject}' | map (.sub▶"#,
+        r#"subject"#,
+    ),
     // New: the file functions of the data namespaces complete files; members of http responses and hosts
     Case::files(
         &[r#"/file.txt"#],

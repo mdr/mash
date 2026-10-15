@@ -37,6 +37,7 @@ mod number_methods;
 mod object_arithmetic;
 mod object_literal;
 mod object_methods;
+mod parse;
 mod patterns;
 mod private_methods;
 mod safe_member;
